@@ -29,7 +29,7 @@ const toThapThan = (han) => THAP_THAN[han] || han;
 
 class BaziAnalyzer {
     constructor() {
-        const rulesPath = path.join(__dirname, '../../../data/rules.json');
+        const rulesPath = path.join(__dirname, '../data/rules.json');
         this.rules = JSON.parse(fs.readFileSync(rulesPath, 'utf8'));
     }
 
