@@ -1,0 +1,162 @@
+[
+  {
+    "term": "Phụ Mẫu",
+    "category": "Lục Thân",
+    "short": "Đại diện cha mẹ, bề trên, giấy tờ, hợp đồng, nhà cửa, xe cộ, sự che chở, học hành."
+  },
+  {
+    "term": "Huynh Đệ",
+    "category": "Lục Thân",
+    "short": "Đại diện anh em, bạn bè, đồng nghiệp, đối thủ cạnh tranh, sự hao tài tốn của."
+  },
+  {
+    "term": "Tử Tôn",
+    "category": "Lục Thân",
+    "short": "Đại diện con cái, thế hệ sau, niềm vui, thuốc men, phúc thần giải trừ tai họa."
+  },
+  {
+    "term": "Thê Tài",
+    "category": "Lục Thân",
+    "short": "Đại diện tiền bạc, tài sản, vợ, người tình, thức ăn, vật giá."
+  },
+  {
+    "term": "Quan Quỷ",
+    "category": "Lục Thân",
+    "short": "Đại diện công danh, sếp, chồng, quan tòa, kẻ trộm, bệnh tật, lo âu, rắc rối."
+  },
+  {
+    "term": "Thanh Long",
+    "category": "Lục Thú",
+    "short": "Chủ về hỷ sự, vui vẻ, may mắn, thanh cao, sinh nở, rượu thịt."
+  },
+  {
+    "term": "Chu Tước",
+    "category": "Lục Thú",
+    "short": "Chủ về ăn nói, văn thư, cãi vã, thị phi, kiện tụng, hỏa hoạn."
+  },
+  {
+    "term": "Câu Trần",
+    "category": "Lục Thú",
+    "short": "Chủ về sự chậm chạp, trì trệ, ruộng đất, bất động sản, sự trói buộc."
+  },
+  {
+    "term": "Đằng Xà",
+    "category": "Lục Thú",
+    "short": "Chủ về sự lo âu, kinh sợ, quái dị, lắt léo, xảo trá, mộng mị."
+  },
+  {
+    "term": "Bạch Hổ",
+    "category": "Lục Thú",
+    "short": "Chủ về máu huyết, tai nạn, tang thương, hung dữ, uy quyền, bệnh tật nặng."
+  },
+  {
+    "term": "Huyền Vũ",
+    "category": "Lục Thú",
+    "short": "Chủ về sự tối tăm, lén lút, trộm cắp, mờ ám, tà dâm, mất mát."
+  },
+  {
+    "term": "Hào 1",
+    "category": "Hào Vị",
+    "short": "Vị trí thấp nhất. Cơ thể: Bàn chân. Xã hội: Dân đen. Sự việc: Bắt đầu."
+  },
+  {
+    "term": "Hào 2",
+    "category": "Hào Vị",
+    "short": "Cơ thể: Bắp chân, đầu gối. Xã hội: Cấp dưới, nhân viên. Trạch: Sàn nhà."
+  },
+  {
+    "term": "Hào 3",
+    "category": "Hào Vị",
+    "short": "Cơ thể: Đùi, bụng dưới. Xã hội: Quản lý cấp trung. Vị trí nguy hiểm."
+  },
+  {
+    "term": "Hào 4",
+    "category": "Hào Vị",
+    "short": "Cơ thể: Ngực, sườn. Xã hội: Đại thần. Vị trí gần bậc chí tôn, hay lo sợ."
+  },
+  {
+    "term": "Hào 5",
+    "category": "Hào Vị",
+    "short": "Cơ thể: Ngũ quan. Xã hội: Vua, giám đốc. Vị trí chí tôn, trung chính."
+  },
+  {
+    "term": "Hào 6",
+    "category": "Hào Vị",
+    "short": "Cơ thể: Đầu, tóc. Xã hội: Thái thượng hoàng. Sự việc: Kết thúc, thoái trào."
+  },
+  {
+    "term": "Vượng",
+    "category": "Vượng Suy",
+    "short": "Mạnh nhất. Ngũ hành của hào giống ngũ hành Nguyệt/Nhật."
+  },
+  {
+    "term": "Tướng",
+    "category": "Vượng Suy",
+    "short": "Đang phát triển. Ngũ hành Nguyệt/Nhật sinh cho ngũ hành của hào."
+  },
+  {
+    "term": "Hưu",
+    "category": "Vượng Suy",
+    "short": "Nghỉ ngơi. Ngũ hành của hào sinh ra ngũ hành Nguyệt/Nhật."
+  },
+  {
+    "term": "Tù",
+    "category": "Vượng Suy",
+    "short": "Bị giam hãm. Ngũ hành của hào khắc ngũ hành Nguyệt/Nhật."
+  },
+  {
+    "term": "Tử",
+    "category": "Vượng Suy",
+    "short": "Yếu nhất, không có lực. Ngũ hành của hào bị Nguyệt/Nhật khắc."
+  },
+  {
+    "term": "Nguyệt Lệnh",
+    "category": "Thời Gian",
+    "short": "Tháng gieo quẻ. Gốc rễ vượng suy, quyết định sức mạnh các hào."
+  },
+  {
+    "term": "Nhật Thần",
+    "category": "Thời Gian",
+    "short": "Ngày gieo quẻ. Chủ tể, có quyền sinh sát, hóa giải mọi hào."
+  },
+  {
+    "term": "Tuần Không",
+    "category": "Thời Gian",
+    "short": "Trạng thái trống rỗng. 2 Địa Chi không được xếp Can trong tuần 10 ngày."
+  },
+  {
+    "term": "Lộc Thần",
+    "category": "Thần Sát",
+    "short": "Sao tốt chủ về bổng lộc, tiền tài, lương thưởng, sự no đủ."
+  },
+  {
+    "term": "Dịch Mã",
+    "category": "Thần Sát",
+    "short": "Chủ di chuyển, thay đổi chỗ ở, đi lại, sự việc diễn ra nhanh chóng."
+  },
+  {
+    "term": "Quý Nhân",
+    "category": "Thần Sát",
+    "short": "Chủ sự giúp đỡ từ người khác, tai qua nạn khỏi, gặp hung hóa cát."
+  },
+  {
+    "term": "Đào Hoa",
+    "category": "Thần Sát",
+    "short": "Chủ tình duyên, sắc đẹp, sự hấp dẫn. Nếu hung thì là tửu sắc, ngoại tình."
+  },
+  {
+    "term": "Hào Thế",
+    "category": "Trạng Thái",
+    "short": "Đại diện bản thân người gieo quẻ, phe mình, chủ thể sự việc."
+  },
+  {
+    "term": "Hào Ứng",
+    "category": "Trạng Thái",
+    "short": "Đại diện đối phương, môi trường, khách thể hoặc sự việc hướng tới."
+  },
+  {
+    "term": "Phục Thần",
+    "category": "Trạng Thái",
+    "short": "Hào bị ẩn. Phải mượn hào từ quẻ gốc nếu quẻ chính khuyết Lục Thân cần tìm."
+  }
+]
