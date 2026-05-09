@@ -438,7 +438,7 @@
     "line_type": 0,
     "stem_branch": "Mùi",
     "element": "Thổ",
-    "relative": "Quan Quỷ",
+    "relative": "Huynh Đệ",
     "is_host": 0,
     "is_guest": 0,
     "hidden_spirit": ""
@@ -450,7 +450,7 @@
     "line_type": 0,
     "stem_branch": "Tị",
     "element": "Hỏa",
-    "relative": "Thê Tài",
+    "relative": "Phụ Mẫu",
     "is_host": 0,
     "is_guest": 0,
     "hidden_spirit": ""
@@ -462,7 +462,7 @@
     "line_type": 0,
     "stem_branch": "Mão",
     "element": "Mộc",
-    "relative": "Tử Tôn",
+    "relative": "Quan Quỷ",
     "is_host": 1,
     "is_guest": 0,
     "hidden_spirit": ""
@@ -474,7 +474,7 @@
     "line_type": 0,
     "stem_branch": "Thân",
     "element": "Kim",
-    "relative": "Phụ Mẫu",
+    "relative": "Tử Tôn",
     "is_host": 0,
     "is_guest": 0,
     "hidden_spirit": ""
@@ -486,7 +486,7 @@
     "line_type": 1,
     "stem_branch": "Tuất",
     "element": "Thổ",
-    "relative": "Quan Quỷ",
+    "relative": "Huynh Đệ",
     "is_host": 0,
     "is_guest": 0,
     "hidden_spirit": ""
@@ -498,7 +498,7 @@
     "line_type": 0,
     "stem_branch": "Tý",
     "element": "Thủy",
-    "relative": "Huynh Đệ",
+    "relative": "Thê Tài",
     "is_host": 0,
     "is_guest": 1,
     "hidden_spirit": ""
@@ -510,7 +510,7 @@
     "line_type": 0,
     "stem_branch": "Dần",
     "element": "Mộc",
-    "relative": "Quan Quỷ",
+    "relative": "Tử Tôn",
     "is_host": 0,
     "is_guest": 0,
     "hidden_spirit": ""
@@ -522,7 +522,7 @@
     "line_type": 1,
     "stem_branch": "Thìn",
     "element": "Thổ",
-    "relative": "Huynh Đệ",
+    "relative": "Quan Quỷ",
     "is_host": 0,
     "is_guest": 0,
     "hidden_spirit": ""
@@ -534,7 +534,7 @@
     "line_type": 0,
     "stem_branch": "Ngọ",
     "element": "Hỏa",
-    "relative": "Phụ Mẫu",
+    "relative": "Thê Tài",
     "is_host": 1,
     "is_guest": 0,
     "hidden_spirit": ""
@@ -546,7 +546,7 @@
     "line_type": 0,
     "stem_branch": "Sửu",
     "element": "Thổ",
-    "relative": "Huynh Đệ",
+    "relative": "Quan Quỷ",
     "is_host": 0,
     "is_guest": 0,
     "hidden_spirit": ""
@@ -558,7 +558,7 @@
     "line_type": 0,
     "stem_branch": "Hợi",
     "element": "Thủy",
-    "relative": "Thê Tài",
+    "relative": "Huynh Đệ",
     "is_host": 0,
     "is_guest": 0,
     "hidden_spirit": ""
@@ -570,7 +570,7 @@
     "line_type": 0,
     "stem_branch": "Dậu",
     "element": "Kim",
-    "relative": "Tử Tôn",
+    "relative": "Phụ Mẫu",
     "is_host": 0,
     "is_guest": 1,
     "hidden_spirit": ""
@@ -870,7 +870,7 @@
     "line_type": 1,
     "stem_branch": "Tý",
     "element": "Thủy",
-    "relative": "Quan Quỷ",
+    "relative": "Tử Tôn",
     "is_host": 0,
     "is_guest": 0,
     "hidden_spirit": ""
@@ -882,7 +882,7 @@
     "line_type": 1,
     "stem_branch": "Dần",
     "element": "Mộc",
-    "relative": "Phụ Mẫu",
+    "relative": "Thê Tài",
     "is_host": 0,
     "is_guest": 0,
     "hidden_spirit": ""
@@ -894,7 +894,7 @@
     "line_type": 1,
     "stem_branch": "Thìn",
     "element": "Thổ",
-    "relative": "Tử Tôn",
+    "relative": "Phụ Mẫu",
     "is_host": 1,
     "is_guest": 0,
     "hidden_spirit": ""
@@ -906,7 +906,7 @@
     "line_type": 1,
     "stem_branch": "Dậu",
     "element": "Kim",
-    "relative": "Thê Tài",
+    "relative": "Huynh Đệ",
     "is_host": 0,
     "is_guest": 0,
     "hidden_spirit": ""
@@ -918,7 +918,7 @@
     "line_type": 0,
     "stem_branch": "Mùi",
     "element": "Thổ",
-    "relative": "Tử Tôn",
+    "relative": "Phụ Mẫu",
     "is_host": 0,
     "is_guest": 0,
     "hidden_spirit": ""
@@ -930,7 +930,7 @@
     "line_type": 1,
     "stem_branch": "Tị",
     "element": "Hỏa",
-    "relative": "Huynh Đệ",
+    "relative": "Quan Quỷ",
     "is_host": 0,
     "is_guest": 1,
     "hidden_spirit": ""
@@ -942,7 +942,7 @@
     "line_type": 1,
     "stem_branch": "Mão",
     "element": "Mộc",
-    "relative": "Thê Tài",
+    "relative": "Phụ Mẫu",
     "is_host": 0,
     "is_guest": 0,
     "hidden_spirit": ""
@@ -954,7 +954,7 @@
     "line_type": 0,
     "stem_branch": "Sửu",
     "element": "Thổ",
-    "relative": "Phụ Mẫu",
+    "relative": "Tử Tôn",
     "is_host": 0,
     "is_guest": 0,
     "hidden_spirit": ""
@@ -966,7 +966,7 @@
     "line_type": 1,
     "stem_branch": "Hợi",
     "element": "Thủy",
-    "relative": "Tử Tôn",
+    "relative": "Quan Quỷ",
     "is_host": 1,
     "is_guest": 0,
     "hidden_spirit": ""
@@ -978,7 +978,7 @@
     "line_type": 1,
     "stem_branch": "Ngọ",
     "element": "Hỏa",
-    "relative": "Quan Quỷ",
+    "relative": "Huynh Đệ",
     "is_host": 0,
     "is_guest": 0,
     "hidden_spirit": ""
@@ -990,7 +990,7 @@
     "line_type": 1,
     "stem_branch": "Thân",
     "element": "Kim",
-    "relative": "Huynh Đệ",
+    "relative": "Thê Tài",
     "is_host": 0,
     "is_guest": 0,
     "hidden_spirit": ""
@@ -1002,7 +1002,7 @@
     "line_type": 1,
     "stem_branch": "Tuất",
     "element": "Thổ",
-    "relative": "Phụ Mẫu",
+    "relative": "Tử Tôn",
     "is_host": 0,
     "is_guest": 1,
     "hidden_spirit": ""
@@ -2265,7 +2265,7 @@
     "relative": "Thê Tài",
     "is_host": 1,
     "is_guest": 0,
-    "hidden_spirit": ""
+    "hidden_spirit": "Quan Quỷ"
   },
   {
     "id": 190,
@@ -2289,7 +2289,7 @@
     "relative": "Tử Tôn",
     "is_host": 0,
     "is_guest": 0,
-    "hidden_spirit": "Quan Quỷ"
+    "hidden_spirit": ""
   },
   {
     "id": 192,
