@@ -56,6 +56,35 @@ const stemMapping = {
     "110": { inner: "Đinh", outer: "Đinh" }
 };
 
+const ZHI_ARRAY = ["Tý", "Sửu", "Dần", "Mão", "Thìn", "Tị", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"];
+const TRUONG_SINH_STATES = ["Trường Sinh", "Mộc Dục", "Quan Đới", "Lâm Quan", "Đế Vượng", "Suy", "Bệnh", "Tử", "Mộ", "Tuyệt", "Thai", "Dưỡng"];
+
+const getVuongSuy = (element, monthBranch) => {
+    const monthElement = getElement(monthBranch);
+    if (element === monthElement) return "Vượng";
+    const sinh = { "Kim": "Thủy", "Thủy": "Mộc", "Mộc": "Hỏa", "Hỏa": "Thổ", "Thổ": "Kim" };
+    const khac = { "Kim": "Mộc", "Mộc": "Thổ", "Thổ": "Thủy", "Thủy": "Hỏa", "Hỏa": "Kim" };
+    
+    if (sinh[monthElement] === element) return "Tướng";
+    if (sinh[element] === monthElement) return "Hưu";
+    if (khac[monthElement] === element) return "Tử";
+    if (khac[element] === monthElement) return "Tù";
+    return "";
+};
+
+const getTruongSinh = (element, branch) => {
+    let startIdx = 0;
+    if (element === "Mộc") startIdx = 11; // Hợi
+    else if (element === "Hỏa") startIdx = 2; // Dần
+    else if (element === "Kim") startIdx = 5; // Tị
+    else if (element === "Thủy" || element === "Thổ") startIdx = 8; // Thân
+    
+    const branchIdx = ZHI_ARRAY.indexOf(branch);
+    if (branchIdx === -1) return "";
+    const offset = (branchIdx - startIdx + 12) % 12;
+    return TRUONG_SINH_STATES[offset];
+};
+
 class DivinationController {
     static async calculate(req, res) {
         try {
@@ -67,8 +96,11 @@ class DivinationController {
             const primaryBinaryStr = lines.map(l => l.type).join('');
             const secondaryBinaryStr = lines.map(l => l.moving ? (1 - l.type) : l.type).join('');
 
-            let primaryHexagram = hexagramsData.find(h => h.binary_code === primaryBinaryStr) || { name: 'Quẻ ' + primaryBinaryStr, palace: 'Chưa Rõ', palace_element: 'Chưa Rõ', binary_code: primaryBinaryStr };
-            let secondaryHexagram = hexagramsData.find(h => h.binary_code === secondaryBinaryStr) || { name: 'Quẻ ' + secondaryBinaryStr, palace: 'Chưa Rõ', palace_element: 'Chưa Rõ', binary_code: secondaryBinaryStr };
+            const lookupPrimaryStr = primaryBinaryStr.split('').reverse().join('');
+            const lookupSecondaryStr = secondaryBinaryStr.split('').reverse().join('');
+
+            let primaryHexagram = hexagramsData.find(h => h.binary_code === lookupPrimaryStr) || { name: 'Quẻ ' + lookupPrimaryStr, palace: 'Chưa Rõ', palace_element: 'Chưa Rõ', binary_code: lookupPrimaryStr };
+            let secondaryHexagram = hexagramsData.find(h => h.binary_code === lookupSecondaryStr) || { name: 'Quẻ ' + lookupSecondaryStr, palace: 'Chưa Rõ', palace_element: 'Chưa Rõ', binary_code: lookupSecondaryStr };
 
             let primaryHexLines = [];
             let secondaryHexLines = [];
@@ -96,6 +128,28 @@ class DivinationController {
             const tkStrRaw = lunar.getDayXunKong(); // e.g. "戌亥"
             const tkStr = toVietnamese(tkStrRaw);
 
+            const getPureBranch = (canChiStr) => {
+                const parts = canChiStr.trim().split(' ');
+                return parts.length >= 2 ? parts[parts.length - 1] : canChiStr;
+            };
+            const pureDayBranch = getPureBranch(dayBranch);
+            const pureMonthBranch = getPureBranch(monthBranch);
+
+            const getQtBranch = (hexLines, binStr) => {
+                const hostLine = hexLines.find(l => l.is_host === 1);
+                if (!hostLine) return "";
+                const isYang = binStr[hostLine.line_index - 1] === '1';
+                const baseIdx = isYang ? 0 : 6; // 0: Tý, 6: Ngọ
+                const qtIdx = (baseIdx + hostLine.line_index - 1) % 12;
+                return ZHI_ARRAY[qtIdx];
+            };
+
+            const primaryQtBranch = getQtBranch(primaryHexLines, primaryBinaryStr);
+            const secondaryQtBranch = secondaryHexLines.length ? getQtBranch(secondaryHexLines, secondaryBinaryStr) : "";
+
+            primaryHexagram.quai_than = primaryQtBranch;
+            secondaryHexagram.quai_than = secondaryQtBranch;
+
             const lucThuMap = {
                 'Giáp': ['Thanh Long', 'Chu Tước', 'Câu Trần', 'Đằng Xà', 'Bạch Hổ', 'Huyền Vũ'],
                 'Ất':   ['Thanh Long', 'Chu Tước', 'Câu Trần', 'Đằng Xà', 'Bạch Hổ', 'Huyền Vũ'],
@@ -111,7 +165,7 @@ class DivinationController {
             const lucThuArray = lucThuMap[dayGan] || lucThuMap['Giáp'];
 
             // Function to generate full Can Chi for a line
-            const processLine = (line, idx, binaryStr, isSecondary) => {
+            const processLine = (line, idx, binaryStr, isSecondary, qtBranch) => {
                 if (!line.stem_branch) return line; // Fallback
                 const branch = line.stem_branch;
                 const innerTri = binaryStr.substring(0,3);
@@ -140,12 +194,16 @@ class DivinationController {
                     relative: rel,
                     luc_thu: lucThuArray[idx],
                     tk: isTK,
-                    moving: lines[idx].moving
+                    moving: lines[idx].moving,
+                    vuong_suy: getVuongSuy(elem, pureMonthBranch),
+                    ts_ngay: getTruongSinh(elem, pureDayBranch),
+                    ts_thang: getTruongSinh(elem, pureMonthBranch),
+                    qt: branch === qtBranch ? "Quái Thân" : ""
                 };
             };
 
-            const procPrimary = primaryHexLines.map((l, i) => processLine(l, i, primaryBinaryStr, false));
-            const procSecondary = secondaryHexLines.map((l, i) => processLine(l, i, secondaryBinaryStr, true));
+            const procPrimary = primaryHexLines.map((l, i) => processLine(l, i, primaryBinaryStr, false, primaryQtBranch));
+            const procSecondary = secondaryHexLines.map((l, i) => processLine(l, i, secondaryBinaryStr, true, secondaryQtBranch));
 
             return res.json({
                 primary: primaryHexagram,

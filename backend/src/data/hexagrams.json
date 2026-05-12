@@ -30,7 +30,7 @@
   {"id":29,"binary_code":"010010","name":"Thuần Khảm","palace":"Khảm","palace_element":"Thủy"},
   {"id":30,"binary_code":"101101","name":"Thuần Ly","palace":"Ly","palace_element":"Hỏa"},
   {"id":31,"binary_code":"011100","name":"Trạch Sơn Hàm","palace":"Đoài","palace_element":"Kim"},
-  {"id":32,"binary_code":"110001","name":"Phong Lôi Hằng","palace":"Tốn","palace_element":"Mộc"},
+  {"id":32,"binary_code":"001110","name":"Lôi Phong Hằng","palace":"Chấn","palace_element":"Mộc"},
   {"id":33,"binary_code":"111100","name":"Thiên Sơn Độn","palace":"Càn","palace_element":"Kim"},
   {"id":34,"binary_code":"001111","name":"Lôi Thiên Đại Tráng","palace":"Khôn","palace_element":"Thổ"},
   {"id":35,"binary_code":"101000","name":"Hỏa Địa Tấn","palace":"Càn","palace_element":"Kim"},

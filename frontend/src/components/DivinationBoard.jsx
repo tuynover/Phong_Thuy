@@ -316,6 +316,103 @@ const DivinationBoard = ({ result }) => {
                 )}
             </div>
 
+            {/* VƯỢNG SUY CỦA HÀO */}
+            <div className="w-full pb-10">
+                <h3 className="text-xl font-bold text-gray-800 mb-6 uppercase tracking-wider border-b-2 border-red-800 pb-2 inline-block">Trạng Thái Vượng Suy Các Hào</h3>
+                
+                <div className="flex flex-col md:flex-row gap-6 md:gap-0">
+                    {/* QUẺ CHÍNH */}
+                    <div className="flex-1 flex flex-col md:pr-4">
+                        <div className="flex justify-end items-center mb-3">
+                            {primary.quai_than && <span className="bg-purple-100 text-purple-800 font-bold px-3 py-1 rounded-full text-sm border border-purple-200 shadow-sm">Quái Thân: {primary.quai_than}</span>}
+                        </div>
+                        <div className="border border-gray-200 rounded-xl bg-white shadow-sm overflow-hidden">
+                            <table className="w-full text-left text-sm border-collapse">
+                                <thead className="bg-slate-50 border-b border-gray-200 text-gray-600 text-[11px] font-bold uppercase tracking-wider">
+                                    <tr>
+                                        <th className="py-2.5 px-3 w-[40%]">Hào / Can Chi</th>
+                                        <th className="py-2.5 px-3 w-[20%]">Vượng Suy</th>
+                                        <th className="py-2.5 px-3 w-[20%]">TS Ngày</th>
+                                        <th className="py-2.5 px-3 w-[20%]">TS Tháng</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100">
+                                    {rows.map((row, idx) => {
+                                        const { pLine, index } = row;
+                                        const isVuongTuong = pLine.vuong_suy === 'Vượng' || pLine.vuong_suy === 'Tướng';
+                                        const vuongSuyColor = isVuongTuong ? 'text-red-600 bg-red-50' : 'text-gray-700';
+                                        
+                                        return (
+                                            <tr key={`p-${index}`} className="hover:bg-amber-50/50 transition-colors">
+                                                <td className="py-2.5 px-3 align-middle">
+                                                    <div className="flex items-center gap-2 flex-wrap">
+                                                        <span className={`font-semibold ${getColorClass(pLine.element)}`}>
+                                                            {pLine.stem_branch}
+                                                        </span>
+                                                        {pLine.qt && <span className="px-1.5 py-0.5 bg-purple-100 text-purple-800 text-[10px] font-bold rounded uppercase tracking-wider">QT</span>}
+                                                    </div>
+                                                </td>
+                                                <td className={`py-2.5 px-3 align-middle font-bold ${vuongSuyColor}`}>
+                                                    <span className={isVuongTuong ? 'px-2 py-0.5 rounded bg-white border border-red-100 shadow-sm' : ''}>{pLine.vuong_suy}</span>
+                                                </td>
+                                                <td className="py-2.5 px-3 align-middle text-blue-800 font-semibold">{pLine.ts_ngay}</td>
+                                                <td className="py-2.5 px-3 align-middle text-amber-700 font-semibold">{pLine.ts_thang}</td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    {/* QUẺ BIẾN */}
+                    {renderSecondarySide && (
+                        <div className="flex-1 flex flex-col border-t md:border-t-0 md:border-l-[1.5px] border-gray-300 pt-6 md:pt-0 md:pl-4">
+                            <div className="flex justify-end items-center mb-3">
+                                {secondary.quai_than && <span className="bg-purple-100 text-purple-800 font-bold px-3 py-1 rounded-full text-sm border border-purple-200 shadow-sm">Quái Thân: {secondary.quai_than}</span>}
+                            </div>
+                            <div className="border border-gray-200 rounded-xl bg-white shadow-sm overflow-hidden">
+                                <table className="w-full text-left text-sm border-collapse">
+                                    <thead className="bg-slate-50 border-b border-gray-200 text-gray-600 text-[11px] font-bold uppercase tracking-wider">
+                                        <tr>
+                                            <th className="py-2.5 px-3 w-[40%]">Hào / Can Chi</th>
+                                            <th className="py-2.5 px-3 w-[20%]">Vượng Suy</th>
+                                            <th className="py-2.5 px-3 w-[20%]">TS Ngày</th>
+                                            <th className="py-2.5 px-3 w-[20%]">TS Tháng</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-100">
+                                        {rows.map((row, idx) => {
+                                            const { sLine, index } = row;
+                                            const isVuongTuong = sLine.vuong_suy === 'Vượng' || sLine.vuong_suy === 'Tướng';
+                                            const vuongSuyColor = isVuongTuong ? 'text-red-600 bg-red-50' : 'text-gray-700';
+                                            
+                                            return (
+                                                <tr key={`s-${index}`} className="hover:bg-amber-50/50 transition-colors">
+                                                    <td className="py-2.5 px-3 align-middle">
+                                                        <div className="flex items-center gap-2 flex-wrap">
+                                                            <span className={`font-semibold ${getColorClass(sLine.element)}`}>
+                                                                {sLine.stem_branch}
+                                                            </span>
+                                                            {sLine.qt && <span className="px-1.5 py-0.5 bg-purple-100 text-purple-800 text-[10px] font-bold rounded uppercase tracking-wider">QT</span>}
+                                                        </div>
+                                                    </td>
+                                                    <td className={`py-2.5 px-3 align-middle font-bold ${vuongSuyColor}`}>
+                                                        <span className={isVuongTuong ? 'px-2 py-0.5 rounded bg-white border border-red-100 shadow-sm' : ''}>{sLine.vuong_suy}</span>
+                                                    </td>
+                                                    <td className="py-2.5 px-3 align-middle text-blue-800 font-semibold">{sLine.ts_ngay}</td>
+                                                    <td className="py-2.5 px-3 align-middle text-amber-700 font-semibold">{sLine.ts_thang}</td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+
             {/* HEXAGRAM DETAIL MODAL */}
             {selectedHex && (
                 <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[99999] flex justify-center items-center p-4">

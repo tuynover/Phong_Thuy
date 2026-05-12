@@ -566,4 +566,13 @@ export const hexagramDictionary = {
     "desc": "Sự Nghiệp: Cần nỗ lực đến cùng, chưa đến đích.\nTình Duyên: Chờ đợi thêm, chưa tới lúc chín muồi."
   },
 
+  "001110": {
+    "number": 32,
+    "name": "Lôi Phong Hằng",
+    "type": "Bình",
+    "summary": "Bền bỉ, lâu dài, kiên trì.",
+    "image": "Sấm gió cùng nổi lên, hỗ trợ nhau không ngừng.",
+    "desc": "Sự Nghiệp: Giữ vững lập trường, kiên trì sẽ thành công.\nTình Duyên: Thủy chung, bền chặt."
+  }
+
 };
