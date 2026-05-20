@@ -9,5 +9,6 @@ router.put('/bazi/:id/rate', HistoryController.rateBazi);
 router.put('/hexagrams/:id/link', HistoryController.linkHexagram);
 router.put('/bazi/:id/link', HistoryController.linkBazi);
 router.post('/hexagrams/:id/interpret', HistoryController.interpretHexagram);
+router.post('/bazi/:id/interpret', HistoryController.interpretBazi);
 
 module.exports = router;

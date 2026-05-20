@@ -4,6 +4,8 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 const routes = require('./routes');
 
+const auditLogger = require('./middleware/logging');
+
 const app = express();
 
 // Connect to Database
@@ -12,11 +14,8 @@ connectDB();
 app.use(cors());
 app.use(express.json());
 
-// Custom Request Logger Middleware
-app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-  next();
-});
+// Premium Audit Logger Middleware (logs User, Time, Action, Parameters, and Performance)
+app.use(auditLogger);
 
 app.use('/api', routes);
 

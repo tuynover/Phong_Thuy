@@ -153,7 +153,11 @@ function App() {
   };
 
   const handleViewHistoricalBazi = (record) => {
-    setBaziResult(record.baziData);
+    setBaziResult({
+      ...record.baziData,
+      recordId: record._id || record.id,
+      aiInterpretation: record.aiInterpretation
+    });
     setAppMode('bazi');
   };
 
@@ -341,7 +345,7 @@ function App() {
 
                 {baziResult && !loading && (
                 <div className="space-y-12 animate-in fade-in zoom-in-95 duration-700 pb-20">
-                    <BaziBoard data={baziResult} />
+                    <BaziBoard data={baziResult} onRequireLogin={() => setIsAuthModalOpen(true)} />
                     <div className="text-center">
                     <button 
                         onClick={() => setBaziResult(null)} 

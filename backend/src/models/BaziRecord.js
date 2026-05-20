@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
+const { v7: uuidv7 } = require('uuid');
 
 const baziRecordSchema = new mongoose.Schema({
+  _id: {
+    type: String,
+    default: uuidv7
+  },
   userId: {
     type: String,
     required: true,
@@ -32,6 +37,17 @@ const baziRecordSchema = new mongoose.Schema({
   feedback: {
     type: String,
     default: ''
+  },
+  aiInterpretation: {
+    content: { type: String, default: "" },
+    generatedAt: { type: Date, default: null },
+    model: { type: String, default: "" },
+    promptVersion: { type: String, default: "" },
+    tokensUsed: { type: Number, default: 0 }
+  },
+  isGeneratingInterpretation: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true,

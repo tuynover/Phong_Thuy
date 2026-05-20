@@ -3,6 +3,7 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 class AiService {
     constructor() {
         this.genAI = null;
+        this.defaultModelName = process.env.GEMINI_MODEL || "gemini-3.1-flash-lite";
         if (process.env.GEMINI_API_KEY) {
             this.genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
         } else {
@@ -10,44 +11,75 @@ class AiService {
         }
     }
 
-    async generateInterpretation(prompt, retries = 2) {
+    getModelName(options = {}) {
+        return options.model || this.defaultModelName;
+    }
+
+    cleanMarkdown(text) {
+        if (!text) return '';
+        let cleaned = text.trim();
+        // Loại bỏ ```markdown hoặc ``` ở đầu chuỗi (không phân biệt hoa thường)
+        cleaned = cleaned.replace(/^```markdown\s*/i, '');
+        cleaned = cleaned.replace(/^```[a-z]*\s*/i, '');
+        // Loại bỏ ``` ở cuối chuỗi
+        cleaned = cleaned.replace(/\s*```$/, '');
+        return cleaned.trim();
+    }
+
+    async generateInterpretation(prompt, options = {}, retries = 2) {
         if (!this.genAI) {
             throw new Error("Hệ thống chưa được cấu hình API Key của AI.");
         }
 
-        const model = this.genAI.getGenerativeModel({ model: "gemini-3.1-flash-lite" });
+        const modelName = this.getModelName(options);
+        const model = this.genAI.getGenerativeModel({ model: modelName });
 
         for (let attempt = 1; attempt <= retries + 1; attempt++) {
             try {
-                // Timeout promise
                 const timeoutPromise = new Promise((_, reject) =>
-                    setTimeout(() => reject(new Error('AI Request Timeout')), 20000)
+                    setTimeout(() => reject(new Error('AI Request Timeout')), 25000)
                 );
 
-                // Gemini API call
                 const generatePromise = model.generateContent(prompt);
-
                 const result = await Promise.race([generatePromise, timeoutPromise]);
                 const response = result.response;
-                return response.text();
+                return this.cleanMarkdown(response.text());
             } catch (error) {
                 console.error(`AI Generation Error (Attempt ${attempt}):`, error.message);
                 
-                // If it's the last attempt, throw the error
                 if (attempt === retries + 1) {
                     if (error.message.includes('Timeout')) {
-                        throw new Error('Hệ thống AI đang quá tải hoặc phản hồi chậm. Vui lòng thử lại sau.');
+                        throw new Error('Hệ thống AI phản hồi chậm hoặc đang quá tải. Vui lòng thử lại sau.');
                     } else if (error.message.includes('429')) {
                         throw new Error('Hệ thống AI đang chạm giới hạn sử dụng. Vui lòng thử lại sau giây lát.');
                     } else if (error.message.includes('SAFETY')) {
-                        throw new Error('Nội dung câu hỏi vi phạm chính sách an toàn của AI.');
+                        throw new Error('Nội dung phân tích vi phạm chính sách an toàn của AI.');
                     }
                     throw new Error('Đã có lỗi xảy ra khi kết nối với máy chủ AI.');
                 }
                 
-                // Wait for 2 seconds before retrying
                 await new Promise(res => setTimeout(res, 2000));
             }
+        }
+    }
+
+    async generateInterpretationStream(prompt, options = {}) {
+        if (!this.genAI) {
+            throw new Error("Hệ thống chưa được cấu hình API Key của AI.");
+        }
+
+        const modelName = this.getModelName(options);
+        const model = this.genAI.getGenerativeModel({ model: modelName });
+
+        try {
+            const resultStream = await model.generateContentStream(prompt);
+            return resultStream;
+        } catch (error) {
+            console.error("AI Stream Generation error:", error);
+            if (error.message.includes('SAFETY')) {
+                throw new Error('Nội dung phân tích vi phạm chính sách an toàn của AI.');
+            }
+            throw new Error('Lỗi kết nối với máy chủ AI.');
         }
     }
 }

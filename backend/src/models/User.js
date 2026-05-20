@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
+const { v7: uuidv7 } = require('uuid');
 
 const userSchema = new mongoose.Schema({
+  _id: {
+    type: String,
+    default: uuidv7
+  },
   email: {
     type: String,
     required: true,

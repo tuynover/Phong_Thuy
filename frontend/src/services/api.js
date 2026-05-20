@@ -13,3 +13,4 @@ export const linkBazi = (id, userId) => axios.put(`${API_URL}/history/bazi/${id}
 export const updateBaziInfo = (userId, day, month, year, hour, minute) => axios.put(`${API_URL}/auth/bazi`, { userId, day, month, year, hour, minute });
 export const analyzeBazi = (date, time, gender, userId) => axios.post(`${API_URL}/bazi/analyze`, { date, time, gender, userId });
 export const interpretHexagram = (id) => axios.post(`${API_URL}/history/hexagrams/${id}/interpret`);
+export const getInterpretationStreamUrl = (type, id) => `${API_URL}/history/${type}/${id}/interpret`;

@@ -6,6 +6,10 @@ const PromptTemplateManager = require('../services/PromptTemplateManager');
 const AiService = require('../services/AiService');
 const HexagramDataService = require('../services/HexagramDataService');
 
+const CURRENT_ICHING_PROMPT_VERSION = "v1.2";
+const CURRENT_BAZI_PROMPT_VERSION = "v1.2";
+const ACTIVE_MODEL = "gemini-3.1-flash-lite";
+
 class HistoryController {
     static async getHexagramHistory(req, res) {
         try {
@@ -14,7 +18,6 @@ class HistoryController {
             
             const records = await HexagramRecord.find({ userId }).sort({ createdAt: -1 }).lean();
             
-            // Reconstruct lines for each record before sending to frontend
             const enhancedRecords = records.map(record => {
                 const reconstructed = HexagramDataService.reconstructLines(record);
                 return {
@@ -83,6 +86,7 @@ class HistoryController {
             return res.status(500).json({ error: 'Server error' });
         }
     }
+
     static async linkHexagram(req, res) {
         try {
             const { id } = req.params;
@@ -101,6 +105,7 @@ class HistoryController {
             return res.status(500).json({ error: 'Server error' });
         }
     }
+
     static async linkBazi(req, res) {
         try {
             const { id } = req.params;
@@ -121,20 +126,54 @@ class HistoryController {
     }
 
     static async interpretHexagram(req, res) {
-        try {
-            const { id } = req.params;
-            const record = await HexagramRecord.findById(id).lean();
-            if (!record) return res.status(404).json({ error: 'Record not found' });
+        const { id } = req.params;
+        let record = null;
 
-            // If already interpreted, return cached interpretation
-            if (record.aiInterpretation) {
-                return res.json({ interpretation: record.aiInterpretation });
+        try {
+            record = await HexagramRecord.findById(id);
+            if (!record) {
+                return res.status(404).json({ error: 'Không tìm thấy bản ghi quẻ dịch.' });
             }
 
+            // Check lock to prevent race conditions
+            if (record.isGeneratingInterpretation) {
+                return res.status(409).json({ error: 'Hệ thống đang sinh luận giải cho quẻ này. Vui lòng đợi trong giây lát.' });
+            }
+
+            // Establish SSE Header
+            res.setHeader('Content-Type', 'text/event-stream');
+            res.setHeader('Cache-Control', 'no-cache');
+            res.setHeader('Connection', 'keep-alive');
+            res.setHeader('Content-Encoding', 'none');
+
+            const sendSSE = (data) => {
+                res.write(`data: ${JSON.stringify(data)}\n\n`);
+            };
+
+            // Invalidate Cache check
+            const hasValidCache = 
+                record.aiInterpretation &&
+                record.aiInterpretation.content &&
+                record.aiInterpretation.promptVersion === CURRENT_ICHING_PROMPT_VERSION &&
+                record.aiInterpretation.model === ACTIVE_MODEL;
+
+            if (hasValidCache) {
+                // Stream from cache immediately
+                const cachedText = record.aiInterpretation.content;
+                // Stream in a single block or split by lines for fluid rendering
+                sendSSE({ chunk: cachedText });
+                sendSSE('[DONE]');
+                res.end();
+                return;
+            }
+
+            // Lock the record
+            await HexagramRecord.findByIdAndUpdate(id, { isGeneratingInterpretation: true });
+
             // 0. Reconstruct lines
-            const reconstructed = HexagramDataService.reconstructLines(record);
+            const reconstructed = HexagramDataService.reconstructLines(record.toObject());
             const fullRecord = {
-                ...record,
+                ...record.toObject(),
                 primaryLines: reconstructed.primaryLines,
                 secondaryLines: reconstructed.secondaryLines,
                 primaryHexagram: reconstructed.primaryHexagram,
@@ -156,17 +195,131 @@ class HistoryController {
             // 2. Generate Prompt
             const prompt = PromptTemplateManager.getHexagramInterpretationPrompt(fullRecord, analyzedData);
 
-            // 3. Call AI Service
-            const interpretation = await AiService.generateInterpretation(prompt);
+            // 3. Call AI Service and stream chunks
+            const resultStream = await AiService.generateInterpretationStream(prompt, { model: ACTIVE_MODEL });
+            let accumulatedText = "";
 
-            // 4. Save and return (Using update since we used lean())
-            await HexagramRecord.findByIdAndUpdate(id, { aiInterpretation: interpretation });
+            for await (const chunk of resultStream.stream) {
+                const chunkText = chunk.text();
+                accumulatedText += chunkText;
+                sendSSE({ chunk: chunkText });
+            }
 
-            return res.json({ interpretation });
+            // 4. Clean Markdown formatting & Estimate tokens
+            const cleanedContent = AiService.cleanMarkdown(accumulatedText);
+            const tokensUsed = Math.ceil(cleanedContent.length / 4.2);
+
+            // 5. Update Database Record with rich metadata
+            await HexagramRecord.findByIdAndUpdate(id, {
+                aiInterpretation: {
+                    content: cleanedContent,
+                    generatedAt: new Date(),
+                    model: ACTIVE_MODEL,
+                    promptVersion: CURRENT_ICHING_PROMPT_VERSION,
+                    tokensUsed: tokensUsed
+                },
+                isGeneratingInterpretation: false
+            });
+
+            sendSSE('[DONE]');
+            res.end();
 
         } catch (error) {
-            console.error(error);
-            return res.status(500).json({ error: error.message || 'Server error' });
+            console.error("Hexagram Interpret SSE Error:", error);
+            // Send error to client over SSE
+            res.write(`data: ${JSON.stringify({ error: error.message || 'Lỗi xảy ra trong quá trình sinh luận giải AI.' })}\n\n`);
+            res.end();
+        } finally {
+            if (record) {
+                await HexagramRecord.findByIdAndUpdate(id, { isGeneratingInterpretation: false });
+            }
+        }
+    }
+
+    static async interpretBazi(req, res) {
+        const { id } = req.params;
+        let record = null;
+
+        try {
+            record = await BaziRecord.findById(id);
+            if (!record) {
+                return res.status(404).json({ error: 'Không tìm thấy bản ghi Bát Tự.' });
+            }
+
+            // Check lock
+            if (record.isGeneratingInterpretation) {
+                return res.status(409).json({ error: 'Hệ thống đang tiến hành luận giải cho lá số này. Vui lòng đợi trong giây lát.' });
+            }
+
+            // Establish SSE Header
+            res.setHeader('Content-Type', 'text/event-stream');
+            res.setHeader('Cache-Control', 'no-cache');
+            res.setHeader('Connection', 'keep-alive');
+            res.setHeader('Content-Encoding', 'none');
+
+            const sendSSE = (data) => {
+                res.write(`data: ${JSON.stringify(data)}\n\n`);
+            };
+
+            // Invalidate Cache check
+            const hasValidCache = 
+                record.aiInterpretation &&
+                record.aiInterpretation.content &&
+                record.aiInterpretation.promptVersion === CURRENT_BAZI_PROMPT_VERSION &&
+                record.aiInterpretation.model === ACTIVE_MODEL;
+
+            if (hasValidCache) {
+                // Stream from cache immediately
+                const cachedText = record.aiInterpretation.content;
+                sendSSE({ chunk: cachedText });
+                sendSSE('[DONE]');
+                res.end();
+                return;
+            }
+
+            // Lock the record
+            await BaziRecord.findByIdAndUpdate(id, { isGeneratingInterpretation: true });
+
+            // 1. Generate Prompt using analyzed Bazi data
+            const prompt = PromptTemplateManager.getBaziInterpretationPrompt(record.toObject());
+
+            // 2. Call AI Service and stream chunks
+            const resultStream = await AiService.generateInterpretationStream(prompt, { model: ACTIVE_MODEL });
+            let accumulatedText = "";
+
+            for await (const chunk of resultStream.stream) {
+                const chunkText = chunk.text();
+                accumulatedText += chunkText;
+                sendSSE({ chunk: chunkText });
+            }
+
+            // 3. Clean Markdown & Estimate tokens
+            const cleanedContent = AiService.cleanMarkdown(accumulatedText);
+            const tokensUsed = Math.ceil(cleanedContent.length / 4.2);
+
+            // 4. Update Database Record with rich metadata
+            await BaziRecord.findByIdAndUpdate(id, {
+                aiInterpretation: {
+                    content: cleanedContent,
+                    generatedAt: new Date(),
+                    model: ACTIVE_MODEL,
+                    promptVersion: CURRENT_BAZI_PROMPT_VERSION,
+                    tokensUsed: tokensUsed
+                },
+                isGeneratingInterpretation: false
+            });
+
+            sendSSE('[DONE]');
+            res.end();
+
+        } catch (error) {
+            console.error("Bazi Interpret SSE Error:", error);
+            res.write(`data: ${JSON.stringify({ error: error.message || 'Lỗi xảy ra trong quá trình sinh luận giải AI cho Bát Tự.' })}\n\n`);
+            res.end();
+        } finally {
+            if (record) {
+                await BaziRecord.findByIdAndUpdate(id, { isGeneratingInterpretation: false });
+            }
         }
     }
 }

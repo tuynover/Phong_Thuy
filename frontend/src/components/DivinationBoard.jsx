@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import Tooltip from './Tooltip';
 import { hexagramDictionary } from '../data/hexagrams';
 import ReactMarkdown from 'react-markdown';
-import { interpretHexagram } from '../services/api';
+import { getInterpretationStreamUrl } from '../services/api';
 import { AlertCircle, BookOpen, ScrollText } from 'lucide-react';
+
 
 const getColorClass = (element) => {
     switch (element) {
@@ -100,27 +101,29 @@ const DivinationBoard = ({ result, user, onRequireLogin }) => {
     const [selectedHex, setSelectedHex] = useState(null);
     const [isInterpreting, setIsInterpreting] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [abortController, setAbortController] = useState(null);
     
-    // Check if result has interpretation directly (from AI endpoint) 
-    // or from recordWrapper (aiInterpretation field)
-    const [interpretation, setInterpretation] = useState(result?.aiInterpretation || '');
+    // Help parse legacy and structured interpretations cleanly
+    const getInitialInterpretationText = (aiInt) => {
+        if (!aiInt) return '';
+        if (typeof aiInt === 'string') return aiInt;
+        return aiInt.content || '';
+    };
+
+    const [interpretation, setInterpretation] = useState(getInitialInterpretationText(result?.aiInterpretation));
     const [error, setError] = useState('');
     const [loadingStep, setLoadingStep] = useState(0);
 
     // Update interpretation if result changes (e.g. user clicks another history item)
     useEffect(() => {
-        if (result?.aiInterpretation) {
-            setInterpretation(result.aiInterpretation);
-        } else {
-            setInterpretation('');
-        }
+        setInterpretation(getInitialInterpretationText(result?.aiInterpretation));
     }, [result]);
 
+    // Elegant minimalist loading texts
     const loadingTexts = [
-        "Đang phân tích Nhật Nguyệt...",
-        "Đang xét sức mạnh Dụng Thần...",
-        "Đang tính toán Hào Động...",
-        "Đang tổng hợp luận giải..."
+        "Đang tra cứu Tượng Quẻ...",
+        "Đang luận giải Thế Ứng...",
+        "Đang định vị Hào Động..."
     ];
 
     useEffect(() => {
@@ -129,24 +132,92 @@ const DivinationBoard = ({ result, user, onRequireLogin }) => {
             setLoadingStep(0);
             interval = setInterval(() => {
                 setLoadingStep(prev => (prev < loadingTexts.length - 1 ? prev + 1 : prev));
-            }, 3000);
+            }, 3500);
         }
         return () => clearInterval(interval);
     }, [isInterpreting]);
 
+    // Auto abort on component destruction
+    useEffect(() => {
+        return () => {
+            if (abortController) {
+                abortController.abort();
+            }
+        };
+    }, [abortController]);
+
     const triggerLuanGiai = async () => {
+        setShowConfirmModal(false);
         setIsInterpreting(true);
         setError('');
         setInterpretation('');
 
+        const abortCtrl = new AbortController();
+        setAbortController(abortCtrl);
+
         try {
-            const res = await interpretHexagram(result.recordId);
-            setInterpretation(res.data.interpretation);
+            const url = getInterpretationStreamUrl('hexagrams', result.recordId);
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ userId: user?.id || user?._id || 'guest' }),
+                signal: abortCtrl.signal
+            });
+
+            if (!response.ok) {
+                const errData = await response.json().catch(() => ({}));
+                throw new Error(errData.error || `Lỗi kết nối từ server (HTTP ${response.status})`);
+            }
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder('utf-8');
+            let done = false;
+            let currentText = "";
+
+            while (!done) {
+                const { value, done: doneReading } = await reader.read();
+                done = doneReading;
+                if (value) {
+                    const chunk = decoder.decode(value, { stream: !done });
+                    const lines = chunk.split('\n');
+                    for (const line of lines) {
+                        const trimmed = line.trim();
+                        if (trimmed.startsWith('data: ')) {
+                            const dataStr = trimmed.slice(6);
+                            if (dataStr === '[DONE]') {
+                                done = true;
+                                break;
+                            }
+                            try {
+                                const parsed = JSON.parse(dataStr);
+                                if (parsed.error) {
+                                    throw new Error(parsed.error);
+                                }
+                                if (parsed.chunk) {
+                                    currentText += parsed.chunk;
+                                    setInterpretation(currentText);
+                                }
+                            } catch (e) {
+                                if (e.message.includes('SAFETY') || e.message.includes('luận giải') || e.message.includes('quá tải')) {
+                                    throw e;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         } catch (err) {
-            console.error(err);
-            setError(err.response?.data?.error || "Hệ thống luận giải đang quá tải hoặc gặp sự cố. Vui lòng thử lại sau.");
+            if (err.name === 'AbortError') {
+                console.log("Interpretation aborted.");
+            } else {
+                console.error(err);
+                setError(err.message || "Hệ thống luận giải đang bận hoặc gặp lỗi. Vui lòng thử lại sau.");
+            }
         } finally {
             setIsInterpreting(false);
+            setAbortController(null);
         }
     };
 
@@ -509,7 +580,7 @@ const DivinationBoard = ({ result, user, onRequireLogin }) => {
                 <button
                     onClick={handleAILuanGiai}
                     disabled={isInterpreting}
-                    className={`fixed bottom-24 right-4 md:right-8 z-50 flex items-center gap-2 px-5 py-3 rounded-full shadow-2xl transition-all duration-300 font-bold border ${isInterpreting ? 'bg-amber-100 border-amber-200 text-amber-500 cursor-not-allowed scale-95' : 'bg-gradient-to-r from-amber-800 to-amber-950 hover:from-amber-900 hover:to-stone-900 text-white border-amber-700 hover:scale-105 hover:shadow-amber-900/40'}`}
+                    className={`fixed bottom-[calc(96px+env(safe-area-inset-bottom,0px))] right-4 md:right-8 z-50 flex items-center gap-2 px-5 py-3 rounded-full shadow-2xl transition-all duration-300 font-bold border ${isInterpreting ? 'bg-amber-100 border-amber-200 text-amber-500 cursor-not-allowed scale-95' : 'bg-gradient-to-r from-amber-800 to-amber-950 hover:from-amber-900 hover:to-stone-900 text-white border-amber-700 hover:scale-105 hover:shadow-amber-900/40'}`}
                 >
                     {isInterpreting ? (
                         <>

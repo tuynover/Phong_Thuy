@@ -229,13 +229,27 @@ class DivinationController {
                 }
             };
 
+            const movingLinesArray = lines.map((l, i) => l.moving ? i + 1 : -1).filter(i => i !== -1);
+            
+            // Check for duplicate record
+            const existingRecord = await HexagramRecord.findOne({
+                userId,
+                question,
+                'primaryHexagram.binary_code': resultPayload.primary.binary_code,
+                movingLines: movingLinesArray
+            });
+
+            if (existingRecord) {
+                return res.json({ ...resultPayload, recordId: existingRecord._id, interpretation: existingRecord.interpretation });
+            }
+
             // Save to database (WITHOUT primaryLines and secondaryLines)
             const record = new HexagramRecord({
                 userId,
                 question,
                 primaryHexagram: resultPayload.primary,
                 transformedHexagram: resultPayload.secondary,
-                movingLines: lines.map((l, i) => l.moving ? i + 1 : -1).filter(i => i !== -1),
+                movingLines: movingLinesArray,
                 lunarDateInfo: resultPayload.dateInfo
             });
             await record.save();

@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
+const { v7: uuidv7 } = require('uuid');
 
 const hexagramRecordSchema = new mongoose.Schema({
+  _id: {
+    type: String,
+    default: uuidv7
+  },
   userId: {
     type: String, // Can be a MongoDB ObjectId string or 'guest'
     required: true,
@@ -43,8 +48,15 @@ const hexagramRecordSchema = new mongoose.Schema({
     default: ''
   },
   aiInterpretation: {
-    type: String,
-    default: ''
+    content: { type: String, default: "" },
+    generatedAt: { type: Date, default: null },
+    model: { type: String, default: "" },
+    promptVersion: { type: String, default: "" },
+    tokensUsed: { type: Number, default: 0 }
+  },
+  isGeneratingInterpretation: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true,
