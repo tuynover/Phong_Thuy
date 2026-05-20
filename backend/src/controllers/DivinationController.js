@@ -117,8 +117,11 @@ class DivinationController {
             }
 
             // Date setup using lunar-javascript
-            // We'll use current date. If we want precision, this could come from FE.
-            const now = new Date();
+            // Ensure we use Vietnam time zone regardless of server timezone
+            const realNow = new Date();
+            const vnTimeStr = realNow.toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' });
+            const now = new Date(vnTimeStr); 
+            
             const lunar = Lunar.fromDate(now);
             const hourCanChi = toVietnamese(lunar.getEightChar().getTime());
             const dayCanChi = toVietnamese(lunar.getDayInGanZhiExact());
