@@ -1,5 +1,26 @@
 {
-  "elements": ["Kim", "Moc", "Thuy", "Hoa", "Tho"],
+  "version": "2.0",
+
+  "elements": [
+    "Kim",
+    "Moc",
+    "Thuy",
+    "Hoa",
+    "Tho"
+  ],
+
+  "yinYang": {
+    "Giáp": "Duong",
+    "Ất": "Am",
+    "Bính": "Duong",
+    "Đinh": "Am",
+    "Mậu": "Duong",
+    "Kỷ": "Am",
+    "Canh": "Duong",
+    "Tân": "Am",
+    "Nhâm": "Duong",
+    "Quý": "Am"
+  },
 
   "stemElement": {
     "Giáp": "Moc",
@@ -30,58 +51,147 @@
   },
 
   "hiddenStems": {
-    "Tý": ["Quý"],
-    "Sửu": ["Kỷ", "Quý", "Tân"],
-    "Dần": ["Giáp", "Bính", "Mậu"],
-    "Mão": ["Ất"],
-    "Thìn": ["Mậu", "Ất", "Quý"],
-    "Tỵ": ["Bính", "Mậu", "Canh"],
-    "Ngọ": ["Đinh", "Kỷ"],
-    "Mùi": ["Kỷ", "Đinh", "Ất"],
-    "Thân": ["Canh", "Nhâm", "Mậu"],
-    "Dậu": ["Tân"],
-    "Tuất": ["Mậu", "Tân", "Đinh"],
-    "Hợi": ["Nhâm", "Giáp"]
+    "Tý": [
+      { "stem": "Quý", "type": "main" }
+    ],
+
+    "Sửu": [
+      { "stem": "Kỷ", "type": "main" },
+      { "stem": "Quý", "type": "middle" },
+      { "stem": "Tân", "type": "residual" }
+    ],
+
+    "Dần": [
+      { "stem": "Giáp", "type": "main" },
+      { "stem": "Bính", "type": "middle" },
+      { "stem": "Mậu", "type": "residual" }
+    ],
+
+    "Mão": [
+      { "stem": "Ất", "type": "main" }
+    ],
+
+    "Thìn": [
+      { "stem": "Mậu", "type": "main" },
+      { "stem": "Ất", "type": "middle" },
+      { "stem": "Quý", "type": "residual" }
+    ],
+
+    "Tỵ": [
+      { "stem": "Bính", "type": "main" },
+      { "stem": "Mậu", "type": "middle" },
+      { "stem": "Canh", "type": "residual" }
+    ],
+
+    "Ngọ": [
+      { "stem": "Đinh", "type": "main" },
+      { "stem": "Kỷ", "type": "middle" }
+    ],
+
+    "Mùi": [
+      { "stem": "Kỷ", "type": "main" },
+      { "stem": "Đinh", "type": "middle" },
+      { "stem": "Ất", "type": "residual" }
+    ],
+
+    "Thân": [
+      { "stem": "Canh", "type": "main" },
+      { "stem": "Nhâm", "type": "middle" },
+      { "stem": "Mậu", "type": "residual" }
+    ],
+
+    "Dậu": [
+      { "stem": "Tân", "type": "main" }
+    ],
+
+    "Tuất": [
+      { "stem": "Mậu", "type": "main" },
+      { "stem": "Tân", "type": "middle" },
+      { "stem": "Đinh", "type": "residual" }
+    ],
+
+    "Hợi": [
+      { "stem": "Nhâm", "type": "main" },
+      { "stem": "Giáp", "type": "middle" }
+    ]
+  },
+
+  "hiddenStemPower": {
+    "main": 1,
+    "middle": 0.6,
+    "residual": 0.3
   },
 
   "relation": {
-    "Kim": { "Kim": "tro", "Thuy": "sinh", "Moc": "khac", "Hoa": "bi_khac", "Tho": "duoc_sinh" },
-    "Moc": { "Moc": "tro", "Hoa": "sinh", "Tho": "khac", "Kim": "bi_khac", "Thuy": "duoc_sinh" },
-    "Thuy": { "Thuy": "tro", "Moc": "sinh", "Hoa": "khac", "Tho": "bi_khac", "Kim": "duoc_sinh" },
-    "Hoa": { "Hoa": "tro", "Tho": "sinh", "Kim": "khac", "Thuy": "bi_khac", "Moc": "duoc_sinh" },
-    "Tho": { "Tho": "tro", "Kim": "sinh", "Thuy": "khac", "Moc": "bi_khac", "Hoa": "duoc_sinh" }
+    "Kim": {
+      "Kim": "tro",
+      "Thuy": "sinh",
+      "Moc": "khac",
+      "Hoa": "bi_khac",
+      "Tho": "duoc_sinh"
+    },
+
+    "Moc": {
+      "Moc": "tro",
+      "Hoa": "sinh",
+      "Tho": "khac",
+      "Kim": "bi_khac",
+      "Thuy": "duoc_sinh"
+    },
+
+    "Thuy": {
+      "Thuy": "tro",
+      "Moc": "sinh",
+      "Hoa": "khac",
+      "Tho": "bi_khac",
+      "Kim": "duoc_sinh"
+    },
+
+    "Hoa": {
+      "Hoa": "tro",
+      "Tho": "sinh",
+      "Kim": "khac",
+      "Thuy": "bi_khac",
+      "Moc": "duoc_sinh"
+    },
+
+    "Tho": {
+      "Tho": "tro",
+      "Kim": "sinh",
+      "Thuy": "khac",
+      "Moc": "bi_khac",
+      "Hoa": "duoc_sinh"
+    }
   },
 
-  "monthPower": {
-    "Dần": { "Moc": 5, "Hoa": 3, "Tho": 1, "Kim": -2, "Thuy": 2 },
-    "Mão": { "Moc": 6, "Hoa": 2, "Tho": 0, "Kim": -3, "Thuy": 1 },
-    "Thìn": { "Tho": 5, "Moc": 2, "Hoa": 2, "Kim": 1, "Thuy": 1 },
+  "fiveElementCycle": {
+    "sinh": {
+      "Moc": "Hoa",
+      "Hoa": "Tho",
+      "Tho": "Kim",
+      "Kim": "Thuy",
+      "Thuy": "Moc"
+    },
 
-    "Tỵ": { "Hoa": 5, "Tho": 3, "Moc": 1, "Kim": -2, "Thuy": -2 },
-    "Ngọ": { "Hoa": 6, "Tho": 2, "Moc": 0, "Kim": -3, "Thuy": -3 },
-    "Mùi": { "Tho": 5, "Hoa": 2, "Moc": 1, "Kim": 0, "Thuy": -2 },
-
-    "Thân": { "Kim": 5, "Thuy": 3, "Tho": 1, "Hoa": -2, "Moc": -2 },
-    "Dậu": { "Kim": 6, "Thuy": 2, "Tho": 0, "Hoa": -3, "Moc": -3 },
-    "Tuất": { "Tho": 5, "Kim": 2, "Hoa": 2, "Thuy": 1, "Moc": -1 },
-
-    "Hợi": { "Thuy": 5, "Moc": 3, "Kim": 1, "Tho": -2, "Hoa": -2 },
-    "Tý": { "Thuy": 6, "Moc": 2, "Kim": 0, "Tho": -3, "Hoa": -3 },
-    "Sửu": { "Tho": 5, "Thuy": 2, "Kim": 2, "Moc": -1, "Hoa": -2 }
-  },
-
-  "branchRelations": {
-    "lucXung": [["Tý","Ngọ"],["Sửu","Mùi"],["Dần","Thân"],["Mão","Dậu"],["Thìn","Tuất"],["Tỵ","Hợi"]],
-    "lucHop": [["Tý","Sửu"],["Dần","Hợi"],["Mão","Tuất"],["Thìn","Dậu"],["Tỵ","Thân"],["Ngọ","Mùi"]],
-    "tamHop": [["Thân","Tý","Thìn"],["Dần","Ngọ","Tuất"],["Hợi","Mão","Mùi"],["Tỵ","Dậu","Sửu"]],
-    "banTamHop": [["Thân","Tý"],["Tý","Thìn"],["Dần","Ngọ"],["Ngọ","Tuất"],["Hợi","Mão"],["Mão","Mùi"]],
-    "lucHai": [["Tý","Mùi"],["Sửu","Ngọ"],["Dần","Tỵ"],["Mão","Thìn"],["Thân","Hợi"],["Dậu","Tuất"]],
-    "lucPha": [["Tý","Dậu"],["Sửu","Thìn"],["Dần","Hợi"],["Mão","Ngọ"],["Thân","Tỵ"],["Tuất","Mùi"]]
+    "khac": {
+      "Moc": "Tho",
+      "Tho": "Thuy",
+      "Thuy": "Hoa",
+      "Hoa": "Kim",
+      "Kim": "Moc"
+    }
   },
 
   "tho": {
-    "wet": ["Sửu", "Thìn"],
-    "dry": ["Mùi", "Tuất"]
+    "wet": [
+      "Sửu",
+      "Thìn"
+    ],
+
+    "dry": [
+      "Mùi",
+      "Tuất"
+    ]
   },
 
   "moKho": {
@@ -99,29 +209,911 @@
     "Mậu-Quý": "Hoa"
   },
 
-  "scoreConfig": {
-    "canWeight": 10,
-    "chiWeight": 8,
-    "tangCanWeight": 4,
-    "monthScale": 1.5,
-
-    "relationScore": {
-      "tro": 2,
-      "sinh": 1.5,
-      "duoc_sinh": 1.2,
-      "khac": -1.5,
-      "bi_khac": -2
+  "hoaHopCondition": {
+    "needSeasonSupport": true,
+    "needRoot": true,
+    "blockedByXung": true,
+    "blockedByStrongKhac": true
+  },
+  
+  "monthPower": {
+    "Dần": {
+      "Moc": 12,
+      "Hoa": 6,
+      "Tho": 2,
+      "Kim": -6,
+      "Thuy": 3
     },
 
+    "Mão": {
+      "Moc": 14,
+      "Hoa": 5,
+      "Tho": 1,
+      "Kim": -8,
+      "Thuy": 2
+    },
+
+    "Thìn": {
+      "Tho": 10,
+      "Moc": 4,
+      "Hoa": 4,
+      "Kim": 2,
+      "Thuy": 2
+    },
+
+    "Tỵ": {
+      "Hoa": 12,
+      "Tho": 6,
+      "Moc": 2,
+      "Kim": -5,
+      "Thuy": -6
+    },
+
+    "Ngọ": {
+      "Hoa": 14,
+      "Tho": 5,
+      "Moc": 1,
+      "Kim": -8,
+      "Thuy": -8
+    },
+
+    "Mùi": {
+      "Tho": 10,
+      "Hoa": 5,
+      "Moc": 2,
+      "Kim": 1,
+      "Thuy": -5
+    },
+
+    "Thân": {
+      "Kim": 12,
+      "Thuy": 6,
+      "Tho": 2,
+      "Hoa": -5,
+      "Moc": -5
+    },
+
+    "Dậu": {
+      "Kim": 14,
+      "Thuy": 5,
+      "Tho": 1,
+      "Hoa": -8,
+      "Moc": -8
+    },
+
+    "Tuất": {
+      "Tho": 10,
+      "Kim": 4,
+      "Hoa": 4,
+      "Thuy": 1,
+      "Moc": -3
+    },
+
+    "Hợi": {
+      "Thuy": 12,
+      "Moc": 6,
+      "Kim": 2,
+      "Tho": -5,
+      "Hoa": -5
+    },
+
+    "Tý": {
+      "Thuy": 14,
+      "Moc": 5,
+      "Kim": 1,
+      "Tho": -8,
+      "Hoa": -8
+    },
+
+    "Sửu": {
+      "Tho": 10,
+      "Thuy": 4,
+      "Kim": 4,
+      "Moc": -3,
+      "Hoa": -5
+    }
+  },
+
+  "dacLenh": {
+    "vuong": 12,
+    "tuong": 8,
+    "huuKhi": 4,
+    "binh": 0,
+    "suy": -3,
+    "tu": -6,
+    "tuyet": -10
+  },
+
+  "seasonClimate": {
+    "spring": {
+      "months": ["Dần", "Mão", "Thìn"],
+      "dominant": "Moc",
+      "temperature": "warm",
+      "humidity": "wet"
+    },
+
+    "summer": {
+      "months": ["Tỵ", "Ngọ", "Mùi"],
+      "dominant": "Hoa",
+      "temperature": "hot",
+      "humidity": "dry"
+    },
+
+    "autumn": {
+      "months": ["Thân", "Dậu", "Tuất"],
+      "dominant": "Kim",
+      "temperature": "cool",
+      "humidity": "dry"
+    },
+
+    "winter": {
+      "months": ["Hợi", "Tý", "Sửu"],
+      "dominant": "Thuy",
+      "temperature": "cold",
+      "humidity": "wet"
+    }
+  },
+
+  "temperatureAdjust": {
+    "tooCold": {
+      "prefer": ["Hoa"],
+      "avoid": ["Thuy", "Kim"]
+    },
+
+    "tooHot": {
+      "prefer": ["Thuy"],
+      "avoid": ["Hoa", "Moc"]
+    },
+
+    "tooDry": {
+      "prefer": ["Thuy"],
+      "avoid": ["Hoa"]
+    },
+
+    "tooWet": {
+      "prefer": ["Tho"],
+      "avoid": ["Thuy"]
+    }
+  },
+
+  "truongSinh": {
+    "Moc": {
+      "Hợi": "truongSinh",
+      "Tý": "mocDuc",
+      "Sửu": "quanDoi",
+      "Dần": "lamQuan",
+      "Mão": "deVuong",
+      "Thìn": "suy",
+      "Tỵ": "benh",
+      "Ngọ": "tu",
+      "Mùi": "mo",
+      "Thân": "tuyet",
+      "Dậu": "thai",
+      "Tuất": "duong"
+    },
+
+    "Hoa": {
+      "Dần": "truongSinh",
+      "Mão": "mocDuc",
+      "Thìn": "quanDoi",
+      "Tỵ": "lamQuan",
+      "Ngọ": "deVuong",
+      "Mùi": "suy",
+      "Thân": "benh",
+      "Dậu": "tu",
+      "Tuất": "mo",
+      "Hợi": "tuyet",
+      "Tý": "thai",
+      "Sửu": "duong"
+    },
+
+    "Kim": {
+      "Tỵ": "truongSinh",
+      "Ngọ": "mocDuc",
+      "Mùi": "quanDoi",
+      "Thân": "lamQuan",
+      "Dậu": "deVuong",
+      "Tuất": "suy",
+      "Hợi": "benh",
+      "Tý": "tu",
+      "Sửu": "mo",
+      "Dần": "tuyet",
+      "Mão": "thai",
+      "Thìn": "duong"
+    },
+
+    "Thuy": {
+      "Thân": "truongSinh",
+      "Dậu": "mocDuc",
+      "Tuất": "quanDoi",
+      "Hợi": "lamQuan",
+      "Tý": "deVuong",
+      "Sửu": "suy",
+      "Dần": "benh",
+      "Mão": "tu",
+      "Thìn": "mo",
+      "Tỵ": "tuyet",
+      "Ngọ": "thai",
+      "Mùi": "duong"
+    },
+
+    "Tho": {
+  "Thân": "truongSinh",
+  "Dậu": "mocDuc",
+  "Tuất": "quanDoi",
+  "Hợi": "lamQuan",
+  "Tý": "deVuong",
+  "Sửu": "suy",
+  "Dần": "benh",
+  "Mão": "tu",
+  "Thìn": "mo",
+  "Tỵ": "tuyet",
+  "Ngọ": "thai",
+  "Mùi": "duong"
+}
+  },
+
+  "truongSinhScore": {
+    "truongSinh": 2,
+    "mocDuc": 3,
+    "quanDoi": 5,
+    "lamQuan": 6,
+    "deVuong": 8,
+
+    "suy": -1,
+    "benh": -2,
+    "tu": -4,
+    "mo": -2,
+    "tuyet": -6,
+
+    "thai": 1,
+    "duong": 1
+  },
+  "branchRelations": {
+    "lucXung": [
+      ["Tý", "Ngọ"],
+      ["Sửu", "Mùi"],
+      ["Dần", "Thân"],
+      ["Mão", "Dậu"],
+      ["Thìn", "Tuất"],
+      ["Tỵ", "Hợi"]
+    ],
+
+    "lucHop": [
+      ["Tý", "Sửu"],
+      ["Dần", "Hợi"],
+      ["Mão", "Tuất"],
+      ["Thìn", "Dậu"],
+      ["Tỵ", "Thân"],
+      ["Ngọ", "Mùi"]
+    ],
+
+    "lucHai": [
+      ["Tý", "Mùi"],
+      ["Sửu", "Ngọ"],
+      ["Dần", "Tỵ"],
+      ["Mão", "Thìn"],
+      ["Thân", "Hợi"],
+      ["Dậu", "Tuất"]
+    ],
+
+    "lucPha": [
+      ["Tý", "Dậu"],
+      ["Sửu", "Thìn"],
+      ["Dần", "Hợi"],
+      ["Mão", "Ngọ"],
+      ["Tỵ", "Thân"],
+      ["Mùi", "Tuất"]
+    ],
+
+    "tamHop": [
+      {
+        "branches": ["Thân", "Tý", "Thìn"],
+        "element": "Thuy",
+        "leader": "Tý"
+      },
+
+      {
+        "branches": ["Dần", "Ngọ", "Tuất"],
+        "element": "Hoa",
+        "leader": "Ngọ"
+      },
+
+      {
+        "branches": ["Hợi", "Mão", "Mùi"],
+        "element": "Moc",
+        "leader": "Mão"
+      },
+
+      {
+        "branches": ["Tỵ", "Dậu", "Sửu"],
+        "element": "Kim",
+        "leader": "Dậu"
+      }
+    ],
+
+    "banTamHop": [
+      {
+        "branches": ["Thân", "Tý"],
+        "element": "Thuy"
+      },
+
+      {
+        "branches": ["Tý", "Thìn"],
+        "element": "Thuy"
+      },
+
+      {
+        "branches": ["Dần", "Ngọ"],
+        "element": "Hoa"
+      },
+
+      {
+        "branches": ["Ngọ", "Tuất"],
+        "element": "Hoa"
+      },
+
+      {
+        "branches": ["Hợi", "Mão"],
+        "element": "Moc"
+      },
+
+      {
+        "branches": ["Mão", "Mùi"],
+        "element": "Moc"
+      },
+
+      {
+        "branches": ["Tỵ", "Dậu"],
+        "element": "Kim"
+      },
+
+      {
+        "branches": ["Dậu", "Sửu"],
+        "element": "Kim"
+      }
+    ],
+
+    "tamHoi": [
+      {
+        "branches": ["Hợi", "Tý", "Sửu"],
+        "element": "Thuy"
+      },
+
+      {
+        "branches": ["Dần", "Mão", "Thìn"],
+        "element": "Moc"
+      },
+
+      {
+        "branches": ["Tỵ", "Ngọ", "Mùi"],
+        "element": "Hoa"
+      },
+
+      {
+        "branches": ["Thân", "Dậu", "Tuất"],
+        "element": "Kim"
+      }
+    ]
+  },
+
+  "hinh": {
+    "tuHinh": [
+      ["Thìn", "Thìn"],
+      ["Ngọ", "Ngọ"],
+      ["Dậu", "Dậu"],
+      ["Hợi", "Hợi"]
+    ],
+
+    "voLeChiHinh": [
+      ["Tý", "Mão"]
+    ],
+
+    "voAnChiHinh": [
+      ["Dần", "Tỵ"],
+      ["Tỵ", "Thân"],
+      ["Thân", "Dần"]
+    ],
+
+    "thiTheChiHinh": [
+      ["Sửu", "Mùi"],
+      ["Mùi", "Tuất"],
+      ["Tuất", "Sửu"]
+    ]
+  },
+
+  "tamHopCondition": {
+    "needMonthSupport": true,
+    "needLeaderPresent": true,
+    "needNoStrongXung": true,
+    "needNoBrokenSeason": true
+  },
+
+  "lucHopCondition": {
+    "needSupportElement": true,
+    "blockedByXung": true,
+    "blockedByStrongKhac": true
+  },
+
+  "cucKhi": {
+    "Thuy": {
+      "branches": ["Thân", "Tý", "Thìn"],
+      "leader": "Tý"
+    },
+
+    "Hoa": {
+      "branches": ["Dần", "Ngọ", "Tuất"],
+      "leader": "Ngọ"
+    },
+
+    "Moc": {
+      "branches": ["Hợi", "Mão", "Mùi"],
+      "leader": "Mão"
+    },
+
+    "Kim": {
+      "branches": ["Tỵ", "Dậu", "Sửu"],
+      "leader": "Dậu"
+    }
+  },
+
+  "cucKhiCondition": {
+    "needCompleteBranch": true,
+    "needSeasonSupport": true,
+    "needNoXung": true,
+    "needStrongRoot": true
+  },
+
+  "thauCan": {
+    "sameStem": 6,
+    "sameElement": 4,
+    "multipleRootBonus": 3
+  },
+
+  "thongCan": {
+    "strongRoot": 8,
+    "mediumRoot": 5,
+    "weakRoot": 2
+  },
+
+  "daoHoa": {
+    "ThanTyThin": "Dậu",
+    "DanNgoTuat": "Mão",
+    "HoiMaoMui": "Tý",
+    "TyDauSuu": "Ngọ"
+  },
+
+  "dichMa": {
+    "ThanTyThin": "Dần",
+    "DanNgoTuat": "Thân",
+    "HoiMaoMui": "Tỵ",
+    "TyDauSuu": "Hợi"
+  },
+
+  "coQua": {
+    "ThanTyThin": {
+      "coThan": "Thìn",
+      "quaTu": "Tuất"
+    },
+
+    "DanNgoTuat": {
+      "coThan": "Tuất",
+      "quaTu": "Thìn"
+    },
+
+    "HoiMaoMui": {
+      "coThan": "Mùi",
+      "quaTu": "Sửu"
+    },
+
+    "TyDauSuu": {
+      "coThan": "Sửu",
+      "quaTu": "Mùi"
+    }
+  },
+  "rootLevels": {
+    "strongRoot": {
+      "score": 10,
+      "description": "Đắc bản khí cùng ngũ hành"
+    },
+
+    "mediumRoot": {
+      "score": 6,
+      "description": "Có trung khí hỗ trợ"
+    },
+
+    "weakRoot": {
+      "score": 3,
+      "description": "Dư khí hoặc trường sinh"
+    },
+
+    "noRoot": {
+      "score": -8,
+      "description": "Vô căn"
+    }
+  },
+  
+  "seasonState": {
+    "Moc": {
+      "spring": "vuong",
+      "summer": "tuong",
+      "autumn": "tu",
+      "winter": "sinh"
+    },
+
+    "Hoa": {
+      "spring": "tuong",
+      "summer": "vuong",
+      "autumn": "suy",
+      "winter": "tu"
+    },
+
+    "Tho": {
+      "spring": "tuong",
+      "summer": "vuong",
+      "autumn": "tuong",
+      "winter": "suy"
+    },
+
+    "Kim": {
+      "spring": "tu",
+      "summer": "suy",
+      "autumn": "vuong",
+      "winter": "tuong"
+    },
+
+    "Thuy": {
+      "spring": "nghi",
+      "summer": "tu",
+      "autumn": "tuong",
+      "winter": "vuong"
+    }
+  },
+  
+  "tongCach": {
+    "enabled": true,
+
+    "types": {
+      "tongTai": {
+        "name": "Tòng Tài",
+        "follow": "Tai"
+      },
+
+      "tongQuan": {
+        "name": "Tòng Quan",
+        "follow": "Quan"
+      },
+
+      "tongSat": {
+        "name": "Tòng Sát",
+        "follow": "Sat"
+      },
+
+      "tongNhi": {
+        "name": "Tòng Nhi",
+        "follow": "ThucThuong"
+      },
+
+      "tongThe": {
+        "name": "Tòng Thế",
+        "follow": "StrongParty"
+      }
+    },
+
+    "conditions": {
+      "maxSelfPercent": 15,
+      "minFollowPercent": 70,
+
+      "requireNoStrongRoot": true,
+      "requireNoSeasonSupport": true,
+      "requireNoStrongResource": true,
+
+      "allowWeakResidualRoot": true,
+      "allowTruongSinhRoot": true
+    },
+
+    "rootBreakLevel": {
+      "mainRoot": true,
+      "middleRoot": true,
+      "residualRoot": false,
+      "truongSinhRoot": false
+    },
+
+    "quality": {
+      "chanTong": {
+        "score": 20
+      },
+
+      "giaTong": {
+        "score": 5
+      },
+
+      "phaTong": {
+        "score": -15
+      }
+    },
+
+    "breakRules": {
+      "strongRootAppear": true,
+      "seasonSupportAppear": true,
+      "strongResourceAppear": true,
+      "sameElementTooMany": true
+    },
+
+    "semiTong": {
+      "enabled": true,
+      "threshold": 60,
+      "scoreMultiplier": 0.6
+    },
+
+    "score": {
+      "perfectTong": 30,
+      "goodTong": 20,
+      "semiTong": 10,
+      "fakeTong": -10
+    },
+
+    "seasonBonus": {
+      "dominantAtMonth": 15,
+      "supportedAtMonth": 8
+    },
+
+    "flowBonus": {
+      "smoothFlow": 10,
+      "blockedFlow": -8
+    },
+
+    "phanCucRules": {
+      "mixedDominantGroups": true,
+      "conflictingYongThan": true,
+      "brokenFlow": true
+    }
+  },
+
+  "tongYongShen": {
+    "tongTai": {
+      "prefer": [
+        "Tai",
+        "Quan",
+        "ThucThuong"
+      ],
+
+      "avoid": [
+        "An",
+        "TyKiep"
+      ]
+    },
+
+    "tongQuan": {
+      "prefer": [
+        "Quan",
+        "Tai"
+      ],
+
+      "avoid": [
+        "An",
+        "TyKiep"
+      ]
+    },
+
+    "tongSat": {
+      "prefer": [
+        "Sat"
+      ],
+
+      "avoid": [
+        "An",
+        "TyKiep"
+      ]
+    },
+
+    "tongNhi": {
+      "prefer": [
+        "ThucThan",
+        "ThuongQuan"
+      ],
+
+      "avoid": [
+        "An"
+      ]
+    },
+
+    "tongThe": {
+      "prefer": [
+        "sameParty"
+      ],
+
+      "avoid": [
+        "oppositeParty"
+      ]
+    }
+  },
+
+  "tongThe": {
+    "samePartyThreshold": 85,
+    "differentPartyMax": 10
+  },
+
+  "thapThan": {
+    "sameElementSamePolarity": "TyKien",
+    "sameElementDiffPolarity": "KiepTai",
+
+    "generatedSamePolarity": "ThucThan",
+    "generatedDiffPolarity": "ThuongQuan",
+
+    "controlledSamePolarity": "ChinhTai",
+    "controlledDiffPolarity": "ThienTai",
+
+    "controlledBySamePolarity": "ChinhQuan",
+    "controlledByDiffPolarity": "ThatSat",
+
+    "resourceSamePolarity": "ChinhAn",
+    "resourceDiffPolarity": "ThienAn"
+  },
+
+  "thapThanScore": {
+    "TyKien": 4,
+    "KiepTai": 3,
+
+    "ThucThan": 6,
+    "ThuongQuan": 5,
+
+    "ChinhTai": 7,
+    "ThienTai": 6,
+
+    "ChinhQuan": 8,
+    "ThatSat": 7,
+
+    "ChinhAn": 6,
+    "ThienAn": 5
+  },
+
+  "structures": {
+    "chinhQuan": {
+      "priority": 10
+    },
+
+    "thatSat": {
+      "priority": 9
+    },
+
+    "taiCach": {
+      "priority": 8
+    },
+
+    "anCach": {
+      "priority": 8
+    },
+
+    "thuongQuan": {
+      "priority": 7
+    },
+
+    "satAnTuongSinh": {
+      "priority": 10
+    },
+
+    "thuongQuanPhoiAn": {
+      "priority": 10
+    },
+
+    "taiQuanSongMy": {
+      "priority": 9
+    }
+  },
+
+  "structureBreak": {
+    "thuongQuanKienQuan": -15,
+    "taiPhaAn": -10,
+    "kieuThanDoatThuc": -12,
+    "quanSatHonTap": -8,
+    "thanSatQuaTap": -6
+  },
+
+  "yongShen": {
+    "thanVuong": {
+      "prefer": [
+        "khac",
+        "hao",
+        "tiet"
+      ],
+
+      "avoid": [
+        "tro",
+        "sinh"
+      ]
+    },
+
+    "thanNhuoc": {
+      "prefer": [
+        "tro",
+        "sinh"
+      ],
+
+      "avoid": [
+        "khac",
+        "hao"
+      ]
+    }
+  },
+
+  "dieuHau": {
+    "winterWater": {
+      "need": [
+        "Hoa"
+      ],
+      "priority": 10
+    },
+
+    "summerFire": {
+      "need": [
+        "Thuy"
+      ],
+      "priority": 10
+    },
+
+    "dryEarth": {
+      "need": [
+        "Thuy"
+      ],
+      "priority": 7
+    },
+
+    "wetEarth": {
+      "need": [
+        "Hoa"
+      ],
+      "priority": 6
+    }
+  },
+
+  "flowScore": {
+    "smoothFlow": 10,
+    "partialFlow": 5,
+    "blockedFlow": -8
+  },
+
+  "conflictRules": {
+    "multiHop": -3,
+    "multiXung": -6,
+    "xungWar": -10,
+    "hopButNoHoa": -2
+  },
+
+  "specialStarScore": {
+    "thienAtQuyNhan": 6,
+    "vanXuong": 4,
+    "daoHoa": 3,
+    "hoaCai": 2,
+    "kiepSat": -5,
+    "coThan": -4,
+    "quaTu": -4
+  },
+
+  "khongVong": {
+    "active": true,
+    "score": -4
+  },
+
+  "scoreConfig": {
+    "canWeight": 10,
+    "chiWeight": 12,
+    "tangCanWeight": 4,
+    "monthScale": 1.5,
+    "relationScore": {
+      "tro": 12,
+      "sinh": -5,
+      "khac": -10,
+      "bi_khac": -8,
+      "duoc_sinh": 15
+    },
     "special": {
       "tamHop": 15,
-      "banTamHop": 6,
-      "lucXung": -8,
-      "lucHop": 4,
-      "lucHai": -4,
-      "lucPha": -4,
-      "moKhoStrong": -4,
-      "moKhoWeak": 2
+      "banTamHop": 8,
+      "lucXung": -12,
+      "lucHop": 10,
+      "lucHai": -6,
+      "lucPha": -5
     }
   }
 }

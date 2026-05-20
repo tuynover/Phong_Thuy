@@ -79,6 +79,17 @@ const BaziBoard = ({ data }) => {
         return thanStr;
     };
 
+    const formatElement = (el) => {
+        switch (el) {
+            case 'Moc': return 'Mộc';
+            case 'Hoa': return 'Hỏa';
+            case 'Tho': return 'Thổ';
+            case 'Kim': return 'Kim';
+            case 'Thuy': return 'Thủy';
+            default: return el;
+        }
+    };
+
     return (
         <div className="bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-gray-100 max-w-[1240px] mx-auto my-10 font-sans">
             
@@ -158,14 +169,14 @@ const BaziBoard = ({ data }) => {
                                 </div>
                             )}
 
-                            <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border-l-4 border-l-emerald-500">
+                            <div className={`flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border-l-4 ${getBgColorClass(dungThan).replace('bg-', 'border-l-').replace(/border-\w+-200/, '')}`}>
                                 <span className="font-bold text-gray-600">Dụng Thần (Khuyên Chuyên)</span>
-                                <span className="text-xl font-black text-emerald-600 uppercase tracking-widest">{dungThan}</span>
+                                <span className={`text-xl font-black uppercase tracking-widest ${getColorClass(dungThan)}`}>{formatElement(dungThan)}</span>
                             </div>
 
-                            <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border-l-4 border-l-cyan-500">
+                            <div className={`flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border-l-4 ${getBgColorClass(hyThan).replace('bg-', 'border-l-').replace(/border-\w+-200/, '')}`}>
                                 <span className="font-bold text-gray-600">Hỷ Thần (Phụ Trợ)</span>
-                                <span className="text-xl font-black text-cyan-600 uppercase tracking-widest">{hyThan}</span>
+                                <span className={`text-xl font-black uppercase tracking-widest ${getColorClass(hyThan)}`}>{formatElement(hyThan)}</span>
                             </div>
                         </div>
                     </div>

@@ -1,6 +1,7 @@
 const hexagramsData = require('../data/hexagrams.json');
 const linesData = require('../data/lines.json');
 const { Lunar } = require('lunar-javascript');
+const HexagramRecord = require('../models/HexagramRecord');
 
 // Mapping Thiên Can từ Hán sang Việt
 const GAN_VI = {
@@ -89,6 +90,9 @@ class DivinationController {
     static async calculate(req, res) {
         try {
             const lines = req.body.lines; 
+            const userId = req.body.userId || 'guest';
+            const question = req.body.question || 'xem sức khỏe và công việc sắp tới có thuận lợi hay không';
+
             if (!lines || lines.length !== 6) {
                 return res.status(400).json({ error: 'Require exactly 6 lines.' });
             }
@@ -205,7 +209,7 @@ class DivinationController {
             const procPrimary = primaryHexLines.map((l, i) => processLine(l, i, primaryBinaryStr, false, primaryQtBranch));
             const procSecondary = secondaryHexLines.map((l, i) => processLine(l, i, secondaryBinaryStr, true, secondaryQtBranch));
 
-            return res.json({
+            const resultPayload = {
                 primary: primaryHexagram,
                 secondary: secondaryHexagram,
                 primaryLines: procPrimary,
@@ -223,7 +227,20 @@ class DivinationController {
                     nguyetLenh: `${monthBranch}-${getElement(monthBranch)}`,
                     tuankhong: tkStr
                 }
+            };
+
+            // Save to database (WITHOUT primaryLines and secondaryLines)
+            const record = new HexagramRecord({
+                userId,
+                question,
+                primaryHexagram: resultPayload.primary,
+                transformedHexagram: resultPayload.secondary,
+                movingLines: lines.map((l, i) => l.moving ? i + 1 : -1).filter(i => i !== -1),
+                lunarDateInfo: resultPayload.dateInfo
             });
+            await record.save();
+
+            return res.json({ ...resultPayload, recordId: record._id });
         } catch (error) {
             console.error(error);
             return res.status(500).json({ error: 'Server error' });

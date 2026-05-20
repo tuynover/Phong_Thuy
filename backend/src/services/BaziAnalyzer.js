@@ -40,6 +40,9 @@ class BaziAnalyzer {
         const solar = Solar.fromYmdHms(year, month, day, hour, minute, 0);
         const lunar = solar.getLunar();
         const bazi = lunar.getEightChar();
+        
+        const solarTimeline = `${String(day).padStart(2,'0')}/${String(month).padStart(2,'0')}/${year} ${String(hour).padStart(2,'0')}:${String(minute).padStart(2,'0')}`;
+        const tietKhiTimeline = `${toVi(bazi.getTimeGan() + bazi.getTimeZhi())} - ${toVi(bazi.getDayGan() + bazi.getDayZhi())} - ${toVi(bazi.getMonthGan() + bazi.getMonthZhi())} - ${toVi(bazi.getYearGan() + bazi.getYearZhi())}`;
 
         // Build Da Yun
         const yun = bazi.getYun(gender);
@@ -63,7 +66,7 @@ class BaziAnalyzer {
             const hiddenStemsArr = this.rules.hiddenStems[viZhi] || [];
             
             const tangCan = hiddenStemsArr.map((tGan, idx) => ({
-                gan: tGan,
+                gan: tGan.stem || tGan,
                 thapThan: toThapThan(hiddenList[idx])
             }));
 
@@ -109,7 +112,8 @@ class BaziAnalyzer {
             // Hidden Stems score
             const hiddens = this.rules.hiddenStems[zhi] || [];
             hiddens.forEach(hGan => {
-                const hElem = this.rules.stemElement[hGan];
+                const hStem = hGan.stem || hGan;
+                const hElem = this.rules.stemElement[hStem];
                 if (hElem) elementScore[hElem] += this.rules.scoreConfig.tangCanWeight;
             });
         });
@@ -153,29 +157,39 @@ class BaziAnalyzer {
         Object.keys(this.rules.branchRelations).forEach(relType => {
             const groups = this.rules.branchRelations[relType];
             groups.forEach(group => {
-                if (hasSubset(branchList, group)) {
-                    analysis.relations[relType].push(group.join('-'));
-                    
-                    // Adjust scores for Special
-                    const points = this.rules.scoreConfig.special[relType];
-                    if (points) {
-                        // Tam hop -> becomes strong element. Example Thân Tý Thìn -> Thủy
-                        if (relType === 'tamHop' || relType === 'banTamHop') {
-                            const domElem = this.rules.branchElement[group[1]]; // Center branch element usually defines Tam hợp
-                            elementScore[domElem] += points;
-                        } else if (relType === 'lucXung') {
-                            // Xung deducts points for both elements equally
-                            group.forEach(z => {
-                                const e = this.rules.branchElement[z];
-                                elementScore[e] += points; // points is negative (-8)
-                            });
-                        } else if (relType === 'lucHop') {
-                             group.forEach(z => elementScore[this.rules.branchElement[z]] += points/2);
-                        } else {
-                            // Hai, pha -> negative
-                            group.forEach(z => elementScore[this.rules.branchElement[z]] += points/2);
+                const targetBranches = group.branches || group;
+                if (!Array.isArray(targetBranches)) {
+                    console.error('Invalid targetBranches:', targetBranches, 'from group:', group);
+                    return;
+                }
+                try {
+                    if (hasSubset(branchList, targetBranches)) {
+                        analysis.relations[relType].push(targetBranches.join('-'));
+                        
+                        // Adjust scores for Special
+                        const points = this.rules.scoreConfig.special[relType];
+                        if (points) {
+                            // Tam hop -> becomes strong element. Example Thân Tý Thìn -> Thủy
+                            if (relType === 'tamHop' || relType === 'banTamHop') {
+                                const domElem = this.rules.branchElement[targetBranches[1]]; // Center branch element usually defines Tam hợp
+                                elementScore[domElem] += points;
+                            } else if (relType === 'lucXung') {
+                                // Xung deducts points for both elements equally
+                                targetBranches.forEach(z => {
+                                    const e = this.rules.branchElement[z];
+                                    elementScore[e] += points; // points is negative (-8)
+                                });
+                            } else if (relType === 'lucHop') {
+                                 targetBranches.forEach(z => elementScore[this.rules.branchElement[z]] += points/2);
+                            } else {
+                                // Hai, pha -> negative
+                                targetBranches.forEach(z => elementScore[this.rules.branchElement[z]] += points/2);
+                            }
                         }
                     }
+                } catch (err) {
+                    console.error('Error in branch relations loop:', err);
+                    console.error('RelType:', relType, 'Group:', group, 'TargetBranches:', targetBranches);
                 }
             });
         });
@@ -284,12 +298,35 @@ class BaziAnalyzer {
             }
         }
 
+        // PHASE 4.5: Nguyệt Lệnh Dụng Thần
+        let nguyetLenhDungThan = "";
+        const mZhi = canChi.month.zhi;
+        const mTangs = this.rules.hiddenStems[mZhi] || [];
+        const exposedStems = [canChi.year.gan, canChi.month.gan, canChi.day.gan, canChi.hour.gan];
+        
+        const exposedTang = mTangs.filter(t => exposedStems.includes(t.stem || t));
+        if (exposedTang.length > 0) {
+            nguyetLenhDungThan = exposedTang[0].stem || exposedTang[0]; // Ordered by Primary first
+        } else {
+            if (['Tý', 'Mão', 'Dậu'].includes(mZhi)) {
+                nguyetLenhDungThan = mTangs[0].stem || mTangs[0];
+            } else if (mZhi === 'Ngọ') {
+                if (exposedStems.includes('Kỷ')) nguyetLenhDungThan = 'Kỷ';
+                else nguyetLenhDungThan = 'Đinh';
+            } else {
+                nguyetLenhDungThan = mTangs[0].stem || mTangs[0];
+            }
+        }
+
         return {
+            solarTimeline,
+            tietKhiTimeline,
             canChi,
             nguHanh: elementScore,
             analysis,
             dungThan,
             hyThan,
+            nguyetLenhDungThan,
             daYun: daYunData
         };
     }

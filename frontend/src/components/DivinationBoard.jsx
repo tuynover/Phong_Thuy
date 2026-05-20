@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Tooltip from './Tooltip';
 import { hexagramDictionary } from '../data/hexagrams';
+import ReactMarkdown from 'react-markdown';
+import { interpretHexagram } from '../services/api';
+import { AlertCircle, BookOpen, ScrollText } from 'lucide-react';
 
 const getColorClass = (element) => {
     switch (element) {
@@ -93,8 +96,73 @@ const getChiOnly = (stemBranch) => {
     return parts.length >= 2 ? parts[parts.length - 1] : stemBranch;
 };
 
-const DivinationBoard = ({ result }) => {
+const DivinationBoard = ({ result, user, onRequireLogin }) => {
     const [selectedHex, setSelectedHex] = useState(null);
+    const [isInterpreting, setIsInterpreting] = useState(false);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    
+    // Check if result has interpretation directly (from AI endpoint) 
+    // or from recordWrapper (aiInterpretation field)
+    const [interpretation, setInterpretation] = useState(result?.aiInterpretation || '');
+    const [error, setError] = useState('');
+    const [loadingStep, setLoadingStep] = useState(0);
+
+    // Update interpretation if result changes (e.g. user clicks another history item)
+    useEffect(() => {
+        if (result?.aiInterpretation) {
+            setInterpretation(result.aiInterpretation);
+        } else {
+            setInterpretation('');
+        }
+    }, [result]);
+
+    const loadingTexts = [
+        "Đang phân tích Nhật Nguyệt...",
+        "Đang xét sức mạnh Dụng Thần...",
+        "Đang tính toán Hào Động...",
+        "Đang tổng hợp luận giải..."
+    ];
+
+    useEffect(() => {
+        let interval;
+        if (isInterpreting) {
+            setLoadingStep(0);
+            interval = setInterval(() => {
+                setLoadingStep(prev => (prev < loadingTexts.length - 1 ? prev + 1 : prev));
+            }, 3000);
+        }
+        return () => clearInterval(interval);
+    }, [isInterpreting]);
+
+    const triggerLuanGiai = async () => {
+        setIsInterpreting(true);
+        setError('');
+        setInterpretation('');
+
+        try {
+            const res = await interpretHexagram(result.recordId);
+            setInterpretation(res.data.interpretation);
+        } catch (err) {
+            console.error(err);
+            setError(err.response?.data?.error || "Hệ thống luận giải đang quá tải hoặc gặp sự cố. Vui lòng thử lại sau.");
+        } finally {
+            setIsInterpreting(false);
+        }
+    };
+
+    const handleAILuanGiai = async () => {
+        if (!user) {
+            if (onRequireLogin) onRequireLogin();
+            return;
+        }
+        
+        if (!result.recordId) {
+            alert("Lỗi: Quẻ này chưa được lưu vào hệ thống, không thể luận giải.");
+            return;
+        }
+
+        setShowConfirmModal(true);
+    };
 
     if (!result) return null;
 
@@ -412,6 +480,83 @@ const DivinationBoard = ({ result }) => {
                     )}
                 </div>
             </div>
+
+            {/* KẾT QUẢ THẦY DỊCH GIẢI */}
+            {interpretation && (
+                <div className="w-full mt-4 mb-8 bg-gradient-to-br from-amber-50/70 to-orange-50/30 border border-amber-200 rounded-2xl shadow-lg p-6 md:p-8 relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-amber-800 opacity-5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                    <div className="flex items-center gap-3 mb-6 border-b border-amber-200 pb-4">
+                        <div className="w-10 h-10 bg-amber-800 rounded-full flex items-center justify-center shadow-md">
+                            <BookOpen className="text-white" size={20} />
+                        </div>
+                        <h3 className="text-2xl font-black text-amber-950 tracking-tight">Thầy Dịch Giải Chi Tiết</h3>
+                    </div>
+                    <div className="prose prose-amber max-w-none text-gray-800 leading-relaxed font-medium">
+                        <ReactMarkdown>{interpretation}</ReactMarkdown>
+                    </div>
+                </div>
+            )}
+
+            {error && (
+                <div className="w-full mt-4 mb-8 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-xl flex items-start gap-3">
+                    <AlertCircle className="text-red-500 shrink-0 mt-0.5" size={20} />
+                    <p className="text-red-800 font-medium">{error}</p>
+                </div>
+            )}
+
+            {/* FLOATING ACTION BUTTON */}
+            {!interpretation && (
+                <button
+                    onClick={handleAILuanGiai}
+                    disabled={isInterpreting}
+                    className={`fixed bottom-24 right-4 md:right-8 z-50 flex items-center gap-2 px-5 py-3 rounded-full shadow-2xl transition-all duration-300 font-bold border ${isInterpreting ? 'bg-amber-100 border-amber-200 text-amber-500 cursor-not-allowed scale-95' : 'bg-gradient-to-r from-amber-800 to-amber-950 hover:from-amber-900 hover:to-stone-900 text-white border-amber-700 hover:scale-105 hover:shadow-amber-900/40'}`}
+                >
+                    {isInterpreting ? (
+                        <>
+                            <div className="w-5 h-5 border-2 border-amber-600 border-t-transparent rounded-full animate-spin"></div>
+                            <span className="text-sm">{loadingTexts[loadingStep]}</span>
+                        </>
+                    ) : (
+                        <>
+                            <ScrollText className="animate-pulse" size={20} />
+                            <span className="hidden sm:inline">Thầy Dịch Giải</span>
+                        </>
+                    )}
+                </button>
+            )}
+
+            {/* CONFIRMATION MODAL */}
+            {showConfirmModal && (
+                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[99999] flex justify-center items-center p-4">
+                    <div className="bg-white max-w-md w-full rounded-2xl shadow-2xl p-6 relative overflow-hidden animate-in fade-in zoom-in-95 duration-200 border-t-8 border-t-amber-800">
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-amber-800 opacity-5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                        <h3 className="text-xl font-bold text-amber-950 mb-3 flex items-center gap-2">
+                            <ScrollText className="text-amber-800" size={24} />
+                            Thầy Dịch Giải Chi Tiết
+                        </h3>
+                        <p className="text-gray-600 mb-6 leading-relaxed text-sm">
+                            Bạn có muốn khởi động luận giải chi tiết cho quẻ này không? Quá trình phân tích chuyên sâu Lục Hào, sinh khắc và Nhật Nguyệt sẽ mất khoảng 10-20 giây.
+                        </p>
+                        <div className="flex justify-end gap-3">
+                            <button 
+                                onClick={() => setShowConfirmModal(false)}
+                                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 font-semibold text-sm transition-colors"
+                            >
+                                Hủy bỏ
+                            </button>
+                            <button 
+                                onClick={() => {
+                                    setShowConfirmModal(false);
+                                    triggerLuanGiai();
+                                }}
+                                className="px-5 py-2 bg-amber-800 text-white rounded-xl hover:bg-amber-900 font-semibold text-sm transition-colors shadow-md hover:shadow-lg"
+                            >
+                                Bắt đầu dịch giải
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* HEXAGRAM DETAIL MODAL */}
             {selectedHex && (
