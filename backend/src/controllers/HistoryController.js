@@ -5,10 +5,33 @@ const RuleEngineService = require('../services/RuleEngineService');
 const PromptTemplateManager = require('../services/PromptTemplateManager');
 const AiService = require('../services/AiService');
 const HexagramDataService = require('../services/HexagramDataService');
+const mongoose = require('mongoose');
 
 const CURRENT_ICHING_PROMPT_VERSION = "v1.2";
 const CURRENT_BAZI_PROMPT_VERSION = "v1.2";
 const ACTIVE_MODEL = "gemini-3.1-flash-lite";
+
+const findByIdFlex = async (Model, id) => {
+    let record = await Model.findById(id);
+    if (!record && mongoose.isValidObjectId(id)) {
+        const rawObj = await Model.collection.findOne({ _id: new mongoose.Types.ObjectId(id) });
+        if (rawObj) record = Model.hydrate(rawObj);
+    }
+    return record;
+};
+
+const updateByIdFlex = async (Model, id, update) => {
+    let record = await Model.findByIdAndUpdate(id, update, { new: true });
+    if (!record && mongoose.isValidObjectId(id)) {
+        const rawObj = await Model.collection.findOneAndUpdate(
+            { _id: new mongoose.Types.ObjectId(id) },
+            { $set: { ...update, updatedAt: new Date() } },
+            { returnDocument: 'after' }
+        );
+        if (rawObj) record = Model.hydrate(rawObj);
+    }
+    return record;
+};
 
 class HistoryController {
     static async getHexagramHistory(req, res) {
@@ -54,11 +77,7 @@ class HistoryController {
             const { id } = req.params;
             const { rating, feedback } = req.body;
             
-            const record = await HexagramRecord.findByIdAndUpdate(
-                id, 
-                { rating, feedback },
-                { new: true }
-            );
+            const record = await updateByIdFlex(HexagramRecord, id, { rating, feedback });
             
             if (!record) return res.status(404).json({ error: 'Record not found' });
             return res.json(record);
@@ -73,11 +92,7 @@ class HistoryController {
             const { id } = req.params;
             const { rating, feedback } = req.body;
             
-            const record = await BaziRecord.findByIdAndUpdate(
-                id, 
-                { rating, feedback },
-                { new: true }
-            );
+            const record = await updateByIdFlex(BaziRecord, id, { rating, feedback });
             
             if (!record) return res.status(404).json({ error: 'Record not found' });
             return res.json(record);
@@ -92,11 +107,7 @@ class HistoryController {
             const { id } = req.params;
             const { userId } = req.body;
             
-            const record = await HexagramRecord.findByIdAndUpdate(
-                id, 
-                { userId },
-                { new: true }
-            );
+            const record = await updateByIdFlex(HexagramRecord, id, { userId });
             
             if (!record) return res.status(404).json({ error: 'Record not found' });
             return res.json(record);
@@ -111,11 +122,7 @@ class HistoryController {
             const { id } = req.params;
             const { userId } = req.body;
             
-            const record = await BaziRecord.findByIdAndUpdate(
-                id, 
-                { userId },
-                { new: true }
-            );
+            const record = await updateByIdFlex(BaziRecord, id, { userId });
             
             if (!record) return res.status(404).json({ error: 'Record not found' });
             return res.json(record);
@@ -130,7 +137,7 @@ class HistoryController {
         let record = null;
 
         try {
-            record = await HexagramRecord.findById(id);
+            record = await findByIdFlex(HexagramRecord, id);
             if (!record) {
                 return res.status(404).json({ error: 'Không tìm thấy bản ghi quẻ dịch.' });
             }
@@ -168,7 +175,7 @@ class HistoryController {
             }
 
             // Lock the record
-            await HexagramRecord.findByIdAndUpdate(id, { isGeneratingInterpretation: true });
+            await updateByIdFlex(HexagramRecord, id, { isGeneratingInterpretation: true });
 
             // 0. Reconstruct lines
             const reconstructed = HexagramDataService.reconstructLines(record.toObject());
@@ -210,7 +217,7 @@ class HistoryController {
             const tokensUsed = Math.ceil(cleanedContent.length / 4.2);
 
             // 5. Update Database Record with rich metadata
-            await HexagramRecord.findByIdAndUpdate(id, {
+            await updateByIdFlex(HexagramRecord, id, {
                 aiInterpretation: {
                     content: cleanedContent,
                     generatedAt: new Date(),
@@ -231,7 +238,7 @@ class HistoryController {
             res.end();
         } finally {
             if (record) {
-                await HexagramRecord.findByIdAndUpdate(id, { isGeneratingInterpretation: false });
+                await updateByIdFlex(HexagramRecord, id, { isGeneratingInterpretation: false });
             }
         }
     }
@@ -241,7 +248,7 @@ class HistoryController {
         let record = null;
 
         try {
-            record = await BaziRecord.findById(id);
+            record = await findByIdFlex(BaziRecord, id);
             if (!record) {
                 return res.status(404).json({ error: 'Không tìm thấy bản ghi Bát Tự.' });
             }
@@ -278,7 +285,7 @@ class HistoryController {
             }
 
             // Lock the record
-            await BaziRecord.findByIdAndUpdate(id, { isGeneratingInterpretation: true });
+            await updateByIdFlex(BaziRecord, id, { isGeneratingInterpretation: true });
 
             // 1. Generate Prompt using analyzed Bazi data
             const prompt = PromptTemplateManager.getBaziInterpretationPrompt(record.toObject());
@@ -298,7 +305,7 @@ class HistoryController {
             const tokensUsed = Math.ceil(cleanedContent.length / 4.2);
 
             // 4. Update Database Record with rich metadata
-            await BaziRecord.findByIdAndUpdate(id, {
+            await updateByIdFlex(BaziRecord, id, {
                 aiInterpretation: {
                     content: cleanedContent,
                     generatedAt: new Date(),
@@ -318,7 +325,7 @@ class HistoryController {
             res.end();
         } finally {
             if (record) {
-                await BaziRecord.findByIdAndUpdate(id, { isGeneratingInterpretation: false });
+                await updateByIdFlex(BaziRecord, id, { isGeneratingInterpretation: false });
             }
         }
     }

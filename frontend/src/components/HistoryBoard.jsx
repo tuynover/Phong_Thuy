@@ -41,9 +41,8 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi }) => {
                 await rateBazi(id, rating, feedback);
                 setBazis(bazis.map(b => b._id === id ? { ...b, rating, feedback } : b));
             }
-            alert("Đã lưu đánh giá thành công!");
         } catch (err) {
-            alert("Lỗi khi lưu đánh giá.");
+            console.error("Lỗi khi lưu đánh giá.", err);
         }
     };
 
@@ -88,34 +87,41 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi }) => {
             <div className="space-y-4">
                 {activeTab === 'hexagram' && hexagrams.length === 0 && <p className="text-center text-gray-500">Chưa có quẻ nào được gieo.</p>}
                 {activeTab === 'hexagram' && hexagrams.map((record) => (
-                    <div key={record._id} className="border border-amber-100 rounded-xl p-4 hover:shadow-md transition-shadow bg-amber-50/20">
+                    <div key={record._id} onClick={() => onViewHexagram(record)} className="border border-amber-100 rounded-xl p-4 hover:shadow-md transition-shadow bg-amber-50/20 cursor-pointer">
                         <div className="flex justify-between items-start mb-2">
-                            <div className="cursor-pointer" onClick={() => onViewHexagram(record)}>
+                            <div>
                                 <h3 className="font-bold text-lg text-amber-900">{record.primaryHexagram.name} {record.transformedHexagram?.name ? `-> ${record.transformedHexagram.name}` : ''}</h3>
                                 <p className="text-sm text-gray-600 italic">Hỏi: {record.question}</p>
                                 <p className="text-xs text-gray-400 flex items-center gap-1 mt-1"><Clock size={12}/> {new Date(record.dateCast).toLocaleString('vi-VN')}</p>
                             </div>
-                            <button onClick={() => onViewHexagram(record)} className="text-amber-600 hover:underline text-sm font-medium">Xem chi tiết</button>
+                            <button className="text-amber-600 hover:underline text-sm font-medium">Xem chi tiết</button>
                         </div>
                         
                         {/* Rating Section */}
-                        <div className="mt-4 pt-4 border-t border-amber-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div onClick={(e) => e.stopPropagation()} className="mt-4 pt-4 border-t border-amber-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-default">
                             <div className="flex items-center gap-2">
                                 <span className="text-sm font-medium text-gray-700">Độ chính xác:</span>
-                                {renderStars(record.rating, (rating) => handleRate('hexagram', record._id, rating, record.feedback))}
+                                {renderStars(record.rating, (rating) => handleRate('hexagram', record._id, rating, document.getElementById(`feedback-hex-${record._id}`)?.value || record.feedback))}
                             </div>
                             <div className="flex-1 flex gap-2">
                                 <input 
                                     type="text" 
+                                    id={`feedback-hex-${record._id}`}
                                     placeholder="Ghi chú ứng kỳ..." 
                                     className="flex-1 text-sm px-3 py-1 border border-gray-200 rounded focus:border-amber-400 focus:outline-none"
                                     defaultValue={record.feedback}
-                                    onBlur={(e) => {
-                                        if (e.target.value !== record.feedback) {
-                                            handleRate('hexagram', record._id, record.rating, e.target.value);
+                                />
+                                <button 
+                                    onClick={() => {
+                                        const val = document.getElementById(`feedback-hex-${record._id}`).value;
+                                        if (val !== record.feedback || !record.rating) {
+                                            handleRate('hexagram', record._id, record.rating, val);
                                         }
                                     }}
-                                />
+                                    className="px-4 py-1 bg-amber-600 text-white text-sm font-medium rounded shadow hover:bg-amber-700 transition-colors"
+                                >
+                                    Lưu
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -123,33 +129,40 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi }) => {
 
                 {activeTab === 'bazi' && bazis.length === 0 && <p className="text-center text-gray-500">Chưa có lá số nào được lập.</p>}
                 {activeTab === 'bazi' && bazis.map((record) => (
-                    <div key={record._id} className="border border-blue-100 rounded-xl p-4 hover:shadow-md transition-shadow bg-blue-50/20">
+                    <div key={record._id} onClick={() => onViewBazi(record)} className="border border-blue-100 rounded-xl p-4 hover:shadow-md transition-shadow bg-blue-50/20 cursor-pointer">
                         <div className="flex justify-between items-start mb-2">
-                            <div className="cursor-pointer" onClick={() => onViewBazi(record)}>
+                            <div>
                                 <h3 className="font-bold text-lg text-blue-900">Lá số: {record.inputInfo.date} {record.inputInfo.time} ({record.inputInfo.gender === 1 ? 'Nam' : 'Nữ'})</h3>
                                 <p className="text-xs text-gray-400 flex items-center gap-1 mt-1"><Calendar size={12}/> Tiết khí: {record.tietKhiTimeline}</p>
                             </div>
-                            <button onClick={() => onViewBazi(record)} className="text-blue-600 hover:underline text-sm font-medium">Xem chi tiết</button>
+                            <button className="text-blue-600 hover:underline text-sm font-medium">Xem chi tiết</button>
                         </div>
                         
                         {/* Rating Section */}
-                        <div className="mt-4 pt-4 border-t border-blue-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div onClick={(e) => e.stopPropagation()} className="mt-4 pt-4 border-t border-blue-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-default">
                             <div className="flex items-center gap-2">
                                 <span className="text-sm font-medium text-gray-700">Đánh giá:</span>
-                                {renderStars(record.rating, (rating) => handleRate('bazi', record._id, rating, record.feedback))}
+                                {renderStars(record.rating, (rating) => handleRate('bazi', record._id, rating, document.getElementById(`feedback-bazi-${record._id}`)?.value || record.feedback))}
                             </div>
                             <div className="flex-1 flex gap-2">
                                 <input 
                                     type="text" 
+                                    id={`feedback-bazi-${record._id}`}
                                     placeholder="Nhận xét..." 
                                     className="flex-1 text-sm px-3 py-1 border border-gray-200 rounded focus:border-blue-400 focus:outline-none"
                                     defaultValue={record.feedback}
-                                    onBlur={(e) => {
-                                        if (e.target.value !== record.feedback) {
-                                            handleRate('bazi', record._id, record.rating, e.target.value);
+                                />
+                                <button 
+                                    onClick={() => {
+                                        const val = document.getElementById(`feedback-bazi-${record._id}`).value;
+                                        if (val !== record.feedback || !record.rating) {
+                                            handleRate('bazi', record._id, record.rating, val);
                                         }
                                     }}
-                                />
+                                    className="px-4 py-1 bg-blue-600 text-white text-sm font-medium rounded shadow hover:bg-blue-700 transition-colors"
+                                >
+                                    Lưu
+                                </button>
                             </div>
                         </div>
                     </div>
