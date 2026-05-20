@@ -7,6 +7,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [name, setName] = useState('');
   const [day, setDay] = useState('');
   const [month, setMonth] = useState('');
@@ -29,6 +30,11 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
     if (isLogin) {
       res = await login(email, password);
     } else {
+      if (password !== confirmPassword) {
+        setError('Mật khẩu nhập lại không khớp!');
+        setLoading(false);
+        return;
+      }
       res = await register(email, password, name, day, month, year, hour, minute, gender);
     }
 
@@ -45,8 +51,9 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl w-full max-w-md p-6 relative shadow-xl">
         <button 
+          type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-700"
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 z-50"
         >
           <X size={24} />
         </button>
@@ -137,6 +144,20 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
               placeholder="••••••••"
             />
           </div>
+          
+          {!isLogin && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Xác nhận mật khẩu</label>
+              <input 
+                type="password"
+                required
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                placeholder="••••••••"
+              />
+            </div>
+          )}
 
           <button 
             type="submit"
