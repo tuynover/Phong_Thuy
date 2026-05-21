@@ -9,7 +9,8 @@ import AuthModal from './components/AuthModal';
 import UpdateBaziModal from './components/UpdateBaziModal';
 import { AuthContext } from './context/AuthContext';
 import { calculateDivination, analyzeBazi, linkHexagram, linkBazi } from './services/api';
-import { UserCircle, LogOut } from 'lucide-react';
+import { UserCircle, LogOut, CalendarDays } from 'lucide-react';
+import { Lunar } from 'lunar-javascript';
 
 function App() {
   const [appMode, setAppMode] = useState(() => localStorage.getItem('appMode') || 'iching'); // 'iching' | 'bazi' | 'history'
@@ -178,63 +179,75 @@ function App() {
       <div className="max-w-6xl mx-auto space-y-8">
         
         {/* TOP NAVIGATION TABS & AUTH */}
-        <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
-            <div className="w-full md:w-1/3"></div>
-            <div className="bg-white p-2 flex flex-wrap gap-2 rounded-full shadow border border-gray-100 justify-center">
-                <button 
-                  onClick={() => setAppMode('iching')} 
-                  className={`px-8 py-3 rounded-full font-bold transition-all ${appMode === 'iching' ? 'bg-amber-800 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50'}`}
-                >
-                  Dịch Lý Lục Hào
-                </button>
-                <button 
-                  onClick={() => setAppMode('bazi')} 
-                  className={`px-8 py-3 rounded-full font-bold transition-all ${appMode === 'bazi' ? 'bg-blue-800 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50'}`}
-                >
-                  Bát Tự Tử Bình
-                </button>
-                {user && (
-                  <button 
-                    onClick={() => setAppMode('history')} 
-                    className={`px-8 py-3 rounded-full font-bold transition-all ${appMode === 'history' ? 'bg-slate-800 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50'}`}
-                  >
-                    Lịch Sử
-                  </button>
-                )}
-            </div>
-            <div className="w-full md:w-1/3 flex justify-center md:justify-end">
+        <div className="relative w-full flex justify-center mb-12 mt-4">
+            {/* AUTH BUTTON (Absolute Top Right) */}
+            <div className="absolute -top-10 md:top-0 right-0 z-50">
               {user ? (
-                <div className="flex items-center gap-4 bg-white px-4 py-2 rounded-full shadow-sm border border-gray-100">
-                  <div className="flex items-center gap-2 text-amber-900 font-medium">
-                    <UserCircle size={20} />
-                    <span>{user.name}</span>
+                <div className="flex items-center gap-2 md:gap-4 bg-white px-3 py-1.5 md:px-4 md:py-2 rounded-full shadow-sm border border-gray-100 text-sm md:text-base">
+                  <div className="flex items-center gap-1 md:gap-2 text-amber-900 font-medium">
+                    <UserCircle size={18} className="md:w-5 md:h-5" />
+                    <span className="hidden sm:inline">{user.name}</span>
                   </div>
                   <button onClick={logout} className="text-gray-400 hover:text-red-500 transition-colors" title="Đăng xuất">
-                    <LogOut size={20} />
+                    <LogOut size={18} className="md:w-5 md:h-5" />
                   </button>
                 </div>
               ) : (
                 <button 
                   onClick={() => setIsAuthModalOpen(true)}
-                  className="flex items-center gap-2 bg-amber-800 text-white px-6 py-2 rounded-full shadow hover:bg-amber-900 font-medium transition-colors"
+                  className="flex items-center gap-1 md:gap-2 bg-amber-800 text-white px-4 py-1.5 md:px-6 md:py-2 rounded-full shadow hover:bg-amber-900 font-medium transition-colors text-sm md:text-base"
                 >
-                  <UserCircle size={20} />
-                  <span>Đăng Nhập</span>
+                  <UserCircle size={18} className="md:w-5 md:h-5" />
+                  <span className="hidden sm:inline">Đăng Nhập</span>
                 </button>
               )}
+            </div>
+
+            {/* TABS (Horizontal Layout) */}
+            <div className="bg-white p-1.5 md:p-2 flex gap-1 md:gap-2 rounded-full shadow border border-gray-100 justify-center w-[95%] sm:w-auto">
+                <button 
+                  onClick={() => setAppMode('iching')} 
+                  className={`flex-1 sm:flex-none px-3 py-2 md:px-8 md:py-3 rounded-full font-bold transition-all text-xs md:text-base ${appMode === 'iching' ? 'bg-amber-800 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50'}`}
+                >
+                  Dịch Lý
+                </button>
+                <button 
+                  onClick={() => setAppMode('bazi')} 
+                  className={`flex-1 sm:flex-none px-3 py-2 md:px-8 md:py-3 rounded-full font-bold transition-all text-xs md:text-base ${appMode === 'bazi' ? 'bg-blue-800 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50'}`}
+                >
+                  Bát Tự
+                </button>
+                {user && (
+                  <button 
+                    onClick={() => setAppMode('history')} 
+                    className={`flex-1 sm:flex-none px-3 py-2 md:px-8 md:py-3 rounded-full font-bold transition-all text-xs md:text-base ${appMode === 'history' ? 'bg-slate-800 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50'}`}
+                  >
+                    Lịch Sử
+                  </button>
+                )}
             </div>
         </div>
 
         {/* HEADER */}
         {appMode === 'iching' ? (
-            <header className="text-center mb-16 pt-2">
+            <header className="text-center mb-12 pt-2">
             <div className="inline-block p-4 rounded-full bg-amber-100 border border-amber-200 mb-6">
                 <div className="w-16 h-16 rounded-full border-4 border-amber-800 flex items-center justify-center">
                     <div className="w-8 h-8 rounded-full bg-amber-800"></div>
                 </div>
             </div>
-            <h1 className="text-5xl md:text-6xl font-serif font-bold text-amber-950 mb-6 tracking-tight drop-shadow-sm">Kinh Dịch Lục Hào</h1>
-            <p className="text-amber-800/80 max-w-2xl mx-auto text-lg font-medium">Hệ thống gieo quẻ và luận giải diễn biến sự việc dựa trên nền tảng Âm Dương Ngũ Hành cổ học.</p>
+            <h1 className="text-4xl md:text-6xl font-serif font-bold text-amber-950 mb-4 tracking-tight drop-shadow-sm">Kinh Dịch Lục Hào</h1>
+            <p className="text-amber-800/80 max-w-2xl mx-auto text-base md:text-lg font-medium mb-6">Hệ thống gieo quẻ và luận giải diễn biến sự việc dựa trên nền tảng Âm Dương Ngũ Hành cổ học.</p>
+            
+            {!result && (
+                <div className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-amber-50 border border-amber-200 rounded-full text-amber-900 shadow-sm animate-in fade-in">
+                    <CalendarDays size={18} className="text-amber-700" />
+                    <span className="font-medium text-sm md:text-base">Hôm nay: {(() => {
+                        const l = Lunar.fromDate(new Date());
+                        return `Ngày ${l.getDay()} tháng ${l.getMonth()} năm ${l.getYear()} Âm lịch`;
+                    })()}</span>
+                </div>
+            )}
             </header>
         ) : appMode === 'bazi' ? (
             <header className="text-center mb-16 pt-2">
@@ -243,8 +256,8 @@ function App() {
                     <div className="w-8 h-8 rounded-full bg-blue-800"></div>
                 </div>
             </div>
-            <h1 className="text-5xl md:text-6xl font-serif font-bold text-blue-950 mb-6 tracking-tight drop-shadow-sm">Khoa Học Tử Bình</h1>
-            <p className="text-blue-800/80 max-w-2xl mx-auto text-lg font-medium">Hệ thống phân tích Tứ Trụ, đo lường Ngũ Hành và định Dụng Thần cải vận.</p>
+            <h1 className="text-4xl md:text-6xl font-serif font-bold text-blue-950 mb-6 tracking-tight drop-shadow-sm">Khoa Học Tử Bình</h1>
+            <p className="text-blue-800/80 max-w-2xl mx-auto text-base md:text-lg font-medium">Hệ thống phân tích Tứ Trụ, đo lường Ngũ Hành và định Dụng Thần cải vận.</p>
             </header>
         ) : null}
 

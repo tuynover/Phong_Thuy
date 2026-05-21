@@ -29,24 +29,24 @@ const ManualInput = ({ onComplete }) => {
                             <span className="font-bold text-slate-600 w-20">Hào {i + 1}</span>
                             
                             <div className="flex gap-4">
-                                <select 
-                                    value={line.type} 
-                                    onChange={(e) => updateLine(i, 'type', parseInt(e.target.value))}
-                                    className="border border-slate-300 rounded-lg px-3 py-2 text-slate-700 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer font-medium"
-                                >
-                                    <option value={1}>Dương</option>
-                                    <option value={0}>Âm</option>
-                                </select>
+                                <div className="flex bg-slate-100 p-1 rounded-full">
+                                    <button
+                                        onClick={() => updateLine(i, 'type', 1)}
+                                        className={`px-4 py-1.5 rounded-full font-bold text-sm transition-all ${line.type === 1 ? 'bg-rose-400 text-white shadow-sm' : 'text-slate-500 hover:bg-slate-200'}`}
+                                    >Dương</button>
+                                    <button
+                                        onClick={() => updateLine(i, 'type', 0)}
+                                        className={`px-4 py-1.5 rounded-full font-bold text-sm transition-all ${line.type === 0 ? 'bg-sky-400 text-white shadow-sm' : 'text-slate-500 hover:bg-slate-200'}`}
+                                    >Âm</button>
+                                </div>
 
-                                <label className={`flex items-center gap-2 cursor-pointer px-4 py-2 rounded-lg border transition-all ${line.moving ? 'bg-blue-50 border-blue-300' : 'bg-slate-50 border-slate-300 hover:bg-slate-100'}`}>
-                                    <input 
-                                        type="checkbox" 
-                                        checked={line.moving}
-                                        onChange={(e) => updateLine(i, 'moving', e.target.checked)}
-                                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
-                                    />
-                                    <span className={`font-medium ${line.moving ? 'text-blue-700' : 'text-slate-600'}`}>Động</span>
-                                </label>
+                                <button
+                                    onClick={() => updateLine(i, 'moving', !line.moving)}
+                                    className={`flex items-center gap-2 px-4 py-1.5 rounded-full font-bold text-sm transition-all border ${line.moving ? 'bg-amber-50 border-amber-300 text-amber-700 shadow-sm' : 'bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100'}`}
+                                >
+                                    <span className={`w-3 h-3 rounded-full transition-all ${line.moving ? 'bg-amber-400' : 'bg-slate-300'}`}></span>
+                                    Hào Động
+                                </button>
                             </div>
                         </div>
                     );
