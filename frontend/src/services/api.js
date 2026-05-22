@@ -6,6 +6,8 @@ export const calculateDivination = (lines, userId, question) => axios.post(`${AP
 export const getConcept = (term) => axios.get(`${API_URL}/concept/${term}`);
 export const getHexagramHistory = (userId) => axios.get(`${API_URL}/history/hexagrams/${userId}`);
 export const getBaziHistory = (userId) => axios.get(`${API_URL}/history/bazi/${userId}`);
+export const getHexagramChatMessages = (id, page = 1, limit = 20) => axios.get(`${API_URL}/history/hexagrams/${id}/messages?page=${page}&limit=${limit}`);
+export const getBaziChatMessages = (id, page = 1, limit = 20) => axios.get(`${API_URL}/history/bazi/${id}/messages?page=${page}&limit=${limit}`);
 export const rateHexagram = (id, rating, feedback) => axios.put(`${API_URL}/history/hexagrams/${id}/rate`, { rating, feedback });
 export const rateBazi = (id, rating, feedback) => axios.put(`${API_URL}/history/bazi/${id}/rate`, { rating, feedback });
 export const linkHexagram = (id, userId) => axios.put(`${API_URL}/history/hexagrams/${id}/link`, { userId });

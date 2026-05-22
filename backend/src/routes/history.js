@@ -10,6 +10,8 @@ router.put('/hexagrams/:id/rate', HistoryController.rateHexagram);
 router.put('/bazi/:id/rate', HistoryController.rateBazi);
 router.put('/hexagrams/:id/link', HistoryController.linkHexagram);
 router.put('/bazi/:id/link', HistoryController.linkBazi);
+router.get('/hexagrams/:id/messages', HistoryController.getHexagramChatMessages);
+router.get('/bazi/:id/messages', HistoryController.getBaziChatMessages);
 
 // Backwards compatibility for legacy chat and stream endpoints
 router.post('/hexagrams/:id/interpret', AiInterpretationController.interpretHexagram);

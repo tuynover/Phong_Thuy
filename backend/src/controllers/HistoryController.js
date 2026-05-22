@@ -2,6 +2,10 @@ const HexagramRecord = require('../models/HexagramRecord');
 const BaziRecord = require('../models/BaziRecord');
 const HexagramDataService = require('../services/HexagramDataService');
 const MemoryCacheService = require('../services/MemoryCacheService');
+const HexagramConversation = require('../models/HexagramConversation');
+const HexagramMessage = require('../models/HexagramMessage');
+const BaziConversation = require('../models/BaziConversation');
+const BaziMessage = require('../models/BaziMessage');
 const mongoose = require('mongoose');
 
 const findByIdFlex = async (Model, id) => {
@@ -170,6 +174,72 @@ class HistoryController {
             MemoryCacheService.clearUserHistoryCache(userId);
             
             return res.json(record);
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ error: 'Server error' });
+        }
+    }
+
+    static async getHexagramChatMessages(req, res) {
+        try {
+            const { id } = req.params;
+            const limit = parseInt(req.query.limit) || 20;
+            const page = parseInt(req.query.page) || 1;
+            const skip = (page - 1) * limit;
+
+            const conversation = await HexagramConversation.findOne({ recordId: id }).lean();
+            if (!conversation) {
+                return res.json({ messages: [], hasMore: false });
+            }
+
+            const total = await HexagramMessage.countDocuments({ conversationId: conversation._id });
+            const messages = await HexagramMessage.find({ conversationId: conversation._id })
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit)
+                .lean();
+
+            // Reverse to chronological order (oldest first)
+            messages.reverse();
+
+            return res.json({
+                messages,
+                hasMore: total > skip + messages.length,
+                total
+            });
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ error: 'Server error' });
+        }
+    }
+
+    static async getBaziChatMessages(req, res) {
+        try {
+            const { id } = req.params;
+            const limit = parseInt(req.query.limit) || 20;
+            const page = parseInt(req.query.page) || 1;
+            const skip = (page - 1) * limit;
+
+            const conversation = await BaziConversation.findOne({ recordId: id }).lean();
+            if (!conversation) {
+                return res.json({ messages: [], hasMore: false });
+            }
+
+            const total = await BaziMessage.countDocuments({ conversationId: conversation._id });
+            const messages = await BaziMessage.find({ conversationId: conversation._id })
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit)
+                .lean();
+
+            // Reverse to chronological order (oldest first)
+            messages.reverse();
+
+            return res.json({
+                messages,
+                hasMore: total > skip + messages.length,
+                total
+            });
         } catch (error) {
             console.error(error);
             return res.status(500).json({ error: 'Server error' });

@@ -4,7 +4,7 @@ import {
     User, AlertCircle, RefreshCw 
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import { getChatStreamUrl } from '../services/api';
+import { getChatStreamUrl, getHexagramChatMessages, getBaziChatMessages } from '../services/api';
 
 /**
  * Robust incremental JSON parser to extract the "answer" field in real-time as it streams.
@@ -70,7 +70,14 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
     const [error, setError] = useState('');
     const [cooldown, setCooldown] = useState(0);
 
+    // Pagination & Lazy Loading States
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(false);
+    const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+
     const chatEndRef = useRef(null);
+    const messagesContainerRef = useRef(null);
+    const previousRecordIdRef = useRef(recordId);
     const streamAnswer = getStreamingAnswer(streamText);
 
     const isIching = type === 'hexagrams';
@@ -79,10 +86,69 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
     const themeBorder = isIching ? 'border-amber-100 focus:border-amber-500' : 'border-blue-100 focus:border-blue-500';
     const themeHeader = isIching ? 'bg-amber-950 text-amber-50' : 'bg-blue-950 text-blue-50';
 
+    // Fetch history page helper
+    const fetchHistoryPage = async (pageNum, isInitial = false) => {
+        if (isLoadingHistory || !recordId) return;
+        setIsLoadingHistory(true);
+        setError('');
+        try {
+            const apiCall = isIching ? getHexagramChatMessages : getBaziChatMessages;
+            const res = await apiCall(recordId, pageNum, 20);
+            const { messages: fetchedMessages, hasMore: moreAvailable } = res.data;
+
+            if (isInitial) {
+                setMessages(fetchedMessages);
+                setPage(1);
+                setTimeout(() => {
+                    chatEndRef.current?.scrollIntoView({ behavior: 'auto' });
+                }, 50);
+            } else {
+                const container = messagesContainerRef.current;
+                const oldScrollHeight = container ? container.scrollHeight : 0;
+                const oldScrollTop = container ? container.scrollTop : 0;
+
+                setMessages(prev => [...fetchedMessages, ...prev]);
+                setPage(pageNum);
+
+                setTimeout(() => {
+                    if (container) {
+                        const newScrollHeight = container.scrollHeight;
+                        container.scrollTop = newScrollHeight - oldScrollHeight + oldScrollTop;
+                    }
+                }, 30);
+            }
+            setHasMore(moreAvailable);
+        } catch (err) {
+            console.error("Lỗi khi tải lịch sử trò chuyện:", err);
+            setError("Không thể tải lịch sử trò chuyện.");
+        } finally {
+            setIsLoadingHistory(false);
+        }
+    };
+
+    // Reset when recordId changes
+    useEffect(() => {
+        if (recordId !== previousRecordIdRef.current) {
+            setMessages([]);
+            setPage(1);
+            setHasMore(false);
+            previousRecordIdRef.current = recordId;
+        }
+    }, [recordId]);
+
+    // Load initial history when opened
+    useEffect(() => {
+        if (isOpen && messages.length === 0 && recordId) {
+            fetchHistoryPage(1, true);
+        }
+    }, [isOpen, recordId]);
+
     // Auto scroll to bottom
     useEffect(() => {
-        chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [messages, streamAnswer, isOpen]);
+        if (page === 1 && isOpen) {
+            chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [messages, streamAnswer, isOpen, page]);
 
     // Cooldown timer effect
     useEffect(() => {
@@ -91,6 +157,14 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
             return () => clearTimeout(timer);
         }
     }, [cooldown]);
+
+    // Scroll up handler
+    const handleScroll = (e) => {
+        const container = e.currentTarget;
+        if (container.scrollTop === 0 && hasMore && !isLoadingHistory && !isStreaming) {
+            fetchHistoryPage(page + 1, false);
+        }
+    };
 
     const handleSend = async (e) => {
         e.preventDefault();
@@ -309,8 +383,18 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
                     </div>
 
                     {/* Messages Panel */}
-                    <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-gray-50/50">
-                        {messages.length === 0 && !isStreaming && (
+                    <div 
+                        ref={messagesContainerRef}
+                        onScroll={handleScroll}
+                        className="flex-1 p-4 overflow-y-auto space-y-4 bg-gray-50/50"
+                    >
+                        {isLoadingHistory && page > 1 && (
+                            <div className="flex justify-center py-2 animate-pulse">
+                                <RefreshCw size={14} className="animate-spin text-neutral-500" />
+                            </div>
+                        )}
+
+                        {messages.length === 0 && !isStreaming && !isLoadingHistory && (
                             <div className="text-center py-16 px-6 space-y-3">
                                 <div className="inline-block p-3 rounded-full bg-amber-50 text-amber-800">
                                     <Sparkles size={28} />
@@ -319,6 +403,13 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
                                 <p className="text-xs text-gray-500 leading-relaxed">
                                     Hãy đặt câu hỏi sâu hơn về ứng kỳ, phương hướng cải mệnh, hoặc băn khoăn cụ thể liên quan tới quẻ/lá số này để Thầy Dịch Giải chi tiết thêm.
                                 </p>
+                            </div>
+                        )}
+
+                        {messages.length === 0 && !isStreaming && isLoadingHistory && page === 1 && (
+                            <div className="text-center py-24 flex flex-col items-center justify-center gap-2">
+                                <RefreshCw size={24} className="animate-spin text-amber-600" />
+                                <span className="text-xs text-gray-400 font-medium">Đang tải lịch sử trò chuyện...</span>
                             </div>
                         )}
 
