@@ -364,9 +364,9 @@ const BaziBoard = ({ data, onRequireLogin }) => {
                         </>
                     )}
                 </button>
-            ) : (
+            ) : !isChatOpen && (
                 <button
-                    onClick={() => setIsChatOpen(!isChatOpen)}
+                    onClick={() => setIsChatOpen(true)}
                     className="fixed bottom-[calc(96px+env(safe-area-inset-bottom,0px))] right-4 md:right-8 z-50 flex items-center gap-2 px-6 py-3.5 rounded-full shadow-2xl transition-all duration-300 font-extrabold border bg-gradient-to-r from-blue-800 to-cyan-950 hover:from-blue-900 hover:to-stone-900 text-white border-blue-700 hover:scale-105 hover:shadow-blue-900/40 uppercase text-xs tracking-wider animate-pulse"
                 >
                     <MessageCircle className="animate-bounce shrink-0" size={18} />

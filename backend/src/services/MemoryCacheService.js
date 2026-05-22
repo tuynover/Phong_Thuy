@@ -62,6 +62,17 @@ class MemoryCacheService {
     }
 
     /**
+     * Clear chat cache for a specific record
+     * @param {string} type 'hexagrams' or 'bazi'
+     * @param {string} recordId 
+     */
+    clearChatCache(type, recordId) {
+        if (!type || !recordId) return;
+        const prefix = `history:chat:${type}:${recordId}:`;
+        this.deleteByPrefix(prefix);
+    }
+
+    /**
      * Clear all cached data
      */
     clearAll() {

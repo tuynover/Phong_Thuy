@@ -187,6 +187,12 @@ class HistoryController {
             const page = parseInt(req.query.page) || 1;
             const skip = (page - 1) * limit;
 
+            const cacheKey = `history:chat:hexagrams:${id}:${page}:${limit}`;
+            const cachedData = MemoryCacheService.get(cacheKey);
+            if (cachedData) {
+                return res.json(cachedData);
+            }
+
             const conversation = await HexagramConversation.findOne({ recordId: id }).lean();
             if (!conversation) {
                 return res.json({ messages: [], hasMore: false });
@@ -202,11 +208,15 @@ class HistoryController {
             // Reverse to chronological order (oldest first)
             messages.reverse();
 
-            return res.json({
+            const responseData = {
                 messages,
                 hasMore: total > skip + messages.length,
                 total
-            });
+            };
+
+            MemoryCacheService.set(cacheKey, responseData, 300000); // Cache for 5 minutes
+
+            return res.json(responseData);
         } catch (error) {
             console.error(error);
             return res.status(500).json({ error: 'Server error' });
@@ -219,6 +229,12 @@ class HistoryController {
             const limit = parseInt(req.query.limit) || 20;
             const page = parseInt(req.query.page) || 1;
             const skip = (page - 1) * limit;
+
+            const cacheKey = `history:chat:bazi:${id}:${page}:${limit}`;
+            const cachedData = MemoryCacheService.get(cacheKey);
+            if (cachedData) {
+                return res.json(cachedData);
+            }
 
             const conversation = await BaziConversation.findOne({ recordId: id }).lean();
             if (!conversation) {
@@ -235,11 +251,15 @@ class HistoryController {
             // Reverse to chronological order (oldest first)
             messages.reverse();
 
-            return res.json({
+            const responseData = {
                 messages,
                 hasMore: total > skip + messages.length,
                 total
-            });
+            };
+
+            MemoryCacheService.set(cacheKey, responseData, 300000); // Cache for 5 minutes
+
+            return res.json(responseData);
         } catch (error) {
             console.error(error);
             return res.status(500).json({ error: 'Server error' });

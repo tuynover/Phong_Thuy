@@ -10,6 +10,7 @@ const HexagramMessage = require('../models/HexagramMessage');
 const BaziConversation = require('../models/BaziConversation');
 const BaziMessage = require('../models/BaziMessage');
 const ConversationContextService = require('../services/ConversationContextService');
+const MemoryCacheService = require('../services/MemoryCacheService');
 const mongoose = require('mongoose');
 
 const {
@@ -278,6 +279,9 @@ class AiInterpretationController {
                 });
             }
 
+            // Invalidate conversation chat cache
+            MemoryCacheService.clearChatCache('hexagrams', id);
+
             // 3. Rate Limit & Anti-Spam (Cooldown 10 giây & Tối đa 10 tin nhắn/giờ)
             const lastMsg = await HexagramMessage.findOne({ conversationId: conversation._id }).sort({ timestamp: -1 });
             if (lastMsg && (Date.now() - new Date(lastMsg.timestamp).getTime()) < 10000) {
@@ -423,6 +427,9 @@ class AiInterpretationController {
             ConversationContextService.updateConversationSummary('hexagram', conversation._id, AiService.genAI, ACTIVE_MODEL)
                 .catch(err => console.error("Error updating conversation summary:", err));
 
+            // Invalidate conversation chat cache
+            MemoryCacheService.clearChatCache('hexagrams', id);
+
             sendSSE('[DONE]');
             res.end();
 
@@ -467,6 +474,9 @@ class AiInterpretationController {
                     userId: record.userId || 'guest'
                 });
             }
+
+            // Invalidate conversation chat cache
+            MemoryCacheService.clearChatCache('bazi', id);
 
             // 3. Rate Limit & Anti-Spam
             const lastMsg = await BaziMessage.findOne({ conversationId: conversation._id }).sort({ timestamp: -1 });
@@ -583,6 +593,9 @@ class AiInterpretationController {
             // Cập nhật tóm tắt
             ConversationContextService.updateConversationSummary('bazi', conversation._id, AiService.genAI, ACTIVE_MODEL)
                 .catch(err => console.error("Error updating Bazi summary:", err));
+
+            // Invalidate conversation chat cache
+            MemoryCacheService.clearChatCache('bazi', id);
 
             sendSSE('[DONE]');
             res.end();

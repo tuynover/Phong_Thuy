@@ -231,3 +231,15 @@
 [2026-05-22T15:00:02.275Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 61ms] Hoàn thành: Phản hồi thành công (304)
 [2026-05-22T15:00:04.735Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/019e4fd9-5c1f-70d0-96f1-74efc49c4f67/messages?page=1&limit=20
 [2026-05-22T15:00:04.913Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 233ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-22T15:08:19.621Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/019e4fd9-5c1f-70d0-96f1-74efc49c4f67/messages?page=1&limit=20
+[2026-05-22T15:08:19.799Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 234ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-22T15:21:48.626Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] Yêu cầu bắt đầu: GET /api/concept/Th%C3%AA%20T%C3%A0i
+[2026-05-22T15:21:48.628Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] [Duration: 62ms] Hoàn thành: Phản hồi thành công (200)
+[2026-05-22T15:21:48.846Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] Yêu cầu bắt đầu: GET /api/concept/C%C3%A2u%20Tr%E1%BA%A7n
+[2026-05-22T15:21:48.847Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] [Duration: 55ms] Hoàn thành: Phản hồi thành công (200)
+[2026-05-22T15:21:52.973Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] Yêu cầu bắt đầu: GET /api/concept/Huy%E1%BB%81n%20V%C5%A9
+[2026-05-22T15:21:52.974Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] [Duration: 63ms] Hoàn thành: Phản hồi thành công (200)
+[2026-05-22T15:21:53.446Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] Yêu cầu bắt đầu: GET /api/concept/Quan%20Qu%E1%BB%B7
+[2026-05-22T15:21:53.447Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] [Duration: 56ms] Hoàn thành: Phản hồi thành công (200)
+[2026-05-22T15:25:53.123Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] Yêu cầu bắt đầu: GET /api/concept/Ph%E1%BB%A5%20M%E1%BA%ABu
+[2026-05-22T15:25:53.125Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] [Duration: 57ms] Hoàn thành: Phản hồi thành công (304)
