@@ -43,11 +43,17 @@ const baziRecordSchema = new mongoose.Schema({
     generatedAt: { type: Date, default: null },
     model: { type: String, default: "" },
     promptVersion: { type: String, default: "" },
+    promptTokens: { type: Number, default: 0 },
+    completionTokens: { type: Number, default: 0 },
     tokensUsed: { type: Number, default: 0 }
   },
   isGeneratingInterpretation: {
     type: Boolean,
     default: false
+  },
+  analysisSnapshot: {
+    type: Object,
+    default: null
   }
 }, {
   timestamps: true,

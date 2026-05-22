@@ -3,30 +3,9 @@ import Tooltip from './Tooltip';
 import { hexagramDictionary } from '../data/hexagrams';
 import ReactMarkdown from 'react-markdown';
 import { getInterpretationStreamUrl } from '../services/api';
-import { AlertCircle, BookOpen, ScrollText } from 'lucide-react';
-
-
-const getColorClass = (element) => {
-    switch (element) {
-        case 'Mộc': return 'text-emerald-600';
-        case 'Hỏa': return 'text-red-600';
-        case 'Thổ': return 'text-amber-700';
-        case 'Kim': return 'text-slate-500';
-        case 'Thủy': return 'text-blue-600';
-        default: return 'text-gray-800';
-    }
-};
-
-const getBgColorClass = (element) => {
-    switch (element) {
-        case 'Mộc': return 'bg-emerald-50 border-emerald-200';
-        case 'Hỏa': return 'bg-red-50 border-red-200';
-        case 'Thổ': return 'bg-amber-50 border-amber-200';
-        case 'Kim': return 'bg-slate-50 border-slate-200';
-        case 'Thủy': return 'bg-blue-50 border-blue-200';
-        default: return 'bg-gray-50 border-gray-200';
-    }
-};
+import { AlertCircle, BookOpen, ScrollText, MessageCircle } from 'lucide-react';
+import AiChatWidget from './AiChatWidget';
+import { getColorClass, getBgColorClass, HAO_VI_MEANING, getChiOnly } from '../utils/phongthuyHelpers';
 
 const LineVisual = ({ type, isRed }) => {
     const colorClass = isRed ? 'bg-red-600' : 'bg-blue-800';
@@ -42,15 +21,6 @@ const LineVisual = ({ type, isRed }) => {
             )}
         </div>
     );
-};
-
-const HAO_VI_MEANING = {
-    1: { ten: 'Sơ Hào (初爻)', y_nghia: 'Khởi đầu, nền móng, tiềm ẩn', dai_dien: 'Trẻ em, người nhỏ, chân, tầng thấp, đất' },
-    2: { ten: 'Nhị Hào (二爻)', y_nghia: 'Bản thân chủ thể, trung tâm nội quái', dai_dien: 'Bản thân, người trong nhà, nội tình, bụng' },
-    3: { ten: 'Tam Hào (三爻)', y_nghia: 'Giao điểm nội-ngoại, vị trí bất ổn', dai_dien: 'Anh em, cửa ngõ, sự chuyển tiếp, đùi gối' },
-    4: { ten: 'Tứ Hào (四爻)', y_nghia: 'Bước vào ngoại quái, quan hệ bên ngoài', dai_dien: 'Quan lại, người có quyền lực, ngực vai' },
-    5: { ten: 'Ngũ Hào (五爻)', y_nghia: 'Vị tôn quý nhất — Thiên Tử vị', dai_dien: 'Lãnh đạo, vua, cha/mẹ, đầu mặt, địa vị cao' },
-    6: { ten: 'Thượng Hào (上爻)', y_nghia: 'Hoàn thành, cực đỉnh, vượt giới hạn', dai_dien: 'Người già, tổ tiên, trời, vị trí cuối cùng' },
 };
 
 const LineWithTooltip = ({ type, isRed, isMoving, index }) => {
@@ -91,14 +61,9 @@ const HexagramVisual = ({ lines }) => {
     );
 };
 
-const getChiOnly = (stemBranch) => {
-    if (!stemBranch) return '';
-    const parts = stemBranch.trim().split(' ');
-    return parts.length >= 2 ? parts[parts.length - 1] : stemBranch;
-};
-
 const DivinationBoard = ({ result, user, onRequireLogin }) => {
     const [selectedHex, setSelectedHex] = useState(null);
+    const [isChatOpen, setIsChatOpen] = useState(false);
     const [isInterpreting, setIsInterpreting] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [abortController, setAbortController] = useState(null);
@@ -575,8 +540,8 @@ const DivinationBoard = ({ result, user, onRequireLogin }) => {
                 </div>
             )}
 
-            {/* FLOATING ACTION BUTTON */}
-            {!interpretation && (
+            {/* FLOATING ACTION BUTTON & FOLLOW-UP CHAT WIDGET */}
+            {!interpretation ? (
                 <button
                     onClick={handleAILuanGiai}
                     disabled={isInterpreting}
@@ -594,6 +559,24 @@ const DivinationBoard = ({ result, user, onRequireLogin }) => {
                         </>
                     )}
                 </button>
+            ) : (
+                <button
+                    onClick={() => setIsChatOpen(!isChatOpen)}
+                    className="fixed bottom-[calc(96px+env(safe-area-inset-bottom,0px))] right-4 md:right-8 z-50 flex items-center gap-2 px-6 py-3.5 rounded-full shadow-2xl transition-all duration-300 font-extrabold border bg-gradient-to-r from-amber-800 to-amber-950 hover:from-amber-900 hover:to-stone-900 text-white border-amber-700 hover:scale-105 hover:shadow-amber-900/40 uppercase text-xs tracking-wider animate-pulse"
+                >
+                    <MessageCircle className="animate-bounce shrink-0" size={18} />
+                    <span>Hỏi Thêm Thầy</span>
+                </button>
+            )}
+
+            {interpretation && result?.recordId && (
+                <AiChatWidget 
+                    type="hexagrams" 
+                    recordId={result.recordId} 
+                    userId={user?.id || user?._id || 'guest'} 
+                    isOpen={isChatOpen}
+                    setIsOpen={setIsChatOpen}
+                />
             )}
 
             {/* CONFIRMATION MODAL */}

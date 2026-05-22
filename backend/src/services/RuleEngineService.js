@@ -137,13 +137,30 @@ class RuleEngineService {
             if (khac[ungLine.element] === theLine.element) specialStates.push('Ứng Khắc Thế');
         }
 
+        // Tính toán điểm tin cậy số học (confidence score)
+        let confidence = 0.75; // Baseline
+        if (dungThanTarget !== 'Thế' && mainDungThan) {
+            confidence += 0.10; // Tìm thấy Dụng thần cụ thể
+        }
+        if (dungThanInfo && dungThanInfo.strength === 'strong') {
+            confidence += 0.05; // Dụng thần vượng/tướng
+        }
+        if (movingLinesResult.length > 0) {
+            confidence += 0.05; // Có hào động báo hiệu diễn biến rõ ràng
+        }
+        if (specialStates.includes('Tuần Không') || specialStates.includes('Dụng Thần Phục Tàng (Ẩn)')) {
+            confidence -= 0.15; // Tuần không hoặc phục tàng làm giảm độ ứng nghiệm tức thời
+        }
+        confidence = parseFloat(Math.max(0.50, Math.min(0.95, confidence)).toFixed(2));
+
         return {
             dungThan: dungThanTarget,
             dungThanDetails: dungThanInfo,
             the: theInfo,
             ung: ungInfo,
             movingLines: movingLinesResult,
-            specialStates: specialStates
+            specialStates: specialStates,
+            confidence: confidence
         };
     }
 }

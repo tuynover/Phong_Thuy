@@ -82,6 +82,20 @@ class AiService {
             throw new Error('Lỗi kết nối với máy chủ AI.');
         }
     }
+
+    async countTokens(prompt, options = {}) {
+        if (!this.genAI) return 0;
+        try {
+            const modelName = this.getModelName(options);
+            const model = this.genAI.getGenerativeModel({ model: modelName });
+            const countResult = await model.countTokens(prompt);
+            return countResult.totalTokens || 0;
+        } catch (e) {
+            console.error("Error counting tokens with Gemini API, falling back to estimation:", e.message);
+            // Fallback: estimate ~4 characters per token for English/Vietnamese mix
+            return Math.ceil((prompt || '').length / 4);
+        }
+    }
 }
 
 module.exports = new AiService();

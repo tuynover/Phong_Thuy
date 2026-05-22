@@ -34,6 +34,11 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
   - Giao diện xác nhận (Modal) mang đậm nét truyền thống Dịch Lý, phối màu nâu/vàng đất cao cấp.
   - Hiển thị trạng thái phân tích động (Đang xét Nhật Nguyệt, Đang tính Hào Động...) giúp cải thiện UX.
   - Hiển thị nội dung luận giải thông qua giao diện Markdown trực quan, chia theo bố cục: Tổng quan, Thế Ứng, Biến Cố, Lời Khuyên.
+- **Phân Hệ Hỏi Đáp Luận Giải Sâu (AiChatWidget):**
+  - Khung chat thông minh, trượt lên mềm mại từ góc dưới bên phải (FAB + Bounded Slide-in Panel), không che khuất đồ hình quẻ Dịch hay sơ đồ Bát Tự phía sau.
+  - Thuật toán **Incremental JSON Stream Parser** lọc lấy nội dung chữ trả lời và chạy hiển thị thời gian thực theo dòng dữ liệu truyền tải (SSE).
+  - Trượt hiển thị (micro-animations) các thẻ thông tin chuyên biệt khi kết thúc stream: **Ứng kỳ cát lợi (Timing)**, **Cảnh báo rủi ro (Risk)**, và thước đo **Độ tin cậy số học (Confidence Progress Bar)**.
+  - Tích hợp bộ hồi chiêu (10 giây đếm ngược) ngăn chặn hành vi spam click.
 - **Lưu trữ Trạng thái Liên tục (State Persistence):**
   - Sử dụng `localStorage` để giữ nguyên trạng thái ứng dụng (Phân hệ đang xem, Quẻ hiện tại, Lá số hiện tại, Câu hỏi) kể cả khi người dùng Refresh/F5 lại trang. Mọi thứ được đồng bộ mượt mà không làm mất luồng trải nghiệm.
 - **Giao diện Phân tích Bát Tự (Tứ Trụ):**
@@ -77,6 +82,18 @@ Hệ thống sử dụng mô hình kết hợp chặt chẽ giúp tránh hiện 
 4. **`AiService.js` (NLG - Natural Language Generator):**
    - Đưa Prompt đã tối ưu hóa cho mô hình `gemini-1.5-pro` (đóng vai "Thầy Dịch Giải") để sinh văn bản giải nghĩa tự nhiên và đưa ra lời khuyên.
    - Tích hợp cơ chế Timeout (20 giây), Retry (2 lần) và bắt các lỗi quá tải hoặc vi phạm chính sách an toàn. Tự động lưu cache kết quả luận giải vào Database để không tốn API call khi xem lại.
+5. **`ConversationContextService.js` (Quản Lý Bối Cảnh Hội Thoại & Bảo Vệ Quota):**
+   - **Xác định Intent (`isDivinationRelated`):** Từ chối tức thì (HTTP 400) các câu hỏi lạc đề (React, lập trình, viết code, giải toán, dịch tiếng Anh...) trước khi chuyển tới AI. Cho phép đặc cách hỏi về thời tiết/mưa nắng để phục vụ chọn ngày lành tháng cát.
+   - **Tóm tắt động (`updateConversationSummary`):** Thực hiện tiến trình bất đồng bộ sinh tóm tắt 3-4 dòng hội thoại lưu trữ trực tiếp tại `Conversation` nhằm tối ưu hóa kích thước Context của Gemini API.
+   - **Bối cảnh hội thoại (`buildConversationContext`):** Đóng gói 3-4 tin nhắn gần nhất với định dạng sạch sẽ, giúp duy trì tính liền mạch của buổi đối thoại.
+6. **`LoggerService.js` (Nhật Ký Kiểm Toán Cao Cấp):**
+   - **Hoạt động kép:** Ghi đồng thời ra console (mã màu ANSI: Xanh lá cho INFO, Vàng cho WARN, Đỏ cho ERROR kèm Stack Trace) và lưu file vật lý (`logs/app.log`, `logs/errors.log`).
+   - **Middleware tự động:** Tự động giải mã token JWT để truy quét danh tính người dùng thực tế (Tên, Email), IP, thời gian xử lý (duration theo ms), hành động phong thủy thuần Việt (như "Thầy Luận Giải Bát Tự").
+   - **Bảo mật:** Tự động ẩn mật khẩu đăng nhập/đăng ký trong log (`password: "******"`).
+7. **Cơ Chế SSE Keepalive Ping:**
+   - Server duy trì kết nối SSE liên tục bằng cách phát heartbeat ping (`event: ping`, `data: keepalive`) mỗi 15 giây, ngăn chặn triệt để tình trạng Idle Timeout khi triển khai trên Nginx, Render hoặc Vercel.
+8. **Cache Lõi Tính Toán (`analysisSnapshot`):**
+   - Lưu đệm snapshot dữ liệu Rule Engine vào cơ sở dữ liệu ngay sau lần luận giải đầu tiên. Mọi thắc mắc chat follow-up tiếp theo sẽ tái sử dụng snapshot này mà không cần tính toán lại từ đầu.
 
 ---
 
@@ -103,7 +120,10 @@ Dưới đây là danh sách các API Endpoint mà Backend cung cấp cho Fronte
 - `PUT /api/history/bazi/:id/rate`: Đánh giá phản hồi cho một lá số Bát Tự.
 - `PUT /api/history/hexagrams/:id/link`: Liên kết quẻ gieo của khách với một tài khoản người dùng cụ thể.
 - `PUT /api/history/bazi/:id/link`: Liên kết lá số Bát Tự của khách với một tài khoản người dùng cụ thể.
-- `POST /api/history/hexagrams/:id/interpret`: Gọi Rule Engine phân tích và kích hoạt AI sinh bài luận giải chuyên sâu cho quẻ Kinh Dịch, sau đó cập nhật kết quả vào bản ghi trên database.
+- `POST /api/history/hexagrams/:id/interpret`: Gọi Rule Engine phân tích và kích hoạt AI sinh bài luận giải chuyên sâu cho quẻ Kinh Dịch (Stream SSE).
+- `POST /api/history/bazi/:id/interpret`: Kích hoạt AI sinh bài luận giải chuyên sâu cho bản đồ Bát Tự (Stream SSE).
+- `POST /api/history/hexagrams/:id/chat`: Gọi AI phản hồi thắc mắc chuyên sâu (follow-up) dạng JSON về quẻ Dịch (Stream SSE).
+- `POST /api/history/bazi/:id/chat`: Gọi AI phản hồi thắc mắc chuyên sâu (follow-up) dạng JSON về lá số Bát Tự (Stream SSE).
 
 ---
 

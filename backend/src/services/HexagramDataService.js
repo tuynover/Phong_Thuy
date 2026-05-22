@@ -1,11 +1,14 @@
+const { Lunar } = require('lunar-javascript');
 const hexagramsData = require('../data/hexagrams.json');
 const linesData = require('../data/lines.json');
 
+// Mapping Thiên Can từ Hán sang Việt
 const GAN_VI = {
     '甲': 'Giáp', '乙': 'Ất', '丙': 'Bính', '丁': 'Đinh', '戊': 'Mậu',
     '己': 'Kỷ', '庚': 'Canh', '辛': 'Tân', '壬': 'Nhâm', '癸': 'Quý'
 };
 
+// Mapping Địa Chi từ Hán sang Việt
 const ZHI_VI = {
     '子': 'Tý', '丑': 'Sửu', '寅': 'Dần', '卯': 'Mão', '辰': 'Thìn', '巳': 'Tị',
     '午': 'Ngọ', '未': 'Mùi', '申': 'Thân', '酉': 'Dậu', '戌': 'Tuất', '亥': 'Hợi'
@@ -14,7 +17,9 @@ const ZHI_VI = {
 const toVietnamese = (ganZhiStr) => {
     if (!ganZhiStr) return '';
     let result = ganZhiStr;
+    // Thay Thiên Can trước
     for (const [han, vi] of Object.entries(GAN_VI)) result = result.replace(han, vi + ' ');
+    // Thay Địa Chi sau (xóa dấu cách thừa ở cuối nếu chỉ có 1 ký tự)
     for (const [han, vi] of Object.entries(ZHI_VI)) result = result.replace(han, vi);
     return result.trim();
 };
@@ -100,6 +105,156 @@ class HexagramDataService {
     static getElement(val) {
         return getElement(val);
     }
+    static getRelative(palaceElement, lineElement) {
+        return getRelative(palaceElement, lineElement);
+    }
+    static getVuongSuy(element, monthBranch) {
+        return getVuongSuy(element, monthBranch);
+    }
+    static getTruongSinh(element, branch) {
+        return getTruongSinh(element, branch);
+    }
+
+    // Thực hiện tính toán Dịch Lý đầy đủ từ các hào gieo thủ công
+    static calculate({ lines, now = new Date() }) {
+        if (!lines || lines.length !== 6) {
+            throw new Error('Require exactly 6 lines.');
+        }
+
+        const primaryBinaryStr = lines.map(l => l.type).join('');
+        const secondaryBinaryStr = lines.map(l => l.moving ? (1 - l.type) : l.type).join('');
+
+        const lookupPrimaryStr = primaryBinaryStr.split('').reverse().join('');
+        const lookupSecondaryStr = secondaryBinaryStr.split('').reverse().join('');
+
+        let primaryHexagram = hexagramsData.find(h => h.binary_code === lookupPrimaryStr) || { 
+            name: 'Quẻ ' + lookupPrimaryStr, 
+            palace: 'Chưa Rõ', 
+            palace_element: 'Chưa Rõ', 
+            binary_code: lookupPrimaryStr 
+        };
+        let secondaryHexagram = hexagramsData.find(h => h.binary_code === lookupSecondaryStr) || { 
+            name: 'Quẻ ' + lookupSecondaryStr, 
+            palace: 'Chưa Rõ', 
+            palace_element: 'Chưa Rõ', 
+            binary_code: lookupSecondaryStr 
+        };
+
+        let primaryHexLines = [];
+        let secondaryHexLines = [];
+
+        if (primaryHexagram.id) {
+            primaryHexLines = linesData.filter(l => l.hexagram_id === primaryHexagram.id).sort((a, b) => a.line_index - b.line_index);
+        }
+        if (secondaryHexagram.id) {
+            secondaryHexLines = linesData.filter(l => l.hexagram_id === secondaryHexagram.id).sort((a, b) => a.line_index - b.line_index);
+        }
+
+        // Date setup using lunar-javascript
+        // Ensure we use Vietnam time zone regardless of server timezone
+        const vnTimeStr = now.toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' });
+        const vnDate = new Date(vnTimeStr); 
+        
+        const lunar = Lunar.fromDate(vnDate);
+        const hourCanChi = toVietnamese(lunar.getEightChar().getTime());
+        const dayCanChi = toVietnamese(lunar.getDayInGanZhiExact());
+        const monthCanChi = toVietnamese(lunar.getMonthInGanZhiExact());
+        const yearCanChi = toVietnamese(lunar.getYearInGanZhiExact());
+        
+        const dayGan = toVietnamese(lunar.getDayGan());
+        const monthBranch = toVietnamese(lunar.getMonthZhi());
+        const dayBranch = toVietnamese(lunar.getDayZhi());
+        
+        const tkStrRaw = lunar.getDayXunKong(); // e.g. "戌亥"
+        const tkStr = toVietnamese(tkStrRaw);
+
+        const getPureBranch = (canChiStr) => {
+            if (!canChiStr) return '';
+            const parts = canChiStr.trim().split(' ');
+            return parts.length >= 2 ? parts[parts.length - 1] : canChiStr;
+        };
+        const pureDayBranch = getPureBranch(dayBranch);
+        const pureMonthBranch = getPureBranch(monthBranch);
+
+        const getQtBranch = (hexLines, binStr) => {
+            if (!hexLines.length) return "";
+            const hostLine = hexLines.find(l => l.is_host === 1);
+            if (!hostLine) return "";
+            const isYang = binStr[hostLine.line_index - 1] === '1';
+            const baseIdx = isYang ? 0 : 6; // 0: Tý, 6: Ngọ
+            const qtIdx = (baseIdx + hostLine.line_index - 1) % 12;
+            return ZHI_ARRAY[qtIdx];
+        };
+
+        const primaryQtBranch = getQtBranch(primaryHexLines, primaryBinaryStr);
+        const secondaryQtBranch = secondaryHexLines.length ? getQtBranch(secondaryHexLines, secondaryBinaryStr) : "";
+
+        primaryHexagram.quai_than = primaryQtBranch;
+        secondaryHexagram.quai_than = secondaryQtBranch;
+
+        const lucThuArray = lucThuMap[dayGan] || lucThuMap['Giáp'];
+
+        // Function to generate full Can Chi for a line
+        const processLine = (line, idx, binaryStr, isSecondary, qtBranch) => {
+            if (!line.stem_branch) return line; // Fallback
+            const branch = line.stem_branch;
+            const innerTri = binaryStr.substring(0,3);
+            const outerTri = binaryStr.substring(3,6);
+            
+            let stem = "";
+            if (idx < 3) {
+                stem = stemMapping[innerTri]?.inner || "";
+            } else {
+                stem = stemMapping[outerTri]?.outer || "";
+            }
+            
+            const fullCanChi = `${stem} ${branch}`;
+            const elem = line.element || getElement(branch);
+            const isTK = tkStr.includes(branch) ? "K" : "";
+            
+            let rel = line.relative;
+            if (isSecondary) {
+                rel = getRelative(primaryHexagram.palace_element, elem);
+            }
+
+            return {
+                ...line,
+                stem_branch: fullCanChi,
+                element: elem,
+                relative: rel,
+                luc_thu: lucThuArray[idx],
+                tk: isTK,
+                moving: lines[idx].moving,
+                vuong_suy: getVuongSuy(elem, pureMonthBranch),
+                ts_ngay: getTruongSinh(elem, pureDayBranch),
+                ts_thang: getTruongSinh(elem, pureMonthBranch),
+                qt: branch === qtBranch ? "Quái Thân" : ""
+            };
+        };
+
+        const procPrimary = primaryHexLines.map((l, i) => processLine(l, i, primaryBinaryStr, false, primaryQtBranch));
+        const procSecondary = secondaryHexLines.map((l, i) => processLine(l, i, secondaryBinaryStr, true, secondaryQtBranch));
+
+        return {
+            primary: primaryHexagram,
+            secondary: secondaryHexagram,
+            primaryLines: procPrimary,
+            secondaryLines: procSecondary,
+            dateInfo: {
+                time: vnDate.toLocaleTimeString('vi-VN'),
+                solarDate: vnDate.toLocaleDateString('vi-VN'),
+                lunarDateStr: `ngày ${lunar.getDay()} tháng ${lunar.getMonth()} năm ${lunar.getYear()} Âm lịch`,
+                hourCanChi,
+                dayCanChi,
+                monthCanChi,
+                yearCanChi,
+                tietKhi: lunar.getJieQi(),
+                nhatThan: `${dayBranch}-${getElement(dayBranch)}`,
+                nguyetLenh: `${monthBranch}-${getElement(monthBranch)}`,
+                tuankhong: tkStr
+            }
+        };
+    }
     
     // Tái tạo lại primaryLines và secondaryLines từ một record DB
     static reconstructLines(record) {
@@ -121,7 +276,12 @@ class HexagramDataService {
         const secondaryBinaryStr = secondaryBinaryArr.join('');
         const lookupSecondaryStr = secondaryBinaryArr.reverse().join('');
         
-        let secondaryHexagram = record.transformedHexagram || hexagramsData.find(h => h.binary_code === lookupSecondaryStr) || { name: 'Quẻ ' + lookupSecondaryStr, palace: 'Chưa Rõ', palace_element: 'Chưa Rõ', binary_code: lookupSecondaryStr };
+        let secondaryHexagram = record.transformedHexagram || hexagramsData.find(h => h.binary_code === lookupSecondaryStr) || { 
+            name: 'Quẻ ' + lookupSecondaryStr, 
+            palace: 'Chưa Rõ', 
+            palace_element: 'Chưa Rõ', 
+            binary_code: lookupSecondaryStr 
+        };
 
         // 2. Lọc dữ liệu hào tĩnh từ JSON
         let primaryHexLines = [];
@@ -151,7 +311,7 @@ class HexagramDataService {
         const pureMonthBranch = getPureBranch(monthCanChi);
         const tkStr = lunarDateInfo.tuankhong || '';
 
-        // 4. Lấy Quái Thần
+        // 4. Lấy Quái Thân
         const getQtBranch = (hexLines, binStr) => {
             if (!hexLines.length) return "";
             const hostLine = hexLines.find(l => l.is_host === 1);

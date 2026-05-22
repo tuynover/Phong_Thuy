@@ -2,45 +2,24 @@ import React, { useState, useEffect, useContext } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { AuthContext } from '../context/AuthContext';
 import { getInterpretationStreamUrl } from '../services/api';
-import { AlertCircle, BookOpen, ScrollText } from 'lucide-react';
+import { AlertCircle, BookOpen, ScrollText, MessageCircle } from 'lucide-react';
+import AiChatWidget from './AiChatWidget';
 
-const stemElements = {
-    "Giáp": "Moc", "Ất": "Moc", "Bính": "Hoa", "Đinh": "Hoa", "Mậu": "Tho",
-    "Kỷ": "Tho", "Canh": "Kim", "Tân": "Kim", "Nhâm": "Thuy", "Quý": "Thuy"
-};
-
-const branchElements = {
-    "Tý": "Thuy", "Sửu": "Tho", "Dần": "Moc", "Mão": "Moc", "Thìn": "Tho", "Tỵ": "Hoa",
-    "Ngọ": "Hoa", "Mùi": "Tho", "Thân": "Kim", "Dậu": "Kim", "Tuất": "Tho", "Hợi": "Thuy"
-};
-
-const getColorClass = (element) => {
-    switch (element) {
-        case 'Moc': return 'text-emerald-600';
-        case 'Hoa': return 'text-red-600';
-        case 'Tho': return 'text-amber-700';
-        case 'Kim': return 'text-slate-500';
-        case 'Thuy': return 'text-blue-600';
-        default: return 'text-gray-800';
-    }
-};
-
-const getBgColorClass = (element) => {
-    switch (element) {
-        case 'Moc': return 'bg-emerald-50 border-emerald-200';
-        case 'Hoa': return 'bg-red-50 border-red-200';
-        case 'Tho': return 'bg-amber-50 border-amber-200';
-        case 'Kim': return 'bg-slate-50 border-slate-200';
-        case 'Thuy': return 'bg-blue-50 border-blue-200';
-        default: return 'bg-gray-50 border-gray-200';
-    }
-};
+import {
+    stemElements,
+    branchElements,
+    getColorClass,
+    getBgColorClass,
+    formatThan,
+    formatElement
+} from '../utils/phongthuyHelpers';
 
 const BaziBoard = ({ data, onRequireLogin }) => {
     const { user } = useContext(AuthContext);
 
     // AI Interpretation States
     const [interpretation, setInterpretation] = useState('');
+    const [isChatOpen, setIsChatOpen] = useState(false);
     const [isInterpreting, setIsInterpreting] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [error, setError] = useState('');
@@ -122,24 +101,7 @@ const BaziBoard = ({ data, onRequireLogin }) => {
         </div>
     );
 
-    const formatThan = (thanStr) => {
-        if (thanStr === 'vuong') return 'Thân Vượng';
-        if (thanStr === 'nhuoc') return 'Thân Nhược';
-        if (thanStr === 'can_bang') return 'Trạng Thái Cân Bằng';
-        if (thanStr === 'tong_cach') return 'Tòng Cách';
-        return thanStr;
-    };
 
-    const formatElement = (el) => {
-        switch (el) {
-            case 'Moc': return 'Mộc';
-            case 'Hoa': return 'Hỏa';
-            case 'Tho': return 'Thổ';
-            case 'Kim': return 'Kim';
-            case 'Thuy': return 'Thủy';
-            default: return el;
-        }
-    };
 
     const handleAILuanGiai = () => {
         if (!user) {
@@ -384,7 +346,7 @@ const BaziBoard = ({ data, onRequireLogin }) => {
             </div>
 
             {/* FLOATING ACTION BUTTON */}
-            {!interpretation && (
+            {!interpretation ? (
                 <button
                     onClick={handleAILuanGiai}
                     disabled={isInterpreting}
@@ -402,6 +364,24 @@ const BaziBoard = ({ data, onRequireLogin }) => {
                         </>
                     )}
                 </button>
+            ) : (
+                <button
+                    onClick={() => setIsChatOpen(!isChatOpen)}
+                    className="fixed bottom-[calc(96px+env(safe-area-inset-bottom,0px))] right-4 md:right-8 z-50 flex items-center gap-2 px-6 py-3.5 rounded-full shadow-2xl transition-all duration-300 font-extrabold border bg-gradient-to-r from-blue-800 to-cyan-950 hover:from-blue-900 hover:to-stone-900 text-white border-blue-700 hover:scale-105 hover:shadow-blue-900/40 uppercase text-xs tracking-wider animate-pulse"
+                >
+                    <MessageCircle className="animate-bounce shrink-0" size={18} />
+                    <span>Hỏi Thêm Thầy</span>
+                </button>
+            )}
+
+            {interpretation && data?.recordId && (
+                <AiChatWidget 
+                    type="bazi" 
+                    recordId={data.recordId} 
+                    userId={user?.id || user?._id || 'guest'} 
+                    isOpen={isChatOpen}
+                    setIsOpen={setIsChatOpen}
+                />
             )}
 
             {/* CONFIRMATION MODAL */}
