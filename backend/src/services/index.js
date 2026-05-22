@@ -5,6 +5,7 @@ const HexagramDataService = require('./HexagramDataService');
 const LoggerService = require('./LoggerService');
 const PromptTemplateManager = require('./PromptTemplateManager');
 const RuleEngineService = require('./RuleEngineService');
+const MemoryCacheService = require('./MemoryCacheService');
 
 module.exports = {
     AiService,
@@ -13,5 +14,6 @@ module.exports = {
     HexagramDataService,
     LoggerService,
     PromptTemplateManager,
-    RuleEngineService
+    RuleEngineService,
+    MemoryCacheService
 };

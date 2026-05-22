@@ -1,5 +1,6 @@
 const HexagramRecord = require('../models/HexagramRecord');
 const HexagramDataService = require('../services/HexagramDataService');
+const MemoryCacheService = require('../services/MemoryCacheService');
 
 class DivinationController {
     static async calculate(req, res) {
@@ -43,6 +44,9 @@ class DivinationController {
                 lunarDateInfo: resultPayload.dateInfo
             });
             await record.save();
+
+            // Invalidate user history cache
+            MemoryCacheService.clearUserHistoryCache(userId);
 
             return res.json({ ...resultPayload, recordId: record._id });
         } catch (error) {

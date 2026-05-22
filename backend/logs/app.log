@@ -152,3 +152,27 @@
 [2026-05-22T14:14:30.020Z] [INFO] [User: id:6a0301029382bedb4d61632b] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] [Duration: 61ms] Hoàn thành: Phản hồi thành công (200)
 [2026-05-22T14:15:17.359Z] [INFO] [User: id:6a0301029382bedb4d61632b] [Action: Thầy Luận Giải Bát Tự] [IP: ::1] Yêu cầu bắt đầu: POST /api/history/bazi/019e4ab1-52e4-7ad1-9294-ecdebb33c869/interpret | Params: {"userId":"6a0301029382bedb4d61632b"}
 [2026-05-22T14:15:17.426Z] [INFO] [User: id:6a0301029382bedb4d61632b] [Action: Thầy Luận Giải Bát Tự] [IP: ::1] [Duration: 126ms] Hoàn thành: Phản hồi thành công (200)
+[2026-05-22T14:46:13.023Z] [INFO] [User: id:6a0301029382bedb4d61632b] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/6a0301029382bedb4d61632b
+[2026-05-22T14:46:13.027Z] [INFO] [User: id:6a0301029382bedb4d61632b] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/6a0301029382bedb4d61632b
+[2026-05-22T14:46:13.093Z] [INFO] [User: id:6a0301029382bedb4d61632b] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 128ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-22T14:46:13.095Z] [INFO] [User: id:6a0301029382bedb4d61632b] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 127ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-22T14:46:13.164Z] [INFO] [User: id:6a0301029382bedb4d61632b] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/6a0301029382bedb4d61632b
+[2026-05-22T14:46:13.168Z] [INFO] [User: id:6a0301029382bedb4d61632b] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/6a0301029382bedb4d61632b
+[2026-05-22T14:46:13.223Z] [INFO] [User: id:6a0301029382bedb4d61632b] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 126ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-22T14:46:13.230Z] [INFO] [User: id:6a0301029382bedb4d61632b] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 128ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-22T14:46:14.748Z] [INFO] [User: id:6a0301029382bedb4d61632b] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/6a0301029382bedb4d61632b
+[2026-05-22T14:46:14.751Z] [INFO] [User: id:6a0301029382bedb4d61632b] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/6a0301029382bedb4d61632b
+[2026-05-22T14:46:14.809Z] [INFO] [User: id:6a0301029382bedb4d61632b] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 119ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-22T14:46:14.812Z] [INFO] [User: id:6a0301029382bedb4d61632b] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 119ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-22T14:46:14.874Z] [INFO] [User: id:6a0301029382bedb4d61632b] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/6a0301029382bedb4d61632b
+[2026-05-22T14:46:14.879Z] [INFO] [User: id:6a0301029382bedb4d61632b] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/6a0301029382bedb4d61632b
+[2026-05-22T14:46:14.937Z] [INFO] [User: id:6a0301029382bedb4d61632b] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 123ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-22T14:46:14.939Z] [INFO] [User: id:6a0301029382bedb4d61632b] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 121ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-22T14:46:16.661Z] [INFO] [User: id:6a0301029382bedb4d61632b] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/6a0301029382bedb4d61632b
+[2026-05-22T14:46:16.665Z] [INFO] [User: id:6a0301029382bedb4d61632b] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/6a0301029382bedb4d61632b
+[2026-05-22T14:46:16.723Z] [INFO] [User: id:6a0301029382bedb4d61632b] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 122ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-22T14:46:16.725Z] [INFO] [User: id:6a0301029382bedb4d61632b] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 121ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-22T14:46:16.783Z] [INFO] [User: id:6a0301029382bedb4d61632b] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/6a0301029382bedb4d61632b
+[2026-05-22T14:46:16.791Z] [INFO] [User: id:6a0301029382bedb4d61632b] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/6a0301029382bedb4d61632b
+[2026-05-22T14:46:16.843Z] [INFO] [User: id:6a0301029382bedb4d61632b] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 117ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-22T14:46:16.848Z] [INFO] [User: id:6a0301029382bedb4d61632b] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 117ms] Hoàn thành: Phản hồi thành công (304)

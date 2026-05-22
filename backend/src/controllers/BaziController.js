@@ -1,5 +1,6 @@
 const BaziAnalyzer = require('../services/BaziAnalyzer');
 const BaziRecord = require('../models/BaziRecord');
+const MemoryCacheService = require('../services/MemoryCacheService');
 
 class BaziController {
     static async analyze(req, res) {
@@ -45,6 +46,9 @@ class BaziController {
                 }
             });
             await record.save();
+
+            // Invalidate user history cache
+            MemoryCacheService.clearUserHistoryCache(uid);
 
             return res.json({ 
                 ...result, 

@@ -1,6 +1,7 @@
 const HexagramRecord = require('../models/HexagramRecord');
 const BaziRecord = require('../models/BaziRecord');
 const HexagramDataService = require('../services/HexagramDataService');
+const MemoryCacheService = require('../services/MemoryCacheService');
 const mongoose = require('mongoose');
 
 const findByIdFlex = async (Model, id) => {
@@ -31,7 +32,20 @@ class HistoryController {
             const userId = req.params.userId;
             if (!userId) return res.status(400).json({ error: 'User ID is required' });
             
-            const records = await HexagramRecord.find({ userId }).sort({ createdAt: -1 }).lean();
+            const limit = parseInt(req.query.limit) || 50;
+            const cacheKey = `history:${userId}:hexagrams:${limit}`;
+            
+            // Check in-memory cache
+            const cachedData = MemoryCacheService.get(cacheKey);
+            if (cachedData) {
+                return res.json(cachedData);
+            }
+            
+            const records = await HexagramRecord.find({ userId })
+                .sort({ createdAt: -1 })
+                .select('-analysisSnapshot')
+                .limit(limit)
+                .lean();
             
             const enhancedRecords = records.map(record => {
                 const reconstructed = HexagramDataService.reconstructLines(record);
@@ -43,6 +57,9 @@ class HistoryController {
                     transformedHexagram: reconstructed.transformedHexagram
                 };
             });
+            
+            // Cache for 5 minutes
+            MemoryCacheService.set(cacheKey, enhancedRecords, 300000);
             
             return res.json(enhancedRecords);
         } catch (error) {
@@ -56,7 +73,24 @@ class HistoryController {
             const userId = req.params.userId;
             if (!userId) return res.status(400).json({ error: 'User ID is required' });
             
-            const records = await BaziRecord.find({ userId }).sort({ createdAt: -1 });
+            const limit = parseInt(req.query.limit) || 50;
+            const cacheKey = `history:${userId}:bazi:${limit}`;
+            
+            // Check in-memory cache
+            const cachedData = MemoryCacheService.get(cacheKey);
+            if (cachedData) {
+                return res.json(cachedData);
+            }
+            
+            const records = await BaziRecord.find({ userId })
+                .sort({ createdAt: -1 })
+                .select('-analysisSnapshot')
+                .limit(limit)
+                .lean();
+                
+            // Cache for 5 minutes
+            MemoryCacheService.set(cacheKey, records, 300000);
+            
             return res.json(records);
         } catch (error) {
             console.error(error);
@@ -72,6 +106,10 @@ class HistoryController {
             const record = await updateByIdFlex(HexagramRecord, id, { rating, feedback });
             
             if (!record) return res.status(404).json({ error: 'Record not found' });
+            
+            // Invalidate cache
+            MemoryCacheService.clearUserHistoryCache(record.userId);
+            
             return res.json(record);
         } catch (error) {
             console.error(error);
@@ -87,6 +125,10 @@ class HistoryController {
             const record = await updateByIdFlex(BaziRecord, id, { rating, feedback });
             
             if (!record) return res.status(404).json({ error: 'Record not found' });
+            
+            // Invalidate cache
+            MemoryCacheService.clearUserHistoryCache(record.userId);
+            
             return res.json(record);
         } catch (error) {
             console.error(error);
@@ -102,6 +144,11 @@ class HistoryController {
             const record = await updateByIdFlex(HexagramRecord, id, { userId });
             
             if (!record) return res.status(404).json({ error: 'Record not found' });
+            
+            // Invalidate cache for both old guest and newly linked user accounts
+            MemoryCacheService.clearUserHistoryCache(record.userId);
+            MemoryCacheService.clearUserHistoryCache(userId);
+            
             return res.json(record);
         } catch (error) {
             console.error(error);
@@ -117,6 +164,11 @@ class HistoryController {
             const record = await updateByIdFlex(BaziRecord, id, { userId });
             
             if (!record) return res.status(404).json({ error: 'Record not found' });
+            
+            // Invalidate cache for both old guest and newly linked user accounts
+            MemoryCacheService.clearUserHistoryCache(record.userId);
+            MemoryCacheService.clearUserHistoryCache(userId);
+            
             return res.json(record);
         } catch (error) {
             console.error(error);

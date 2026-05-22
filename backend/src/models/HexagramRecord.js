@@ -68,4 +68,6 @@ const hexagramRecordSchema = new mongoose.Schema({
   timestamps: true,
 });
 
+hexagramRecordSchema.index({ userId: 1, createdAt: -1 });
+
 module.exports = mongoose.model('HexagramRecord', hexagramRecordSchema);

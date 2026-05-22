@@ -59,4 +59,6 @@ const baziRecordSchema = new mongoose.Schema({
   timestamps: true,
 });
 
+baziRecordSchema.index({ userId: 1, createdAt: -1 });
+
 module.exports = mongoose.model('BaziRecord', baziRecordSchema);
