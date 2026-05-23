@@ -243,3 +243,233 @@
 [2026-05-22T15:21:53.447Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] [Duration: 56ms] Hoàn thành: Phản hồi thành công (200)
 [2026-05-22T15:25:53.123Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] Yêu cầu bắt đầu: GET /api/concept/Ph%E1%BB%A5%20M%E1%BA%ABu
 [2026-05-22T15:25:53.125Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] [Duration: 57ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T04:17:24.727Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/6a0d895764636b6a740a17b8
+[2026-05-23T04:17:24.735Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/6a0d895764636b6a740a17b8
+[2026-05-23T04:17:24.808Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 135ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T04:17:24.802Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 148ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T04:17:24.872Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/6a0d895764636b6a740a17b8
+[2026-05-23T04:17:24.876Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 65ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T04:17:24.878Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/6a0d895764636b6a740a17b8
+[2026-05-23T04:17:24.881Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 63ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T04:17:30.997Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/6a0d895764636b6a740a17b8
+[2026-05-23T04:17:31.000Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 61ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T04:17:31.011Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/6a0d895764636b6a740a17b8
+[2026-05-23T04:17:31.014Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 71ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T04:17:31.061Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/6a0d895764636b6a740a17b8
+[2026-05-23T04:17:31.064Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 63ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T04:17:31.083Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/6a0d895764636b6a740a17b8
+[2026-05-23T04:17:31.085Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 70ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T04:17:33.199Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/6a0d895764636b6a740a17b8
+[2026-05-23T04:17:33.209Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 64ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T04:17:33.206Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/6a0d895764636b6a740a17b8
+[2026-05-23T04:17:33.203Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 62ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T04:17:33.270Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/6a0d895764636b6a740a17b8
+[2026-05-23T04:17:33.274Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 62ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T04:17:33.276Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/6a0d895764636b6a740a17b8
+[2026-05-23T04:17:33.279Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 62ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T04:25:43.647Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: POST /api/tu-vi] [IP: ::1] Yêu cầu bắt đầu: POST /api/tu-vi | Params: {"date":"2004-08-27","hour":4,"gender":"Nam","userId":"6a0d895764636b6a740a17b8"}
+[2026-05-23T04:25:44.015Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: POST /api/tu-vi] [IP: ::1] [Duration: 426ms] Hoàn thành: Phản hồi thành công (200)
+[2026-05-23T04:25:44.075Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: POST /api/tu-vi/6a112c4770f6f627ec4b4747/interpret] [IP: ::1] Yêu cầu bắt đầu: POST /api/tu-vi/6a112c4770f6f627ec4b4747/interpret
+[2026-05-23T04:25:44.264Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: POST /api/tu-vi/6a112c4770f6f627ec4b4747/interpret] [IP: ::1] [Duration: 244ms] Hoàn thành: Phản hồi thành công (200)
+[2026-05-23T04:25:46.324Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/jobs/019e5314-fa09-7b8b-802e-d862a289af17] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/jobs/019e5314-fa09-7b8b-802e-d862a289af17
+[2026-05-23T04:25:46.381Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/jobs/019e5314-fa09-7b8b-802e-d862a289af17] [IP: ::1] [Duration: 113ms] Hoàn thành: Phản hồi thành công (200)
+[2026-05-23T04:25:48.326Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/jobs/019e5314-fa09-7b8b-802e-d862a289af17] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/jobs/019e5314-fa09-7b8b-802e-d862a289af17
+[2026-05-23T04:25:48.383Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/jobs/019e5314-fa09-7b8b-802e-d862a289af17] [IP: ::1] [Duration: 115ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T04:25:50.320Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/jobs/019e5314-fa09-7b8b-802e-d862a289af17] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/jobs/019e5314-fa09-7b8b-802e-d862a289af17
+[2026-05-23T04:25:50.376Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/jobs/019e5314-fa09-7b8b-802e-d862a289af17] [IP: ::1] [Duration: 111ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T04:25:52.332Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/jobs/019e5314-fa09-7b8b-802e-d862a289af17] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/jobs/019e5314-fa09-7b8b-802e-d862a289af17
+[2026-05-23T04:25:52.389Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/jobs/019e5314-fa09-7b8b-802e-d862a289af17] [IP: ::1] [Duration: 114ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T04:25:54.332Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/jobs/019e5314-fa09-7b8b-802e-d862a289af17] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/jobs/019e5314-fa09-7b8b-802e-d862a289af17
+[2026-05-23T04:25:54.390Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/jobs/019e5314-fa09-7b8b-802e-d862a289af17] [IP: ::1] [Duration: 116ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T04:25:56.328Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/jobs/019e5314-fa09-7b8b-802e-d862a289af17] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/jobs/019e5314-fa09-7b8b-802e-d862a289af17
+[2026-05-23T04:25:56.387Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/jobs/019e5314-fa09-7b8b-802e-d862a289af17] [IP: ::1] [Duration: 116ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T04:25:58.335Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/jobs/019e5314-fa09-7b8b-802e-d862a289af17] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/jobs/019e5314-fa09-7b8b-802e-d862a289af17
+[2026-05-23T04:25:58.393Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/jobs/019e5314-fa09-7b8b-802e-d862a289af17] [IP: ::1] [Duration: 114ms] Hoàn thành: Phản hồi thành công (200)
+[2026-05-23T04:26:00.328Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/jobs/019e5314-fa09-7b8b-802e-d862a289af17] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/jobs/019e5314-fa09-7b8b-802e-d862a289af17
+[2026-05-23T04:26:00.385Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/jobs/019e5314-fa09-7b8b-802e-d862a289af17] [IP: ::1] [Duration: 113ms] Hoàn thành: Phản hồi thành công (200)
+[2026-05-23T04:26:00.448Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/6a112c4770f6f627ec4b4747] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/6a112c4770f6f627ec4b4747
+[2026-05-23T04:26:00.560Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/6a112c4770f6f627ec4b4747] [IP: ::1] [Duration: 167ms] Hoàn thành: Phản hồi thành công (200)
+[2026-05-23T04:26:33.114Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/6a112c4770f6f627ec4b4747/messages] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/6a112c4770f6f627ec4b4747/messages?page=1&limit=20
+[2026-05-23T04:26:33.176Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/6a112c4770f6f627ec4b4747/messages] [IP: ::1] [Duration: 120ms] Hoàn thành: Phản hồi thành công (200)
+[2026-05-23T04:48:02.455Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: POST /api/tu-vi] [IP: ::1] Yêu cầu bắt đầu: POST /api/tu-vi | Params: {"date":"2004-08-27","hour":4,"gender":"Nam","userId":"6a0d895764636b6a740a17b8"}
+[2026-05-23T04:48:02.458Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: POST /api/tu-vi] [IP: ::1] [Duration: 675ms] Hoàn thành: Phản hồi thành công (200)
+[2026-05-23T04:48:02.531Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: POST /api/tu-vi/6a112c4770f6f627ec4b4747/interpret] [IP: ::1] Yêu cầu bắt đầu: POST /api/tu-vi/6a112c4770f6f627ec4b4747/interpret
+[2026-05-23T04:48:02.714Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: POST /api/tu-vi/6a112c4770f6f627ec4b4747/interpret] [IP: ::1] [Duration: 244ms] Hoàn thành: Phản hồi thành công (200)
+[2026-05-23T04:48:19.800Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/6a112c4770f6f627ec4b4747/messages] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/6a112c4770f6f627ec4b4747/messages?page=1&limit=20
+[2026-05-23T04:48:19.860Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/6a112c4770f6f627ec4b4747/messages] [IP: ::1] [Duration: 127ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T05:51:13.158Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/6a0d895764636b6a740a17b8
+[2026-05-23T05:51:13.229Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 138ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T05:51:13.287Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/6a0d895764636b6a740a17b8
+[2026-05-23T05:51:13.289Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 57ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T05:51:13.557Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/6a0d895764636b6a740a17b8
+[2026-05-23T05:51:13.569Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/history/6a0d895764636b6a740a17b8
+[2026-05-23T05:51:13.642Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 537ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T05:51:13.671Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] [Duration: 560ms] Hoàn thành: Phản hồi thành công (200)
+[2026-05-23T05:51:13.723Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/6a0d895764636b6a740a17b8
+[2026-05-23T05:51:13.727Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 73ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T05:51:13.741Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/history/6a0d895764636b6a740a17b8
+[2026-05-23T05:51:13.744Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] [Duration: 69ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:34:36.288Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/6a112c4770f6f627ec4b4747] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/6a112c4770f6f627ec4b4747
+[2026-05-23T08:34:36.403Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/6a112c4770f6f627ec4b4747] [IP: ::1] [Duration: 171ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:34:36.461Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/6a112c4770f6f627ec4b4747] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/6a112c4770f6f627ec4b4747
+[2026-05-23T08:34:36.521Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/6a112c4770f6f627ec4b4747] [IP: ::1] [Duration: 115ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:15.978Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/6a0d895764636b6a740a17b8
+[2026-05-23T08:38:15.987Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/6a0d895764636b6a740a17b8
+[2026-05-23T08:38:15.989Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/history/6a0d895764636b6a740a17b8
+[2026-05-23T08:38:16.037Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 113ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:16.048Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] [Duration: 119ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:16.050Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 124ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:16.094Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/6a0d895764636b6a740a17b8
+[2026-05-23T08:38:16.096Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 58ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:16.107Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/history/6a0d895764636b6a740a17b8
+[2026-05-23T08:38:16.108Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] [Duration: 57ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:16.110Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/6a0d895764636b6a740a17b8
+[2026-05-23T08:38:16.112Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 58ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:27.384Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/6a0d895764636b6a740a17b8
+[2026-05-23T08:38:27.386Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 55ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:27.387Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/6a0d895764636b6a740a17b8
+[2026-05-23T08:38:27.388Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 60ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:27.389Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/history/6a0d895764636b6a740a17b8
+[2026-05-23T08:38:27.391Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] [Duration: 57ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:27.453Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/6a0d895764636b6a740a17b8
+[2026-05-23T08:38:27.455Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] [Duration: 57ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:27.454Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/history/6a0d895764636b6a740a17b8
+[2026-05-23T08:38:27.456Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/6a0d895764636b6a740a17b8
+[2026-05-23T08:38:27.454Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 62ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:27.460Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 65ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:32.512Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/6a0d895764636b6a740a17b8
+[2026-05-23T08:38:32.514Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 60ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:32.514Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/6a0d895764636b6a740a17b8
+[2026-05-23T08:38:32.516Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 56ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:32.519Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/history/6a0d895764636b6a740a17b8
+[2026-05-23T08:38:32.521Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] [Duration: 59ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:32.573Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/6a0d895764636b6a740a17b8
+[2026-05-23T08:38:32.575Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 59ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:32.578Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/6a0d895764636b6a740a17b8
+[2026-05-23T08:38:32.579Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 58ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:32.585Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/history/6a0d895764636b6a740a17b8
+[2026-05-23T08:38:32.586Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] [Duration: 61ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:34.181Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: POST /api/tu-vi] [IP: ::1] Yêu cầu bắt đầu: POST /api/tu-vi | Params: {"date":"2004-08-27","hour":4,"gender":"Nam","userId":"6a0d895764636b6a740a17b8"}
+[2026-05-23T08:38:34.185Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: POST /api/tu-vi] [IP: ::1] [Duration: 59ms] Hoàn thành: Phản hồi thành công (200)
+[2026-05-23T08:38:34.258Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: POST /api/tu-vi/6a112c4770f6f627ec4b4747/interpret] [IP: ::1] Yêu cầu bắt đầu: POST /api/tu-vi/6a112c4770f6f627ec4b4747/interpret
+[2026-05-23T08:38:34.433Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: POST /api/tu-vi/6a112c4770f6f627ec4b4747/interpret] [IP: ::1] [Duration: 231ms] Hoàn thành: Phản hồi thành công (200)
+[2026-05-23T08:38:42.913Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/6a0d895764636b6a740a17b8
+[2026-05-23T08:38:42.915Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 57ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:42.919Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 57ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:42.918Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/6a0d895764636b6a740a17b8
+[2026-05-23T08:38:42.927Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/history/6a0d895764636b6a740a17b8
+[2026-05-23T08:38:42.928Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] [Duration: 62ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:42.977Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/6a0d895764636b6a740a17b8
+[2026-05-23T08:38:42.978Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 57ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:42.980Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/6a0d895764636b6a740a17b8
+[2026-05-23T08:38:42.981Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 57ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:42.989Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/history/6a0d895764636b6a740a17b8
+[2026-05-23T08:38:42.990Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] [Duration: 59ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:46.136Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/6a0d895764636b6a740a17b8
+[2026-05-23T08:38:46.140Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 63ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:46.139Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/6a0d895764636b6a740a17b8
+[2026-05-23T08:38:46.141Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/history/6a0d895764636b6a740a17b8
+[2026-05-23T08:38:46.138Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 64ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:46.143Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] [Duration: 62ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:46.201Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/6a0d895764636b6a740a17b8
+[2026-05-23T08:38:46.202Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 57ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:46.203Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/6a0d895764636b6a740a17b8
+[2026-05-23T08:38:46.205Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 57ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:46.206Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/history/6a0d895764636b6a740a17b8
+[2026-05-23T08:38:46.208Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] [Duration: 58ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:47.883Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/6a112c4770f6f627ec4b4747] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/6a112c4770f6f627ec4b4747
+[2026-05-23T08:38:47.998Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/6a112c4770f6f627ec4b4747] [IP: ::1] [Duration: 171ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:48.056Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/6a112c4770f6f627ec4b4747] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/6a112c4770f6f627ec4b4747
+[2026-05-23T08:38:48.113Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/6a112c4770f6f627ec4b4747] [IP: ::1] [Duration: 113ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:55.095Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/6a0d895764636b6a740a17b8
+[2026-05-23T08:38:55.098Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 60ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:55.099Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/6a0d895764636b6a740a17b8
+[2026-05-23T08:38:55.101Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 59ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:55.102Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/history/6a0d895764636b6a740a17b8
+[2026-05-23T08:38:55.104Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] [Duration: 60ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:55.161Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/6a0d895764636b6a740a17b8
+[2026-05-23T08:38:55.163Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 58ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:55.164Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/6a0d895764636b6a740a17b8
+[2026-05-23T08:38:55.166Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 57ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:55.166Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/history/6a0d895764636b6a740a17b8
+[2026-05-23T08:38:55.167Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] [Duration: 55ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T08:38:58.177Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: POST /api/tu-vi] [IP: ::1] Yêu cầu bắt đầu: POST /api/tu-vi | Params: {"date":"2004-08-27","hour":4,"gender":"Nam","userId":"6a0d895764636b6a740a17b8"}
+[2026-05-23T08:38:58.180Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: POST /api/tu-vi] [IP: ::1] [Duration: 57ms] Hoàn thành: Phản hồi thành công (200)
+[2026-05-23T08:38:58.254Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: POST /api/tu-vi/6a112c4770f6f627ec4b4747/interpret] [IP: ::1] Yêu cầu bắt đầu: POST /api/tu-vi/6a112c4770f6f627ec4b4747/interpret
+[2026-05-23T08:38:58.428Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: POST /api/tu-vi/6a112c4770f6f627ec4b4747/interpret] [IP: ::1] [Duration: 231ms] Hoàn thành: Phản hồi thành công (200)
+[2026-05-23T08:43:26.034Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: POST /api/tu-vi] [IP: ::1] Yêu cầu bắt đầu: POST /api/tu-vi | Params: {"date":"2004-08-27","hour":4,"gender":"Nam","userId":"6a0d895764636b6a740a17b8"}
+[2026-05-23T08:43:26.036Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: POST /api/tu-vi] [IP: ::1] [Duration: 56ms] Hoàn thành: Phản hồi thành công (200)
+[2026-05-23T08:43:26.109Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: POST /api/tu-vi/6a112c4770f6f627ec4b4747/interpret] [IP: ::1] Yêu cầu bắt đầu: POST /api/tu-vi/6a112c4770f6f627ec4b4747/interpret
+[2026-05-23T08:43:26.285Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: POST /api/tu-vi/6a112c4770f6f627ec4b4747/interpret] [IP: ::1] [Duration: 232ms] Hoàn thành: Phản hồi thành công (200)
+[2026-05-23T09:09:47.377Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: POST /api/tu-vi] [IP: ::1] Yêu cầu bắt đầu: POST /api/tu-vi | Params: {"date":"2004-08-27","hour":4,"gender":"Nam","userId":"6a0d895764636b6a740a17b8"}
+[2026-05-23T09:09:47.380Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: POST /api/tu-vi] [IP: ::1] [Duration: 478ms] Hoàn thành: Phản hồi thành công (200)
+[2026-05-23T09:11:43.319Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: POST /api/tu-vi/6a112c4770f6f627ec4b4747/interpret] [IP: ::1] Yêu cầu bắt đầu: POST /api/tu-vi/6a112c4770f6f627ec4b4747/interpret
+[2026-05-23T09:11:43.496Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: POST /api/tu-vi/6a112c4770f6f627ec4b4747/interpret] [IP: ::1] [Duration: 235ms] Hoàn thành: Phản hồi thành công (200)
+[2026-05-23T09:12:17.498Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Luận Giải Bản Đồ Bát Tự] [IP: ::1] Yêu cầu bắt đầu: POST /api/bazi/analyze | Params: {"date":"01/02/1991","time":"12:11","gender":0,"userId":"6a0d895764636b6a740a17b8"}
+[2026-05-23T09:12:17.816Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Luận Giải Bản Đồ Bát Tự] [IP: ::1] [Duration: 374ms] Hoàn thành: Phản hồi thành công (200)
+[2026-05-23T09:12:24.668Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Thầy Luận Giải Bát Tự] [IP: ::1] Yêu cầu bắt đầu: POST /api/history/bazi/019e541b-5402-7d11-9570-82610dce9286/interpret | Params: {"userId":"6a0d895764636b6a740a17b8"}
+[2026-05-23T09:12:35.752Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Thầy Luận Giải Bát Tự] [IP: ::1] [Duration: 11147ms] Hoàn thành: Phản hồi thành công (200)
+[2026-05-23T09:22:24.166Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/6a0d895764636b6a740a17b8
+[2026-05-23T09:22:24.233Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 124ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T09:22:24.293Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/6a0d895764636b6a740a17b8
+[2026-05-23T09:22:24.295Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 60ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T09:22:24.588Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/6a0d895764636b6a740a17b8
+[2026-05-23T09:22:24.592Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/history/6a0d895764636b6a740a17b8
+[2026-05-23T09:22:24.651Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] [Duration: 533ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T09:22:24.700Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 586ms] Hoàn thành: Phản hồi thành công (200)
+[2026-05-23T09:22:24.711Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/history/6a0d895764636b6a740a17b8
+[2026-05-23T09:22:24.713Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] [Duration: 59ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T09:22:24.759Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/6a0d895764636b6a740a17b8
+[2026-05-23T09:22:24.762Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 59ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T09:24:15.321Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/6a0d895764636b6a740a17b8
+[2026-05-23T09:24:15.324Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 61ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T09:24:15.325Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/6a0d895764636b6a740a17b8
+[2026-05-23T09:24:15.327Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 61ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T09:24:15.329Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/history/6a0d895764636b6a740a17b8
+[2026-05-23T09:24:15.330Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] [Duration: 60ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T09:24:15.388Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/6a0d895764636b6a740a17b8
+[2026-05-23T09:24:15.392Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 61ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T09:24:15.395Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/6a0d895764636b6a740a17b8
+[2026-05-23T09:24:15.397Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/history/6a0d895764636b6a740a17b8
+[2026-05-23T09:24:15.396Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 60ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T09:24:15.398Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] [Duration: 58ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T09:28:51.245Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/6a0d895764636b6a740a17b8
+[2026-05-23T09:28:51.248Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/6a0d895764636b6a740a17b8
+[2026-05-23T09:28:51.256Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/history/6a0d895764636b6a740a17b8
+[2026-05-23T09:28:51.303Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 116ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T09:28:51.312Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] [Duration: 119ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T09:28:51.361Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 171ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T09:28:51.363Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/6a0d895764636b6a740a17b8
+[2026-05-23T09:28:51.365Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 61ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T09:28:51.370Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/history/6a0d895764636b6a740a17b8
+[2026-05-23T09:28:51.372Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] [Duration: 58ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T09:28:51.421Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/6a0d895764636b6a740a17b8
+[2026-05-23T09:28:51.422Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 56ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T10:13:36.857Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/6a0d895764636b6a740a17b8
+[2026-05-23T10:13:36.865Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/6a0d895764636b6a740a17b8
+[2026-05-23T10:13:36.868Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/history/6a0d895764636b6a740a17b8
+[2026-05-23T10:13:56.877Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/6a0d895764636b6a740a17b8
+[2026-05-23T10:13:56.882Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/6a0d895764636b6a740a17b8
+[2026-05-23T10:13:56.904Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/history/6a0d895764636b6a740a17b8
+[2026-05-23T10:14:06.889Z] [ERROR] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 60053ms] Thất bại: Phản hồi lỗi hệ thống (500)
+[2026-05-23T10:14:06.900Z] [ERROR] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 60047ms] Thất bại: Phản hồi lỗi hệ thống (500)
+[2026-05-23T10:14:06.935Z] [ERROR] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] [Duration: 60072ms] Thất bại: Phản hồi lỗi hệ thống (500)
+[2026-05-23T10:14:26.892Z] [ERROR] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 60026ms] Thất bại: Phản hồi lỗi hệ thống (500)
+[2026-05-23T10:14:26.919Z] [ERROR] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 60048ms] Thất bại: Phản hồi lỗi hệ thống (500)
+[2026-05-23T10:14:26.957Z] [ERROR] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] [Duration: 60076ms] Thất bại: Phản hồi lỗi hệ thống (500)
+[2026-05-23T10:19:25.021Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/6a0d895764636b6a740a17b8
+[2026-05-23T10:19:25.051Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/6a0d895764636b6a740a17b8
+[2026-05-23T10:19:25.100Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 580ms] Hoàn thành: Phản hồi thành công (200)
+[2026-05-23T10:19:25.181Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 655ms] Hoàn thành: Phản hồi thành công (200)
+[2026-05-23T10:19:25.183Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/6a0d895764636b6a740a17b8
+[2026-05-23T10:19:25.185Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 81ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T10:19:25.252Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/6a0d895764636b6a740a17b8
+[2026-05-23T10:19:25.253Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 66ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T10:19:25.385Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/history/6a0d895764636b6a740a17b8
+[2026-05-23T10:19:25.464Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] [Duration: 934ms] Hoàn thành: Phản hồi thành công (200)
+[2026-05-23T10:19:25.543Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/history/6a0d895764636b6a740a17b8
+[2026-05-23T10:19:25.545Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/history/6a0d895764636b6a740a17b8] [IP: ::1] [Duration: 78ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T10:19:27.733Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/6a112c4770f6f627ec4b4747] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/6a112c4770f6f627ec4b4747
+[2026-05-23T10:19:27.855Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/6a112c4770f6f627ec4b4747] [IP: ::1] [Duration: 180ms] Hoàn thành: Phản hồi thành công (304)
+[2026-05-23T10:19:27.913Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/6a112c4770f6f627ec4b4747] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/6a112c4770f6f627ec4b4747
+[2026-05-23T10:19:27.982Z] [INFO] [User: id:6a0d895764636b6a740a17b8] [Action: GET /api/tu-vi/6a112c4770f6f627ec4b4747] [IP: ::1] [Duration: 126ms] Hoàn thành: Phản hồi thành công (304)

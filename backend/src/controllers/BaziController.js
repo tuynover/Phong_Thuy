@@ -11,8 +11,21 @@ class BaziController {
             }
 
             const uid = userId || 'guest';
+            const idempotencyKey = req.headers['idempotency-key'] || req.headers['Idempotency-Key'];
 
-            // Check for duplicate record
+            // 1. Check by Idempotency Key header if provided
+            if (idempotencyKey) {
+                const dupRecord = await BaziRecord.findOne({ idempotencyKey });
+                if (dupRecord) {
+                    return res.json({ 
+                        ...dupRecord.baziData, 
+                        recordId: dupRecord._id, 
+                        aiInterpretation: dupRecord.aiInterpretation 
+                    });
+                }
+            }
+
+            // 2. Check for duplicate record by data parameters (Semantic Idempotency)
             const existingRecord = await BaziRecord.findOne({
                 userId: uid,
                 'inputInfo.date': date,
@@ -33,6 +46,7 @@ class BaziController {
             // Save to DB
             const record = new BaziRecord({
                 userId: uid,
+                idempotencyKey: idempotencyKey || null,
                 inputInfo: { date, time, gender: parseInt(gender) },
                 solarTimeline: result.solarTimeline,
                 tietKhiTimeline: result.tietKhiTimeline,

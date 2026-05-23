@@ -6,10 +6,12 @@ const BaziController = require('../controllers/BaziController');
 const authRoutes = require('./auth');
 const historyRoutes = require('./history');
 const aiRoutes = require('./ai');
+const tuViRoutes = require('../modules/tu-vi/routes');
 
 router.use('/auth', authRoutes);
 router.use('/history', historyRoutes);
 router.use('/ai', aiRoutes);
+router.use('/tu-vi', tuViRoutes);
 
 // Support both unified and legacy namespaces for calculate
 router.post('/hexagrams/calculate', DivinationController.calculate);

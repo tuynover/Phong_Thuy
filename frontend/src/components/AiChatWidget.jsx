@@ -4,7 +4,7 @@ import {
     User, AlertCircle, RefreshCw 
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import { getChatStreamUrl, getHexagramChatMessages, getBaziChatMessages } from '../services/api';
+import { getChatStreamUrl, getHexagramChatMessages, getBaziChatMessages, getTuViChatMessages } from '../services/api';
 
 /**
  * Robust incremental JSON parser to extract the "answer" field in real-time as it streams.
@@ -81,10 +81,25 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
     const streamAnswer = getStreamingAnswer(streamText);
 
     const isIching = type === 'hexagrams';
-    const themeColor = isIching ? 'amber' : 'blue';
-    const themeBg = isIching ? 'bg-amber-800 hover:bg-amber-900 text-white' : 'bg-blue-800 hover:bg-blue-900 text-white';
-    const themeBorder = isIching ? 'border-amber-100 focus:border-amber-500' : 'border-blue-100 focus:border-blue-500';
-    const themeHeader = isIching ? 'bg-amber-950 text-amber-50' : 'bg-blue-950 text-blue-50';
+    const isBazi = type === 'bazi';
+    const isTuVi = type === 'tu_vi';
+    
+    const themeColor = isIching ? 'amber' : isBazi ? 'blue' : 'purple';
+    const themeBg = isIching 
+        ? 'bg-amber-800 hover:bg-amber-900 text-white' 
+        : isBazi 
+            ? 'bg-blue-800 hover:bg-blue-900 text-white' 
+            : 'bg-purple-850 hover:bg-purple-900 text-white';
+    const themeBorder = isIching 
+        ? 'border-amber-100 focus:border-amber-500' 
+        : isBazi 
+            ? 'border-blue-100 focus:border-blue-500' 
+            : 'border-purple-100 focus:border-purple-500';
+    const themeHeader = isIching 
+        ? 'bg-amber-950 text-amber-50' 
+        : isBazi 
+            ? 'bg-blue-950 text-blue-50' 
+            : 'bg-purple-950 text-purple-50';
 
     // Fetch history page helper
     const fetchHistoryPage = async (pageNum, isInitial = false) => {
@@ -92,7 +107,11 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
         setIsLoadingHistory(true);
         setError('');
         try {
-            const apiCall = isIching ? getHexagramChatMessages : getBaziChatMessages;
+            const apiCall = isIching 
+                ? getHexagramChatMessages 
+                : isBazi 
+                    ? getBaziChatMessages 
+                    : getTuViChatMessages;
             const res = await apiCall(recordId, pageNum, 20);
             const { messages: fetchedMessages, hasMore: moreAvailable } = res.data;
 

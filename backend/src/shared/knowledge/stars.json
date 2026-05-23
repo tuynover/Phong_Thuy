@@ -1,0 +1,139 @@
+{
+  "version": "1.0.0",
+  "major_stars": {
+    "tu_vi": {
+      "name": "Tử Vi",
+      "element": "Thổ",
+      "polarity": "Dương",
+      "type": "Hoàng Đế tinh",
+      "character": "Chủ về quyền uy, phúc đức, tôn quý. Người có Tử Vi thủ Mệnh thường có phong thái lãnh đạo, chính trực nhưng đôi khi độc đoán hoặc dễ nghe lời gièm pha.",
+      "keyword": ["quyền lực", "tôn quý", "lãnh đạo", "phúc đức"]
+    },
+    "thien_phu": {
+      "name": "Thiên Phủ",
+      "element": "Thổ",
+      "polarity": "Dương",
+      "type": "Tài Khoa tinh",
+      "character": "Chủ về tài lộc, điền trạch, sự ôn hòa và ổn định. Được ví như thủ kho của hoàng đế, Thiên Phủ thiên về bảo thủ, cẩn trọng, thích an toàn.",
+      "keyword": ["kho tiền", "ổn định", "bao dung", "thận trọng"]
+    },
+    "vu_khuc": {
+      "name": "Vũ Khúc",
+      "element": "Kim",
+      "polarity": "Âm",
+      "type": "Tài tinh",
+      "character": "Chủ về tiền tài, hành động thực tế và sự quyết đoán. Vũ Khúc là sao cương nghị, cô độc, có năng lực quản lý tài chính xuất sắc nhưng thiếu sự lãng mạn.",
+      "keyword": ["tiền tài", "quyết đoán", "cô độc", "thực tế"]
+    },
+    "thien_tuong": {
+      "name": "Thiên Tướng",
+      "element": "Thủy",
+      "polarity": "Dương",
+      "type": "Ấn tinh",
+      "character": "Chủ về quan lộc, danh dự và sự phò tá. Thiên Tướng chính trực, từ ái, thích giúp đỡ người khác, có tính tổ chức và kỷ luật cao, đóng vai trò như thừa tướng.",
+      "keyword": ["ấn tín", "chính trực", "từ thiện", "phò tá"]
+    },
+    "thai_duong": {
+      "name": "Thái Dương",
+      "element": "Hỏa",
+      "polarity": "Dương",
+      "type": "Quan Lộc tinh",
+      "character": "Chủ về công danh, sự nghiệp, quang minh và cha/chồng. Thái Dương rực rỡ, thích chia sẻ, khẳng định bản thân nhưng nếu hãm địa sẽ dễ vất vả, thị phi.",
+      "keyword": ["quang minh", "công danh", "nhiệt huyết", "cho đi"]
+    },
+    "cu_mon": {
+      "name": "Cự Môn",
+      "element": "Thủy",
+      "polarity": "Âm",
+      "type": "Ám tinh",
+      "character": "Chủ về ngôn ngữ, thị phi, nghiên cứu pháp luật và sự đa nghi. Cự Môn giỏi giao tiếp, phản biện nhưng dễ vướng khẩu thiệt thị phi nếu không tu dưỡng đạo đức.",
+      "keyword": ["ngôn ngữ", "thị phi", "nghiên cứu", "hoài nghi"]
+    },
+    "thien_co": {
+      "name": "Thiên Cơ",
+      "element": "Mộc",
+      "polarity": "Âm",
+      "type": "Thiện tinh",
+      "character": "Chủ về trí tuệ, cơ mưu, sự dịch chuyển và nhạy bén. Người có Thiên Cơ thông minh, giỏi tính toán kế hoạch nhưng dễ suy nghĩ quá nhiều dẫn đến lo âu.",
+      "keyword": ["trí tuệ", "cơ mưu", "dịch chuyển", "tính toán"]
+    },
+    "thien_dong": {
+      "name": "Thiên Đồng",
+      "element": "Thủy",
+      "polarity": "Dương",
+      "type": "Phúc tinh",
+      "character": "Chủ về phúc thọ, sự nhàn nhã, trẻ con và cảm xúc. Thiên Đồng thích hưởng thụ, dễ thích nghi nhưng đôi khi thiếu ý chí tiến thủ và hay thay đổi.",
+      "keyword": ["phúc đức", "an nhàn", "cảm xúc", "trẻ thơ"]
+    },
+    "thai_am": {
+      "name": "Thái Âm",
+      "element": "Thủy",
+      "polarity": "Âm",
+      "type": "Phú tinh",
+      "character": "Chủ về điền trạch, tài phú tích lũy, sự dịu dàng và mẹ/vợ. Thái Âm mang tính nghệ thuật, trực giác nhạy bén, thích lãng mạn nhưng dễ đa sầu đa cảm.",
+      "keyword": ["tích lũy", "điền trạch", "dịu dàng", "nghệ thuật"]
+    },
+    "thien_luong": {
+      "name": "Thiên Lương",
+      "element": "Mộc",
+      "polarity": "Dương",
+      "type": "Ấm thọ tinh",
+      "character": "Chủ về che chở, tuổi thọ, y học, tôn giáo và nguyên tắc. Thiên Lương từ bi, thích làm cố vấn, giảng dạy nhưng đôi khi giáo điều và thích quản chuyện người khác.",
+      "keyword": ["che chở", "thọ khang", "nguyên tắc", "y học"]
+    },
+    "that_sat": {
+      "name": "Thất Sát",
+      "element": "Kim",
+      "polarity": "Dương",
+      "type": "Quyền tinh",
+      "character": "Chủ về sát phạt, dũng mãnh, biến động nhanh và sự cô độc. Thất Sát là tướng quân nơi sa trường, dám nghĩ dám làm, tự lập cánh sinh nhưng cuộc đời nhiều thăng trầm.",
+      "keyword": ["dũng mãnh", "biến động", "cô độc", "tự lập"]
+    },
+    "pha_quan": {
+      "name": "Phá Quân",
+      "element": "Thủy",
+      "polarity": "Âm",
+      "type": "Hao tinh",
+      "character": "Chủ về hao tán, tiên phong, phá bỏ cái cũ để xây dựng cái mới. Phá Quân dũng cảm, thích mạo hiểm, đột phá nhưng tính cách biến động cực mạnh, thăng trầm lớn.",
+      "keyword": ["tiên phong", "hao tán", "đột phá", "mạo hiểm"]
+    },
+    "tham_lang": {
+      "name": "Tham Lang",
+      "element": "Thủy / Mộc",
+      "polarity": "Dương",
+      "type": "Đào Hoa tinh",
+      "character": "Chủ về dục vọng, tửu sắc, nghệ thuật, giao tế và tâm linh. Tham Lang thông minh, khéo léo, đa tài đa nghệ nhưng dễ bị cuốn vào các ham muốn vật chất.",
+      "keyword": ["đào hoa", "ham muốn", "giao thiệp", "nghệ thuật"]
+    },
+    "liem_trinh": {
+      "name": "Liêm Trinh",
+      "element": "Hỏa",
+      "polarity": "Âm",
+      "type": "Tù đào hoa tinh",
+      "character": "Chủ về quan lộc, chính trực, nóng nảy và đào hoa thứ. Liêm Trinh yêu ghét rõ ràng, có lòng tự tôn cực cao, làm việc cẩn thận nhưng dễ cực đoan, cố chấp.",
+      "keyword": ["chính trực", "đào hoa thứ", "tự tôn", "nóng nảy"]
+    }
+  },
+  "luc_cat_stars": {
+    "van_xuong": { "name": "Văn Xương", "element": "Kim", "type": "Khoa giáp", "desc": "Chủ về bằng cấp, văn chương, tư duy logic, thi cử đỗ đạt." },
+    "van_khuc": { "name": "Văn Khúc", "element": "Thủy", "type": "Nghệ thuật", "desc": "Chủ về tài hoa nghệ thuật, trực giác, giao tiếp khéo léo và đào hoa nhạt." },
+    "thien_khoi": { "name": "Thiên Khôi", "element": "Hỏa", "type": "Quý nhân", "desc": "Chủ về quý nhân trợ giúp trực tiếp, cơ hội làm người đứng đầu, danh tiếng." },
+    "thien_viet": { "name": "Thiên Việt", "element": "Hỏa", "type": "Quý nhân", "desc": "Chủ về quý nhân ngầm giúp đỡ, cơ hội phát triển chiều sâu, may mắn bất ngờ." },
+    "ta_phu": { "name": "Tả Phù", "element": "Thổ", "type": "Trợ lực", "desc": "Chủ về sự hỗ trợ từ bạn bè, đồng nghiệp, tăng quy mô và tính ổn định." },
+    "huu_bat": { "name": "Hữu Bật", "element": "Thổ", "type": "Trợ lực", "desc": "Chủ về sự phò tá từ cấp dưới, tăng cơ hội nhân duyên cát lợi." }
+  },
+  "luc_sat_stars": {
+    "kinh_duong": { "name": "Kình Dương", "element": "Kim", "type": "Hình thương", "desc": "Sát tinh chủ về sự hình thương, tranh chấp, phẫu thuật, tính cách nóng nảy bộc trực." },
+    "da_la": { "name": "Đà La", "element": "Kim", "type": "Trở ngại", "desc": "Sát tinh chủ về sự trì trệ, kéo dài, ám hại, bệnh mãn tính và suy nghĩ luẩn quẩn." },
+    "hoa_tinh": { "name": "Hỏa Tinh", "element": "Hỏa", "type": "Kích bại", "desc": "Sát tinh chủ về sự phá hoại nhanh chóng, tính khí nóng như lửa, tai nạn bất ngờ." },
+    "linh_tinh": { "name": "Linh Tinh", "element": "Hỏa", "type": "Uất hận", "desc": "Sát tinh chủ về sự uất hận thầm kín, cô độc, thâm trầm, tai họa ngầm." },
+    "dia_khong": { "name": "Địa Không", "element": "Hỏa", "type": "Hao bại", "desc": "Sát tinh chủ về sự trống rỗng, mất mát bất ngờ, ý tưởng viển vông, thích hợp nghiên cứu triết học." },
+    "dia_kiep": { "name": "Địa Kiếp", "element": "Hỏa", "type": "Cướp đoạt", "desc": "Sát tinh chủ về sự cướp đoạt, thất bại nặng nề, tai ương từ bên ngoài đưa đến." }
+  },
+  "tu_hoa": {
+    "hoa_loc": { "name": "Hóa Lộc", "element": "Kim", "desc": "Biểu thị sự duyên dáng, tài lộc dồi dào, thuận lợi, cơ hội kiếm tiền và phát triển." },
+    "hoa_quyen": { "name": "Hóa Quyền", "element": "Mộc", "desc": "Biểu thị quyền lực, tầm ảnh hưởng, sự thăng tiến, tính tự chủ và năng lực chuyên môn cao." },
+    "hoa_khoa": { "name": "Hóa Khoa", "element": "Thủy", "desc": "Biểu thị học vấn, khoa bảng, danh tiếng ôn hòa, gặp dữ hóa lành, quý nhân giải ách." },
+    "hoa_ky": { "name": "Hóa Kỵ", "element": "Thủy", "desc": "Biểu thị sự cản trở, đố kỵ, sai lầm, thị phi, mắc nợ nghiệp quả và tai nạn hao tài." }
+  }
+}

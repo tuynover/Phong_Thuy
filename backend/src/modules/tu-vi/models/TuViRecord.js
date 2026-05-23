@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const { v7: uuidv7 } = require('uuid');
 
-const baziRecordSchema = new mongoose.Schema({
+const tuViRecordSchema = new mongoose.Schema({
   _id: {
     type: String,
     default: uuidv7
@@ -11,27 +11,32 @@ const baziRecordSchema = new mongoose.Schema({
     required: true,
     default: 'guest',
   },
+  system: {
+    type: String,
+    default: 'tu_vi',
+    required: true
+  },
   idempotencyKey: {
     type: String,
     index: true,
     default: null
   },
   inputInfo: {
-    date: String, // e.g. "05/09/2004"
-    time: String, // e.g. "14:30"
-    gender: Number // 1 for Male, 0 for Female
+    date: String,        // YYYY-MM-DD
+    hour: Number,        // Hour index (0..11)
+    gender: String,      // "Nam" | "Nữ"
+    timezone: { type: Number, default: 7 },
+    school: { type: String, default: 'bac_phai' },
+    calendarType: { type: String, default: 'solar' }
   },
-  solarTimeline: {
+  chartHash: {
     type: String,
     required: true,
+    index: true
   },
-  tietKhiTimeline: {
-    type: String,
-    required: true,
-  },
-  baziData: {
+  chartData: {
     type: Object,
-    required: true,
+    required: true
   },
   rating: {
     type: Number,
@@ -44,13 +49,16 @@ const baziRecordSchema = new mongoose.Schema({
     default: ''
   },
   aiInterpretation: {
-    content: { type: String, default: "" },
+    summary: { type: String, default: "" },
+    sections: { type: Array, default: [] },
     generatedAt: { type: Date, default: null },
     model: { type: String, default: "" },
     promptVersion: { type: String, default: "" },
+    knowledgeVersion: { type: String, default: "" },
     promptTokens: { type: Number, default: 0 },
     completionTokens: { type: Number, default: 0 },
-    tokensUsed: { type: Number, default: 0 }
+    tokensUsed: { type: Number, default: 0 },
+    cost: { type: Number, default: 0 }
   },
   isGeneratingInterpretation: {
     type: Boolean,
@@ -61,9 +69,9 @@ const baziRecordSchema = new mongoose.Schema({
     default: null
   }
 }, {
-  timestamps: true,
+  timestamps: true
 });
 
-baziRecordSchema.index({ userId: 1, createdAt: -1 });
+tuViRecordSchema.index({ userId: 1, createdAt: -1 });
 
-module.exports = mongoose.model('BaziRecord', baziRecordSchema);
+module.exports = mongoose.model('TuViRecord', tuViRecordSchema);

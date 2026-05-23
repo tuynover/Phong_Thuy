@@ -96,6 +96,46 @@ class AiService {
             return Math.ceil((prompt || '').length / 4);
         }
     }
+
+    async generateStructuredOutput(prompt, schema, options = {}, retries = 2) {
+        if (!this.genAI) {
+            throw new Error("Hệ thống chưa được cấu hình API Key của AI.");
+        }
+
+        const modelName = this.getModelName(options);
+        const model = this.genAI.getGenerativeModel({
+            model: modelName,
+            generationConfig: {
+                responseMimeType: "application/json",
+                responseSchema: schema
+            }
+        });
+
+        for (let attempt = 1; attempt <= retries + 1; attempt++) {
+            try {
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('AI Request Timeout')), 30000)
+                );
+
+                const generatePromise = model.generateContent(prompt);
+                const result = await Promise.race([generatePromise, timeoutPromise]);
+                const response = result.response;
+                const text = response.text();
+                return JSON.parse(text);
+            } catch (error) {
+                console.error(`AI Structured Generation Error (Attempt ${attempt}):`, error.message);
+                
+                if (attempt === retries + 1) {
+                    if (error.message.includes('Timeout')) {
+                        throw new Error('Hệ thống AI phản hồi chậm hoặc đang quá tải. Vui lòng thử lại sau.');
+                    }
+                    throw new Error(`Đã có lỗi xảy ra khi xử lý phản hồi cấu trúc từ AI: ${error.message}`);
+                }
+                
+                await new Promise(res => setTimeout(res, 2000));
+            }
+        }
+    }
 }
 
 module.exports = new AiService();

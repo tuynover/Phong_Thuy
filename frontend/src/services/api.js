@@ -15,5 +15,21 @@ export const linkBazi = (id, userId) => axios.put(`${API_URL}/history/bazi/${id}
 export const updateBaziInfo = (userId, day, month, year, hour, minute) => axios.put(`${API_URL}/auth/bazi`, { userId, day, month, year, hour, minute });
 export const analyzeBazi = (date, time, gender, userId) => axios.post(`${API_URL}/bazi/analyze`, { date, time, gender, userId });
 export const interpretHexagram = (id) => axios.post(`${API_URL}/history/hexagrams/${id}/interpret`);
-export const getInterpretationStreamUrl = (type, id) => `${API_URL}/history/${type}/${id}/interpret`;
-export const getChatStreamUrl = (type, id) => `${API_URL}/history/${type}/${id}/chat`;
+export const getInterpretationStreamUrl = (type, id) => {
+  if (type === 'tu_vi') return `${API_URL}/tu-vi/${id}/interpret`;
+  return `${API_URL}/history/${type}/${id}/interpret`;
+};
+export const getChatStreamUrl = (type, id) => {
+  if (type === 'tu_vi') return `${API_URL}/tu-vi/${id}/chat`;
+  return `${API_URL}/history/${type}/${id}/chat`;
+};
+
+// Tử Vi API Endpoints
+export const createTuViChart = (date, hour, gender, userId) => axios.post(`${API_URL}/tu-vi`, { date, hour, gender, userId });
+export const interpretTuVi = (id) => axios.post(`${API_URL}/tu-vi/${id}/interpret`);
+export const checkTuViJob = (jobId) => axios.get(`${API_URL}/tu-vi/jobs/${jobId}`);
+export const getTuViHistory = (userId) => axios.get(`${API_URL}/tu-vi/history/${userId}`);
+export const getTuViRecord = (id) => axios.get(`${API_URL}/tu-vi/${id}`);
+export const rateTuVi = (id, rating, feedback) => axios.put(`${API_URL}/tu-vi/${id}/rate`, { rating, feedback });
+export const getTuViChatMessages = (id, page = 1, limit = 20) => axios.get(`${API_URL}/tu-vi/${id}/messages?page=${page}&limit=${limit}`);
+

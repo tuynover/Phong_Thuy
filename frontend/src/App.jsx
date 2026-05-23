@@ -4,6 +4,7 @@ import ManualInput from './components/ManualInput';
 import DivinationBoard from './components/DivinationBoard';
 import BaziInput from './components/BaziInput';
 import BaziBoard from './components/BaziBoard';
+import TuViBoard from './components/TuViBoard';
 import HistoryBoard from './components/HistoryBoard';
 import AuthModal from './components/AuthModal';
 import UpdateBaziModal from './components/UpdateBaziModal';
@@ -13,11 +14,14 @@ import { UserCircle, LogOut, CalendarDays } from 'lucide-react';
 import { Lunar } from 'lunar-javascript';
 
 function App() {
-  const [appMode, setAppMode] = useState(() => localStorage.getItem('appMode') || 'iching'); // 'iching' | 'bazi' | 'history'
+  const [appMode, setAppMode] = useState(() => localStorage.getItem('appMode') || 'iching'); // 'iching' | 'bazi' | 'tuvi' | 'history'
   
   // Auth
   const { user, logout } = useContext(AuthContext);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+  // Tu Vi State
+  const [historicalTuViId, setHistoricalTuViId] = useState(null);
 
   // I Ching State
   const [mode, setMode] = useState(() => localStorage.getItem('mode') || 'coin'); // 'coin' | 'manual'
@@ -162,6 +166,11 @@ function App() {
     setAppMode('bazi');
   };
 
+  const handleViewHistoricalTuVi = (record) => {
+    setHistoricalTuViId(record._id || record.id);
+    setAppMode('tuvi');
+  };
+
   const handleViewOwnBazi = async () => {
     if (!user) return;
     if (!user.baziInfo || !user.baziInfo.day) {
@@ -217,6 +226,15 @@ function App() {
                 >
                   Bát Tự
                 </button>
+                <button 
+                  onClick={() => {
+                    setHistoricalTuViId(null);
+                    setAppMode('tuvi');
+                  }} 
+                  className={`flex-1 sm:flex-none px-3 py-2 md:px-8 md:py-3 rounded-full font-bold transition-all text-xs md:text-base ${appMode === 'tuvi' ? 'bg-purple-800 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50'}`}
+                >
+                  Tử Vi
+                </button>
                 {user && (
                   <button 
                     onClick={() => setAppMode('history')} 
@@ -258,6 +276,16 @@ function App() {
             </div>
             <h1 className="text-4xl md:text-6xl font-serif font-bold text-blue-950 mb-6 tracking-tight drop-shadow-sm">Khoa Học Tử Bình</h1>
             <p className="text-blue-800/80 max-w-2xl mx-auto text-base md:text-lg font-medium">Hệ thống phân tích Tứ Trụ, đo lường Ngũ Hành và định Dụng Thần cải vận.</p>
+            </header>
+        ) : appMode === 'tuvi' ? (
+            <header className="text-center mb-16 pt-2">
+            <div className="inline-block p-4 rounded-full bg-purple-100 border border-purple-200 mb-6">
+                <div className="w-16 h-16 rounded-full border-4 border-purple-800 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-full bg-purple-800"></div>
+                </div>
+            </div>
+            <h1 className="text-4xl md:text-6xl font-serif font-bold text-purple-950 mb-6 tracking-tight drop-shadow-sm">Mệnh Số Tử Vi</h1>
+            <p className="text-purple-800/80 max-w-2xl mx-auto text-base md:text-lg font-medium">Hệ thống lập lá số 12 Cung mệnh bàn, định hướng cát hung và luận giải Vận Hạn.</p>
             </header>
         ) : null}
 
@@ -372,12 +400,24 @@ function App() {
             </div>
         )}
 
-        {/* SYSTEM 3: HISTORY */}
+        {/* SYSTEM 3: TỬ VI */}
+        {appMode === 'tuvi' && (
+            <div className="animate-in fade-in duration-500">
+                <TuViBoard 
+                    user={user} 
+                    onRequireLogin={() => setIsAuthModalOpen(true)} 
+                    historicalRecordId={historicalTuViId} 
+                />
+            </div>
+        )}
+
+        {/* SYSTEM 4: HISTORY */}
         {appMode === 'history' && (
             <div className="animate-in fade-in duration-500">
                 <HistoryBoard 
                     onViewHexagram={handleViewHistoricalHexagram} 
                     onViewBazi={handleViewHistoricalBazi} 
+                    onViewTuVi={handleViewHistoricalTuVi}
                 />
             </div>
         )}
