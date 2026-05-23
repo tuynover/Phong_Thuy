@@ -101,6 +101,10 @@ function getActionName(req) {
 }
 
 const auditLogger = async (req, res, next) => {
+    // Skip logging for lightweight health check endpoint to keep logs clean
+    if (req.path === '/health' || req.originalUrl === '/health') {
+        return next();
+    }
     const start = Date.now();
     const action = getActionName(req);
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
