@@ -380,14 +380,33 @@ class AiInterpretationController {
             try {
                 parsed = JSON.parse(cleanedContent);
             } catch (e) {
-                try {
-                    const match = cleanedContent.match(/\{[\s\S]*\}/);
-                    if (match) {
-                        parsed = JSON.parse(match[0]);
-                    } else {
-                        parsed.answer = cleanedContent;
+                const match = cleanedContent.match(/\{[\s\S]*\}/);
+                if (match) {
+                    try {
+                        const escaped = match[0].replace(/"([^"\\]*(?:\\.[^"\\]*)*)"/g, (m, p1) => {
+                            return '"' + p1.replace(/\n/g, '\\n').replace(/\r/g, '\\r') + '"';
+                        });
+                        parsed = JSON.parse(escaped);
+                    } catch (e2) {
+                        const answerMatch = match[0].match(/"answer"\s*:\s*"([\s\S]*?)"\s*,\s*"timing"/);
+                        const answer = answerMatch ? answerMatch[1] : "";
+                        
+                        const timingMatch = match[0].match(/"timing"\s*:\s*(?:"([\s\S]*?)"|null)/);
+                        const timing = timingMatch ? (timingMatch[1] || null) : null;
+                        
+                        const riskMatch = match[0].match(/"risk"\s*:\s*(?:"([\s\S]*?)"|null)/);
+                        const risk = riskMatch ? (riskMatch[1] || null) : null;
+                        
+                        const confidenceMatch = match[0].match(/"confidence"\s*:\s*([0-9.]+)/);
+                        const confidence = confidenceMatch ? parseFloat(confidenceMatch[1]) : 0.85;
+
+                        if (answer) {
+                            parsed = { answer, timing, risk, confidence };
+                        } else {
+                            parsed.answer = cleanedContent;
+                        }
                     }
-                } catch (e2) {
+                } else {
                     parsed.answer = cleanedContent;
                 }
             }
@@ -548,14 +567,33 @@ class AiInterpretationController {
             try {
                 parsed = JSON.parse(cleanedContent);
             } catch (e) {
-                try {
-                    const match = cleanedContent.match(/\{[\s\S]*\}/);
-                    if (match) {
-                        parsed = JSON.parse(match[0]);
-                    } else {
-                        parsed.answer = cleanedContent;
+                const match = cleanedContent.match(/\{[\s\S]*\}/);
+                if (match) {
+                    try {
+                        const escaped = match[0].replace(/"([^"\\]*(?:\\.[^"\\]*)*)"/g, (m, p1) => {
+                            return '"' + p1.replace(/\n/g, '\\n').replace(/\r/g, '\\r') + '"';
+                        });
+                        parsed = JSON.parse(escaped);
+                    } catch (e2) {
+                        const answerMatch = match[0].match(/"answer"\s*:\s*"([\s\S]*?)"\s*,\s*"timing"/);
+                        const answer = answerMatch ? answerMatch[1] : "";
+                        
+                        const timingMatch = match[0].match(/"timing"\s*:\s*(?:"([\s\S]*?)"|null)/);
+                        const timing = timingMatch ? (timingMatch[1] || null) : null;
+                        
+                        const riskMatch = match[0].match(/"risk"\s*:\s*(?:"([\s\S]*?)"|null)/);
+                        const risk = riskMatch ? (riskMatch[1] || null) : null;
+                        
+                        const confidenceMatch = match[0].match(/"confidence"\s*:\s*([0-9.]+)/);
+                        const confidence = confidenceMatch ? parseFloat(confidenceMatch[1]) : 0.80;
+
+                        if (answer) {
+                            parsed = { answer, timing, risk, confidence };
+                        } else {
+                            parsed.answer = cleanedContent;
+                        }
                     }
-                } catch (e2) {
+                } else {
                     parsed.answer = cleanedContent;
                 }
             }

@@ -192,6 +192,10 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId }) => {
   };
 
   const handleTriggerInterpretation = async () => {
+    if (!user) {
+      if (onRequireLogin) onRequireLogin();
+      return;
+    }
     if (!result || !result._id) return;
     setLoadingAi(true);
     setProgress(0);

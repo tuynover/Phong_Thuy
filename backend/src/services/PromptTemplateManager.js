@@ -130,12 +130,9 @@ YÊU CẦU ĐỘ DÀI VÀ HỌC THUẬT VƯỢT TRỘI (EXHAUSTIVE & DEEP SCHOLA
 3. Trụ Ngày (Bản thân, Nhật Chủ): Can ${canChi.day.gan} (Nhật Chủ hành ${this.stemElementMap(canChi.day.gan)}) - Chi ${canChi.day.zhi} (Cung Thê/Phu, Tàng can chi: ${canChi.day.tangCan.map(t => `${t.gan} (${t.thapThan})`).join(', ')})
 4. Trụ Giờ (Con cái, Hậu vận): Can ${canChi.hour.gan} - Chi ${canChi.hour.zhi} (Thập thần Can: ${canChi.hour.thapThanGan}, Tàng can chi: ${canChi.hour.tangCan.map(t => `${t.gan} (${t.thapThan})`).join(', ')})
 
---- ĐIỂM SỐ NGŨ HÀNH (ĐÃ ĐO LƯỜNG TỶ MỶ) ---
-- Kim: ${nguHanh.Kim}
-- Mộc: ${nguHanh.Moc}
-- Thủy: ${nguHanh.Thuy}
-- Hỏa: ${nguHanh.Hoa}
-- Thổ: ${nguHanh.Tho}
+--- YÊU CẦU ĐỘC LẬP TỰ ĐO LƯỜNG NGŨ HÀNH ---
+- Bạn HÃY TỰ MÌNH đánh giá sâu sắc, đo lường sự suy vượng, khuyết thiếu, cân bằng của ngũ hành (Kim, Mộc, Thủy, Hỏa, Thổ) một cách linh hoạt, động học dựa trên Tứ Trụ Can Chi và Nguyệt Lệnh (tháng sinh) của đương số. Hãy bỏ qua tất cả điểm số thô sơ, cứng nhắc để đưa ra nhận định mệnh lý chính xác và trực quan nhất.
+
 
 --- CÁCH CỤC & THÂN THẾ ---
 - Trạng thái Nhật Chủ: ${analysis.than === 'vuong' ? 'Thân Vượng' : analysis.than === 'nhuoc' ? 'Thân Nhược' : analysis.than === 'can_bang' ? 'Cân bằng' : 'Tòng Cách (' + analysis.tongCachType + ')'}

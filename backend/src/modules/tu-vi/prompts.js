@@ -118,6 +118,34 @@ Bạn phải trả về phản hồi DUY NHẤT dưới dạng một đối tư�
   static getResponseSchema() {
     return RESPONSE_SCHEMA;
   }
+
+  static buildFollowUpPrompt(compressedChart, symbolicAnalysis, memoryContext, historyPrompt, question) {
+    return `
+${MASTER_PROMPT}
+
+DỮ LIỆU THỰC TẾ LÁ SỐ CỦA ĐƯƠNG SỐ:
+\`\`\`json
+${JSON.stringify(compressedChart, null, 2)}
+\`\`\`
+CÁC CÁCH CỤC & TỔ HỢP SAO:
+${JSON.stringify(symbolicAnalysis.patterns)}
+
+BỐI CẢNH TRÒ CHUYỆN HỎI ĐÁP LỊCH SỬ:
+${memoryContext}
+${historyPrompt}
+
+Đương số hỏi tiếp: "${question}"
+
+YÊU CẦU:
+Hãy trả lời câu hỏi của đương số một cách thuyết phục nhất dựa trên sự kết hợp các sao học thuật trên lá số. Hãy chia bố cục câu trả lời chi tiết và trả về dạng đối tượng JSON tuân thủ schema dưới đây:
+{
+  "answer": "Bài giải đáp chi tiết bằng Markdown...",
+  "timing": "Ứng kỳ cát lợi hoặc giai đoạn cần lưu ý (nếu có)...",
+  "risk": "Các rủi ro vận thế cần đề phòng cụ thể...",
+  "confidence": 0.90
+}
+`;
+  }
 }
 
 module.exports = TuViPrompts;

@@ -57,6 +57,56 @@ function getStreamingAnswer(text) {
     return answerText;
 }
 
+/**
+ * Super robust JSON parser to parse final Gemini outputs even with backticks, raw newlines, or unescaped quotes.
+ */
+function robustParseJSON(text) {
+    if (!text) return null;
+    const cleaned = text.trim().replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/, '').trim();
+    
+    try {
+        return JSON.parse(cleaned);
+    } catch (e) {
+        // Try to replace raw newlines within double quotes
+        try {
+            const escaped = cleaned.replace(/"([^"\\]*(?:\\.[^"\\]*)*)"/g, (match, p1) => {
+                return '"' + p1.replace(/\n/g, '\\n').replace(/\r/g, '\\r') + '"';
+            });
+            return JSON.parse(escaped);
+        } catch (e2) {
+            // Regex fallback to extract specific fields
+            try {
+                const match = cleaned.match(/\{[\s\S]*\}/);
+                if (match) {
+                    const jsonContent = match[0];
+                    try {
+                        return JSON.parse(jsonContent);
+                    } catch (e3) {
+                        const answerMatch = jsonContent.match(/"answer"\s*:\s*"([\s\S]*?)"\s*,\s*"timing"/);
+                        const answer = answerMatch ? answerMatch[1] : "";
+                        
+                        const timingMatch = jsonContent.match(/"timing"\s*:\s*(?:"([\s\S]*?)"|null)/);
+                        const timing = timingMatch ? (timingMatch[1] || null) : null;
+                        
+                        const riskMatch = jsonContent.match(/"risk"\s*:\s*(?:"([\s\S]*?)"|null)/);
+                        const risk = riskMatch ? (riskMatch[1] || null) : null;
+                        
+                        const confidenceMatch = jsonContent.match(/"confidence"\s*:\s*([0-9.]+)/);
+                        const confidence = confidenceMatch ? parseFloat(confidenceMatch[1]) : 0.8;
+                        
+                        if (answer) {
+                            return { answer, timing, risk, confidence };
+                        }
+                    }
+                }
+            } catch (e4) {
+                // Ignore
+            }
+        }
+    }
+    return null;
+}
+
 const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpen: setExternalIsOpen }) => {
     const [localIsOpen, setLocalIsOpen] = useState(false);
     const isOpen = externalIsOpen !== undefined ? externalIsOpen : localIsOpen;
@@ -256,25 +306,15 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
                 }
             }
 
-            // Parse final accumulated JSON output
-            const finalCleaned = streamText ? streamText.trim().replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/, '') : currentText;
-            let parsedJson = { answer: "", timing: null, risk: null, confidence: 0.8 };
-            
-            try {
-                parsedJson = JSON.parse(finalCleaned);
-            } catch (e) {
-                // Regex fallback
-                try {
-                    const match = finalCleaned.match(/\{[\s\S]*\}/);
-                    if (match) {
-                        parsedJson = JSON.parse(match[0]);
-                    } else {
-                        parsedJson.answer = finalCleaned;
-                    }
-                } catch (e2) {
-                    parsedJson.answer = finalCleaned;
-                }
-            }
+            // Parse final accumulated JSON output using super robust parser
+            const finalCleaned = (streamText || currentText || "").trim();
+            const parsedObj = robustParseJSON(finalCleaned);
+            const parsedJson = parsedObj || {
+                answer: finalCleaned,
+                timing: null,
+                risk: null,
+                confidence: 0.8
+            };
 
             // Save AI Message
             const aiMsg = {
@@ -305,19 +345,41 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
     };
 
     const renderAiMessage = (msg) => {
-        let sc = msg.structuredContent;
-        if (!sc) {
-            try {
-                const parsed = JSON.parse(msg.content);
+        let sc = null;
+        
+        // 1. Try to parse from msg.content first if it looks like a JSON string
+        if (msg.content && msg.content.trim().startsWith('{') && msg.content.trim().endsWith('}')) {
+            const parsedObj = robustParseJSON(msg.content);
+            if (parsedObj) {
                 sc = {
-                    answer: parsed.answer,
-                    timing: parsed.timing,
-                    risk: parsed.risk,
-                    confidence: parsed.confidence
+                    answer: parsedObj.answer || "",
+                    timing: parsedObj.timing || null,
+                    risk: parsedObj.risk || null,
+                    confidence: parsedObj.confidence !== undefined ? parsedObj.confidence : null
                 };
-            } catch (e) {
-                sc = { answer: msg.content, timing: null, risk: null, confidence: null };
             }
+        }
+        
+        // 2. Fallback to msg.structuredContent if parsing failed or didn't yield an answer
+        if (!sc || !sc.answer) {
+            if (msg.structuredContent && msg.structuredContent.answer) {
+                sc = {
+                    answer: msg.structuredContent.answer,
+                    timing: msg.structuredContent.timing,
+                    risk: msg.structuredContent.risk,
+                    confidence: msg.structuredContent.confidence
+                };
+            }
+        }
+        
+        // 3. Absolute fallback: use msg.content as the answer directly
+        if (!sc || !sc.answer) {
+            sc = {
+                answer: msg.content || "",
+                timing: null,
+                risk: null,
+                confidence: null
+            };
         }
 
         const confidencePercent = sc.confidence ? Math.round(sc.confidence * 100) : null;
@@ -325,7 +387,7 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
         return (
             <div className="space-y-3 text-neutral-800 text-sm">
                 <div className="prose max-w-none prose-sm leading-relaxed">
-                    <ReactMarkdown>{sc.answer || msg.content}</ReactMarkdown>
+                    <ReactMarkdown>{sc.answer}</ReactMarkdown>
                 </div>
 
                 {/* Timing Card */}

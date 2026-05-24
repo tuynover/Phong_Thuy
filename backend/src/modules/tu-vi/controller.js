@@ -393,31 +393,7 @@ class TuViController {
       const compressedChart = TuViFormatter.compressForAi(record);
       const symbolicAnalysis = record.analysisSnapshot || SymbolicAnalyzer.analyze(record.chartData);
 
-      const prompt = `
-${MASTER_PROMPT}
-
-DỮ LIỆU THỰC TẾ LÁ SỐ CỦA ĐƯƠNG SỐ:
-\`\`\`json
-${JSON.stringify(compressedChart, null, 2)}
-\`\`\`
-CÁC CÁCH CỤC & TỔ HỢP SAO:
-${JSON.stringify(symbolicAnalysis.patterns)}
-
-BỐI CẢNH TRÒ CHUYỆN HỎI ĐÁP LỊCH SỬ:
-${memoryContext}
-${historyPrompt}
-
-Đương số hỏi tiếp: "${question}"
-
-YÊU CẦU:
-Hãy trả lời câu hỏi của đương số một cách thuyết phục nhất dựa trên sự kết hợp các sao học thuật trên lá số. Hãy chia bố cục câu trả lời chi tiết và trả về dạng đối tượng JSON tuân thủ schema dưới đây:
-{
-  "answer": "Bài giải đáp chi tiết bằng Markdown...",
-  "timing": "Ứng kỳ cát lợi hoặc giai đoạn cần lưu ý (nếu có)...",
-  "risk": "Các rủi ro vận thế cần đề phòng cụ thể...",
-  "confidence": 0.90
-}
-`;
+      const prompt = TuViPrompts.buildFollowUpPrompt(compressedChart, symbolicAnalysis, memoryContext, historyPrompt, question);
 
       const userTokens = await AiService.countTokens(question, { model: ACTIVE_MODEL });
       
@@ -457,9 +433,30 @@ Hãy trả lời câu hỏi của đương số một cách thuyết phục nh�
         const match = cleanedContent.match(/\{[\s\S]*\}/);
         if (match) {
           try {
-            parsed = JSON.parse(match[0]);
+            // Attempt to clean raw newlines within double quotes
+            const escaped = match[0].replace(/"([^"\\]*(?:\\.[^"\\]*)*)"/g, (m, p1) => {
+              return '"' + p1.replace(/\n/g, '\\n').replace(/\r/g, '\\r') + '"';
+            });
+            parsed = JSON.parse(escaped);
           } catch (e2) {
-            parsed.answer = cleanedContent;
+            // Regex fallback to extract fields
+            const answerMatch = match[0].match(/"answer"\s*:\s*"([\s\S]*?)"\s*,\s*"timing"/);
+            const answer = answerMatch ? answerMatch[1] : "";
+            
+            const timingMatch = match[0].match(/"timing"\s*:\s*(?:"([\s\S]*?)"|null)/);
+            const timing = timingMatch ? (timingMatch[1] || null) : null;
+            
+            const riskMatch = match[0].match(/"risk"\s*:\s*(?:"([\s\S]*?)"|null)/);
+            const risk = riskMatch ? (riskMatch[1] || null) : null;
+            
+            const confidenceMatch = match[0].match(/"confidence"\s*:\s*([0-9.]+)/);
+            const confidence = confidenceMatch ? parseFloat(confidenceMatch[1]) : 0.85;
+
+            if (answer) {
+              parsed = { answer, timing, risk, confidence };
+            } else {
+              parsed.answer = cleanedContent;
+            }
           }
         } else {
           parsed.answer = cleanedContent;
