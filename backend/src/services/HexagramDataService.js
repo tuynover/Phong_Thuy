@@ -1,4 +1,4 @@
-const { Lunar } = require('lunar-javascript');
+const { Lunar, Solar } = require('lunar-javascript');
 const hexagramsData = require('../data/hexagrams.json');
 const linesData = require('../data/lines.json');
 
@@ -150,12 +150,32 @@ class HexagramDataService {
             secondaryHexLines = linesData.filter(l => l.hexagram_id === secondaryHexagram.id).sort((a, b) => a.line_index - b.line_index);
         }
 
-        // Date setup using lunar-javascript
-        // Ensure we use Vietnam time zone regardless of server timezone
-        const vnTimeStr = now.toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' });
-        const vnDate = new Date(vnTimeStr); 
-        
-        const lunar = Lunar.fromDate(vnDate);
+        // Date setup using lunar-javascript in Asia/Ho_Chi_Minh timezone
+        // Lock to Vietnam timezone deterministically using formatToParts
+        const formatter = new Intl.DateTimeFormat('en-GB', {
+            timeZone: 'Asia/Ho_Chi_Minh',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false,
+        });
+        const parts = formatter.formatToParts(now);
+        const map = {};
+        parts.forEach(p => map[p.type] = p.value);
+        const vn = {
+            year: parseInt(map.year),
+            month: parseInt(map.month),
+            day: parseInt(map.day),
+            hour: parseInt(map.hour) === 24 ? 0 : parseInt(map.hour),
+            minute: parseInt(map.minute),
+            second: parseInt(map.second)
+        };
+
+        const solar = Solar.fromYmdHms(vn.year, vn.month, vn.day, vn.hour, vn.minute, vn.second);
+        const lunar = solar.getLunar();
         const hourCanChi = toVietnamese(lunar.getEightChar().getTime());
         const dayCanChi = toVietnamese(lunar.getDayInGanZhiExact());
         const monthCanChi = toVietnamese(lunar.getMonthInGanZhiExact());
@@ -241,8 +261,8 @@ class HexagramDataService {
             primaryLines: procPrimary,
             secondaryLines: procSecondary,
             dateInfo: {
-                time: vnDate.toLocaleTimeString('vi-VN'),
-                solarDate: vnDate.toLocaleDateString('vi-VN'),
+                time: `${String(vn.hour).padStart(2,'0')}:${String(vn.minute).padStart(2,'0')}:${String(vn.second).padStart(2,'0')}`,
+                solarDate: `${String(vn.day).padStart(2,'0')}/${String(vn.month).padStart(2,'0')}/${vn.year}`,
                 lunarDateStr: `ngày ${lunar.getDay()} tháng ${lunar.getMonth()} năm ${lunar.getYear()} Âm lịch`,
                 hourCanChi,
                 dayCanChi,
@@ -251,7 +271,12 @@ class HexagramDataService {
                 tietKhi: lunar.getJieQi(),
                 nhatThan: `${dayBranch}-${getElement(dayBranch)}`,
                 nguyetLenh: `${monthBranch}-${getElement(monthBranch)}`,
-                tuankhong: tkStr
+                tuankhong: tkStr,
+                metadata: {
+                    timezone: "Asia/Ho_Chi_Minh",
+                    utcOffset: 7,
+                    solarTimestamp: now.getTime()
+                }
             }
         };
     }

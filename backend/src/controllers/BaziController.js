@@ -5,7 +5,7 @@ const MemoryCacheService = require('../services/MemoryCacheService');
 class BaziController {
     static async analyze(req, res) {
         try {
-            const { date, time, gender, userId } = req.body; // Expecting: date: "dd/mm/yyyy", time: "hh:mm", gender: 1 or 0
+            const { date, time, gender, userId, dayBoundaryMode } = req.body; // Expecting: date: "dd/mm/yyyy", time: "hh:mm", gender: 1 or 0, dayBoundaryMode: "midnight" | "zi_hour"
             if (!date || !time || gender === undefined) {
                 return res.status(400).json({ error: 'Missing date, time, or gender parameters' });
             }
@@ -30,7 +30,8 @@ class BaziController {
                 userId: uid,
                 'inputInfo.date': date,
                 'inputInfo.time': time,
-                'inputInfo.gender': parseInt(gender)
+                'inputInfo.gender': parseInt(gender),
+                'inputInfo.dayBoundaryMode': dayBoundaryMode || 'midnight'
             });
 
             if (existingRecord) {
@@ -41,13 +42,13 @@ class BaziController {
                 });
             }
 
-            const result = BaziAnalyzer.analyze(date, time, parseInt(gender));
+            const result = BaziAnalyzer.analyze(date, time, parseInt(gender), dayBoundaryMode || 'midnight');
             
             // Save to DB
             const record = new BaziRecord({
                 userId: uid,
                 idempotencyKey: idempotencyKey || null,
-                inputInfo: { date, time, gender: parseInt(gender) },
+                inputInfo: { date, time, gender: parseInt(gender), dayBoundaryMode: dayBoundaryMode || 'midnight' },
                 solarTimeline: result.solarTimeline,
                 tietKhiTimeline: result.tietKhiTimeline,
                 baziData: result,

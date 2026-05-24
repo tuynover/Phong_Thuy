@@ -9,8 +9,10 @@ class IztroEngine {
   generate(params) {
     const { date, hour, gender, lang = 'vi-VN' } = params;
     
-    // iztro yêu cầu giới tính truyền vào chữ Hán '男' (Nam) hoặc '女' (Nữ)
-    const iztroGender = (gender === 'Nam' || gender === 1) ? '男' : '女';
+    // Normalize gender inputs: Nam/male/1 -> '男' (Nam), Nữ/female/0 -> '女' (Nữ)
+    const g = String(gender).trim().toLowerCase();
+    const isMale = (g === 'nam' || g === '1' || g === 'male' || g === 'm');
+    const iztroGender = isMale ? '男' : '女';
     
     // Lập lá số Dương lịch mặc định
     return astro.bySolar(date, hour, iztroGender, false, lang);

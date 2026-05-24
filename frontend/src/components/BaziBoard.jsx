@@ -200,6 +200,17 @@ const BaziBoard = ({ data, onRequireLogin }) => {
                 <div className="relative z-10">
                     <h2 className="text-4xl font-extrabold mb-2 tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-cyan-400">Kết Quả Phân Tích Bát Tự</h2>
                     <p className="text-blue-200/80 uppercase tracking-widest text-sm font-bold">Lá Số Tử Bình Chuyên Sâu</p>
+                    
+                    <div className="mt-6 flex flex-wrap gap-3 md:gap-4 text-xs md:text-sm text-blue-100/90 font-medium">
+                        <div className="bg-white/10 px-4 py-2 rounded-xl backdrop-blur-md border border-white/10">
+                            <span className="text-blue-300 font-bold mr-2">DƯƠNG LỊCH:</span> {data.solarTimeline}
+                        </div>
+                        {data.lunarDateStr && (
+                            <div className="bg-white/10 px-4 py-2 rounded-xl backdrop-blur-md border border-white/10">
+                                <span className="text-blue-300 font-bold mr-2">ÂM LỊCH:</span> {data.lunarDateStr}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 
@@ -207,7 +218,14 @@ const BaziBoard = ({ data, onRequireLogin }) => {
                 
                 {/* Tứ Trụ */}
                 <div>
-                    <h3 className="text-xl font-bold text-gray-800 border-l-4 border-blue-600 pl-4 mb-6 uppercase">Cấu Trúc Tứ Trụ (Mệnh Cục)</h3>
+                    <h3 className="text-xl font-bold text-gray-800 border-l-4 border-blue-600 pl-4 mb-6 uppercase flex items-center justify-between flex-wrap gap-4">
+                        <span>Cấu Trúc Tứ Trụ (Mệnh Cục)</span>
+                        {data.lunarYear && (
+                            <span className="text-xs font-semibold bg-blue-50 text-blue-800 px-3 py-1 rounded-full border border-blue-100 italic normal-case">
+                                * Lưu ý: Trụ Năm Bát Tự đổi tại Lập Xuân. Năm sinh Âm lịch của bạn là năm {data.lunarYear}.
+                            </span>
+                        )}
+                    </h3>
                     <div className="flex flex-row-reverse justify-center gap-4 md:gap-8">
                         <Pillar title="Giờ Sinh" pillarData={canChi.hour} />
                         <Pillar title="Nhật Chủ" pillarData={canChi.day} isDayMaster={true} />
@@ -224,10 +242,11 @@ const BaziBoard = ({ data, onRequireLogin }) => {
                         {daYun.map((yun, idx) => {
                             const yunElem = stemElements[yun.gan];
                             return (
-                                <div key={idx} className={`flex-shrink-0 flex flex-col items-center p-3 rounded-lg border-2 min-w-[80px] ${getBgColorClass(yunElem)}`}>
-                                    <div className="text-xs font-bold text-gray-500 mb-2">{yun.startYear}</div>
-                                    <div className={`text-xl font-black ${getColorClass(yunElem)}`}>{yun.gan}</div>
-                                    <div className={`text-xl font-black ${getColorClass(branchElements[yun.zhi])}`}>{yun.zhi}</div>
+                                <div key={idx} className={`flex-shrink-0 flex flex-col items-center p-3.5 rounded-xl border-2 min-w-[95px] transition-all hover:scale-105 shadow-sm ${getBgColorClass(yunElem)}`}>
+                                    <div className="text-xs font-black text-slate-700/80 mb-1">{yun.startAge} Tuổi</div>
+                                    <div className={`text-2xl font-black ${getColorClass(yunElem)}`}>{yun.gan}</div>
+                                    <div className={`text-2xl font-black mb-1.5 ${getColorClass(branchElements[yun.zhi])}`}>{yun.zhi}</div>
+                                    <div className="text-[10px] font-bold text-gray-400 mt-auto">{yun.startYear}</div>
                                 </div>
                             )
                         })}

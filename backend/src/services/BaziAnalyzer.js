@@ -33,34 +33,76 @@ class BaziAnalyzer {
         this.rules = JSON.parse(fs.readFileSync(rulesPath, 'utf8'));
     }
 
-    analyze(dateStr, timeStr, gender = 1) { // gender: 1 (Nam), 0 (Nữ)
+    analyze(dateStr, timeStr, gender = 1, dayBoundaryMode = 'midnight') { // gender: 1 (Nam), 0 (Nữ)
         // 1. Data Prep
         const [day, month, year] = dateStr.split('/').map(Number);
         const [hour, minute] = timeStr.split(':').map(Number);
-        const solar = Solar.fromYmdHms(year, month, day, hour, minute, 0);
-        const lunar = solar.getLunar();
-        const bazi = lunar.getEightChar();
+        
+        const genderInt = parseInt(gender) === 0 ? 0 : 1;
+        const sect = dayBoundaryMode === 'zi_hour' ? 1 : 2;
+
+        // A. local Bazi for Day and Hour
+        const solarLocal = Solar.fromYmdHms(year, month, day, hour, minute, 0);
+        const lunarLocal = solarLocal.getLunar();
+        const baziLocal = lunarLocal.getEightChar();
+        baziLocal.setSect(sect);
+
+        // B. Adjusted Bazi (+1 hour for GMT+8 Beijing astronomical solar terms) for Year, Month, and Da Yun
+        const solarAdjusted = solarLocal.nextHour(1);
+        const lunarAdjusted = solarAdjusted.getLunar();
+        const baziAdjusted = lunarAdjusted.getEightChar();
+        baziAdjusted.setSect(sect);
         
         const solarTimeline = `${String(day).padStart(2,'0')}/${String(month).padStart(2,'0')}/${year} ${String(hour).padStart(2,'0')}:${String(minute).padStart(2,'0')}`;
-        const tietKhiTimeline = `${toVi(bazi.getTimeGan() + bazi.getTimeZhi())} - ${toVi(bazi.getDayGan() + bazi.getDayZhi())} - ${toVi(bazi.getMonthGan() + bazi.getMonthZhi())} - ${toVi(bazi.getYearGan() + bazi.getYearZhi())}`;
+        const tietKhiTimeline = `${toVi(baziLocal.getTimeGan() + baziLocal.getTimeZhi())} - ${toVi(baziLocal.getDayGan() + baziLocal.getDayZhi())} - ${toVi(baziAdjusted.getMonthGan() + baziAdjusted.getMonthZhi())} - ${toVi(baziAdjusted.getYearGan() + baziAdjusted.getYearZhi())}`;
+
+        // Standard Lunar calendar birth info (Shifts strictly at Lunar New Year Mùng 1 Tết)
+        const lunarDateStr = `ngày ${lunarLocal.getDay()} tháng ${lunarLocal.getMonth()} năm ${toVi(lunarLocal.getYearInGanZhi())} Âm lịch`;
+        const lunarYear = toVi(lunarLocal.getYearInGanZhi());
 
         // Build Da Yun
-        const yun = bazi.getYun(gender);
-        const daYunData = yun.getDaYun().map(d => ({
+        const yun = baziAdjusted.getYun(genderInt);
+        
+        // rawDaYun keeps childhood cycle (Index 0) and all un-filtered items
+        const rawDaYunData = yun.getDaYun().map(d => ({
             startYear: d.getStartYear(),
+            startAge: d.getStartAge(),
             gan: toVi(d.getGanZhi().substring(0, 1)),
             zhi: toVi(d.getGanZhi().substring(1, 2)),
         }));
+
+        // daYun filters out pre-Da Yun childhood cycle with empty stem-branch
+        const daYunData = rawDaYunData.filter(d => d.gan && d.zhi);
 
         // Bóc tách Tàng can & Thập thần
         const buildPillar = (type) => {
             let gan, zhi, thapThanGan;
             let hiddenList = [];
             
-            if (type === 'year') { gan = bazi.getYearGan(); zhi = bazi.getYearZhi(); thapThanGan = toThapThan(bazi.getYearShiShenGan()); hiddenList = bazi.getYearShiShenZhi(); }
-            if (type === 'month') { gan = bazi.getMonthGan(); zhi = bazi.getMonthZhi(); thapThanGan = toThapThan(bazi.getMonthShiShenGan()); hiddenList = bazi.getMonthShiShenZhi(); }
-            if (type === 'day') { gan = bazi.getDayGan(); zhi = bazi.getDayZhi(); thapThanGan = "Nhật Chủ"; hiddenList = bazi.getDayShiShenZhi(); }
-            if (type === 'hour') { gan = bazi.getTimeGan(); zhi = bazi.getTimeZhi(); thapThanGan = toThapThan(bazi.getTimeShiShenGan()); hiddenList = bazi.getTimeShiShenZhi(); }
+            if (type === 'year') {
+                gan = baziAdjusted.getYearGan();
+                zhi = baziAdjusted.getYearZhi();
+                thapThanGan = toThapThan(baziAdjusted.getYearShiShenGan());
+                hiddenList = baziAdjusted.getYearShiShenZhi();
+            }
+            if (type === 'month') {
+                gan = baziAdjusted.getMonthGan();
+                zhi = baziAdjusted.getMonthZhi();
+                thapThanGan = toThapThan(baziAdjusted.getMonthShiShenGan());
+                hiddenList = baziAdjusted.getMonthShiShenZhi();
+            }
+            if (type === 'day') {
+                gan = baziLocal.getDayGan();
+                zhi = baziLocal.getDayZhi();
+                thapThanGan = "Nhật Chủ";
+                hiddenList = baziLocal.getDayShiShenZhi();
+            }
+            if (type === 'hour') {
+                gan = baziLocal.getTimeGan();
+                zhi = baziLocal.getTimeZhi();
+                thapThanGan = toThapThan(baziLocal.getTimeShiShenGan());
+                hiddenList = baziLocal.getTimeShiShenZhi();
+            }
 
             const viZhi = toVi(zhi);
             const hiddenStemsArr = this.rules.hiddenStems[viZhi] || [];
@@ -321,13 +363,21 @@ class BaziAnalyzer {
         return {
             solarTimeline,
             tietKhiTimeline,
+            lunarDateStr,
+            lunarYear,
             canChi,
             nguHanh: elementScore,
             analysis,
             dungThan,
             hyThan,
             nguyetLenhDungThan,
-            daYun: daYunData
+            daYun: daYunData, // filtered visible ones
+            rawDaYun: rawDaYunData, // complete unfiltered list
+            metadata: {
+                timezone: "Asia/Ho_Chi_Minh",
+                utcOffset: 7,
+                solarTimestamp: new Date(Date.UTC(year, month - 1, day, hour, minute)).getTime()
+            }
         };
     }
 }
