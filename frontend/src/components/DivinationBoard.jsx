@@ -61,7 +61,7 @@ const HexagramVisual = ({ lines }) => {
     );
 };
 
-const DivinationBoard = ({ result, user, onRequireLogin }) => {
+const DivinationBoard = ({ result, onUpdateResult, user, onRequireLogin }) => {
     const [selectedHex, setSelectedHex] = useState(null);
     const [isChatOpen, setIsChatOpen] = useState(false);
     const [isInterpreting, setIsInterpreting] = useState(false);
@@ -120,6 +120,7 @@ const DivinationBoard = ({ result, user, onRequireLogin }) => {
         const abortCtrl = new AbortController();
         setAbortController(abortCtrl);
 
+        let currentText = "";
         try {
             const url = getInterpretationStreamUrl('hexagrams', result.recordId);
             const response = await fetch(url, {
@@ -139,7 +140,6 @@ const DivinationBoard = ({ result, user, onRequireLogin }) => {
             const reader = response.body.getReader();
             const decoder = new TextDecoder('utf-8');
             let done = false;
-            let currentText = "";
 
             while (!done) {
                 const { value, done: doneReading } = await reader.read();
@@ -183,6 +183,16 @@ const DivinationBoard = ({ result, user, onRequireLogin }) => {
         } finally {
             setIsInterpreting(false);
             setAbortController(null);
+
+            if (currentText && onUpdateResult) {
+                onUpdateResult({
+                    ...result,
+                    aiInterpretation: {
+                        ...result.aiInterpretation,
+                        content: currentText
+                    }
+                });
+            }
         }
     };
 

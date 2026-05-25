@@ -14,7 +14,7 @@ import {
     formatElement
 } from '../utils/phongthuyHelpers';
 
-const BaziBoard = ({ data, onRequireLogin }) => {
+const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
     const { user } = useContext(AuthContext);
 
     // AI Interpretation States
@@ -65,7 +65,7 @@ const BaziBoard = ({ data, onRequireLogin }) => {
 
     if (!data) return null;
 
-    const { canChi, nguHanh, analysis, dungThan, hyThan, daYun } = data;
+    const { canChi, lunarDateStr, lunarYear, nguHanh, analysis, dungThan, hyThan, daYun } = data;
 
     const Pillar = ({ title, pillarData, isDayMaster }) => {
         const { gan, zhi, thapThanGan, tangCan } = pillarData;
@@ -126,6 +126,7 @@ const BaziBoard = ({ data, onRequireLogin }) => {
         const abortCtrl = new AbortController();
         setAbortController(abortCtrl);
 
+        let currentText = "";
         try {
             const url = getInterpretationStreamUrl('bazi', data.recordId);
             const response = await fetch(url, {
@@ -145,7 +146,6 @@ const BaziBoard = ({ data, onRequireLogin }) => {
             const reader = response.body.getReader();
             const decoder = new TextDecoder('utf-8');
             let done = false;
-            let currentText = "";
 
             while (!done) {
                 const { value, done: doneReading } = await reader.read();
@@ -189,6 +189,16 @@ const BaziBoard = ({ data, onRequireLogin }) => {
         } finally {
             setIsInterpreting(false);
             setAbortController(null);
+
+            if (currentText && onUpdateData) {
+                onUpdateData({
+                    ...data,
+                    aiInterpretation: {
+                        ...data.aiInterpretation,
+                        content: currentText
+                    }
+                });
+            }
         }
     };
 

@@ -338,7 +338,7 @@ function App() {
 
                 {result && !loading && (
                 <div className="space-y-12 animate-in fade-in zoom-in-95 duration-700 pb-20">
-                    <DivinationBoard result={result} user={user} onRequireLogin={() => setIsAuthModalOpen(true)} />
+                    <DivinationBoard result={result} onUpdateResult={setResult} user={user} onRequireLogin={() => setIsAuthModalOpen(true)} />
                     <div className="text-center">
                     <button 
                         onClick={() => setResult(null)} 
@@ -351,7 +351,7 @@ function App() {
                 )}
             </div>
         )}
-
+ 
         {/* SYSTEM 2: BAZI */}
         {appMode === 'bazi' && (
             <div className="animate-in fade-in duration-500">
@@ -370,23 +370,23 @@ function App() {
                         </div>
                     </div>
                 )}
-
+ 
                 {loading && (
                     <div className="text-center py-20">
                         <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-6"></div>
                         <div className="text-xl font-bold text-blue-800 animate-pulse">Đang nạp thuật toán Tử Bình...</div>
                     </div>
                 )}
-
+ 
                 {!baziResult && !loading && (
                     <div className="transition-all duration-500 animate-in fade-in slide-in-from-bottom-8">
                         <BaziInput onComplete={handleBaziComplete} />
                     </div>
                 )}
-
+ 
                 {baziResult && !loading && (
                 <div className="space-y-12 animate-in fade-in zoom-in-95 duration-700 pb-20">
-                    <BaziBoard data={baziResult} onRequireLogin={() => setIsAuthModalOpen(true)} />
+                    <BaziBoard data={baziResult} onUpdateData={setBaziResult} onRequireLogin={() => setIsAuthModalOpen(true)} />
                     <div className="text-center">
                     <button 
                         onClick={() => setBaziResult(null)} 
