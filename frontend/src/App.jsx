@@ -406,8 +406,8 @@ function App() {
         </div>
 
         {/* SYSTEM 4: HISTORY */}
-        {user && (
-            <div className={`animate-in fade-in duration-500 ${appMode === 'history' ? 'block' : 'hidden'}`}>
+        {user && appMode === 'history' && (
+            <div className="animate-in fade-in duration-500">
                 <HistoryBoard 
                     onViewHexagram={handleViewHistoricalHexagram} 
                     onViewBazi={handleViewHistoricalBazi} 
