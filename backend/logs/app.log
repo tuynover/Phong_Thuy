@@ -1765,3 +1765,49 @@
 [2026-05-25T01:51:57.772Z] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /api/tu-vi/jobs/019e5cd4-b9da-7835-a271-09a778025fbb] [IP: ::1] [Duration: 66ms] Hoàn thành: Phản hồi thành công (200)
 [2026-05-25T01:51:57.784Z] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /api/tu-vi/6a12c5c4f7c25dff377463e1] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/6a12c5c4f7c25dff377463e1
 [2026-05-25T01:51:57.851Z] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /api/tu-vi/6a12c5c4f7c25dff377463e1] [IP: ::1] [Duration: 69ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-11T08:38:34.629Z] [INFO] [User: anonymous] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-06-11T08:38:34.693Z] [INFO] [User: anonymous] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-06-11T08:38:34.753Z] [INFO] [User: anonymous] [Action: GET /api/tu-vi/history/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/history/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-06-11T08:38:34.911Z] [INFO] [User: anonymous] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 296ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-11T08:38:34.929Z] [INFO] [User: anonymous] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 13ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-11T08:38:34.921Z] [INFO] [User: anonymous] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-06-11T08:38:35.091Z] [INFO] [User: anonymous] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 401ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-11T08:38:35.100Z] [INFO] [User: anonymous] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-06-11T08:38:35.105Z] [INFO] [User: anonymous] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 11ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-11T08:38:36.228Z] [INFO] [User: anonymous] [Action: GET /api/tu-vi/history/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] [Duration: 1489ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-11T08:38:36.243Z] [INFO] [User: anonymous] [Action: GET /api/tu-vi/history/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] [Duration: 10ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-11T08:38:36.237Z] [INFO] [User: anonymous] [Action: GET /api/tu-vi/history/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/history/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-06-11T08:38:53.473Z] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: POST /api/tu-vi] [IP: ::1] Yêu cầu bắt đầu: POST /api/tu-vi | Params: {"date":"2003-12-01","hour":0,"gender":"Nam","userId":"019e594f-5fb3-701e-916a-d6ce37d424bd"}
+[2026-06-11T08:38:53.806Z] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: POST /api/tu-vi] [IP: ::1] [Duration: 406ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-11T08:38:55.692Z] [INFO] [User: anonymous] [Action: POST /api/tu-vi/6a2a741d2ff3a6f85da33394/interpret] [IP: ::1] Yêu cầu bắt đầu: POST /api/tu-vi/6a2a741d2ff3a6f85da33394/interpret
+[2026-06-11T08:38:56.052Z] [INFO] [User: anonymous] [Action: POST /api/tu-vi/6a2a741d2ff3a6f85da33394/interpret] [IP: ::1] [Duration: 363ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-11T08:38:58.193Z] [INFO] [User: anonymous] [Action: GET /api/tu-vi/jobs/019eb5d5-9cdf-7a77-b554-cbf6b8c012f2] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/jobs/019eb5d5-9cdf-7a77-b554-cbf6b8c012f2
+[2026-06-11T08:38:58.263Z] [INFO] [User: anonymous] [Action: GET /api/tu-vi/jobs/019eb5d5-9cdf-7a77-b554-cbf6b8c012f2] [IP: ::1] [Duration: 73ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-11T08:39:00.055Z] [INFO] [User: anonymous] [Action: GET /api/tu-vi/jobs/019eb5d5-9cdf-7a77-b554-cbf6b8c012f2] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/jobs/019eb5d5-9cdf-7a77-b554-cbf6b8c012f2
+[2026-06-11T08:39:00.119Z] [INFO] [User: anonymous] [Action: GET /api/tu-vi/jobs/019eb5d5-9cdf-7a77-b554-cbf6b8c012f2] [IP: ::1] [Duration: 67ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-11T08:39:02.052Z] [INFO] [User: anonymous] [Action: GET /api/tu-vi/jobs/019eb5d5-9cdf-7a77-b554-cbf6b8c012f2] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/jobs/019eb5d5-9cdf-7a77-b554-cbf6b8c012f2
+[2026-06-11T08:39:02.117Z] [INFO] [User: anonymous] [Action: GET /api/tu-vi/jobs/019eb5d5-9cdf-7a77-b554-cbf6b8c012f2] [IP: ::1] [Duration: 67ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-11T08:39:04.072Z] [INFO] [User: anonymous] [Action: GET /api/tu-vi/jobs/019eb5d5-9cdf-7a77-b554-cbf6b8c012f2] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/jobs/019eb5d5-9cdf-7a77-b554-cbf6b8c012f2
+[2026-06-11T08:39:04.142Z] [INFO] [User: anonymous] [Action: GET /api/tu-vi/jobs/019eb5d5-9cdf-7a77-b554-cbf6b8c012f2] [IP: ::1] [Duration: 75ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-11T08:39:06.054Z] [INFO] [User: anonymous] [Action: GET /api/tu-vi/jobs/019eb5d5-9cdf-7a77-b554-cbf6b8c012f2] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/jobs/019eb5d5-9cdf-7a77-b554-cbf6b8c012f2
+[2026-06-11T08:39:06.118Z] [INFO] [User: anonymous] [Action: GET /api/tu-vi/jobs/019eb5d5-9cdf-7a77-b554-cbf6b8c012f2] [IP: ::1] [Duration: 68ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-11T08:39:08.062Z] [INFO] [User: anonymous] [Action: GET /api/tu-vi/jobs/019eb5d5-9cdf-7a77-b554-cbf6b8c012f2] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/jobs/019eb5d5-9cdf-7a77-b554-cbf6b8c012f2
+[2026-06-11T08:39:08.136Z] [INFO] [User: anonymous] [Action: GET /api/tu-vi/jobs/019eb5d5-9cdf-7a77-b554-cbf6b8c012f2] [IP: ::1] [Duration: 78ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-11T08:39:10.054Z] [INFO] [User: anonymous] [Action: GET /api/tu-vi/jobs/019eb5d5-9cdf-7a77-b554-cbf6b8c012f2] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/jobs/019eb5d5-9cdf-7a77-b554-cbf6b8c012f2
+[2026-06-11T08:39:10.120Z] [INFO] [User: anonymous] [Action: GET /api/tu-vi/jobs/019eb5d5-9cdf-7a77-b554-cbf6b8c012f2] [IP: ::1] [Duration: 67ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-11T08:39:12.078Z] [INFO] [User: anonymous] [Action: GET /api/tu-vi/jobs/019eb5d5-9cdf-7a77-b554-cbf6b8c012f2] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/jobs/019eb5d5-9cdf-7a77-b554-cbf6b8c012f2
+[2026-06-11T08:39:12.150Z] [INFO] [User: anonymous] [Action: GET /api/tu-vi/jobs/019eb5d5-9cdf-7a77-b554-cbf6b8c012f2] [IP: ::1] [Duration: 75ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-11T08:39:14.051Z] [INFO] [User: anonymous] [Action: GET /api/tu-vi/jobs/019eb5d5-9cdf-7a77-b554-cbf6b8c012f2] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/jobs/019eb5d5-9cdf-7a77-b554-cbf6b8c012f2
+[2026-06-11T08:39:14.177Z] [INFO] [User: anonymous] [Action: GET /api/tu-vi/jobs/019eb5d5-9cdf-7a77-b554-cbf6b8c012f2] [IP: ::1] [Duration: 128ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-11T08:39:14.200Z] [INFO] [User: anonymous] [Action: GET /api/tu-vi/6a2a741d2ff3a6f85da33394] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/6a2a741d2ff3a6f85da33394
+[2026-06-11T08:39:14.462Z] [INFO] [User: anonymous] [Action: GET /api/tu-vi/6a2a741d2ff3a6f85da33394] [IP: ::1] [Duration: 270ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-11T08:39:29.664Z] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: Gieo Quẻ Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: POST /api/calculate | Params: {"lines":[{"type":1,"moving":false},{"type":1,"moving":true},{"type":0,"moving":false},{"type":0,"moving":false},{"type":1,"moving":false},{"type":0,"moving":true}],"userId":"019e594f-5fb3-701e-916a-d6ce37d424bd","question":"sắp tới sức khỏe tôi như nào"}
+[2026-06-11T08:39:29.964Z] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: Gieo Quẻ Kinh Dịch] [IP: ::1] [Duration: 304ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-11T08:39:32.874Z] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: Thầy Dịch Giải Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: POST /api/history/hexagrams/019eb5d6-2160-7a06-ac68-64cd75613a49/interpret | Params: {"userId":"019e594f-5fb3-701e-916a-d6ce37d424bd"}
+[2026-06-11T08:39:42.929Z] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: Thầy Dịch Giải Kinh Dịch] [IP: ::1] [Duration: 10055ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-11T08:41:08.910Z] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: Luận Giải Bản Đồ Bát Tự] [IP: ::1] Yêu cầu bắt đầu: POST /api/bazi/analyze | Params: {"date":"05/05/2005","time":"01:01","gender":1,"userId":"019e594f-5fb3-701e-916a-d6ce37d424bd"}
+[2026-06-11T08:41:09.069Z] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: Luận Giải Bản Đồ Bát Tự] [IP: ::1] [Duration: 161ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-11T08:41:12.208Z] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: Thầy Luận Giải Bát Tự] [IP: ::1] Yêu cầu bắt đầu: POST /api/history/bazi/019eb5d7-a483-7241-9e85-e22d2d7df67a/interpret | Params: {"userId":"019e594f-5fb3-701e-916a-d6ce37d424bd"}
+[2026-06-11T08:41:22.764Z] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: Thầy Luận Giải Bát Tự] [IP: ::1] [Duration: 10556ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-11T10:02:35.941Z] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: POST /api/tu-vi] [IP: ::1] Yêu cầu bắt đầu: POST /api/tu-vi | Params: {"date":"2004-08-27","hour":4,"gender":"Nam","userId":"019e594f-5fb3-701e-916a-d6ce37d424bd"}
+[2026-06-11T10:02:36.090Z] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: POST /api/tu-vi] [IP: ::1] [Duration: 155ms] Hoàn thành: Phản hồi thành công (200)

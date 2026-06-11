@@ -442,7 +442,7 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
             {/* CHAT BOX CONTAINER */}
             {isOpen && (
                 <div 
-                    className={`fixed bottom-24 right-6 z-40 w-[92vw] sm:w-[380px] h-[520px] rounded-3xl shadow-2xl border border-gray-100 bg-white flex flex-col overflow-hidden animate-in slide-in-from-bottom-12 fade-in duration-300`}
+                    className={`fixed bottom-4 sm:bottom-24 right-4 left-4 sm:left-auto sm:right-6 z-40 w-auto sm:w-[380px] h-[500px] sm:h-[520px] max-h-[85vh] rounded-3xl shadow-2xl border border-gray-100 bg-white flex flex-col overflow-hidden animate-in slide-in-from-bottom-12 fade-in duration-300`}
                 >
                     {/* Header */}
                     <div className={`p-4 flex justify-between items-center ${themeHeader}`}>

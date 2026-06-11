@@ -17,7 +17,7 @@ const ManualInput = ({ onComplete }) => {
     };
 
     return (
-        <div className="flex flex-col items-center bg-gradient-to-br from-slate-50 to-blue-50 p-8 rounded-3xl shadow-lg border border-slate-200 w-full max-w-xl mx-auto">
+        <div className="flex flex-col items-center bg-gradient-to-br from-slate-50 to-blue-50 p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-lg border border-slate-200 w-full max-w-xl mx-auto">
             <h3 className="text-2xl font-bold text-slate-800 mb-6 font-serif">Nhập Hào Thủ Công</h3>
             
             <div className="flex flex-col gap-3 w-full mb-8">
@@ -25,10 +25,10 @@ const ManualInput = ({ onComplete }) => {
                     const i = 5 - idx; // Hào 6 ở trên (idx=0), Hào 1 ở dưới (idx=5)
                     const line = lines[i];
                     return (
-                        <div key={i} className="flex items-center justify-between bg-white p-4 rounded-xl shadow-sm border border-slate-100 transition-all hover:shadow-md">
-                            <span className="font-bold text-slate-600 w-20">Hào {i + 1}</span>
+                        <div key={i} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 bg-white p-4 rounded-xl shadow-sm border border-slate-100 transition-all hover:shadow-md">
+                            <span className="font-bold text-slate-600 w-full sm:w-20 text-center sm:text-left">Hào {i + 1}</span>
                             
-                            <div className="flex gap-4">
+                            <div className="flex flex-wrap gap-2 justify-center sm:justify-end">
                                 <div className="flex bg-slate-100 p-1 rounded-full">
                                     <button
                                         onClick={() => updateLine(i, 'type', 1)}

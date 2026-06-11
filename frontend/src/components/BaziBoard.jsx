@@ -73,20 +73,20 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
         const zhiElem = branchElements[zhi];
 
         return (
-            <div className={`flex flex-col items-center p-4 rounded-xl shadow-sm border-2 ${isDayMaster ? 'border-amber-500 bg-amber-50/30 ring-4 ring-amber-100' : 'border-gray-200 bg-white'} min-w-[20%]`}>
-                <div className={`text-xs font-bold uppercase tracking-widest mb-4 px-3 py-1 rounded-full ${isDayMaster ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-500'}`}>
+            <div className={`flex flex-col items-center p-1.5 sm:p-3 md:p-4 rounded-xl shadow-sm border-2 ${isDayMaster ? 'border-amber-500 bg-amber-50/30 ring-4 ring-amber-100' : 'border-gray-200 bg-white'} flex-1 md:flex-initial md:min-w-[20%] md:flex-shrink-0`}>
+                <div className={`text-[9px] sm:text-xs font-bold uppercase tracking-wider mb-2.5 px-1.5 py-0.5 rounded-full ${isDayMaster ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-500'}`}>
                     {title}
                 </div>
                 
-                <div className="text-sm font-bold text-gray-400 mb-1 h-5">{thapThanGan !== 'Nhật Chủ' ? thapThanGan : ''}</div>
-                <div className={`text-4xl font-black mb-2 ${getColorClass(ganElem)}`}>{gan}</div>
-                <div className={`text-4xl font-black mb-6 ${getColorClass(zhiElem)}`}>{zhi}</div>
+                <div className="text-[9px] sm:text-sm font-bold text-gray-400 mb-0.5 h-4 sm:h-5">{thapThanGan !== 'Nhật Chủ' ? thapThanGan : ''}</div>
+                <div className={`text-2xl sm:text-4xl font-black mb-1 sm:mb-2 ${getColorClass(ganElem)}`}>{gan}</div>
+                <div className={`text-2xl sm:text-4xl font-black mb-3 sm:mb-6 ${getColorClass(zhiElem)}`}>{zhi}</div>
                 
-                <div className="w-full border-t border-dashed border-gray-300 pt-4 flex flex-col gap-2">
+                <div className="w-full border-t border-dashed border-gray-300 pt-2 sm:pt-4 flex flex-col gap-1 sm:gap-2">
                     {tangCan.map((tc, idx) => (
-                        <div key={idx} className="flex justify-between items-center bg-gray-50 px-2 py-1.5 rounded">
-                            <span className={`text-lg font-bold ${getColorClass(stemElements[tc.gan])}`}>{tc.gan}</span>
-                            <span className="text-xs font-bold text-gray-500">{tc.thapThan}</span>
+                        <div key={idx} className="flex flex-col sm:flex-row justify-between items-center bg-gray-50/50 px-1 py-1 rounded gap-0.5 sm:gap-1.5">
+                            <span className={`text-xs sm:text-lg font-bold leading-none ${getColorClass(stemElements[tc.gan])}`}>{tc.gan}</span>
+                            <span className="text-[7.5px] sm:text-xs font-bold text-gray-500 leading-none text-center">{tc.thapThan}</span>
                         </div>
                     ))}
                 </div>
@@ -95,7 +95,7 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
     };
 
     const ElementScore = ({ label, score, colorClass }) => (
-        <div className="flex-1 min-w-[15%] bg-white p-4 rounded-xl border border-gray-100 shadow-sm text-center">
+        <div className="flex-1 min-w-[80px] sm:min-w-[100px] md:min-w-[15%] bg-white p-4 rounded-xl border border-gray-100 shadow-sm text-center">
             <div className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-1">{label}</div>
             <div className={`text-2xl font-black ${colorClass}`}>{score}</div>
         </div>
@@ -203,9 +203,9 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
     };
 
     return (
-        <div className="bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-gray-100 max-w-[1240px] mx-auto my-10 font-sans pb-10">
+        <div className="bg-white rounded-2xl md:rounded-[2rem] shadow-2xl overflow-hidden border border-gray-100 max-w-[1240px] mx-auto my-4 md:my-10 font-sans pb-10">
             
-            <div className="bg-[#0f172a] text-white p-8 md:p-12 relative overflow-hidden">
+            <div className="bg-[#0f172a] text-white p-6 md:p-12 relative overflow-hidden">
                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-30"></div>
                 <div className="relative z-10">
                     <h2 className="text-4xl font-extrabold mb-2 tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-cyan-400">Kết Quả Phân Tích Bát Tự</h2>
@@ -224,7 +224,7 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
                 </div>
             </div>
 
-            <div className="p-6 md:p-12 space-y-12">
+            <div className="p-4 md:p-12 space-y-8 md:space-y-12">
                 
                 {/* Tứ Trụ */}
                 <div>
@@ -236,10 +236,10 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
                             </span>
                         )}
                     </h3>
-                    <div className="flex flex-row-reverse justify-center gap-4 md:gap-8">
+                    <div className="flex flex-row-reverse justify-center gap-1.5 md:gap-8 w-full">
                         <Pillar title="Giờ Sinh" pillarData={canChi.hour} />
                         <Pillar title="Nhật Chủ" pillarData={canChi.day} isDayMaster={true} />
-                        <Pillar title="Tháng Lệnh" pillarData={canChi.month} />
+                        <Pillar title="Nguyệt Lệnh" pillarData={canChi.month} />
                         <Pillar title="Năm Sinh" pillarData={canChi.year} />
                     </div>
                 </div>
@@ -330,11 +330,11 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
                                 const isBad = ['lucXung', 'lucHai', 'lucPha'].includes(relType);
 
                                 return (
-                                    <div key={relType} className="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm border border-gray-100">
-                                        <span className="font-bold text-gray-700">{typeMap[relType] || relType}</span>
-                                        <div className="flex gap-2">
+                                    <div key={relType} className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-4 bg-white p-3 rounded-lg shadow-sm border border-gray-100">
+                                        <span className="font-bold text-gray-700 text-sm sm:text-base">{typeMap[relType] || relType}</span>
+                                        <div className="flex flex-wrap gap-1.5 justify-start sm:justify-end">
                                             {arr.map((item, i) => (
-                                                <span key={i} className={`px-3 py-1 font-bold text-sm rounded ${isBad ? 'bg-red-50 text-red-700 border border-red-100' : 'bg-emerald-50 text-emerald-700 border border-emerald-100'}`}>
+                                                <span key={i} className={`px-2.5 py-1 font-bold text-xs sm:text-sm rounded ${isBad ? 'bg-red-50 text-red-700 border border-red-100' : 'bg-emerald-50 text-emerald-700 border border-emerald-100'}`}>
                                                     {item}
                                                 </span>
                                             ))}
@@ -379,7 +379,7 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
                 <button
                     onClick={handleAILuanGiai}
                     disabled={isInterpreting}
-                    className={`fixed bottom-[calc(96px+env(safe-area-inset-bottom,0px))] right-4 md:right-8 z-50 flex items-center gap-2 px-5 py-3 rounded-full shadow-2xl transition-all duration-300 font-bold border ${isInterpreting ? 'bg-blue-100 border-blue-200 text-blue-500 cursor-not-allowed scale-95' : 'bg-gradient-to-r from-blue-800 to-slate-900 hover:from-blue-900 hover:to-stone-900 text-white border-blue-700 hover:scale-105 hover:shadow-blue-900/40'}`}
+                    className={`fixed bottom-4 md:bottom-8 right-4 md:right-8 z-50 flex items-center gap-2 px-5 py-3 rounded-full shadow-2xl transition-all duration-300 font-bold border ${isInterpreting ? 'bg-blue-100 border-blue-200 text-blue-500 cursor-not-allowed scale-95' : 'bg-gradient-to-r from-blue-800 to-slate-900 hover:from-blue-900 hover:to-stone-900 text-white border-blue-700 hover:scale-105 hover:shadow-blue-900/40'}`}
                 >
                     {isInterpreting ? (
                         <>
@@ -396,7 +396,7 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
             ) : !isChatOpen && (
                 <button
                     onClick={() => setIsChatOpen(true)}
-                    className="fixed bottom-[calc(96px+env(safe-area-inset-bottom,0px))] right-4 md:right-8 z-50 flex items-center gap-2 px-6 py-3.5 rounded-full shadow-2xl transition-all duration-300 font-extrabold border bg-gradient-to-r from-blue-800 to-cyan-950 hover:from-blue-900 hover:to-stone-900 text-white border-blue-700 hover:scale-105 hover:shadow-blue-900/40 uppercase text-xs tracking-wider animate-pulse"
+                    className="fixed bottom-4 md:bottom-8 right-4 md:right-8 z-50 flex items-center gap-2 px-6 py-3.5 rounded-full shadow-2xl transition-all duration-300 font-extrabold border bg-gradient-to-r from-blue-800 to-cyan-950 hover:from-blue-900 hover:to-stone-900 text-white border-blue-700 hover:scale-105 hover:shadow-blue-900/40 uppercase text-xs tracking-wider animate-pulse"
                 >
                     <MessageCircle className="animate-bounce shrink-0" size={18} />
                     <span>Hỏi Thêm Thầy</span>

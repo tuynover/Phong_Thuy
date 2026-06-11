@@ -26,7 +26,7 @@ const BaziInput = ({ onComplete }) => {
     };
 
     return (
-        <div className="flex flex-col items-center bg-white p-8 rounded-[2rem] shadow-xl border border-gray-100 max-w-xl mx-auto font-sans">
+        <div className="flex flex-col items-center bg-white p-5 md:p-8 rounded-2xl md:rounded-[2rem] shadow-xl border border-gray-100 max-w-xl mx-auto font-sans">
             <h3 className="text-2xl font-bold text-slate-800 mb-6 uppercase tracking-wide">Nhập Thông Tin Bát Tự</h3>
             <p className="text-gray-500 mb-8 text-center text-[15px]">Hệ thống phân tích Tứ Trụ Tử Bình sẽ tự động quy đổi Âm/Dương lịch và Tiết khí để lập lá số chính xác nhất.</p>
 

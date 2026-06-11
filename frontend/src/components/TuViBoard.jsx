@@ -258,7 +258,7 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId }) => {
 
       {/* 1. INPUT BIRTH INFO FORM */}
       {!result && !loading && (
-        <div className="bg-white/80 backdrop-blur-xl p-8 md:p-10 rounded-[2rem] shadow-xl border border-purple-100 max-w-xl mx-auto animate-in fade-in slide-in-from-bottom-6 duration-300">
+        <div className="bg-white/80 backdrop-blur-xl p-5 md:p-10 rounded-2xl md:rounded-[2rem] shadow-xl border border-purple-100 max-w-xl mx-auto animate-in fade-in slide-in-from-bottom-6 duration-300">
           <div className="flex items-center gap-3 justify-center mb-6">
             <div className="p-2 rounded-xl bg-purple-500 text-white shadow-md shadow-purple-500/20">
               <Sparkles size={20} />
@@ -500,7 +500,7 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId }) => {
                 if (!user) onRequireLogin();
                 else setIsChatOpen(true);
               }}
-              className="fixed bottom-[calc(96px+env(safe-area-inset-bottom,0px))] right-4 md:right-8 z-50 flex items-center gap-2 px-6 py-3.5 rounded-full shadow-2xl transition-all duration-300 font-extrabold border bg-gradient-to-r from-purple-800 to-indigo-950 hover:from-purple-900 hover:to-stone-900 text-white border-purple-700 hover:scale-105 hover:shadow-purple-900/40 uppercase text-xs tracking-wider animate-pulse"
+              className="fixed bottom-4 md:bottom-8 right-4 md:right-8 z-50 flex items-center gap-2 px-6 py-3.5 rounded-full shadow-2xl transition-all duration-300 font-extrabold border bg-gradient-to-r from-purple-800 to-indigo-950 hover:from-purple-900 hover:to-stone-900 text-white border-purple-700 hover:scale-105 hover:shadow-purple-900/40 uppercase text-xs tracking-wider animate-pulse"
             >
               <MessageCircle className="animate-bounce shrink-0" size={18} />
               <span>Hỏi Thêm Thầy</span>

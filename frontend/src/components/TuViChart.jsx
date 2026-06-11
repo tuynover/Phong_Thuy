@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Calendar, User, Sparkles } from 'lucide-react';
 
 const GRID_COORDINATES = {
@@ -307,7 +307,118 @@ const PalaceCell = React.memo(({ palace, elementHighlight }) => {
   );
 });
 
+const PalaceListView = ({ palaces, elementHighlight }) => {
+  return (
+    <div className="space-y-4 w-full">
+      {palaces.map((palace, idx) => {
+        const branchEl = BRANCH_ELEMENTS[palace.earthlyBranch] || "Thủy";
+        const branchColorClass = ELEMENT_COLORS[branchEl] || "text-neutral-900";
+        const isMệnh = palace.name === "Mệnh";
+        
+        // Group minor & adjective stars
+        const allOtherStars = [
+          ...palace.minorStars.map(s => ({ name: s.name, brightness: s.brightness, mutagen: s.mutagen })),
+          ...palace.adjectiveStars.map(s => ({ name: s.name, brightness: "", mutagen: "" }))
+        ];
+        
+        const majorNames = new Set(palace.majorStars.map(s => s.name));
+        const filteredMinorStars = allOtherStars.filter(s => !majorNames.has(s.name));
+        
+        const leftStars = filteredMinorStars.filter(s => isStarAuspicious(s.name));
+        const rightStars = filteredMinorStars.filter(s => !isStarAuspicious(s.name));
+
+        return (
+          <div 
+            key={idx} 
+            className={`p-4 bg-white/95 rounded-2xl border border-purple-100/80 shadow-sm flex flex-col gap-3 transition-all ${
+              isMệnh ? `ring-2 ${elementHighlight} bg-purple-50/10` : ''
+            }`}
+          >
+            {/* Header: Palace Name, Can Chi, Age */}
+            <div className="flex justify-between items-center border-b border-purple-50 pb-2">
+              <div className="flex items-center gap-2">
+                <span className={`text-sm font-black uppercase tracking-wider ${branchColorClass}`}>
+                  {palace.name}
+                  {palace.isBodyPalace && <span className="text-xs ml-1 font-extrabold">(Thân)</span>}
+                </span>
+                <span className="text-[10px] text-slate-500 font-bold bg-slate-100 px-2 py-0.5 rounded">
+                  {palace.heavenlyStem} {palace.earthlyBranch}
+                </span>
+              </div>
+              <span className="text-xs font-extrabold text-slate-500">
+                {palace.decadal && palace.decadal.range ? `Đại hạn: ${palace.decadal.range[0]}t` : ""}
+              </span>
+            </div>
+
+            {/* Content: Major and Minor Stars */}
+            <div className="grid grid-cols-1 gap-2.5">
+              {/* Major Stars */}
+              {palace.majorStars.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 items-center">
+                  <span className="text-[10px] font-bold text-slate-400">Chính tinh:</span>
+                  {palace.majorStars.map((star, sIdx) => {
+                    const el = STAR_ELEMENTS[star.name] || "Thủy";
+                    const colorClass = ELEMENT_COLORS[el] || "text-neutral-900";
+                    return (
+                      <span key={sIdx} className={`font-black text-xs bg-slate-50 px-2 py-0.5 rounded border border-gray-100 flex items-center gap-1 ${colorClass}`}>
+                        {star.name}
+                        {star.brightness && <span className="text-[9px] text-slate-400">({star.brightness})</span>}
+                        {star.mutagen && (
+                          <span className={`text-[7px] px-1 rounded border font-black uppercase ${MUTAGEN_STYLES[star.mutagen]}`}>
+                            {MUTAGEN_LABELS[star.mutagen]}
+                          </span>
+                        )}
+                      </span>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Minor Stars */}
+              {(leftStars.length > 0 || rightStars.length > 0) && (
+                <div className="flex flex-col gap-1.5 border-t border-purple-50/30 pt-2">
+                  {leftStars.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 items-center">
+                      <span className="text-[10px] font-bold text-emerald-600">Cát tinh:</span>
+                      {leftStars.map((star, sIdx) => (
+                        <span key={sIdx} className={`text-xs font-semibold ${ELEMENT_COLORS[STAR_ELEMENTS[star.name] || 'Thủy']}`}>
+                          {star.name}{star.brightness ? `(${star.brightness})` : ''}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {rightStars.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 items-center">
+                      <span className="text-[10px] font-bold text-rose-600">Sát/Bại tinh:</span>
+                      {rightStars.map((star, sIdx) => (
+                        <span key={sIdx} className={`text-xs font-semibold ${ELEMENT_COLORS[STAR_ELEMENTS[star.name] || 'Thủy']}`}>
+                          {star.name}{star.brightness ? `(${star.brightness})` : ''}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Footer: Changsheng, Tieu Han, Nguyet Han */}
+            <div className="flex justify-between items-center border-t border-purple-50/50 pt-2 text-[10px] text-slate-500 font-semibold mt-1">
+              <span>Trường sinh: <strong className="text-slate-700">{palace.changsheng12 === "Mục Dục" ? "Mộc Dục" : palace.changsheng12}</strong></span>
+              <div className="flex gap-3">
+                <span>Tiểu hạn: <strong className="text-indigo-600">{BRANCHES[(BRANCHES.indexOf(palace.earthlyBranch) - 2 + 12) % 12]}</strong></span>
+                <span>Nguyệt hạn: <strong className="text-purple-650">Th.{((BRANCHES.indexOf(palace.earthlyBranch) - (new Date().getFullYear() - 4) % 12 + 12) % 12 + 1)}</strong></span>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 const TuViChart = ({ chartData }) => {
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
+
   if (!chartData || !chartData.palaces) {
     return (
       <div className="p-12 text-center text-slate-400">
@@ -322,42 +433,131 @@ const TuViChart = ({ chartData }) => {
   return (
     <div className="w-full max-w-5xl mx-auto p-2 md:p-6 bg-gradient-to-tr from-purple-50/10 to-indigo-50/10 border border-purple-100 rounded-3xl backdrop-blur-sm shadow-xl shadow-purple-950/2 md:p-8">
       
-      {/* 4x4 Responsive Grid Astrolabe Chart - Lock grid-cols-4 for mobile view */}
-      <div className="grid grid-cols-4 gap-1 md:gap-3.5 relative overflow-hidden w-full select-none">
-        
-        {/* Render 12 Cung dynamically inside custom grid position */}
-        {palaces.map((palace, idx) => (
-          <PalaceCell key={palace.index || idx} palace={palace} elementHighlight={elementHighlight} />
-        ))}
-
-        {/* TRUNG CUNG - Center span (merged middle cells: Row 2-3, Col 2-3) */}
-        <div 
-          className="col-span-2 row-span-2 p-1.5 md:p-6 flex flex-col justify-between bg-white/80 backdrop-blur-xl border border-purple-200/80 rounded-2xl md:rounded-3xl shadow-xl shadow-purple-950/5 relative overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-500 aspect-square select-none"
-          style={{ gridRow: "span 2", gridColumn: "span 2" }}
+      {/* View Mode Toggle Switch - Visible on Mobile/Tablet ONLY */}
+      <div className="flex md:hidden justify-center bg-purple-100/50 p-1 rounded-xl border border-purple-200/50 mb-4 max-w-xs mx-auto">
+        <button 
+          onClick={() => setViewMode('grid')}
+          className={`flex-1 py-1.5 rounded-lg text-xs font-extrabold transition-all ${
+            viewMode === 'grid' 
+              ? 'bg-purple-600 text-white shadow-sm' 
+              : 'text-purple-700 hover:bg-purple-100'
+          }`}
         >
-          {/* Decorative Background Elements */}
-          <div className="absolute top-0 right-0 w-12 h-12 md:w-24 md:h-24 bg-purple-100/40 opacity-40 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
-          <div className="absolute bottom-0 left-0 w-12 h-12 md:w-24 md:h-24 bg-indigo-100/40 opacity-40 rounded-full translate-y-1/2 -translate-x-1/2 blur-2xl"></div>
+          Mệnh Bàn (4x4)
+        </button>
+        <button 
+          onClick={() => setViewMode('list')}
+          className={`flex-1 py-1.5 rounded-lg text-xs font-extrabold transition-all ${
+            viewMode === 'list' 
+              ? 'bg-purple-600 text-white shadow-sm' 
+              : 'text-purple-700 hover:bg-purple-100'
+          }`}
+        >
+          Danh Sách Cung
+        </button>
+      </div>
 
-          {/* Center Box Content */}
-          <div className="relative z-10 flex flex-col h-full justify-between gap-1 md:gap-6">
-            
-            {/* Top Row - Title and Identity */}
-            <div className="flex justify-between items-start">
-              <div className="flex items-center gap-1.5 md:gap-3">
-                <div className="p-1 md:p-3 bg-purple-500 text-white rounded-xl md:rounded-2xl shadow-lg shadow-purple-500/30 shrink-0">
-                  <Sparkles size={14} className="md:w-[22px] md:h-[22px]" />
-                </div>
-                <div>
-                  <h2 className="font-extrabold text-slate-800 text-[9px] md:text-xl tracking-tight leading-tight">
-                    Trung Cung
-                  </h2>
-                  <p className="text-[6.5px] md:text-[11px] text-purple-600 font-bold uppercase tracking-wider mt-0.5">
-                    TỬ VI BẮC PHÁI
-                  </p>
+      {viewMode === 'grid' ? (
+        <>
+          {/* Swipe indicator for mobile */}
+          <div className="block md:hidden text-center text-[10px] text-purple-600 font-bold mb-2.5 animate-pulse select-none">
+            ← Vuốt ngang để xem đầy đủ mệnh bàn 12 cung →
+          </div>
+
+          {/* Scrollable grid wrapper for mobile */}
+          <div className="w-full overflow-x-auto hide-scrollbar pb-2">
+            {/* 4x4 Responsive Grid Astrolabe Chart - Lock grid-cols-4 for mobile view */}
+            <div className="grid grid-cols-4 gap-1 md:gap-3.5 relative overflow-hidden min-w-[750px] md:min-w-0 w-full select-none">
+              
+              {/* Render 12 Cung dynamically inside custom grid position */}
+              {palaces.map((palace, idx) => (
+                <PalaceCell key={palace.index || idx} palace={palace} elementHighlight={elementHighlight} />
+              ))}
+
+              {/* TRUNG CUNG - Center span (merged middle cells: Row 2-3, Col 2-3) */}
+              <div 
+                className="col-span-2 row-span-2 p-1.5 md:p-6 flex flex-col justify-between bg-white/80 backdrop-blur-xl border border-purple-200/80 rounded-2xl md:rounded-3xl shadow-xl shadow-purple-950/5 relative overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-500 aspect-square select-none"
+                style={{ gridRow: "span 2", gridColumn: "span 2" }}
+              >
+                {/* Decorative Background Elements */}
+                <div className="absolute top-0 right-0 w-12 h-12 md:w-24 md:h-24 bg-purple-100/40 opacity-40 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
+                <div className="absolute bottom-0 left-0 w-12 h-12 md:w-24 md:h-24 bg-indigo-100/40 opacity-40 rounded-full translate-y-1/2 -translate-x-1/2 blur-2xl"></div>
+
+                {/* Center Box Content */}
+                <div className="relative z-10 flex flex-col h-full justify-between gap-1 md:gap-6">
+                  
+                  {/* Top Row - Title and Identity */}
+                  <div className="flex justify-between items-start">
+                    <div className="flex items-center gap-1.5 md:gap-3">
+                      <div className="p-1 md:p-3 bg-purple-500 text-white rounded-xl md:rounded-2xl shadow-lg shadow-purple-500/30 shrink-0">
+                        <Sparkles size={14} className="md:w-[22px] md:h-[22px]" />
+                      </div>
+                      <div>
+                        <h2 className="font-extrabold text-slate-800 text-[9px] md:text-xl tracking-tight leading-tight">
+                          Trung Cung
+                        </h2>
+                        <p className="text-[6.5px] md:text-[11px] text-purple-600 font-bold uppercase tracking-wider mt-0.5">
+                          TỬ VI BẮC PHÁI
+                        </p>
+                      </div>
+                    </div>
+                    <span className={`px-1.5 py-0.5 md:px-3 md:py-1 rounded-full text-[7px] md:text-xs font-black uppercase tracking-wider ${
+                      chartData.gender === 'Nam' 
+                        ? 'bg-blue-50 text-blue-600 border border-blue-100' 
+                        : 'bg-rose-50 text-rose-600 border border-rose-100'
+                    }`}>
+                      {chartData.gender} Mệnh
+                    </span>
+                  </div>
+
+                  {/* Middle Row - Astrological Info Stats */}
+                  <div className="grid grid-cols-2 gap-1 md:gap-3 bg-purple-50/20 p-1 md:p-4 rounded-xl md:rounded-2xl border border-purple-100/30 text-[7px] md:text-sm">
+                    <div className="flex flex-col">
+                      <span className="text-[6px] md:text-[10px] text-slate-400 font-extrabold uppercase tracking-wider mb-0.5">Bản Mệnh Cục</span>
+                      <span className="font-extrabold text-slate-900 leading-none">{chartData.fiveElementsClass || "Kim Tứ Cục"}</span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[6px] md:text-[10px] text-slate-400 font-extrabold uppercase tracking-wider mb-0.5">Mệnh / Thân Chủ</span>
+                      <span className="font-extrabold text-slate-900 leading-none">{chartData.soul || "Liêm Trinh"} / {chartData.body || "Thiên Lương"}</span>
+                    </div>
+                    <div className="flex flex-col col-span-2 border-t border-purple-100/30 pt-1 md:pt-2 mt-0.5 md:mt-1">
+                      <span className="text-[6px] md:text-[10px] text-slate-400 font-extrabold uppercase tracking-wider mb-0.5">Tứ Trụ Can Chi</span>
+                      <span className="font-extrabold text-[6.5px] md:text-xs text-purple-900 leading-tight">
+                        {chartData.chineseDate || "Ất Hợi - Bính Tuất - Kỷ Mão - Kỷ Tỵ"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Bottom Row - Date & Time Calendars */}
+                  <div className="flex items-center gap-1.5 md:gap-3 text-slate-500 text-[7px] md:text-xs">
+                    <div className="flex items-center gap-1 md:gap-1.5">
+                      <span className="font-bold text-slate-800">{chartData.solarDate || "Chưa xác định"}</span>
+                    </div>
+                    <div className="w-1 h-1 bg-slate-200 rounded-full"></div>
+                    <div className="flex items-center gap-1 md:gap-1.5">
+                      <span className="font-bold text-slate-800">{chartData.zodiac || "Chưa xác định"}</span>
+                    </div>
+                  </div>
+                  
                 </div>
               </div>
-              <span className={`px-1.5 py-0.5 md:px-3 md:py-1 rounded-full text-[7px] md:text-xs font-black uppercase tracking-wider ${
+
+            </div>
+          </div>
+        </>
+      ) : (
+        <div className="space-y-4 w-full animate-in fade-in duration-300">
+          {/* Mobile list view header info */}
+          <div className="p-4 bg-white/90 border border-purple-200/80 rounded-2xl shadow-md flex flex-col gap-3 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-16 h-16 bg-purple-100/40 opacity-30 rounded-full blur-xl"></div>
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 bg-purple-500 text-white rounded-lg">
+                  <Sparkles size={14} />
+                </div>
+                <h3 className="font-extrabold text-slate-800 text-sm">Thông Tin Bản Mệnh</h3>
+              </div>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
                 chartData.gender === 'Nam' 
                   ? 'bg-blue-50 text-blue-600 border border-blue-100' 
                   : 'bg-rose-50 text-rose-600 border border-rose-100'
@@ -366,39 +566,32 @@ const TuViChart = ({ chartData }) => {
               </span>
             </div>
 
-            {/* Middle Row - Astrological Info Stats */}
-            <div className="grid grid-cols-2 gap-1 md:gap-3 bg-purple-50/20 p-1 md:p-4 rounded-xl md:rounded-2xl border border-purple-100/30 text-[7px] md:text-sm">
+            <div className="grid grid-cols-2 gap-2 text-xs bg-purple-50/20 p-3 rounded-xl border border-purple-100/20">
               <div className="flex flex-col">
-                <span className="text-[6px] md:text-[10px] text-slate-400 font-extrabold uppercase tracking-wider mb-0.5">Bản Mệnh Cục</span>
-                <span className="font-extrabold text-slate-900 leading-none">{chartData.fiveElementsClass || "Kim Tứ Cục"}</span>
+                <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Bản Mệnh Cục</span>
+                <span className="font-extrabold text-slate-900">{chartData.fiveElementsClass || "Kim Tứ Cục"}</span>
               </div>
               <div className="flex flex-col">
-                <span className="text-[6px] md:text-[10px] text-slate-400 font-extrabold uppercase tracking-wider mb-0.5">Mệnh / Thân Chủ</span>
-                <span className="font-extrabold text-slate-900 leading-none">{chartData.soul || "Liêm Trinh"} / {chartData.body || "Thiên Lương"}</span>
+                <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Mệnh / Thân Chủ</span>
+                <span className="font-extrabold text-slate-900">{chartData.soul || "Liêm Trinh"} / {chartData.body || "Thiên Lương"}</span>
               </div>
-              <div className="flex flex-col col-span-2 border-t border-purple-100/30 pt-1 md:pt-2 mt-0.5 md:mt-1">
-                <span className="text-[6px] md:text-[10px] text-slate-400 font-extrabold uppercase tracking-wider mb-0.5">Tứ Trụ Can Chi</span>
-                <span className="font-extrabold text-[6.5px] md:text-xs text-purple-900 leading-tight">
+              <div className="flex flex-col col-span-2 border-t border-purple-100/20 pt-2 mt-1">
+                <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Tứ Trụ Can Chi</span>
+                <span className="font-extrabold text-purple-900 leading-tight">
                   {chartData.chineseDate || "Ất Hợi - Bính Tuất - Kỷ Mão - Kỷ Tỵ"}
                 </span>
               </div>
             </div>
 
-            {/* Bottom Row - Date & Time Calendars */}
-            <div className="flex items-center gap-1.5 md:gap-3 text-slate-500 text-[7px] md:text-xs">
-              <div className="flex items-center gap-1 md:gap-1.5">
-                <span className="font-bold text-slate-800">{chartData.solarDate || "Chưa xác định"}</span>
-              </div>
-              <div className="w-1 h-1 bg-slate-200 rounded-full"></div>
-              <div className="flex items-center gap-1 md:gap-1.5">
-                <span className="font-bold text-slate-800">{chartData.zodiac || "Chưa xác định"}</span>
-              </div>
+            <div className="flex justify-between text-slate-500 text-[11px] font-semibold pt-1">
+              <span>Dương lịch: <strong>{chartData.solarDate}</strong></span>
+              <span>Giờ: <strong>{chartData.zodiac}</strong></span>
             </div>
-            
           </div>
-        </div>
 
-      </div>
+          <PalaceListView palaces={palaces} elementHighlight={elementHighlight} />
+        </div>
+      )}
 
       {/* Chú giải Ngũ hành & Đắc Hãm ở cuối lá số */}
       <div className="mt-4 p-3 bg-amber-50/20 border border-purple-200/40 rounded-2xl text-[9px] md:text-[11.5px] font-semibold text-slate-600 flex flex-col md:flex-row justify-between items-center gap-2 select-none leading-relaxed">
@@ -433,6 +626,15 @@ const TuViChart = ({ chartData }) => {
         </div>
       </div>
 
+      <style jsx="true">{`
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+      `}</style>
     </div>
   );
 };

@@ -76,25 +76,25 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewTuVi }) => {
     };
 
     return (
-        <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100 max-w-4xl mx-auto">
-            <h2 className="text-3xl font-serif font-bold text-amber-950 mb-8 text-center border-b pb-4">Lịch Sử Của Bạn</h2>
+        <div className="bg-white p-4 md:p-8 rounded-2xl md:rounded-[2rem] shadow-sm border border-gray-100 max-w-4xl mx-auto">
+            <h2 className="text-2xl md:text-3xl font-serif font-bold text-amber-950 mb-6 md:mb-8 text-center border-b pb-4">Lịch Sử Của Bạn</h2>
             
-            <div className="flex justify-center gap-4 mb-8">
+            <div className="flex flex-wrap md:flex-nowrap justify-center gap-2 md:gap-4 mb-6 md:mb-8">
                 <button 
                     onClick={() => setActiveTab('hexagram')}
-                    className={`px-6 py-2 rounded-full font-bold transition-all ${activeTab === 'hexagram' ? 'bg-amber-800 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
+                    className={`flex-1 sm:flex-none px-4 py-2 text-xs md:text-base rounded-full font-bold transition-all ${activeTab === 'hexagram' ? 'bg-amber-800 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
                 >
                     Kinh Dịch ({hexagrams.length})
                 </button>
                 <button 
                     onClick={() => setActiveTab('bazi')}
-                    className={`px-6 py-2 rounded-full font-bold transition-all ${activeTab === 'bazi' ? 'bg-blue-800 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
+                    className={`flex-1 sm:flex-none px-4 py-2 text-xs md:text-base rounded-full font-bold transition-all ${activeTab === 'bazi' ? 'bg-blue-800 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
                 >
                     Bát Tự ({bazis.length})
                 </button>
                 <button 
                     onClick={() => setActiveTab('tu_vi')}
-                    className={`px-6 py-2 rounded-full font-bold transition-all ${activeTab === 'tu_vi' ? 'bg-purple-800 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
+                    className={`flex-1 sm:flex-none px-4 py-2 text-xs md:text-base rounded-full font-bold transition-all ${activeTab === 'tu_vi' ? 'bg-purple-800 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
                 >
                     Tử Vi ({tuvis.length})
                 </button>

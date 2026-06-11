@@ -10,7 +10,7 @@ import { getColorClass, getBgColorClass, HAO_VI_MEANING, getChiOnly } from '../u
 const LineVisual = ({ type, isRed }) => {
     const colorClass = isRed ? 'bg-red-600' : 'bg-blue-800';
     return (
-        <div className="flex w-16 md:w-20 h-2.5 justify-between items-center">
+        <div className="flex w-12 sm:w-16 md:w-20 h-2.5 justify-between items-center">
             {type === 1 ? (
                 <div className={`w-full h-full ${colorClass}`}></div>
             ) : (
@@ -244,33 +244,33 @@ const DivinationBoard = ({ result, onUpdateResult, user, onRequireLogin }) => {
     };
 
     return (
-        <div className="bg-white px-6 md:px-12 py-10 max-w-[1240px] mx-auto my-10 font-sans text-gray-900 shadow-2xl rounded-2xl border-t-8 border-t-red-800 relative">
+        <div className="bg-white px-4 md:px-12 py-6 md:py-10 max-w-[1240px] mx-auto my-4 md:my-10 font-sans text-gray-900 shadow-2xl rounded-2xl border-t-8 border-t-red-800 relative">
             
             <h1 className="text-3xl font-black mb-6 tracking-wide text-gray-800 uppercase">TRANG DỊCH QUÁI</h1>
             
             {dateInfo && (
-                <div className="space-y-3 text-[15px] font-medium text-gray-800">
-                    <div className="flex gap-2 items-center">
-                        <span className="w-40 text-gray-600">Thời gian lập quẻ:</span>
+                <div className="space-y-3.5 text-[15px] font-medium text-gray-800">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                        <span className="w-40 sm:shrink-0 text-gray-500 font-bold sm:font-normal">Thời gian lập quẻ:</span>
                         <span>{dateInfo.time} - {dateInfo.solarDate} ({dateInfo.lunarDateStr})</span>
                     </div>
-                    <div className="flex gap-2 items-center">
-                        <span className="w-40 text-gray-600">Can Chi:</span>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                        <span className="w-40 sm:shrink-0 text-gray-500 font-bold sm:font-normal">Can Chi:</span>
                         <span>Giờ <strong className="text-red-700">{dateInfo.hourCanChi}</strong>, ngày <strong className="text-red-700">{dateInfo.dayCanChi}</strong>, tháng <strong className="text-amber-700">{dateInfo.monthCanChi}</strong>, năm <strong className="text-amber-700">{dateInfo.yearCanChi}</strong></span>
                     </div>
                     <div className="flex flex-wrap gap-x-12 gap-y-3">
-                        <div className="flex gap-3">
-                            <span className="text-gray-600">Nhật thần:</span>
+                        <div className="flex gap-2">
+                            <span className="text-gray-500 font-bold sm:font-normal">Nhật thần:</span>
                             <span className="font-bold text-red-800">{dateInfo.nhatThan}</span>
                         </div>
-                        <div className="flex gap-3">
-                            <span className="text-gray-600">Nguyệt lệnh:</span>
+                        <div className="flex gap-2">
+                            <span className="text-gray-500 font-bold sm:font-normal">Nguyệt lệnh:</span>
                             <span className="font-bold text-amber-800">{dateInfo.nguyetLenh}</span>
                         </div>
                     </div>
-                    <div className="flex gap-2 items-center pt-2">
-                        <span className="w-40 text-gray-600">Phương pháp gieo:</span>
-                        <span className="font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded">Lục Hào Truyền Thống</span>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 pt-2">
+                        <span className="w-40 sm:shrink-0 text-gray-500 font-bold sm:font-normal">Phương pháp gieo:</span>
+                        <span className="font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded inline-block w-fit">Lục Hào Truyền Thống</span>
                     </div>
                 </div>
             )}
@@ -298,135 +298,141 @@ const DivinationBoard = ({ result, onUpdateResult, user, onRequireLogin }) => {
             {/* TABLE */}
             <div className="w-full pb-20 relative z-10">
                 {renderSecondarySide ? (
-                    <div className="flex gap-0">
-                        <div className="flex-1 min-w-0 border-r-2 border-gray-300">
-                            <table className="w-full text-left text-[14px] border-collapse relative">
-                                <thead>
-                                    <tr className="border-b-2 border-gray-400 bg-slate-50/50 h-10">
-                                        <th className="font-extrabold text-gray-800 w-[16%] text-center align-middle">Hào</th>
-                                        <th className="font-bold text-gray-700 w-[10%] align-middle text-center">T/Ư</th>
-                                        <th className="font-bold text-gray-700 w-[28%] align-middle">Lục Thân</th>
-                                        <th className="font-bold text-gray-700 w-[28%] align-middle">Địa Chi</th>
-                                        <th className="font-bold text-gray-700 w-[10%] align-middle">PT</th>
-                                        <th className="font-bold text-gray-700 w-[8%] pr-2 align-middle">TK</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {rows.map((row, idx) => {
-                                        const { pLine, index } = row;
-                                        const isMoving = pLine.moving;
-                                        const trClass = `border-b border-gray-200 hover:bg-yellow-50/60 transition-colors h-[48px] ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/30'}`;
-                                        return (
-                                            <tr key={index} className={trClass}>
-                                                <td className="pl-0 text-center align-middle h-full">
-                                                    <div className="flex items-center justify-center h-full">
-                                                        <LineWithTooltip type={pLine.line_type} isRed={isMoving} isMoving={isMoving} index={index} />
-                                                    </div>
-                                                </td>
-                                                <td className="text-[13px] font-extrabold text-blue-800 align-middle text-center">
-                                                    {pLine.is_host ? 'Thế' : pLine.is_guest ? 'Ứng' : ''}
-                                                </td>
-                                                <td className={`font-medium align-middle ${isMoving ? 'font-bold' : ''}`}>
-                                                    {pLine.relative ? <Tooltip term={pLine.relative}>{pLine.relative}</Tooltip> : ''}
-                                                </td>
-                                                <td className={`font-medium align-middle ${getColorClass(pLine.element)} ${isMoving ? 'font-bold' : ''}`}>
-                                                    {getChiOnly(pLine.stem_branch)} {pLine.element}
-                                                </td>
-                                                <td className="text-[13px] text-gray-600 font-bold align-middle">
-                                                    {pLine.hidden_spirit ? <Tooltip term={pLine.hidden_spirit}>{pLine.hidden_spirit}</Tooltip> : ''}
-                                                </td>
-                                                <td className="font-semibold text-gray-400 pr-2 align-middle">{pLine.tk}</td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
+                    <div className="flex flex-col lg:flex-row gap-6 lg:gap-0">
+                        <div className="flex-1 min-w-0 border-b border-dashed border-gray-300 lg:border-b-0 lg:border-r-2 lg:border-gray-300 pb-6 lg:pb-0">
+                            <div className="overflow-x-auto w-full custom-scrollbar">
+                                <table className="w-full text-left text-xs sm:text-[14px] border-collapse relative">
+                                    <thead>
+                                        <tr className="border-b-2 border-gray-400 bg-slate-50/50 h-10">
+                                            <th className="font-extrabold text-gray-800 w-[16%] text-center align-middle">Hào</th>
+                                            <th className="font-bold text-gray-700 w-[10%] align-middle text-center">T/Ư</th>
+                                            <th className="font-bold text-gray-700 w-[28%] align-middle">Lục Thân</th>
+                                            <th className="font-bold text-gray-700 w-[28%] align-middle">Địa Chi</th>
+                                            <th className="font-bold text-gray-700 w-[10%] align-middle">PT</th>
+                                            <th className="font-bold text-gray-700 w-[8%] pr-2 align-middle">TK</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {rows.map((row, idx) => {
+                                            const { pLine, index } = row;
+                                            const isMoving = pLine.moving;
+                                            const trClass = `border-b border-gray-200 hover:bg-yellow-50/60 transition-colors h-[48px] ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/30'}`;
+                                            return (
+                                                <tr key={index} className={trClass}>
+                                                    <td className="pl-0 text-center align-middle h-full">
+                                                        <div className="flex items-center justify-center h-full">
+                                                            <LineWithTooltip type={pLine.line_type} isRed={isMoving} isMoving={isMoving} index={index} />
+                                                        </div>
+                                                    </td>
+                                                    <td className="text-[13px] font-extrabold text-blue-800 align-middle text-center">
+                                                        {pLine.is_host ? 'Thế' : pLine.is_guest ? 'Ứng' : ''}
+                                                    </td>
+                                                    <td className={`font-medium align-middle ${isMoving ? 'font-bold' : ''}`}>
+                                                        {pLine.relative ? <Tooltip term={pLine.relative}>{pLine.relative}</Tooltip> : ''}
+                                                    </td>
+                                                    <td className={`font-medium align-middle ${getColorClass(pLine.element)} ${isMoving ? 'font-bold' : ''}`}>
+                                                        {getChiOnly(pLine.stem_branch)} {pLine.element}
+                                                    </td>
+                                                    <td className="text-[13px] text-gray-600 font-bold align-middle">
+                                                        {pLine.hidden_spirit ? <Tooltip term={pLine.hidden_spirit}>{pLine.hidden_spirit}</Tooltip> : ''}
+                                                    </td>
+                                                    <td className="font-semibold text-gray-400 pr-2 align-middle">{pLine.tk}</td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
 
-                        <div className="flex-1 min-w-0">
-                            <table className="w-full text-left text-[14px] border-collapse relative">
-                                <thead>
-                                    <tr className="border-b-2 border-gray-400 bg-slate-50/50 h-10">
-                                        <th className="pl-3 font-bold text-gray-700 w-[28%] align-middle">Lục Thân</th>
-                                        <th className="font-bold text-gray-700 w-[28%] align-middle">Địa Chi</th>
-                                        <th className="font-bold text-gray-700 w-[10%] align-middle">TK</th>
-                                        <th className="font-bold text-gray-700 w-[26%] align-middle">Lục Thú</th>
-                                        <th className="pr-0 font-extrabold text-gray-800 w-[8%] text-center align-middle">Hào</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {rows.map((row, idx) => {
-                                        const { pLine, sLine, index } = row;
-                                        const isMoving = pLine.moving;
-                                        const trClass = `border-b border-gray-200 hover:bg-yellow-50/60 transition-colors h-[48px] ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/30'}`;
-                                        return (
-                                            <tr key={index} className={trClass}>
-                                                <td className={`pl-3 font-medium align-middle ${isMoving ? 'font-bold' : ''}`}>
-                                                    {sLine.relative ? <Tooltip term={sLine.relative}>{sLine.relative}</Tooltip> : ''}
-                                                </td>
-                                                <td className={`font-medium align-middle ${getColorClass(sLine.element)} ${isMoving ? 'font-bold' : ''}`}>
-                                                    {getChiOnly(sLine.stem_branch)} {sLine.element}
-                                                </td>
-                                                <td className={`font-semibold align-middle ${isMoving ? 'text-red-400' : 'text-gray-400'}`}>{sLine.tk}</td>
-                                                <td className="font-semibold text-slate-700 align-middle">
-                                                    <Tooltip term={pLine.luc_thu}>{pLine.luc_thu}</Tooltip>
-                                                </td>
-                                                <td className="pr-0 text-center align-middle h-full">
-                                                    <div className="flex items-center justify-center h-full">
-                                                        <LineWithTooltip type={sLine.line_type} isRed={isMoving} isMoving={isMoving} index={index} />
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
+                        <div className="flex-1 min-w-0 pt-6 lg:pt-0 lg:pl-0">
+                            <div className="overflow-x-auto w-full custom-scrollbar">
+                                <table className="w-full text-left text-xs sm:text-[14px] border-collapse relative">
+                                    <thead>
+                                        <tr className="border-b-2 border-gray-400 bg-slate-50/50 h-10">
+                                            <th className="pl-3 font-bold text-gray-700 w-[28%] align-middle">Lục Thân</th>
+                                            <th className="font-bold text-gray-700 w-[28%] align-middle">Địa Chi</th>
+                                            <th className="font-bold text-gray-700 w-[10%] align-middle">TK</th>
+                                            <th className="font-bold text-gray-700 w-[26%] align-middle">Lục Thú</th>
+                                            <th className="pr-0 font-extrabold text-gray-800 w-[8%] text-center align-middle">Hào</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {rows.map((row, idx) => {
+                                            const { pLine, sLine, index } = row;
+                                            const isMoving = pLine.moving;
+                                            const trClass = `border-b border-gray-200 hover:bg-yellow-50/60 transition-colors h-[48px] ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/30'}`;
+                                            return (
+                                                <tr key={index} className={trClass}>
+                                                    <td className={`pl-3 font-medium align-middle ${isMoving ? 'font-bold' : ''}`}>
+                                                        {sLine.relative ? <Tooltip term={sLine.relative}>{sLine.relative}</Tooltip> : ''}
+                                                    </td>
+                                                    <td className={`font-medium align-middle ${getColorClass(sLine.element)} ${isMoving ? 'font-bold' : ''}`}>
+                                                        {getChiOnly(sLine.stem_branch)} {sLine.element}
+                                                    </td>
+                                                    <td className={`font-semibold align-middle ${isMoving ? 'text-red-400' : 'text-gray-400'}`}>{sLine.tk}</td>
+                                                    <td className="font-semibold text-slate-700 align-middle">
+                                                        <Tooltip term={pLine.luc_thu}>{pLine.luc_thu}</Tooltip>
+                                                    </td>
+                                                    <td className="pr-0 text-center align-middle h-full">
+                                                        <div className="flex items-center justify-center h-full">
+                                                            <LineWithTooltip type={sLine.line_type} isRed={isMoving} isMoving={isMoving} index={index} />
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 ) : (
-                    <table className="w-full text-left text-[14px] border-collapse relative">
-                        <thead>
-                            <tr className="border-b-2 border-gray-400 bg-slate-50/50 h-10">
-                                <th className="font-extrabold text-gray-800 w-[16%] text-center align-middle">Hào</th>
-                                <th className="font-bold text-gray-700 w-[10%] align-middle text-center">T/Ư</th>
-                                <th className="font-bold text-gray-700 w-[22%] align-middle">Lục Thân</th>
-                                <th className="font-bold text-gray-700 w-[22%] align-middle">Địa Chi</th>
-                                <th className="font-bold text-gray-700 w-[18%] align-middle">Phục Thần</th>
-                                <th className="font-bold text-gray-700 w-[12%] align-middle">Lục Thú</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {rows.map((row, idx) => {
-                                const { pLine, index } = row;
-                                const isMoving = pLine.moving;
-                                const trClass = `border-b border-gray-200 hover:bg-yellow-50/60 transition-colors h-[48px] ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/30'}`;
-                                return (
-                                    <tr key={index} className={trClass}>
-                                        <td className="pl-0 text-center align-middle h-full">
-                                            <div className="flex items-center justify-center h-full">
-                                                <LineWithTooltip type={pLine.line_type} isRed={isMoving} isMoving={isMoving} index={index} />
-                                            </div>
-                                        </td>
-                                        <td className="text-[14px] font-extrabold text-blue-800 align-middle text-center">
-                                            {pLine.is_host ? 'Thế' : pLine.is_guest ? 'Ứng' : ''}
-                                        </td>
-                                        <td className={`font-medium align-middle ${isMoving ? 'font-bold' : ''}`}>
-                                            {pLine.relative}
-                                        </td>
-                                        <td className={`font-medium align-middle ${getColorClass(pLine.element)} ${isMoving ? 'font-bold' : ''}`}>
-                                            {getChiOnly(pLine.stem_branch)} {pLine.element}
-                                        </td>
-                                        <td className="text-[14px] text-gray-600 font-bold align-middle">
-                                            {pLine.hidden_spirit ? <Tooltip term={pLine.hidden_spirit}>{pLine.hidden_spirit}</Tooltip> : ''}
-                                        </td>
-                                        <td className="font-semibold text-slate-700 align-middle">
-                                            <Tooltip term={pLine.luc_thu}>{pLine.luc_thu}</Tooltip>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
+                    <div className="overflow-x-auto w-full custom-scrollbar">
+                        <table className="w-full text-left text-xs sm:text-[14px] border-collapse relative">
+                            <thead>
+                                <tr className="border-b-2 border-gray-400 bg-slate-50/50 h-10">
+                                    <th className="font-extrabold text-gray-800 w-[16%] text-center align-middle">Hào</th>
+                                    <th className="font-bold text-gray-700 w-[10%] align-middle text-center">T/Ư</th>
+                                    <th className="font-bold text-gray-700 w-[22%] align-middle">Lục Thân</th>
+                                    <th className="font-bold text-gray-700 w-[22%] align-middle">Địa Chi</th>
+                                    <th className="font-bold text-gray-700 w-[18%] align-middle">Phục Thần</th>
+                                    <th className="font-bold text-gray-700 w-[12%] align-middle">Lục Thú</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {rows.map((row, idx) => {
+                                    const { pLine, index } = row;
+                                    const isMoving = pLine.moving;
+                                    const trClass = `border-b border-gray-200 hover:bg-yellow-50/60 transition-colors h-[48px] ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/30'}`;
+                                    return (
+                                        <tr key={index} className={trClass}>
+                                            <td className="pl-0 text-center align-middle h-full">
+                                                <div className="flex items-center justify-center h-full">
+                                                    <LineWithTooltip type={pLine.line_type} isRed={isMoving} isMoving={isMoving} index={index} />
+                                                </div>
+                                            </td>
+                                            <td className="text-[14px] font-extrabold text-blue-800 align-middle text-center">
+                                                {pLine.is_host ? 'Thế' : pLine.is_guest ? 'Ứng' : ''}
+                                            </td>
+                                            <td className={`font-medium align-middle ${isMoving ? 'font-bold' : ''}`}>
+                                                {pLine.relative}
+                                            </td>
+                                            <td className={`font-medium align-middle ${getColorClass(pLine.element)} ${isMoving ? 'font-bold' : ''}`}>
+                                                {getChiOnly(pLine.stem_branch)} {pLine.element}
+                                            </td>
+                                            <td className="text-[14px] text-gray-600 font-bold align-middle">
+                                                {pLine.hidden_spirit ? <Tooltip term={pLine.hidden_spirit}>{pLine.hidden_spirit}</Tooltip> : ''}
+                                            </td>
+                                            <td className="font-semibold text-slate-700 align-middle">
+                                                <Tooltip term={pLine.luc_thu}>{pLine.luc_thu}</Tooltip>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
                 )}
             </div>
 
@@ -441,52 +447,8 @@ const DivinationBoard = ({ result, onUpdateResult, user, onRequireLogin }) => {
                             {primary.quai_than && <span className="bg-purple-100 text-purple-800 font-bold px-3 py-1 rounded-full text-sm border border-purple-200 shadow-sm">Quái Thân: {primary.quai_than}</span>}
                         </div>
                         <div className="border border-gray-200 rounded-xl bg-white shadow-sm overflow-hidden">
-                            <table className="w-full text-left text-sm border-collapse">
-                                <thead className="bg-slate-50 border-b border-gray-200 text-gray-600 text-[11px] font-bold uppercase tracking-wider">
-                                    <tr>
-                                        <th className="py-2.5 px-3 w-[40%]">Hào / Can Chi</th>
-                                        <th className="py-2.5 px-3 w-[20%]">Vượng Suy</th>
-                                        <th className="py-2.5 px-3 w-[20%]">TS Ngày</th>
-                                        <th className="py-2.5 px-3 w-[20%]">TS Tháng</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-100">
-                                    {rows.map((row, idx) => {
-                                        const { pLine, index } = row;
-                                        const isVuongTuong = pLine.vuong_suy === 'Vượng' || pLine.vuong_suy === 'Tướng';
-                                        const vuongSuyColor = isVuongTuong ? 'text-red-600 bg-red-50' : 'text-gray-700';
-                                        
-                                        return (
-                                            <tr key={`p-${index}`} className="hover:bg-amber-50/50 transition-colors">
-                                                <td className="py-2.5 px-3 align-middle">
-                                                    <div className="flex items-center gap-2 flex-wrap">
-                                                        <span className={`font-semibold ${getColorClass(pLine.element)}`}>
-                                                            {pLine.stem_branch}
-                                                        </span>
-                                                        {pLine.qt && <span className="px-1.5 py-0.5 bg-purple-100 text-purple-800 text-[10px] font-bold rounded uppercase tracking-wider">QT</span>}
-                                                    </div>
-                                                </td>
-                                                <td className={`py-2.5 px-3 align-middle font-bold ${vuongSuyColor}`}>
-                                                    <span className={isVuongTuong ? 'px-2 py-0.5 rounded bg-white border border-red-100 shadow-sm' : ''}>{pLine.vuong_suy}</span>
-                                                </td>
-                                                <td className="py-2.5 px-3 align-middle text-blue-800 font-semibold">{pLine.ts_ngay}</td>
-                                                <td className="py-2.5 px-3 align-middle text-amber-700 font-semibold">{pLine.ts_thang}</td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    {/* QUẺ BIẾN */}
-                    {renderSecondarySide && (
-                        <div className="flex-1 flex flex-col border-t md:border-t-0 md:border-l-[1.5px] border-gray-300 pt-6 md:pt-0 md:pl-4">
-                            <div className="flex justify-end items-center mb-3">
-                                {secondary.quai_than && <span className="bg-purple-100 text-purple-800 font-bold px-3 py-1 rounded-full text-sm border border-purple-200 shadow-sm">Quái Thân: {secondary.quai_than}</span>}
-                            </div>
-                            <div className="border border-gray-200 rounded-xl bg-white shadow-sm overflow-hidden">
-                                <table className="w-full text-left text-sm border-collapse">
+                            <div className="overflow-x-auto w-full custom-scrollbar">
+                                <table className="w-full text-left text-xs sm:text-sm border-collapse">
                                     <thead className="bg-slate-50 border-b border-gray-200 text-gray-600 text-[11px] font-bold uppercase tracking-wider">
                                         <tr>
                                             <th className="py-2.5 px-3 w-[40%]">Hào / Can Chi</th>
@@ -497,30 +459,78 @@ const DivinationBoard = ({ result, onUpdateResult, user, onRequireLogin }) => {
                                     </thead>
                                     <tbody className="divide-y divide-gray-100">
                                         {rows.map((row, idx) => {
-                                            const { sLine, index } = row;
-                                            const isVuongTuong = sLine.vuong_suy === 'Vượng' || sLine.vuong_suy === 'Tướng';
+                                            const { pLine, index } = row;
+                                            const isVuongTuong = pLine.vuong_suy === 'Vượng' || pLine.vuong_suy === 'Tướng';
                                             const vuongSuyColor = isVuongTuong ? 'text-red-600 bg-red-50' : 'text-gray-700';
                                             
                                             return (
-                                                <tr key={`s-${index}`} className="hover:bg-amber-50/50 transition-colors">
+                                                <tr key={`p-${index}`} className="hover:bg-amber-50/50 transition-colors">
                                                     <td className="py-2.5 px-3 align-middle">
                                                         <div className="flex items-center gap-2 flex-wrap">
-                                                            <span className={`font-semibold ${getColorClass(sLine.element)}`}>
-                                                                {sLine.stem_branch}
+                                                            <span className={`font-semibold ${getColorClass(pLine.element)}`}>
+                                                                {pLine.stem_branch}
                                                             </span>
-                                                            {sLine.qt && <span className="px-1.5 py-0.5 bg-purple-100 text-purple-800 text-[10px] font-bold rounded uppercase tracking-wider">QT</span>}
+                                                            {pLine.qt && <span className="px-1.5 py-0.5 bg-purple-100 text-purple-800 text-[10px] font-bold rounded uppercase tracking-wider">QT</span>}
                                                         </div>
                                                     </td>
                                                     <td className={`py-2.5 px-3 align-middle font-bold ${vuongSuyColor}`}>
-                                                        <span className={isVuongTuong ? 'px-2 py-0.5 rounded bg-white border border-red-100 shadow-sm' : ''}>{sLine.vuong_suy}</span>
+                                                        <span className={isVuongTuong ? 'px-2 py-0.5 rounded bg-white border border-red-100 shadow-sm' : ''}>{pLine.vuong_suy}</span>
                                                     </td>
-                                                    <td className="py-2.5 px-3 align-middle text-blue-800 font-semibold">{sLine.ts_ngay}</td>
-                                                    <td className="py-2.5 px-3 align-middle text-amber-700 font-semibold">{sLine.ts_thang}</td>
+                                                    <td className="py-2.5 px-3 align-middle text-blue-800 font-semibold">{pLine.ts_ngay}</td>
+                                                    <td className="py-2.5 px-3 align-middle text-amber-700 font-semibold">{pLine.ts_thang}</td>
                                                 </tr>
                                             );
                                         })}
                                     </tbody>
                                 </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* QUẺ BIẾN */}
+                    {renderSecondarySide && (
+                        <div className="flex-1 flex flex-col border-t md:border-t-0 md:border-l-[1.5px] border-gray-300 pt-6 md:pt-0 md:pl-4">
+                            <div className="flex justify-end items-center mb-3">
+                                {secondary.quai_than && <span className="bg-purple-100 text-purple-800 font-bold px-3 py-1 rounded-full text-sm border border-purple-200 shadow-sm">Quái Thân: {secondary.quai_than}</span>}
+                            </div>
+                            <div className="border border-gray-200 rounded-xl bg-white shadow-sm overflow-hidden">
+                                <div className="overflow-x-auto w-full custom-scrollbar">
+                                    <table className="w-full text-left text-xs sm:text-sm border-collapse">
+                                        <thead className="bg-slate-50 border-b border-gray-200 text-gray-600 text-[11px] font-bold uppercase tracking-wider">
+                                            <tr>
+                                                <th className="py-2.5 px-3 w-[40%]">Hào / Can Chi</th>
+                                                <th className="py-2.5 px-3 w-[20%]">Vượng Suy</th>
+                                                <th className="py-2.5 px-3 w-[20%]">TS Ngày</th>
+                                                <th className="py-2.5 px-3 w-[20%]">TS Tháng</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-100">
+                                            {rows.map((row, idx) => {
+                                                const { sLine, index } = row;
+                                                const isVuongTuong = sLine.vuong_suy === 'Vượng' || sLine.vuong_suy === 'Tướng';
+                                                const vuongSuyColor = isVuongTuong ? 'text-red-600 bg-red-50' : 'text-gray-700';
+                                                
+                                                return (
+                                                    <tr key={`s-${index}`} className="hover:bg-amber-50/50 transition-colors">
+                                                        <td className="py-2.5 px-3 align-middle">
+                                                            <div className="flex items-center gap-2 flex-wrap">
+                                                                <span className={`font-semibold ${getColorClass(sLine.element)}`}>
+                                                                    {sLine.stem_branch}
+                                                                </span>
+                                                                {sLine.qt && <span className="px-1.5 py-0.5 bg-purple-100 text-purple-800 text-[10px] font-bold rounded uppercase tracking-wider">QT</span>}
+                                                            </div>
+                                                        </td>
+                                                        <td className={`py-2.5 px-3 align-middle font-bold ${vuongSuyColor}`}>
+                                                            <span className={isVuongTuong ? 'px-2 py-0.5 rounded bg-white border border-red-100 shadow-sm' : ''}>{sLine.vuong_suy}</span>
+                                                        </td>
+                                                        <td className="py-2.5 px-3 align-middle text-blue-800 font-semibold">{sLine.ts_ngay}</td>
+                                                        <td className="py-2.5 px-3 align-middle text-amber-700 font-semibold">{sLine.ts_thang}</td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     )}
@@ -555,7 +565,7 @@ const DivinationBoard = ({ result, onUpdateResult, user, onRequireLogin }) => {
                 <button
                     onClick={handleAILuanGiai}
                     disabled={isInterpreting}
-                    className={`fixed bottom-[calc(96px+env(safe-area-inset-bottom,0px))] right-4 md:right-8 z-50 flex items-center gap-2 px-5 py-3 rounded-full shadow-2xl transition-all duration-300 font-bold border ${isInterpreting ? 'bg-amber-100 border-amber-200 text-amber-500 cursor-not-allowed scale-95' : 'bg-gradient-to-r from-amber-800 to-amber-950 hover:from-amber-900 hover:to-stone-900 text-white border-amber-700 hover:scale-105 hover:shadow-amber-900/40'}`}
+                    className={`fixed bottom-4 md:bottom-8 right-4 md:right-8 z-50 flex items-center gap-2 px-5 py-3 rounded-full shadow-2xl transition-all duration-300 font-bold border ${isInterpreting ? 'bg-amber-100 border-amber-200 text-amber-500 cursor-not-allowed scale-95' : 'bg-gradient-to-r from-amber-800 to-amber-950 hover:from-amber-900 hover:to-stone-900 text-white border-amber-700 hover:scale-105 hover:shadow-amber-900/40'}`}
                 >
                     {isInterpreting ? (
                         <>
@@ -572,7 +582,7 @@ const DivinationBoard = ({ result, onUpdateResult, user, onRequireLogin }) => {
             ) : !isChatOpen && (
                 <button
                     onClick={() => setIsChatOpen(true)}
-                    className="fixed bottom-[calc(96px+env(safe-area-inset-bottom,0px))] right-4 md:right-8 z-50 flex items-center gap-2 px-6 py-3.5 rounded-full shadow-2xl transition-all duration-300 font-extrabold border bg-gradient-to-r from-amber-800 to-amber-950 hover:from-amber-900 hover:to-stone-900 text-white border-amber-700 hover:scale-105 hover:shadow-amber-900/40 uppercase text-xs tracking-wider animate-pulse"
+                    className="fixed bottom-4 md:bottom-8 right-4 md:right-8 z-50 flex items-center gap-2 px-6 py-3.5 rounded-full shadow-2xl transition-all duration-300 font-extrabold border bg-gradient-to-r from-amber-800 to-amber-950 hover:from-amber-900 hover:to-stone-900 text-white border-amber-700 hover:scale-105 hover:shadow-amber-900/40 uppercase text-xs tracking-wider animate-pulse"
                 >
                     <MessageCircle className="animate-bounce shrink-0" size={18} />
                     <span>Hỏi Thêm Thầy</span>
@@ -663,6 +673,23 @@ const DivinationBoard = ({ result, onUpdateResult, user, onRequireLogin }) => {
                     </div>
                 </div>
             )}
+            <style jsx="true">{`
+                @media (max-width: 1024px) {
+                    .custom-scrollbar table {
+                        font-size: 11px !important;
+                    }
+                    .custom-scrollbar th, 
+                    .custom-scrollbar td {
+                        padding-left: 2px !important;
+                        padding-right: 2px !important;
+                        padding-top: 6px !important;
+                        padding-bottom: 6px !important;
+                    }
+                    .custom-scrollbar td div.flex.w-12 {
+                        margin: 0 auto;
+                    }
+                }
+            `}</style>
         </div>
     );
 };
