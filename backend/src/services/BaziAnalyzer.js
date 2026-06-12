@@ -33,6 +33,164 @@ class BaziAnalyzer {
         this.rules = JSON.parse(fs.readFileSync(rulesPath, 'utf8'));
     }
 
+    determineCachCuc(dayGan, monthZhi, canChi, elementScore) {
+        const exposedGans = [canChi.year.gan, canChi.month.gan, canChi.hour.gan];
+        const allStems = [canChi.year.gan, canChi.month.gan, canChi.day.gan, canChi.hour.gan];
+        const allZhis = [canChi.year.zhi, canChi.month.zhi, canChi.day.zhi, canChi.hour.zhi];
+        
+        const stemToElement = {
+            'Giáp': 'Moc', 'Ất': 'Moc', 'Bính': 'Hoa', 'Đinh': 'Hoa', 'Mậu': 'Tho',
+            'Kỷ': 'Tho', 'Canh': 'Kim', 'Tân': 'Kim', 'Nhâm': 'Thuy', 'Quý': 'Thuy'
+        };
+        const stemYinYang = {
+            'Giáp': 'Duong', 'Ất': 'Am', 'Bính': 'Duong', 'Đinh': 'Am', 'Mậu': 'Duong',
+            'Kỷ': 'Am', 'Canh': 'Duong', 'Tân': 'Am', 'Nhâm': 'Duong', 'Quý': 'Am'
+        };
+        const branchToElement = {
+            'Tý': 'Thuy', 'Sửu': 'Tho', 'Dần': 'Moc', 'Mão': 'Moc', 'Thìn': 'Tho', 'Tỵ': 'Hoa',
+            'Ngọ': 'Hoa', 'Mùi': 'Tho', 'Thân': 'Kim', 'Dậu': 'Kim', 'Tuất': 'Tho', 'Hợi': 'Thuy'
+        };
+        
+        const dmElem = stemToElement[dayGan];
+        if (!dmElem) return "Chính Quan cách";
+        
+        // 1. Khúc Trực cách (Mộc độc vượng)
+        if ((dayGan === 'Giáp' || dayGan === 'Ất') && 
+            ['Dần', 'Mão', 'Thìn'].includes(monthZhi) && 
+            !allStems.includes('Canh') && !allStems.includes('Tân') && !allZhis.includes('Dậu')) {
+            return "Khúc Trực cách (Mộc độc vượng)";
+        }
+        
+        // 2. Viêm Thượng cách (Hỏa độc vượng)
+        if ((dayGan === 'Bính' || dayGan === 'Đinh') && 
+            ['Tỵ', 'Ngọ', 'Mùi'].includes(monthZhi) && 
+            !allStems.includes('Nhâm') && !allStems.includes('Quý') && !allZhis.includes('Hợi') && !allZhis.includes('Tý')) {
+            return "Viêm Thượng cách (Hỏa độc vượng)";
+        }
+        
+        // 3. Gia Tường cách (Thổ độc vượng)
+        if ((dayGan === 'Mậu' || dayGan === 'Kỷ') && 
+            ['Thìn', 'Tuất', 'Sửu', 'Mùi'].includes(monthZhi) && 
+            !allStems.includes('Giáp') && !allStems.includes('Ất') && !allZhis.includes('Dần') && !allZhis.includes('Mão')) {
+            return "Gia Tường cách (Thổ độc vượng)";
+        }
+        
+        // 4. Tòng Cách cách (Kim độc vượng)
+        if ((dayGan === 'Canh' || dayGan === 'Tân') && 
+            ['Thân', 'Dậu', 'Tuất'].includes(monthZhi) && 
+            !allStems.includes('Bính') && !allStems.includes('Đinh') && !allZhis.includes('Ngọ') && !allZhis.includes('Tỵ')) {
+            return "Tòng Cách cách (Kim độc vượng)";
+        }
+        
+        // 5. Nhuận Hạ cách (Thủy độc vượng)
+        if ((dayGan === 'Nhâm' || dayGan === 'Quý') && 
+            ['Hợi', 'Tý', 'Thìn'].includes(monthZhi) && 
+            !allStems.includes('Mậu') && !allStems.includes('Kỷ') && !allZhis.includes('Mùi') && !allZhis.includes('Tuất')) {
+            return "Nhuận Hạ cách (Thủy độc vượng)";
+        }
+        
+        // 6. Hợp hóa cách
+        const checkHợpHóa = (g1, g2) => {
+            const pairs = [['Giáp', 'Kỷ', 'Tho'], ['Ất', 'Canh', 'Kim'], ['Bính', 'Tân', 'Thuy'], ['Đinh', 'Nhâm', 'Moc'], ['Mậu', 'Quý', 'Hoa']];
+            for (const [x, y, elem] of pairs) {
+                if ((g1 === x && g2 === y) || (g1 === y && g2 === x)) return elem;
+            }
+            return null;
+        };
+        
+        const mStem = canChi.month.gan;
+        const hStem = canChi.hour.gan;
+        let targetElem = checkHợpHóa(dayGan, mStem) || checkHợpHóa(dayGan, hStem);
+        if (targetElem) {
+            const mEl = branchToElement[monthZhi];
+            if (mEl === targetElem || (targetElem === 'Tho' && ['Thìn', 'Tuất', 'Sửu', 'Mùi'].includes(monthZhi)) || (targetElem === 'Moc' && monthZhi === 'Hợi')) {
+                const elemNames = { 'Tho': 'Thổ', 'Kim': 'Kim', 'Thuy': 'Thủy', 'Moc': 'Mộc', 'Hoa': 'Hỏa' };
+                return `Hóa ${elemNames[targetElem]} cách`;
+            }
+        }
+        
+        const getRelation = (dm, other) => {
+            const dmE = stemToElement[dm];
+            const otherE = stemToElement[other];
+            const dmYinYang = stemYinYang[dm];
+            const otherYinYang = stemYinYang[other];
+            
+            if (dmE === otherE) {
+                return dmYinYang === otherYinYang ? 'Tỷ Kiên' : 'Kiếp Tài';
+            }
+            
+            const relMap = {
+                'Kim': { 'Thuy': 'sinh', 'Moc': 'khac', 'Hoa': 'bi_khac', 'Tho': 'duoc_sinh' },
+                'Moc': { 'Hoa': 'sinh', 'Tho': 'khac', 'Kim': 'bi_khac', 'Thuy': 'duoc_sinh' },
+                'Thuy': { 'Moc': 'sinh', 'Hoa': 'khac', 'Tho': 'bi_khac', 'Kim': 'duoc_sinh' },
+                'Hoa': { 'Tho': 'sinh', 'Kim': 'khac', 'Thuy': 'bi_khac', 'Moc': 'duoc_sinh' },
+                'Tho': { 'Kim': 'sinh', 'Thuy': 'khac', 'Moc': 'bi_khac', 'Hoa': 'duoc_sinh' }
+            };
+            
+            const rel = relMap[dmE][otherE];
+            if (rel === 'duoc_sinh') return dmYinYang === otherYinYang ? 'Thiên Ấn' : 'Chính Ấn';
+            if (rel === 'sinh') return dmYinYang === otherYinYang ? 'Thực Thần' : 'Thương Quan';
+            if (rel === 'khac') return dmYinYang === otherYinYang ? 'Thiên Tài' : 'Chính Tài';
+            if (rel === 'bi_khac') return dmYinYang === otherYinYang ? 'Thất Sát' : 'Chính Quan';
+            return 'Tỷ Kiên';
+        };
+
+        // 7. Tòng Sát, Tòng Tài, Tòng Nhi
+        const totalScore = Object.values(elementScore).reduce((a,b) => a+b, 0);
+        const dmScore = elementScore[dmElem] || 0;
+        const isVeryWeak = (dmScore / totalScore) < 0.15;
+        
+        if (isVeryWeak) {
+            let strongest = '';
+            let maxVal = 0;
+            for (const [el, val] of Object.entries(elementScore)) {
+                if (val > maxVal) { maxVal = val; strongest = el; }
+            }
+            
+            const elemToStem = { 'Moc': 'Giáp', 'Hoa': 'Bính', 'Tho': 'Mậu', 'Kim': 'Canh', 'Thuy': 'Nhâm' };
+            const dummyStem = elemToStem[strongest];
+            const rel = getRelation(dayGan, dummyStem);
+            
+            if (rel === 'Thất Sát' || rel === 'Chính Quan') return "Tòng Sát cách";
+            if (rel === 'Thiên Tài' || rel === 'Chính Tài') return "Tòng Tài cách";
+            if (rel === 'Thực Thần' || rel === 'Thương Quan') return "Tòng Nhi cách";
+        }
+
+        // Standard Bát Cách / Kiến Lộc / Dương Nhận
+        const monthHiddenStems = {
+            'Tý': ['Quý'],
+            'Sửu': ['Kỷ', 'Quý', 'Tân'],
+            'Dần': ['Giáp', 'Bính', 'Mậu'],
+            'Mão': ['Ất'],
+            'Thìn': ['Mậu', 'Ất', 'Quý'],
+            'Tỵ': ['Bính', 'Mậu', 'Canh'],
+            'Ngọ': ['Đinh', 'Kỷ'],
+            'Mùi': ['Kỷ', 'Đinh', 'Ất'],
+            'Thân': ['Canh', 'Nhâm', 'Mậu'],
+            'Dậu': ['Tân'],
+            'Tuất': ['Mậu', 'Tân', 'Đinh'],
+            'Hợi': ['Nhâm', 'Giáp']
+        };
+
+        const mtangs = monthHiddenStems[monthZhi] || [];
+        for (const tang of mtangs) {
+            if (exposedGans.includes(tang)) {
+                const rel = getRelation(dayGan, tang);
+                return `${rel} cách`;
+            }
+        }
+        
+        const mainQi = mtangs[0];
+        if (mainQi) {
+            const rel = getRelation(dayGan, mainQi);
+            if (rel === 'Tỷ Kiên') return "Kiến Lộc cách";
+            if (rel === 'Kiếp Tài') return "Dương Nhận cách";
+            return `${rel} cách`;
+        }
+        
+        return "Chính Quan cách";
+    }
+
     analyze(dateStr, timeStr, gender = 1, dayBoundaryMode = 'midnight') { // gender: 1 (Nam), 0 (Nữ)
         // 1. Data Prep
         const [day, month, year] = dateStr.split('/').map(Number);
@@ -319,6 +477,9 @@ class BaziAnalyzer {
             else if (khacTiet > dongDang * 1.2) analysis.than = "nhuoc";
             else analysis.than = "can_bang";
         }
+
+        // Determine structure (Cách cục) based on docx rules
+        analysis.cachCuc = this.determineCachCuc(dmGan, monthZhi, canChi, elementScore);
 
         // PHASE 4: Dụng Thần & Hỷ Thần
         let dungThan = "";
