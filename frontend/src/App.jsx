@@ -329,7 +329,7 @@ function App() {
                             disabled={loading}
                             className={`flex-1 py-2.5 sm:py-3.5 px-0.5 sm:px-3 rounded-xl font-bold text-[10px] min-[360px]:text-[11px] min-[400px]:text-xs sm:text-sm transition-all whitespace-nowrap text-center ${mode === 'maihoa' ? 'bg-white text-amber-900 shadow-md' : 'text-slate-500 hover:text-slate-800'}`}
                         >
-                            Mai Hoa Dịch Số
+                            Mai Hoa Dịch
                         </button>
                         <button
                             onClick={() => setMode('manual')}
