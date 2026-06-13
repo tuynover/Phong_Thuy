@@ -5,6 +5,8 @@ import ReactMarkdown from 'react-markdown';
 import { getInterpretationStreamUrl } from '../services/api';
 import { AlertCircle, BookOpen, ScrollText, MessageCircle } from 'lucide-react';
 import AiChatWidget from './AiChatWidget';
+import { parseMarkdownSections } from '../utils/markdownParser';
+import SectionRenderer from './SectionRenderer';
 import { getColorClass, getBgColorClass, HAO_VI_MEANING, getChiOnly } from '../utils/phongthuyHelpers';
 
 const LineVisual = ({ type, isRed }) => {
@@ -539,17 +541,14 @@ const DivinationBoard = ({ result, onUpdateResult, user, onRequireLogin }) => {
 
             {/* KẾT QUẢ THẦY DỊCH GIẢI */}
             {interpretation && (
-                <div className="w-full mt-4 mb-8 bg-gradient-to-br from-amber-50/70 to-orange-50/30 border border-amber-200 rounded-2xl shadow-lg p-6 md:p-8 relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-amber-800 opacity-5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                    <div className="flex items-center gap-3 mb-6 border-b border-amber-200 pb-4">
-                        <div className="w-10 h-10 bg-amber-800 rounded-full flex items-center justify-center shadow-md">
-                            <BookOpen className="text-white" size={20} />
+                <div className="w-full mt-4 mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="flex items-center gap-3 mb-6 ml-1">
+                        <div className="w-8 h-8 bg-amber-800 rounded-lg flex items-center justify-center shadow-md">
+                            <BookOpen className="text-white" size={16} />
                         </div>
-                        <h3 className="text-2xl font-black text-amber-950 tracking-tight">Thầy Dịch Giải Chi Tiết</h3>
+                        <h3 className="text-xl font-extrabold text-slate-800 tracking-tight">Thầy Dịch Giải Chi Tiết</h3>
                     </div>
-                    <div className="prose prose-amber max-w-none text-gray-800 leading-relaxed font-medium">
-                        <ReactMarkdown>{interpretation}</ReactMarkdown>
-                    </div>
+                    <SectionRenderer sections={parseMarkdownSections(interpretation, 'iching')} theme="iching" />
                 </div>
             )}
 

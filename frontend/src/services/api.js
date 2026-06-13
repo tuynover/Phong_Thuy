@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
-export const calculateDivination = (lines, userId, question) => axios.post(`${API_URL}/calculate`, { lines, userId, question });
+export const calculateDivination = (lines, userId, question, now) => axios.post(`${API_URL}/calculate`, { lines, userId, question, now });
 export const getConcept = (term) => axios.get(`${API_URL}/concept/${term}`);
 export const getHexagramHistory = (userId) => axios.get(`${API_URL}/history/hexagrams/${userId}`);
 export const getBaziHistory = (userId) => axios.get(`${API_URL}/history/bazi/${userId}`);

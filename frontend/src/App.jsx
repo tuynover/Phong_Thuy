@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useContext } from 'react';
 import CoinToss from './components/CoinToss';
 import ManualInput from './components/ManualInput';
+import MaiHoaInput from './components/MaiHoaInput';
 import DivinationBoard from './components/DivinationBoard';
 import BaziInput from './components/BaziInput';
-import BaziBoard from './components/BaziBoard';
-import TuViBoard from './components/TuViBoard';
-import HistoryBoard from './components/HistoryBoard';
+const BaziBoard = React.lazy(() => import('./components/BaziBoard'));
+const TuViBoard = React.lazy(() => import('./components/TuViBoard'));
+const HistoryBoard = React.lazy(() => import('./components/HistoryBoard'));
 import AuthModal from './components/AuthModal';
 import UpdateBaziModal from './components/UpdateBaziModal';
 import { AuthContext } from './context/AuthContext';
@@ -79,12 +80,13 @@ function App() {
       localStorage.removeItem('baziResult');
     }
   }, [baziResult]);
-  const handleDivinationComplete = async (lines) => {
+  const handleDivinationComplete = async (lines, customDate, questionSuffix = '') => {
     setLoading(true);
     try {
-      const actualQuestion = question.trim() || 'xem sức khỏe và công việc sắp tới có thuận lợi hay không';
+      const baseQuestion = question.trim() || 'xem sức khỏe và công việc sắp tới có thuận lợi hay không';
+      const actualQuestion = baseQuestion + questionSuffix;
       const userId = user ? user.id || user._id : 'guest';
-      const res = await calculateDivination(lines, userId, actualQuestion);
+      const res = await calculateDivination(lines, userId, actualQuestion, customDate);
       setResult(res.data);
       if (userId === 'guest' && res.data.recordId) {
         setCurrentRecordId(res.data.recordId);
@@ -289,6 +291,12 @@ function App() {
             </header>
         ) : null}
 
+        <React.Suspense fallback={
+          <div className="text-center py-20 max-w-md mx-auto bg-white/40 border border-purple-100 rounded-3xl backdrop-blur-md p-8 shadow-sm">
+            <div className="w-12 h-12 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-purple-900 font-extrabold text-sm tracking-wider uppercase animate-pulse">Đang tải phân hệ học thuật...</p>
+          </div>
+        }>
         {/* SYSTEM 1: I CHING */}
         <div className={`animate-in fade-in duration-500 ${appMode === 'iching' ? 'block' : 'hidden'}`}>
             {!result && !loading && (
@@ -306,33 +314,45 @@ function App() {
             )}
 
             {!result && (
-            <div className="flex justify-center mb-10 gap-4 relative z-10">
-                <button 
-                onClick={() => setMode('coin')} 
-                className={`px-8 py-3 rounded-full font-bold transition-all ${mode === 'coin' ? 'bg-amber-700 text-white shadow-lg scale-105' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'}`}
-                >
-                Gieo Bằng Đồng Xu
-                </button>
-                <button 
-                onClick={() => setMode('manual')} 
-                className={`px-8 py-3 rounded-full font-bold transition-all ${mode === 'manual' ? 'bg-slate-800 text-white shadow-lg scale-105' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'}`}
-                >
-                Nhập Hào Thủ Công
-                </button>
-            </div>
-            )}
+                <div className="max-w-xl mx-auto bg-white p-5 sm:p-8 rounded-3xl border border-amber-100 shadow-lg relative z-10 space-y-6">
+                    {/* 3 cách gieo quẻ trong 1 khung gói cho gọn, ấn vào cái nào thì sáng lên */}
+                    <div className="flex bg-slate-100/80 p-1 rounded-2xl border border-slate-200/40">
+                        <button
+                            onClick={() => setMode('coin')}
+                            disabled={loading}
+                            className={`flex-1 py-3.5 rounded-xl font-bold text-sm transition-all ${mode === 'coin' ? 'bg-white text-amber-900 shadow-md' : 'text-slate-500 hover:text-slate-800'}`}
+                        >
+                            Gieo Đồng Xu
+                        </button>
+                        <button
+                            onClick={() => setMode('maihoa')}
+                            disabled={loading}
+                            className={`flex-1 py-3.5 rounded-xl font-bold text-sm transition-all ${mode === 'maihoa' ? 'bg-white text-amber-900 shadow-md' : 'text-slate-500 hover:text-slate-800'}`}
+                        >
+                            Mai Hoa Dịch Số
+                        </button>
+                        <button
+                            onClick={() => setMode('manual')}
+                            disabled={loading}
+                            className={`flex-1 py-3.5 rounded-xl font-bold text-sm transition-all ${mode === 'manual' ? 'bg-white text-slate-900 shadow-md' : 'text-slate-500 hover:text-slate-800'}`}
+                        >
+                            Nhập Thủ Công
+                        </button>
+                    </div>
 
-            {loading && (
-                <div className="text-center py-20">
-                    <div className="w-16 h-16 border-4 border-amber-200 border-t-amber-600 rounded-full animate-spin mx-auto mb-6"></div>
-                    <div className="text-xl font-bold text-amber-800 animate-pulse">Đang kết nối thần linh...</div>
+                    {loading ? (
+                        <div className="text-center py-12">
+                            <div className="w-12 h-12 border-4 border-amber-200 border-t-amber-600 rounded-full animate-spin mx-auto mb-4"></div>
+                            <div className="text-base font-bold text-amber-800 animate-pulse">Đang kết nối thần linh...</div>
+                        </div>
+                    ) : (
+                        <div className="transition-all duration-300">
+                            {mode === 'coin' && <CoinToss onComplete={handleDivinationComplete} />}
+                            {mode === 'maihoa' && <MaiHoaInput onComplete={handleDivinationComplete} />}
+                            {mode === 'manual' && <ManualInput onComplete={handleDivinationComplete} />}
+                        </div>
+                    )}
                 </div>
-            )}
-
-            {!result && !loading && (
-            <div className="transition-all duration-500 animate-in fade-in slide-in-from-bottom-8">
-                {mode === 'coin' ? <CoinToss onComplete={handleDivinationComplete} /> : <ManualInput onComplete={handleDivinationComplete} />}
-            </div>
             )}
 
             {result && !loading && (
@@ -415,6 +435,7 @@ function App() {
                 />
             </div>
         )}
+        </React.Suspense>
 
       </div>
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} onLoginSuccess={handleLoginSuccess} />

@@ -313,22 +313,30 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId }) => {
               </div>
             </div>
 
-            {/* Giờ Sinh Can Chi Dropdown */}
+            {/* Giờ Sinh Can Chi Grid Selector */}
             <div>
-              <label className="block text-xs font-black uppercase text-slate-500 tracking-wider mb-2.5 ml-1 flex items-center gap-1.5">
+              <label className="block text-xs font-black uppercase text-slate-500 tracking-wider mb-3 ml-1 flex items-center gap-1.5">
                 <Clock size={14} className="text-purple-500" /> Giờ Sinh Can Chi Mệnh Vị
               </label>
-              <select
-                value={hourIndex}
-                onChange={(e) => setHourIndex(parseInt(e.target.value))}
-                className="bg-slate-50/80 border border-slate-200 text-slate-800 text-base rounded-2xl focus:ring-2 focus:ring-purple-400 focus:border-purple-400 block w-full py-3.5 px-4 font-bold transition-all appearance-none cursor-pointer"
-              >
+              <div className="grid grid-cols-3 gap-2.5">
                 {LUNAR_HOURS.map((hr) => (
-                  <option key={hr.index} value={hr.index}>
-                    Giờ {hr.name}
-                  </option>
+                  <button
+                    key={hr.index}
+                    type="button"
+                    onClick={() => setHourIndex(hr.index)}
+                    className={`py-3 px-1 text-center rounded-2xl border-2 font-bold text-xs sm:text-sm transition-all ${
+                      hourIndex === hr.index
+                        ? 'border-purple-600 bg-purple-50/30 text-purple-800 shadow-sm'
+                        : 'border-slate-100 text-slate-500 hover:bg-slate-50 hover:border-slate-200'
+                    }`}
+                  >
+                    <div className="font-extrabold">{hr.name.split(' ')[0]}</div>
+                    <div className="text-[9.5px] text-slate-400 font-medium mt-0.5">
+                      {hr.name.substring(hr.name.indexOf('('))}
+                    </div>
+                  </button>
                 ))}
-              </select>
+              </div>
             </div>
 
             {/* Submit Button */}

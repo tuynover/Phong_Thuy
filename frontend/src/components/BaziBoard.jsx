@@ -4,6 +4,8 @@ import { AuthContext } from '../context/AuthContext';
 import { getInterpretationStreamUrl } from '../services/api';
 import { AlertCircle, BookOpen, ScrollText, MessageCircle } from 'lucide-react';
 import AiChatWidget from './AiChatWidget';
+import { parseMarkdownSections } from '../utils/markdownParser';
+import SectionRenderer from './SectionRenderer';
 
 import {
     stemElements,
@@ -629,17 +631,14 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
 
                 {/* LUẬN GIẢI CHI TIẾT TỪ THẦY */}
                 {interpretation && (
-                    <div className="w-full mt-10 bg-gradient-to-br from-blue-50/60 to-slate-50/40 border border-blue-200 rounded-2xl shadow-lg p-6 md:p-8 relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-800 opacity-5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                        <div className="flex items-center gap-3 mb-6 border-b border-blue-200 pb-4">
-                            <div className="w-10 h-10 bg-blue-800 rounded-full flex items-center justify-center shadow-md">
-                                <BookOpen className="text-white" size={20} />
+                    <div className="w-full mt-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <div className="flex items-center gap-3 mb-6 ml-1">
+                            <div className="w-8 h-8 bg-blue-800 rounded-lg flex items-center justify-center shadow-md">
+                                <BookOpen className="text-white" size={16} />
                             </div>
-                            <h3 className="text-2xl font-black text-slate-900 tracking-tight">Thầy Luận Giải Chi Tiết</h3>
+                            <h3 className="text-xl font-extrabold text-slate-800 tracking-tight">Thầy Luận Giải Chi Tiết</h3>
                         </div>
-                        <div className="prose prose-blue max-w-none text-gray-800 leading-relaxed font-medium">
-                            <ReactMarkdown skipHtml={true}>{interpretation}</ReactMarkdown>
-                        </div>
+                        <SectionRenderer sections={parseMarkdownSections(interpretation, 'bazi')} theme="bazi" />
                     </div>
                 )}
 

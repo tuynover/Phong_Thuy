@@ -7,6 +7,14 @@ const authRoutes = require('./auth');
 const historyRoutes = require('./history');
 const aiRoutes = require('./ai');
 const tuViRoutes = require('../modules/tu-vi/routes');
+const rateLimiter = require('../middleware/rateLimiter');
+
+// Giới hạn 30 lượt lập số lý/quẻ dịch trong 15 phút
+const calcLimiter = rateLimiter({
+    windowMs: 15 * 60 * 1000,
+    max: 30,
+    message: 'Bạn đã thực hiện quá nhiều lượt lập số lý/quẻ dịch. Vui lòng thử lại sau.'
+});
 
 router.use('/auth', authRoutes);
 router.use('/history', historyRoutes);
@@ -14,10 +22,10 @@ router.use('/ai', aiRoutes);
 router.use('/tu-vi', tuViRoutes);
 
 // Support both unified and legacy namespaces for calculate
-router.post('/hexagrams/calculate', DivinationController.calculate);
-router.post('/calculate', DivinationController.calculate);
+router.post('/hexagrams/calculate', calcLimiter, DivinationController.calculate);
+router.post('/calculate', calcLimiter, DivinationController.calculate);
 
 router.get('/concept/:term', ConceptController.getConcept);
-router.post('/bazi/analyze', BaziController.analyze);
+router.post('/bazi/analyze', calcLimiter, BaziController.analyze);
 
 module.exports = router;

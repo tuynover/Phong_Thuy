@@ -2,6 +2,14 @@ const express = require('express');
 const router = express.Router();
 const HistoryController = require('../controllers/HistoryController');
 const AiInterpretationController = require('../controllers/AiInterpretationController');
+const rateLimiter = require('../middleware/rateLimiter');
+
+// Giới hạn 20 lượt gọi AI luận giải hoặc chat hỏi đáp trong 15 phút
+const aiLimiter = rateLimiter({
+    windowMs: 15 * 60 * 1000,
+    max: 20,
+    message: 'Bạn đã gửi quá nhiều yêu cầu luận giải AI. Vui lòng thử lại sau.'
+});
 
 // History core endpoints
 router.get('/hexagrams/:userId', HistoryController.getHexagramHistory);
@@ -14,9 +22,9 @@ router.get('/hexagrams/:id/messages', HistoryController.getHexagramChatMessages)
 router.get('/bazi/:id/messages', HistoryController.getBaziChatMessages);
 
 // Backwards compatibility for legacy chat and stream endpoints
-router.post('/hexagrams/:id/interpret', AiInterpretationController.interpretHexagram);
-router.post('/bazi/:id/interpret', AiInterpretationController.interpretBazi);
-router.post('/hexagrams/:id/chat', AiInterpretationController.chatHexagram);
-router.post('/bazi/:id/chat', AiInterpretationController.chatBazi);
+router.post('/hexagrams/:id/interpret', aiLimiter, AiInterpretationController.interpretHexagram);
+router.post('/bazi/:id/interpret', aiLimiter, AiInterpretationController.interpretBazi);
+router.post('/hexagrams/:id/chat', aiLimiter, AiInterpretationController.chatHexagram);
+router.post('/bazi/:id/chat', aiLimiter, AiInterpretationController.chatBazi);
 
 module.exports = router;

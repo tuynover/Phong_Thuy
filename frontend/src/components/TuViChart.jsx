@@ -145,7 +145,7 @@ const getElementHighlight = (fiveElementsClass) => {
 // Tối ưu hóa hiệu năng re-render bằng React.memo cho từng ô cung Tử Vi
 const PalaceCell = React.memo(({ palace, elementHighlight }) => {
   const { row, col } = GRID_COORDINATES[palace.earthlyBranch] || { row: 1, col: 1 };
-  const isMệnh = palace.name === "Mệnh";
+  const isMệnh = palace.name === "Mệnh" || palace.name === "MỆNH";
   const isSpecial = isMệnh || palace.isBodyPalace;
 
   const branchIdx = BRANCHES.indexOf(palace.earthlyBranch);
@@ -195,11 +195,13 @@ const PalaceCell = React.memo(({ palace, elementHighlight }) => {
   return (
     <div
       style={{ gridRow: row, gridColumn: col }}
-      className={`p-1 md:p-2.5 min-h-[110px] md:min-h-[160px] flex flex-col justify-between bg-white/70 backdrop-blur-md border border-purple-100/60 rounded-2xl transition-all duration-300 hover:shadow-xl hover:shadow-purple-950/5 hover:border-purple-300 hover:-translate-y-0.5 group relative overflow-hidden aspect-[3/4] md:aspect-square ${
+      className={`p-1 md:p-2.5 min-h-[110px] md:min-h-[160px] flex flex-col justify-between bg-white/70 backdrop-blur-md border rounded-2xl transition-all duration-300 hover:shadow-xl hover:shadow-purple-950/5 hover:border-purple-300 hover:-translate-y-0.5 hover:z-30 group relative aspect-[3/4] md:aspect-square ${
+        isSpecial ? '' : 'border-purple-100/60'
+      } ${
         isMệnh 
-          ? `ring-2 ${elementHighlight} shadow-lg` 
+          ? `ring-2 ${elementHighlight} z-20` 
           : palace.isBodyPalace 
-            ? 'ring-2 ring-indigo-400 bg-indigo-50/10 border-indigo-200' 
+            ? 'ring-2 ring-indigo-400 bg-indigo-50/10 border-indigo-200 z-20' 
             : ''
       }`}
     >
@@ -313,7 +315,7 @@ const PalaceListView = ({ palaces, elementHighlight }) => {
       {palaces.map((palace, idx) => {
         const branchEl = BRANCH_ELEMENTS[palace.earthlyBranch] || "Thủy";
         const branchColorClass = ELEMENT_COLORS[branchEl] || "text-neutral-900";
-        const isMệnh = palace.name === "Mệnh";
+        const isMệnh = palace.name === "Mệnh" || palace.name === "MỆNH";
         
         // Group minor & adjective stars
         const allOtherStars = [
@@ -465,9 +467,9 @@ const TuViChart = ({ chartData }) => {
           </div>
 
           {/* Scrollable grid wrapper for mobile */}
-          <div className="w-full overflow-x-auto hide-scrollbar pb-2">
+          <div className="w-full overflow-x-auto hide-scrollbar p-2 md:p-3">
             {/* 4x4 Responsive Grid Astrolabe Chart - Lock grid-cols-4 for mobile view */}
-            <div className="grid grid-cols-4 gap-1 md:gap-3.5 relative overflow-hidden min-w-[750px] md:min-w-0 w-full select-none">
+            <div className="grid grid-cols-4 gap-1 md:gap-3.5 relative overflow-visible min-w-[750px] md:min-w-0 w-full select-none">
               
               {/* Render 12 Cung dynamically inside custom grid position */}
               {palaces.map((palace, idx) => (

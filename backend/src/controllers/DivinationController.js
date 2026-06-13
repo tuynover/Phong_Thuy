@@ -14,7 +14,8 @@ class DivinationController {
             }
 
             // Delegate core Dịch lý calculations to HexagramDataService
-            const resultPayload = HexagramDataService.calculate({ lines });
+            const now = req.body.now ? new Date(req.body.now) : new Date();
+            const resultPayload = HexagramDataService.calculate({ lines, now });
 
             const movingLinesArray = lines.map((l, i) => l.moving ? i + 1 : -1).filter(i => i !== -1);
             

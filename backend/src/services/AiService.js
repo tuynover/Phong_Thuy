@@ -26,40 +26,76 @@ class AiService {
         return cleaned.trim();
     }
 
+    /**
+     * Thực thi hành động gọi AI qua danh sách các mô hình dự phòng (Fallback Chain)
+     * @param {Function} action - Hàm bất đồng bộ nhận tên modelName để thực thi gọi API
+     * @param {Object} options - Các tùy chọn bổ sung
+     */
+    async _executeWithFallback(action, options = {}) {
+        const chain = [
+            options.model || this.defaultModelName,
+            "gemini-2.5-flash",
+            "gemma-4-31b",
+            "gemma-4-26b",
+            "gemini-2.5-flash-lite",
+            "gemini-3.5-flash",
+            "gemini-3-flash"
+        ];
+        
+        // Loại bỏ trùng lặp và giữ nguyên thứ tự ưu tiên thử nghiệm
+        const modelsToTry = Array.from(new Set(chain));
+        
+        let lastError = null;
+        for (const modelName of modelsToTry) {
+            try {
+                console.log(`[AiService] Đang thử nghiệm với mô hình AI: ${modelName}`);
+                return await action(modelName);
+            } catch (error) {
+                console.error(`[AiService] Mô hình ${modelName} gặp lỗi:`, error.message);
+                lastError = error;
+                // Tiếp tục thử nghiệm các model dự phòng khác trong chuỗi nếu gặp lỗi
+            }
+        }
+        throw lastError;
+    }
+
     async generateInterpretation(prompt, options = {}, retries = 2) {
         if (!this.genAI) {
             throw new Error("Hệ thống chưa được cấu hình API Key của AI.");
         }
 
-        const modelName = this.getModelName(options);
-        const model = this.genAI.getGenerativeModel({ model: modelName });
+        try {
+            return await this._executeWithFallback(async (modelName) => {
+                const model = this.genAI.getGenerativeModel({ model: modelName });
+                for (let attempt = 1; attempt <= retries + 1; attempt++) {
+                    try {
+                        const timeoutPromise = new Promise((_, reject) =>
+                            setTimeout(() => reject(new Error('AI Request Timeout')), 25000)
+                        );
 
-        for (let attempt = 1; attempt <= retries + 1; attempt++) {
-            try {
-                const timeoutPromise = new Promise((_, reject) =>
-                    setTimeout(() => reject(new Error('AI Request Timeout')), 25000)
-                );
-
-                const generatePromise = model.generateContent(prompt);
-                const result = await Promise.race([generatePromise, timeoutPromise]);
-                const response = result.response;
-                return this.cleanMarkdown(response.text());
-            } catch (error) {
-                console.error(`AI Generation Error (Attempt ${attempt}):`, error.message);
-                
-                if (attempt === retries + 1) {
-                    if (error.message.includes('Timeout')) {
-                        throw new Error('Hệ thống AI phản hồi chậm hoặc đang quá tải. Vui lòng thử lại sau.');
-                    } else if (error.message.includes('429')) {
-                        throw new Error('Hệ thống AI đang chạm giới hạn sử dụng. Vui lòng thử lại sau giây lát.');
-                    } else if (error.message.includes('SAFETY')) {
-                        throw new Error('Nội dung phân tích vi phạm chính sách an toàn của AI.');
+                        const generatePromise = model.generateContent(prompt);
+                        const result = await Promise.race([generatePromise, timeoutPromise]);
+                        const response = result.response;
+                        return this.cleanMarkdown(response.text());
+                    } catch (error) {
+                        console.error(`AI Generation Error (Attempt ${attempt} on ${modelName}):`, error.message);
+                        if (attempt === retries + 1) {
+                            throw error;
+                        }
+                        await new Promise(res => setTimeout(res, 2000));
                     }
-                    throw new Error('Đã có lỗi xảy ra khi kết nối với máy chủ AI.');
                 }
-                
-                await new Promise(res => setTimeout(res, 2000));
+            }, options);
+        } catch (error) {
+            console.error("All AI fallback models failed for generateInterpretation:", error.message);
+            if (error.message.includes('Timeout')) {
+                throw new Error('Hệ thống AI phản hồi chậm hoặc đang quá tải. Vui lòng thử lại sau.');
+            } else if (error.message.includes('429')) {
+                throw new Error('Hệ thống AI đang chạm giới hạn sử dụng. Vui lòng thử lại sau giây lát.');
+            } else if (error.message.includes('SAFETY')) {
+                throw new Error('Nội dung phân tích vi phạm chính sách an toàn của AI.');
             }
+            throw new Error('Đã có lỗi xảy ra khi kết nối với tất cả máy chủ AI dự phòng.');
         }
     }
 
@@ -68,18 +104,18 @@ class AiService {
             throw new Error("Hệ thống chưa được cấu hình API Key của AI.");
         }
 
-        const modelName = this.getModelName(options);
-        const model = this.genAI.getGenerativeModel({ model: modelName });
-
         try {
-            const resultStream = await model.generateContentStream(prompt);
-            return resultStream;
+            return await this._executeWithFallback(async (modelName) => {
+                const model = this.genAI.getGenerativeModel({ model: modelName });
+                const resultStream = await model.generateContentStream(prompt);
+                return resultStream;
+            }, options);
         } catch (error) {
-            console.error("AI Stream Generation error:", error);
+            console.error("All AI fallback models failed for stream generation:", error);
             if (error.message.includes('SAFETY')) {
                 throw new Error('Nội dung phân tích vi phạm chính sách an toàn của AI.');
             }
-            throw new Error('Lỗi kết nối với máy chủ AI.');
+            throw new Error('Lỗi kết nối với tất cả máy chủ AI dự phòng.');
         }
     }
 
@@ -102,38 +138,42 @@ class AiService {
             throw new Error("Hệ thống chưa được cấu hình API Key của AI.");
         }
 
-        const modelName = this.getModelName(options);
-        const model = this.genAI.getGenerativeModel({
-            model: modelName,
-            generationConfig: {
-                responseMimeType: "application/json",
-                responseSchema: schema
-            }
-        });
-
-        for (let attempt = 1; attempt <= retries + 1; attempt++) {
-            try {
-                const timeoutPromise = new Promise((_, reject) =>
-                    setTimeout(() => reject(new Error('AI Request Timeout')), 30000)
-                );
-
-                const generatePromise = model.generateContent(prompt);
-                const result = await Promise.race([generatePromise, timeoutPromise]);
-                const response = result.response;
-                const text = response.text();
-                return JSON.parse(text);
-            } catch (error) {
-                console.error(`AI Structured Generation Error (Attempt ${attempt}):`, error.message);
-                
-                if (attempt === retries + 1) {
-                    if (error.message.includes('Timeout')) {
-                        throw new Error('Hệ thống AI phản hồi chậm hoặc đang quá tải. Vui lòng thử lại sau.');
+        try {
+            return await this._executeWithFallback(async (modelName) => {
+                const model = this.genAI.getGenerativeModel({
+                    model: modelName,
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: schema
                     }
-                    throw new Error(`Đã có lỗi xảy ra khi xử lý phản hồi cấu trúc từ AI: ${error.message}`);
+                });
+
+                for (let attempt = 1; attempt <= retries + 1; attempt++) {
+                    try {
+                        const timeoutPromise = new Promise((_, reject) =>
+                            setTimeout(() => reject(new Error('AI Request Timeout')), 30000)
+                        );
+
+                        const generatePromise = model.generateContent(prompt);
+                        const result = await Promise.race([generatePromise, timeoutPromise]);
+                        const response = result.response;
+                        const text = response.text();
+                        return JSON.parse(text);
+                    } catch (error) {
+                        console.error(`AI Structured Generation Error (Attempt ${attempt} on ${modelName}):`, error.message);
+                        if (attempt === retries + 1) {
+                            throw error;
+                        }
+                        await new Promise(res => setTimeout(res, 2000));
+                    }
                 }
-                
-                await new Promise(res => setTimeout(res, 2000));
+            }, options);
+        } catch (error) {
+            console.error("All AI fallback models failed for structured output:", error.message);
+            if (error.message.includes('Timeout')) {
+                throw new Error('Hệ thống AI phản hồi chậm hoặc đang quá tải. Vui lòng thử lại sau.');
             }
+            throw new Error(`Đã có lỗi xảy ra khi xử lý phản hồi cấu trúc từ tất cả các AI dự phòng: ${error.message}`);
         }
     }
 }
