@@ -316,25 +316,25 @@ function App() {
             {!result && (
                 <div className="max-w-xl mx-auto bg-white p-5 sm:p-8 rounded-3xl border border-amber-100 shadow-lg relative z-10 space-y-6">
                     {/* 3 cách gieo quẻ trong 1 khung gói cho gọn, ấn vào cái nào thì sáng lên */}
-                    <div className="flex bg-slate-100/80 p-1 rounded-2xl border border-slate-200/40">
+                    <div className="flex bg-slate-100/80 p-0.5 sm:p-1 rounded-2xl border border-slate-200/40 w-full">
                         <button
                             onClick={() => setMode('coin')}
                             disabled={loading}
-                            className={`flex-1 py-3.5 rounded-xl font-bold text-sm transition-all ${mode === 'coin' ? 'bg-white text-amber-900 shadow-md' : 'text-slate-500 hover:text-slate-800'}`}
+                            className={`flex-1 py-2.5 sm:py-3.5 px-0.5 sm:px-3 rounded-xl font-bold text-[10px] min-[360px]:text-[11px] min-[400px]:text-xs sm:text-sm transition-all whitespace-nowrap text-center ${mode === 'coin' ? 'bg-white text-amber-900 shadow-md' : 'text-slate-500 hover:text-slate-800'}`}
                         >
                             Gieo Đồng Xu
                         </button>
                         <button
                             onClick={() => setMode('maihoa')}
                             disabled={loading}
-                            className={`flex-1 py-3.5 rounded-xl font-bold text-sm transition-all ${mode === 'maihoa' ? 'bg-white text-amber-900 shadow-md' : 'text-slate-500 hover:text-slate-800'}`}
+                            className={`flex-1 py-2.5 sm:py-3.5 px-0.5 sm:px-3 rounded-xl font-bold text-[10px] min-[360px]:text-[11px] min-[400px]:text-xs sm:text-sm transition-all whitespace-nowrap text-center ${mode === 'maihoa' ? 'bg-white text-amber-900 shadow-md' : 'text-slate-500 hover:text-slate-800'}`}
                         >
                             Mai Hoa Dịch Số
                         </button>
                         <button
                             onClick={() => setMode('manual')}
                             disabled={loading}
-                            className={`flex-1 py-3.5 rounded-xl font-bold text-sm transition-all ${mode === 'manual' ? 'bg-white text-slate-900 shadow-md' : 'text-slate-500 hover:text-slate-800'}`}
+                            className={`flex-1 py-2.5 sm:py-3.5 px-0.5 sm:px-3 rounded-xl font-bold text-[10px] min-[360px]:text-[11px] min-[400px]:text-xs sm:text-sm transition-all whitespace-nowrap text-center ${mode === 'manual' ? 'bg-white text-slate-900 shadow-md' : 'text-slate-500 hover:text-slate-800'}`}
                         >
                             Nhập Thủ Công
                         </button>
