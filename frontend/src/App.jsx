@@ -8,12 +8,13 @@ import BaziInput from './components/BaziInput';
 const BaziBoard = React.lazy(() => import('./components/BaziBoard'));
 const TuViBoard = React.lazy(() => import('./components/TuViBoard'));
 const HistoryBoard = React.lazy(() => import('./components/HistoryBoard'));
+const AdminDashboard = React.lazy(() => import('./components/AdminDashboard'));
 import AuthModal from './components/AuthModal';
 import UpdateBaziModal from './components/UpdateBaziModal';
 import NotificationBell from './components/NotificationBell';
 import { AuthContext } from './context/AuthContext';
 import { calculateDivination, analyzeBazi, linkHexagram, linkBazi, getHexagramRecord } from './services/api';
-import { UserCircle, LogOut, CalendarDays } from 'lucide-react';
+import { UserCircle, LogOut, CalendarDays, Shield } from 'lucide-react';
 import { Lunar } from 'lunar-javascript';
 
 function App() {
@@ -279,10 +280,23 @@ function App() {
                         <UserCircle size={15} className="text-amber-800" />
                         Hồ sơ cá nhân
                       </button>
+                      {(user.role === 'admin' || user.role === 'co-admin') && (
+                        <button 
+                          onClick={() => {
+                            setAppMode('admin');
+                            setIsUserMenuOpen(false);
+                          }}
+                          className="w-full text-left px-4 py-2 text-xs sm:text-sm text-amber-900 hover:bg-amber-50 font-bold transition-colors flex items-center gap-2 border-t border-gray-100"
+                        >
+                          <Shield size={15} className="text-amber-700" />
+                          Trang quản trị
+                        </button>
+                      )}
                       <button 
                         onClick={() => {
                           logout();
                           setIsUserMenuOpen(false);
+                          setAppMode('iching');
                         }}
                         className="w-full text-left px-4 py-2 text-xs sm:text-sm text-red-650 hover:bg-red-50 font-bold transition-colors flex items-center gap-2 border-t border-gray-100"
                       >
@@ -351,6 +365,14 @@ function App() {
             </div>
             <h1 className="text-4xl md:text-6xl font-[Lora] font-bold text-purple-955 mb-6 drop-shadow-sm">Mệnh Số Tử Vi</h1>
             <p className="text-purple-800/80 max-w-2xl mx-auto text-base md:text-lg font-medium">Hệ thống lập lá số 12 Cung mệnh bàn, định hướng cát hung và luận giải Vận Hạn.</p>
+            </header>
+        ) : appMode === 'admin' ? (
+            <header className="text-center mb-10 pt-2 animate-in fade-in duration-300">
+            <div className="inline-block p-4 rounded-full bg-slate-800 border border-slate-700 mb-4">
+                <Shield className="text-amber-500" size={32} />
+            </div>
+            <h1 className="text-3xl md:text-5xl font-[Lora] font-bold text-slate-100 mb-2">Hệ Thống Quản Trị Viên</h1>
+            <p className="text-slate-400 max-w-xl mx-auto text-xs sm:text-sm font-medium">Bảo mật hệ thống, cấu hình thành viên, giải quyết khiếu nại và giám sát tài nguyên AI.</p>
             </header>
         ) : null}
 
@@ -503,6 +525,13 @@ function App() {
         {user && appMode === 'profile' && (
             <div className="animate-in fade-in duration-500">
                 <ProfileBoard />
+            </div>
+        )}
+
+        {/* SYSTEM 6: ADMIN DASHBOARD */}
+        {user && (user.role === 'admin' || user.role === 'co-admin') && appMode === 'admin' && (
+            <div className="animate-in fade-in duration-500">
+                <AdminDashboard />
             </div>
         )}
         </React.Suspense>

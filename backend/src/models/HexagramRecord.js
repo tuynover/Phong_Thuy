@@ -75,6 +75,15 @@ const hexagramRecordSchema = new mongoose.Schema({
   analysisSnapshot: {
     type: Object,
     default: null
+  },
+  status: {
+    type: String,
+    enum: ['active', 'locked'],
+    default: 'active'
+  },
+  isDeleted: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true,

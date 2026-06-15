@@ -43,7 +43,12 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(res.data.user));
       return { success: true, user: res.data.user };
     } catch (err) {
-      return { success: false, message: err.response?.data?.message || 'Login failed' };
+      return { 
+        success: false, 
+        error: err.response?.data?.error || null, 
+        message: err.response?.data?.message || 'Đăng nhập thất bại', 
+        data: err.response?.data || null 
+      };
     }
   };
 
@@ -55,7 +60,12 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(res.data.user));
       return { success: true, user: res.data.user };
     } catch (err) {
-      return { success: false, message: err.response?.data?.message || 'Google login failed' };
+      return { 
+        success: false, 
+        error: err.response?.data?.error || null, 
+        message: err.response?.data?.message || 'Đăng nhập Google thất bại', 
+        data: err.response?.data || null 
+      };
     }
   };
 
@@ -67,7 +77,12 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(res.data.user));
       return { success: true, user: res.data.user };
     } catch (err) {
-      return { success: false, message: err.response?.data?.message || 'Registration failed' };
+      return { 
+        success: false, 
+        error: err.response?.data?.error || null, 
+        message: err.response?.data?.message || 'Đăng ký thất bại', 
+        data: err.response?.data || null 
+      };
     }
   };
 

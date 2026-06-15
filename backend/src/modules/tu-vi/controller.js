@@ -239,7 +239,11 @@ class TuViController {
         return res.json(cachedHistory);
       }
 
-      const records = await TuViRecord.find({ userId })
+      const records = await TuViRecord.find({ 
+        userId, 
+        isDeleted: { $ne: true }, 
+        status: { $ne: 'locked' } 
+      })
         .sort({ createdAt: -1 })
         .select('-chartData.palaces -analysisSnapshot') // Cắt bớt phần hiển thị chi tiết khi tải list
         .limit(limit)

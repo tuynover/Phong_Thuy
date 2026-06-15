@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import Tooltip from './Tooltip';
 import { hexagramDictionary } from '../data/hexagrams';
 import ReactMarkdown from 'react-markdown';
@@ -8,6 +8,7 @@ import AiChatWidget from './AiChatWidget';
 import { parseMarkdownSections } from '../utils/markdownParser';
 import SectionRenderer from './SectionRenderer';
 import { getColorClass, getBgColorClass, HAO_VI_MEANING, getChiOnly } from '../utils/phongthuyHelpers';
+import { AuthContext } from '../context/AuthContext';
 
 const LineVisual = ({ type, isRed }) => {
     const colorClass = isRed ? 'bg-red-600' : 'bg-blue-800';
@@ -64,6 +65,7 @@ const HexagramVisual = ({ lines }) => {
 };
 
 const DivinationBoard = ({ result, onUpdateResult, user, onRequireLogin }) => {
+    const { setUser } = useContext(AuthContext);
     const [selectedHex, setSelectedHex] = useState(null);
     const [isChatOpen, setIsChatOpen] = useState(false);
     const [isInterpreting, setIsInterpreting] = useState(false);
@@ -194,6 +196,16 @@ const DivinationBoard = ({ result, onUpdateResult, user, onRequireLogin }) => {
                         content: currentText
                     }
                 });
+
+                // Decrement credit locally for non-admin accounts
+                if (user && user.role !== 'admin' && user.role !== 'co-admin') {
+                    setUser(prev => {
+                        if (!prev) return prev;
+                        const updated = { ...prev, credits: Math.max(0, prev.credits - 1) };
+                        localStorage.setItem('user', JSON.stringify(updated));
+                        return updated;
+                    });
+                }
             }
         }
     };
@@ -607,26 +619,78 @@ const DivinationBoard = ({ result, onUpdateResult, user, onRequireLogin }) => {
                             <ScrollText className="text-amber-800" size={24} />
                             Thầy Dịch Giải Chi Tiết
                         </h3>
-                        <p className="text-gray-600 mb-6 leading-relaxed text-sm">
-                            Bạn có muốn khởi động luận giải chi tiết cho quẻ này không? Quá trình phân tích chuyên sâu Lục Hào, sinh khắc và Nhật Nguyệt sẽ mất khoảng 10-20 giây.
-                        </p>
-                        <div className="flex justify-end gap-3">
-                            <button 
-                                onClick={() => setShowConfirmModal(false)}
-                                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 font-semibold text-sm transition-colors"
-                            >
-                                Hủy bỏ
-                            </button>
-                            <button 
-                                onClick={() => {
-                                    setShowConfirmModal(false);
-                                    triggerLuanGiai();
-                                }}
-                                className="px-5 py-2 bg-amber-800 text-white rounded-xl hover:bg-amber-900 font-semibold text-sm transition-colors shadow-md hover:shadow-lg"
-                            >
-                                Bắt đầu dịch giải
-                            </button>
-                        </div>
+                        {(() => {
+                            const isStaff = user?.role === 'admin' || user?.role === 'co-admin';
+                            const hasCredits = isStaff || (user?.credits > 0);
+
+                            if (isStaff) {
+                                return (
+                                    <>
+                                        <p className="text-gray-600 mb-6 leading-relaxed text-sm">
+                                            Tài khoản quản trị viên có quyền luận giải không giới hạn. Bạn có chắc chắn muốn bắt đầu dịch giải chi tiết quẻ này không?
+                                        </p>
+                                        <div className="flex justify-end gap-3">
+                                            <button 
+                                                onClick={() => setShowConfirmModal(false)}
+                                                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 font-semibold text-sm transition-colors"
+                                            >
+                                                Hủy bỏ
+                                            </button>
+                                            <button 
+                                                onClick={() => {
+                                                    setShowConfirmModal(false);
+                                                    triggerLuanGiai();
+                                                }}
+                                                className="px-5 py-2 bg-amber-800 text-white rounded-xl hover:bg-amber-900 font-semibold text-sm transition-colors shadow-md hover:shadow-lg"
+                                            >
+                                                Bắt đầu dịch giải
+                                            </button>
+                                        </div>
+                                    </>
+                                );
+                            } else if (hasCredits) {
+                                return (
+                                    <>
+                                        <p className="text-gray-600 mb-6 leading-relaxed text-sm">
+                                            Bạn còn <span className="font-extrabold text-amber-800">{user?.credits}</span> lượt sử dụng. Mỗi lần luận giải AI sẽ tiêu thụ <span className="font-bold">1 credit</span>. Bạn có chắc chắn muốn bắt đầu dịch giải chi tiết quẻ này không?
+                                        </p>
+                                        <div className="flex justify-end gap-3">
+                                            <button 
+                                                onClick={() => setShowConfirmModal(false)}
+                                                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 font-semibold text-sm transition-colors"
+                                            >
+                                                Hủy bỏ
+                                            </button>
+                                            <button 
+                                                onClick={() => {
+                                                    setShowConfirmModal(false);
+                                                    triggerLuanGiai();
+                                                }}
+                                                className="px-5 py-2 bg-amber-800 text-white rounded-xl hover:bg-amber-900 font-semibold text-sm transition-colors shadow-md hover:shadow-lg"
+                                            >
+                                                Bắt đầu dịch giải
+                                            </button>
+                                        </div>
+                                    </>
+                                );
+                            } else {
+                                return (
+                                    <>
+                                        <p className="text-red-700 bg-red-50 border border-red-100 p-3.5 rounded-xl mb-6 leading-relaxed text-xs sm:text-sm font-medium">
+                                            ⚠️ Bạn đã hết lượt luận giải (0 credits). Mỗi ngày hệ thống sẽ tự động tặng bạn +1 credit. Hãy liên hệ Ban Quản Trị hoặc nâng cấp để tiếp tục sử dụng AI luận giải chi tiết.
+                                        </p>
+                                        <div className="flex justify-end">
+                                            <button 
+                                                onClick={() => setShowConfirmModal(false)}
+                                                className="px-5 py-2 bg-gray-800 text-white rounded-xl hover:bg-gray-900 font-semibold text-sm transition-colors shadow-md"
+                                            >
+                                                Đóng
+                                            </button>
+                                        </div>
+                                    </>
+                                );
+                            }
+                        })()}
                     </div>
                 </div>
             )}

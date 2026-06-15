@@ -15,5 +15,6 @@ router.post('/login', authLimiter, AuthController.login);
 router.post('/google', authLimiter, AuthController.googleLogin);
 router.put('/bazi', AuthController.updateBaziInfo);
 router.put('/profile', AuthController.updateProfile);
+router.post('/appeal', AuthController.submitAppeal);
 
 module.exports = router;

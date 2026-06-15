@@ -17,7 +17,7 @@ import {
 } from '../utils/phongthuyHelpers';
 
 const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
-    const { user } = useContext(AuthContext);
+    const { user, setUser } = useContext(AuthContext);
 
     // AI Interpretation States
     const [interpretation, setInterpretation] = useState('');
@@ -446,6 +446,16 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
                         content: currentText
                     }
                 });
+
+                // Decrement credit locally for non-admin accounts
+                if (user && user.role !== 'admin' && user.role !== 'co-admin') {
+                    setUser(prev => {
+                        if (!prev) return prev;
+                        const updated = { ...prev, credits: Math.max(0, prev.credits - 1) };
+                        localStorage.setItem('user', JSON.stringify(updated));
+                        return updated;
+                    });
+                }
             }
         }
     };
@@ -698,23 +708,72 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
                             <ScrollText className="text-blue-800" size={24} />
                             Thầy Luận Giải Bát Tự
                         </h3>
-                        <p className="text-gray-600 mb-6 leading-relaxed text-sm">
-                            Bạn có muốn khởi động luận giải chi tiết lá số Bát Tự của mình không? Quá trình phân tích Tứ Trụ, cân bằng Ngũ Hành và dự thảo Đại Vận sẽ mất khoảng 15-25 giây.
-                        </p>
-                        <div className="flex justify-end gap-3">
-                            <button 
-                                onClick={() => setShowConfirmModal(false)}
-                                className="px-4 py-2 text-gray-500 hover:bg-gray-100 rounded-lg font-bold text-sm transition-colors"
-                            >
-                                Hủy bỏ
-                            </button>
-                            <button 
-                                onClick={triggerLuanGiai}
-                                className="px-5 py-2 bg-blue-800 hover:bg-blue-900 text-white rounded-lg font-bold text-sm shadow transition-colors"
-                            >
-                                Đồng ý
-                            </button>
-                        </div>
+                        {(() => {
+                            const isStaff = user?.role === 'admin' || user?.role === 'co-admin';
+                            const hasCredits = isStaff || (user?.credits > 0);
+
+                            if (isStaff) {
+                                return (
+                                    <>
+                                        <p className="text-gray-600 mb-6 leading-relaxed text-sm">
+                                            Tài khoản quản trị viên có quyền luận giải không giới hạn. Bạn có chắc chắn muốn khởi động luận giải chi tiết lá số Bát Tự của mình không?
+                                        </p>
+                                        <div className="flex justify-end gap-3">
+                                            <button 
+                                                onClick={() => setShowConfirmModal(false)}
+                                                className="px-4 py-2 text-gray-500 hover:bg-gray-100 rounded-lg font-bold text-sm transition-colors"
+                                            >
+                                                Hủy bỏ
+                                            </button>
+                                            <button 
+                                                onClick={triggerLuanGiai}
+                                                className="px-5 py-2 bg-blue-800 hover:bg-blue-900 text-white rounded-lg font-bold text-sm shadow transition-colors"
+                                            >
+                                                Đồng ý
+                                            </button>
+                                        </div>
+                                    </>
+                                );
+                            } else if (hasCredits) {
+                                return (
+                                    <>
+                                        <p className="text-gray-600 mb-6 leading-relaxed text-sm">
+                                            Bạn còn <span className="font-extrabold text-blue-850">{user?.credits}</span> lượt sử dụng. Mỗi lần luận giải AI sẽ tiêu thụ <span className="font-bold">1 credit</span>. Bạn có chắc chắn muốn khởi động luận giải chi tiết lá số Bát Tự của mình không?
+                                        </p>
+                                        <div className="flex justify-end gap-3">
+                                            <button 
+                                                onClick={() => setShowConfirmModal(false)}
+                                                className="px-4 py-2 text-gray-500 hover:bg-gray-100 rounded-lg font-bold text-sm transition-colors"
+                                            >
+                                                Hủy bỏ
+                                            </button>
+                                            <button 
+                                                onClick={triggerLuanGiai}
+                                                className="px-5 py-2 bg-blue-800 hover:bg-blue-900 text-white rounded-lg font-bold text-sm shadow transition-colors"
+                                            >
+                                                Đồng ý
+                                            </button>
+                                        </div>
+                                    </>
+                                );
+                            } else {
+                                return (
+                                    <>
+                                        <p className="text-red-750 bg-red-50 border border-red-100 p-3.5 rounded-xl mb-6 leading-relaxed text-xs sm:text-sm font-medium">
+                                            ⚠️ Bạn đã hết lượt luận giải (0 credits). Mỗi ngày hệ thống sẽ tự động tặng bạn +1 credit. Hãy liên hệ Ban Quản Trị hoặc nâng cấp để tiếp tục luận giải Bát Tự chi tiết.
+                                        </p>
+                                        <div className="flex justify-end">
+                                            <button 
+                                                onClick={() => setShowConfirmModal(false)}
+                                                className="px-5 py-2 bg-gray-800 text-white rounded-lg font-bold text-sm transition-colors shadow"
+                                            >
+                                                Đóng
+                                            </button>
+                                        </div>
+                                    </>
+                                );
+                            }
+                        })()}
                     </div>
                 </div>
             )}

@@ -1,6 +1,7 @@
 const express = require('express');
 const TuViController = require('./controller');
 const rateLimiter = require('../../middleware/rateLimiter');
+const creditCheck = require('../../middleware/creditCheck');
 const router = express.Router();
 
 // Giới hạn 30 lượt lập mệnh bàn Tử Vi trong 15 phút
@@ -21,7 +22,7 @@ const aiLimiter = rateLimiter({
 router.post('/', calcLimiter, TuViController.createChart);
 
 // 2. Yêu cầu giải đoán AI (Async via Queue)
-router.post('/:id/interpret', aiLimiter, TuViController.interpret);
+router.post('/:id/interpret', aiLimiter, creditCheck, TuViController.interpret);
 
 // 3. Kiểm tra tiến trình ngầm (Job Status)
 router.get('/jobs/:jobId', TuViController.checkJobStatus);

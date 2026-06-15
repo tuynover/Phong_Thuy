@@ -29,6 +29,28 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 1 // 1 for Male, 0 for Female
   },
+  role: {
+    type: String,
+    enum: ['admin', 'co-admin', 'vip', 'user'],
+    default: 'user'
+  },
+  credits: {
+    type: Number,
+    default: 1
+  },
+  status: {
+    type: String,
+    enum: ['active', 'locked'],
+    default: 'active'
+  },
+  lockReason: {
+    type: String,
+    default: ''
+  },
+  isDeleted: {
+    type: Boolean,
+    default: false
+  },
   baziInfo: {
     day: Number,
     month: Number,

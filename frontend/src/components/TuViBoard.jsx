@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, User, Sparkles, MessageCircle, RefreshCw, Star, ShieldAlert } from 'lucide-react';
+import React, { useState, useEffect, useContext } from 'react';
+import { Calendar, Clock, User, Sparkles, MessageCircle, RefreshCw, Star, ShieldAlert, ScrollText } from 'lucide-react';
 import { createTuViChart, interpretTuVi, checkTuViJob, getTuViRecord, rateTuVi } from '../services/api';
 import ChartRenderer from './ChartRenderer';
 import SectionRenderer from './SectionRenderer';
 import AiChatWidget from './AiChatWidget';
 import UpdateBaziModal from './UpdateBaziModal';
+import { AuthContext } from '../context/AuthContext';
 
 // 12 Can Chi Giờ Sinh trong Tử Vi
 const LUNAR_HOURS = [
@@ -23,11 +24,14 @@ const LUNAR_HOURS = [
 ];
 
 const TuViBoard = ({ user, onRequireLogin, historicalRecordId }) => {
+  const { user: ctxUser, setUser } = useContext(AuthContext);
+  const activeUser = ctxUser || user;
   const [day, setDay] = useState('');
   const [month, setMonth] = useState('');
   const [year, setYear] = useState('');
   const [hourIndex, setHourIndex] = useState(0);
   const [gender, setGender] = useState('Nam');
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -77,7 +81,7 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId }) => {
 
     const parsedHour = parseInt(hourStr) || 0;
     const hourIndexConverted = getTuViHourIndex(parsedHour);
-    const uid = user?.id || user?._id || 'guest';
+    const uid = activeUser?.id || activeUser?._id || 'guest';
 
     try {
       setLoadingStep('Đang lập mệnh bàn Tử Vi...');
@@ -95,17 +99,17 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId }) => {
   };
 
   const handleViewOwnTuVi = async () => {
-    if (!user) {
+    if (!activeUser) {
       onRequireLogin();
       return;
     }
-    if (!user.baziInfo || !user.baziInfo.day) {
+    if (!activeUser.baziInfo || !activeUser.baziInfo.day) {
       setIsUpdateBaziOpen(true);
       return;
     }
-    const { day: d, month: m, year: y, hour: h } = user.baziInfo;
+    const { day: d, month: m, year: y, hour: h } = activeUser.baziInfo;
     const formattedDate = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-    const genderStr = user.gender === 0 ? 'Nữ' : 'Nam';
+    const genderStr = activeUser.gender === 0 ? 'Nữ' : 'Nam';
     await handleTuViComplete(formattedDate, String(h), genderStr);
   };
 
@@ -140,7 +144,7 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId }) => {
     setFeedback('');
 
     const formattedDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    const uid = user?.id || user?._id || 'guest';
+    const uid = activeUser?.id || activeUser?._id || 'guest';
 
     try {
       setLoadingStep('Đang lập mệnh bàn Tử Vi...');
@@ -154,6 +158,17 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId }) => {
       console.error(err);
       setError(err.response?.data?.error || 'Lỗi xảy ra trong quá trình lập lá số.');
       setLoading(false);
+    }
+  };
+
+  const decrementCreditLocally = () => {
+    if (activeUser && activeUser.role !== 'admin' && activeUser.role !== 'co-admin') {
+      setUser(prev => {
+        if (!prev) return prev;
+        const updated = { ...prev, credits: Math.max(0, prev.credits - 1) };
+        localStorage.setItem('user', JSON.stringify(updated));
+        return updated;
+      });
     }
   };
 
@@ -176,6 +191,7 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId }) => {
           setResult(recordRes.data);
           setLoading(false);
           setLoadingAi(false);
+          decrementCreditLocally();
         } else if (job.status === 'failed') {
           clearInterval(interval);
           setError(job.error || 'Quá trình giải đoán AI ngầm bị lỗi.');
@@ -192,7 +208,7 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId }) => {
   };
 
   const handleTriggerInterpretation = async () => {
-    if (!user) {
+    if (!activeUser) {
       if (onRequireLogin) onRequireLogin();
       return;
     }
@@ -213,6 +229,7 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId }) => {
         }));
         setProgress(100);
         setLoadingAi(false);
+        decrementCreditLocally();
       } else {
         const jobId = interpretRes.data.jobId;
         pollJobStatus(jobId, result._id);
@@ -222,6 +239,14 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId }) => {
       setError(err.response?.data?.error || 'Lỗi gửi yêu cầu luận giải AI.');
       setLoadingAi(false);
     }
+  };
+
+  const handleAILuanGiaiClick = () => {
+    if (!activeUser) {
+      if (onRequireLogin) onRequireLogin();
+      return;
+    }
+    setShowConfirmModal(true);
   };
 
   const handleRatingSubmit = async (e) => {
@@ -239,7 +264,7 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId }) => {
     <div className="w-full max-w-5xl mx-auto px-4 pb-24 font-sans">
       
       {/* Xem lá số của bản thân */}
-      {user && !result && !loading && (
+      {activeUser && !result && !loading && (
         <div className="max-w-xl mx-auto mb-10 text-center animate-in fade-in duration-300">
           <button 
             type="button"
@@ -416,7 +441,7 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId }) => {
                 </p>
                 <button
                   type="button"
-                  onClick={handleTriggerInterpretation}
+                  onClick={handleAILuanGiaiClick}
                   disabled={loadingAi}
                   className="bg-gradient-to-r from-purple-600 to-indigo-700 hover:from-purple-700 hover:to-indigo-800 text-white font-extrabold px-8 py-3.5 rounded-2xl shadow-lg shadow-purple-500/20 transition-transform active:scale-[0.98] w-full flex items-center justify-center gap-2"
                 >
@@ -505,7 +530,7 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId }) => {
           {!isChatOpen && (
             <button
               onClick={() => {
-                if (!user) onRequireLogin();
+                if (!activeUser) onRequireLogin();
                 else setIsChatOpen(true);
               }}
               className="fixed bottom-4 md:bottom-8 right-4 md:right-8 z-50 flex items-center gap-2 px-6 py-3.5 rounded-full shadow-2xl transition-all duration-300 font-extrabold border bg-gradient-to-r from-purple-800 to-indigo-950 hover:from-purple-900 hover:to-stone-900 text-white border-purple-700 hover:scale-105 hover:shadow-purple-900/40 uppercase text-xs tracking-wider animate-pulse"
@@ -519,11 +544,96 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId }) => {
           <AiChatWidget
             type="tu_vi"
             recordId={result._id}
-            userId={user?.id || user?._id || 'guest'}
+            userId={activeUser?.id || activeUser?._id || 'guest'}
             isOpen={isChatOpen}
             setIsOpen={setIsChatOpen}
           />
         </>
+      )}
+
+      {/* CONFIRMATION MODAL */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[99999] flex justify-center items-center p-4">
+          <div className="bg-white max-w-md w-full rounded-2xl shadow-2xl p-6 relative overflow-hidden animate-in fade-in zoom-in-95 duration-200 border-t-8 border-t-purple-800">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-purple-800 opacity-5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+            <h3 className="text-xl font-bold text-purple-950 mb-3 flex items-center gap-2">
+              <ScrollText className="text-purple-850" size={24} />
+              Thầy Luận Giải Tử Vi
+            </h3>
+            {(() => {
+              const isStaff = activeUser?.role === 'admin' || activeUser?.role === 'co-admin';
+              const hasCredits = isStaff || (activeUser?.credits > 0);
+
+              if (isStaff) {
+                return (
+                  <>
+                    <p className="text-gray-600 mb-6 leading-relaxed text-sm">
+                      Tài khoản quản trị viên có quyền luận giải không giới hạn. Bạn có chắc chắn muốn khởi động luận giải chi tiết lá số Tử Vi này không?
+                    </p>
+                    <div className="flex justify-end gap-3">
+                      <button 
+                        onClick={() => setShowConfirmModal(false)}
+                        className="px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 font-semibold text-sm transition-colors"
+                      >
+                        Hủy bỏ
+                      </button>
+                      <button 
+                        onClick={() => {
+                          setShowConfirmModal(false);
+                          handleTriggerInterpretation();
+                        }}
+                        className="px-5 py-2 bg-purple-800 text-white rounded-xl hover:bg-purple-900 font-semibold text-sm transition-colors shadow-md hover:shadow-lg"
+                      >
+                        Bắt đầu luận giải
+                      </button>
+                    </div>
+                  </>
+                );
+              } else if (hasCredits) {
+                return (
+                  <>
+                    <p className="text-gray-600 mb-6 leading-relaxed text-sm">
+                      Bạn còn <span className="font-extrabold text-purple-800">{activeUser?.credits}</span> lượt sử dụng. Mỗi lần luận giải AI sẽ tiêu thụ <span className="font-bold">1 credit</span>. Bạn có chắc chắn muốn khởi động luận giải chi tiết lá số Tử Vi này không?
+                    </p>
+                    <div className="flex justify-end gap-3">
+                      <button 
+                        onClick={() => setShowConfirmModal(false)}
+                        className="px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 font-semibold text-sm transition-colors"
+                      >
+                        Hủy bỏ
+                      </button>
+                      <button 
+                        onClick={() => {
+                          setShowConfirmModal(false);
+                          handleTriggerInterpretation();
+                        }}
+                        className="px-5 py-2 bg-purple-800 text-white rounded-xl hover:bg-purple-900 font-semibold text-sm transition-colors shadow-md hover:shadow-lg"
+                      >
+                        Bắt đầu luận giải
+                      </button>
+                    </div>
+                  </>
+                );
+              } else {
+                return (
+                  <>
+                    <p className="text-red-700 bg-red-50 border border-red-100 p-3.5 rounded-xl mb-6 leading-relaxed text-xs sm:text-sm font-medium">
+                      ⚠️ Bạn đã hết lượt luận giải (0 credits). Mỗi ngày hệ thống sẽ tự động tặng bạn +1 credit. Hãy liên hệ Ban Quản Trị hoặc nâng cấp để tiếp tục sử dụng AI luận giải chi tiết Tử Vi.
+                    </p>
+                    <div className="flex justify-end">
+                      <button 
+                        onClick={() => setShowConfirmModal(false)}
+                        className="px-5 py-2 bg-gray-800 text-white rounded-xl hover:bg-gray-900 font-semibold text-sm transition-colors shadow-md"
+                      >
+                        Đóng
+                      </button>
+                    </div>
+                  </>
+                );
+              }
+            })()}
+          </div>
+        </div>
       )}
 
       {/* Modal Cập nhật thông tin sinh thần Bát tự / Tử vi dùng chung */}

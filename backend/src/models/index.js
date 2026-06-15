@@ -6,6 +6,9 @@ const HexagramMessage = require('./HexagramMessage');
 const HexagramRecord = require('./HexagramRecord');
 const User = require('./User');
 const Notification = require('./Notification');
+const SystemLog = require('./SystemLog');
+const BanAppeal = require('./BanAppeal');
+const AdminNotification = require('./AdminNotification');
 
 module.exports = {
     BaziConversation,
@@ -15,5 +18,8 @@ module.exports = {
     HexagramMessage,
     HexagramRecord,
     User,
-    Notification
+    Notification,
+    SystemLog,
+    BanAppeal,
+    AdminNotification
 };

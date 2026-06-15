@@ -3,6 +3,7 @@ const router = express.Router();
 const HistoryController = require('../controllers/HistoryController');
 const AiInterpretationController = require('../controllers/AiInterpretationController');
 const rateLimiter = require('../middleware/rateLimiter');
+const creditCheck = require('../middleware/creditCheck');
 
 // Giới hạn 20 lượt gọi AI luận giải hoặc chat hỏi đáp trong 15 phút
 const aiLimiter = rateLimiter({
@@ -23,8 +24,8 @@ router.get('/hexagrams/:id/messages', HistoryController.getHexagramChatMessages)
 router.get('/bazi/:id/messages', HistoryController.getBaziChatMessages);
 
 // Backwards compatibility for legacy chat and stream endpoints
-router.post('/hexagrams/:id/interpret', aiLimiter, AiInterpretationController.interpretHexagram);
-router.post('/bazi/:id/interpret', aiLimiter, AiInterpretationController.interpretBazi);
+router.post('/hexagrams/:id/interpret', aiLimiter, creditCheck, AiInterpretationController.interpretHexagram);
+router.post('/bazi/:id/interpret', aiLimiter, creditCheck, AiInterpretationController.interpretBazi);
 router.post('/hexagrams/:id/chat', aiLimiter, AiInterpretationController.chatHexagram);
 router.post('/bazi/:id/chat', aiLimiter, AiInterpretationController.chatBazi);
 

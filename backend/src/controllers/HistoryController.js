@@ -75,7 +75,11 @@ class HistoryController {
                 return res.json(cachedData);
             }
             
-            const records = await HexagramRecord.find({ userId })
+            const records = await HexagramRecord.find({ 
+                userId, 
+                isDeleted: { $ne: true }, 
+                status: { $ne: 'locked' } 
+            })
                 .sort({ createdAt: -1 })
                 .select('-analysisSnapshot')
                 .limit(limit)
@@ -116,7 +120,11 @@ class HistoryController {
                 return res.json(cachedData);
             }
             
-            const records = await BaziRecord.find({ userId })
+            const records = await BaziRecord.find({ 
+                userId, 
+                isDeleted: { $ne: true }, 
+                status: { $ne: 'locked' } 
+            })
                 .sort({ createdAt: -1 })
                 .select('-analysisSnapshot')
                 .limit(limit)

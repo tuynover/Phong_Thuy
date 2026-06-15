@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const logger = require('../services/LoggerService');
+const SystemLog = require('../models/SystemLog');
 
 // In-memory cache for user ID to email/name to optimize database queries
 const userCache = new Map();
@@ -20,8 +21,9 @@ async function resolveUser(req) {
     if (token) {
         try {
             const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
-            if (decoded && decoded.user && decoded.user.id) {
-                userId = decoded.user.id;
+            const uid = decoded.user?.id || decoded.id;
+            if (uid) {
+                userId = uid;
             }
         } catch (err) {
             // Token invalid or expired, ignore
@@ -79,21 +81,31 @@ function getActionName(req) {
     if (path.includes('/auth/register')) return 'Đăng ký tài khoản';
     if (path.includes('/auth/login')) return 'Đăng nhập';
     if (path.includes('/auth/bazi') && method === 'PUT') return 'Cập nhật Giờ Sinh Bát Tự';
+    if (path.includes('/auth/profile') && method === 'PUT') return 'Cập nhật Hồ Sơ Cá Nhân';
+    if (path.includes('/auth/appeal') && method === 'POST') return 'Gửi Đơn Khiếu Nại Tài Khoản';
     
     if (path.includes('/calculate')) return 'Gieo Quẻ Kinh Dịch';
-    if (path.includes('/bazi/analyze')) return 'Luận Giải Bản Đồ Bát Tự';
+    if (path.includes('/bazi/analyze')) return 'Lập Bản Đồ Bát Tự';
+    if (path.includes('/tu-vi') && method === 'POST' && !path.includes('/interpret') && !path.includes('/chat')) return 'Lập Bản Đồ Tử Vi';
     
     if (path.includes('/history/hexagrams') && method === 'GET') return 'Xem Lịch Sử Kinh Dịch';
     if (path.includes('/history/bazi') && method === 'GET') return 'Xem Lịch Sử Bát Tự';
+    if (path.includes('/tu-vi/history') && method === 'GET') return 'Xem Lịch Sử Tử Vi';
     
     if (path.includes('/history/hexagrams') && path.includes('/rate') && method === 'PUT') return 'Đánh giá Quẻ Dịch';
     if (path.includes('/history/bazi') && path.includes('/rate') && method === 'PUT') return 'Đánh giá Lá Số Bát Tự';
+    if (path.includes('/tu-vi') && path.includes('/rate') && method === 'PUT') return 'Đánh giá Lá Số Tử Vi';
     
     if (path.includes('/history/hexagrams') && path.includes('/link') && method === 'PUT') return 'Liên kết Lịch Sử Quẻ';
     if (path.includes('/history/bazi') && path.includes('/link') && method === 'PUT') return 'Liên kết Lịch Sử Bát Tự';
     
-    if (path.includes('/history/hexagrams') && path.includes('/interpret') && method === 'POST') return 'Thầy Dịch Giải Kinh Dịch';
-    if (path.includes('/history/bazi') && path.includes('/interpret') && method === 'POST') return 'Thầy Luận Giải Bát Tự';
+    if (path.includes('/history/hexagrams') && path.includes('/interpret') && method === 'POST') return 'Luận Giải Kinh Dịch AI';
+    if (path.includes('/history/bazi') && path.includes('/interpret') && method === 'POST') return 'Luận Giải Bát Tự AI';
+    if (path.includes('/tu-vi') && path.includes('/interpret') && method === 'POST') return 'Luận Giải Tử Vi AI';
+    
+    if (path.includes('/history/hexagrams') && path.includes('/chat') && method === 'POST') return 'Trò Chuyện Quẻ Dịch AI';
+    if (path.includes('/history/bazi') && path.includes('/chat') && method === 'POST') return 'Trò Chuyện Bát Tự AI';
+    if (path.includes('/tu-vi') && path.includes('/chat') && method === 'POST') return 'Trò Chuyện Tử Vi AI';
     
     if (path.includes('/concept/')) return 'Tra Cứu Học Thuật Phong Thủy';
 
@@ -139,6 +151,26 @@ const auditLogger = async (req, res, next) => {
         const duration = Date.now() - start;
         const finalContext = { ...context, duration };
         const status = res.statusCode;
+
+        // Asynchronously save log entry to MongoDB
+        SystemLog.create({
+            userId: userDetails.id || 'anonymous',
+            email: userDetails.email || '',
+            name: userDetails.name || '',
+            ip: ip,
+            action: action,
+            method: req.method,
+            path: req.originalUrl,
+            statusCode: status,
+            duration: duration,
+            requestParams: req.body && Object.keys(req.body).length > 0 ? (() => {
+                const bodyCopy = { ...req.body };
+                if (bodyCopy.password) bodyCopy.password = '******';
+                return bodyCopy;
+            })() : null
+        }).catch(err => {
+            console.error('[auditLogger] Failed to write SystemLog:', err);
+        });
 
         if (status >= 500) {
             logger.error(`Thất bại: Phản hồi lỗi hệ thống (${status})`, null, finalContext);

@@ -40,3 +40,24 @@ export const getTuViRecord = (id) => axios.get(`${API_URL}/tu-vi/${id}`);
 export const rateTuVi = (id, rating, feedback) => axios.put(`${API_URL}/tu-vi/${id}/rate`, { rating, feedback });
 export const getTuViChatMessages = (id, page = 1, limit = 20) => axios.get(`${API_URL}/tu-vi/${id}/messages?page=${page}&limit=${limit}`);
 
+// Admin API Endpoints
+export const getAdminUsers = (params) => axios.get(`${API_URL}/admin/users`, { params });
+export const updateAdminUserRole = (id, role) => axios.put(`${API_URL}/admin/users/${id}/role`, { role });
+export const updateAdminUserCredits = (id, credits, mode) => axios.put(`${API_URL}/admin/users/${id}/credits`, { credits, mode });
+export const lockAdminUser = (id, reason) => axios.post(`${API_URL}/admin/users/${id}/lock`, { reason });
+export const unlockAdminUser = (id) => axios.post(`${API_URL}/admin/users/${id}/unlock`);
+export const deleteAdminUser = (id) => axios.delete(`${API_URL}/admin/users/${id}`);
+
+export const getAdminCalculations = (params) => axios.get(`${API_URL}/admin/calculations`, { params });
+export const lockAdminCalculation = (type, id) => axios.post(`${API_URL}/admin/calculations/${type}/${id}/lock`);
+export const unlockAdminCalculation = (type, id) => axios.post(`${API_URL}/admin/calculations/${type}/${id}/unlock`);
+export const deleteAdminCalculation = (type, id) => axios.delete(`${API_URL}/admin/calculations/${type}/${id}`);
+
+export const getAdminAnalytics = (startDate, endDate) => axios.get(`${API_URL}/admin/analytics`, { params: { startDate, endDate } });
+export const getAdminNotifications = () => axios.get(`${API_URL}/admin/notifications`);
+export const markAdminNotificationRead = (id) => axios.put(`${API_URL}/admin/notifications/${id}/read`);
+export const resolveAdminAppeal = (id, action) => axios.post(`${API_URL}/admin/appeals/${id}/resolve`, { action });
+
+// Ban Appeal
+export const submitBanAppeal = (userId, email, reason, message) => axios.post(`${API_URL}/auth/appeal`, { userId, email, reason, message });
+

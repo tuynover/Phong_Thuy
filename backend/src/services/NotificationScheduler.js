@@ -3,6 +3,10 @@ const User = require('../models/User');
 const Notification = require('../models/Notification');
 const EmailService = require('./EmailService');
 const { Solar } = require('lunar-javascript');
+const SystemLog = require('../models/SystemLog');
+const AdminNotification = require('../models/AdminNotification');
+const BaziRecord = require('../models/BaziRecord');
+const TuViRecord = require('../modules/tu-vi/models/TuViRecord');
 
 function getDayDifference(date1, date2) {
     const d1 = new Date(date1.getTime() + 7 * 60 * 60 * 1000);
@@ -15,6 +19,19 @@ function getDayDifference(date1, date2) {
 
 async function checkAndSendNotifications() {
     console.log('[NotificationScheduler] Running daily check...');
+    
+    // 1. Daily Credit Increment (+1 for user/vip)
+    try {
+        console.log('[NotificationScheduler] Running daily credit increment...');
+        const creditRes = await User.updateMany(
+            { role: { $in: ['user', 'vip'] }, status: 'active', isDeleted: false },
+            { $inc: { credits: 1 } }
+        );
+        console.log(`[NotificationScheduler] Daily credit increment completed. Updated ${creditRes.modifiedCount || 0} users.`);
+    } catch (err) {
+        console.error('[NotificationScheduler] Error during daily credit increment:', err);
+    }
+
     try {
         const today = new Date();
         const todaySolar = Solar.fromDate(today);
@@ -138,7 +155,97 @@ async function checkAndSendNotifications() {
 }
 
 let checkInterval = null;
+let spikeInterval = null;
 let lastRunDay = null;
+
+async function scanResourceSpikes() {
+    console.log('[NotificationScheduler] Scanning for request and token spikes...');
+    try {
+        const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
+
+        // 1. Scan for request spikes by IP
+        const requestSpikes = await SystemLog.aggregate([
+            { $match: { timestamp: { $gte: tenMinutesAgo } } },
+            { $group: { _id: '$ip', count: { $sum: 1 }, userId: { $first: '$userId' } } },
+            { $match: { count: { $gt: 150 } } }
+        ]);
+
+        for (const spike of requestSpikes) {
+            const title = `Phát hiện đột biến Request từ IP: ${spike._id}`;
+            const message = `Địa chỉ IP ${spike._id} (User ID: ${spike.userId}) đã thực hiện ${spike.count} yêu cầu trong 10 phút qua.`;
+            
+            const exists = await AdminNotification.findOne({
+                type: 'request_spike',
+                title,
+                createdAt: { $gte: new Date(Date.now() - 30 * 60 * 1000) }
+            });
+
+            if (!exists) {
+                await AdminNotification.create({
+                    type: 'request_spike',
+                    title,
+                    message,
+                    metadata: { ip: spike._id, count: spike.count, userId: spike.userId }
+                });
+                console.warn(`[NotificationScheduler] Alert: Request spike detected for ${spike._id}`);
+            }
+        }
+
+        // 2. Scan for token spikes by user
+        const recordsSearch = [
+            { model: BaziRecord, name: 'Bát Tự' },
+            { model: HexagramRecord, name: 'Kinh Dịch' },
+            { model: TuViRecord, name: 'Tử Vi' }
+        ];
+
+        const tokenSpikeThreshold = 30000; // 30,000 tokens
+        const userTokenMap = new Map();
+
+        for (const { model, name } of recordsSearch) {
+            const items = await model.find({
+                createdAt: { $gte: tenMinutesAgo },
+                'aiInterpretation.tokensUsed': { $gt: 0 }
+            }).select('userId aiInterpretation.tokensUsed').lean();
+
+            for (const item of items) {
+                const uid = item.userId;
+                if (!uid || uid === 'guest' || uid === 'anonymous') continue;
+                const tokens = item.aiInterpretation.tokensUsed || 0;
+                const current = userTokenMap.get(uid) || { tokens: 0, sources: [] };
+                current.tokens += tokens;
+                if (!current.sources.includes(name)) current.sources.push(name);
+                userTokenMap.set(uid, current);
+            }
+        }
+
+        for (const [uid, data] of userTokenMap.entries()) {
+            if (data.tokens > tokenSpikeThreshold) {
+                const userObj = await User.findById(uid).select('email name').lean();
+                const userDisplay = userObj ? `${userObj.email} (${userObj.name})` : uid;
+                const title = `Phát hiện tiêu dùng Token đột biến từ User: ${userDisplay}`;
+                const message = `Người dùng ${userDisplay} đã tiêu thụ ${data.tokens} tokens trong 10 phút qua từ các chức năng: ${data.sources.join(', ')}.`;
+
+                const exists = await AdminNotification.findOne({
+                    type: 'token_spike',
+                    title,
+                    createdAt: { $gte: new Date(Date.now() - 30 * 60 * 1000) }
+                });
+
+                if (!exists) {
+                    await AdminNotification.create({
+                        type: 'token_spike',
+                        title,
+                        message,
+                        metadata: { userId: uid, tokens: data.tokens, sources: data.sources }
+                    });
+                    console.warn(`[NotificationScheduler] Alert: Token spike detected for user ${uid}`);
+                }
+            }
+        }
+    } catch (error) {
+        console.error('[NotificationScheduler] Error during resource spike scanning:', error);
+    }
+}
 
 function startScheduler() {
     const todayStr = new Date().toLocaleDateString('en-GB', { timeZone: 'Asia/Ho_Chi_Minh' });
@@ -146,8 +253,10 @@ function startScheduler() {
     
     setTimeout(() => {
         checkAndSendNotifications();
+        scanResourceSpikes();
     }, 5000);
 
+    // Daily check every hour
     checkInterval = setInterval(() => {
         const currentDayStr = new Date().toLocaleDateString('en-GB', { timeZone: 'Asia/Ho_Chi_Minh' });
         if (lastRunDay !== currentDayStr) {
@@ -155,6 +264,11 @@ function startScheduler() {
             lastRunDay = currentDayStr;
         }
     }, 3600000); 
+
+    // Spike check every 10 minutes
+    spikeInterval = setInterval(() => {
+        scanResourceSpikes();
+    }, 600000);
     
     console.log('[NotificationScheduler] Started successfully.');
 }
@@ -163,6 +277,10 @@ function stopScheduler() {
     if (checkInterval) {
         clearInterval(checkInterval);
         checkInterval = null;
+    }
+    if (spikeInterval) {
+        clearInterval(spikeInterval);
+        spikeInterval = null;
     }
 }
 
