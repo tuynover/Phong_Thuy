@@ -30,7 +30,37 @@ const updateByIdFlex = async (Model, id, update) => {
     return record;
 };
 
+const formatCanChiSpacing = (str) => {
+    if (!str) return str;
+    return str.replace(/(Giáp|Ất|Bính|Đinh|Mậu|Kỷ|Canh|Tân|Nhâm|Quý)(?=[A-Z])/g, '$1 ');
+};
+
 class HistoryController {
+    static async getHexagramRecord(req, res) {
+        try {
+            const { id } = req.params;
+            const record = await findByIdFlex(HexagramRecord, id);
+            if (!record) {
+                return res.status(404).json({ error: 'Không tìm thấy bản ghi quẻ dịch.' });
+            }
+
+            const recordObj = record.toObject();
+            const reconstructed = HexagramDataService.reconstructLines(recordObj);
+            const enhancedRecord = {
+                ...recordObj,
+                primaryLines: reconstructed.primaryLines,
+                secondaryLines: reconstructed.secondaryLines,
+                primaryHexagram: reconstructed.primaryHexagram,
+                transformedHexagram: reconstructed.transformedHexagram
+            };
+
+            return res.json(enhancedRecord);
+        } catch (error) {
+            console.error('getHexagramRecord error:', error);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+    }
+
     static async getHexagramHistory(req, res) {
         try {
             const userId = req.params.userId;
@@ -92,10 +122,28 @@ class HistoryController {
                 .limit(limit)
                 .lean();
                 
+            const formattedRecords = records.map(record => {
+                if (record.tietKhiTimeline) {
+                    record.tietKhiTimeline = formatCanChiSpacing(record.tietKhiTimeline);
+                }
+                if (record.baziData) {
+                    if (record.baziData.lunarDateStr) {
+                        record.baziData.lunarDateStr = formatCanChiSpacing(record.baziData.lunarDateStr);
+                    }
+                    if (record.baziData.lunarYear) {
+                        record.baziData.lunarYear = formatCanChiSpacing(record.baziData.lunarYear);
+                    }
+                    if (record.baziData.tietKhiTimeline) {
+                        record.baziData.tietKhiTimeline = formatCanChiSpacing(record.baziData.tietKhiTimeline);
+                    }
+                }
+                return record;
+            });
+                
             // Cache for 5 minutes
-            MemoryCacheService.set(cacheKey, records, 300000);
+            MemoryCacheService.set(cacheKey, formattedRecords, 300000);
             
-            return res.json(records);
+            return res.json(formattedRecords);
         } catch (error) {
             console.error(error);
             return res.status(500).json({ error: 'Server error' });

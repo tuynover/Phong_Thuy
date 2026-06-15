@@ -7,6 +7,7 @@ const authRoutes = require('./auth');
 const historyRoutes = require('./history');
 const aiRoutes = require('./ai');
 const tuViRoutes = require('../modules/tu-vi/routes');
+const notificationRoutes = require('./notifications');
 const rateLimiter = require('../middleware/rateLimiter');
 
 // Giới hạn 30 lượt lập số lý/quẻ dịch trong 15 phút
@@ -20,6 +21,7 @@ router.use('/auth', authRoutes);
 router.use('/history', historyRoutes);
 router.use('/ai', aiRoutes);
 router.use('/tu-vi', tuViRoutes);
+router.use('/notifications', notificationRoutes);
 
 // Support both unified and legacy namespaces for calculate
 router.post('/hexagrams/calculate', calcLimiter, DivinationController.calculate);

@@ -465,7 +465,7 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
                         </div>
                         {data.lunarDateStr && (
                             <div className="bg-white/10 px-4 py-2 rounded-xl backdrop-blur-md border border-white/10">
-                                <span className="text-blue-300 font-bold mr-2">ÂM LỊCH:</span> {data.lunarDateStr}
+                                <span className="text-blue-300 font-bold mr-2">ÂM LỊCH:</span> {data.lunarDateStr.replace(/(Giáp|Ất|Bính|Đinh|Mậu|Kỷ|Canh|Tân|Nhâm|Quý)(?=[A-Z])/g, '$1 ')}
                             </div>
                         )}
                     </div>
@@ -480,7 +480,7 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
                         <span>Cấu Trúc Tứ Trụ (Mệnh Cục)</span>
                         {data.lunarYear && (
                             <span className="text-xs font-semibold bg-blue-50 text-blue-800 px-3 py-1 rounded-full border border-blue-100 italic normal-case">
-                                * Lưu ý: Trụ Năm Bát Tự đổi tại Lập Xuân. Năm sinh Âm lịch của bạn là năm {data.lunarYear}.
+                                * Lưu ý: Trụ Năm Bát Tự đổi tại Lập Xuân. Năm sinh Âm lịch của bạn là năm {data.lunarYear.replace(/(Giáp|Ất|Bính|Đinh|Mậu|Kỷ|Canh|Tân|Nhâm|Quý)(?=[A-Z])/g, '$1 ')}.
                             </span>
                         )}
                     </h3>

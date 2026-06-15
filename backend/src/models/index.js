@@ -5,6 +5,7 @@ const HexagramConversation = require('./HexagramConversation');
 const HexagramMessage = require('./HexagramMessage');
 const HexagramRecord = require('./HexagramRecord');
 const User = require('./User');
+const Notification = require('./Notification');
 
 module.exports = {
     BaziConversation,
@@ -13,5 +14,6 @@ module.exports = {
     HexagramConversation,
     HexagramMessage,
     HexagramRecord,
-    User
+    User,
+    Notification
 };

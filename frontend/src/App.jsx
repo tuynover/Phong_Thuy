@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import CoinToss from './components/CoinToss';
+import ProfileBoard from './components/ProfileBoard';
 import ManualInput from './components/ManualInput';
 import MaiHoaInput from './components/MaiHoaInput';
 import DivinationBoard from './components/DivinationBoard';
@@ -9,8 +10,9 @@ const TuViBoard = React.lazy(() => import('./components/TuViBoard'));
 const HistoryBoard = React.lazy(() => import('./components/HistoryBoard'));
 import AuthModal from './components/AuthModal';
 import UpdateBaziModal from './components/UpdateBaziModal';
+import NotificationBell from './components/NotificationBell';
 import { AuthContext } from './context/AuthContext';
-import { calculateDivination, analyzeBazi, linkHexagram, linkBazi } from './services/api';
+import { calculateDivination, analyzeBazi, linkHexagram, linkBazi, getHexagramRecord } from './services/api';
 import { UserCircle, LogOut, CalendarDays } from 'lucide-react';
 import { Lunar } from 'lunar-javascript';
 
@@ -20,6 +22,18 @@ function App() {
   // Auth
   const { user, logout } = useContext(AuthContext);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const userMenuRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setIsUserMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Tu Vi State
   const [historicalTuViId, setHistoricalTuViId] = useState(null);
@@ -173,6 +187,18 @@ function App() {
     setAppMode('tuvi');
   };
 
+  const handleNotificationClick = async (hexagramId) => {
+    setLoading(true);
+    try {
+      const res = await getHexagramRecord(hexagramId);
+      handleViewHistoricalHexagram(res.data);
+    } catch (err) {
+      console.error("Lỗi khi tải thông tin quẻ từ thông báo:", err);
+      alert("Không thể mở chi tiết quẻ này.");
+    }
+    setLoading(false);
+  };
+
   const handleViewOwnBazi = async () => {
     if (!user) return;
     if (!user.baziInfo || !user.baziInfo.day) {
@@ -186,67 +212,104 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8f5f0] py-6 md:py-12 px-4 font-sans text-neutral-800">
-      <div className="max-w-6xl mx-auto space-y-8">
-        
-        {/* TOP NAVIGATION TABS & AUTH */}
-        <div className="relative w-full flex flex-col md:flex-row justify-center items-center gap-4 md:gap-0 mb-8 md:mb-12 mt-2 md:mt-4">
-            {/* AUTH BUTTON */}
-            <div className="md:absolute md:top-0 md:right-0 z-50 order-first md:order-none">
-              {user ? (
-                <div className="flex items-center gap-2 md:gap-4 bg-white px-3 py-1.5 md:px-4 md:py-2 rounded-full shadow-sm border border-gray-100 text-sm md:text-base">
-                  <div className="flex items-center gap-1 md:gap-2 text-amber-900 font-medium">
-                    <UserCircle size={18} className="md:w-5 md:h-5" />
-                    <span className="hidden sm:inline">{user.name}</span>
-                  </div>
-                  <button onClick={logout} className="text-gray-400 hover:text-red-500 transition-colors" title="Đăng xuất">
-                    <LogOut size={18} className="md:w-5 md:h-5" />
-                  </button>
-                </div>
-              ) : (
-                <button 
-                  onClick={() => setIsAuthModalOpen(true)}
-                  className="flex items-center gap-1 md:gap-2 bg-amber-800 text-white px-4 py-1.5 md:px-6 md:py-2 rounded-full shadow hover:bg-amber-900 font-medium transition-colors text-sm md:text-base"
-                >
-                  <UserCircle size={18} className="md:w-5 md:h-5" />
-                  <span className="hidden sm:inline">Đăng Nhập</span>
-                </button>
-              )}
-            </div>
+    <div className="min-h-screen bg-[#f8f5f0] font-sans text-neutral-800 flex flex-col">
+      {/* GLOBAL STICKY HEADER */}
+      <header className="sticky top-0 z-40 w-full bg-[#f8f5f0]/95 backdrop-blur-md border-b border-gray-200/50 py-2.5 px-3 sm:px-4 shadow-sm">
+        <div className="max-w-6xl mx-auto flex items-center justify-center gap-3 sm:gap-6 w-full">
+          
+          {/* TABS (Horizontal Layout) */}
+          <div className="bg-white p-1 flex gap-0.5 sm:gap-1 rounded-full shadow-sm border border-gray-200/50 justify-center items-center w-full sm:w-auto">
+            <button 
+              onClick={() => setAppMode('iching')} 
+              className={`flex-1 sm:flex-none px-2.5 py-1.5 sm:px-5 sm:py-2 rounded-full font-bold transition-all text-[11px] sm:text-xs md:text-sm tracking-wider font-[Montserrat] uppercase ${appMode === 'iching' ? 'bg-amber-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-955 hover:bg-neutral-50'}`}
+            >
+              Dịch Lý
+            </button>
+            <button 
+              onClick={() => setAppMode('bazi')} 
+              className={`flex-1 sm:flex-none px-2.5 py-1.5 sm:px-5 sm:py-2 rounded-full font-bold transition-all text-[11px] sm:text-xs md:text-sm tracking-wider font-[Montserrat] uppercase ${appMode === 'bazi' ? 'bg-blue-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-955 hover:bg-neutral-50'}`}
+            >
+              Bát Tự
+            </button>
+            <button 
+              onClick={() => {
+                setHistoricalTuViId(null);
+                setAppMode('tuvi');
+              }} 
+              className={`flex-1 sm:flex-none px-2.5 py-1.5 sm:px-5 sm:py-2 rounded-full font-bold transition-all text-[11px] sm:text-xs md:text-sm tracking-wider font-[Montserrat] uppercase ${appMode === 'tuvi' ? 'bg-purple-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-955 hover:bg-neutral-50'}`}
+            >
+              Tử Vi
+            </button>
+            {user && (
+              <button 
+                onClick={() => setAppMode('history')} 
+                className={`flex-1 sm:flex-none px-2.5 py-1.5 sm:px-5 sm:py-2 rounded-full font-bold transition-all text-[11px] sm:text-xs md:text-sm tracking-wider font-[Montserrat] uppercase ${appMode === 'history' ? 'bg-slate-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-955 hover:bg-neutral-50'}`}
+              >
+                Lịch Sử
+              </button>
+            )}
+          </div>
 
-            {/* TABS (Horizontal Layout) */}
-            <div className="bg-white p-1.5 md:p-2 flex gap-1 md:gap-2 rounded-full shadow border border-gray-100 justify-center w-[98%] sm:w-auto">
-                <button 
-                  onClick={() => setAppMode('iching')} 
-                  className={`flex-1 sm:flex-none px-3 py-2 md:px-8 md:py-3 rounded-full font-bold transition-all text-xs md:text-base ${appMode === 'iching' ? 'bg-amber-800 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50'}`}
-                >
-                  Dịch Lý
-                </button>
-                <button 
-                  onClick={() => setAppMode('bazi')} 
-                  className={`flex-1 sm:flex-none px-3 py-2 md:px-8 md:py-3 rounded-full font-bold transition-all text-xs md:text-base ${appMode === 'bazi' ? 'bg-blue-800 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50'}`}
-                >
-                  Bát Tự
-                </button>
-                <button 
-                  onClick={() => {
-                    setHistoricalTuViId(null);
-                    setAppMode('tuvi');
-                  }} 
-                  className={`flex-1 sm:flex-none px-3 py-2 md:px-8 md:py-3 rounded-full font-bold transition-all text-xs md:text-base ${appMode === 'tuvi' ? 'bg-purple-800 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50'}`}
-                >
-                  Tử Vi
-                </button>
-                {user && (
+          {/* AUTH SECTION */}
+          <div className="shrink-0 flex items-center" ref={userMenuRef}>
+            {user ? (
+              <div className="flex items-center gap-1.5 bg-white px-2 py-1 rounded-full shadow-sm border border-gray-200/50 text-xs sm:text-sm relative">
+                <NotificationBell onNotificationClick={handleNotificationClick} />
+                
+                {/* User Dropdown Toggle */}
+                <div className="relative">
                   <button 
-                    onClick={() => setAppMode('history')} 
-                    className={`flex-1 sm:flex-none px-3 py-2 md:px-8 md:py-3 rounded-full font-bold transition-all text-xs md:text-base ${appMode === 'history' ? 'bg-slate-800 text-white shadow-md' : 'text-gray-500 hover:bg-gray-50'}`}
+                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                    className="flex items-center gap-1 text-amber-900 font-semibold max-w-[80px] sm:max-w-none hover:text-amber-955 transition-colors focus:outline-none"
+                    title="Hồ sơ cá nhân"
                   >
-                    Lịch Sử
+                    <UserCircle size={18} className="text-amber-800 shrink-0" />
+                    <span className="hidden sm:inline truncate max-w-[100px]">{user.name}</span>
                   </button>
-                )}
-            </div>
+
+                  {isUserMenuOpen && (
+                    <div className="absolute right-0 mt-3 w-44 bg-white rounded-2xl shadow-xl border border-gray-150 z-50 overflow-hidden py-1 animate-in fade-in slide-in-from-top-2 duration-200">
+                      <button 
+                        onClick={() => {
+                          setAppMode('profile');
+                          setIsUserMenuOpen(false);
+                        }}
+                        className="w-full text-left px-4 py-2 text-xs sm:text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-955 font-bold transition-colors flex items-center gap-2"
+                      >
+                        <UserCircle size={15} className="text-amber-800" />
+                        Hồ sơ cá nhân
+                      </button>
+                      <button 
+                        onClick={() => {
+                          logout();
+                          setIsUserMenuOpen(false);
+                        }}
+                        className="w-full text-left px-4 py-2 text-xs sm:text-sm text-red-650 hover:bg-red-50 font-bold transition-colors flex items-center gap-2 border-t border-gray-100"
+                      >
+                        <LogOut size={15} />
+                        Đăng xuất
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <button 
+                onClick={() => setIsAuthModalOpen(true)}
+                className="flex items-center gap-1.5 bg-amber-800 hover:bg-amber-900 text-white px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-full shadow-sm hover:shadow transition-all duration-200 font-bold text-xs sm:text-sm"
+              >
+                <UserCircle size={16} className="shrink-0" />
+                <span className="hidden sm:inline">Đăng Nhập</span>
+              </button>
+            )}
+          </div>
+
         </div>
+      </header>
+
+      {/* MAIN CONTAINER */}
+      <div className="flex-1 w-full max-w-6xl mx-auto py-6 md:py-10 px-4 space-y-8">
+
 
         {/* HEADER */}
         {appMode === 'iching' ? (
@@ -256,7 +319,7 @@ function App() {
                     <div className="w-8 h-8 rounded-full bg-amber-800"></div>
                 </div>
             </div>
-            <h1 className="text-4xl md:text-6xl font-serif font-bold text-amber-950 mb-4 tracking-tight drop-shadow-sm">Kinh Dịch Lục Hào</h1>
+            <h1 className="text-4xl md:text-6xl font-[Lora] font-bold text-amber-950 mb-4 drop-shadow-sm">Kinh Dịch Lục Hào</h1>
             <p className="text-amber-800/80 max-w-2xl mx-auto text-base md:text-lg font-medium mb-6">Hệ thống gieo quẻ và luận giải diễn biến sự việc dựa trên nền tảng Âm Dương Ngũ Hành cổ học.</p>
             
             {!result && (
@@ -276,7 +339,7 @@ function App() {
                     <div className="w-8 h-8 rounded-full bg-blue-800"></div>
                 </div>
             </div>
-            <h1 className="text-4xl md:text-6xl font-serif font-bold text-blue-950 mb-6 tracking-tight drop-shadow-sm">Khoa Học Tử Bình</h1>
+            <h1 className="text-4xl md:text-6xl font-[Lora] font-bold text-blue-955 mb-6 drop-shadow-sm">Khoa Học Tử Bình</h1>
             <p className="text-blue-800/80 max-w-2xl mx-auto text-base md:text-lg font-medium">Hệ thống phân tích Tứ Trụ, đo lường Ngũ Hành và định Dụng Thần cải vận.</p>
             </header>
         ) : appMode === 'tuvi' ? (
@@ -286,7 +349,7 @@ function App() {
                     <div className="w-8 h-8 rounded-full bg-purple-800"></div>
                 </div>
             </div>
-            <h1 className="text-4xl md:text-6xl font-serif font-bold text-purple-950 mb-6 tracking-tight drop-shadow-sm">Mệnh Số Tử Vi</h1>
+            <h1 className="text-4xl md:text-6xl font-[Lora] font-bold text-purple-955 mb-6 drop-shadow-sm">Mệnh Số Tử Vi</h1>
             <p className="text-purple-800/80 max-w-2xl mx-auto text-base md:text-lg font-medium">Hệ thống lập lá số 12 Cung mệnh bàn, định hướng cát hung và luận giải Vận Hạn.</p>
             </header>
         ) : null}
@@ -433,6 +496,13 @@ function App() {
                     onViewBazi={handleViewHistoricalBazi} 
                     onViewTuVi={handleViewHistoricalTuVi}
                 />
+            </div>
+        )}
+
+        {/* SYSTEM 5: USER PROFILE */}
+        {user && appMode === 'profile' && (
+            <div className="animate-in fade-in duration-500">
+                <ProfileBoard />
             </div>
         )}
         </React.Suspense>

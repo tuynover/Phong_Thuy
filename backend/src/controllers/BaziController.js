@@ -2,6 +2,11 @@ const BaziAnalyzer = require('../services/BaziAnalyzer');
 const BaziRecord = require('../models/BaziRecord');
 const MemoryCacheService = require('../services/MemoryCacheService');
 
+const formatCanChiSpacing = (str) => {
+    if (!str) return str;
+    return str.replace(/(Giáp|Ất|Bính|Đinh|Mậu|Kỷ|Canh|Tân|Nhâm|Quý)(?=[A-Z])/g, '$1 ');
+};
+
 class BaziController {
     static async analyze(req, res) {
         try {
@@ -17,8 +22,12 @@ class BaziController {
             if (idempotencyKey) {
                 const dupRecord = await BaziRecord.findOne({ idempotencyKey });
                 if (dupRecord) {
+                    const baziData = { ...dupRecord.baziData };
+                    if (baziData.lunarDateStr) baziData.lunarDateStr = formatCanChiSpacing(baziData.lunarDateStr);
+                    if (baziData.lunarYear) baziData.lunarYear = formatCanChiSpacing(baziData.lunarYear);
+                    if (baziData.tietKhiTimeline) baziData.tietKhiTimeline = formatCanChiSpacing(baziData.tietKhiTimeline);
                     return res.json({ 
-                        ...dupRecord.baziData, 
+                        ...baziData, 
                         recordId: dupRecord._id, 
                         aiInterpretation: dupRecord.aiInterpretation 
                     });
@@ -35,8 +44,12 @@ class BaziController {
             });
 
             if (existingRecord) {
+                const baziData = { ...existingRecord.baziData };
+                if (baziData.lunarDateStr) baziData.lunarDateStr = formatCanChiSpacing(baziData.lunarDateStr);
+                if (baziData.lunarYear) baziData.lunarYear = formatCanChiSpacing(baziData.lunarYear);
+                if (baziData.tietKhiTimeline) baziData.tietKhiTimeline = formatCanChiSpacing(baziData.tietKhiTimeline);
                 return res.json({ 
-                    ...existingRecord.baziData, 
+                    ...baziData, 
                     recordId: existingRecord._id, 
                     aiInterpretation: existingRecord.aiInterpretation 
                 });

@@ -28,6 +28,10 @@ const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Backend is running on port ${PORT}`);
 
+  // Start notifications scheduler
+  const { startScheduler } = require('./services/NotificationScheduler');
+  startScheduler();
+
   // Start self-pinging to keep server awake on Render or other hosting providers
   const https = require('https');
   const http = require('http');

@@ -121,13 +121,16 @@ class AiInterpretationController {
                 sendSSE({ chunk: chunkText });
             }
 
-            // 4. Clean Markdown formatting & Estimate tokens using countTokens
-            const cleanedContent = AiService.cleanMarkdown(accumulatedText);
+            // 4. Clean Markdown formatting & Parse/strip Ứng Kỳ block
+            const { parseUngKyBlock } = require('../shared/utils/ungKyParser');
+            const { cleanedText: textWithoutUngKyTags, ungKyList } = parseUngKyBlock(accumulatedText, record.dateCast || new Date());
+            
+            const cleanedContent = AiService.cleanMarkdown(textWithoutUngKyTags);
             const promptTokens = await AiService.countTokens(prompt, { model: ACTIVE_MODEL });
             const completionTokens = await AiService.countTokens(cleanedContent, { model: ACTIVE_MODEL });
             const tokensUsed = promptTokens + completionTokens;
 
-            // 5. Update Database Record with rich metadata
+            // 5. Update Database Record with rich metadata and parsed Ứng Kỳ
             await updateByIdFlex(HexagramRecord, id, {
                 aiInterpretation: {
                     content: cleanedContent,
@@ -138,6 +141,7 @@ class AiInterpretationController {
                     completionTokens: completionTokens,
                     tokensUsed: tokensUsed
                 },
+                ungKy: ungKyList,
                 isGeneratingInterpretation: false
             });
 

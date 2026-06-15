@@ -87,6 +87,16 @@ Hãy viết luận giải bằng tiếng Việt, định dạng Markdown theo c�
 - ĐẶC BIỆT LƯU Ý: Phần này phải cực kỳ dài, chi tiết (tối thiểu 400 từ), tập trung cao độ đi đúng trọng tâm câu hỏi của người gieo quẻ ("${hexagramData.question}"). Tránh đưa ra những lời khuyên chung chung kiểu sáo rỗng.
 - Trực tiếp đưa ra câu trả lời cho sự việc (Có thành công không? Khi nào ứng nghiệm? Ứng kỳ cụ thể thế nào?).
 - Thiết lập sơ đồ chiến lược hành động cụ thể cho người hỏi: Nên làm gì vào thời điểm nào, hành vi tâm lý cần điều chỉnh ra sao để hóa giải hung sát, đón cát lành tốt nhất.
+
+### 5. Khối Dữ Liệu Ứng Kỳ (CHỈ KHI CÓ ỨNG KỲ THỜI GIAN)
+Nếu câu hỏi mang tính chất thời gian dài hạn và có thể dự kiến thời điểm xảy ra (ứng kỳ), hãy thêm khối cấu trúc ứng kỳ chính xác theo định dạng sau ở cuối cùng bài luận (không viết thêm chữ gì khác ngoài cấu trúc này):
+---UNG_KY_START---
+- ngày [Địa Chi] âm lịch (ví dụ: - ngày Dần âm lịch)
+- tháng [Địa Chi] âm lịch (ví dụ: - tháng Thân âm lịch)
+- ngày [Số] tháng [Số] âm lịch (ví dụ: - ngày 15 tháng 8 âm lịch)
+- tháng [Số] âm lịch (ví dụ: - tháng 10 âm lịch)
+---UNG_KY_END---
+Nếu câu hỏi ngắn hạn hoặc mang tính chất hiện tại/tức thời (ví dụ: "hôm nay tôi thế nào", "sức khỏe tôi", "tình thế hiện nay") hoặc không có thời gian rõ ràng, bạn BẮT BUỘC KHÔNG được ghi khối này (hoàn toàn bỏ qua, không ghi thẻ ---UNG_KY_START--- và ---UNG_KY_END---). Địa Chi chỉ dùng 1 trong 12 chi: Tý, Sửu, Dần, Mão, Thìn, Tị, Ngọ, Mùi, Thân, Dậu, Tuất, Hợi.
 `;
     }
 

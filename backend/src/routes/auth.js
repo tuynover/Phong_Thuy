@@ -12,6 +12,8 @@ const authLimiter = rateLimiter({
 
 router.post('/register', authLimiter, AuthController.register);
 router.post('/login', authLimiter, AuthController.login);
+router.post('/google', authLimiter, AuthController.googleLogin);
 router.put('/bazi', AuthController.updateBaziInfo);
+router.put('/profile', AuthController.updateProfile);
 
 module.exports = router;

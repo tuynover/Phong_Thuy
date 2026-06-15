@@ -15,9 +15,9 @@ const ZHI_VI = {
 const toVi = (hanStr) => {
     if (!hanStr) return '';
     let result = hanStr;
-    for (const [han, vi] of Object.entries(GAN_VI)) result = result.replace(han, vi);
+    for (const [han, vi] of Object.entries(GAN_VI)) result = result.replace(han, vi + ' ');
     for (const [han, vi] of Object.entries(ZHI_VI)) result = result.replace(han, vi);
-    return result;
+    return result.trim();
 };
 
 const THAP_THAN = {

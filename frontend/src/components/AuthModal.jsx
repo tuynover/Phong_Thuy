@@ -1,9 +1,8 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { X } from 'lucide-react';
 
 export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
-  const { login, register } = useContext(AuthContext);
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -18,6 +17,45 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
   const [useBazi, setUseBazi] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const handleGoogleLoginCallback = async (response) => {
+    setError('');
+    setLoading(true);
+    const res = await loginWithGoogle(response.credential);
+    setLoading(false);
+    if (res.success) {
+      onClose();
+      if (onLoginSuccess) onLoginSuccess(res.user);
+    } else {
+      setError(res.message);
+    }
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const timer = setTimeout(() => {
+      if (window.google) {
+        window.google.accounts.id.initialize({
+          client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || '',
+          callback: handleGoogleLoginCallback
+        });
+        const container = document.getElementById("google-signin-button");
+        if (container) {
+          window.google.accounts.id.renderButton(container, {
+            theme: "outline",
+            size: "large",
+            width: 320,
+            text: "signin_with"
+          });
+        }
+      }
+    }, 150);
+
+    return () => clearTimeout(timer);
+  }, [isOpen, isLogin]);
+
+  const { login, register, loginWithGoogle } = useContext(AuthContext);
 
   if (!isOpen) return null;
 
@@ -167,6 +205,15 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
             {loading ? 'Đang xử lý...' : (isLogin ? 'Đăng Nhập' : 'Đăng Ký')}
           </button>
         </form>
+
+        <div className="relative my-4 flex items-center justify-center">
+          <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200"></div></div>
+          <span className="relative bg-white px-3 text-xs text-gray-400 uppercase">Hoặc</span>
+        </div>
+
+        <div className="flex justify-center w-full mb-2">
+          <div id="google-signin-button" className="w-full flex justify-center"></div>
+        </div>
 
         <div className="mt-6 text-center text-sm text-gray-600">
           {isLogin ? "Chưa có tài khoản? " : "Đã có tài khoản? "}
