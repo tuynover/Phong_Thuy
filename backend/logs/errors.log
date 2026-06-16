@@ -328,3 +328,23 @@ Stack: Error: Wrong recipient, payload audience != requiredAudience
 [2026-06-16T13:12:48.981Z] [WARN] [User: test_user@example.com] [Action: Đăng nhập] [IP: ::1] [Duration: 121ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
 [2026-06-16T13:12:50.825Z] [WARN] [User: test_coadmin1@example.com (Test Co-Admin 1)] [Action: POST /api/admin/users/019ed08f-d4ec-77b3-a40f-e2abd87c6b02/lock] [IP: ::1] [Duration: 143ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
 [2026-06-16T13:12:50.946Z] [WARN] [User: test_coadmin1@example.com (Test Co-Admin 1)] [Action: POST /api/admin/users/019ed08f-d4aa-7da3-9479-ff5e191cc4ae/lock] [IP: ::1] [Duration: 118ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
+[2026-06-16T14:00:02.217Z] [WARN] [User: anonymous] [Action: Luận Giải Kinh Dịch AI] [IP: ::1] [Duration: 1ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (401)
+[2026-06-16T14:00:20.148Z] [WARN] [User: test_user@example.com (Test User)] [Action: Luận Giải Kinh Dịch AI] [IP: ::1] [Duration: 131ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (402)
+[2026-06-16T14:00:21.415Z] [WARN] [User: test_user@example.com] [Action: Đăng nhập] Đăng nhập thất bại: Tài khoản [test_user@example.com] đang bị khóa.
+[2026-06-16T14:00:21.472Z] [WARN] [User: test_user@example.com] [Action: Đăng nhập] [IP: ::1] [Duration: 116ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
+[2026-06-16T14:00:22.868Z] [WARN] [User: test_coadmin1@example.com (Test Co-Admin 1)] [Action: POST /api/admin/users/019ed0bb-5ce3-75d2-95b7-58e753776b39/lock] [IP: ::1] [Duration: 118ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
+[2026-06-16T14:00:22.995Z] [WARN] [User: test_coadmin1@example.com (Test Co-Admin 1)] [Action: POST /api/admin/users/019ed0bb-5ca9-7cc4-ad83-66f650909951/lock] [IP: ::1] [Duration: 124ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
+[2026-06-16T14:33:51.457Z] [WARN] [User: anonymous] [Action: Luận Giải Kinh Dịch AI] [IP: ::1] [Duration: 2ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (401)
+[2026-06-16T14:34:22.608Z] [WARN] [User: test_user@example.com (Test User)] [Action: Luận Giải Kinh Dịch AI] [IP: ::1] [Duration: 121ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (402)
+[2026-06-16T14:34:23.912Z] [WARN] [User: test_user@example.com] [Action: Đăng nhập] Đăng nhập thất bại: Tài khoản [test_user@example.com] đang bị khóa.
+[2026-06-16T14:34:24.021Z] [WARN] [User: test_user@example.com] [Action: Đăng nhập] [IP: ::1] [Duration: 169ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
+[2026-06-16T14:34:25.557Z] [WARN] [User: test_coadmin1@example.com (Test Co-Admin 1)] [Action: POST /api/admin/users/019ed0da-527b-7ba4-8f73-8fb05ea15322/lock] [IP: ::1] [Duration: 121ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
+[2026-06-16T14:34:25.692Z] [WARN] [User: test_coadmin1@example.com (Test Co-Admin 1)] [Action: POST /api/admin/users/019ed0da-5229-7aef-b6d4-07228e29aa2f/lock] [IP: ::1] [Duration: 131ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
+[2026-06-16T15:27:44.934Z] [WARN] [User: admin@admin.com] [Action: Đăng nhập] Đăng nhập thất bại: Mật khẩu không chính xác cho tài khoản [admin@admin.com].
+[2026-06-16T15:27:44.940Z] [WARN] [User: admin@admin.com] [Action: Đăng nhập] [IP: ::1] [Duration: 165ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (400)
+[2026-06-16T15:27:45.775Z] [WARN] [User: admin@admin.com] [Action: Đăng nhập] Đăng nhập thất bại: Mật khẩu không chính xác cho tài khoản [admin@admin.com].
+[2026-06-16T15:27:45.778Z] [WARN] [User: admin@admin.com] [Action: Đăng nhập] [IP: ::1] [Duration: 172ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (400)
+[2026-06-16T15:28:23.828Z] [WARN] [User: cobatuoc10@gmail.com] [Action: Đăng nhập Google] Đăng nhập Google thất bại: Tài khoản [cobatuoc10@gmail.com] đang bị khóa.
+[2026-06-16T15:28:23.886Z] [WARN] [User: anonymous] [Action: POST /api/auth/google] [IP: ::1] [Duration: 362ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
+[2026-06-16T15:29:30.126Z] [WARN] [User: trinhtuyen270804@gmail.com] [Action: Đăng nhập Google] Đăng nhập Google thất bại: Tài khoản [trinhtuyen270804@gmail.com] đang bị khóa.
+[2026-06-16T15:29:30.210Z] [WARN] [User: anonymous] [Action: POST /api/auth/google] [IP: ::1] [Duration: 150ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)

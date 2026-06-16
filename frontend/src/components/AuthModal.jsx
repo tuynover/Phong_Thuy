@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { X, AlertTriangle, Check } from 'lucide-react';
 import { submitBanAppeal } from '../services/api';
@@ -27,6 +27,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
   const [appealMessage, setAppealMessage] = useState('');
   const [appealSuccess, setAppealSuccess] = useState('');
   const [hasPendingAppeal, setHasPendingAppeal] = useState(false);
+  const googleButtonRef = useRef(null);
 
   const handleGoogleLoginCallback = async (response) => {
     setError('');
@@ -53,37 +54,39 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
     }
   };
 
+  // Effect 1: Reset state only when modal opens
   useEffect(() => {
-    if (!isOpen) return;
+    if (isOpen) {
+      setError('');
+      setAppealMode(false);
+      setAppealUserId('');
+      setAppealSuccess('');
+      setAppealMessage('');
+      setHasPendingAppeal(false);
+    }
+  }, [isOpen]);
 
-    // Reset state on open
-    setError('');
-    setAppealMode(false);
-    setAppealUserId('');
-    setAppealSuccess('');
-    setAppealMessage('');
-    setHasPendingAppeal(false);
+  // Effect 2: Initialize Google Login button when modal is open and isLogin or appealMode changes
+  useEffect(() => {
+    if (!isOpen || appealMode) return;
 
     const timer = setTimeout(() => {
-      if (window.google) {
+      if (window.google && googleButtonRef.current) {
         window.google.accounts.id.initialize({
           client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || '',
           callback: handleGoogleLoginCallback
         });
-        const container = document.getElementById("google-signin-button");
-        if (container) {
-          window.google.accounts.id.renderButton(container, {
-            theme: "outline",
-            size: "large",
-            width: 320,
-            text: "signin_with"
-          });
-        }
+        window.google.accounts.id.renderButton(googleButtonRef.current, {
+          theme: "outline",
+          size: "large",
+          width: 320,
+          text: "signin_with"
+        });
       }
     }, 150);
 
     return () => clearTimeout(timer);
-  }, [isOpen, isLogin]);
+  }, [isOpen, isLogin, appealMode, appealSuccess, appealUserId]);
 
   const { login, register, loginWithGoogle } = useContext(AuthContext);
 
@@ -339,7 +342,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
             </div>
 
             <div className="flex justify-center w-full mb-2">
-              <div id="google-signin-button" className="w-full flex justify-center"></div>
+              <div ref={googleButtonRef} className="w-full flex justify-center"></div>
             </div>
 
             <div className="mt-6 text-center text-sm text-gray-600">

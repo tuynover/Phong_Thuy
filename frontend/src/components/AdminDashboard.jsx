@@ -778,41 +778,74 @@ export default function AdminDashboard() {
                 <div className="w-10 h-10 border-4 border-slate-800 border-t-amber-500 rounded-full animate-spin"></div>
               </div>
             ) : analytics && analytics.userConsumption && analytics.userConsumption.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs sm:text-sm border-collapse">
-                  <thead>
-                    <tr className="border-b border-slate-800 text-slate-400 font-bold uppercase tracking-wider text-[11px]">
-                      <th className="pb-3 pr-2">Hội Viên</th>
-                      <th className="pb-3 text-center">Token AI</th>
-                      <th className="pb-3 text-center">Kinh Dịch</th>
-                      <th className="pb-3 text-center">Bát Tự</th>
-                      <th className="pb-3 text-center">Tử Vi</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-850">
-                    {analytics.userConsumption.map((uc, index) => (
-                      <tr key={index} className="hover:bg-slate-900/50 transition-colors">
-                        <td className="py-3.5 pr-2">
+              <>
+                {/* Desktop view */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full text-left text-xs sm:text-sm border-collapse">
+                    <thead>
+                      <tr className="border-b border-slate-800 text-slate-400 font-bold uppercase tracking-wider text-[11px]">
+                        <th className="pb-3 pr-2">Hội Viên</th>
+                        <th className="pb-3 text-center">Token AI</th>
+                        <th className="pb-3 text-center">Kinh Dịch</th>
+                        <th className="pb-3 text-center">Bát Tự</th>
+                        <th className="pb-3 text-center">Tử Vi</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-850">
+                      {analytics.userConsumption.map((uc, index) => (
+                        <tr key={index} className="hover:bg-slate-900/50 transition-colors">
+                          <td className="py-3.5 pr-2">
+                            <button
+                              type="button"
+                              onClick={() => handleUserClick(uc.userId)}
+                              className="font-bold text-slate-200 hover:text-amber-500 text-left transition-colors"
+                            >
+                              {uc.name}
+                            </button>
+                            <div className="text-[11px] text-slate-550">{uc.email}</div>
+                          </td>
+                          <td className="py-3.5 text-center font-extrabold text-purple-400">
+                            {uc.tokens.toLocaleString()}
+                          </td>
+                          <td className="py-3.5 text-center text-slate-300">{uc.iching}</td>
+                          <td className="py-3.5 text-center text-slate-300">{uc.bazi}</td>
+                          <td className="py-3.5 text-center text-slate-300">{uc.tuvi}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile view */}
+                <div className="block md:hidden divide-y divide-slate-850 space-y-3">
+                  {analytics.userConsumption.map((uc, index) => (
+                    <div key={index} className="pt-3 first:pt-0 space-y-2">
+                      <div className="flex justify-between items-start">
+                        <div>
                           <button
                             type="button"
                             onClick={() => handleUserClick(uc.userId)}
-                            className="font-bold text-slate-200 hover:text-amber-500 text-left transition-colors"
+                            className="font-bold text-slate-200 hover:text-amber-500 text-left transition-colors text-sm"
                           >
                             {uc.name}
                           </button>
-                          <div className="text-[11px] text-slate-550">{uc.email}</div>
-                        </td>
-                        <td className="py-3.5 text-center font-extrabold text-purple-400">
-                          {uc.tokens.toLocaleString()}
-                        </td>
-                        <td className="py-3.5 text-center text-slate-300">{uc.iching}</td>
-                        <td className="py-3.5 text-center text-slate-300">{uc.bazi}</td>
-                        <td className="py-3.5 text-center text-slate-300">{uc.tuvi}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                          <div className="text-[11px] text-slate-500">{uc.email}</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm font-extrabold text-purple-400">{uc.tokens.toLocaleString()} tokens</div>
+                        </div>
+                      </div>
+                      <div className="flex gap-2 text-[10px] text-slate-450 border-t border-slate-800/40 pt-2">
+                        <span>Kinh Dịch: <strong className="text-slate-300">{uc.iching}</strong></span>
+                        <span className="text-slate-700">|</span>
+                        <span>Bát Tự: <strong className="text-slate-300">{uc.bazi}</strong></span>
+                        <span className="text-slate-700">|</span>
+                        <span>Tử Vi: <strong className="text-slate-300">{uc.tuvi}</strong></span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
             ) : (
               <div className="text-center py-10 text-slate-500 text-sm">
                 Chưa có dữ liệu tiêu thụ tài nguyên của hội viên.
@@ -898,7 +931,8 @@ export default function AdminDashboard() {
             </div>
           ) : users.length > 0 ? (
             <div className="bg-slate-950/20 border border-slate-800 rounded-3xl overflow-hidden">
-              <div className="overflow-x-auto">
+              {/* Desktop view */}
+              <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-left text-xs sm:text-sm border-collapse">
                   <thead>
                     <tr className="border-b border-slate-800 bg-slate-950/60 text-slate-400 font-bold uppercase tracking-wider text-[11px]">
@@ -918,7 +952,7 @@ export default function AdminDashboard() {
                             <button
                               type="button"
                               onClick={() => handleUserClick(u._id)}
-                              className="font-bold text-slate-200 hover:text-amber-500 text-left transition-colors"
+                              className="font-bold text-slate-200 hover:text-amber-505 text-left transition-colors"
                             >
                               {u.name}
                             </button>
@@ -952,7 +986,7 @@ export default function AdminDashboard() {
                                     setCreditChange('');
                                     setCreditMode('add');
                                   }}
-                                  className="p-1 hover:bg-slate-800 rounded text-slate-400 hover:text-amber-500 transition-colors"
+                                  className="p-1 hover:bg-slate-800 rounded text-slate-400 hover:text-amber-550 transition-colors"
                                   title="Điều chỉnh Credit"
                                 >
                                   <Coins size={14} />
@@ -962,7 +996,7 @@ export default function AdminDashboard() {
                           </td>
                           <td className="py-4 px-3 text-center">
                             {u.isDeleted ? (
-                              <span className="text-[10px] uppercase font-extrabold bg-red-950/60 text-red-500 border border-red-900/40 px-2 py-0.5 rounded">
+                              <span className="text-[10px] uppercase font-extrabold bg-red-955/60 text-red-500 border border-red-900/40 px-2 py-0.5 rounded">
                                 Đã xóa
                               </span>
                             ) : u.status === 'locked' ? (
@@ -1006,7 +1040,7 @@ export default function AdminDashboard() {
                                         setLockReason('');
                                         setIsLockModalOpen(true);
                                       }}
-                                      className="p-1.5 hover:bg-amber-950/60 text-slate-400 hover:text-amber-550 border border-slate-800 hover:border-amber-900/40 rounded-lg transition-all"
+                                      className="p-1.5 hover:bg-amber-955/60 text-slate-400 hover:text-amber-555 border border-slate-800 hover:border-amber-900/40 rounded-lg transition-all"
                                       title="Khóa tài khoản"
                                     >
                                       <Lock size={14} />
@@ -1033,10 +1067,138 @@ export default function AdminDashboard() {
                 </table>
               </div>
 
+              {/* Mobile view */}
+              <div className="block md:hidden divide-y divide-slate-850 p-4 space-y-4 bg-slate-900/40">
+                {users.map((u) => {
+                  const managed = canManage(u);
+                  return (
+                    <div key={u._id} className="pt-4 first:pt-0 space-y-3">
+                      {/* Name & Role */}
+                      <div className="flex justify-between items-start gap-3">
+                        <div className="min-w-0">
+                          <button
+                            type="button"
+                            onClick={() => handleUserClick(u._id)}
+                            className="font-bold text-slate-200 hover:text-amber-500 text-left transition-colors text-sm break-all font-serif"
+                          >
+                            {u.name}
+                          </button>
+                          <div className="text-[11px] text-slate-500 break-all">{u.email}</div>
+                          {u.phone && <div className="text-[10px] text-slate-400 mt-0.5">SĐT: {u.phone}</div>}
+                        </div>
+                        <div className="shrink-0 text-right">
+                          {managed ? (
+                            <select
+                              value={u.role}
+                              onChange={(e) => handleRoleChange(u._id, e.target.value)}
+                              className="bg-slate-955 border border-slate-800 text-[11px] rounded-lg px-2 py-1 text-slate-300 focus:outline-none focus:border-amber-500 font-semibold"
+                            >
+                              <option value="user">User</option>
+                              <option value="vip">Vip</option>
+                              {currentUser.role === 'admin' && <option value="co-admin">Co-Admin</option>}
+                            </select>
+                          ) : (
+                            <span className="font-extrabold uppercase text-[10px] px-2 py-0.5 rounded bg-slate-850 text-slate-400 border border-slate-700">
+                              {u.role}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Credits & Status */}
+                      <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-800/30">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-slate-400">Credits:</span>
+                          <span className="font-mono font-bold text-amber-500">{u.credits}</span>
+                          {managed && (
+                            <button
+                              onClick={() => {
+                                setSelectedUser(u);
+                                setCreditChange('');
+                                setCreditMode('add');
+                              }}
+                              className="p-1 hover:bg-slate-800 rounded text-slate-400 hover:text-amber-550 transition-colors"
+                              title="Điều chỉnh Credit"
+                            >
+                              <Coins size={12} />
+                            </button>
+                          )}
+                        </div>
+
+                        <div>
+                          {u.isDeleted ? (
+                            <span className="text-[10px] uppercase font-extrabold bg-red-955/60 text-red-500 border border-red-900/40 px-2 py-0.5 rounded">
+                              Đã xóa
+                            </span>
+                          ) : u.status === 'locked' ? (
+                            <span
+                              className="text-[10px] uppercase font-extrabold bg-amber-955/60 text-amber-500 border border-amber-900/40 px-2 py-0.5 rounded cursor-help"
+                              title={`Lý do: ${u.lockReason || 'Không có lý do'}`}
+                            >
+                              Bị Khóa
+                            </span>
+                          ) : (
+                            <span className="text-[10px] uppercase font-extrabold bg-emerald-950/60 text-emerald-500 border border-emerald-900/40 px-2 py-0.5 rounded">
+                              Hoạt động
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Actions */}
+                      {managed && (
+                        <div className="flex items-center justify-end gap-2 pt-2.5 border-t border-slate-800/30">
+                          {u.isDeleted ? (
+                            <button
+                              onClick={() => handleRestoreUser(u)}
+                              className="px-3 py-1 bg-emerald-800 hover:bg-emerald-700 text-white rounded-lg text-[11px] font-bold transition-colors"
+                              title="Khôi phục tài khoản"
+                            >
+                              Khôi phục
+                            </button>
+                          ) : (
+                            <>
+                              {u.status === 'locked' ? (
+                                <button
+                                  onClick={() => handleUnlockUser(u)}
+                                  className="flex items-center gap-1 px-2.5 py-1 hover:bg-emerald-955/60 text-emerald-500 border border-emerald-900/40 rounded-lg text-[11px] font-semibold transition-all"
+                                  title="Mở khóa tài khoản"
+                                >
+                                  <Unlock size={11} /> Mở khóa
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() => {
+                                    setSelectedUser(u);
+                                    setLockReason('');
+                                    setIsLockModalOpen(true);
+                                  }}
+                                  className="flex items-center gap-1 px-2.5 py-1 hover:bg-amber-955/60 text-amber-500 border border-amber-900/40 rounded-lg text-[11px] font-semibold transition-all"
+                                  title="Khóa tài khoản"
+                                >
+                                  <Lock size={11} /> Khóa
+                                </button>
+                              )}
+                              <button
+                                onClick={() => handleDeleteUser(u)}
+                                className="flex items-center gap-1 px-2.5 py-1 hover:bg-red-950/60 text-red-500 border border-red-900/40 rounded-lg text-[11px] font-semibold transition-all"
+                                title="Xóa tài khoản"
+                              >
+                                <Trash2 size={11} /> Xóa
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
               {/* PAGINATION CONTROLS */}
-              <div className="bg-slate-950/60 border-t border-slate-850 px-4 py-3 flex items-center justify-between">
+              <div className="bg-slate-950/60 border-t border-slate-850 px-4 py-3 flex flex-wrap gap-4 items-center justify-between">
                 <span className="text-xs text-slate-400">
-                  Hiển thị <span className="font-bold text-slate-200">{users.length}</span> / <span className="font-bold text-slate-200">{userTotal}</span> hội viên
+                  Hiển thị <span className="font-bold text-slate-200">{users.length}</span> / <span className="font-bold text-slate-200">{userTotal}</span> thành viên
                 </span>
                 <div className="flex items-center gap-2">
                   <button
@@ -1066,7 +1228,7 @@ export default function AdminDashboard() {
           {/* CREDIT ADJUSTMENT MODAL SUB-INTERFACE */}
           {selectedUser && !isLockModalOpen && (
             <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-              <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md p-6 relative shadow-2xl space-y-4">
+              <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto p-6 relative shadow-2xl space-y-4">
                 <button
                   type="button"
                   onClick={() => setSelectedUser(null)}
@@ -1143,7 +1305,7 @@ export default function AdminDashboard() {
           {/* SUSPENSION REASON LOCK MODAL */}
           {selectedUser && isLockModalOpen && (
             <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-              <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md p-6 relative shadow-2xl space-y-4">
+              <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto p-6 relative shadow-2xl space-y-4">
                 <button
                   type="button"
                   onClick={() => {
@@ -1430,7 +1592,8 @@ export default function AdminDashboard() {
             </div>
           ) : calculations.length > 0 ? (
             <div className="bg-slate-950/20 border border-slate-800 rounded-3xl overflow-hidden">
-              <div className="overflow-x-auto">
+              {/* Desktop view */}
+              <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-left text-xs sm:text-sm border-collapse">
                   <thead>
                     <tr className="border-b border-slate-800 bg-slate-950/60 text-slate-400 font-bold uppercase tracking-wider text-[11px]">
@@ -1508,7 +1671,7 @@ export default function AdminDashboard() {
                                 </button>
                                 <button
                                   onClick={() => handleDeleteCalculation(calc)}
-                                  className="p-1.5 hover:bg-red-950/60 text-slate-400 hover:text-red-550 border border-slate-800 hover:border-red-900/40 rounded-lg transition-all"
+                                  className="p-1.5 hover:bg-red-955/60 text-slate-400 hover:text-red-550 border border-slate-800 hover:border-red-900/40 rounded-lg transition-all"
                                   title="Xóa mềm bản ghi"
                                 >
                                   <Trash2 size={14} />
@@ -1523,8 +1686,98 @@ export default function AdminDashboard() {
                 </table>
               </div>
 
+              {/* Mobile view */}
+              <div className="block md:hidden divide-y divide-slate-855 space-y-4 p-4 bg-slate-900/40">
+                {calculations.map((calc) => (
+                  <div key={calc._id} className="pt-4 first:pt-0 space-y-3">
+                    {/* Header: User name & Email */}
+                    <div className="flex justify-between items-start gap-3">
+                      <div className="min-w-0">
+                        <span className="font-bold text-slate-200 text-sm block truncate font-serif">
+                          {calc.user?.name || 'Khách'}
+                        </span>
+                        <span className="text-[11px] text-slate-500 block truncate">{calc.user?.email || 'guest'}</span>
+                        <span className="text-[10px] text-slate-450 mt-0.5 block select-all">ID: {calc.userId}</span>
+                      </div>
+                      <div className="shrink-0 text-right">
+                        {calc.isDeleted ? (
+                          <span className="text-[10px] uppercase font-extrabold bg-red-955/60 text-red-500 border border-red-900/40 px-2 py-0.5 rounded">
+                            Đã xóa
+                          </span>
+                        ) : calc.status === 'locked' ? (
+                          <span className="text-[10px] uppercase font-extrabold bg-amber-955/60 text-amber-500 border border-amber-900/40 px-2 py-0.5 rounded">
+                            Bị Khóa
+                          </span>
+                        ) : (
+                          <span className="text-[10px] uppercase font-extrabold bg-emerald-950/60 text-emerald-500 border border-emerald-900/40 px-2 py-0.5 rounded">
+                            Hoạt động
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Content Detail depending on type */}
+                    <div className="text-xs text-slate-300 pt-2 border-t border-slate-800/30">
+                      {calcType === 'iching' && (
+                        <div className="font-medium text-amber-500 italic max-h-12 overflow-y-auto" title={calc.question}>
+                          "{calc.question || 'Không có câu hỏi'}"
+                        </div>
+                      )}
+                      {calcType === 'bazi' && (
+                        <div className="space-y-0.5">
+                          <div>Giới tính: <span className="font-bold text-slate-100">{(calc.inputInfo?.gender ?? calc.baziData?.gender) === 1 ? 'Nam' : 'Nữ'}</span></div>
+                          <div className="text-[11px] text-slate-450 font-semibold">Sinh: {calc.solarTimeline || `${calc.inputInfo?.date || ''} ${calc.inputInfo?.time || ''}`}</div>
+                        </div>
+                      )}
+                      {calcType === 'tuvi' && (
+                        <div className="space-y-0.5">
+                          <div>Giới tính: <span className="font-bold text-slate-100">{calc.inputInfo?.gender || (calc.gender === 1 ? 'Nam' : 'Nữ')}</span></div>
+                          <div className="text-[11px] text-slate-450 font-semibold">Sinh: {calc.inputInfo?.date || calc.date} ({calc.inputInfo?.hour !== undefined ? calc.inputInfo.hour : calc.hour} giờ)</div>
+                        </div>
+                      )}
+                      <div className="text-[10px] text-slate-500 mt-2">
+                        Thời gian: {new Date(calc.createdAt).toLocaleString('vi-VN')}
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center justify-end gap-2 pt-2.5 border-t border-slate-800/30">
+                      <button
+                        onClick={() => setSelectedCalc(calc)}
+                        className="flex items-center gap-1 px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-[11px] font-semibold transition-all"
+                        title="Xem chi tiết"
+                      >
+                        <Eye size={12} /> Chi tiết
+                      </button>
+                      {!calc.isDeleted && (
+                        <>
+                          <button
+                            onClick={() => handleLockCalculation(calc)}
+                            className={`flex items-center gap-1 px-2.5 py-1 rounded-lg border transition-all text-[11px] font-semibold ${calc.status === 'locked' ? 'hover:bg-emerald-955/60 text-emerald-500 border-emerald-900/40' : 'hover:bg-amber-955/60 text-amber-500 border-amber-900/40'}`}
+                            title={calc.status === 'locked' ? 'Mở khóa bản ghi' : 'Khóa bản ghi'}
+                          >
+                            {calc.status === 'locked' ? (
+                              <><Unlock size={11} /> Mở khóa</>
+                            ) : (
+                              <><Lock size={11} /> Khóa</>
+                            )}
+                          </button>
+                          <button
+                            onClick={() => handleDeleteCalculation(calc)}
+                            className="flex items-center gap-1 px-2.5 py-1 hover:bg-red-950/60 text-red-500 border border-red-900/40 rounded-lg text-[11px] font-semibold transition-all"
+                            title="Xóa mềm bản ghi"
+                          >
+                            <Trash2 size={11} /> Xóa
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
               {/* PAGINATION CONTROLS */}
-              <div className="bg-slate-950/60 border-t border-slate-850 px-4 py-3 flex items-center justify-between">
+              <div className="bg-slate-950/60 border-t border-slate-850 px-4 py-3 flex flex-wrap gap-4 items-center justify-between">
                 <span className="text-xs text-slate-400">
                   Hiển thị <span className="font-bold text-slate-200">{calculations.length}</span> / <span className="font-bold text-slate-200">{calcTotal}</span> bản ghi
                 </span>
@@ -1809,8 +2062,8 @@ export default function AdminDashboard() {
                     className="p-4 rounded-xl border bg-slate-950/40 border-slate-800 hover:border-amber-500/50 cursor-pointer text-xs space-y-3 transition-all duration-200"
                   >
                     <div>
-                      <div className="flex justify-between items-center">
-                        <span className="font-bold text-slate-200">Email: {ap.email}</span>
+                      <div className="flex flex-wrap justify-between items-center gap-2">
+                        <span className="font-bold text-slate-200 break-all">Email: {ap.email}</span>
                         <span className="text-[10px] font-mono text-slate-500">ID: {ap.userId}</span>
                       </div>
                       <div className="text-[11px] text-red-400 font-semibold mt-1">Lý do khóa: "{ap.reason}"</div>
