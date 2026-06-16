@@ -19,6 +19,9 @@ setInterval(() => {
  */
 const rateLimiter = ({ windowMs = 15 * 60 * 1000, max = 100, message } = {}) => {
     return (req, res, next) => {
+        if (process.env.NODE_ENV === 'test') {
+            return next();
+        }
         const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
         // Kết hợp IP và đường dẫn route cụ thể để giới hạn riêng biệt từng endpoint
         const key = `${req.baseUrl || ''}${req.path}_${ip}`;

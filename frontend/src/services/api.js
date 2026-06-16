@@ -53,11 +53,15 @@ export const lockAdminCalculation = (type, id) => axios.post(`${API_URL}/admin/c
 export const unlockAdminCalculation = (type, id) => axios.post(`${API_URL}/admin/calculations/${type}/${id}/unlock`);
 export const deleteAdminCalculation = (type, id) => axios.delete(`${API_URL}/admin/calculations/${type}/${id}`);
 
-export const getAdminAnalytics = (startDate, endDate) => axios.get(`${API_URL}/admin/analytics`, { params: { startDate, endDate } });
+export const getAdminAnalytics = (startDate, endDate, groupBy) => axios.get(`${API_URL}/admin/analytics`, { params: { startDate, endDate, groupBy } });
 export const getAdminNotifications = () => axios.get(`${API_URL}/admin/notifications`);
 export const markAdminNotificationRead = (id) => axios.put(`${API_URL}/admin/notifications/${id}/read`);
 export const resolveAdminAppeal = (id, action) => axios.post(`${API_URL}/admin/appeals/${id}/resolve`, { action });
 
 // Ban Appeal
 export const submitBanAppeal = (userId, email, reason, message) => axios.post(`${API_URL}/auth/appeal`, { userId, email, reason, message });
+
+export const restoreAdminUser = (id) => axios.post(`${API_URL}/admin/users/${id}/restore`);
+export const getAdminUserStats = (id) => axios.get(`${API_URL}/admin/users/${id}/stats`);
+export const deleteCalculation = (type, id) => axios.delete(`${API_URL}/history/calculations/${type}/${id}`);
 

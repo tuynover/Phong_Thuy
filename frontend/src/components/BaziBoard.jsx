@@ -17,7 +17,7 @@ import {
 } from '../utils/phongthuyHelpers';
 
 const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
-    const { user, setUser } = useContext(AuthContext);
+    const { user, setUser, token } = useContext(AuthContext);
 
     // AI Interpretation States
     const [interpretation, setInterpretation] = useState('');
@@ -377,11 +377,15 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
         let currentText = "";
         try {
             const url = getInterpretationStreamUrl('bazi', data.recordId);
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
             const response = await fetch(url, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers,
                 body: JSON.stringify({ userId: user?.id || user?._id || 'guest' }),
                 signal: abortCtrl.signal
             });

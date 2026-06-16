@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { getHexagramHistory, getBaziHistory, getTuViHistory, rateHexagram, rateBazi, rateTuVi } from '../services/api';
-import { Star, Clock, Calendar } from 'lucide-react';
+import { getHexagramHistory, getBaziHistory, getTuViHistory, rateHexagram, rateBazi, rateTuVi, deleteCalculation } from '../services/api';
+import { Star, Clock, Calendar, Trash2, X, Info, Check, AlertTriangle } from 'lucide-react';
 
 const LUNAR_HOURS_MAP = [
   "Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"
@@ -14,6 +14,21 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewTuVi }) => {
     const [tuvis, setTuvis] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('hexagram'); // 'hexagram' | 'bazi' | 'tu_vi'
+    const [dialog, setDialog] = useState(null); // { type: 'confirm' | 'success' | 'error', message: '', onConfirm: null }
+
+    const activeTheme = activeTab === 'hexagram' 
+        ? { text: 'text-amber-800', bg: 'bg-amber-800 hover:bg-amber-900', border: 'border-amber-100', textAccent: 'text-amber-600' }
+        : activeTab === 'bazi'
+            ? { text: 'text-blue-800', bg: 'bg-blue-800 hover:bg-blue-900', border: 'border-blue-100', textAccent: 'text-blue-600' }
+            : { text: 'text-purple-800', bg: 'bg-purple-800 hover:bg-purple-900', border: 'border-purple-100', textAccent: 'text-purple-600' };
+
+    const showConfirm = (message, onConfirm) => {
+        setDialog({ type: 'confirm', message, onConfirm });
+    };
+
+    const showAlert = (message, type = 'success') => {
+        setDialog({ type, message });
+    };
 
     useEffect(() => {
         if (user) {
@@ -54,6 +69,25 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewTuVi }) => {
         } catch (err) {
             console.error("Lỗi khi lưu đánh giá.", err);
         }
+    };
+
+    const handleDelete = async (type, id) => {
+        showConfirm("Bạn có chắc chắn muốn xóa vĩnh viễn bản ghi này khỏi lịch sử không?", async () => {
+            try {
+                await deleteCalculation(type, id);
+                if (type === 'hexagrams') {
+                    setHexagrams(hexagrams.filter(h => h._id !== id));
+                } else if (type === 'bazi') {
+                    setBazis(bazis.filter(b => b._id !== id));
+                } else {
+                    setTuvis(tuvis.filter(t => t._id !== id));
+                }
+                showAlert("Xóa bản ghi lịch sử thành công.", "success");
+            } catch (err) {
+                console.error("Lỗi khi xóa bản ghi lịch sử:", err);
+                showAlert("Không thể xóa bản ghi này. Vui lòng thử lại sau.", "error");
+            }
+        });
     };
 
     if (!user) return <div className="text-center p-10">Vui lòng đăng nhập để xem lịch sử.</div>;
@@ -110,7 +144,16 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewTuVi }) => {
                                 <p className="text-sm text-gray-600 italic">Hỏi: {record.question}</p>
                                 <p className="text-xs text-gray-400 flex items-center gap-1 mt-1"><Clock size={12}/> {new Date(record.dateCast).toLocaleString('vi-VN')}</p>
                             </div>
-                            <button className="text-amber-600 hover:underline text-sm font-medium">Xem chi tiết</button>
+                            <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+                                <button onClick={() => onViewHexagram(record)} className="text-amber-600 hover:underline text-sm font-medium">Xem chi tiết</button>
+                                <button 
+                                    onClick={() => handleDelete('hexagrams', record._id)} 
+                                    className="text-red-500 hover:text-red-750 transition-colors p-1"
+                                    title="Xóa vĩnh viễn"
+                                >
+                                    <Trash2 size={16} />
+                                </button>
+                            </div>
                         </div>
                         
                         {/* Rating Section */}
@@ -151,7 +194,16 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewTuVi }) => {
                                 <h3 className="font-bold text-lg text-blue-900">Lá số Bát Tự: {record.inputInfo.date} {record.inputInfo.time} ({record.inputInfo.gender === 1 ? 'Nam' : 'Nữ'})</h3>
                                 <p className="text-xs text-gray-400 flex items-center gap-1 mt-1"><Calendar size={12}/> Tiết khí: {record.tietKhiTimeline}</p>
                             </div>
-                            <button className="text-blue-600 hover:underline text-sm font-medium">Xem chi tiết</button>
+                            <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+                                <button onClick={() => onViewBazi(record)} className="text-blue-600 hover:underline text-sm font-medium">Xem chi tiết</button>
+                                <button 
+                                    onClick={() => handleDelete('bazi', record._id)} 
+                                    className="text-red-500 hover:text-red-700 transition-colors p-1"
+                                    title="Xóa vĩnh viễn"
+                                >
+                                    <Trash2 size={16} />
+                                </button>
+                            </div>
                         </div>
                         
                         {/* Rating Section */}
@@ -194,7 +246,16 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewTuVi }) => {
                                     <Clock size={12}/> Giờ sinh: {record.inputInfo?.hour !== undefined ? LUNAR_HOURS_MAP[record.inputInfo.hour] : ''}
                                 </p>
                             </div>
-                            <button className="text-purple-600 hover:underline text-sm font-medium">Xem chi tiết</button>
+                            <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+                                <button onClick={() => onViewTuVi(record)} className="text-purple-600 hover:underline text-sm font-medium">Xem chi tiết</button>
+                                <button 
+                                    onClick={() => handleDelete('tu-vi', record._id)} 
+                                    className="text-red-500 hover:text-red-700 transition-colors p-1"
+                                    title="Xóa vĩnh viễn"
+                                >
+                                    <Trash2 size={16} />
+                                </button>
+                            </div>
                         </div>
                         
                         {/* Rating Section */}
@@ -227,6 +288,78 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewTuVi }) => {
                     </div>
                 ))}
             </div>
+
+            {/* CUSTOM CONFIRMATION AND NOTIFICATION DIALOG */}
+            {dialog && (
+                <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+                    <div className="bg-white border border-gray-200 rounded-3xl w-full max-w-md p-6 relative shadow-2xl space-y-4">
+                        <button
+                            type="button"
+                            onClick={() => setDialog(null)}
+                            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+                        >
+                            <X size={20} />
+                        </button>
+                        
+                        <h3 className={`text-lg font-bold flex items-center gap-2 ${dialog.type === 'confirm' ? 'text-amber-600' : dialog.type === 'error' ? 'text-red-600' : 'text-emerald-600'}`}>
+                            {dialog.type === 'confirm' ? (
+                                <>
+                                    <Info size={20} />
+                                    Xác Nhận Xóa
+                                </>
+                            ) : dialog.type === 'error' ? (
+                                <>
+                                    <AlertTriangle size={20} />
+                                    Lỗi
+                                </>
+                            ) : (
+                                <>
+                                    <Check size={20} />
+                                    Thành Công
+                                </>
+                            )}
+                        </h3>
+
+                        <p className="text-sm text-gray-600 leading-relaxed">
+                            {dialog.message}
+                        </p>
+
+                        <div className="flex gap-2 justify-end pt-2">
+                            {dialog.type === 'confirm' ? (
+                                <>
+                                    <button
+                                        type="button"
+                                        onClick={() => setDialog(null)}
+                                        className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition-colors text-xs"
+                                    >
+                                        Hủy bỏ
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            if (dialog.onConfirm) {
+                                                dialog.onConfirm();
+                                            }
+                                            setDialog(null);
+                                        }}
+                                        className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition-colors text-xs shadow-lg shadow-red-100"
+                                    >
+                                        Xác nhận
+                                    </button>
+                                </>
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={() => setDialog(null)}
+                                    className={`px-5 py-2 ${activeTheme.bg} text-white font-bold rounded-xl transition-colors text-xs`}
+                                >
+                                    Đóng
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

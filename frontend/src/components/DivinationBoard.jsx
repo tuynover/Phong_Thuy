@@ -65,7 +65,7 @@ const HexagramVisual = ({ lines }) => {
 };
 
 const DivinationBoard = ({ result, onUpdateResult, user, onRequireLogin }) => {
-    const { setUser } = useContext(AuthContext);
+    const { setUser, token } = useContext(AuthContext);
     const [selectedHex, setSelectedHex] = useState(null);
     const [isChatOpen, setIsChatOpen] = useState(false);
     const [isInterpreting, setIsInterpreting] = useState(false);
@@ -127,11 +127,15 @@ const DivinationBoard = ({ result, onUpdateResult, user, onRequireLogin }) => {
         let currentText = "";
         try {
             const url = getInterpretationStreamUrl('hexagrams', result.recordId);
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
             const response = await fetch(url, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers,
                 body: JSON.stringify({ userId: user?.id || user?._id || 'guest' }),
                 signal: abortCtrl.signal
             });

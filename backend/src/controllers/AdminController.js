@@ -2,10 +2,14 @@ const User = require('../models/User');
 const HexagramRecord = require('../models/HexagramRecord');
 const BaziRecord = require('../models/BaziRecord');
 const TuViRecord = require('../modules/tu-vi/models/TuViRecord');
+const HexagramConversation = require('../models/HexagramConversation');
+const BaziConversation = require('../models/BaziConversation');
+const TuViConversation = require('../modules/tu-vi/models/TuViConversation');
 const SystemLog = require('../models/SystemLog');
 const BanAppeal = require('../models/BanAppeal');
 const AdminNotification = require('../models/AdminNotification');
 const MemoryCacheService = require('../services/MemoryCacheService');
+const sseService = require('../services/SseService');
 
 class AdminController {
   // ==========================================
@@ -33,10 +37,10 @@ class AdminController {
           query.isDeleted = true;
         } else if (status === 'locked') {
           query.status = 'locked';
-          query.isDeleted = false;
+          query.isDeleted = { $ne: true };
         } else if (status === 'active') {
-          query.status = 'active';
-          query.isDeleted = false;
+          query.status = { $ne: 'locked' };
+          query.isDeleted = { $ne: true };
         }
       }
 
@@ -65,8 +69,24 @@ class AdminController {
         return res.status(400).json({ error: 'Vai trò không hợp lệ.' });
       }
 
+      // Strict limit: at any time only 1 admin, cannot promote anyone to admin
+      if (role === 'admin') {
+        return res.status(400).json({ error: 'Không thể phong cấp thêm tài khoản Admin.' });
+      }
+
+      if (req.user && req.user._id.toString() === id) {
+        return res.status(400).json({ error: 'Bạn không thể tự chỉnh sửa vai trò của chính mình.' });
+      }
+
       const targetUser = await User.findById(id);
       if (!targetUser) return res.status(404).json({ error: 'Không tìm thấy người dùng.' });
+
+      // Co-admin cannot promote anyone to admin or co-admin
+      if (req.user && req.user.role === 'co-admin') {
+        if (role === 'co-admin' || role === 'admin') {
+          return res.status(403).json({ error: 'Co-admin không có quyền phong cấp tài khoản khác lên Co-admin hoặc Admin.' });
+        }
+      }
 
       // Co-admin cannot modify admin/co-admin accounts
       if (!req.hasAuthorityOver(targetUser)) {
@@ -86,6 +106,9 @@ class AdminController {
       
       // Invalidate cache
       MemoryCacheService.clearUserHistoryCache(targetUser.id);
+
+      sseService.sendToUser(id, 'account_updated', { role: targetUser.role, credits: targetUser.credits });
+      sseService.sendToAdmins('user_updated', { userId: id, action: 'role' });
 
       return res.json({ message: 'Cập nhật vai trò thành công.', user: targetUser });
     } catch (error) {
@@ -118,6 +141,10 @@ class AdminController {
       }
 
       await targetUser.save();
+
+      sseService.sendToUser(id, 'account_updated', { role: targetUser.role, credits: targetUser.credits });
+      sseService.sendToAdmins('user_updated', { userId: id, action: 'credits' });
+
       return res.json({ message: 'Cập nhật lượt sử dụng thành công.', user: targetUser });
     } catch (error) {
       console.error('[AdminController.updateUserCredits] Error:', error);
@@ -132,6 +159,10 @@ class AdminController {
 
       if (!reason) return res.status(400).json({ error: 'Lý do khóa tài khoản là bắt buộc.' });
 
+      if (req.user && req.user._id.toString() === id) {
+        return res.status(400).json({ error: 'Bạn không thể tự khóa tài khoản của chính mình.' });
+      }
+
       const targetUser = await User.findById(id);
       if (!targetUser) return res.status(404).json({ error: 'Không tìm thấy người dùng.' });
 
@@ -143,6 +174,9 @@ class AdminController {
       targetUser.lockReason = reason;
       await targetUser.save();
 
+      sseService.sendToUser(id, 'account_locked', { reason: targetUser.lockReason });
+      sseService.sendToAdmins('user_updated', { userId: id, action: 'lock' });
+
       return res.json({ message: 'Khóa tài khoản thành công.', user: targetUser });
     } catch (error) {
       console.error('[AdminController.lockUser] Error:', error);
@@ -153,6 +187,10 @@ class AdminController {
   static async unlockUser(req, res) {
     try {
       const { id } = req.params;
+
+      if (req.user && req.user._id.toString() === id) {
+        return res.status(400).json({ error: 'Bạn không thể tự mở khóa tài khoản của chính mình.' });
+      }
 
       const targetUser = await User.findById(id);
       if (!targetUser) return res.status(404).json({ error: 'Không tìm thấy người dùng.' });
@@ -168,6 +206,9 @@ class AdminController {
       // Automatically resolve appeals for this user
       await BanAppeal.updateMany({ userId: id }, { status: 'resolved' });
 
+      sseService.sendToUser(id, 'account_unlocked', {});
+      sseService.sendToAdmins('user_updated', { userId: id, action: 'unlock' });
+
       return res.json({ message: 'Mở khóa tài khoản thành công.', user: targetUser });
     } catch (error) {
       console.error('[AdminController.unlockUser] Error:', error);
@@ -179,6 +220,10 @@ class AdminController {
     try {
       const { id } = req.params;
 
+      if (req.user && req.user._id.toString() === id) {
+        return res.status(400).json({ error: 'Bạn không thể tự xóa tài khoản của chính mình.' });
+      }
+
       const targetUser = await User.findById(id);
       if (!targetUser) return res.status(404).json({ error: 'Không tìm thấy người dùng.' });
 
@@ -188,6 +233,9 @@ class AdminController {
 
       targetUser.isDeleted = true;
       await targetUser.save();
+
+      sseService.sendToUser(id, 'account_deleted', {});
+      sseService.sendToAdmins('user_updated', { userId: id, action: 'delete' });
 
       return res.json({ message: 'Xóa tài khoản thành công (Xóa mềm).', user: targetUser });
     } catch (error) {
@@ -227,10 +275,10 @@ class AdminController {
           query.isDeleted = true;
         } else if (status === 'locked') {
           query.status = 'locked';
-          query.isDeleted = false;
+          query.isDeleted = { $ne: true };
         } else if (status === 'active') {
-          query.status = 'active';
-          query.isDeleted = false;
+          query.status = { $ne: 'locked' };
+          query.isDeleted = { $ne: true };
         }
       }
 
@@ -243,13 +291,29 @@ class AdminController {
 
       const total = await Model.countDocuments(query);
 
-      // Populate user info for better display
+      // Populate user info and conversation chat tokens for better display
       const recordsWithUser = await Promise.all(records.map(async (record) => {
+        let userPromise = Promise.resolve(null);
         if (record.userId && record.userId !== 'guest') {
-          const user = await User.findById(record.userId).select('email name').lean();
-          return { ...record, user };
+          userPromise = User.findById(record.userId).select('email name').lean();
         }
-        return { ...record, user: { name: 'Khách', email: 'guest' } };
+
+        let conversationPromise = Promise.resolve(null);
+        if (type === 'iching') {
+          conversationPromise = HexagramConversation.findOne({ recordId: record._id }).select('totalTokens').lean();
+        } else if (type === 'bazi') {
+          conversationPromise = BaziConversation.findOne({ recordId: record._id }).select('totalTokens').lean();
+        } else if (type === 'tuvi') {
+          conversationPromise = TuViConversation.findOne({ recordId: record._id }).select('totalTokens').lean();
+        }
+
+        const [user, conversation] = await Promise.all([userPromise, conversationPromise]);
+
+        return {
+          ...record,
+          user: user || { name: 'Khách', email: 'guest' },
+          chatTokens: conversation?.totalTokens || 0
+        };
       }));
 
       return res.json({ records: recordsWithUser, total, page: parseInt(page), limit: parseInt(limit) });
@@ -340,28 +404,68 @@ class AdminController {
 
   static async getAnalytics(req, res) {
     try {
-      const { startDate, endDate } = req.query;
+      const { startDate, endDate, groupBy = 'day' } = req.query;
 
       const start = startDate ? new Date(startDate) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-      const end = endDate ? new Date(endDate) : new Date();
+      let end = endDate ? new Date(endDate) : new Date();
+      if (endDate) {
+        end = new Date(end.getTime() + 24 * 60 * 60 * 1000 - 1);
+      }
 
-      // 1. Total overview stats
-      const totalUsers = await User.countDocuments({ isDeleted: false });
-      const totalIching = await HexagramRecord.countDocuments({ isDeleted: false });
-      const totalBazi = await BaziRecord.countDocuments({ isDeleted: false });
-      const totalTuvi = await TuViRecord.countDocuments({ isDeleted: false });
+      // 1. Total overview stats - using $ne: true to include legacy records
+      const totalUsers = await User.countDocuments({ isDeleted: { $ne: true } });
+      const totalIching = await HexagramRecord.countDocuments({ isDeleted: { $ne: true } });
+      const totalBazi = await BaziRecord.countDocuments({ isDeleted: { $ne: true } });
+      const totalTuvi = await TuViRecord.countDocuments({ isDeleted: { $ne: true } });
       const totalAppeals = await BanAppeal.countDocuments({ status: 'pending' });
 
-      // 2. Access Logs over time (grouped by day)
+      // Generate dateFormat
+      const dateFormat = groupBy === 'hour' ? '%Y-%m-%d %H:00' : '%Y-%m-%d';
+
+      // Generate all timeline keys for zero-filling
+      const timeKeys = [];
+      let current = new Date(start.getTime());
+      
+      current.setSeconds(0);
+      current.setMilliseconds(0);
+      if (groupBy !== 'hour') {
+        current.setHours(0, 0, 0, 0);
+      } else {
+        current.setMinutes(0);
+      }
+
+      const endLimit = new Date(end.getTime());
+
+      const formatTimeTZ = (date, formatStr) => {
+        const tzOffsetMs = 7 * 60 * 60 * 1000;
+        const localTime = new Date(date.getTime() + tzOffsetMs);
+        const yyyy = localTime.getUTCFullYear();
+        const mm = String(localTime.getUTCMonth() + 1).padStart(2, '0');
+        const dd = String(localTime.getUTCDate()).padStart(2, '0');
+        if (formatStr.includes('%H')) {
+          const hh = String(localTime.getUTCHours()).padStart(2, '0');
+          return `${yyyy}-${mm}-${dd} ${hh}:00`;
+        }
+        return `${yyyy}-${mm}-${dd}`;
+      };
+
+      const stepMs = groupBy === 'hour' ? 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
+      let safetyCount = 0;
+      while (current <= endLimit && safetyCount < 1000) {
+        timeKeys.push(formatTimeTZ(current, dateFormat));
+        current = new Date(current.getTime() + stepMs);
+        safetyCount++;
+      }
+
+      // 2. Access Logs over time
       const accesses = await SystemLog.aggregate([
         { $match: { timestamp: { $gte: start, $lte: end } } },
         {
           $group: {
-            _id: { $dateToString: { format: '%Y-%m-%d', date: '$timestamp', timezone: 'Asia/Ho_Chi_Minh' } },
+            _id: { $dateToString: { format: dateFormat, date: '$timestamp', timezone: 'Asia/Ho_Chi_Minh' } },
             visits: { $sum: 1 }
           }
-        },
-        { $sort: { _id: 1 } }
+        }
       ]);
 
       // 3. Calculation distribution over time
@@ -369,84 +473,154 @@ class AdminController {
       
       const baziTimeline = await BaziRecord.aggregate([
         { $match: matchRange },
-        { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, count: { $sum: 1 } } }
+        { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, count: { $sum: 1 } } }
       ]);
       const ichingTimeline = await HexagramRecord.aggregate([
         { $match: matchRange },
-        { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, count: { $sum: 1 } } }
+        { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, count: { $sum: 1 } } }
       ]);
       const tuviTimeline = await TuViRecord.aggregate([
         { $match: matchRange },
-        { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, count: { $sum: 1 } } }
+        { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, count: { $sum: 1 } } }
       ]);
 
-      // 4. Token usage over time (summing aiInterpretation.tokensUsed from all three Record collections)
+      // 4. Token usage components over time
       const baziTokens = await BaziRecord.aggregate([
         { $match: { ...matchRange, 'aiInterpretation.tokensUsed': { $gt: 0 } } },
-        { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, tokens: { $sum: '$aiInterpretation.tokensUsed' } } }
+        { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, tokens: { $sum: '$aiInterpretation.tokensUsed' } } }
       ]);
 
       const ichingTokens = await HexagramRecord.aggregate([
         { $match: { ...matchRange, 'aiInterpretation.tokensUsed': { $gt: 0 } } },
-        { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, tokens: { $sum: '$aiInterpretation.tokensUsed' } } }
+        { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, tokens: { $sum: '$aiInterpretation.tokensUsed' } } }
       ]);
 
       const tuviTokens = await TuViRecord.aggregate([
         { $match: { ...matchRange, 'aiInterpretation.tokensUsed': { $gt: 0 } } },
-        { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, tokens: { $sum: '$aiInterpretation.tokensUsed' } } }
+        { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, tokens: { $sum: '$aiInterpretation.tokensUsed' } } }
       ]);
 
-      // Map everything to a unified timeline array for Recharts
-      const datesSet = new Set();
-      const formatMap = (arr, valKey, targetMap) => {
-        arr.forEach(item => {
-          datesSet.add(item._id);
-          const current = targetMap.get(item._id) || {};
-          current[valKey] = item.count || item.tokens || 0;
-          targetMap.set(item._id, current);
+      const baziChatTokens = await BaziConversation.aggregate([
+        { $match: { ...matchRange, totalTokens: { $gt: 0 } } },
+        { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, tokens: { $sum: '$totalTokens' } } }
+      ]);
+
+      const ichingChatTokens = await HexagramConversation.aggregate([
+        { $match: { ...matchRange, totalTokens: { $gt: 0 } } },
+        { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, tokens: { $sum: '$totalTokens' } } }
+      ]);
+
+      const tuviChatTokens = await TuViConversation.aggregate([
+        { $match: { ...matchRange, totalTokens: { $gt: 0 } } },
+        { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, tokens: { $sum: '$totalTokens' } } }
+      ]);
+
+      // Map everything to a unified timeline array with zero-filling
+      const timelineMap = new Map();
+      for (const key of timeKeys) {
+        timelineMap.set(key, {
+          date: key,
+          visits: 0,
+          iching: 0,
+          bazi: 0,
+          tuvi: 0,
+          ichingTokens: 0,
+          baziTokens: 0,
+          tuviTokens: 0,
+          ichingInterpretTokens: 0,
+          baziInterpretTokens: 0,
+          tuviInterpretTokens: 0,
+          ichingChatTokens: 0,
+          baziChatTokens: 0,
+          tuviChatTokens: 0,
+          interpretTokens: 0,
+          chatTokens: 0,
+          tokens: 0
         });
-      };
+      }
 
-      const timelineDataMap = new Map();
-      
-      // Load accesses
       accesses.forEach(item => {
-        datesSet.add(item._id);
-        timelineDataMap.set(item._id, { visits: item.visits });
+        if (timelineMap.has(item._id)) {
+          timelineMap.get(item._id).visits = item.visits || 0;
+        }
       });
 
-      formatMap(ichingTimeline, 'iching', timelineDataMap);
-      formatMap(baziTimeline, 'bazi', timelineDataMap);
-      formatMap(tuviTimeline, 'tuvi', timelineDataMap);
-
-      // Load tokens (summing them)
-      const tokensMap = new Map();
-      baziTokens.forEach(t => tokensMap.set(t._id, (tokensMap.get(t._id) || 0) + t.tokens));
-      ichingTokens.forEach(t => tokensMap.set(t._id, (tokensMap.get(t._id) || 0) + t.tokens));
-      tuviTokens.forEach(t => tokensMap.set(t._id, (tokensMap.get(t._id) || 0) + t.tokens));
-
-      tokensMap.forEach((tokens, dateStr) => {
-        datesSet.add(dateStr);
-        const current = timelineDataMap.get(dateStr) || {};
-        current.tokens = tokens;
-        timelineDataMap.set(dateStr, current);
+      ichingTimeline.forEach(item => {
+        if (timelineMap.has(item._id)) {
+          timelineMap.get(item._id).iching = item.count || 0;
+        }
+      });
+      baziTimeline.forEach(item => {
+        if (timelineMap.has(item._id)) {
+          timelineMap.get(item._id).bazi = item.count || 0;
+        }
+      });
+      tuviTimeline.forEach(item => {
+        if (timelineMap.has(item._id)) {
+          timelineMap.get(item._id).tuvi = item.count || 0;
+        }
       });
 
-      // Construct final unified timeline list sorted by date
-      const timeline = Array.from(datesSet).sort().map(dateStr => {
-        const data = timelineDataMap.get(dateStr);
-        return {
-          date: dateStr,
-          visits: data.visits || 0,
-          iching: data.iching || 0,
-          bazi: data.bazi || 0,
-          tuvi: data.tuvi || 0,
-          tokens: data.tokens || 0
-        };
+      ichingTokens.forEach(item => {
+        if (timelineMap.has(item._id)) {
+          const entry = timelineMap.get(item._id);
+          entry.ichingInterpretTokens = item.tokens || 0;
+          entry.ichingTokens = (entry.ichingTokens || 0) + (item.tokens || 0);
+          entry.interpretTokens += item.tokens || 0;
+          entry.tokens += item.tokens || 0;
+        }
+      });
+      baziTokens.forEach(item => {
+        if (timelineMap.has(item._id)) {
+          const entry = timelineMap.get(item._id);
+          entry.baziInterpretTokens = item.tokens || 0;
+          entry.baziTokens = (entry.baziTokens || 0) + (item.tokens || 0);
+          entry.interpretTokens += item.tokens || 0;
+          entry.tokens += item.tokens || 0;
+        }
+      });
+      tuviTokens.forEach(item => {
+        if (timelineMap.has(item._id)) {
+          const entry = timelineMap.get(item._id);
+          entry.tuviInterpretTokens = item.tokens || 0;
+          entry.tuviTokens = (entry.tuviTokens || 0) + (item.tokens || 0);
+          entry.interpretTokens += item.tokens || 0;
+          entry.tokens += item.tokens || 0;
+        }
       });
 
-      // 5. User resource consumption drill-down (Group by user showing tokens, bazi count, iching count, tuvi count)
-      const drillDownMap = new Map(); // userId -> { name, email, tokens, bazi, iching, tuvi }
+      ichingChatTokens.forEach(item => {
+        if (timelineMap.has(item._id)) {
+          const entry = timelineMap.get(item._id);
+          entry.ichingChatTokens = item.tokens || 0;
+          entry.ichingTokens = (entry.ichingTokens || 0) + (item.tokens || 0);
+          entry.chatTokens += item.tokens || 0;
+          entry.tokens += item.tokens || 0;
+        }
+      });
+      baziChatTokens.forEach(item => {
+        if (timelineMap.has(item._id)) {
+          const entry = timelineMap.get(item._id);
+          entry.baziChatTokens = item.tokens || 0;
+          entry.baziTokens = (entry.baziTokens || 0) + (item.tokens || 0);
+          entry.chatTokens += item.tokens || 0;
+          entry.tokens += item.tokens || 0;
+        }
+      });
+      tuviChatTokens.forEach(item => {
+        if (timelineMap.has(item._id)) {
+          const entry = timelineMap.get(item._id);
+          entry.tuviChatTokens = item.tokens || 0;
+          entry.tuviTokens = (entry.tuviTokens || 0) + (item.tokens || 0);
+          entry.chatTokens += item.tokens || 0;
+          entry.tokens += item.tokens || 0;
+        }
+      });
+
+      const timeline = Array.from(timelineMap.values());
+
+      // 5. User resource consumption drill-down (Top 10 consumers to avoid N+1 query)
+      const drillDownMap = new Map();
       
       const sumUserStats = async (model, recordType) => {
         const stats = await model.aggregate([
@@ -462,9 +636,32 @@ class AdminController {
 
         for (const item of stats) {
           const uid = item._id;
-          const current = drillDownMap.get(uid) || { tokens: 0, bazi: 0, iching: 0, tuvi: 0 };
+          if (!uid || uid === 'guest') continue;
+          const current = drillDownMap.get(uid) || { tokens: 0, bazi: 0, iching: 0, tuvi: 0, chatTokens: 0, interpretationTokens: 0 };
           current.tokens += item.tokens;
+          current.interpretationTokens = (current.interpretationTokens || 0) + item.tokens;
           current[recordType] = item.count;
+          drillDownMap.set(uid, current);
+        }
+      };
+
+      const sumChatStats = async (model) => {
+        const stats = await model.aggregate([
+          { $match: { ...matchRange, userId: { $ne: 'guest' } } },
+          {
+            $group: {
+              _id: '$userId',
+              tokens: { $sum: { $ifNull: ['$totalTokens', 0] } }
+            }
+          }
+        ]);
+
+        for (const item of stats) {
+          const uid = item._id;
+          if (!uid || uid === 'guest') continue;
+          const current = drillDownMap.get(uid) || { tokens: 0, bazi: 0, iching: 0, tuvi: 0, chatTokens: 0, interpretationTokens: 0 };
+          current.tokens += item.tokens;
+          current.chatTokens = (current.chatTokens || 0) + item.tokens;
           drillDownMap.set(uid, current);
         }
       };
@@ -473,10 +670,22 @@ class AdminController {
       await sumUserStats(HexagramRecord, 'iching');
       await sumUserStats(TuViRecord, 'tuvi');
 
-      // Populate user profiles
+      await sumChatStats(BaziConversation);
+      await sumChatStats(HexagramConversation);
+      await sumChatStats(TuViConversation);
+
+      // Sort drillDownMap by tokens used and slice top 10 to completely avoid N+1 query
+      const sortedDrillDownEntries = Array.from(drillDownMap.entries())
+        .sort((a, b) => b[1].tokens - a[1].tokens)
+        .slice(0, 10);
+
+      const topUserIds = sortedDrillDownEntries.map(([uid]) => uid);
+      const topUsers = await User.find({ _id: { $in: topUserIds } }).select('email name').lean();
+      const topUsersMap = new Map(topUsers.map(u => [u._id.toString(), u]));
+
       const userConsumptionList = [];
-      for (const [uid, stats] of drillDownMap.entries()) {
-        const u = await User.findById(uid).select('email name').lean();
+      for (const [uid, stats] of sortedDrillDownEntries) {
+        const u = topUsersMap.get(uid.toString());
         if (u) {
           userConsumptionList.push({
             userId: uid,
@@ -486,9 +695,6 @@ class AdminController {
           });
         }
       }
-
-      // Sort by tokens used descending
-      userConsumptionList.sort((a, b) => b.tokens - a.tokens);
 
       return res.json({
         overview: {
@@ -513,7 +719,7 @@ class AdminController {
 
   static async getNotifications(req, res) {
     try {
-      const alerts = await AdminNotification.find()
+      const alerts = await AdminNotification.find({ type: { $ne: 'appeal' } })
         .sort({ createdAt: -1 })
         .limit(100)
         .lean();
@@ -559,16 +765,126 @@ class AdminController {
           targetUser.status = 'active';
           targetUser.lockReason = '';
           await targetUser.save();
+          sseService.sendToUser(targetUser.id || targetUser._id.toString(), 'account_unlocked', {});
         }
       }
 
       appeal.status = 'resolved';
       await appeal.save();
 
+      sseService.sendToAdmins('user_updated', { userId: appeal.userId, action: 'resolve_appeal' });
+
       return res.json({ message: 'Giải quyết khiếu nại thành công.', appeal });
     } catch (error) {
       console.error('[AdminController.resolveAppeal] Error:', error);
       return res.status(500).json({ error: 'Lỗi xử lý khiếu nại.' });
+    }
+  }
+
+  static async restoreUser(req, res) {
+    try {
+      const { id } = req.params;
+
+      if (req.user && req.user._id.toString() === id) {
+        return res.status(400).json({ error: 'Bạn không thể tự khôi phục tài khoản của chính mình.' });
+      }
+
+      const targetUser = await User.findById(id);
+      if (!targetUser) return res.status(404).json({ error: 'Không tìm thấy người dùng.' });
+      if (!req.hasAuthorityOver(targetUser)) {
+        return res.status(403).json({ error: 'Bạn không có quyền khôi phục tài khoản này.' });
+      }
+      targetUser.isDeleted = false;
+      await targetUser.save();
+
+      sseService.sendToUser(id, 'account_restored', {});
+      sseService.sendToAdmins('user_updated', { userId: id, action: 'restore' });
+
+      return res.json({ message: 'Khôi phục tài khoản thành công.', user: targetUser });
+    } catch (error) {
+      console.error('[AdminController.restoreUser] Error:', error);
+      return res.status(500).json({ error: 'Lỗi khôi phục tài khoản.' });
+    }
+  }
+
+  static async getUserStats(req, res) {
+    try {
+      const { id } = req.params;
+      const targetUser = await User.findById(id).select('-password').lean();
+      if (!targetUser) return res.status(404).json({ error: 'Không tìm thấy người dùng.' });
+
+      const [
+        ichingCount,
+        baziCount,
+        tuviCount,
+        ichingTokensRes,
+        baziTokensRes,
+        tuviTokensRes,
+        ichingChatTokensRes,
+        baziChatTokensRes,
+        tuviChatTokensRes
+      ] = await Promise.all([
+        HexagramRecord.countDocuments({ userId: id, isDeleted: { $ne: true } }),
+        BaziRecord.countDocuments({ userId: id, isDeleted: { $ne: true } }),
+        TuViRecord.countDocuments({ userId: id, isDeleted: { $ne: true } }),
+        HexagramRecord.aggregate([
+          { $match: { userId: id, 'aiInterpretation.tokensUsed': { $gt: 0 } } },
+          { $group: { _id: null, total: { $sum: '$aiInterpretation.tokensUsed' } } }
+        ]),
+        BaziRecord.aggregate([
+          { $match: { userId: id, 'aiInterpretation.tokensUsed': { $gt: 0 } } },
+          { $group: { _id: null, total: { $sum: '$aiInterpretation.tokensUsed' } } }
+        ]),
+        TuViRecord.aggregate([
+          { $match: { userId: id, 'aiInterpretation.tokensUsed': { $gt: 0 } } },
+          { $group: { _id: null, total: { $sum: '$aiInterpretation.tokensUsed' } } }
+        ]),
+        HexagramConversation.aggregate([
+          { $match: { userId: id } },
+          { $group: { _id: null, total: { $sum: '$totalTokens' } } }
+        ]),
+        BaziConversation.aggregate([
+          { $match: { userId: id } },
+          { $group: { _id: null, total: { $sum: '$totalTokens' } } }
+        ]),
+        TuViConversation.aggregate([
+          { $match: { userId: id } },
+          { $group: { _id: null, total: { $sum: '$totalTokens' } } }
+        ])
+      ]);
+
+      const ichingTokens = ichingTokensRes[0]?.total || 0;
+      const baziTokens = baziTokensRes[0]?.total || 0;
+      const tuviTokens = tuviTokensRes[0]?.total || 0;
+
+      const ichingChatTokens = ichingChatTokensRes[0]?.total || 0;
+      const baziChatTokens = baziChatTokensRes[0]?.total || 0;
+      const tuviChatTokens = tuviChatTokensRes[0]?.total || 0;
+
+      const totalInterpretTokens = ichingTokens + baziTokens + tuviTokens;
+      const totalChatTokens = ichingChatTokens + baziChatTokens + tuviChatTokens;
+      const totalTokens = totalInterpretTokens + totalChatTokens;
+
+      return res.json({
+        user: targetUser,
+        stats: {
+          ichingCount,
+          baziCount,
+          tuviCount,
+          ichingTokens,
+          baziTokens,
+          tuviTokens,
+          ichingChatTokens,
+          baziChatTokens,
+          tuviChatTokens,
+          totalInterpretTokens,
+          totalChatTokens,
+          totalTokens
+        }
+      });
+    } catch (error) {
+      console.error('[AdminController.getUserStats] Error:', error);
+      return res.status(500).json({ error: 'Lỗi tải chi tiết thống kê thành viên.' });
     }
   }
 }

@@ -5,6 +5,7 @@ const logger = require('../services/LoggerService');
 const { OAuth2Client } = require('google-auth-library');
 const BanAppeal = require('../models/BanAppeal');
 const AdminNotification = require('../models/AdminNotification');
+const sseService = require('../services/SseService');
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -80,17 +81,28 @@ const login = async (req, res) => {
     }
 
     if (user.isDeleted) {
-      return res.status(400).json({ message: 'Tài khoản đã bị xóa.' });
+      logger.warn(`Đăng nhập thất bại: Tài khoản [${email}] đã bị xóa.`, { user: email, action: 'Đăng nhập' });
+      const pendingAppeal = await BanAppeal.findOne({ userId: user.id, status: 'pending' });
+      return res.status(403).json({
+        error: 'deleted',
+        message: 'Tài khoản của bạn đã bị xóa.',
+        reason: 'Tài khoản đã bị xóa bởi Ban Quản Trị.',
+        userId: user.id,
+        email: user.email,
+        hasPendingAppeal: !!pendingAppeal
+      });
     }
 
     if (user.status === 'locked') {
       logger.warn(`Đăng nhập thất bại: Tài khoản [${email}] đang bị khóa.`, { user: email, action: 'Đăng nhập' });
+      const pendingAppeal = await BanAppeal.findOne({ userId: user.id, status: 'pending' });
       return res.status(403).json({
         error: 'suspended',
         message: 'Tài khoản của bạn đã bị đình chỉ.',
         reason: user.lockReason || 'Vi phạm điều khoản dịch vụ.',
         userId: user.id,
-        email: user.email
+        email: user.email,
+        hasPendingAppeal: !!pendingAppeal
       });
     }
 
@@ -186,17 +198,28 @@ const googleLogin = async (req, res) => {
       logger.info(`Đăng ký tài khoản Google mới thành công: [${email}]`, { user: email, action: 'Đăng ký Google' });
     } else {
       if (user.isDeleted) {
-        return res.status(400).json({ message: 'Tài khoản đã bị xóa.' });
+        logger.warn(`Đăng nhập Google thất bại: Tài khoản [${email}] đã bị xóa.`, { user: email, action: 'Đăng nhập Google' });
+        const pendingAppeal = await BanAppeal.findOne({ userId: user.id, status: 'pending' });
+        return res.status(403).json({
+          error: 'deleted',
+          message: 'Tài khoản của bạn đã bị xóa.',
+          reason: 'Tài khoản đã bị xóa bởi Ban Quản Trị.',
+          userId: user.id,
+          email: user.email,
+          hasPendingAppeal: !!pendingAppeal
+        });
       }
 
       if (user.status === 'locked') {
         logger.warn(`Đăng nhập Google thất bại: Tài khoản [${email}] đang bị khóa.`, { user: email, action: 'Đăng nhập Google' });
+        const pendingAppeal = await BanAppeal.findOne({ userId: user.id, status: 'pending' });
         return res.status(403).json({
           error: 'suspended',
           message: 'Tài khoản của bạn đã bị đình chỉ.',
           reason: user.lockReason || 'Vi phạm điều khoản dịch vụ.',
           userId: user.id,
-          email: user.email
+          email: user.email,
+          hasPendingAppeal: !!pendingAppeal
         });
       }
 
@@ -271,6 +294,11 @@ const submitAppeal = async (req, res) => {
   }
 
   try {
+    const existingAppeal = await BanAppeal.findOne({ userId, status: 'pending' });
+    if (existingAppeal) {
+      return res.status(400).json({ message: 'Bạn đã gửi đơn khiếu nại và đang chờ duyệt. Vui lòng không gửi thêm.' });
+    }
+
     const appeal = new BanAppeal({
       userId,
       email,
@@ -280,12 +308,15 @@ const submitAppeal = async (req, res) => {
     await appeal.save();
 
     // Create an AdminNotification for co-admin and admin to see
-    await AdminNotification.create({
+    const notification = await AdminNotification.create({
       type: 'appeal',
       title: `Khiếu nại khóa tài khoản từ ${email}`,
       message: `Tài khoản ${email} khiếu nại quyết định khóa với lý do "${reason}". Lời nhắn: "${message}"`,
-      metadata: { userId, appealId: appeal._id, email }
+      metadata: { userId, appealId: appeal._id, email, reason: reason || 'Vi phạm chính sách hệ thống', message }
     });
+
+    // Send SSE event to all online admins
+    sseService.sendToAdmins('new_notification', notification);
 
     res.json({ message: 'Đơn khiếu nại của bạn đã được gửi tới Ban Quản Trị thành công.' });
   } catch (err) {

@@ -321,6 +321,49 @@ class HistoryController {
             return res.status(500).json({ error: 'Server error' });
         }
     }
+
+    static async deleteCalculation(req, res) {
+        try {
+            const { type, id } = req.params;
+            const userId = req.user.id || req.user._id?.toString();
+
+            if (!userId) {
+                return res.status(401).json({ error: 'Người dùng chưa xác thực.' });
+            }
+
+            let Model;
+            if (type === 'hexagrams' || type === 'iching') {
+                Model = HexagramRecord;
+            } else if (type === 'bazi' || type === 'bat_tu') {
+                Model = BaziRecord;
+            } else if (type === 'tu_vi' || type === 'tu-vi') {
+                const TuViRecord = require('../modules/tu-vi/models/TuViRecord');
+                Model = TuViRecord;
+            } else {
+                return res.status(400).json({ error: 'Loại quẻ/lá số không hợp lệ.' });
+            }
+
+            const record = await findByIdFlex(Model, id);
+            if (!record) {
+                return res.status(404).json({ error: 'Không tìm thấy bản ghi cần xóa.' });
+            }
+
+            if (record.userId !== userId && record.userId?.toString() !== userId) {
+                return res.status(403).json({ error: 'Bạn không có quyền xóa bản ghi này.' });
+            }
+
+            // Permanently delete the record from database
+            await Model.deleteOne({ _id: record._id });
+
+            // Clear cache
+            MemoryCacheService.clearUserHistoryCache(userId);
+
+            return res.json({ message: 'Xóa bản ghi thành công.' });
+        } catch (error) {
+            console.error('deleteCalculation error:', error);
+            return res.status(500).json({ error: 'Lỗi máy chủ khi xóa bản ghi.' });
+        }
+    }
 }
 
 module.exports = HistoryController;

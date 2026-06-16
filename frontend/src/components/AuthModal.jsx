@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { X, AlertTriangle } from 'lucide-react';
+import { X, AlertTriangle, Check } from 'lucide-react';
 import { submitBanAppeal } from '../services/api';
 
 export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
@@ -26,12 +26,14 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
   const [appealReason, setAppealReason] = useState('');
   const [appealMessage, setAppealMessage] = useState('');
   const [appealSuccess, setAppealSuccess] = useState('');
+  const [hasPendingAppeal, setHasPendingAppeal] = useState(false);
 
   const handleGoogleLoginCallback = async (response) => {
     setError('');
     setAppealUserId('');
     setAppealMode(false);
     setAppealSuccess('');
+    setHasPendingAppeal(false);
     setLoading(true);
     const res = await loginWithGoogle(response.credential);
     setLoading(false);
@@ -39,11 +41,12 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
       onClose();
       if (onLoginSuccess) onLoginSuccess(res.user);
     } else {
-      if (res.error === 'suspended') {
+      if (res.error === 'suspended' || res.error === 'deleted') {
         setError(`${res.message} Lý do: ${res.data?.reason || 'Vi phạm chính sách.'}`);
         setAppealUserId(res.data?.userId || 'google-user');
         setAppealEmail(res.data?.email || '');
-        setAppealReason(res.data?.reason || 'Đăng nhập Google bị khóa');
+        setAppealReason(res.data?.reason || 'Tài khoản bị tạm ngưng/xóa');
+        setHasPendingAppeal(res.data?.hasPendingAppeal || false);
       } else {
         setError(res.message);
       }
@@ -59,6 +62,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
     setAppealUserId('');
     setAppealSuccess('');
     setAppealMessage('');
+    setHasPendingAppeal(false);
 
     const timer = setTimeout(() => {
       if (window.google) {
@@ -91,6 +95,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
     setAppealSuccess('');
     setAppealUserId('');
     setAppealMode(false);
+    setHasPendingAppeal(false);
     setLoading(true);
 
     let res;
@@ -110,11 +115,12 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
       onClose();
       if (onLoginSuccess) onLoginSuccess(res.user);
     } else {
-      if (res.error === 'suspended') {
+      if (res.error === 'suspended' || res.error === 'deleted') {
         setError(`${res.message} Lý do: ${res.data?.reason || 'Vi phạm chính sách.'}`);
         setAppealUserId(res.data?.userId || 'locked-id');
         setAppealEmail(res.data?.email || email);
-        setAppealReason(res.data?.reason || 'Khóa tài khoản');
+        setAppealReason(res.data?.reason || 'Khóa/xóa tài khoản');
+        setHasPendingAppeal(res.data?.hasPendingAppeal || false);
       } else {
         setError(res.message);
       }
@@ -131,9 +137,10 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
 
     try {
       await submitBanAppeal(appealUserId, appealEmail, appealReason, appealMessage);
-      setAppealSuccess('Khiếu nại của bạn đã được gửi thành công! Ban Quản Trị sẽ xem xét và mở lại tài khoản của bạn sớm nhất.');
+      setAppealSuccess('Đơn khiếu nại của bạn đã được gửi tới Ban Quản Trị thành công.');
+      setHasPendingAppeal(true);
       setAppealMessage('');
-      setAppealUserId(''); // hide appeal trigger
+      setAppealMode(false);
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.message || 'Không thể gửi khiếu nại. Vui lòng thử lại sau.');
@@ -170,40 +177,40 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
           </div>
         )}
 
-        {appealMode ? (
-          /* BAN APPEAL FORM */
-          <form onSubmit={handleAppealSubmit} className="space-y-4">
-            <p className="text-xs text-gray-500 mb-3">
-              Tài khoản của bạn: <strong>{appealEmail}</strong> đang bị tạm ngưng vì lý do: <em>"{appealReason}"</em>.
-              Hãy điền nội dung khiếu nại cụ thể để gửi lên Ban Quản Trị:
-            </p>
-            <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1">Nội dung khiếu nại</label>
-              <textarea
-                required
-                rows={4}
-                value={appealMessage}
-                onChange={(e) => setAppealMessage(e.target.value)}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-sm focus:outline-none transition-all"
-                placeholder="Nhập lý do hoặc thông tin phản bác tại đây..."
-              />
-            </div>
-            <button 
-              type="submit"
-              disabled={loading}
-              className="w-full bg-red-700 hover:bg-red-800 text-white font-bold py-3 rounded-xl transition-colors disabled:opacity-50 text-sm"
-            >
-              {loading ? 'Đang gửi...' : 'Gửi Khiếu Nại'}
-            </button>
-            <button
-              type="button"
-              onClick={() => setAppealMode(false)}
-              className="w-full text-center text-sm font-semibold text-gray-500 hover:underline pt-2"
-            >
-              Quay lại Đăng Nhập
-            </button>
-          </form>
-        ) : (
+            {appealMode ? (
+              /* BAN APPEAL FORM */
+              <form onSubmit={handleAppealSubmit} className="space-y-4">
+                <p className="text-xs text-gray-500 mb-3">
+                  Tài khoản của bạn: <strong>{appealEmail}</strong> đang bị tạm ngưng vì lý do: <em>"{appealReason}"</em>.
+                  Hãy điền nội dung khiếu nại cụ thể để gửi lên Ban Quản Trị:
+                </p>
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">Nội dung khiếu nại</label>
+                  <textarea
+                    required
+                    rows={4}
+                    value={appealMessage}
+                    onChange={(e) => setAppealMessage(e.target.value)}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-sm focus:outline-none transition-all"
+                    placeholder="Nhập lý do hoặc thông tin phản bác tại đây..."
+                  />
+                </div>
+                <button 
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-red-700 hover:bg-red-800 text-white font-bold py-3 rounded-xl transition-colors disabled:opacity-50 text-sm"
+                >
+                  {loading ? 'Đang gửi...' : 'Gửi Khiếu Nại'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAppealMode(false)}
+                  className="w-full text-center text-sm font-semibold text-gray-500 hover:underline pt-2"
+                >
+                  Quay lại Đăng Nhập
+                </button>
+              </form>
+            ) : (
           /* STANDARD LOGIN / REGISTER FORM */
           <form onSubmit={handleSubmit} className="space-y-4">
             {!isLogin && (
@@ -298,13 +305,19 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
 
             {appealUserId && (
               <div className="bg-amber-50 border border-amber-200 p-3 rounded-xl text-center">
-                <button
-                  type="button"
-                  onClick={() => setAppealMode(true)}
-                  className="text-red-700 hover:text-red-800 font-extrabold text-sm hover:underline"
-                >
-                  ⚠ Click vào đây để gửi đơn khiếu nại tài khoản
-                </button>
+                {hasPendingAppeal ? (
+                  <span className="text-gray-500 font-medium text-xs">
+                    ⏳ Yêu cầu khiếu nại của bạn đang chờ phê duyệt.
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setAppealMode(true)}
+                    className="text-red-700 hover:text-red-800 font-extrabold text-sm hover:underline"
+                  >
+                    ⚠ Click vào đây để gửi đơn khiếu nại tài khoản
+                  </button>
+                )}
               </div>
             )}
 

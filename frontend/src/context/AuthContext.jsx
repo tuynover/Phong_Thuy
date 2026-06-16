@@ -35,9 +35,65 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, [token]);
 
+  // Axios response interceptor to catch 401/403 and force logout
+  useEffect(() => {
+    const interceptor = axios.interceptors.response.use(
+      response => response,
+      error => {
+        if (error.response && (error.response.status === 401 || (error.response.status === 403 && (error.response.data?.error === 'suspended' || error.response.data?.error === 'deleted')))) {
+          setToken(null);
+          setUser(null);
+          localStorage.removeItem('user');
+        }
+        return Promise.reject(error);
+      }
+    );
+    return () => {
+      axios.interceptors.response.eject(interceptor);
+    };
+  }, []);
+
+  // SSE connection for real-time user updates
+  useEffect(() => {
+    if (!token) return;
+
+    const sseUrl = `${API_URL}/auth/events?token=${encodeURIComponent(token)}`;
+    const eventSource = new EventSource(sseUrl);
+
+    eventSource.onmessage = (event) => {
+      try {
+        const payload = JSON.parse(event.data);
+        if (payload.type === 'account_locked' || payload.type === 'account_deleted') {
+          setToken(null);
+          setUser(null);
+          localStorage.removeItem('user');
+        } else if (payload.type === 'account_updated') {
+          setUser(prev => {
+            if (!prev) return null;
+            const updated = { ...prev, role: payload.data.role, credits: payload.data.credits };
+            localStorage.setItem('user', JSON.stringify(updated));
+            return updated;
+          });
+        }
+      } catch (err) {
+        console.error('[SSE] Error processing user event:', err);
+      }
+    };
+
+    eventSource.onerror = (err) => {
+      console.error('[SSE] User connection error:', err);
+    };
+
+    return () => {
+      eventSource.close();
+    };
+  }, [token]);
+
   const login = async (email, password) => {
     try {
       const res = await axios.post(`${API_URL}/auth/login`, { email, password });
+      axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
+      localStorage.setItem('token', res.data.token);
       setToken(res.data.token);
       setUser(res.data.user);
       localStorage.setItem('user', JSON.stringify(res.data.user));
@@ -55,6 +111,8 @@ export const AuthProvider = ({ children }) => {
   const loginWithGoogle = async (credential) => {
     try {
       const res = await axios.post(`${API_URL}/auth/google`, { credential });
+      axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
+      localStorage.setItem('token', res.data.token);
       setToken(res.data.token);
       setUser(res.data.user);
       localStorage.setItem('user', JSON.stringify(res.data.user));
@@ -72,6 +130,8 @@ export const AuthProvider = ({ children }) => {
   const register = async (email, password, name, day, month, year, hour, minute, gender) => {
     try {
       const res = await axios.post(`${API_URL}/auth/register`, { email, password, name, day, month, year, hour, minute, gender });
+      axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
+      localStorage.setItem('token', res.data.token);
       setToken(res.data.token);
       setUser(res.data.user);
       localStorage.setItem('user', JSON.stringify(res.data.user));

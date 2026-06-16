@@ -29,4 +29,7 @@ router.post('/bazi/:id/interpret', aiLimiter, creditCheck, AiInterpretationContr
 router.post('/hexagrams/:id/chat', aiLimiter, AiInterpretationController.chatHexagram);
 router.post('/bazi/:id/chat', aiLimiter, AiInterpretationController.chatBazi);
 
+const auth = require('../middleware/auth');
+router.delete('/calculations/:type/:id', auth, HistoryController.deleteCalculation);
+
 module.exports = router;

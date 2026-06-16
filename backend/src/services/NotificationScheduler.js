@@ -7,6 +7,7 @@ const SystemLog = require('../models/SystemLog');
 const AdminNotification = require('../models/AdminNotification');
 const BaziRecord = require('../models/BaziRecord');
 const TuViRecord = require('../modules/tu-vi/models/TuViRecord');
+const BanAppeal = require('../models/BanAppeal');
 
 function getDayDifference(date1, date2) {
     const d1 = new Date(date1.getTime() + 7 * 60 * 60 * 1000);
@@ -15,6 +16,29 @@ function getDayDifference(date1, date2) {
     d2.setUTCHours(0, 0, 0, 0);
     const diffTime = d1.getTime() - d2.getTime();
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+}
+
+async function purgeSoftDeletedUsers() {
+    console.log('[NotificationScheduler] Purging soft-deleted users inactive for 30+ days...');
+    try {
+        const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+        const expiredUsers = await User.find({ isDeleted: true, updatedAt: { $lt: thirtyDaysAgo } });
+
+        console.log(`[NotificationScheduler] Found ${expiredUsers.length} users to purge.`);
+
+        for (const user of expiredUsers) {
+            const userId = user._id;
+            await BaziRecord.deleteMany({ userId });
+            await HexagramRecord.deleteMany({ userId });
+            await TuViRecord.deleteMany({ userId });
+            await BanAppeal.deleteMany({ userId });
+            await Notification.deleteMany({ userId });
+            await User.deleteOne({ _id: userId });
+            console.log(`[NotificationScheduler] Permanently purged user: ${user.email}`);
+        }
+    } catch (err) {
+        console.error('[NotificationScheduler] Error during purging soft-deleted users:', err);
+    }
 }
 
 async function checkAndSendNotifications() {
@@ -31,6 +55,9 @@ async function checkAndSendNotifications() {
     } catch (err) {
         console.error('[NotificationScheduler] Error during daily credit increment:', err);
     }
+
+    // 1b. Purge expired soft-deleted users
+    await purgeSoftDeletedUsers();
 
     try {
         const today = new Date();
@@ -248,6 +275,10 @@ async function scanResourceSpikes() {
 }
 
 function startScheduler() {
+    if (process.env.NODE_ENV === 'test') {
+        console.log('[NotificationScheduler] Skipping start in test environment.');
+        return;
+    }
     const todayStr = new Date().toLocaleDateString('en-GB', { timeZone: 'Asia/Ho_Chi_Minh' });
     lastRunDay = todayStr;
     
