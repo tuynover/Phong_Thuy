@@ -9110,3 +9110,5 @@ Stack: Error: Wrong recipient, payload audience != requiredAudience
 [2026-06-20T11:51:02.457Z] [INFO] [SSE] User client [019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] disconnected.
 [2026-06-20T11:51:32.273Z] [INFO] [User: a@gmail.com (Test a)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
 [2026-06-20T11:51:32.468Z] [INFO] [User: a@gmail.com (Test a)] [Action: GET /api/notifications] [IP: ::1] [Duration: 196ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-20T11:52:32.259Z] [INFO] [User: a@gmail.com (Test a)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-06-20T11:52:32.384Z] [INFO] [User: a@gmail.com (Test a)] [Action: GET /api/notifications] [IP: ::1] [Duration: 126ms] Hoàn thành: Phản hồi thành công (304)
