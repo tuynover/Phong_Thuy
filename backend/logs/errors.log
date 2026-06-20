@@ -422,3 +422,10 @@ Stack: Error: Wrong recipient, payload audience != requiredAudience
 [2026-06-20T11:49:43.107Z] [WARN] [User: test_user@example.com] [Action: Đăng nhập] [IP: ::1] [Duration: 146ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
 [2026-06-20T11:49:45.053Z] [WARN] [User: test_coadmin1@example.com (Test Co-Admin 1)] [Action: POST /api/admin/users/019ee4dd-48b6-76c4-9952-5633aa27a398/lock] [IP: ::1] [Duration: 155ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
 [2026-06-20T11:49:45.205Z] [WARN] [User: test_coadmin1@example.com (Test Co-Admin 1)] [Action: POST /api/admin/users/019ee4dd-486b-744f-9267-b4a1316a60bb/lock] [IP: ::1] [Duration: 146ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
+[2026-06-20T11:59:23.512Z] [WARN] [User: anonymous] [Action: Luận Giải Kinh Dịch AI] [IP: ::1] [Duration: 3ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (401)
+[2026-06-20T11:59:51.623Z] [WARN] [User: anonymous] [Action: Luận Giải Kinh Dịch AI] [IP: ::1] [Duration: 3ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (401)
+[2026-06-20T12:00:03.372Z] [WARN] [User: test_user@example.com (Test User)] [Action: Luận Giải Kinh Dịch AI] [IP: ::1] [Duration: 186ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (402)
+[2026-06-20T12:00:04.683Z] [WARN] [User: test_user@example.com] [Action: Đăng nhập] Đăng nhập thất bại: Tài khoản [test_user@example.com] đang bị khóa.
+[2026-06-20T12:00:04.756Z] [WARN] [User: test_user@example.com] [Action: Đăng nhập] [IP: ::1] [Duration: 145ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
+[2026-06-20T12:00:06.385Z] [WARN] [User: test_coadmin1@example.com (Test Co-Admin 1)] [Action: POST /api/admin/users/019ee4e6-c599-7241-b309-7007daa39ce2/lock] [IP: ::1] [Duration: 142ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
+[2026-06-20T12:00:06.511Z] [WARN] [User: test_coadmin1@example.com (Test Co-Admin 1)] [Action: POST /api/admin/users/019ee4e6-c561-70bd-a3d0-08eaa3a45ad7/lock] [IP: ::1] [Duration: 124ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)

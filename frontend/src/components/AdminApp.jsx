@@ -522,7 +522,7 @@ export default function AdminApp({ onSwitchToUser }) {
             <div>
               <h2 className="text-xl sm:text-2xl font-bold font-serif text-slate-100">Bảng Điều Khiển Quản Trị</h2>
               <p className="text-xs text-slate-400">
-                Quyền hạn: <span className="font-extrabold text-amber-450 uppercase">{currentUser.role === 'admin' ? 'Administrator' : 'Co-Administrator'}</span>
+                Quyền hạn: <span className="font-extrabold text-amber-450 uppercase">{currentUser?.role === 'admin' ? 'Administrator' : currentUser?.role === 'co-admin' ? 'Co-Administrator' : ''}</span>
               </p>
             </div>
           </div>
@@ -1049,7 +1049,7 @@ export default function AdminApp({ onSwitchToUser }) {
                               >
                                 <option value="user">User</option>
                                 <option value="vip">Vip</option>
-                                {currentUser.role === 'admin' && <option value="co-admin">Co-Admin</option>}
+                                {currentUser?.role === 'admin' && <option value="co-admin">Co-Admin</option>}
                               </select>
                             ) : (
                               <span className="font-extrabold uppercase text-[11px] px-2 py-1 rounded bg-slate-800 text-slate-400 border border-slate-700">
@@ -1176,7 +1176,7 @@ export default function AdminApp({ onSwitchToUser }) {
                             >
                               <option value="user">User</option>
                               <option value="vip">Vip</option>
-                              {currentUser.role === 'admin' && <option value="co-admin">Co-Admin</option>}
+                              {currentUser?.role === 'admin' && <option value="co-admin">Co-Admin</option>}
                             </select>
                           ) : (
                             <span className="font-extrabold uppercase text-[10px] px-2 py-0.5 rounded bg-slate-850 text-slate-400 border border-slate-700">

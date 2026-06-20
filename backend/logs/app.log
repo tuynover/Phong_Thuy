@@ -9117,3 +9117,91 @@ Stack: Error: Wrong recipient, payload audience != requiredAudience
 [2026-06-20T11:54:32.269Z] [INFO] [User: a@gmail.com (Test a)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
 [2026-06-20T11:54:32.393Z] [INFO] [User: a@gmail.com (Test a)] [Action: GET /api/notifications] [IP: ::1] [Duration: 125ms] Hoàn thành: Phản hồi thành công (304)
 [2026-06-20T11:55:04.936Z] [INFO] [SSE] User client [019ecbee-8b09-7840-b9f0-5dafc7872d0c] disconnected.
+[2026-06-20T11:59:21.562Z] [INFO] [User: test_user@example.com] [Action: Đăng nhập] [IP: ::1] Yêu cầu bắt đầu: POST /api/auth/login | Params: {"email":"test_user@example.com","password":"******"}
+[2026-06-20T11:59:21.761Z] [INFO] [User: test_user@example.com] [Action: Đăng nhập] Đăng nhập thành công cho tài khoản [test_user@example.com] (Tên: Test User).
+[2026-06-20T11:59:21.778Z] [INFO] [User: test_user@example.com] [Action: Đăng nhập] [IP: ::1] [Duration: 211ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-20T11:59:21.788Z] [INFO] [User: test_admin@example.com] [Action: Đăng nhập] [IP: ::1] Yêu cầu bắt đầu: POST /api/auth/login | Params: {"email":"test_admin@example.com","password":"******"}
+[2026-06-20T11:59:21.957Z] [INFO] [User: test_admin@example.com] [Action: Đăng nhập] Đăng nhập thành công cho tài khoản [test_admin@example.com] (Tên: Test Admin).
+[2026-06-20T11:59:21.961Z] [INFO] [User: test_admin@example.com] [Action: Đăng nhập] [IP: ::1] [Duration: 173ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-20T11:59:21.967Z] [INFO] [User: test_coadmin1@example.com] [Action: Đăng nhập] [IP: ::1] Yêu cầu bắt đầu: POST /api/auth/login | Params: {"email":"test_coadmin1@example.com","password":"******"}
+[2026-06-20T11:59:22.137Z] [INFO] [User: test_coadmin1@example.com] [Action: Đăng nhập] Đăng nhập thành công cho tài khoản [test_coadmin1@example.com] (Tên: Test Co-Admin 1).
+[2026-06-20T11:59:22.140Z] [INFO] [User: test_coadmin1@example.com] [Action: Đăng nhập] [IP: ::1] [Duration: 173ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-20T11:59:23.509Z] [INFO] [User: anonymous] [Action: Luận Giải Kinh Dịch AI] [IP: ::1] Yêu cầu bắt đầu: POST /api/history/hexagrams/019ee4e6-5f07-76a4-a20b-d7f0dd407e4b/interpret
+[2026-06-20T11:59:23.512Z] [WARN] [User: anonymous] [Action: Luận Giải Kinh Dịch AI] [IP: ::1] [Duration: 3ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (401)
+[2026-06-20T11:59:23.610Z] [INFO] [User: test_user@example.com (Test User)] [Action: Luận Giải Kinh Dịch AI] [IP: ::1] Yêu cầu bắt đầu: POST /api/history/hexagrams/019ee4e6-5f07-76a4-a20b-d7f0dd407e4b/interpret
+[2026-06-20T11:59:49.757Z] [INFO] [User: test_user@example.com] [Action: Đăng nhập] [IP: ::1] Yêu cầu bắt đầu: POST /api/auth/login | Params: {"email":"test_user@example.com","password":"******"}
+[2026-06-20T11:59:49.955Z] [INFO] [User: test_user@example.com] [Action: Đăng nhập] Đăng nhập thành công cho tài khoản [test_user@example.com] (Tên: Test User).
+[2026-06-20T11:59:49.972Z] [INFO] [User: test_user@example.com] [Action: Đăng nhập] [IP: ::1] [Duration: 211ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-20T11:59:49.980Z] [INFO] [User: test_admin@example.com] [Action: Đăng nhập] [IP: ::1] Yêu cầu bắt đầu: POST /api/auth/login | Params: {"email":"test_admin@example.com","password":"******"}
+[2026-06-20T11:59:50.145Z] [INFO] [User: test_admin@example.com] [Action: Đăng nhập] Đăng nhập thành công cho tài khoản [test_admin@example.com] (Tên: Test Admin).
+[2026-06-20T11:59:50.149Z] [INFO] [User: test_admin@example.com] [Action: Đăng nhập] [IP: ::1] [Duration: 169ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-20T11:59:50.154Z] [INFO] [User: test_coadmin1@example.com] [Action: Đăng nhập] [IP: ::1] Yêu cầu bắt đầu: POST /api/auth/login | Params: {"email":"test_coadmin1@example.com","password":"******"}
+[2026-06-20T11:59:50.331Z] [INFO] [User: test_coadmin1@example.com] [Action: Đăng nhập] Đăng nhập thành công cho tài khoản [test_coadmin1@example.com] (Tên: Test Co-Admin 1).
+[2026-06-20T11:59:50.335Z] [INFO] [User: test_coadmin1@example.com] [Action: Đăng nhập] [IP: ::1] [Duration: 181ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-20T11:59:51.619Z] [INFO] [User: anonymous] [Action: Luận Giải Kinh Dịch AI] [IP: ::1] Yêu cầu bắt đầu: POST /api/history/hexagrams/019ee4e6-ccfb-769e-8df5-581e04d5f14c/interpret
+[2026-06-20T11:59:51.623Z] [WARN] [User: anonymous] [Action: Luận Giải Kinh Dịch AI] [IP: ::1] [Duration: 3ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (401)
+[2026-06-20T11:59:51.700Z] [INFO] [User: test_user@example.com (Test User)] [Action: Luận Giải Kinh Dịch AI] [IP: ::1] Yêu cầu bắt đầu: POST /api/history/hexagrams/019ee4e6-ccfb-769e-8df5-581e04d5f14c/interpret
+[2026-06-20T12:00:03.111Z] [INFO] [User: test_user@example.com (Test User)] [Action: Luận Giải Kinh Dịch AI] [IP: ::1] [Duration: 11476ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-20T12:00:03.187Z] [INFO] [User: test_user@example.com (Test User)] [Action: Luận Giải Kinh Dịch AI] [IP: ::1] Yêu cầu bắt đầu: POST /api/history/hexagrams/019ee4e6-ccfb-769e-8df5-581e04d5f14c/interpret
+[2026-06-20T12:00:03.372Z] [WARN] [User: test_user@example.com (Test User)] [Action: Luận Giải Kinh Dịch AI] [IP: ::1] [Duration: 186ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (402)
+[2026-06-20T12:00:03.710Z] [INFO] [User: test_user@example.com (Test User)] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/019ee4e6-c4ab-7bf0-b355-a3ca95bfc238
+[2026-06-20T12:00:03.771Z] [INFO] [User: test_user@example.com (Test User)] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 62ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-20T12:00:03.829Z] [INFO] [User: test_admin@example.com (Test Admin)] [Action: DELETE /api/admin/calculations/iching/019ee4e6-ccfb-769e-8df5-581e04d5f14c] [IP: ::1] Yêu cầu bắt đầu: DELETE /api/admin/calculations/iching/019ee4e6-ccfb-769e-8df5-581e04d5f14c
+[2026-06-20T12:00:04.010Z] [INFO] [User: test_admin@example.com (Test Admin)] [Action: DELETE /api/admin/calculations/iching/019ee4e6-ccfb-769e-8df5-581e04d5f14c] [IP: ::1] [Duration: 236ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-20T12:00:04.018Z] [INFO] [User: test_user@example.com (Test User)] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/019ee4e6-c4ab-7bf0-b355-a3ca95bfc238
+[2026-06-20T12:00:04.076Z] [INFO] [User: test_user@example.com (Test User)] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 59ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-20T12:00:04.150Z] [INFO] [User: test_admin@example.com (Test Admin)] [Action: POST /api/admin/calculations/iching/019ee4e6-ccfb-769e-8df5-581e04d5f14c/lock] [IP: ::1] Yêu cầu bắt đầu: POST /api/admin/calculations/iching/019ee4e6-ccfb-769e-8df5-581e04d5f14c/lock
+[2026-06-20T12:00:04.335Z] [INFO] [User: test_admin@example.com (Test Admin)] [Action: POST /api/admin/calculations/iching/019ee4e6-ccfb-769e-8df5-581e04d5f14c/lock] [IP: ::1] [Duration: 188ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-20T12:00:04.344Z] [INFO] [User: test_user@example.com (Test User)] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/019ee4e6-c4ab-7bf0-b355-a3ca95bfc238
+[2026-06-20T12:00:04.401Z] [INFO] [User: test_user@example.com (Test User)] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 58ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-20T12:00:04.406Z] [INFO] [User: test_admin@example.com (Test Admin)] [Action: POST /api/admin/users/019ee4e6-c4ab-7bf0-b355-a3ca95bfc238/lock] [IP: ::1] Yêu cầu bắt đầu: POST /api/admin/users/019ee4e6-c4ab-7bf0-b355-a3ca95bfc238/lock | Params: {"reason":"[TEST] Spam dữ liệu"}
+[2026-06-20T12:00:04.603Z] [INFO] [SSE] No active sessions for user [019ee4e6-c4ab-7bf0-b355-a3ca95bfc238] to send event [account_locked]
+[2026-06-20T12:00:04.605Z] [INFO] [User: test_admin@example.com (Test Admin)] [Action: POST /api/admin/users/019ee4e6-c4ab-7bf0-b355-a3ca95bfc238/lock] [IP: ::1] [Duration: 201ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-20T12:00:04.604Z] [INFO] [SSE] Broadcasting event [user_updated] to all admins
+[2026-06-20T12:00:04.611Z] [INFO] [User: test_user@example.com] [Action: Đăng nhập] [IP: ::1] Yêu cầu bắt đầu: POST /api/auth/login | Params: {"email":"test_user@example.com","password":"******"}
+[2026-06-20T12:00:04.683Z] [WARN] [User: test_user@example.com] [Action: Đăng nhập] Đăng nhập thất bại: Tài khoản [test_user@example.com] đang bị khóa.
+[2026-06-20T12:00:04.756Z] [WARN] [User: test_user@example.com] [Action: Đăng nhập] [IP: ::1] [Duration: 145ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
+[2026-06-20T12:00:04.758Z] [INFO] [User: test_user@example.com (Test User)] [Action: Gửi Đơn Khiếu Nại Tài Khoản] [IP: ::1] Yêu cầu bắt đầu: POST /api/auth/appeal | Params: {"userId":"019ee4e6-c4ab-7bf0-b355-a3ca95bfc238","email":"test_user@example.com","reason":"[TEST] Spam dữ liệu","message":"Mong ban quản trị mở lại tài khoản, tôi hứa sẽ không tái phạm."}
+[2026-06-20T12:00:04.967Z] [INFO] [SSE] Broadcasting event [new_notification] to all admins
+[2026-06-20T12:00:04.968Z] [INFO] [User: test_user@example.com (Test User)] [Action: Gửi Đơn Khiếu Nại Tài Khoản] [IP: ::1] [Duration: 210ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-20T12:00:05.045Z] [INFO] [User: test_admin@example.com (Test Admin)] [Action: POST /api/admin/appeals/019ee4e7-00d4-7d77-94a5-b628b8dafbc4/resolve] [IP: ::1] Yêu cầu bắt đầu: POST /api/admin/appeals/019ee4e7-00d4-7d77-94a5-b628b8dafbc4/resolve | Params: {"action":"approve"}
+[2026-06-20T12:00:05.308Z] [INFO] [SSE] No active sessions for user [019ee4e6-c4ab-7bf0-b355-a3ca95bfc238] to send event [account_unlocked]
+[2026-06-20T12:00:05.377Z] [INFO] [SSE] Broadcasting event [user_updated] to all admins
+[2026-06-20T12:00:05.379Z] [INFO] [User: test_admin@example.com (Test Admin)] [Action: POST /api/admin/appeals/019ee4e7-00d4-7d77-94a5-b628b8dafbc4/resolve] [IP: ::1] [Duration: 335ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-20T12:00:05.530Z] [INFO] [User: test_coadmin1@example.com (Test Co-Admin 1)] [Action: PUT /api/admin/users/019ee4e6-c4ab-7bf0-b355-a3ca95bfc238/credits] [IP: ::1] Yêu cầu bắt đầu: PUT /api/admin/users/019ee4e6-c4ab-7bf0-b355-a3ca95bfc238/credits | Params: {"credits":10,"mode":"set"}
+[2026-06-20T12:00:05.720Z] [INFO] [SSE] No active sessions for user [019ee4e6-c4ab-7bf0-b355-a3ca95bfc238] to send event [account_updated]
+[2026-06-20T12:00:05.720Z] [INFO] [SSE] Broadcasting event [user_updated] to all admins
+[2026-06-20T12:00:05.721Z] [INFO] [User: test_coadmin1@example.com (Test Co-Admin 1)] [Action: PUT /api/admin/users/019ee4e6-c4ab-7bf0-b355-a3ca95bfc238/credits] [IP: ::1] [Duration: 254ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-20T12:00:05.726Z] [INFO] [User: test_coadmin1@example.com (Test Co-Admin 1)] [Action: POST /api/admin/users/019ee4e6-c4ab-7bf0-b355-a3ca95bfc238/lock] [IP: ::1] Yêu cầu bắt đầu: POST /api/admin/users/019ee4e6-c4ab-7bf0-b355-a3ca95bfc238/lock | Params: {"reason":"Co-admin test lock"}
+[2026-06-20T12:00:05.947Z] [INFO] [SSE] No active sessions for user [019ee4e6-c4ab-7bf0-b355-a3ca95bfc238] to send event [account_locked]
+[2026-06-20T12:00:05.947Z] [INFO] [SSE] Broadcasting event [user_updated] to all admins
+[2026-06-20T12:00:05.948Z] [INFO] [User: test_coadmin1@example.com (Test Co-Admin 1)] [Action: POST /api/admin/users/019ee4e6-c4ab-7bf0-b355-a3ca95bfc238/lock] [IP: ::1] [Duration: 224ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-20T12:00:05.952Z] [INFO] [User: test_admin@example.com (Test Admin)] [Action: POST /api/admin/users/019ee4e6-c4ab-7bf0-b355-a3ca95bfc238/unlock] [IP: ::1] Yêu cầu bắt đầu: POST /api/admin/users/019ee4e6-c4ab-7bf0-b355-a3ca95bfc238/unlock
+[2026-06-20T12:00:06.241Z] [INFO] [SSE] No active sessions for user [019ee4e6-c4ab-7bf0-b355-a3ca95bfc238] to send event [account_unlocked]
+[2026-06-20T12:00:06.242Z] [INFO] [User: test_admin@example.com (Test Admin)] [Action: POST /api/admin/users/019ee4e6-c4ab-7bf0-b355-a3ca95bfc238/unlock] [IP: ::1] [Duration: 292ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-20T12:00:06.241Z] [INFO] [SSE] Broadcasting event [user_updated] to all admins
+[2026-06-20T12:00:06.244Z] [INFO] [User: test_coadmin1@example.com (Test Co-Admin 1)] [Action: POST /api/admin/users/019ee4e6-c599-7241-b309-7007daa39ce2/lock] [IP: ::1] Yêu cầu bắt đầu: POST /api/admin/users/019ee4e6-c599-7241-b309-7007daa39ce2/lock | Params: {"reason":"Co-admin lock admin attempt"}
+[2026-06-20T12:00:06.385Z] [WARN] [User: test_coadmin1@example.com (Test Co-Admin 1)] [Action: POST /api/admin/users/019ee4e6-c599-7241-b309-7007daa39ce2/lock] [IP: ::1] [Duration: 142ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
+[2026-06-20T12:00:06.388Z] [INFO] [User: test_coadmin1@example.com (Test Co-Admin 1)] [Action: POST /api/admin/users/019ee4e6-c561-70bd-a3d0-08eaa3a45ad7/lock] [IP: ::1] Yêu cầu bắt đầu: POST /api/admin/users/019ee4e6-c561-70bd-a3d0-08eaa3a45ad7/lock | Params: {"reason":"Co-admin lock co-admin attempt"}
+[2026-06-20T12:00:06.511Z] [WARN] [User: test_coadmin1@example.com (Test Co-Admin 1)] [Action: POST /api/admin/users/019ee4e6-c561-70bd-a3d0-08eaa3a45ad7/lock] [IP: ::1] [Duration: 124ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
+[2026-06-20T12:22:18.553Z] [INFO] [User: admin@admin.com] [Action: Đăng nhập] [IP: ::1] Yêu cầu bắt đầu: POST /api/auth/login | Params: {"email":"admin@admin.com","password":"******"}
+[2026-06-20T12:22:18.748Z] [INFO] [User: admin@admin.com] [Action: Đăng nhập] Đăng nhập thành công cho tài khoản [admin@admin.com] (Tên: admin).
+[2026-06-20T12:22:18.752Z] [INFO] [User: admin@admin.com] [Action: Đăng nhập] [IP: ::1] [Duration: 199ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-20T12:22:18.824Z] [INFO] [User: anonymous] [Action: GET /api/auth/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/auth/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4MTk1ODEzOCwiZXhwIjoxNzgyNTYyOTM4fQ.ifN79hJAHIHf1HCYUo4eQCAID_SLvR8m9t2xsB1IQrI
+[2026-06-20T12:22:18.893Z] [INFO] [SSE] User client [019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] connected. Total sessions: 1
+[2026-06-20T12:22:18.906Z] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-06-20T12:22:19.061Z] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 228ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-20T12:22:19.074Z] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-06-20T12:22:19.125Z] [INFO] [User: anonymous] [Action: GET /api/admin/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4MTk1ODEzOCwiZXhwIjoxNzgyNTYyOTM4fQ.ifN79hJAHIHf1HCYUo4eQCAID_SLvR8m9t2xsB1IQrI
+[2026-06-20T12:22:19.138Z] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/notifications
+[2026-06-20T12:22:19.147Z] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/analytics?startDate=2026-06-13&endDate=2026-06-20&groupBy=day
+[2026-06-20T12:22:19.187Z] [INFO] [SSE] Admin client connected. Total admin clients: 1
+[2026-06-20T12:22:19.223Z] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 154ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-20T12:22:19.335Z] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] [Duration: 198ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-20T12:22:19.345Z] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/notifications
+[2026-06-20T12:22:19.544Z] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] [Duration: 202ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-20T12:22:19.770Z] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/analytics?startDate=2026-06-13&endDate=2026-06-20&groupBy=day
+[2026-06-20T12:22:19.760Z] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] [Duration: 615ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-20T12:22:20.075Z] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] [Duration: 310ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-20T12:22:20.969Z] [INFO] [SSE] Admin client disconnected. Remaining: 0
+[2026-06-20T12:22:20.971Z] [INFO] [SSE] User client [019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] disconnected.

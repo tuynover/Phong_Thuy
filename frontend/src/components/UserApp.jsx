@@ -300,7 +300,7 @@ export default function UserApp({ onSwitchToAdmin }) {
                           <UserCircle size={15} className="text-amber-800" />
                           Hồ sơ cá nhân
                         </button>
-                        {(user.role === 'admin' || user.role === 'co-admin') && (
+                        {(user?.role === 'admin' || user?.role === 'co-admin') && (
                           <button 
                             onClick={() => {
                               onSwitchToAdmin();
