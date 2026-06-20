@@ -82,5 +82,14 @@ const tuViRecordSchema = new mongoose.Schema({
 });
 
 tuViRecordSchema.index({ userId: 1, createdAt: -1 });
+tuViRecordSchema.index({ userId: 1, "aiInterpretation.tokensUsed": 1 });
+tuViRecordSchema.index({ createdAt: 1 });
+
+tuViRecordSchema.post('save', function(doc) {
+  if (doc.userId && doc.userId !== 'guest') {
+    const UserStatsService = require('../../../services/UserStatsService');
+    UserStatsService.updateUserStatsBackground(doc.userId);
+  }
+});
 
 module.exports = mongoose.model('TuViRecord', tuViRecordSchema);

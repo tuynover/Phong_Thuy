@@ -45,4 +45,14 @@ const hexagramConversationSchema = new mongoose.Schema({
   timestamps: true
 });
 
+hexagramConversationSchema.index({ userId: 1, totalTokens: 1 });
+hexagramConversationSchema.index({ createdAt: 1 });
+
+hexagramConversationSchema.post('save', function(doc) {
+  if (doc.userId && doc.userId !== 'guest') {
+    const UserStatsService = require('../services/UserStatsService');
+    UserStatsService.updateUserStatsBackground(doc.userId);
+  }
+});
+
 module.exports = mongoose.model('HexagramConversation', hexagramConversationSchema);

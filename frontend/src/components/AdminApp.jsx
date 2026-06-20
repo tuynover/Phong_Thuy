@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import {
   getAdminUsers,
@@ -38,7 +38,9 @@ import {
   Activity,
   Layers,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  LogOut,
+  UserCircle
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -53,8 +55,8 @@ import {
   Legend
 } from 'recharts';
 
-export default function AdminDashboard() {
-  const { user: currentUser, token } = useContext(AuthContext);
+export default function AdminApp({ onSwitchToUser }) {
+  const { user: currentUser, token, logout } = useContext(AuthContext);
   const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'users' | 'calculations' | 'alerts'
   const [loading, setLoading] = useState(false);
 
@@ -114,6 +116,11 @@ export default function AdminDashboard() {
   const [calcStatusFilter, setCalcStatusFilter] = useState('');
   const [selectedCalc, setSelectedCalc] = useState(null);
 
+  // Refs to cache parameters and prevent redundant fetches during tab navigation
+  const lastFetchedAnalyticsParams = useRef({ startDate: null, endDate: null, groupBy: null });
+  const lastFetchedUsersParams = useRef({ page: null, role: null, status: null, search: null });
+  const lastFetchedCalcsParams = useRef({ type: null, page: null, status: null, search: null });
+
   // Fetch initial system warnings and appeals
   useEffect(() => {
     fetchAlertsAndAppeals();
@@ -167,26 +174,45 @@ export default function AdminDashboard() {
     };
   }, [token, activeTab, isStatsModalOpen, userStats]);
 
-  // Fetch analytics when tab, dates or groupBy change
+  // Fetch analytics when tab, dates or groupBy change (only if they actually changed)
   useEffect(() => {
     if (activeTab === 'overview') {
-      fetchAnalyticsData();
+      const last = lastFetchedAnalyticsParams.current;
+      if (!analytics || startDate !== last.startDate || endDate !== last.endDate || groupBy !== last.groupBy) {
+        fetchAnalyticsData();
+      }
     }
-  }, [activeTab, startDate, endDate, groupBy]);
+  }, [activeTab, startDate, endDate, groupBy, analytics]);
 
-  // Fetch users when filters or page changes
+  // Fetch users when filters or page changes (only if they actually changed)
   useEffect(() => {
     if (activeTab === 'users') {
-      fetchUsersData();
+      const last = lastFetchedUsersParams.current;
+      if (
+        users.length === 0 ||
+        userPage !== last.page ||
+        userRoleFilter !== last.role ||
+        userStatusFilter !== last.status
+      ) {
+        fetchUsersData();
+      }
     }
-  }, [activeTab, userPage, userRoleFilter, userStatusFilter]);
+  }, [activeTab, userPage, userRoleFilter, userStatusFilter, users]);
 
-  // Fetch calculations when type, filters or page changes
+  // Fetch calculations when type, filters or page changes (only if they actually changed)
   useEffect(() => {
     if (activeTab === 'calculations') {
-      fetchCalculationsData();
+      const last = lastFetchedCalcsParams.current;
+      if (
+        calculations.length === 0 ||
+        calcType !== last.type ||
+        calcPage !== last.page ||
+        calcStatusFilter !== last.status
+      ) {
+        fetchCalculationsData();
+      }
     }
-  }, [activeTab, calcType, calcPage, calcStatusFilter]);
+  }, [activeTab, calcType, calcPage, calcStatusFilter, calculations]);
 
   const handlePresetClick = (days) => {
     const start = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
@@ -210,6 +236,7 @@ export default function AdminDashboard() {
     try {
       const res = await getAdminAnalytics(startDate, endDate, groupBy);
       setAnalytics(res.data);
+      lastFetchedAnalyticsParams.current = { startDate, endDate, groupBy };
     } catch (err) {
       console.error('Lỗi khi tải dữ liệu thống kê:', err);
     } finally {
@@ -220,16 +247,28 @@ export default function AdminDashboard() {
   const fetchUsersData = async (overrideSearch = undefined, overrideRole = undefined, overrideStatus = undefined) => {
     setLoading(true);
     try {
+      const targetSearch = overrideSearch !== undefined ? overrideSearch : userSearch;
+      const targetRole = overrideRole !== undefined ? overrideRole : userRoleFilter;
+      const targetStatus = overrideStatus !== undefined ? overrideStatus : userStatusFilter;
+      const targetPage = overrideSearch !== undefined ? 1 : userPage;
+
       const params = {
-        page: overrideSearch !== undefined ? 1 : userPage,
+        page: targetPage,
         limit: userLimit,
-        search: overrideSearch !== undefined ? overrideSearch : userSearch,
-        role: overrideRole !== undefined ? overrideRole : userRoleFilter,
-        status: overrideStatus !== undefined ? overrideStatus : userStatusFilter
+        search: targetSearch,
+        role: targetRole,
+        status: targetStatus
       };
       const res = await getAdminUsers(params);
       setUsers(res.data.users || []);
       setUserTotal(res.data.total || 0);
+
+      lastFetchedUsersParams.current = {
+        page: targetPage,
+        role: targetRole,
+        status: targetStatus,
+        search: targetSearch
+      };
     } catch (err) {
       console.error('Lỗi tải danh sách người dùng:', err);
     } finally {
@@ -240,16 +279,24 @@ export default function AdminDashboard() {
   const fetchCalculationsData = async (overrideSearch = undefined) => {
     setLoading(true);
     try {
+      const targetSearch = overrideSearch !== undefined ? overrideSearch : calcSearch;
       const params = {
         type: calcType,
         page: calcPage,
         limit: calcLimit,
-        search: overrideSearch !== undefined ? overrideSearch : calcSearch,
+        search: targetSearch,
         status: calcStatusFilter
       };
       const res = await getAdminCalculations(params);
       setCalculations(res.data.records || []);
       setCalcTotal(res.data.total || 0);
+
+      lastFetchedCalcsParams.current = {
+        type: calcType,
+        page: calcPage,
+        status: calcStatusFilter,
+        search: targetSearch
+      };
     } catch (err) {
       console.error('Lỗi tải danh sách quẻ/lá số:', err);
     } finally {
@@ -466,49 +513,83 @@ export default function AdminDashboard() {
     <div className="bg-slate-900 border border-slate-800 rounded-3xl p-4 sm:p-8 text-slate-100 shadow-2xl font-sans min-h-[70vh] flex flex-col space-y-6">
       
       {/* HEADER BAR */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5">
-        <div className="flex items-center gap-3">
-          <div className="p-3 bg-amber-500/10 border border-amber-550/30 rounded-2xl text-amber-500">
-            <Shield size={28} />
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 flex-1">
+          <div className="flex items-center gap-3">
+            <div className="p-3 bg-amber-500/10 border border-amber-555/30 rounded-2xl text-amber-500">
+              <Shield size={28} />
+            </div>
+            <div>
+              <h2 className="text-xl sm:text-2xl font-bold font-serif text-slate-100">Bảng Điều Khiển Quản Trị</h2>
+              <p className="text-xs text-slate-400">
+                Quyền hạn: <span className="font-extrabold text-amber-450 uppercase">{currentUser.role === 'admin' ? 'Administrator' : 'Co-Administrator'}</span>
+              </p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-xl sm:text-2xl font-bold font-serif text-slate-100">Bảng Điều Khiển Quản Trị</h2>
-            <p className="text-xs text-slate-400">
-              Quyền hạn: <span className="font-extrabold text-amber-450 uppercase">{currentUser.role === 'admin' ? 'Administrator' : 'Co-Administrator'}</span>
-            </p>
+
+          {/* Sliding Pill Toggle Switch */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider hidden sm:inline">Giao diện:</span>
+            <div className="relative inline-flex items-center bg-slate-950 rounded-full p-1 cursor-pointer select-none w-36 h-9 border border-slate-800">
+              <div 
+                onClick={onSwitchToUser}
+                className="absolute top-1 bottom-1 left-1 bg-amber-600 rounded-full transition-all duration-300 shadow-[0_0_8px_rgba(217,119,6,0.5)]"
+                style={{
+                  width: 'calc(50% - 4px)',
+                  transform: 'translateX(0px)'
+                }}
+              />
+              <div className="flex w-full text-center text-[10px] font-bold tracking-wider z-10">
+                <span className="flex-1 text-white select-none pointer-events-none">ADMIN APP</span>
+                <span onClick={onSwitchToUser} className="flex-1 text-slate-400 hover:text-slate-200 transition-colors select-none">USER APP</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* NAVIGATION TABS */}
-        <div className="flex flex-wrap bg-slate-950/80 p-1 rounded-2xl border border-slate-800/80 gap-1">
+        {/* RIGHT SIDE: Navigation tabs & Logout */}
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap bg-slate-950/80 p-1 rounded-2xl border border-slate-800/80 gap-1">
+            <button
+              onClick={() => setActiveTab('overview')}
+              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${activeTab === 'overview' ? 'bg-amber-800 text-white shadow-lg' : 'text-slate-400 hover:text-slate-200'}`}
+            >
+              Tổng Quan
+            </button>
+            <button
+              onClick={() => setActiveTab('users')}
+              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${activeTab === 'users' ? 'bg-amber-800 text-white shadow-lg' : 'text-slate-400 hover:text-slate-200'}`}
+            >
+              Thành Viên
+            </button>
+            <button
+              onClick={() => setActiveTab('calculations')}
+              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${activeTab === 'calculations' ? 'bg-amber-800 text-white shadow-lg' : 'text-slate-400 hover:text-slate-200'}`}
+            >
+              Dịch Bản / Lá Số
+            </button>
+            <button
+              onClick={() => setActiveTab('alerts')}
+              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all relative ${activeTab === 'alerts' ? 'bg-amber-800 text-white shadow-lg' : 'text-slate-400 hover:text-slate-200'}`}
+            >
+              Cảnh Báo & Khiếu Nại
+              {(alerts.filter(a => a.status === 'unread').length > 0 || appeals.length > 0) && (
+                <span className="absolute -top-1.5 -right-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-600 text-[9px] font-extrabold text-white animate-pulse">
+                  {alerts.filter(a => a.status === 'unread').length + appeals.length}
+                </span>
+              )}
+            </button>
+          </div>
+
           <button
-            onClick={() => setActiveTab('overview')}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${activeTab === 'overview' ? 'bg-amber-800 text-white shadow-lg' : 'text-slate-400 hover:text-slate-200'}`}
+            onClick={() => {
+              logout();
+            }}
+            className="flex items-center gap-1.5 bg-red-950/40 hover:bg-red-900/40 text-red-400 border border-red-900/30 px-3.5 py-2 rounded-xl font-bold text-xs sm:text-sm transition-all duration-200"
+            title="Đăng xuất"
           >
-            Tổng Quan
-          </button>
-          <button
-            onClick={() => setActiveTab('users')}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${activeTab === 'users' ? 'bg-amber-800 text-white shadow-lg' : 'text-slate-400 hover:text-slate-200'}`}
-          >
-            Thành Viên
-          </button>
-          <button
-            onClick={() => setActiveTab('calculations')}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${activeTab === 'calculations' ? 'bg-amber-800 text-white shadow-lg' : 'text-slate-400 hover:text-slate-200'}`}
-          >
-            Dịch Bản / Lá Số
-          </button>
-          <button
-            onClick={() => setActiveTab('alerts')}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all relative ${activeTab === 'alerts' ? 'bg-amber-800 text-white shadow-lg' : 'text-slate-400 hover:text-slate-200'}`}
-          >
-            Cảnh Báo & Khiếu Nại
-            {(alerts.filter(a => a.status === 'unread').length > 0 || appeals.length > 0) && (
-              <span className="absolute -top-1.5 -right-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-600 text-[9px] font-extrabold text-white animate-pulse">
-                {alerts.filter(a => a.status === 'unread').length + appeals.length}
-              </span>
-            )}
+            <LogOut size={16} />
+            <span className="hidden sm:inline">Đăng xuất</span>
           </button>
         </div>
       </div>
@@ -798,7 +879,7 @@ export default function AdminDashboard() {
                             <button
                               type="button"
                               onClick={() => handleUserClick(uc.userId)}
-                              className="font-bold text-slate-200 hover:text-amber-500 text-left transition-colors"
+                              className="font-bold text-slate-200 hover:text-amber-500 text-left transition-colors hover:underline"
                             >
                               {uc.name}
                             </button>
@@ -825,7 +906,7 @@ export default function AdminDashboard() {
                           <button
                             type="button"
                             onClick={() => handleUserClick(uc.userId)}
-                            className="font-bold text-slate-200 hover:text-amber-500 text-left transition-colors text-sm"
+                            className="font-bold text-slate-200 hover:text-amber-500 text-left transition-colors text-sm hover:underline"
                           >
                             {uc.name}
                           </button>
@@ -1361,148 +1442,6 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* USER STATS DETAILS MODAL */}
-          {isStatsModalOpen && userStats && (
-            <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-              <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-lg max-h-[85vh] p-6 relative shadow-2xl flex flex-col space-y-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsStatsModalOpen(false);
-                    setUserStats(null);
-                  }}
-                  className="absolute top-4 right-4 text-slate-400 hover:text-slate-200 transition-colors"
-                >
-                  <X size={20} />
-                </button>
-                <h3 className="text-xl font-serif font-bold text-amber-500 flex items-center gap-2 border-b border-slate-800 pb-3">
-                  <Users size={24} />
-                  Chi Tiết Thành Viên & Thống Kê
-                </h3>
-
-                <div className="flex-1 overflow-y-auto space-y-6 pr-1">
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div className="bg-slate-950/50 p-3.5 rounded-xl border border-slate-800/60">
-                    <span className="block text-xs font-bold text-slate-450 uppercase mb-1">Tên hiển thị</span>
-                    <span className="font-semibold text-slate-200">{userStats.user.name}</span>
-                  </div>
-                  <div className="bg-slate-950/50 p-3.5 rounded-xl border border-slate-800/60">
-                    <span className="block text-xs font-bold text-slate-450 uppercase mb-1">Email</span>
-                    <span className="font-semibold text-slate-200 truncate block">{userStats.user.email}</span>
-                  </div>
-                  <div className="bg-slate-950/50 p-3.5 rounded-xl border border-slate-800/60">
-                    <span className="block text-xs font-bold text-slate-450 uppercase mb-1">Vai trò</span>
-                    <span className="capitalize font-semibold text-slate-200">{userStats.user.role}</span>
-                  </div>
-                  <div className="bg-slate-950/50 p-3.5 rounded-xl border border-slate-800/60">
-                    <span className="block text-xs font-bold text-slate-450 uppercase mb-1">Số Credit hiện tại</span>
-                    <span className="font-semibold text-amber-500">{userStats.user.credits}</span>
-                  </div>
-                  <div className="bg-slate-950/50 p-3.5 rounded-xl border border-slate-800/60">
-                    <span className="block text-xs font-bold text-slate-450 uppercase mb-1">Trạng thái</span>
-                    <span className="font-semibold">
-                      {userStats.user.isDeleted ? (
-                        <span className="text-red-500 bg-red-950/30 px-2 py-0.5 rounded-md border border-red-900/50">Đã xóa</span>
-                      ) : userStats.user.status === 'locked' ? (
-                        <span className="text-amber-500 bg-amber-950/30 px-2 py-0.5 rounded-md border border-amber-900/50">Bị khóa</span>
-                      ) : (
-                        <span className="text-emerald-500 bg-emerald-950/30 px-2 py-0.5 rounded-md border border-emerald-900/50">Hoạt động</span>
-                      )}
-                    </span>
-                  </div>
-                  <div className="bg-slate-950/50 p-3.5 rounded-xl border border-slate-800/60">
-                    <span className="block text-xs font-bold text-slate-450 uppercase mb-1">Ngày tham gia</span>
-                    <span className="font-semibold text-slate-200">
-                      {new Date(userStats.user.createdAt).toLocaleDateString('vi-VN')}
-                    </span>
-                  </div>
-                  {userStats.user.status === 'locked' && (
-                    <>
-                      <div className="bg-red-950/20 p-3.5 rounded-xl border border-red-900/30 col-span-2">
-                        <span className="block text-xs font-bold text-red-400 uppercase mb-1">Lý do khóa tài khoản</span>
-                        <span className="font-semibold text-slate-250">{userStats.user.lockReason || 'Không có lý do'}</span>
-                      </div>
-                      <div className="bg-red-950/20 p-3.5 rounded-xl border border-red-900/30 col-span-2">
-                        <span className="block text-xs font-bold text-red-400 uppercase mb-1">Thời điểm bị khóa</span>
-                        <span className="font-semibold text-slate-250">
-                          {new Date(userStats.user.updatedAt).toLocaleString('vi-VN')}
-                        </span>
-                      </div>
-                    </>
-                  )}
-                </div>
-
-                <div className="space-y-3">
-                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Thống kê sử dụng</h4>
-                  <div className="grid grid-cols-3 gap-3">
-                    <div className="bg-slate-950/80 p-3 rounded-xl border border-slate-800 text-center flex flex-col justify-between">
-                      <div>
-                        <span className="block text-[10px] font-bold text-slate-500 mb-1">Kinh Dịch</span>
-                        <div className="text-sm font-bold text-slate-200 mb-1">{userStats.stats.ichingCount} <span className="text-[10px] text-slate-400 font-normal">lần</span></div>
-                      </div>
-                      <div className="space-y-0.5 border-t border-slate-850 pt-1 text-[10px] text-slate-450 font-mono text-left">
-                        <div>Dịch lý: {(userStats.stats.ichingTokens || 0).toLocaleString()}</div>
-                        <div>Chat: {(userStats.stats.ichingChatTokens || 0).toLocaleString()}</div>
-                        <div className="text-amber-500 font-bold border-t border-slate-850/60 pt-0.5 mt-0.5">Tổng: {((userStats.stats.ichingTokens || 0) + (userStats.stats.ichingChatTokens || 0)).toLocaleString()}</div>
-                      </div>
-                    </div>
-                    <div className="bg-slate-950/80 p-3 rounded-xl border border-slate-800 text-center flex flex-col justify-between">
-                      <div>
-                        <span className="block text-[10px] font-bold text-slate-500 mb-1">Bát Tự</span>
-                        <div className="text-sm font-bold text-slate-200 mb-1">{userStats.stats.baziCount} <span className="text-[10px] text-slate-400 font-normal">lần</span></div>
-                      </div>
-                      <div className="space-y-0.5 border-t border-slate-850 pt-1 text-[10px] text-slate-450 font-mono text-left">
-                        <div>Dịch lý: {(userStats.stats.baziTokens || 0).toLocaleString()}</div>
-                        <div>Chat: {(userStats.stats.baziChatTokens || 0).toLocaleString()}</div>
-                        <div className="text-amber-500 font-bold border-t border-slate-850/60 pt-0.5 mt-0.5">Tổng: {((userStats.stats.baziTokens || 0) + (userStats.stats.baziChatTokens || 0)).toLocaleString()}</div>
-                      </div>
-                    </div>
-                    <div className="bg-slate-950/80 p-3 rounded-xl border border-slate-800 text-center flex flex-col justify-between">
-                      <div>
-                        <span className="block text-[10px] font-bold text-slate-500 mb-1">Tử Vi</span>
-                        <div className="text-sm font-bold text-slate-200 mb-1">{userStats.stats.tuviCount} <span className="text-[10px] text-slate-400 font-normal">lần</span></div>
-                      </div>
-                      <div className="space-y-0.5 border-t border-slate-850 pt-1 text-[10px] text-slate-450 font-mono text-left">
-                        <div>Dịch lý: {(userStats.stats.tuviTokens || 0).toLocaleString()}</div>
-                        <div>Chat: {(userStats.stats.tuviChatTokens || 0).toLocaleString()}</div>
-                        <div className="text-amber-500 font-bold border-t border-slate-850/60 pt-0.5 mt-0.5">Tổng: {((userStats.stats.tuviTokens || 0) + (userStats.stats.tuviChatTokens || 0)).toLocaleString()}</div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-slate-950/80 p-3.5 rounded-xl border border-slate-800 space-y-1.5 text-xs">
-                    <div className="flex justify-between items-center">
-                      <span className="text-slate-400 font-semibold">Tổng Token Luận Giải AI:</span>
-                      <span className="text-slate-250 font-mono font-bold">{(userStats.stats.totalInterpretTokens || 0).toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-slate-400 font-semibold">Tổng Token Trò Chuyện Chat AI:</span>
-                      <span className="text-slate-250 font-mono font-bold">{(userStats.stats.totalChatTokens || 0).toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-sm font-bold border-t border-slate-850 pt-2 text-amber-500">
-                      <span>TỔNG CỘNG TOÀN BỘ TOKEN (Luận Giải + Chat):</span>
-                      <span className="font-mono text-base">{(userStats.stats.totalTokens || 0).toLocaleString()}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex gap-3 justify-end pt-2 border-t border-slate-800">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsStatsModalOpen(false);
-                      setUserStats(null);
-                    }}
-                    className="px-5 py-2 bg-slate-800 hover:bg-slate-750 text-slate-200 font-bold rounded-xl transition-colors text-xs"
-                  >
-                    Đóng
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
         </div>
       )}
 
@@ -1610,7 +1549,17 @@ export default function AdminDashboard() {
                     {calculations.map((calc) => (
                       <tr key={calc._id} className="hover:bg-slate-900/30 transition-colors">
                         <td className="py-4 px-4">
-                          <div className="font-bold text-slate-200">{calc.user?.name || 'Khách'}</div>
+                          {calc.userId && calc.userId !== 'guest' ? (
+                            <button
+                              type="button"
+                              onClick={() => handleUserClick(calc.userId)}
+                              className="font-bold text-slate-200 hover:text-amber-500 text-left transition-colors hover:underline block"
+                            >
+                              {calc.user?.name || 'Thành viên'}
+                            </button>
+                          ) : (
+                            <div className="font-bold text-slate-450">Khách</div>
+                          )}
                           <div className="text-[11px] text-slate-500 font-semibold">{calc.user?.email || 'guest'}</div>
                           <div className="text-[10px] text-slate-450 mt-0.5">ID: {calc.userId}</div>
                         </td>
@@ -1693,9 +1642,17 @@ export default function AdminDashboard() {
                     {/* Header: User name & Email */}
                     <div className="flex justify-between items-start gap-3">
                       <div className="min-w-0">
-                        <span className="font-bold text-slate-200 text-sm block truncate font-serif">
-                          {calc.user?.name || 'Khách'}
-                        </span>
+                        {calc.userId && calc.userId !== 'guest' ? (
+                          <button
+                            type="button"
+                            onClick={() => handleUserClick(calc.userId)}
+                            className="font-bold text-slate-200 hover:text-amber-500 text-left transition-colors text-sm hover:underline block truncate font-serif"
+                          >
+                            {calc.user?.name || 'Thành viên'}
+                          </button>
+                        ) : (
+                          <span className="font-bold text-slate-400 text-sm block truncate font-serif">Khách</span>
+                        )}
                         <span className="text-[11px] text-slate-500 block truncate">{calc.user?.email || 'guest'}</span>
                         <span className="text-[10px] text-slate-450 mt-0.5 block select-all">ID: {calc.userId}</span>
                       </div>
@@ -2098,6 +2055,148 @@ export default function AdminDashboard() {
                   Không có đơn khiếu nại tài khoản nào đang chờ xử lý.
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* USER STATS DETAILS MODAL */}
+      {isStatsModalOpen && userStats && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-lg max-h-[85vh] p-6 relative shadow-2xl flex flex-col space-y-4">
+            <button
+              type="button"
+              onClick={() => {
+                setIsStatsModalOpen(false);
+                setUserStats(null);
+              }}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-200 transition-colors"
+            >
+              <X size={20} />
+            </button>
+            <h3 className="text-xl font-serif font-bold text-amber-500 flex items-center gap-2 border-b border-slate-800 pb-3">
+              <Users size={24} />
+              Chi Tiết Thành Viên & Thống Kê
+            </h3>
+
+            <div className="flex-1 overflow-y-auto space-y-6 pr-1">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="bg-slate-950/50 p-3.5 rounded-xl border border-slate-800/60">
+                  <span className="block text-xs font-bold text-slate-450 uppercase mb-1">Tên hiển thị</span>
+                  <span className="font-semibold text-slate-200">{userStats.user.name}</span>
+                </div>
+                <div className="bg-slate-950/50 p-3.5 rounded-xl border border-slate-800/60">
+                  <span className="block text-xs font-bold text-slate-450 uppercase mb-1">Email</span>
+                  <span className="font-semibold text-slate-200 truncate block">{userStats.user.email}</span>
+                </div>
+                <div className="bg-slate-950/50 p-3.5 rounded-xl border border-slate-800/60">
+                  <span className="block text-xs font-bold text-slate-450 uppercase mb-1">Vai trò</span>
+                  <span className="capitalize font-semibold text-slate-200">{userStats.user.role}</span>
+                </div>
+                <div className="bg-slate-950/50 p-3.5 rounded-xl border border-slate-800/60">
+                  <span className="block text-xs font-bold text-slate-450 uppercase mb-1">Số Credit hiện tại</span>
+                  <span className="font-semibold text-amber-500">{userStats.user.credits}</span>
+                </div>
+                <div className="bg-slate-950/50 p-3.5 rounded-xl border border-slate-800/60">
+                  <span className="block text-xs font-bold text-slate-450 uppercase mb-1">Trạng thái</span>
+                  <span className="font-semibold">
+                    {userStats.user.isDeleted ? (
+                      <span className="text-red-500 bg-red-950/30 px-2 py-0.5 rounded-md border border-red-900/50">Đã xóa</span>
+                    ) : userStats.user.status === 'locked' ? (
+                      <span className="text-amber-500 bg-amber-950/30 px-2 py-0.5 rounded-md border border-amber-900/50">Bị khóa</span>
+                    ) : (
+                      <span className="text-emerald-500 bg-emerald-950/30 px-2 py-0.5 rounded-md border border-emerald-900/50">Hoạt động</span>
+                    )}
+                  </span>
+                </div>
+                <div className="bg-slate-950/50 p-3.5 rounded-xl border border-slate-800/60">
+                  <span className="block text-xs font-bold text-slate-450 uppercase mb-1">Ngày tham gia</span>
+                  <span className="font-semibold text-slate-200">
+                    {new Date(userStats.user.createdAt).toLocaleDateString('vi-VN')}
+                  </span>
+                </div>
+                {userStats.user.status === 'locked' && (
+                  <>
+                    <div className="bg-red-950/20 p-3.5 rounded-xl border border-red-900/30 col-span-2">
+                      <span className="block text-xs font-bold text-red-400 uppercase mb-1">Lý do khóa tài khoản</span>
+                      <span className="font-semibold text-slate-250">{userStats.user.lockReason || 'Không có lý do'}</span>
+                    </div>
+                    <div className="bg-red-950/20 p-3.5 rounded-xl border border-red-900/30 col-span-2">
+                      <span className="block text-xs font-bold text-red-400 uppercase mb-1">Thời điểm bị khóa</span>
+                      <span className="font-semibold text-slate-250">
+                        {new Date(userStats.user.updatedAt).toLocaleString('vi-VN')}
+                      </span>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              <div className="space-y-3">
+                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Thống kê sử dụng</h4>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="bg-slate-950/80 p-3 rounded-xl border border-slate-800 text-center flex flex-col justify-between">
+                    <div>
+                      <span className="block text-[10px] font-bold text-slate-500 mb-1">Kinh Dịch</span>
+                      <div className="text-sm font-bold text-slate-200 mb-1">{userStats.stats.ichingCount} <span className="text-[10px] text-slate-400 font-normal">lần</span></div>
+                    </div>
+                    <div className="space-y-0.5 border-t border-slate-850 pt-1 text-[10px] text-slate-450 font-mono text-left">
+                      <div>Dịch lý: {(userStats.stats.ichingTokens || 0).toLocaleString()}</div>
+                      <div>Chat: {(userStats.stats.ichingChatTokens || 0).toLocaleString()}</div>
+                      <div className="text-amber-500 font-bold border-t border-slate-850/60 pt-0.5 mt-0.5">Tổng: {((userStats.stats.ichingTokens || 0) + (userStats.stats.ichingChatTokens || 0)).toLocaleString()}</div>
+                    </div>
+                  </div>
+                  <div className="bg-slate-950/80 p-3 rounded-xl border border-slate-800 text-center flex flex-col justify-between">
+                    <div>
+                      <span className="block text-[10px] font-bold text-slate-500 mb-1">Bát Tự</span>
+                      <div className="text-sm font-bold text-slate-200 mb-1">{userStats.stats.baziCount} <span className="text-[10px] text-slate-400 font-normal">lần</span></div>
+                    </div>
+                    <div className="space-y-0.5 border-t border-slate-850 pt-1 text-[10px] text-slate-450 font-mono text-left">
+                      <div>Dịch lý: {(userStats.stats.baziTokens || 0).toLocaleString()}</div>
+                      <div>Chat: {(userStats.stats.baziChatTokens || 0).toLocaleString()}</div>
+                      <div className="text-amber-500 font-bold border-t border-slate-850/60 pt-0.5 mt-0.5">Tổng: {((userStats.stats.baziTokens || 0) + (userStats.stats.baziChatTokens || 0)).toLocaleString()}</div>
+                    </div>
+                  </div>
+                  <div className="bg-slate-950/80 p-3 rounded-xl border border-slate-800 text-center flex flex-col justify-between">
+                    <div>
+                      <span className="block text-[10px] font-bold text-slate-500 mb-1">Tử Vi</span>
+                      <div className="text-sm font-bold text-slate-200 mb-1">{userStats.stats.tuviCount} <span className="text-[10px] text-slate-400 font-normal">lần</span></div>
+                    </div>
+                    <div className="space-y-0.5 border-t border-slate-850 pt-1 text-[10px] text-slate-450 font-mono text-left">
+                      <div>Dịch lý: {(userStats.stats.tuviTokens || 0).toLocaleString()}</div>
+                      <div>Chat: {(userStats.stats.tuviChatTokens || 0).toLocaleString()}</div>
+                      <div className="text-amber-500 font-bold border-t border-slate-850/60 pt-0.5 mt-0.5">Tổng: {((userStats.stats.tuviTokens || 0) + (userStats.stats.tuviChatTokens || 0)).toLocaleString()}</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-slate-950/80 p-3.5 rounded-xl border border-slate-800 space-y-1.5 text-xs">
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400 font-semibold">Tổng Token Luận Giải AI:</span>
+                    <span className="text-slate-250 font-mono font-bold">{(userStats.stats.totalInterpretTokens || 0).toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400 font-semibold">Tổng Token Trò Chuyện Chat AI:</span>
+                    <span className="text-slate-250 font-mono font-bold">{(userStats.stats.totalChatTokens || 0).toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm font-bold border-t border-slate-850 pt-2 text-amber-500">
+                    <span>TỔNG CỘNG TOÀN BỘ TOKEN (Luận Giải + Chat):</span>
+                    <span className="font-mono text-base">{(userStats.stats.totalTokens || 0).toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3 justify-end pt-2 border-t border-slate-800">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsStatsModalOpen(false);
+                  setUserStats(null);
+                }}
+                className="px-5 py-2 bg-slate-800 hover:bg-slate-750 text-slate-200 font-bold rounded-xl transition-colors text-xs"
+              >
+                Đóng
+              </button>
             </div>
           </div>
         </div>

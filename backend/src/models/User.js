@@ -57,9 +57,26 @@ const userSchema = new mongoose.Schema({
     year: Number,
     hour: Number,
     minute: Number,
+  },
+  stats: {
+    ichingCount: { type: Number, default: 0 },
+    baziCount: { type: Number, default: 0 },
+    tuviCount: { type: Number, default: 0 },
+    ichingTokens: { type: Number, default: 0 },
+    baziTokens: { type: Number, default: 0 },
+    tuviTokens: { type: Number, default: 0 },
+    ichingChatTokens: { type: Number, default: 0 },
+    baziChatTokens: { type: Number, default: 0 },
+    tuviChatTokens: { type: Number, default: 0 },
+    totalInterpretTokens: { type: Number, default: 0 },
+    totalChatTokens: { type: Number, default: 0 },
+    totalTokens: { type: Number, default: 0 },
+    lastUpdated: { type: Date, default: null }
   }
 }, {
   timestamps: true,
 });
+
+userSchema.index({ "stats.totalTokens": -1 });
 
 module.exports = mongoose.model('User', userSchema);

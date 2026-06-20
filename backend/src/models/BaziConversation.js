@@ -45,4 +45,14 @@ const baziConversationSchema = new mongoose.Schema({
   timestamps: true
 });
 
+baziConversationSchema.index({ userId: 1, totalTokens: 1 });
+baziConversationSchema.index({ createdAt: 1 });
+
+baziConversationSchema.post('save', function(doc) {
+  if (doc.userId && doc.userId !== 'guest') {
+    const UserStatsService = require('../services/UserStatsService');
+    UserStatsService.updateUserStatsBackground(doc.userId);
+  }
+});
+
 module.exports = mongoose.model('BaziConversation', baziConversationSchema);

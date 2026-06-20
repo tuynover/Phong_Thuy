@@ -74,5 +74,14 @@ const baziRecordSchema = new mongoose.Schema({
 });
 
 baziRecordSchema.index({ userId: 1, createdAt: -1 });
+baziRecordSchema.index({ userId: 1, "aiInterpretation.tokensUsed": 1 });
+baziRecordSchema.index({ createdAt: 1 });
+
+baziRecordSchema.post('save', function(doc) {
+  if (doc.userId && doc.userId !== 'guest') {
+    const UserStatsService = require('../services/UserStatsService');
+    UserStatsService.updateUserStatsBackground(doc.userId);
+  }
+});
 
 module.exports = mongoose.model('BaziRecord', baziRecordSchema);

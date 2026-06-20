@@ -413,11 +413,19 @@ class AdminController {
       }
 
       // 1. Total overview stats - using $ne: true to include legacy records
-      const totalUsers = await User.countDocuments({ isDeleted: { $ne: true } });
-      const totalIching = await HexagramRecord.countDocuments({ isDeleted: { $ne: true } });
-      const totalBazi = await BaziRecord.countDocuments({ isDeleted: { $ne: true } });
-      const totalTuvi = await TuViRecord.countDocuments({ isDeleted: { $ne: true } });
-      const totalAppeals = await BanAppeal.countDocuments({ status: 'pending' });
+      const [
+        totalUsers,
+        totalIching,
+        totalBazi,
+        totalTuvi,
+        totalAppeals
+      ] = await Promise.all([
+        User.countDocuments({ isDeleted: { $ne: true } }),
+        HexagramRecord.countDocuments({ isDeleted: { $ne: true } }),
+        BaziRecord.countDocuments({ isDeleted: { $ne: true } }),
+        TuViRecord.countDocuments({ isDeleted: { $ne: true } }),
+        BanAppeal.countDocuments({ status: 'pending' })
+      ]);
 
       // Generate dateFormat
       const dateFormat = groupBy === 'hour' ? '%Y-%m-%d %H:00' : '%Y-%m-%d';
@@ -457,62 +465,67 @@ class AdminController {
         safetyCount++;
       }
 
-      // 2. Access Logs over time
-      const accesses = await SystemLog.aggregate([
-        { $match: { timestamp: { $gte: start, $lte: end } } },
-        {
-          $group: {
-            _id: { $dateToString: { format: dateFormat, date: '$timestamp', timezone: 'Asia/Ho_Chi_Minh' } },
-            visits: { $sum: 1 }
+      const matchRange = { createdAt: { $gte: start, $lte: end }, isDeleted: { $ne: true } };
+      const conversationMatchRange = { createdAt: { $gte: start, $lte: end } };
+
+      // 2. 3. 4. Parallelized aggregates over time
+      const [
+        accesses,
+        baziTimeline,
+        ichingTimeline,
+        tuviTimeline,
+        baziTokens,
+        ichingTokens,
+        tuviTokens,
+        baziChatTokens,
+        ichingChatTokens,
+        tuviChatTokens
+      ] = await Promise.all([
+        SystemLog.aggregate([
+          { $match: { timestamp: { $gte: start, $lte: end } } },
+          {
+            $group: {
+              _id: { $dateToString: { format: dateFormat, date: '$timestamp', timezone: 'Asia/Ho_Chi_Minh' } },
+              visits: { $sum: 1 }
+            }
           }
-        }
-      ]);
-
-      // 3. Calculation distribution over time
-      const matchRange = { createdAt: { $gte: start, $lte: end } };
-      
-      const baziTimeline = await BaziRecord.aggregate([
-        { $match: matchRange },
-        { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, count: { $sum: 1 } } }
-      ]);
-      const ichingTimeline = await HexagramRecord.aggregate([
-        { $match: matchRange },
-        { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, count: { $sum: 1 } } }
-      ]);
-      const tuviTimeline = await TuViRecord.aggregate([
-        { $match: matchRange },
-        { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, count: { $sum: 1 } } }
-      ]);
-
-      // 4. Token usage components over time
-      const baziTokens = await BaziRecord.aggregate([
-        { $match: { ...matchRange, 'aiInterpretation.tokensUsed': { $gt: 0 } } },
-        { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, tokens: { $sum: '$aiInterpretation.tokensUsed' } } }
-      ]);
-
-      const ichingTokens = await HexagramRecord.aggregate([
-        { $match: { ...matchRange, 'aiInterpretation.tokensUsed': { $gt: 0 } } },
-        { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, tokens: { $sum: '$aiInterpretation.tokensUsed' } } }
-      ]);
-
-      const tuviTokens = await TuViRecord.aggregate([
-        { $match: { ...matchRange, 'aiInterpretation.tokensUsed': { $gt: 0 } } },
-        { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, tokens: { $sum: '$aiInterpretation.tokensUsed' } } }
-      ]);
-
-      const baziChatTokens = await BaziConversation.aggregate([
-        { $match: { ...matchRange, totalTokens: { $gt: 0 } } },
-        { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, tokens: { $sum: '$totalTokens' } } }
-      ]);
-
-      const ichingChatTokens = await HexagramConversation.aggregate([
-        { $match: { ...matchRange, totalTokens: { $gt: 0 } } },
-        { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, tokens: { $sum: '$totalTokens' } } }
-      ]);
-
-      const tuviChatTokens = await TuViConversation.aggregate([
-        { $match: { ...matchRange, totalTokens: { $gt: 0 } } },
-        { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, tokens: { $sum: '$totalTokens' } } }
+        ]),
+        BaziRecord.aggregate([
+          { $match: matchRange },
+          { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, count: { $sum: 1 } } }
+        ]),
+        HexagramRecord.aggregate([
+          { $match: matchRange },
+          { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, count: { $sum: 1 } } }
+        ]),
+        TuViRecord.aggregate([
+          { $match: matchRange },
+          { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, count: { $sum: 1 } } }
+        ]),
+        BaziRecord.aggregate([
+          { $match: { ...matchRange, 'aiInterpretation.tokensUsed': { $gt: 0 } } },
+          { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, tokens: { $sum: '$aiInterpretation.tokensUsed' } } }
+        ]),
+        HexagramRecord.aggregate([
+          { $match: { ...matchRange, 'aiInterpretation.tokensUsed': { $gt: 0 } } },
+          { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, tokens: { $sum: '$aiInterpretation.tokensUsed' } } }
+        ]),
+        TuViRecord.aggregate([
+          { $match: { ...matchRange, 'aiInterpretation.tokensUsed': { $gt: 0 } } },
+          { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, tokens: { $sum: '$aiInterpretation.tokensUsed' } } }
+        ]),
+        BaziConversation.aggregate([
+          { $match: { ...conversationMatchRange, totalTokens: { $gt: 0 } } },
+          { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, tokens: { $sum: '$totalTokens' } } }
+        ]),
+        HexagramConversation.aggregate([
+          { $match: { ...conversationMatchRange, totalTokens: { $gt: 0 } } },
+          { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, tokens: { $sum: '$totalTokens' } } }
+        ]),
+        TuViConversation.aggregate([
+          { $match: { ...conversationMatchRange, totalTokens: { $gt: 0 } } },
+          { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, tokens: { $sum: '$totalTokens' } } }
+        ])
       ]);
 
       // Map everything to a unified timeline array with zero-filling
@@ -619,82 +632,27 @@ class AdminController {
 
       const timeline = Array.from(timelineMap.values());
 
-      // 5. User resource consumption drill-down (Top 10 consumers to avoid N+1 query)
-      const drillDownMap = new Map();
-      
-      const sumUserStats = async (model, recordType) => {
-        const stats = await model.aggregate([
-          { $match: { ...matchRange, userId: { $ne: 'guest' } } },
-          {
-            $group: {
-              _id: '$userId',
-              count: { $sum: 1 },
-              tokens: { $sum: { $ifNull: ['$aiInterpretation.tokensUsed', 0] } }
-            }
-          }
-        ]);
+      // 5. User resource consumption drill-down (Top 10 consumers directly from User stats)
+      const topUsers = await User.find({
+        isDeleted: { $ne: true },
+        'stats.totalTokens': { $gt: 0 }
+      })
+      .sort({ 'stats.totalTokens': -1 })
+      .limit(10)
+      .select('email name stats')
+      .lean();
 
-        for (const item of stats) {
-          const uid = item._id;
-          if (!uid || uid === 'guest') continue;
-          const current = drillDownMap.get(uid) || { tokens: 0, bazi: 0, iching: 0, tuvi: 0, chatTokens: 0, interpretationTokens: 0 };
-          current.tokens += item.tokens;
-          current.interpretationTokens = (current.interpretationTokens || 0) + item.tokens;
-          current[recordType] = item.count;
-          drillDownMap.set(uid, current);
-        }
-      };
-
-      const sumChatStats = async (model) => {
-        const stats = await model.aggregate([
-          { $match: { ...matchRange, userId: { $ne: 'guest' } } },
-          {
-            $group: {
-              _id: '$userId',
-              tokens: { $sum: { $ifNull: ['$totalTokens', 0] } }
-            }
-          }
-        ]);
-
-        for (const item of stats) {
-          const uid = item._id;
-          if (!uid || uid === 'guest') continue;
-          const current = drillDownMap.get(uid) || { tokens: 0, bazi: 0, iching: 0, tuvi: 0, chatTokens: 0, interpretationTokens: 0 };
-          current.tokens += item.tokens;
-          current.chatTokens = (current.chatTokens || 0) + item.tokens;
-          drillDownMap.set(uid, current);
-        }
-      };
-
-      await sumUserStats(BaziRecord, 'bazi');
-      await sumUserStats(HexagramRecord, 'iching');
-      await sumUserStats(TuViRecord, 'tuvi');
-
-      await sumChatStats(BaziConversation);
-      await sumChatStats(HexagramConversation);
-      await sumChatStats(TuViConversation);
-
-      // Sort drillDownMap by tokens used and slice top 10 to completely avoid N+1 query
-      const sortedDrillDownEntries = Array.from(drillDownMap.entries())
-        .sort((a, b) => b[1].tokens - a[1].tokens)
-        .slice(0, 10);
-
-      const topUserIds = sortedDrillDownEntries.map(([uid]) => uid);
-      const topUsers = await User.find({ _id: { $in: topUserIds } }).select('email name').lean();
-      const topUsersMap = new Map(topUsers.map(u => [u._id.toString(), u]));
-
-      const userConsumptionList = [];
-      for (const [uid, stats] of sortedDrillDownEntries) {
-        const u = topUsersMap.get(uid.toString());
-        if (u) {
-          userConsumptionList.push({
-            userId: uid,
-            name: u.name,
-            email: u.email,
-            ...stats
-          });
-        }
-      }
+      const userConsumptionList = topUsers.map(u => ({
+        userId: u._id.toString(),
+        name: u.name,
+        email: u.email,
+        tokens: u.stats?.totalTokens || 0,
+        bazi: u.stats?.baziCount || 0,
+        iching: u.stats?.ichingCount || 0,
+        tuvi: u.stats?.tuviCount || 0,
+        chatTokens: u.stats?.totalChatTokens || 0,
+        interpretationTokens: u.stats?.totalInterpretTokens || 0
+      }));
 
       return res.json({
         overview: {
@@ -813,74 +771,15 @@ class AdminController {
       const targetUser = await User.findById(id).select('-password').lean();
       if (!targetUser) return res.status(404).json({ error: 'Không tìm thấy người dùng.' });
 
-      const [
-        ichingCount,
-        baziCount,
-        tuviCount,
-        ichingTokensRes,
-        baziTokensRes,
-        tuviTokensRes,
-        ichingChatTokensRes,
-        baziChatTokensRes,
-        tuviChatTokensRes
-      ] = await Promise.all([
-        HexagramRecord.countDocuments({ userId: id, isDeleted: { $ne: true } }),
-        BaziRecord.countDocuments({ userId: id, isDeleted: { $ne: true } }),
-        TuViRecord.countDocuments({ userId: id, isDeleted: { $ne: true } }),
-        HexagramRecord.aggregate([
-          { $match: { userId: id, 'aiInterpretation.tokensUsed': { $gt: 0 } } },
-          { $group: { _id: null, total: { $sum: '$aiInterpretation.tokensUsed' } } }
-        ]),
-        BaziRecord.aggregate([
-          { $match: { userId: id, 'aiInterpretation.tokensUsed': { $gt: 0 } } },
-          { $group: { _id: null, total: { $sum: '$aiInterpretation.tokensUsed' } } }
-        ]),
-        TuViRecord.aggregate([
-          { $match: { userId: id, 'aiInterpretation.tokensUsed': { $gt: 0 } } },
-          { $group: { _id: null, total: { $sum: '$aiInterpretation.tokensUsed' } } }
-        ]),
-        HexagramConversation.aggregate([
-          { $match: { userId: id } },
-          { $group: { _id: null, total: { $sum: '$totalTokens' } } }
-        ]),
-        BaziConversation.aggregate([
-          { $match: { userId: id } },
-          { $group: { _id: null, total: { $sum: '$totalTokens' } } }
-        ]),
-        TuViConversation.aggregate([
-          { $match: { userId: id } },
-          { $group: { _id: null, total: { $sum: '$totalTokens' } } }
-        ])
-      ]);
-
-      const ichingTokens = ichingTokensRes[0]?.total || 0;
-      const baziTokens = baziTokensRes[0]?.total || 0;
-      const tuviTokens = tuviTokensRes[0]?.total || 0;
-
-      const ichingChatTokens = ichingChatTokensRes[0]?.total || 0;
-      const baziChatTokens = baziChatTokensRes[0]?.total || 0;
-      const tuviChatTokens = tuviChatTokensRes[0]?.total || 0;
-
-      const totalInterpretTokens = ichingTokens + baziTokens + tuviTokens;
-      const totalChatTokens = ichingChatTokens + baziChatTokens + tuviChatTokens;
-      const totalTokens = totalInterpretTokens + totalChatTokens;
+      let stats = targetUser.stats;
+      if (!stats || !stats.lastUpdated) {
+        const UserStatsService = require('../services/UserStatsService');
+        stats = await UserStatsService.updateUserStats(id);
+      }
 
       return res.json({
         user: targetUser,
-        stats: {
-          ichingCount,
-          baziCount,
-          tuviCount,
-          ichingTokens,
-          baziTokens,
-          tuviTokens,
-          ichingChatTokens,
-          baziChatTokens,
-          tuviChatTokens,
-          totalInterpretTokens,
-          totalChatTokens,
-          totalTokens
-        }
+        stats
       });
     } catch (error) {
       console.error('[AdminController.getUserStats] Error:', error);

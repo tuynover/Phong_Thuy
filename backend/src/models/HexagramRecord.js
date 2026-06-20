@@ -90,5 +90,14 @@ const hexagramRecordSchema = new mongoose.Schema({
 });
 
 hexagramRecordSchema.index({ userId: 1, createdAt: -1 });
+hexagramRecordSchema.index({ userId: 1, "aiInterpretation.tokensUsed": 1 });
+hexagramRecordSchema.index({ createdAt: 1 });
+
+hexagramRecordSchema.post('save', function(doc) {
+  if (doc.userId && doc.userId !== 'guest') {
+    const UserStatsService = require('../services/UserStatsService');
+    UserStatsService.updateUserStatsBackground(doc.userId);
+  }
+});
 
 module.exports = mongoose.model('HexagramRecord', hexagramRecordSchema);

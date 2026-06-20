@@ -269,7 +269,7 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId }) => {
           <button 
             type="button"
             onClick={handleViewOwnTuVi}
-            className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-2xl font-extrabold shadow-lg transition-transform hover:-translate-y-0.5 active:translate-y-0 text-lg w-full mb-4"
+            className="bg-[#faf6f0] border-2 border-amber-200/60 text-amber-900 px-8 py-4 rounded-2xl font-bold shadow-md transition-all hover:bg-purple-600 hover:border-purple-600 hover:text-white hover:shadow-lg hover:shadow-purple-600/20 active:bg-purple-700 hover:-translate-y-0.5 active:translate-y-0 text-lg w-full mb-4"
           >
             Xem Lá Số Của Bản Thân
           </button>

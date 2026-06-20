@@ -38,6 +38,10 @@ const updateByIdFlex = async (Model, id, update) => {
         );
         if (rawObj) record = Model.hydrate(rawObj);
     }
+    if (record && record.userId && record.userId !== 'guest') {
+        const UserStatsService = require('../services/UserStatsService');
+        UserStatsService.updateUserStatsBackground(record.userId);
+    }
     return record;
 };
 

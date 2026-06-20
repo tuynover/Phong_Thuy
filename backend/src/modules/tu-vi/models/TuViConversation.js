@@ -53,4 +53,14 @@ const tuViConversationSchema = new mongoose.Schema({
   timestamps: true
 });
 
+tuViConversationSchema.index({ userId: 1, totalTokens: 1 });
+tuViConversationSchema.index({ createdAt: 1 });
+
+tuViConversationSchema.post('save', function(doc) {
+  if (doc.userId && doc.userId !== 'guest') {
+    const UserStatsService = require('../../../services/UserStatsService');
+    UserStatsService.updateUserStatsBackground(doc.userId);
+  }
+});
+
 module.exports = mongoose.model('TuViConversation', tuViConversationSchema);
