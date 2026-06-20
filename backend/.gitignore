@@ -1,5 +1,2 @@
 node_modules
 .env
-backend/src/models
-backend/src/controllers
-backend/src/data

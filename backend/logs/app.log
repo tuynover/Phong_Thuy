@@ -8558,3 +8558,11 @@ Stack: Error: Wrong recipient, payload audience != requiredAudience
 [2026-06-20T10:43:25.480Z] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 147ms] Hoàn thành: Phản hồi thành công (304)
 [2026-06-20T10:44:25.339Z] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
 [2026-06-20T10:44:25.523Z] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 184ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-20T10:45:25.330Z] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-06-20T10:45:25.475Z] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 146ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-20T10:46:26.261Z] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-06-20T10:46:26.412Z] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 152ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-20T10:47:26.268Z] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-06-20T10:47:26.425Z] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 159ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-20T10:48:32.274Z] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-06-20T10:48:32.422Z] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 149ms] Hoàn thành: Phản hồi thành công (304)
