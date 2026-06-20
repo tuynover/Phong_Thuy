@@ -245,7 +245,7 @@ class TuViController {
         status: { $ne: 'locked' } 
       })
         .sort({ createdAt: -1 })
-        .select('-chartData -aiInterpretation -analysisSnapshot')
+        .select('-chartData.palaces -analysisSnapshot') // Cắt bớt phần hiển thị chi tiết khi tải list
         .limit(limit)
         .lean();
 

@@ -9,7 +9,7 @@ import AuthModal from './AuthModal';
 import UpdateBaziModal from './UpdateBaziModal';
 import NotificationBell from './NotificationBell';
 import { AuthContext } from '../context/AuthContext';
-import { calculateDivination, analyzeBazi, linkHexagram, linkBazi, getHexagramRecord, getBaziRecord } from '../services/api';
+import { calculateDivination, analyzeBazi, linkHexagram, linkBazi, getHexagramRecord } from '../services/api';
 import { UserCircle, LogOut, CalendarDays, Shield } from 'lucide-react';
 import { Lunar } from 'lunar-javascript';
 
@@ -34,20 +34,6 @@ export default function UserApp({ onSwitchToAdmin }) {
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  // Preload lazy modules (HistoryBoard, BaziBoard, TuViBoard) to remove "Đang tải phân hệ..." delay
-  useEffect(() => {
-    const preloadLazyComponents = () => {
-      import('./HistoryBoard').catch(() => {});
-      import('./BaziBoard').catch(() => {});
-      import('./TuViBoard').catch(() => {});
-    };
-    if (window.requestIdleCallback) {
-      window.requestIdleCallback(preloadLazyComponents);
-    } else {
-      setTimeout(preloadLazyComponents, 2500);
-    }
   }, []);
 
   // Tu Vi State
@@ -171,47 +157,27 @@ export default function UserApp({ onSwitchToAdmin }) {
     setLoading(false);
   };
 
-  const handleViewHistoricalHexagram = async (recordWrapper) => {
-    setLoading(true);
-    try {
-      const res = await getHexagramRecord(recordWrapper._id || recordWrapper.id);
-      const fullRecord = res.data;
-      setResult({
-        recordId: fullRecord._id || fullRecord.id,
-        primary: fullRecord.primaryHexagram,
-        secondary: fullRecord.transformedHexagram,
-        primaryLines: fullRecord.primaryLines || [],
-        secondaryLines: fullRecord.secondaryLines || [],
-        movingLines: fullRecord.movingLines || [],
-        dateInfo: fullRecord.lunarDateInfo,
-        aiInterpretation: fullRecord.aiInterpretation || ''
-      });
-      setAppMode('iching');
-    } catch (err) {
-      console.error("Lỗi khi tải chi tiết quẻ dịch:", err);
-      alert("Không thể tải chi tiết quẻ dịch này. Vui lòng thử lại sau.");
-    } finally {
-      setLoading(false);
-    }
+  const handleViewHistoricalHexagram = (recordWrapper) => {
+    setResult({
+      recordId: recordWrapper._id || recordWrapper.id,
+      primary: recordWrapper.primaryHexagram,
+      secondary: recordWrapper.transformedHexagram,
+      primaryLines: recordWrapper.primaryLines || [],
+      secondaryLines: recordWrapper.secondaryLines || [],
+      movingLines: recordWrapper.movingLines || [],
+      dateInfo: recordWrapper.lunarDateInfo,
+      aiInterpretation: recordWrapper.aiInterpretation || ''
+    });
+    setAppMode('iching');
   };
 
-  const handleViewHistoricalBazi = async (record) => {
-    setLoading(true);
-    try {
-      const res = await getBaziRecord(record._id || record.id);
-      const fullRecord = res.data;
-      setBaziResult({
-        ...fullRecord.baziData,
-        recordId: fullRecord._id || fullRecord.id,
-        aiInterpretation: fullRecord.aiInterpretation
-      });
-      setAppMode('bazi');
-    } catch (err) {
-      console.error("Lỗi khi tải chi tiết lá số Bát Tự:", err);
-      alert("Không thể tải chi tiết lá số Bát Tự này. Vui lòng thử lại sau.");
-    } finally {
-      setLoading(false);
-    }
+  const handleViewHistoricalBazi = (record) => {
+    setBaziResult({
+      ...record.baziData,
+      recordId: record._id || record.id,
+      aiInterpretation: record.aiInterpretation
+    });
+    setAppMode('bazi');
   };
 
   const handleViewHistoricalTuVi = (record) => {

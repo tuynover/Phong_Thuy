@@ -150,7 +150,6 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
     setUser(null);
     localStorage.removeItem('user');
-    localStorage.removeItem('token');
   };
 
   return (

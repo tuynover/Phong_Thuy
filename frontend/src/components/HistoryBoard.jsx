@@ -13,9 +13,6 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewTuVi }) => {
     const [bazis, setBazis] = useState([]);
     const [tuvis, setTuvis] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [hasFetchedHex, setHasFetchedHex] = useState(false);
-    const [hasFetchedBazi, setHasFetchedBazi] = useState(false);
-    const [hasFetchedTuvi, setHasFetchedTuvi] = useState(false);
     const [activeTab, setActiveTab] = useState('hexagram'); // 'hexagram' | 'bazi' | 'tu_vi'
     const [dialog, setDialog] = useState(null); // { type: 'confirm' | 'success' | 'error', message: '', onConfirm: null }
 
@@ -33,64 +30,26 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewTuVi }) => {
         setDialog({ type, message });
     };
 
-    // Reset cache on user change
-    useEffect(() => {
-        setHexagrams([]);
-        setBazis([]);
-        setTuvis([]);
-        setHasFetchedHex(false);
-        setHasFetchedBazi(false);
-        setHasFetchedTuvi(false);
-    }, [user]);
-
-    // Lazy load when tab changes
     useEffect(() => {
         if (user) {
-            if (activeTab === 'hexagram' && !hasFetchedHex) {
-                fetchHexagrams();
-            } else if (activeTab === 'bazi' && !hasFetchedBazi) {
-                fetchBazis();
-            } else if (activeTab === 'tu_vi' && !hasFetchedTuvi) {
-                fetchTuvis();
-            }
+            fetchData();
         }
-    }, [user, activeTab, hasFetchedHex, hasFetchedBazi, hasFetchedTuvi]);
+    }, [user]);
 
-    const fetchHexagrams = async () => {
+    const fetchData = async () => {
         setLoading(true);
         try {
             const userId = user.id || user._id;
-            const res = await getHexagramHistory(userId);
-            setHexagrams(res.data);
-            setHasFetchedHex(true);
+            const [hexRes, baziRes, tuviRes] = await Promise.all([
+                getHexagramHistory(userId),
+                getBaziHistory(userId),
+                getTuViHistory(userId)
+            ]);
+            setHexagrams(hexRes.data);
+            setBazis(baziRes.data);
+            setTuvis(tuviRes.data);
         } catch (error) {
-            console.error("Error fetching hexagram history", error);
-        }
-        setLoading(false);
-    };
-
-    const fetchBazis = async () => {
-        setLoading(true);
-        try {
-            const userId = user.id || user._id;
-            const res = await getBaziHistory(userId);
-            setBazis(res.data);
-            setHasFetchedBazi(true);
-        } catch (error) {
-            console.error("Error fetching bazi history", error);
-        }
-        setLoading(false);
-    };
-
-    const fetchTuvis = async () => {
-        setLoading(true);
-        try {
-            const userId = user.id || user._id;
-            const res = await getTuViHistory(userId);
-            setTuvis(res.data);
-            setHasFetchedTuvi(true);
-        } catch (error) {
-            console.error("Error fetching tuvi history", error);
+            console.error("Error fetching history", error);
         }
         setLoading(false);
     };
