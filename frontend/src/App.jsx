@@ -29,6 +29,8 @@ function App() {
     );
   }
 
+  const showAdmin = isAdminMode && user && (user.role === 'admin' || user.role === 'co-admin');
+
   return (
     <React.Suspense fallback={
       <div className="min-h-screen bg-[#f8f5f0] flex items-center justify-center font-sans">
@@ -38,7 +40,7 @@ function App() {
         </div>
       </div>
     }>
-      {isAdminMode ? (
+      {showAdmin ? (
         <AdminApp onSwitchToUser={() => setIsAdminMode(false)} />
       ) : (
         <UserApp onSwitchToAdmin={() => setIsAdminMode(true)} />

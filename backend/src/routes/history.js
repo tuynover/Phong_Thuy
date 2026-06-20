@@ -16,6 +16,7 @@ const aiLimiter = rateLimiter({
 router.get('/hexagrams/record/:id', HistoryController.getHexagramRecord);
 router.get('/hexagrams/:userId', HistoryController.getHexagramHistory);
 router.get('/bazi/:userId', HistoryController.getBaziHistory);
+router.get('/bazi/record/:id', HistoryController.getBaziRecord);
 router.put('/hexagrams/:id/rate', HistoryController.rateHexagram);
 router.put('/bazi/:id/rate', HistoryController.rateBazi);
 router.put('/hexagrams/:id/link', HistoryController.linkHexagram);

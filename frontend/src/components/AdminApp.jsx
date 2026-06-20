@@ -509,6 +509,8 @@ export default function AdminApp({ onSwitchToUser }) {
     });
   };
 
+  if (!currentUser) return null;
+
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-3xl p-4 sm:p-8 text-slate-100 shadow-2xl font-sans min-h-[70vh] flex flex-col space-y-6">
       
