@@ -23,7 +23,7 @@ const LUNAR_HOURS = [
   { index: 11, name: "Hợi (21:00 - 22:59)" }
 ];
 
-const TuViBoard = ({ user, onRequireLogin, historicalRecordId }) => {
+const TuViBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationComplete }) => {
   const { user: ctxUser, setUser } = useContext(AuthContext);
   const activeUser = ctxUser || user;
   const [day, setDay] = useState('');
@@ -91,6 +91,7 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId }) => {
       setResult(record);
       setProgress(100);
       setLoading(false);
+      if (onCalculationComplete) onCalculationComplete();
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.error || 'Lỗi xảy ra trong quá trình lập lá số.');
@@ -154,6 +155,7 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId }) => {
       setResult(record);
       setProgress(100);
       setLoading(false);
+      if (onCalculationComplete) onCalculationComplete();
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.error || 'Lỗi xảy ra trong quá trình lập lá số.');

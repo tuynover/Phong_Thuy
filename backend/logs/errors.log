@@ -429,3 +429,55 @@ Stack: Error: Wrong recipient, payload audience != requiredAudience
 [2026-06-20T12:00:04.756Z] [WARN] [User: test_user@example.com] [Action: Đăng nhập] [IP: ::1] [Duration: 145ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
 [2026-06-20T12:00:06.385Z] [WARN] [User: test_coadmin1@example.com (Test Co-Admin 1)] [Action: POST /api/admin/users/019ee4e6-c599-7241-b309-7007daa39ce2/lock] [IP: ::1] [Duration: 142ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
 [2026-06-20T12:00:06.511Z] [WARN] [User: test_coadmin1@example.com (Test Co-Admin 1)] [Action: POST /api/admin/users/019ee4e6-c561-70bd-a3d0-08eaa3a45ad7/lock] [IP: ::1] [Duration: 124ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
+[2026-06-23T13:50:42.905Z] [WARN] [User: anonymous] [Action: Luận Giải Kinh Dịch AI] [IP: ::1] [Duration: 4ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (401)
+[2026-06-23T13:51:06.242Z] [WARN] [User: test_user@example.com (Test User)] [Action: Luận Giải Kinh Dịch AI] [IP: ::1] [Duration: 207ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (402)
+[2026-06-23T13:51:08.025Z] [WARN] [User: test_user@example.com] [Action: Đăng nhập] Đăng nhập thất bại: Tài khoản [test_user@example.com] đang bị khóa.
+[2026-06-23T13:51:08.091Z] [WARN] [User: test_user@example.com] [Action: Đăng nhập] [IP: ::1] [Duration: 127ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
+[2026-06-23T13:51:09.633Z] [WARN] [User: test_coadmin1@example.com (Test Co-Admin 1)] [Action: POST /api/admin/users/019ef4bf-576f-7c6f-9112-120154a92f21/lock] [IP: ::1] [Duration: 129ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
+[2026-06-23T13:51:09.769Z] [WARN] [User: test_coadmin1@example.com (Test Co-Admin 1)] [Action: POST /api/admin/users/019ef4bf-572d-7d12-b040-4c4baf584447/lock] [IP: ::1] [Duration: 132ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
+[2026-06-23T13:58:13.499Z] [WARN] [User: cobatuoc@gmail.com] [Action: Đăng nhập] Đăng nhập thất bại: Tài khoản [cobatuoc@gmail.com] đang bị khóa.
+[2026-06-23T13:58:13.584Z] [WARN] [User: cobatuoc@gmail.com] [Action: Đăng nhập] [IP: ::1] [Duration: 156ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
+[2026-06-23T14:02:26.123Z] [WARN] [User: cobatuoc@gmail.com] [Action: Đăng nhập] Đăng nhập thất bại: Tài khoản [cobatuoc@gmail.com] đang bị khóa.
+[2026-06-23T14:02:26.190Z] [WARN] [User: cobatuoc@gmail.com] [Action: Đăng nhập] [IP: ::1] [Duration: 133ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
+[2026-06-23T14:08:20.611Z] [WARN] [User: anonymous] [Action: Luận Giải Kinh Dịch AI] [IP: ::1] [Duration: 1ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (401)
+[2026-06-23T14:08:32.419Z] [WARN] [User: test_user@example.com (Test User)] [Action: Luận Giải Kinh Dịch AI] [IP: ::1] [Duration: 115ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (402)
+[2026-06-23T14:08:34.341Z] [WARN] [User: test_user@example.com] [Action: Đăng nhập] Đăng nhập thất bại: Tài khoản [test_user@example.com] đang bị khóa.
+[2026-06-23T14:08:34.413Z] [WARN] [User: test_user@example.com] [Action: Đăng nhập] [IP: ::1] [Duration: 140ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
+[2026-06-23T14:08:36.049Z] [WARN] [User: test_coadmin1@example.com (Test Co-Admin 1)] [Action: POST /api/admin/users/019ef4cf-798f-7593-984f-2997d1aa42e6/lock] [IP: ::1] [Duration: 145ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
+[2026-06-23T14:08:36.197Z] [WARN] [User: test_coadmin1@example.com (Test Co-Admin 1)] [Action: POST /api/admin/users/019ef4cf-77ff-7846-8f8e-57288a9a959f/lock] [IP: ::1] [Duration: 143ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
+[2026-06-23T14:22:16.960Z] [WARN] [User: anonymous] [Action: Luận Giải Kinh Dịch AI] [IP: ::1] [Duration: 2ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (401)
+[2026-06-23T14:22:36.564Z] [WARN] [User: test_user@example.com (Test User)] [Action: Luận Giải Kinh Dịch AI] [IP: ::1] [Duration: 139ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (402)
+[2026-06-23T14:22:38.771Z] [WARN] [User: test_user@example.com] [Action: Đăng nhập] Đăng nhập thất bại: Tài khoản [test_user@example.com] đang bị khóa.
+[2026-06-23T14:22:38.853Z] [WARN] [User: test_user@example.com] [Action: Đăng nhập] [IP: ::1] [Duration: 170ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
+[2026-06-23T14:22:40.700Z] [WARN] [User: test_coadmin1@example.com (Test Co-Admin 1)] [Action: POST /api/admin/users/019ef4dc-3cca-74c9-becd-04ac52d3ea6c/lock] [IP: ::1] [Duration: 164ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
+[2026-06-23T14:22:40.859Z] [WARN] [User: test_coadmin1@example.com (Test Co-Admin 1)] [Action: POST /api/admin/users/019ef4dc-3c77-7ed8-b3a9-aea984ae1d97/lock] [IP: ::1] [Duration: 155ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
+[2026-06-23T14:27:09.343Z] [WARN] [User: anonymous] [Action: Luận Giải Kinh Dịch AI] [IP: ::1] [Duration: 2ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (401)
+[2026-06-23T14:27:24.463Z] [WARN] [User: test_user@example.com (Test User)] [Action: Luận Giải Kinh Dịch AI] [IP: ::1] [Duration: 466ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (402)
+[2026-06-23T14:27:26.277Z] [WARN] [User: test_user@example.com] [Action: Đăng nhập] Đăng nhập thất bại: Tài khoản [test_user@example.com] đang bị khóa.
+[2026-06-23T14:27:26.354Z] [WARN] [User: test_user@example.com] [Action: Đăng nhập] [IP: ::1] [Duration: 154ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
+[2026-06-23T14:27:28.078Z] [WARN] [User: test_coadmin1@example.com (Test Co-Admin 1)] [Action: POST /api/admin/users/019ef4e0-b3a7-7bbe-99c0-7b19ff346239/lock] [IP: ::1] [Duration: 163ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
+[2026-06-23T14:27:28.242Z] [WARN] [User: test_coadmin1@example.com (Test Co-Admin 1)] [Action: POST /api/admin/users/019ef4e0-b368-7f90-ba3b-e3278bc36b2f/lock] [IP: ::1] [Duration: 159ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
+[2026-06-23T14:30:53.500Z] [WARN] [User: anonymous] [Action: Luận Giải Kinh Dịch AI] [IP: ::1] [Duration: 2ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (401)
+[2026-06-23T14:31:04.682Z] [WARN] [User: test_user@example.com (Test User)] [Action: Luận Giải Kinh Dịch AI] [IP: ::1] [Duration: 116ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (402)
+[2026-06-23T14:31:06.475Z] [WARN] [User: test_user@example.com] [Action: Đăng nhập] Đăng nhập thất bại: Tài khoản [test_user@example.com] đang bị khóa.
+[2026-06-23T14:31:06.551Z] [WARN] [User: test_user@example.com] [Action: Đăng nhập] [IP: ::1] [Duration: 177ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
+[2026-06-23T14:31:08.163Z] [WARN] [User: test_coadmin1@example.com (Test Co-Admin 1)] [Action: POST /api/admin/users/019ef4e4-1c0d-7e6b-acf1-81aa23f2c7d1/lock] [IP: ::1] [Duration: 152ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
+[2026-06-23T14:31:08.297Z] [WARN] [User: test_coadmin1@example.com (Test Co-Admin 1)] [Action: POST /api/admin/users/019ef4e4-1bd0-75e5-b460-fab92918deea/lock] [IP: ::1] [Duration: 130ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
+[2026-06-23T14:33:20.421Z] [WARN] [User: test_admin@example.com] [Action: Đăng nhập] [IP: ::1] [Duration: 1ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (429)
+[2026-06-23T14:33:20.426Z] [WARN] [User: test_coadmin1@example.com] [Action: Đăng nhập] [IP: ::1] [Duration: 1ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (429)
+[2026-06-23T14:33:21.855Z] [WARN] [User: anonymous] [Action: Luận Giải Kinh Dịch AI] [IP: ::1] [Duration: 1ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (401)
+[2026-06-23T14:33:32.706Z] [WARN] [User: test_user@example.com (Test User)] [Action: Luận Giải Kinh Dịch AI] [IP: ::1] [Duration: 127ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (402)
+[2026-06-23T14:33:33.501Z] [WARN] [User: anonymous] [Action: DELETE /api/admin/calculations/iching/019ef4e6-6a67-7641-bd57-839323f155de] [IP: ::1] [Duration: 10ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (401)
+[2026-06-23T14:35:16.844Z] [WARN] [User: test_user@example.com] [Action: Đăng nhập] [IP: ::1] [Duration: 1ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (429)
+[2026-06-23 21:48:00.774] [WARN] [IP: 192.168.1.5] Phát hiện cảnh báo tài nguyên hệ thống chạm ngưỡng.
+[2026-06-23 21:48:00.774] [ERROR] [IP: ::1] Luận giải gặp lỗi kết nối với mô hình AI.
+Stack: Error: Connection timeout to AI Model API
+    at Object.<anonymous> (C:\Users\cobat\.gemini\antigravity\brain\6c5f952a-33d6-4b73-9062-7ab6862592ab\scratch\test_log_format.js:7:59)
+    at Module._compile (node:internal/modules/cjs/loader:1688:14)
+    at Object..js (node:internal/modules/cjs/loader:1820:10)
+    at Module.load (node:internal/modules/cjs/loader:1423:32)
+    at Function._load (node:internal/modules/cjs/loader:1246:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+    at node:internal/main/run_main_module:36:49

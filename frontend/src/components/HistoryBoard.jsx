@@ -1,20 +1,22 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { getHexagramHistory, getBaziHistory, getTuViHistory, rateHexagram, rateBazi, rateTuVi, deleteCalculation } from '../services/api';
-import { Star, Clock, Calendar, Trash2, X, Info, Check, AlertTriangle } from 'lucide-react';
+import { getHexagramHistory, getBaziHistory, getTuViHistory, rateHexagram, rateBazi, rateTuVi, deleteCalculation, getHexagramRecord, getBaziRecord, getTuViRecord } from '../services/api';
+import { Star, Clock, Calendar, Trash2, X, Info, Check, AlertTriangle, Loader2 } from 'lucide-react';
 
 const LUNAR_HOURS_MAP = [
   "Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"
 ];
 
-const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewTuVi }) => {
+const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewTuVi, preloadedData, onCacheInvalidate }) => {
     const { user } = useContext(AuthContext);
     const [hexagrams, setHexagrams] = useState([]);
     const [bazis, setBazis] = useState([]);
     const [tuvis, setTuvis] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [actionLoading, setActionLoading] = useState(false);
     const [activeTab, setActiveTab] = useState('hexagram'); // 'hexagram' | 'bazi' | 'tu_vi'
     const [dialog, setDialog] = useState(null); // { type: 'confirm' | 'success' | 'error', message: '', onConfirm: null }
+    const prefetchedDetails = useRef({});
 
     const activeTheme = activeTab === 'hexagram' 
         ? { text: 'text-amber-800', bg: 'bg-amber-800 hover:bg-amber-900', border: 'border-amber-100', textAccent: 'text-amber-600' }
@@ -32,9 +34,37 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewTuVi }) => {
 
     useEffect(() => {
         if (user) {
+            initData();
+        }
+    }, [user, preloadedData]);
+
+    const initData = async () => {
+        if (preloadedData && (preloadedData.hexagrams || preloadedData.promise)) {
+            if (preloadedData.hexagrams) {
+                setHexagrams(preloadedData.hexagrams);
+                setBazis(preloadedData.bazis);
+                setTuvis(preloadedData.tuvis);
+                setLoading(false);
+            } else if (preloadedData.promise) {
+                setLoading(true);
+                try {
+                    const data = await preloadedData.promise;
+                    if (data) {
+                        setHexagrams(data.hexagrams);
+                        setBazis(data.bazis);
+                        setTuvis(data.tuvis);
+                    }
+                } catch (err) {
+                    console.error("Error loading preloaded history lists:", err);
+                    fetchData();
+                    return;
+                }
+                setLoading(false);
+            }
+        } else {
             fetchData();
         }
-    }, [user]);
+    };
 
     const fetchData = async () => {
         setLoading(true);
@@ -54,6 +84,68 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewTuVi }) => {
         setLoading(false);
     };
 
+    const preloadRecord = async (type, id) => {
+        const cacheKey = `${type}:${id}`;
+        if (prefetchedDetails.current[cacheKey]) return;
+        prefetchedDetails.current[cacheKey] = 'loading';
+        try {
+            let res;
+            if (type === 'hexagram') {
+                res = await getHexagramRecord(id);
+            } else if (type === 'bazi') {
+                res = await getBaziRecord(id);
+            } else if (type === 'tu_vi') {
+                res = await getTuViRecord(id);
+            }
+            if (res && res.data) {
+                prefetchedDetails.current[cacheKey] = res.data;
+            }
+        } catch (err) {
+            console.error(`Error preloading ${type} ${id}:`, err);
+            delete prefetchedDetails.current[cacheKey];
+        }
+    };
+
+    const handleViewHexagramDetail = async (record) => {
+        const cacheKey = `hexagram:${record._id}`;
+        let detail = prefetchedDetails.current[cacheKey];
+        if (!detail || detail === 'loading') {
+            setActionLoading(true);
+            try {
+                const res = await getHexagramRecord(record._id);
+                detail = res.data;
+                prefetchedDetails.current[cacheKey] = detail;
+            } catch (err) {
+                console.error("Lỗi khi tải chi tiết quẻ dịch:", err);
+                showAlert("Không thể tải thông tin chi tiết quẻ dịch.", "error");
+                setActionLoading(false);
+                return;
+            }
+            setActionLoading(false);
+        }
+        onViewHexagram(detail);
+    };
+
+    const handleViewBaziDetail = async (record) => {
+        const cacheKey = `bazi:${record._id}`;
+        let detail = prefetchedDetails.current[cacheKey];
+        if (!detail || detail === 'loading') {
+            setActionLoading(true);
+            try {
+                const res = await getBaziRecord(record._id);
+                detail = res.data;
+                prefetchedDetails.current[cacheKey] = detail;
+            } catch (err) {
+                console.error("Lỗi khi tải chi tiết Bát Tự:", err);
+                showAlert("Không thể tải thông tin chi tiết Bát Tự.", "error");
+                setActionLoading(false);
+                return;
+            }
+            setActionLoading(false);
+        }
+        onViewBazi(detail);
+    };
+
     const handleRate = async (type, id, rating, feedback) => {
         try {
             if (type === 'hexagram') {
@@ -66,6 +158,9 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewTuVi }) => {
                 await rateTuVi(id, rating, feedback);
                 setTuvis(tuvis.map(t => t._id === id ? { ...t, rating, feedback } : t));
             }
+            const cacheKey = `${type === 'hexagram' ? 'hexagram' : type === 'bazi' ? 'bazi' : 'tu_vi'}:${id}`;
+            delete prefetchedDetails.current[cacheKey];
+            if (onCacheInvalidate) onCacheInvalidate();
         } catch (err) {
             console.error("Lỗi khi lưu đánh giá.", err);
         }
@@ -82,6 +177,9 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewTuVi }) => {
                 } else {
                     setTuvis(tuvis.filter(t => t._id !== id));
                 }
+                const cacheKey = `${type === 'hexagrams' ? 'hexagram' : type === 'bazi' ? 'bazi' : 'tu_vi'}:${id}`;
+                delete prefetchedDetails.current[cacheKey];
+                if (onCacheInvalidate) onCacheInvalidate();
                 showAlert("Xóa bản ghi lịch sử thành công.", "success");
             } catch (err) {
                 console.error("Lỗi khi xóa bản ghi lịch sử:", err);
@@ -110,7 +208,13 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewTuVi }) => {
     };
 
     return (
-        <div className="bg-white p-4 md:p-8 rounded-2xl md:rounded-[2rem] shadow-sm border border-gray-100 max-w-4xl mx-auto">
+        <div className="bg-white p-4 md:p-8 rounded-2xl md:rounded-[2rem] shadow-sm border border-gray-100 max-w-4xl mx-auto relative">
+            {actionLoading && (
+                <div className="fixed inset-0 bg-white/50 backdrop-blur-[2px] z-50 flex flex-col items-center justify-center animate-in fade-in duration-200">
+                    <Loader2 className="w-10 h-10 text-amber-800 animate-spin mb-2" />
+                    <span className="text-sm font-bold text-amber-900 tracking-wider uppercase">Đang nạp chi tiết...</span>
+                </div>
+            )}
             <h2 className="text-2xl md:text-3xl font-serif font-bold text-amber-950 mb-6 md:mb-8 text-center border-b pb-4">Lịch Sử Của Bạn</h2>
             
             <div className="flex flex-wrap md:flex-nowrap justify-center gap-2 md:gap-4 mb-6 md:mb-8">
@@ -137,7 +241,13 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewTuVi }) => {
             <div className="space-y-4">
                 {activeTab === 'hexagram' && hexagrams.length === 0 && <p className="text-center text-gray-500">Chưa có quẻ nào được gieo.</p>}
                 {activeTab === 'hexagram' && hexagrams.map((record) => (
-                    <div key={record._id} onClick={() => onViewHexagram(record)} className="border border-amber-100 rounded-xl p-4 hover:shadow-md transition-shadow bg-amber-50/20 cursor-pointer">
+                    <div 
+                        key={record._id} 
+                        onClick={() => handleViewHexagramDetail(record)} 
+                        onMouseEnter={() => preloadRecord('hexagram', record._id)}
+                        onTouchStart={() => preloadRecord('hexagram', record._id)}
+                        className="border border-amber-100 rounded-xl p-4 hover:shadow-md transition-shadow bg-amber-50/20 cursor-pointer"
+                    >
                         <div className="flex justify-between items-start mb-2">
                             <div>
                                 <h3 className="font-bold text-lg text-amber-900">{record.primaryHexagram.name} {record.transformedHexagram?.name ? `-> ${record.transformedHexagram.name}` : ''}</h3>
@@ -145,7 +255,7 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewTuVi }) => {
                                 <p className="text-xs text-gray-400 flex items-center gap-1 mt-1"><Clock size={12}/> {new Date(record.dateCast).toLocaleString('vi-VN')}</p>
                             </div>
                             <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
-                                <button onClick={() => onViewHexagram(record)} className="text-amber-600 hover:underline text-sm font-medium">Xem chi tiết</button>
+                                <button onClick={() => handleViewHexagramDetail(record)} className="text-amber-600 hover:underline text-sm font-medium">Xem chi tiết</button>
                                 <button 
                                     onClick={() => handleDelete('hexagrams', record._id)} 
                                     className="text-red-500 hover:text-red-750 transition-colors p-1"
@@ -188,14 +298,20 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewTuVi }) => {
 
                 {activeTab === 'bazi' && bazis.length === 0 && <p className="text-center text-gray-500">Chưa có lá số nào được lập.</p>}
                 {activeTab === 'bazi' && bazis.map((record) => (
-                    <div key={record._id} onClick={() => onViewBazi(record)} className="border border-blue-100 rounded-xl p-4 hover:shadow-md transition-shadow bg-blue-50/20 cursor-pointer">
+                    <div 
+                        key={record._id} 
+                        onClick={() => handleViewBaziDetail(record)} 
+                        onMouseEnter={() => preloadRecord('bazi', record._id)}
+                        onTouchStart={() => preloadRecord('bazi', record._id)}
+                        className="border border-blue-100 rounded-xl p-4 hover:shadow-md transition-shadow bg-blue-50/20 cursor-pointer"
+                    >
                         <div className="flex justify-between items-start mb-2">
                             <div>
                                 <h3 className="font-bold text-lg text-blue-900">Lá số Bát Tự: {record.inputInfo.date} {record.inputInfo.time} ({record.inputInfo.gender === 1 ? 'Nam' : 'Nữ'})</h3>
                                 <p className="text-xs text-gray-400 flex items-center gap-1 mt-1"><Calendar size={12}/> Tiết khí: {record.tietKhiTimeline}</p>
                             </div>
                             <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
-                                <button onClick={() => onViewBazi(record)} className="text-blue-600 hover:underline text-sm font-medium">Xem chi tiết</button>
+                                <button onClick={() => handleViewBaziDetail(record)} className="text-blue-600 hover:underline text-sm font-medium">Xem chi tiết</button>
                                 <button 
                                     onClick={() => handleDelete('bazi', record._id)} 
                                     className="text-red-500 hover:text-red-700 transition-colors p-1"
@@ -238,7 +354,13 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewTuVi }) => {
 
                 {activeTab === 'tu_vi' && tuvis.length === 0 && <p className="text-center text-gray-500">Chưa có lá số Tử Vi nào được lập.</p>}
                 {activeTab === 'tu_vi' && tuvis.map((record) => (
-                    <div key={record._id} onClick={() => onViewTuVi(record)} className="border border-purple-100 rounded-xl p-4 hover:shadow-md transition-shadow bg-purple-50/20 cursor-pointer">
+                    <div 
+                        key={record._id} 
+                        onClick={() => onViewTuVi(record)} 
+                        onMouseEnter={() => preloadRecord('tu_vi', record._id)}
+                        onTouchStart={() => preloadRecord('tu_vi', record._id)}
+                        className="border border-purple-100 rounded-xl p-4 hover:shadow-md transition-shadow bg-purple-50/20 cursor-pointer"
+                    >
                         <div className="flex justify-between items-start mb-2">
                             <div>
                                 <h3 className="font-bold text-lg text-purple-900">Lá số Tử Vi: {record.inputInfo?.date || ''} ({record.inputInfo?.gender || ''} Mệnh)</h3>

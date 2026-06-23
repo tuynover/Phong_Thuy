@@ -24,9 +24,11 @@ app.get('/health', (req, res) => {
 
 app.use('/api', routes);
 
+const logger = require('./services/LoggerService');
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
-  console.log(`Backend is running on port ${PORT}`);
+  logger.info(`Backend is running on port ${PORT}`);
 
   // Start notifications scheduler
   const { startScheduler } = require('./services/NotificationScheduler');
@@ -38,19 +40,19 @@ app.listen(PORT, () => {
   const url = process.env.SERVER_URL || process.env.RENDER_EXTERNAL_URL;
   if (url) {
     const healthUrl = `${url.replace(/\/$/, '')}/health`;
-    console.log(`[Self-Ping] Initialized: Pinging ${healthUrl} every 3 minutes.`);
+    logger.info(`[Self-Ping] Initialized: Pinging ${healthUrl} every 3 minutes.`);
     setInterval(() => {
       const client = healthUrl.startsWith('https') ? https : http;
       client.get(healthUrl, (res) => {
         res.resume();
         if (res.statusCode !== 200) {
-          console.warn(`[Self-Ping] Warning: Ping returned status ${res.statusCode}`);
+          logger.warn(`[Self-Ping] Warning: Ping returned status ${res.statusCode}`);
         }
       }).on('error', (err) => {
-        console.error(`[Self-Ping] Error: ${err.message}`);
+        logger.error(`[Self-Ping] Error: ${err.message}`, err);
       });
     }, 180000); // 3 minutes
   } else {
-    console.log('[Self-Ping] Skipped: SERVER_URL or RENDER_EXTERNAL_URL env variable is not defined.');
+    logger.info('[Self-Ping] Skipped: SERVER_URL or RENDER_EXTERNAL_URL env variable is not defined.');
   }
 });

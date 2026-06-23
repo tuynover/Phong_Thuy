@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-const MemoryCacheService = require('../../services/MemoryCacheService');
+const MemoryCacheService = require('./MemoryCacheService');
 
 class TuViCache {
   /**

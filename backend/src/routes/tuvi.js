@@ -1,7 +1,7 @@
 const express = require('express');
-const TuViController = require('./controller');
-const rateLimiter = require('../../middleware/rateLimiter');
-const creditCheck = require('../../middleware/creditCheck');
+const TuViController = require('../controllers/TuViController');
+const rateLimiter = require('../middleware/rateLimiter');
+const creditCheck = require('../middleware/creditCheck');
 const router = express.Router();
 
 // Giới hạn 30 lượt lập mệnh bàn Tử Vi trong 15 phút

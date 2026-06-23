@@ -7,6 +7,7 @@ export const getConcept = (term) => axios.get(`${API_URL}/concept/${term}`);
 export const getHexagramHistory = (userId) => axios.get(`${API_URL}/history/hexagrams/${userId}`);
 export const getHexagramRecord = (id) => axios.get(`${API_URL}/history/hexagrams/record/${id}`);
 export const getBaziHistory = (userId) => axios.get(`${API_URL}/history/bazi/${userId}`);
+export const getBaziRecord = (id) => axios.get(`${API_URL}/history/bazi/record/${id}`);
 export const getHexagramChatMessages = (id, page = 1, limit = 20) => axios.get(`${API_URL}/history/hexagrams/${id}/messages?page=${page}&limit=${limit}`);
 export const getBaziChatMessages = (id, page = 1, limit = 20) => axios.get(`${API_URL}/history/bazi/${id}/messages?page=${page}&limit=${limit}`);
 export const rateHexagram = (id, rating, feedback) => axios.put(`${API_URL}/history/hexagrams/${id}/rate`, { rating, feedback });
@@ -49,6 +50,7 @@ export const unlockAdminUser = (id) => axios.post(`${API_URL}/admin/users/${id}/
 export const deleteAdminUser = (id) => axios.delete(`${API_URL}/admin/users/${id}`);
 
 export const getAdminCalculations = (params) => axios.get(`${API_URL}/admin/calculations`, { params });
+export const getAdminCalculationDetail = (type, id) => axios.get(`${API_URL}/admin/calculations/${type}/${id}`);
 export const lockAdminCalculation = (type, id) => axios.post(`${API_URL}/admin/calculations/${type}/${id}/lock`);
 export const unlockAdminCalculation = (type, id) => axios.post(`${API_URL}/admin/calculations/${type}/${id}/unlock`);
 export const deleteAdminCalculation = (type, id) => axios.delete(`${API_URL}/admin/calculations/${type}/${id}`);

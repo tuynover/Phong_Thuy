@@ -6,8 +6,20 @@ const { Solar } = require('lunar-javascript');
 const SystemLog = require('../models/SystemLog');
 const AdminNotification = require('../models/AdminNotification');
 const BaziRecord = require('../models/BaziRecord');
-const TuViRecord = require('../modules/tu-vi/models/TuViRecord');
+const TuViRecord = require('../models/TuViRecord');
 const BanAppeal = require('../models/BanAppeal');
+
+const logger = require('./LoggerService');
+const console = {
+    log: (msg, ...args) => logger.info(args.length ? `${msg} ${args.map(a => typeof a === 'object' ? JSON.stringify(a) : a).join(' ')}` : msg),
+    warn: (msg, ...args) => logger.warn(args.length ? `${msg} ${args.map(a => typeof a === 'object' ? JSON.stringify(a) : a).join(' ')}` : msg),
+    error: (msg, ...args) => {
+        const err = args.find(a => a instanceof Error);
+        const otherArgs = args.filter(a => !(a instanceof Error));
+        const finalMsg = otherArgs.length ? `${msg} ${otherArgs.join(' ')}` : msg;
+        logger.error(finalMsg, err || null);
+    }
+};
 
 function getDayDifference(date1, date2) {
     const d1 = new Date(date1.getTime() + 7 * 60 * 60 * 1000);

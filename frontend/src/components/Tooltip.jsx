@@ -1,40 +1,179 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { getConcept } from '../services/api';
+import { conceptDictionary } from '../data/concepts';
 
-const Tooltip = ({ term, children, className }) => {
+const Tooltip = ({ term, children, className, placement = 'top' }) => {
     const [open, setOpen] = useState(false);
     const [info, setInfo] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [coords, setCoords] = useState({ top: 0, left: 0, width: 320 });
+    const targetRef = useRef(null);
+    const tooltipRef = useRef(null);
+    const closeTimeoutRef = useRef(null);
+    const isTouchDeviceRef = useRef(false);
 
-    const handleMouseEnter = async () => {
-        setOpen(true);
-        if (!info && term) {
-            setLoading(true);
-            try {
-                const res = await getConcept(term);
-                setInfo(res.data);
-            } catch (err) {
-                setInfo({ short_description: 'Chưa có thông tin.' });
+    // Clean up timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (closeTimeoutRef.current) {
+                clearTimeout(closeTimeoutRef.current);
             }
-            setLoading(false);
+        };
+    }, []);
+
+    // Close tooltip on any scroll event (since it's position: fixed, we want to hide it on scroll)
+    useEffect(() => {
+        if (open) {
+            const handleScroll = () => {
+                setOpen(false);
+            };
+            window.addEventListener('scroll', handleScroll, { capture: true, passive: true });
+            return () => {
+                window.removeEventListener('scroll', handleScroll, { capture: true });
+            };
+        }
+    }, [open]);
+
+    // Close tooltip when clicking outside on mobile or desktop
+    useEffect(() => {
+        if (open) {
+            const handleOutsideClick = (e) => {
+                if (targetRef.current && !targetRef.current.contains(e.target)) {
+                    if (tooltipRef.current && !tooltipRef.current.contains(e.target)) {
+                        setOpen(false);
+                    }
+                }
+            };
+            document.addEventListener('pointerdown', handleOutsideClick);
+            return () => {
+                document.removeEventListener('pointerdown', handleOutsideClick);
+            };
+        }
+    }, [open]);
+
+    const calculatePosition = () => {
+        if (targetRef.current) {
+            const rect = targetRef.current.getBoundingClientRect();
+            const viewportWidth = window.innerWidth;
+            const tooltipWidth = Math.min(320, viewportWidth - 24);
+            const padding = 12;
+            
+            let left = rect.left + rect.width / 2;
+            const minLeft = tooltipWidth / 2 + padding;
+            const maxLeft = viewportWidth - tooltipWidth / 2 - padding;
+            left = Math.max(minLeft, Math.min(maxLeft, left));
+
+            if (placement === 'bottom') {
+                setCoords({
+                    left,
+                    top: rect.bottom + 8,
+                    width: tooltipWidth
+                });
+            } else {
+                setCoords({
+                    left,
+                    top: rect.top - 8,
+                    width: tooltipWidth
+                });
+            }
         }
     };
 
+    const loadConceptData = async () => {
+        if (!info && term) {
+            const trimmedTerm = term.trim();
+            if (conceptDictionary[trimmedTerm]) {
+                setInfo(conceptDictionary[trimmedTerm]);
+            } else {
+                setLoading(true);
+                try {
+                    const res = await getConcept(trimmedTerm);
+                    setInfo(res.data);
+                } catch (err) {
+                    setInfo({ short_description: 'Chưa có thông tin.' });
+                }
+                setLoading(false);
+            }
+        }
+    };
+
+    const handleMouseEnter = async () => {
+        if (isTouchDeviceRef.current) return;
+        if (closeTimeoutRef.current) {
+            clearTimeout(closeTimeoutRef.current);
+            closeTimeoutRef.current = null;
+        }
+        calculatePosition();
+        setOpen(true);
+        await loadConceptData();
+    };
+
     const handleMouseLeave = () => {
-        setOpen(false);
+        if (isTouchDeviceRef.current) return;
+        closeTimeoutRef.current = setTimeout(() => {
+            setOpen(false);
+        }, 150);
+    };
+
+    const handleTouchStart = (e) => {
+        isTouchDeviceRef.current = true;
+        e.stopPropagation();
+        if (open) {
+            setOpen(false);
+        } else {
+            calculatePosition();
+            setOpen(true);
+            loadConceptData();
+        }
+    };
+
+    const handleTooltipMouseEnter = () => {
+        if (isTouchDeviceRef.current) return;
+        if (closeTimeoutRef.current) {
+            clearTimeout(closeTimeoutRef.current);
+            closeTimeoutRef.current = null;
+        }
+    };
+
+    const handleTooltipMouseLeave = () => {
+        if (isTouchDeviceRef.current) return;
+        closeTimeoutRef.current = setTimeout(() => {
+            setOpen(false);
+        }, 150);
     };
 
     if (!term) return <span>{children}</span>;
 
+    const tooltipStyle = {
+        position: 'fixed',
+        left: `${coords.left}px`,
+        top: `${coords.top}px`,
+        width: `${coords.width}px`,
+        transform: placement === 'bottom' ? 'translate(-50%, 0)' : 'translate(-50%, -100%)',
+        zIndex: 99999,
+        minHeight: '80px',
+        pointerEvents: 'auto',
+    };
+
     return (
-        <span className="relative inline-block" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+        <span 
+            ref={targetRef}
+            className="relative inline-block" 
+            onMouseEnter={handleMouseEnter} 
+            onMouseLeave={handleMouseLeave}
+            onTouchStart={handleTouchStart}
+        >
             <span className={`cursor-help border-b border-dashed border-gray-400 hover:text-blue-700 transition-colors ${className}`}>
                 {children || term}
             </span>
-            {open && (
+            {open && createPortal(
                 <div
-                    className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-[320px] p-4 bg-amber-50 border border-amber-200 rounded-xl shadow-2xl text-left cursor-default text-gray-800 z-[9999]"
-                    style={{ minHeight: '80px' }}
+                    ref={tooltipRef}
+                    className="p-4 bg-amber-50 border border-amber-200 rounded-xl shadow-2xl text-left cursor-default text-gray-800 z-[99999]"
+                    style={tooltipStyle}
+                    onMouseEnter={handleTooltipMouseEnter}
+                    onMouseLeave={handleTooltipMouseLeave}
                 >
                     {/* Header */}
                     <div className="flex justify-between items-center mb-2 pb-1.5 border-b border-amber-300">
@@ -85,10 +224,12 @@ const Tooltip = ({ term, children, className }) => {
                             )}
                         </>
                     )}
-                </div>
+                </div>,
+                document.body
             )}
         </span>
     );
 };
 
 export default Tooltip;
+

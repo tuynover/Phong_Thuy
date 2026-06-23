@@ -1,10 +1,11 @@
 const User = require('../models/User');
 const HexagramRecord = require('../models/HexagramRecord');
 const BaziRecord = require('../models/BaziRecord');
-const TuViRecord = require('../modules/tu-vi/models/TuViRecord');
+const TuViRecord = require('../models/TuViRecord');
 const HexagramConversation = require('../models/HexagramConversation');
 const BaziConversation = require('../models/BaziConversation');
-const TuViConversation = require('../modules/tu-vi/models/TuViConversation');
+const TuViConversation = require('../models/TuViConversation');
+const SseService = require('./SseService');
 
 async function updateUserStats(userId) {
   if (!userId || userId === 'guest') return null;
@@ -81,6 +82,11 @@ async function updateUserStats(userId) {
     };
 
     await User.findByIdAndUpdate(userIdStr, { stats });
+    try {
+      SseService.sendToAdmins('user_updated', { userId: userIdStr, action: 'stats', stats });
+    } catch (sseErr) {
+      console.error(`[UserStatsService] Failed to broadcast user_updated event for ${userIdStr}:`, sseErr);
+    }
     return stats;
   } catch (error) {
     console.error(`[UserStatsService.updateUserStats] Error updating stats for user ${userId}:`, error);

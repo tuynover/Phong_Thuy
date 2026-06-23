@@ -16,7 +16,7 @@ class LoggerService {
     // Color helpers using standard ANSI escape codes
     colors = {
         reset: "\x1b[0m",
-        dim: "\x1b[2m",
+        dim: "\x1b[90m", // Bright black (gray) - always visible on light/dark terminals
         red: "\x1b[31m",
         green: "\x1b[32m",
         yellow: "\x1b[33m",
@@ -26,7 +26,19 @@ class LoggerService {
     };
 
     getTimestamp() {
-        return new Date().toISOString();
+        // Shift time by +7 hours to guarantee Vietnam Local Time (GMT+7) on any hosting provider
+        const now = new Date();
+        const vnTime = new Date(now.getTime() + (7 * 60 * 60 * 1000));
+        
+        const year = vnTime.getUTCFullYear();
+        const month = String(vnTime.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(vnTime.getUTCDate()).padStart(2, '0');
+        const hours = String(vnTime.getUTCHours()).padStart(2, '0');
+        const minutes = String(vnTime.getUTCMinutes()).padStart(2, '0');
+        const seconds = String(vnTime.getUTCSeconds()).padStart(2, '0');
+        const ms = String(vnTime.getUTCMilliseconds()).padStart(3, '0');
+        
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${ms}`;
     }
 
     formatContext(context) {

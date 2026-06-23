@@ -9,7 +9,7 @@ import AuthModal from './AuthModal';
 import UpdateBaziModal from './UpdateBaziModal';
 import NotificationBell from './NotificationBell';
 import { AuthContext } from '../context/AuthContext';
-import { calculateDivination, analyzeBazi, linkHexagram, linkBazi, getHexagramRecord } from '../services/api';
+import { calculateDivination, analyzeBazi, linkHexagram, linkBazi, getHexagramRecord, getHexagramHistory, getBaziHistory, getTuViHistory } from '../services/api';
 import { UserCircle, LogOut, CalendarDays, Shield } from 'lucide-react';
 import { Lunar } from 'lunar-javascript';
 
@@ -25,6 +25,41 @@ export default function UserApp({ onSwitchToAdmin }) {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const userMenuRef = useRef(null);
+
+  const preloadedHistoryRef = useRef(null);
+
+  const preloadHistoryLists = () => {
+    if (!user || preloadedHistoryRef.current) return;
+    const userId = user.id || user._id;
+    const promise = Promise.all([
+      getHexagramHistory(userId),
+      getBaziHistory(userId),
+      getTuViHistory(userId)
+    ]).then(([hexRes, baziRes, tuviRes]) => {
+      const data = {
+        hexagrams: hexRes.data,
+        bazis: baziRes.data,
+        tuvis: tuviRes.data,
+        promise: null
+      };
+      preloadedHistoryRef.current = data;
+      return data;
+    }).catch(err => {
+      console.error("Error preloading history lists:", err);
+      preloadedHistoryRef.current = null;
+    });
+
+    preloadedHistoryRef.current = {
+      hexagrams: null,
+      bazis: null,
+      tuvis: null,
+      promise
+    };
+  };
+
+  const invalidateHistoryCache = () => {
+    preloadedHistoryRef.current = null;
+  };
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -104,6 +139,7 @@ export default function UserApp({ onSwitchToAdmin }) {
       const userId = user ? user.id || user._id : 'guest';
       const res = await calculateDivination(lines, userId, actualQuestion, customDate);
       setResult(res.data);
+      invalidateHistoryCache();
       if (userId === 'guest' && res.data.recordId) {
         setCurrentRecordId(res.data.recordId);
       }
@@ -147,6 +183,7 @@ export default function UserApp({ onSwitchToAdmin }) {
       const userId = user ? (user.id || user._id) : 'guest';
       const res = await analyzeBazi(date, time, gender, userId);
       setBaziResult(res.data);
+      invalidateHistoryCache();
       if (userId === 'guest' && res.data.recordId) {
         setGuestBaziId(res.data.recordId);
       }
@@ -241,6 +278,8 @@ export default function UserApp({ onSwitchToAdmin }) {
             {user && (
               <button 
                 onClick={() => setAppMode('history')} 
+                onMouseEnter={preloadHistoryLists}
+                onTouchStart={preloadHistoryLists}
                 className={`flex-1 sm:flex-none px-2.5 py-1.5 sm:px-5 sm:py-2 rounded-full font-bold transition-all text-[11px] sm:text-xs md:text-sm tracking-wider font-[Montserrat] uppercase ${appMode === 'history' ? 'bg-slate-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-955 hover:bg-neutral-50'}`}
               >
                 Lịch Sử
@@ -519,6 +558,7 @@ export default function UserApp({ onSwitchToAdmin }) {
               user={user} 
               onRequireLogin={() => setIsAuthModalOpen(true)} 
               historicalRecordId={historicalTuViId} 
+              onCalculationComplete={invalidateHistoryCache}
             />
           </React.Suspense>
         </div>
@@ -536,6 +576,8 @@ export default function UserApp({ onSwitchToAdmin }) {
                 onViewHexagram={handleViewHistoricalHexagram} 
                 onViewBazi={handleViewHistoricalBazi} 
                 onViewTuVi={handleViewHistoricalTuVi}
+                preloadedData={preloadedHistoryRef.current}
+                onCacheInvalidate={invalidateHistoryCache}
               />
             </React.Suspense>
           </div>

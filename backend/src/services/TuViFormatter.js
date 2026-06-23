@@ -163,7 +163,6 @@ class TuViFormatter {
 
     return {
       zodiac: raw.zodiac,
-      sign: raw.sign,
       soul: raw.soul,
       body: raw.body,
       fiveElementsClass: raw.fiveElementsClass,

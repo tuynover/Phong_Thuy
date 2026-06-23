@@ -1,4 +1,15 @@
 const nodemailer = require('nodemailer');
+const logger = require('./LoggerService');
+const console = {
+    log: (msg, ...args) => logger.info(args.length ? `${msg} ${args.map(a => typeof a === 'object' ? JSON.stringify(a) : a).join(' ')}` : msg),
+    warn: (msg, ...args) => logger.warn(args.length ? `${msg} ${args.map(a => typeof a === 'object' ? JSON.stringify(a) : a).join(' ')}` : msg),
+    error: (msg, ...args) => {
+        const err = args.find(a => a instanceof Error);
+        const otherArgs = args.filter(a => !(a instanceof Error));
+        const finalMsg = otherArgs.length ? `${msg} ${otherArgs.join(' ')}` : msg;
+        logger.error(finalMsg, err || null);
+    }
+};
 
 class EmailService {
     static getTransporter() {

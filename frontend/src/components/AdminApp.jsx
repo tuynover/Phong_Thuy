@@ -8,6 +8,7 @@ import {
   unlockAdminUser,
   deleteAdminUser,
   getAdminCalculations,
+  getAdminCalculationDetail,
   lockAdminCalculation,
   unlockAdminCalculation,
   deleteAdminCalculation,
@@ -90,10 +91,11 @@ export default function AdminApp({ onSwitchToUser }) {
   const [users, setUsers] = useState([]);
   const [userTotal, setUserTotal] = useState(0);
   const [userPage, setUserPage] = useState(1);
-  const [userLimit] = useState(10);
+  const [userLimit] = useState(15); // limit is 15
   const [userSearch, setUserSearch] = useState('');
   const [userRoleFilter, setUserRoleFilter] = useState('');
   const [userStatusFilter, setUserStatusFilter] = useState('');
+  const [userCursors, setUserCursors] = useState([null]); // userCursors state
 
   // User details stats modal state
   const [userStats, setUserStats] = useState(null);
@@ -111,10 +113,55 @@ export default function AdminApp({ onSwitchToUser }) {
   const [calculations, setCalculations] = useState([]);
   const [calcTotal, setCalcTotal] = useState(0);
   const [calcPage, setCalcPage] = useState(1);
-  const [calcLimit] = useState(10);
+  const [calcLimit] = useState(15); // limit is 15
   const [calcSearch, setCalcSearch] = useState('');
   const [calcStatusFilter, setCalcStatusFilter] = useState('');
   const [selectedCalc, setSelectedCalc] = useState(null);
+  const [calcCursors, setCalcCursors] = useState([null]); // calcCursors state
+
+  const [newUsersCount, setNewUsersCount] = useState(0);
+  const [newCalcsCount, setNewCalcsCount] = useState(0);
+  const [newIchingCount, setNewIchingCount] = useState(0);
+  const [newBaziCount, setNewBaziCount] = useState(0);
+  const [newTuviCount, setNewTuviCount] = useState(0);
+
+  // Hover preloading cache
+  const prefetchedCalcs = useRef({});
+
+  // Dirty flags caching refs
+  const isUsersDirty = useRef(true);
+  const isCalcsDirty = useRef(true);
+  const isAnalyticsDirty = useRef(true);
+
+  // Dynamic state refs for SSE stability
+  const activeTabRef = useRef(activeTab);
+  const isStatsModalOpenRef = useRef(isStatsModalOpen);
+  const userStatsRef = useRef(userStats);
+  const fetchUsersDataRef = useRef(null);
+  const fetchCalculationsDataRef = useRef(null);
+  const fetchAnalyticsDataRef = useRef(null);
+  const calcTypeRef = useRef(calcType);
+
+  // Sync refs with state changes
+  useEffect(() => { activeTabRef.current = activeTab; }, [activeTab]);
+  useEffect(() => { isStatsModalOpenRef.current = isStatsModalOpen; }, [isStatsModalOpen]);
+  useEffect(() => { userStatsRef.current = userStats; }, [userStats]);
+  useEffect(() => { fetchUsersDataRef.current = fetchUsersData; }, [fetchUsersData]);
+  useEffect(() => { fetchCalculationsDataRef.current = fetchCalculationsData; }, [fetchCalculationsData]);
+  useEffect(() => { fetchAnalyticsDataRef.current = fetchAnalyticsData; }, [fetchAnalyticsData]);
+  useEffect(() => { calcTypeRef.current = calcType; }, [calcType]);
+
+  // Clear badges when active tab or sub-tab is selected
+  useEffect(() => {
+    if (activeTab === 'users') {
+      setNewUsersCount(0);
+    } else if (activeTab === 'calculations') {
+      setNewCalcsCount(0);
+      if (calcType === 'iching') setNewIchingCount(0);
+      else if (calcType === 'bazi') setNewBaziCount(0);
+      else if (calcType === 'tuvi') setNewTuviCount(0);
+    }
+  }, [activeTab, calcType]);
 
   // Refs to cache parameters and prevent redundant fetches during tab navigation
   const lastFetchedAnalyticsParams = useRef({ startDate: null, endDate: null, groupBy: null });
@@ -152,11 +199,59 @@ export default function AdminApp({ onSwitchToUser }) {
           } else {
             setAlerts(prev => [notificationData, ...prev]);
           }
-        } else if (payload.type === 'user_updated') {
-          if (activeTab === 'users') {
-            fetchUsersData();
+          if (activeTabRef.current === 'overview') {
+            fetchAnalyticsDataRef.current?.();
+          } else {
+            isAnalyticsDirty.current = true;
           }
-          if (isStatsModalOpen && userStats && (userStats.user?._id === payload.data.userId || userStats.user?.id === payload.data.userId)) {
+        } else if (payload.type === 'new_user') {
+          if (activeTabRef.current === 'users') {
+            fetchUsersDataRef.current();
+          } else {
+            setNewUsersCount(prev => prev + 1);
+            isUsersDirty.current = true;
+          }
+          if (activeTabRef.current === 'overview') {
+            fetchAnalyticsDataRef.current?.();
+          } else {
+            isAnalyticsDirty.current = true;
+          }
+        } else if (payload.type === 'new_calculation') {
+          const calcTypeReceived = payload.data?.type;
+          if (activeTabRef.current === 'calculations') {
+            if (calcTypeRef.current === calcTypeReceived) {
+              fetchCalculationsDataRef.current();
+            } else {
+              if (calcTypeReceived === 'iching') setNewIchingCount(prev => prev + 1);
+              else if (calcTypeReceived === 'bazi') setNewBaziCount(prev => prev + 1);
+              else if (calcTypeReceived === 'tuvi') setNewTuviCount(prev => prev + 1);
+              isCalcsDirty.current = true;
+            }
+          } else {
+            setNewCalcsCount(prev => prev + 1);
+            if (calcTypeReceived === 'iching') setNewIchingCount(prev => prev + 1);
+            else if (calcTypeReceived === 'bazi') setNewBaziCount(prev => prev + 1);
+            else if (calcTypeReceived === 'tuvi') setNewTuviCount(prev => prev + 1);
+            isCalcsDirty.current = true;
+          }
+          if (activeTabRef.current === 'overview') {
+            fetchAnalyticsDataRef.current?.();
+          } else {
+            isAnalyticsDirty.current = true;
+          }
+        } else if (payload.type === 'user_updated') {
+          if (activeTabRef.current === 'users') {
+            fetchUsersDataRef.current();
+          } else {
+            isUsersDirty.current = true;
+          }
+          if (activeTabRef.current === 'overview') {
+            fetchAnalyticsDataRef.current?.();
+          } else {
+            isAnalyticsDirty.current = true;
+          }
+          const currentStats = userStatsRef.current;
+          if (isStatsModalOpenRef.current && currentStats && (currentStats.user?._id === payload.data.userId || currentStats.user?.id === payload.data.userId)) {
             handleUserClick(payload.data.userId);
           }
         }
@@ -172,14 +267,15 @@ export default function AdminApp({ onSwitchToUser }) {
     return () => {
       eventSource.close();
     };
-  }, [token, activeTab, isStatsModalOpen, userStats]);
+  }, [token]);
 
   // Fetch analytics when tab, dates or groupBy change (only if they actually changed)
   useEffect(() => {
     if (activeTab === 'overview') {
       const last = lastFetchedAnalyticsParams.current;
-      if (!analytics || startDate !== last.startDate || endDate !== last.endDate || groupBy !== last.groupBy) {
+      if (!analytics || isAnalyticsDirty.current || startDate !== last.startDate || endDate !== last.endDate || groupBy !== last.groupBy) {
         fetchAnalyticsData();
+        isAnalyticsDirty.current = false;
       }
     }
   }, [activeTab, startDate, endDate, groupBy, analytics]);
@@ -190,11 +286,13 @@ export default function AdminApp({ onSwitchToUser }) {
       const last = lastFetchedUsersParams.current;
       if (
         users.length === 0 ||
+        isUsersDirty.current ||
         userPage !== last.page ||
         userRoleFilter !== last.role ||
         userStatusFilter !== last.status
       ) {
         fetchUsersData();
+        isUsersDirty.current = false;
       }
     }
   }, [activeTab, userPage, userRoleFilter, userStatusFilter, users]);
@@ -205,11 +303,13 @@ export default function AdminApp({ onSwitchToUser }) {
       const last = lastFetchedCalcsParams.current;
       if (
         calculations.length === 0 ||
+        isCalcsDirty.current ||
         calcType !== last.type ||
         calcPage !== last.page ||
         calcStatusFilter !== last.status
       ) {
         fetchCalculationsData();
+        isCalcsDirty.current = false;
       }
     }
   }, [activeTab, calcType, calcPage, calcStatusFilter, calculations]);
@@ -231,7 +331,7 @@ export default function AdminApp({ onSwitchToUser }) {
     }
   };
 
-  const fetchAnalyticsData = async () => {
+  async function fetchAnalyticsData() {
     setLoading(true);
     try {
       const res = await getAdminAnalytics(startDate, endDate, groupBy);
@@ -242,26 +342,44 @@ export default function AdminApp({ onSwitchToUser }) {
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  const fetchUsersData = async (overrideSearch = undefined, overrideRole = undefined, overrideStatus = undefined) => {
+  async function fetchUsersData(overrideSearch = undefined, overrideRole = undefined, overrideStatus = undefined) {
     setLoading(true);
     try {
       const targetSearch = overrideSearch !== undefined ? overrideSearch : userSearch;
       const targetRole = overrideRole !== undefined ? overrideRole : userRoleFilter;
       const targetStatus = overrideStatus !== undefined ? overrideStatus : userStatusFilter;
-      const targetPage = overrideSearch !== undefined ? 1 : userPage;
+      
+      const isFilterReset = overrideSearch !== undefined || overrideRole !== undefined || overrideStatus !== undefined;
+      const targetPage = isFilterReset ? 1 : userPage;
+      const cursor = isFilterReset ? null : userCursors[targetPage - 1];
 
       const params = {
-        page: targetPage,
         limit: userLimit,
         search: targetSearch,
         role: targetRole,
-        status: targetStatus
+        status: targetStatus,
+        cursor
       };
       const res = await getAdminUsers(params);
-      setUsers(res.data.users || []);
+      const fetchedUsers = res.data.users || [];
+      setUsers(fetchedUsers);
       setUserTotal(res.data.total || 0);
+
+      if (isFilterReset) {
+        setUserPage(1);
+        setUserCursors([null]);
+      }
+
+      if (fetchedUsers.length === userLimit) {
+        const nextCursor = fetchedUsers[fetchedUsers.length - 1]._id;
+        setUserCursors(prev => {
+          const next = [...prev];
+          next[targetPage] = nextCursor;
+          return next;
+        });
+      }
 
       lastFetchedUsersParams.current = {
         page: targetPage,
@@ -274,33 +392,84 @@ export default function AdminApp({ onSwitchToUser }) {
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  const fetchCalculationsData = async (overrideSearch = undefined) => {
+  async function fetchCalculationsData(overrideSearch = undefined, overrideType = undefined, overrideStatus = undefined) {
     setLoading(true);
     try {
       const targetSearch = overrideSearch !== undefined ? overrideSearch : calcSearch;
+      const targetType = overrideType !== undefined ? overrideType : calcType;
+      const targetStatus = overrideStatus !== undefined ? overrideStatus : calcStatusFilter;
+
+      const isFilterReset = overrideSearch !== undefined || overrideType !== undefined || overrideStatus !== undefined;
+      const targetPage = isFilterReset ? 1 : calcPage;
+      const cursor = isFilterReset ? null : calcCursors[targetPage - 1];
+
       const params = {
-        type: calcType,
-        page: calcPage,
+        type: targetType,
         limit: calcLimit,
         search: targetSearch,
-        status: calcStatusFilter
+        status: targetStatus,
+        cursor
       };
       const res = await getAdminCalculations(params);
-      setCalculations(res.data.records || []);
+      const fetchedCalcs = res.data.records || [];
+      setCalculations(fetchedCalcs);
       setCalcTotal(res.data.total || 0);
 
+      if (isFilterReset) {
+        setCalcPage(1);
+        setCalcCursors([null]);
+      }
+
+      if (fetchedCalcs.length === calcLimit) {
+        const nextCursor = fetchedCalcs[fetchedCalcs.length - 1]._id;
+        setCalcCursors(prev => {
+          const next = [...prev];
+          next[targetPage] = nextCursor;
+          return next;
+        });
+      }
+
       lastFetchedCalcsParams.current = {
-        type: calcType,
-        page: calcPage,
-        status: calcStatusFilter,
+        type: targetType,
+        page: targetPage,
+        status: targetStatus,
         search: targetSearch
       };
     } catch (err) {
       console.error('Lỗi tải danh sách quẻ/lá số:', err);
     } finally {
       setLoading(false);
+    }
+  }
+
+  const preloadCalculation = async (type, id) => {
+    const cacheKey = `${type}:${id}`;
+    if (prefetchedCalcs.current[cacheKey]) return;
+    try {
+      const res = await getAdminCalculationDetail(type, id);
+      prefetchedCalcs.current[cacheKey] = res.data;
+    } catch (err) {
+      console.error('Lỗi preloading bản ghi:', err);
+    }
+  };
+
+  const handleViewDetails = async (calc) => {
+    const cacheKey = `${calcType}:${calc._id}`;
+    if (prefetchedCalcs.current[cacheKey]) {
+      setSelectedCalc(prefetchedCalcs.current[cacheKey]);
+    } else {
+      setLoading(true);
+      try {
+        const res = await getAdminCalculationDetail(calcType, calc._id);
+        prefetchedCalcs.current[cacheKey] = res.data;
+        setSelectedCalc(res.data);
+      } catch (err) {
+        showAlert('Lỗi tải chi tiết bản ghi.', 'error');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -354,6 +523,7 @@ export default function AdminApp({ onSwitchToUser }) {
       try {
         await updateAdminUserRole(userId, newRole);
         showAlert('Cập nhật vai trò thành công.', 'success');
+        isAnalyticsDirty.current = true;
         fetchUsersData();
       } catch (err) {
         showAlert(err.response?.data?.error || 'Có lỗi xảy ra khi cập nhật vai trò.', 'error');
@@ -379,6 +549,7 @@ export default function AdminApp({ onSwitchToUser }) {
       showAlert('Cập nhật lượt sử dụng thành công.', 'success');
       setCreditChange('');
       setSelectedUser(null);
+      isAnalyticsDirty.current = true;
       fetchUsersData();
     } catch (err) {
       showAlert(err.response?.data?.error || 'Có lỗi xảy ra khi cập nhật lượt sử dụng.', 'error');
@@ -399,6 +570,7 @@ export default function AdminApp({ onSwitchToUser }) {
       setIsLockModalOpen(false);
       setLockReason('');
       setSelectedUser(null);
+      isAnalyticsDirty.current = true;
       fetchUsersData();
       fetchAlertsAndAppeals();
     } catch (err) {
@@ -415,6 +587,7 @@ export default function AdminApp({ onSwitchToUser }) {
       try {
         await unlockAdminUser(userObj._id);
         showAlert('Mở khóa tài khoản thành công.', 'success');
+        isAnalyticsDirty.current = true;
         fetchUsersData();
         fetchAlertsAndAppeals();
       } catch (err) {
@@ -432,6 +605,7 @@ export default function AdminApp({ onSwitchToUser }) {
       try {
         await deleteAdminUser(userObj._id);
         showAlert('Xóa tài khoản thành công.', 'success');
+        isAnalyticsDirty.current = true;
         fetchUsersData();
       } catch (err) {
         showAlert(err.response?.data?.error || 'Có lỗi xảy ra khi xóa tài khoản.', 'error');
@@ -448,6 +622,7 @@ export default function AdminApp({ onSwitchToUser }) {
       try {
         await restoreAdminUser(userObj._id);
         showAlert('Khôi phục tài khoản thành công.', 'success');
+        isAnalyticsDirty.current = true;
         fetchUsersData();
       } catch (err) {
         showAlert(err.response?.data?.error || 'Có lỗi xảy ra khi khôi phục tài khoản.', 'error');
@@ -466,6 +641,7 @@ export default function AdminApp({ onSwitchToUser }) {
           await lockAdminCalculation(calcType, calc._id);
         }
         showAlert(`Đã ${actionStr} bản ghi luận giải.`, 'success');
+        isAnalyticsDirty.current = true;
         fetchCalculationsData();
       } catch (err) {
         showAlert(err.response?.data?.error || 'Lỗi khi cập nhật bản ghi.', 'error');
@@ -478,6 +654,7 @@ export default function AdminApp({ onSwitchToUser }) {
       try {
         await deleteAdminCalculation(calcType, calc._id);
         showAlert('Đã xóa bản ghi (xóa mềm).', 'success');
+        isAnalyticsDirty.current = true;
         fetchCalculationsData();
       } catch (err) {
         showAlert(err.response?.data?.error || 'Lỗi khi xóa bản ghi.', 'error');
@@ -558,15 +735,25 @@ export default function AdminApp({ onSwitchToUser }) {
             </button>
             <button
               onClick={() => setActiveTab('users')}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${activeTab === 'users' ? 'bg-amber-800 text-white shadow-lg' : 'text-slate-400 hover:text-slate-200'}`}
+              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all relative ${activeTab === 'users' ? 'bg-amber-800 text-white shadow-lg' : 'text-slate-400 hover:text-slate-200'}`}
             >
               Thành Viên
+              {newUsersCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-600 text-[9px] font-extrabold text-white animate-pulse">
+                  {newUsersCount}
+                </span>
+              )}
             </button>
             <button
               onClick={() => setActiveTab('calculations')}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${activeTab === 'calculations' ? 'bg-amber-800 text-white shadow-lg' : 'text-slate-400 hover:text-slate-200'}`}
+              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all relative ${activeTab === 'calculations' ? 'bg-amber-800 text-white shadow-lg' : 'text-slate-400 hover:text-slate-200'}`}
             >
               Dịch Bản / Lá Số
+              {newCalcsCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-600 text-[9px] font-extrabold text-white animate-pulse">
+                  {newCalcsCount}
+                </span>
+              )}
             </button>
             <button
               onClick={() => setActiveTab('alerts')}
@@ -947,7 +1134,7 @@ export default function AdminApp({ onSwitchToUser }) {
                 type="text"
                 value={userSearch}
                 onChange={(e) => setUserSearch(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && fetchUsersData()}
+                onKeyDown={(e) => e.key === 'Enter' && fetchUsersData(userSearch)}
                 placeholder="Tìm tên hoặc email..."
                 className="w-full pl-10 pr-10 py-2 bg-slate-900 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-amber-500 text-slate-200"
               />
@@ -996,7 +1183,8 @@ export default function AdminApp({ onSwitchToUser }) {
               <button
                 onClick={() => {
                   setUserPage(1);
-                  fetchUsersData();
+                  setUserCursors([null]);
+                  fetchUsersData(userSearch, userRoleFilter, userStatusFilter);
                 }}
                 className="bg-amber-800 hover:bg-amber-700 text-white font-bold text-xs px-4 py-2 rounded-xl transition-colors shrink-0"
               >
@@ -1452,20 +1640,26 @@ export default function AdminApp({ onSwitchToUser }) {
           {/* TAB CATEGORIES (Iching, Bazi, Tuvi) */}
           <div className="flex bg-slate-950/80 p-1 rounded-2xl border border-slate-800/80 gap-1 w-full sm:w-80">
             {[
-              { id: 'iching', name: 'Kinh Dịch' },
-              { id: 'bazi', name: 'Bát Tự' },
-              { id: 'tuvi', name: 'Tử Vi' }
+              { id: 'iching', name: 'Kinh Dịch', count: newIchingCount },
+              { id: 'bazi', name: 'Bát Tự', count: newBaziCount },
+              { id: 'tuvi', name: 'Tử Vi', count: newTuviCount }
             ].map(tab => (
               <button
                 key={tab.id}
                 onClick={() => {
                   setCalcType(tab.id);
                   setCalcPage(1);
+                  setCalcCursors([null]);
                   setCalculations([]);
                 }}
-                className={`flex-1 py-2.5 px-3 rounded-xl font-bold text-xs transition-all whitespace-nowrap text-center ${calcType === tab.id ? 'bg-amber-800 text-white shadow-md' : 'text-slate-450 hover:text-slate-200'}`}
+                className={`flex-1 py-2.5 px-3 rounded-xl font-bold text-xs transition-all whitespace-nowrap text-center relative ${calcType === tab.id ? 'bg-amber-800 text-white shadow-md' : 'text-slate-450 hover:text-slate-200'}`}
               >
                 {tab.name}
+                {tab.count > 0 && (
+                  <span className="absolute -top-1.5 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-600 text-[9px] font-extrabold text-white animate-pulse">
+                    {tab.count}
+                  </span>
+                )}
               </button>
             ))}
           </div>
@@ -1477,7 +1671,7 @@ export default function AdminApp({ onSwitchToUser }) {
                 type="text"
                 value={calcSearch}
                 onChange={(e) => setCalcSearch(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && fetchCalculationsData()}
+                onKeyDown={(e) => e.key === 'Enter' && fetchCalculationsData(calcSearch)}
                 placeholder={calcType === 'iching' ? 'Tìm theo userId hoặc Ý niệm...' : 'Tìm theo userId...'}
                 className="w-full pl-10 pr-10 py-2 bg-slate-900 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-amber-500 text-slate-200"
               />
@@ -1515,7 +1709,8 @@ export default function AdminApp({ onSwitchToUser }) {
               <button
                 onClick={() => {
                   setCalcPage(1);
-                  fetchCalculationsData();
+                  setCalcCursors([null]);
+                  fetchCalculationsData(calcSearch, calcType, calcStatusFilter);
                 }}
                 className="bg-amber-800 hover:bg-amber-700 text-white font-bold text-xs px-4 py-2 rounded-xl transition-colors shrink-0"
               >
@@ -1603,7 +1798,8 @@ export default function AdminApp({ onSwitchToUser }) {
                         <td className="py-4 px-4 text-center">
                           <div className="flex items-center justify-center gap-2">
                             <button
-                              onClick={() => setSelectedCalc(calc)}
+                              onClick={() => handleViewDetails(calc)}
+                              onMouseEnter={() => preloadCalculation(calcType, calc._id)}
                               className="p-1.5 hover:bg-slate-800 text-slate-400 hover:text-amber-550 border border-slate-800 rounded-lg transition-all"
                               title="Xem chi tiết kết quả luận giải"
                             >
@@ -1700,7 +1896,9 @@ export default function AdminApp({ onSwitchToUser }) {
                     {/* Actions */}
                     <div className="flex items-center justify-end gap-2 pt-2.5 border-t border-slate-800/30">
                       <button
-                        onClick={() => setSelectedCalc(calc)}
+                        onClick={() => handleViewDetails(calc)}
+                        onMouseEnter={() => preloadCalculation(calcType, calc._id)}
+                        onTouchStart={() => preloadCalculation(calcType, calc._id)}
                         className="flex items-center gap-1 px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-[11px] font-semibold transition-all"
                         title="Xem chi tiết"
                       >

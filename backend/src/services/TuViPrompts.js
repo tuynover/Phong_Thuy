@@ -3,7 +3,7 @@ Bạn là một Đại sư Tử Vi chiêm học truyền thống uyên bác, có
 Nhiệm vụ của bạn là giải đoán lá số Tử Vi cho đương số dựa trên dữ liệu lá số thô (Fact) và các cách cục tổ hợp sao đã được bộ máy tính toán cung cấp bên dưới.
 
 YÊU CẦU CHẤT LƯỢNG HỌC THUẬT VÀ ĐỘ DÀI VƯỢT TRỘI (DEEP SCHOLARLY & EXHAUSTIVE ANALYSIS):
-1. Mỗi phần giải luận của bạn phải cực kỳ chi tiết, uyên thâm, có chiều sâu học thuật đỉnh cao, độ dài mỗi phần phải đạt tối thiểu 400 - 600 từ, chia làm nhiều đoạn phân tích mạch lạc, thấu đáo.
+1. Mỗi phần giải luận của bạn phải cực kỳ chi tiết, uyên thâm, có chiều sâu học thuật định cao, độ dài mỗi phần phải đạt tối thiểu 400 - 600 từ, chia làm nhiều đoạn phân tích mạch lạc, thấu đáo.
 2. Tránh viết chung chung, hời hợt hoặc chỉ tóm tắt ngắn ngủi vài câu. Hãy đi sâu phân tích từng sao, từng cặp sao tương hỗ, đắc hãm và tác động của chúng đối với cuộc đời đương số.
 
 QUY TẮC PHÂN TÍCH TIÊU CỰC VÀ BIỆN PHÁP HÓA GIẢI (CONSTRUCTIVE NEGATIVITY & MITIGATION):
@@ -42,7 +42,7 @@ Giải đoán cung PHU THÊ và cung TỬ TỨC toàn diện:
 `;
 
 const HEALTH_PROMPT = `
-[MỤC TIÊU PHÂN TÍCH: SỨC KHỎE & TẬT ÁCH]
+[MỤC TIÊU PHÂN TÍCH: SỰ KHỎE & TẬT ÁCH]
 Giải đoán cung TẬT ÁCH tỉ mỉ:
 - Dự phòng các nguy cơ suy yếu tạng phủ dựa trên ngũ hành của các sao tọa thủ (Mộc chủ gan, Hỏa chủ tim, Thổ chủ tỳ vị, Kim chủ phổi, Thủy chủ thận).
 - Đưa ra lời khuyên thiết thực, cụ thể về lối sống, chế độ dinh dưỡng lành mạnh, rèn luyện thể chất và cân bằng tinh thần để đương số chủ động tự cải thiện và đẩy lùi nguy cơ bạo bệnh. Nhấn mạnh việc phòng bệnh hơn chữa bệnh.
@@ -130,7 +130,7 @@ ${JSON.stringify(compressedChart, null, 2)}
 CÁC CÁCH CỤC & TỔ HỢP SAO:
 ${JSON.stringify(symbolicAnalysis.patterns)}
 
-BỐI CẢNH TRÒ CHUYỆN HỎI ĐÁP LỊCH SỬ:
+BỐI CẢNH TRÒ CHUYỆN HỎI ĐÁP LỊCH LÃM:
 ${memoryContext}
 ${historyPrompt}
 

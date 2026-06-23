@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import Tooltip from './Tooltip';
 import { hexagramDictionary } from '../data/hexagrams';
 import ReactMarkdown from 'react-markdown';
@@ -28,17 +29,152 @@ const LineVisual = ({ type, isRed }) => {
 
 const LineWithTooltip = ({ type, isRed, isMoving, index }) => {
     const [show, setShow] = useState(false);
+    const [coords, setCoords] = useState({ top: 0, left: 0, width: 260 });
+    const targetRef = useRef(null);
+    const tooltipRef = useRef(null);
+    const closeTimeoutRef = useRef(null);
+    const isTouchDeviceRef = useRef(false);
     const movingLabel = isMoving ? ' · Động 🔴' : '';
     const haoInfo = HAO_VI_MEANING[index] || {};
+    const placement = index >= 3 ? 'bottom' : 'top';
+
+    // Clean up timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (closeTimeoutRef.current) {
+                clearTimeout(closeTimeoutRef.current);
+            }
+        };
+    }, []);
+
+    // Close on scroll
+    useEffect(() => {
+        if (show) {
+            const handleScroll = () => {
+                setShow(false);
+            };
+            window.addEventListener('scroll', handleScroll, { capture: true, passive: true });
+            return () => {
+                window.removeEventListener('scroll', handleScroll, { capture: true });
+            };
+        }
+    }, [show]);
+
+    // Close on click outside
+    useEffect(() => {
+        if (show) {
+            const handleOutsideClick = (e) => {
+                if (targetRef.current && !targetRef.current.contains(e.target)) {
+                    if (tooltipRef.current && !tooltipRef.current.contains(e.target)) {
+                        setShow(false);
+                    }
+                }
+            };
+            document.addEventListener('pointerdown', handleOutsideClick);
+            return () => {
+                document.removeEventListener('pointerdown', handleOutsideClick);
+            };
+        }
+    }, [show]);
+
+    const calculatePosition = () => {
+        if (targetRef.current) {
+            const rect = targetRef.current.getBoundingClientRect();
+            const viewportWidth = window.innerWidth;
+            const tooltipWidth = Math.min(260, viewportWidth - 24);
+            const padding = 12;
+            
+            let left = rect.left + rect.width / 2;
+            const minLeft = tooltipWidth / 2 + padding;
+            const maxLeft = viewportWidth - tooltipWidth / 2 - padding;
+            left = Math.max(minLeft, Math.min(maxLeft, left));
+
+            if (placement === 'bottom') {
+                setCoords({
+                    left,
+                    top: rect.bottom + 8,
+                    width: tooltipWidth
+                });
+            } else {
+                setCoords({
+                    left,
+                    top: rect.top - 8,
+                    width: tooltipWidth
+                });
+            }
+        }
+    };
+
+    const handleMouseEnter = () => {
+        if (isTouchDeviceRef.current) return;
+        if (closeTimeoutRef.current) {
+            clearTimeout(closeTimeoutRef.current);
+            closeTimeoutRef.current = null;
+        }
+        calculatePosition();
+        setShow(true);
+    };
+
+    const handleMouseLeave = () => {
+        if (isTouchDeviceRef.current) return;
+        closeTimeoutRef.current = setTimeout(() => {
+            setShow(false);
+        }, 150);
+    };
+
+    const handleTouchStart = (e) => {
+        isTouchDeviceRef.current = true;
+        e.stopPropagation();
+        if (show) {
+            setShow(false);
+        } else {
+            calculatePosition();
+            setShow(true);
+        }
+    };
+
+    const handleTooltipMouseEnter = () => {
+        if (isTouchDeviceRef.current) return;
+        if (closeTimeoutRef.current) {
+            clearTimeout(closeTimeoutRef.current);
+            closeTimeoutRef.current = null;
+        }
+    };
+
+    const handleTooltipMouseLeave = () => {
+        if (isTouchDeviceRef.current) return;
+        closeTimeoutRef.current = setTimeout(() => {
+            setShow(false);
+        }, 150);
+    };
+
+    const tooltipStyle = {
+        position: 'fixed',
+        left: `${coords.left}px`,
+        top: `${coords.top}px`,
+        width: `${coords.width}px`,
+        transform: placement === 'bottom' ? 'translate(-50%, 0)' : 'translate(-50%, -100%)',
+        zIndex: 99999,
+        pointerEvents: 'auto',
+    };
+
     return (
         <div
+            ref={targetRef}
             className="relative inline-flex items-center gap-2 cursor-pointer h-full"
-            onMouseEnter={() => setShow(true)}
-            onMouseLeave={() => setShow(false)}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            onTouchStart={handleTouchStart}
         >
             <LineVisual type={type} isRed={isRed} />
-            {show && (
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-[9999] w-[260px] bg-amber-50 border border-amber-200 rounded-lg shadow-xl p-3 text-left">
+            {show && createPortal(
+                <div 
+                    ref={tooltipRef}
+                    className="bg-amber-50 border border-amber-200 rounded-lg shadow-xl p-3 text-left z-[99999]"
+                    style={tooltipStyle}
+                    onMouseEnter={handleTooltipMouseEnter}
+                    onMouseLeave={handleTooltipMouseLeave}
+                >
                     <div className="font-bold text-red-800 text-sm border-b border-amber-300 pb-1 mb-2">
                         {haoInfo.ten}{movingLabel}
                     </div>
@@ -46,7 +182,8 @@ const LineWithTooltip = ({ type, isRed, isMoving, index }) => {
                         <div className="text-amber-900 font-medium italic">{haoInfo.y_nghia}</div>
                         <div><span className="text-gray-500">Đại diện:</span> <span className="font-semibold">{haoInfo.dai_dien}</span></div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );
@@ -346,13 +483,13 @@ const DivinationBoard = ({ result, onUpdateResult, user, onRequireLogin }) => {
                                                         {pLine.is_host ? 'Thế' : pLine.is_guest ? 'Ứng' : ''}
                                                     </td>
                                                     <td className={`font-medium align-middle ${isMoving ? 'font-bold' : ''}`}>
-                                                        {pLine.relative ? <Tooltip term={pLine.relative}>{pLine.relative}</Tooltip> : ''}
+                                                        {pLine.relative ? <Tooltip term={pLine.relative} placement={idx < 3 ? 'bottom' : 'top'}>{pLine.relative}</Tooltip> : ''}
                                                     </td>
                                                     <td className={`font-medium align-middle ${getColorClass(pLine.element)} ${isMoving ? 'font-bold' : ''}`}>
                                                         {getChiOnly(pLine.stem_branch)} {pLine.element}
                                                     </td>
                                                     <td className="text-[13px] text-gray-600 font-bold align-middle">
-                                                        {pLine.hidden_spirit ? <Tooltip term={pLine.hidden_spirit}>{pLine.hidden_spirit}</Tooltip> : ''}
+                                                        {pLine.hidden_spirit ? <Tooltip term={pLine.hidden_spirit} placement={idx < 3 ? 'bottom' : 'top'}>{pLine.hidden_spirit}</Tooltip> : ''}
                                                     </td>
                                                     <td className="font-semibold text-gray-400 pr-2 align-middle">{pLine.tk}</td>
                                                 </tr>
@@ -383,14 +520,14 @@ const DivinationBoard = ({ result, onUpdateResult, user, onRequireLogin }) => {
                                             return (
                                                 <tr key={index} className={trClass}>
                                                     <td className={`pl-3 font-medium align-middle ${isMoving ? 'font-bold' : ''}`}>
-                                                        {sLine.relative ? <Tooltip term={sLine.relative}>{sLine.relative}</Tooltip> : ''}
+                                                        {sLine.relative ? <Tooltip term={sLine.relative} placement={idx < 3 ? 'bottom' : 'top'}>{sLine.relative}</Tooltip> : ''}
                                                     </td>
                                                     <td className={`font-medium align-middle ${getColorClass(sLine.element)} ${isMoving ? 'font-bold' : ''}`}>
                                                         {getChiOnly(sLine.stem_branch)} {sLine.element}
                                                     </td>
                                                     <td className={`font-semibold align-middle ${isMoving ? 'text-red-400' : 'text-gray-400'}`}>{sLine.tk}</td>
                                                     <td className="font-semibold text-slate-700 align-middle">
-                                                        <Tooltip term={pLine.luc_thu}>{pLine.luc_thu}</Tooltip>
+                                                        <Tooltip term={pLine.luc_thu} placement={idx < 3 ? 'bottom' : 'top'}>{pLine.luc_thu}</Tooltip>
                                                     </td>
                                                     <td className="pr-0 text-center align-middle h-full">
                                                         <div className="flex items-center justify-center h-full">
@@ -434,16 +571,16 @@ const DivinationBoard = ({ result, onUpdateResult, user, onRequireLogin }) => {
                                                 {pLine.is_host ? 'Thế' : pLine.is_guest ? 'Ứng' : ''}
                                             </td>
                                             <td className={`font-medium align-middle ${isMoving ? 'font-bold' : ''}`}>
-                                                {pLine.relative}
+                                                {pLine.relative ? <Tooltip term={pLine.relative} placement={idx < 3 ? 'bottom' : 'top'}>{pLine.relative}</Tooltip> : ''}
                                             </td>
                                             <td className={`font-medium align-middle ${getColorClass(pLine.element)} ${isMoving ? 'font-bold' : ''}`}>
                                                 {getChiOnly(pLine.stem_branch)} {pLine.element}
                                             </td>
                                             <td className="text-[14px] text-gray-600 font-bold align-middle">
-                                                {pLine.hidden_spirit ? <Tooltip term={pLine.hidden_spirit}>{pLine.hidden_spirit}</Tooltip> : ''}
+                                                {pLine.hidden_spirit ? <Tooltip term={pLine.hidden_spirit} placement={idx < 3 ? 'bottom' : 'top'}>{pLine.hidden_spirit}</Tooltip> : ''}
                                             </td>
                                             <td className="font-semibold text-slate-700 align-middle">
-                                                <Tooltip term={pLine.luc_thu}>{pLine.luc_thu}</Tooltip>
+                                                <Tooltip term={pLine.luc_thu} placement={idx < 3 ? 'bottom' : 'top'}>{pLine.luc_thu}</Tooltip>
                                             </td>
                                         </tr>
                                     );

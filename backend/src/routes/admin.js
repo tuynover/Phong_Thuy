@@ -18,6 +18,7 @@ router.get('/users/:id/stats', AdminController.getUserStats);
 
 // 2. Calculation Audits Routes
 router.get('/calculations', AdminController.getCalculations);
+router.get('/calculations/:type/:id', AdminController.getCalculationDetail);
 router.post('/calculations/:type/:id/lock', AdminController.lockCalculation);
 router.post('/calculations/:type/:id/unlock', AdminController.unlockCalculation);
 router.delete('/calculations/:type/:id', AdminController.deleteCalculation);
