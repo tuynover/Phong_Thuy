@@ -483,3 +483,8 @@ Stack: Error: Connection timeout to AI Model API
     at node:internal/main/run_main_module:36:49
 [2026-06-24 18:16:14.807] [WARN] [User: g@gmail.com] [Action: Đăng ký tài khoản] Đăng ký thất bại: Tài khoản với email [g@gmail.com] đã tồn tại.
 [2026-06-24 18:16:14.809] [WARN] [User: g@gmail.com] [Action: Đăng ký tài khoản] [IP: ::1] [Duration: 60ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (400)
+[2026-06-24 23:05:18.252] [WARN] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: Luận Giải Bát Tự AI] [IP: ::1] [Duration: 212ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (409)
+[2026-06-24 23:06:11.076] [WARN] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: Luận Giải Kinh Dịch AI] [IP: ::1] [Duration: 209ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (409)
+[2026-06-24 23:21:27.804] [WARN] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: Luận Giải Kinh Dịch AI] [IP: ::1] [Duration: 206ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (409)
+[2026-06-24 23:39:17.866] [WARN] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: Luận Giải Bát Tự AI] [IP: ::1] [Duration: 184ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (409)
+[2026-06-24 23:40:11.291] [WARN] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: Luận Giải Bát Tự AI] [IP: ::1] [Duration: 539ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (409)

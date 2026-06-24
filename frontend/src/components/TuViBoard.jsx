@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { Calendar, Clock, User, Sparkles, MessageCircle, RefreshCw, Star, ShieldAlert, ScrollText } from 'lucide-react';
 import { createTuViChart, interpretTuVi, checkTuViJob, getTuViRecord, rateTuVi } from '../services/api';
 import ChartRenderer from './ChartRenderer';
@@ -53,6 +53,8 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationComp
   const [feedback, setFeedback] = useState('');
   const [rated, setRated] = useState(false);
 
+  const pollIntervalRef = useRef(null);
+
   useEffect(() => {
     if (result) {
       localStorage.setItem('tuViResult', JSON.stringify(result));
@@ -60,6 +62,17 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationComp
       localStorage.removeItem('tuViResult');
     }
   }, [result]);
+
+  // Clean up poll interval on unmount
+  useEffect(() => {
+    return () => {
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+      }
+    };
+  }, []);
+
+
 
   // Xem lá số của bản thân
   const [isUpdateBaziOpen, setIsUpdateBaziOpen] = useState(false);
@@ -176,7 +189,10 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationComp
 
   // Tiến trình kiểm tra ngầm (Job Polling)
   const pollJobStatus = (jobId, recordId) => {
-    const interval = setInterval(async () => {
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current);
+    }
+    pollIntervalRef.current = setInterval(async () => {
       try {
         const jobRes = await checkTuViJob(jobId);
         const job = jobRes.data;
@@ -185,7 +201,10 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationComp
           setProgress(job.progress || 50);
           setLoadingStep('Đại sư đang giải nghĩa tổ hợp tinh tú...');
         } else if (job.status === 'completed') {
-          clearInterval(interval);
+          if (pollIntervalRef.current) {
+            clearInterval(pollIntervalRef.current);
+            pollIntervalRef.current = null;
+          }
           setProgress(100);
           
           // Nạp lại chi tiết lá số đã hoàn tất bài giải luận
@@ -195,13 +214,19 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationComp
           setLoadingAi(false);
           decrementCreditLocally();
         } else if (job.status === 'failed') {
-          clearInterval(interval);
+          if (pollIntervalRef.current) {
+            clearInterval(pollIntervalRef.current);
+            pollIntervalRef.current = null;
+          }
           setError(job.error || 'Quá trình giải đoán AI ngầm bị lỗi.');
           setLoading(false);
           setLoadingAi(false);
         }
       } catch (err) {
-        clearInterval(interval);
+        if (pollIntervalRef.current) {
+          clearInterval(pollIntervalRef.current);
+          pollIntervalRef.current = null;
+        }
         setError('Mất kết nối kiểm tra hàng đợi.');
         setLoading(false);
         setLoadingAi(false);
@@ -242,6 +267,13 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationComp
       setLoadingAi(false);
     }
   };
+
+  // Auto-resume polling if the loaded record is currently generating AI interpretation
+  useEffect(() => {
+    if (result && result._id && result.isGeneratingInterpretation && !loadingAi && activeUser) {
+      handleTriggerInterpretation();
+    }
+  }, [result, loadingAi, activeUser]);
 
   const handleAILuanGiaiClick = () => {
     if (!activeUser) {
