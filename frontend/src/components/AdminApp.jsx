@@ -110,14 +110,39 @@ export default function AdminApp({ onSwitchToUser }) {
 
   // Calculation management
   const [calcType, setCalcType] = useState('iching'); // 'iching' | 'bazi' | 'tuvi'
-  const [calculations, setCalculations] = useState([]);
-  const [calcTotal, setCalcTotal] = useState(0);
-  const [calcPage, setCalcPage] = useState(1);
   const [calcLimit] = useState(15); // limit is 15
   const [calcSearch, setCalcSearch] = useState('');
   const [calcStatusFilter, setCalcStatusFilter] = useState('');
   const [selectedCalc, setSelectedCalc] = useState(null);
-  const [calcCursors, setCalcCursors] = useState([null]); // calcCursors state
+
+  // Isolated states for calculations sub-tabs (Iching, Bazi, Tuvi)
+  const [ichingCalculations, setIchingCalculations] = useState([]);
+  const [baziCalculations, setBaziCalculations] = useState([]);
+  const [tuviCalculations, setTuviCalculations] = useState([]);
+
+  const [ichingTotal, setIchingTotal] = useState(0);
+  const [baziTotal, setBaziTotal] = useState(0);
+  const [tuviTotal, setTuviTotal] = useState(0);
+
+  const [ichingPage, setIchingPage] = useState(1);
+  const [baziPage, setBaziPage] = useState(1);
+  const [tuviPage, setTuviPage] = useState(1);
+
+  const [ichingCursors, setIchingCursors] = useState([null]);
+  const [baziCursors, setBaziCursors] = useState([null]);
+  const [tuviCursors, setTuviCursors] = useState([null]);
+
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
+  const [usersLoading, setUsersLoading] = useState(false);
+  const [ichingLoading, setIchingLoading] = useState(false);
+  const [baziLoading, setBaziLoading] = useState(false);
+  const [tuviLoading, setTuviLoading] = useState(false);
+
+  const isFetchingAnalytics = useRef(false);
+  const isFetchingUsers = useRef(false);
+  const isFetchingIching = useRef(false);
+  const isFetchingBazi = useRef(false);
+  const isFetchingTuvi = useRef(false);
 
   const [newUsersCount, setNewUsersCount] = useState(0);
   const [newCalcsCount, setNewCalcsCount] = useState(0);
@@ -166,7 +191,11 @@ export default function AdminApp({ onSwitchToUser }) {
   // Refs to cache parameters and prevent redundant fetches during tab navigation
   const lastFetchedAnalyticsParams = useRef({ startDate: null, endDate: null, groupBy: null });
   const lastFetchedUsersParams = useRef({ page: null, role: null, status: null, search: null });
-  const lastFetchedCalcsParams = useRef({ type: null, page: null, status: null, search: null });
+  const lastFetchedCalcsParams = useRef({
+    iching: { page: null, status: null, search: null },
+    bazi: { page: null, status: null, search: null },
+    tuvi: { page: null, status: null, search: null }
+  });
 
   // Fetch initial system warnings and appeals
   useEffect(() => {
@@ -225,7 +254,7 @@ export default function AdminApp({ onSwitchToUser }) {
           const calcTypeReceived = payload.data?.type;
           // Luôn tự động cập nhật ngầm danh sách quẻ/lá số nếu trùng loại đang hiển thị
           if (fetchCalculationsDataRef.current && calcTypeRef.current === calcTypeReceived) {
-            fetchCalculationsDataRef.current();
+            fetchCalculationsDataRef.current(calcTypeReceived);
             isCalcsDirty.current = false;
           } else {
             isCalcsDirty.current = true;
@@ -312,19 +341,20 @@ export default function AdminApp({ onSwitchToUser }) {
   // Fetch calculations when type, filters or page changes (only if they actually changed)
   useEffect(() => {
     if (activeTab === 'calculations') {
-      const last = lastFetchedCalcsParams.current;
+      const last = lastFetchedCalcsParams.current[calcType];
+      const activeCalcs = calcType === 'iching' ? ichingCalculations : calcType === 'bazi' ? baziCalculations : tuviCalculations;
+      const activeCalcPage = calcType === 'iching' ? ichingPage : calcType === 'bazi' ? baziPage : tuviPage;
       if (
-        calculations.length === 0 ||
+        activeCalcs.length === 0 ||
         isCalcsDirty.current ||
-        calcType !== last.type ||
-        calcPage !== last.page ||
+        activeCalcPage !== last.page ||
         calcStatusFilter !== last.status
       ) {
-        fetchCalculationsData();
+        fetchCalculationsData(calcType);
         isCalcsDirty.current = false;
       }
     }
-  }, [activeTab, calcType, calcPage, calcStatusFilter, calculations]);
+  }, [activeTab, calcType, ichingPage, baziPage, tuviPage, calcStatusFilter, ichingCalculations, baziCalculations, tuviCalculations]);
 
   const handlePresetClick = (days) => {
     const start = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
@@ -344,7 +374,9 @@ export default function AdminApp({ onSwitchToUser }) {
   };
 
   async function fetchAnalyticsData() {
-    setLoading(true);
+    if (isFetchingAnalytics.current) return;
+    isFetchingAnalytics.current = true;
+    setAnalyticsLoading(true);
     try {
       const res = await getAdminAnalytics(startDate, endDate, groupBy);
       setAnalytics(res.data);
@@ -352,12 +384,15 @@ export default function AdminApp({ onSwitchToUser }) {
     } catch (err) {
       console.error('Lỗi khi tải dữ liệu thống kê:', err);
     } finally {
-      setLoading(false);
+      setAnalyticsLoading(false);
+      isFetchingAnalytics.current = false;
     }
   }
 
   async function fetchUsersData(overrideSearch = undefined, overrideRole = undefined, overrideStatus = undefined) {
-    setLoading(true);
+    if (isFetchingUsers.current) return;
+    isFetchingUsers.current = true;
+    setUsersLoading(true);
     try {
       const targetSearch = overrideSearch !== undefined ? overrideSearch : userSearch;
       const targetRole = overrideRole !== undefined ? overrideRole : userRoleFilter;
@@ -402,20 +437,30 @@ export default function AdminApp({ onSwitchToUser }) {
     } catch (err) {
       console.error('Lỗi tải danh sách người dùng:', err);
     } finally {
-      setLoading(false);
+      setUsersLoading(false);
+      isFetchingUsers.current = false;
     }
   }
 
-  async function fetchCalculationsData(overrideSearch = undefined, overrideType = undefined, overrideStatus = undefined) {
-    setLoading(true);
+  async function fetchCalculationsData(typeToFetch = undefined, overrideSearch = undefined, overrideStatus = undefined) {
+    const targetType = typeToFetch !== undefined ? typeToFetch : calcType;
+    const isFetchingRef = targetType === 'iching' ? isFetchingIching : targetType === 'bazi' ? isFetchingBazi : isFetchingTuvi;
+    if (isFetchingRef.current) return;
+    isFetchingRef.current = true;
+
+    const setLoadingState = targetType === 'iching' ? setIchingLoading : targetType === 'bazi' ? setBaziLoading : setTuviLoading;
+    setLoadingState(true);
+
     try {
       const targetSearch = overrideSearch !== undefined ? overrideSearch : calcSearch;
-      const targetType = overrideType !== undefined ? overrideType : calcType;
       const targetStatus = overrideStatus !== undefined ? overrideStatus : calcStatusFilter;
 
-      const isFilterReset = overrideSearch !== undefined || overrideType !== undefined || overrideStatus !== undefined;
-      const targetPage = isFilterReset ? 1 : calcPage;
-      const cursor = isFilterReset ? null : calcCursors[targetPage - 1];
+      const activePage = targetType === 'iching' ? ichingPage : targetType === 'bazi' ? baziPage : tuviPage;
+      const activeCursors = targetType === 'iching' ? ichingCursors : targetType === 'bazi' ? baziCursors : tuviCursors;
+
+      const isFilterReset = overrideSearch !== undefined || overrideStatus !== undefined;
+      const targetPage = isFilterReset ? 1 : activePage;
+      const cursor = isFilterReset ? null : activeCursors[targetPage - 1];
 
       const params = {
         type: targetType,
@@ -426,33 +471,39 @@ export default function AdminApp({ onSwitchToUser }) {
       };
       const res = await getAdminCalculations(params);
       const fetchedCalcs = res.data.records || [];
-      setCalculations(fetchedCalcs);
-      setCalcTotal(res.data.total || 0);
+
+      const setCalculationsState = targetType === 'iching' ? setIchingCalculations : targetType === 'bazi' ? setBaziCalculations : setTuviCalculations;
+      const setTotalState = targetType === 'iching' ? setIchingTotal : targetType === 'bazi' ? setBaziTotal : setTuviTotal;
+      const setCursorsState = targetType === 'iching' ? setIchingCursors : targetType === 'bazi' ? setBaziCursors : setTuviCursors;
+      const setPageState = targetType === 'iching' ? setIchingPage : targetType === 'bazi' ? setBaziPage : setTuviPage;
+
+      setCalculationsState(fetchedCalcs);
+      setTotalState(res.data.total || 0);
 
       if (isFilterReset) {
-        setCalcPage(1);
-        setCalcCursors([null]);
+        setPageState(1);
+        setCursorsState([null]);
       }
 
       if (fetchedCalcs.length === calcLimit) {
         const nextCursor = fetchedCalcs[fetchedCalcs.length - 1]._id;
-        setCalcCursors(prev => {
+        setCursorsState(prev => {
           const next = [...prev];
           next[targetPage] = nextCursor;
           return next;
         });
       }
 
-      lastFetchedCalcsParams.current = {
-        type: targetType,
+      lastFetchedCalcsParams.current[targetType] = {
         page: targetPage,
         status: targetStatus,
         search: targetSearch
       };
     } catch (err) {
-      console.error('Lỗi tải danh sách quẻ/lá số:', err);
+      console.error(`Lỗi tải danh sách quẻ/lá số (${targetType}):`, err);
     } finally {
-      setLoading(false);
+      setLoadingState(false);
+      isFetchingRef.current = false;
     }
   }
 
@@ -470,13 +521,13 @@ export default function AdminApp({ onSwitchToUser }) {
   const handleViewDetails = async (calc) => {
     const cacheKey = `${calcType}:${calc._id}`;
     if (prefetchedCalcs.current[cacheKey]) {
-      setSelectedCalc(prefetchedCalcs.current[cacheKey]);
+      setSelectedCalc({ ...prefetchedCalcs.current[cacheKey], calcType });
     } else {
-      setSelectedCalc({ _id: calc._id, isLoading: true });
+      setSelectedCalc({ _id: calc._id, isLoading: true, calcType });
       try {
         const res = await getAdminCalculationDetail(calcType, calc._id);
         prefetchedCalcs.current[cacheKey] = res.data;
-        setSelectedCalc(res.data);
+        setSelectedCalc({ ...res.data, calcType });
       } catch (err) {
         setSelectedCalc(null);
         showAlert('Lỗi tải chi tiết bản ghi.', 'error');
@@ -646,14 +697,15 @@ export default function AdminApp({ onSwitchToUser }) {
     const actionStr = calc.status === 'locked' ? 'mở khóa' : 'khóa';
     showConfirm(`Bạn có chắc chắn muốn ${actionStr} bản ghi luận giải này?`, async () => {
       try {
+        const targetType = calc.type || calcType;
         if (calc.status === 'locked') {
-          await unlockAdminCalculation(calcType, calc._id);
+          await unlockAdminCalculation(targetType, calc._id);
         } else {
-          await lockAdminCalculation(calcType, calc._id);
+          await lockAdminCalculation(targetType, calc._id);
         }
         showAlert(`Đã ${actionStr} bản ghi luận giải.`, 'success');
         isAnalyticsDirty.current = true;
-        fetchCalculationsData();
+        fetchCalculationsData(targetType);
       } catch (err) {
         showAlert(err.response?.data?.error || 'Lỗi khi cập nhật bản ghi.', 'error');
       }
@@ -663,10 +715,11 @@ export default function AdminApp({ onSwitchToUser }) {
   const handleDeleteCalculation = async (calc) => {
     showConfirm('Bạn có chắc chắn muốn xóa mềm bản ghi này khỏi lịch sử của người dùng?', async () => {
       try {
-        await deleteAdminCalculation(calcType, calc._id);
+        const targetType = calc.type || calcType;
+        await deleteAdminCalculation(targetType, calc._id);
         showAlert('Đã xóa bản ghi (xóa mềm).', 'success');
         isAnalyticsDirty.current = true;
-        fetchCalculationsData();
+        fetchCalculationsData(targetType);
       } catch (err) {
         showAlert(err.response?.data?.error || 'Lỗi khi xóa bản ghi.', 'error');
       }
@@ -696,6 +749,12 @@ export default function AdminApp({ onSwitchToUser }) {
       }
     });
   };
+
+  const activeCalcs = calcType === 'iching' ? ichingCalculations : calcType === 'bazi' ? baziCalculations : tuviCalculations;
+  const activeCalcsLoading = calcType === 'iching' ? ichingLoading : calcType === 'bazi' ? baziLoading : tuviLoading;
+  const activeCalcPage = calcType === 'iching' ? ichingPage : calcType === 'bazi' ? baziPage : tuviPage;
+  const activeCalcTotal = calcType === 'iching' ? ichingTotal : calcType === 'bazi' ? baziTotal : tuviTotal;
+  const activeSetCalcPage = calcType === 'iching' ? setIchingPage : calcType === 'bazi' ? setBaziPage : setTuviPage;
 
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-3xl p-4 sm:p-8 text-slate-100 shadow-2xl font-sans min-h-[70vh] flex flex-col space-y-6">
@@ -924,7 +983,7 @@ export default function AdminApp({ onSwitchToUser }) {
               </div>
             </div>
 
-            {loading ? (
+            {analyticsLoading ? (
               <div className="h-72 flex items-center justify-center">
                 <div className="w-10 h-10 border-4 border-slate-800 border-t-amber-500 rounded-full animate-spin"></div>
               </div>
@@ -1052,7 +1111,7 @@ export default function AdminApp({ onSwitchToUser }) {
               <p className="text-xs text-slate-400">Danh sách thành viên tiêu thụ Token AI và lượt luận giải nhiều nhất</p>
             </div>
 
-            {loading ? (
+            {analyticsLoading ? (
               <div className="h-40 flex items-center justify-center">
                 <div className="w-10 h-10 border-4 border-slate-800 border-t-amber-500 rounded-full animate-spin"></div>
               </div>
@@ -1205,7 +1264,7 @@ export default function AdminApp({ onSwitchToUser }) {
           </div>
 
           {/* USER TABLE GRID */}
-          {loading ? (
+          {usersLoading ? (
             <div className="h-64 flex items-center justify-center">
               <div className="w-10 h-10 border-4 border-slate-800 border-t-amber-500 rounded-full animate-spin"></div>
             </div>
@@ -1482,7 +1541,7 @@ export default function AdminApp({ onSwitchToUser }) {
                 </span>
                 <div className="flex items-center gap-2">
                   <button
-                    disabled={userPage <= 1 || loading}
+                    disabled={userPage <= 1 || usersLoading}
                     onClick={() => setUserPage(p => p - 1)}
                     className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-250 disabled:opacity-50 transition-colors"
                   >
@@ -1490,7 +1549,7 @@ export default function AdminApp({ onSwitchToUser }) {
                   </button>
                   <span className="text-xs font-mono font-bold text-slate-300 px-2">Trang {userPage}</span>
                   <button
-                    disabled={userPage * userLimit >= userTotal || loading}
+                    disabled={userPage * userLimit >= userTotal || usersLoading}
                     onClick={() => setUserPage(p => p + 1)}
                     className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-250 disabled:opacity-50 transition-colors"
                   >
@@ -1659,9 +1718,6 @@ export default function AdminApp({ onSwitchToUser }) {
                 key={tab.id}
                 onClick={() => {
                   setCalcType(tab.id);
-                  setCalcPage(1);
-                  setCalcCursors([null]);
-                  setCalculations([]);
                 }}
                 className={`flex-1 py-2.5 px-3 rounded-xl font-bold text-xs transition-all whitespace-nowrap text-center relative ${calcType === tab.id ? 'bg-amber-800 text-white shadow-md' : 'text-slate-450 hover:text-slate-200'}`}
               >
@@ -1682,9 +1738,9 @@ export default function AdminApp({ onSwitchToUser }) {
                 type="text"
                 value={calcSearch}
                 onChange={(e) => setCalcSearch(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && fetchCalculationsData(calcSearch)}
+                onKeyDown={(e) => e.key === 'Enter' && fetchCalculationsData(calcType, calcSearch)}
                 placeholder={calcType === 'iching' ? 'Tìm theo userId hoặc Ý niệm...' : 'Tìm theo userId...'}
-                className="w-full pl-10 pr-10 py-2 bg-slate-900 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-amber-500 text-slate-200"
+                className="w-full pl-10 pr-10 py-2 bg-slate-900 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-amber-550 text-slate-200"
               />
               <Search className="absolute left-3.5 top-2.5 text-slate-500" size={16} />
               {calcSearch && (
@@ -1692,7 +1748,7 @@ export default function AdminApp({ onSwitchToUser }) {
                   type="button"
                   onClick={() => {
                     setCalcSearch('');
-                    fetchCalculationsData('');
+                    fetchCalculationsData(calcType, '');
                   }}
                   className="absolute right-3 top-2.5 text-slate-550 hover:text-slate-200 transition-colors"
                   title="Xóa tìm kiếm"
@@ -1710,7 +1766,7 @@ export default function AdminApp({ onSwitchToUser }) {
               <select
                 value={calcStatusFilter}
                 onChange={(e) => setCalcStatusFilter(e.target.value)}
-                className="bg-slate-900 border border-slate-800 text-xs rounded-xl px-3 py-2 text-slate-300 focus:outline-none focus:border-amber-500"
+                className="bg-slate-900 border border-slate-800 text-xs rounded-xl px-3 py-2 text-slate-300 focus:outline-none focus:border-amber-550"
               >
                 <option value="">-- Mọi trạng thái --</option>
                 <option value="active">Hoạt động</option>
@@ -1719,9 +1775,17 @@ export default function AdminApp({ onSwitchToUser }) {
               </select>
               <button
                 onClick={() => {
-                  setCalcPage(1);
-                  setCalcCursors([null]);
-                  fetchCalculationsData(calcSearch, calcType, calcStatusFilter);
+                  if (calcType === 'iching') {
+                    setIchingPage(1);
+                    setIchingCursors([null]);
+                  } else if (calcType === 'bazi') {
+                    setBaziPage(1);
+                    setBaziCursors([null]);
+                  } else {
+                    setTuviPage(1);
+                    setTuviCursors([null]);
+                  }
+                  fetchCalculationsData(calcType, calcSearch, calcStatusFilter);
                 }}
                 className="bg-amber-800 hover:bg-amber-700 text-white font-bold text-xs px-4 py-2 rounded-xl transition-colors shrink-0"
               >
@@ -1731,11 +1795,11 @@ export default function AdminApp({ onSwitchToUser }) {
           </div>
 
           {/* CALCULATION DATA TABLE */}
-          {loading ? (
+          {activeCalcsLoading ? (
             <div className="h-64 flex items-center justify-center">
               <div className="w-10 h-10 border-4 border-slate-800 border-t-amber-500 rounded-full animate-spin"></div>
             </div>
-          ) : calculations.length > 0 ? (
+          ) : activeCalcs.length > 0 ? (
             <div className="bg-slate-950/20 border border-slate-800 rounded-3xl overflow-hidden">
               {/* Desktop view */}
               <div className="hidden md:block overflow-x-auto">
@@ -1752,7 +1816,7 @@ export default function AdminApp({ onSwitchToUser }) {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-850">
-                    {calculations.map((calc) => (
+                    {activeCalcs.map((calc) => (
                       <tr key={calc._id} className="hover:bg-slate-900/30 transition-colors">
                         <td className="py-4 px-4">
                           {calc.userId && calc.userId !== 'guest' ? (
@@ -1844,7 +1908,7 @@ export default function AdminApp({ onSwitchToUser }) {
 
               {/* Mobile view */}
               <div className="block md:hidden divide-y divide-slate-855 space-y-4 p-4 bg-slate-900/40">
-                {calculations.map((calc) => (
+                {activeCalcs.map((calc) => (
                   <div key={calc._id} className="pt-4 first:pt-0 space-y-3">
                     {/* Header: User name & Email */}
                     <div className="flex justify-between items-start gap-3">
@@ -1945,20 +2009,20 @@ export default function AdminApp({ onSwitchToUser }) {
               {/* PAGINATION CONTROLS */}
               <div className="bg-slate-950/60 border-t border-slate-850 px-4 py-3 flex flex-wrap gap-4 items-center justify-between">
                 <span className="text-xs text-slate-400">
-                  Hiển thị <span className="font-bold text-slate-200">{calculations.length}</span> / <span className="font-bold text-slate-200">{calcTotal}</span> bản ghi
+                  Hiển thị <span className="font-bold text-slate-200">{activeCalcs.length}</span> / <span className="font-bold text-slate-200">{activeCalcTotal}</span> bản ghi
                 </span>
                 <div className="flex items-center gap-2">
                   <button
-                    disabled={calcPage <= 1 || loading}
-                    onClick={() => setCalcPage(p => p - 1)}
+                    disabled={activeCalcPage <= 1 || activeCalcsLoading}
+                    onClick={() => activeSetCalcPage(p => p - 1)}
                     className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-250 disabled:opacity-50 transition-colors"
                   >
                     <ChevronLeft size={16} />
                   </button>
-                  <span className="text-xs font-mono font-bold text-slate-300 px-2">Trang {calcPage}</span>
+                  <span className="text-xs font-mono font-bold text-slate-300 px-2">Trang {activeCalcPage}</span>
                   <button
-                    disabled={calcPage * calcLimit >= calcTotal || loading}
-                    onClick={() => setCalcPage(p => p + 1)}
+                    disabled={activeCalcPage * calcLimit >= activeCalcTotal || activeCalcsLoading}
+                    onClick={() => activeSetCalcPage(p => p + 1)}
                     className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-250 disabled:opacity-50 transition-colors"
                   >
                     <ChevronRight size={16} />

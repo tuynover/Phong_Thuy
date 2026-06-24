@@ -10607,3 +10607,130 @@ Stack: Error: Connection timeout to AI Model API
 [2026-06-24 18:19:11.367] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations/iching/019ef957-e915-7f16-a07d-e6ea7d44879b] [IP: ::1] [Duration: 215ms] Hoàn thành: Phản hồi thành công (304)
 [2026-06-24 18:21:11.924] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/users/019ef958-6a7f-7638-a51d-e1bc5a79350b/stats] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/users/019ef958-6a7f-7638-a51d-e1bc5a79350b/stats
 [2026-06-24 18:21:12.063] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/users/019ef958-6a7f-7638-a51d-e1bc5a79350b/stats] [IP: ::1] [Duration: 141ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 18:23:50.175] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-06-24 18:29:38.294] [INFO] [SSE] User client [019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] disconnected.
+[2026-06-24 18:29:38.295] [INFO] [SSE] Admin client disconnected. Remaining: 0
+[2026-06-24 18:29:45.266] [INFO] [User: anonymous] [Action: GET /api/auth/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/auth/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4MjIyMjg0OCwiZXhwIjoxNzgyODI3NjQ4fQ.TaV_WSnk3PV6FZwE5K8WIG-7FL1WPA_XjOjbKP02a1I
+[2026-06-24 18:29:45.350] [INFO] [SSE] User client [019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] connected. Total sessions: 1
+[2026-06-24 18:30:08.264] [INFO] [User: anonymous] [Action: GET /api/auth/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/auth/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4MjIyMjg0OCwiZXhwIjoxNzgyODI3NjQ4fQ.TaV_WSnk3PV6FZwE5K8WIG-7FL1WPA_XjOjbKP02a1I
+[2026-06-24 18:30:08.288] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/notifications
+[2026-06-24 18:30:08.294] [INFO] [User: anonymous] [Action: GET /api/admin/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4MjIyMjg0OCwiZXhwIjoxNzgyODI3NjQ4fQ.TaV_WSnk3PV6FZwE5K8WIG-7FL1WPA_XjOjbKP02a1I
+[2026-06-24 18:30:08.298] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/analytics?startDate=2026-06-17&endDate=2026-06-24&groupBy=day
+[2026-06-24 18:30:08.334] [INFO] [SSE] User client [019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] connected. Total sessions: 2
+[2026-06-24 18:30:08.367] [INFO] [SSE] Admin client connected. Total admin clients: 1
+[2026-06-24 18:30:08.503] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] [Duration: 216ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 18:30:08.507] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/notifications
+[2026-06-24 18:30:08.581] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] [Duration: 284ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:30:08.700] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] [Duration: 193ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 18:33:50.178] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-06-24 18:43:50.178] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-06-24 18:46:03.290] [INFO] [SSE] User client [019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] disconnected.
+[2026-06-24 18:46:03.291] [INFO] [SSE] Admin client disconnected. Remaining: 0
+[2026-06-24 18:46:12.264] [INFO] [User: anonymous] [Action: GET /api/auth/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/auth/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4MjIyMjg0OCwiZXhwIjoxNzgyODI3NjQ4fQ.TaV_WSnk3PV6FZwE5K8WIG-7FL1WPA_XjOjbKP02a1I
+[2026-06-24 18:46:12.367] [INFO] [SSE] User client [019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] connected. Total sessions: 2
+[2026-06-24 18:46:18.257] [INFO] [User: anonymous] [Action: GET /api/auth/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/auth/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4MjIyMjg0OCwiZXhwIjoxNzgyODI3NjQ4fQ.TaV_WSnk3PV6FZwE5K8WIG-7FL1WPA_XjOjbKP02a1I
+[2026-06-24 18:46:18.361] [INFO] [SSE] User client [019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] connected. Total sessions: 3
+[2026-06-24 18:46:25.252] [INFO] [User: anonymous] [Action: GET /api/auth/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/auth/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4MjIyMjg0OCwiZXhwIjoxNzgyODI3NjQ4fQ.TaV_WSnk3PV6FZwE5K8WIG-7FL1WPA_XjOjbKP02a1I
+[2026-06-24 18:46:25.276] [INFO] [User: anonymous] [Action: GET /api/admin/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4MjIyMjg0OCwiZXhwIjoxNzgyODI3NjQ4fQ.TaV_WSnk3PV6FZwE5K8WIG-7FL1WPA_XjOjbKP02a1I
+[2026-06-24 18:46:25.280] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/analytics?startDate=2026-06-17&endDate=2026-06-24&groupBy=day
+[2026-06-24 18:46:25.283] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/notifications
+[2026-06-24 18:46:25.316] [INFO] [SSE] User client [019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] connected. Total sessions: 4
+[2026-06-24 18:46:25.347] [INFO] [SSE] Admin client connected. Total admin clients: 1
+[2026-06-24 18:46:25.470] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] [Duration: 188ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 18:46:25.473] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/notifications
+[2026-06-24 18:46:25.550] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] [Duration: 271ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:46:25.655] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] [Duration: 182ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 18:50:26.299] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/notifications
+[2026-06-24 18:50:26.303] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/analytics?startDate=2026-06-17&endDate=2026-06-24&groupBy=day
+[2026-06-24 18:50:26.306] [INFO] [SSE] Admin client disconnected. Remaining: 0
+[2026-06-24 18:50:26.308] [INFO] [User: anonymous] [Action: GET /api/admin/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4MjIyMjg0OCwiZXhwIjoxNzgyODI3NjQ4fQ.TaV_WSnk3PV6FZwE5K8WIG-7FL1WPA_XjOjbKP02a1I
+[2026-06-24 18:50:26.414] [INFO] [SSE] Admin client connected. Total admin clients: 1
+[2026-06-24 18:50:26.600] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] [Duration: 301ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 18:50:26.608] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/notifications
+[2026-06-24 18:50:26.687] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] [Duration: 384ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:50:26.693] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/analytics?startDate=2026-06-17&endDate=2026-06-24&groupBy=day
+[2026-06-24 18:50:26.772] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] [Duration: 164ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 18:50:26.779] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/notifications
+[2026-06-24 18:50:26.976] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] [Duration: 284ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:50:26.982] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/analytics?startDate=2026-06-17&endDate=2026-06-24&groupBy=day
+[2026-06-24 18:50:26.991] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] [Duration: 214ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 18:50:27.263] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] [Duration: 282ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:50:32.290] [INFO] [SSE] User client [019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] disconnected.
+[2026-06-24 18:50:32.291] [INFO] [SSE] Admin client disconnected. Remaining: 0
+[2026-06-24 18:50:40.257] [INFO] [User: anonymous] [Action: GET /api/auth/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/auth/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4MjIyMjg0OCwiZXhwIjoxNzgyODI3NjQ4fQ.TaV_WSnk3PV6FZwE5K8WIG-7FL1WPA_XjOjbKP02a1I
+[2026-06-24 18:50:40.333] [INFO] [SSE] User client [019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] connected. Total sessions: 4
+[2026-06-24 18:50:47.259] [INFO] [User: anonymous] [Action: GET /api/auth/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/auth/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4MjIyMjg0OCwiZXhwIjoxNzgyODI3NjQ4fQ.TaV_WSnk3PV6FZwE5K8WIG-7FL1WPA_XjOjbKP02a1I
+[2026-06-24 18:50:47.339] [INFO] [SSE] User client [019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] connected. Total sessions: 5
+[2026-06-24 18:50:53.269] [INFO] [User: anonymous] [Action: GET /api/auth/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/auth/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4MjIyMjg0OCwiZXhwIjoxNzgyODI3NjQ4fQ.TaV_WSnk3PV6FZwE5K8WIG-7FL1WPA_XjOjbKP02a1I
+[2026-06-24 18:50:53.342] [INFO] [SSE] User client [019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] connected. Total sessions: 6
+[2026-06-24 18:51:11.270] [INFO] [User: anonymous] [Action: GET /api/auth/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/auth/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4MjIyMjg0OCwiZXhwIjoxNzgyODI3NjQ4fQ.TaV_WSnk3PV6FZwE5K8WIG-7FL1WPA_XjOjbKP02a1I
+[2026-06-24 18:51:11.342] [INFO] [SSE] User client [019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] connected. Total sessions: 7
+[2026-06-24 18:51:13.259] [INFO] [User: anonymous] [Action: GET /api/auth/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/auth/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4MjIyMjg0OCwiZXhwIjoxNzgyODI3NjQ4fQ.TaV_WSnk3PV6FZwE5K8WIG-7FL1WPA_XjOjbKP02a1I
+[2026-06-24 18:51:13.350] [INFO] [SSE] User client [019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] connected. Total sessions: 8
+[2026-06-24 18:51:17.258] [INFO] [User: anonymous] [Action: GET /api/auth/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/auth/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4MjIyMjg0OCwiZXhwIjoxNzgyODI3NjQ4fQ.TaV_WSnk3PV6FZwE5K8WIG-7FL1WPA_XjOjbKP02a1I
+[2026-06-24 18:51:17.355] [INFO] [SSE] User client [019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] connected. Total sessions: 9
+[2026-06-24 18:51:24.266] [INFO] [User: anonymous] [Action: GET /api/auth/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/auth/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4MjIyMjg0OCwiZXhwIjoxNzgyODI3NjQ4fQ.TaV_WSnk3PV6FZwE5K8WIG-7FL1WPA_XjOjbKP02a1I
+[2026-06-24 18:51:24.342] [INFO] [SSE] User client [019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] connected. Total sessions: 10
+[2026-06-24 18:52:14.256] [INFO] [User: anonymous] [Action: GET /api/auth/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/auth/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4MjIyMjg0OCwiZXhwIjoxNzgyODI3NjQ4fQ.TaV_WSnk3PV6FZwE5K8WIG-7FL1WPA_XjOjbKP02a1I
+[2026-06-24 18:52:14.332] [INFO] [SSE] User client [019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] connected. Total sessions: 11
+[2026-06-24 18:52:20.256] [INFO] [User: anonymous] [Action: GET /api/auth/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/auth/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4MjIyMjg0OCwiZXhwIjoxNzgyODI3NjQ4fQ.TaV_WSnk3PV6FZwE5K8WIG-7FL1WPA_XjOjbKP02a1I
+[2026-06-24 18:52:20.330] [INFO] [SSE] User client [019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] connected. Total sessions: 12
+[2026-06-24 18:52:33.257] [INFO] [User: anonymous] [Action: GET /api/auth/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/auth/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4MjIyMjg0OCwiZXhwIjoxNzgyODI3NjQ4fQ.TaV_WSnk3PV6FZwE5K8WIG-7FL1WPA_XjOjbKP02a1I
+[2026-06-24 18:52:33.289] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/notifications
+[2026-06-24 18:52:33.295] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/analytics?startDate=2026-06-17&endDate=2026-06-24&groupBy=day
+[2026-06-24 18:52:33.300] [INFO] [User: anonymous] [Action: GET /api/admin/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4MjIyMjg0OCwiZXhwIjoxNzgyODI3NjQ4fQ.TaV_WSnk3PV6FZwE5K8WIG-7FL1WPA_XjOjbKP02a1I
+[2026-06-24 18:52:33.331] [INFO] [SSE] User client [019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] connected. Total sessions: 13
+[2026-06-24 18:52:33.368] [INFO] [SSE] Admin client connected. Total admin clients: 1
+[2026-06-24 18:52:33.500] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] [Duration: 213ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 18:52:33.504] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/notifications
+[2026-06-24 18:52:33.584] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] [Duration: 291ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:52:33.587] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/analytics?startDate=2026-06-17&endDate=2026-06-24&groupBy=day
+[2026-06-24 18:52:33.691] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] [Duration: 188ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 18:52:33.872] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] [Duration: 285ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:53:50.198] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-06-24 19:03:06.442] [INFO] [SSE] Admin client disconnected. Remaining: 0
+[2026-06-24 19:03:06.442] [INFO] [SSE] User client [019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] disconnected.
+[2026-06-24 19:03:07.087] [INFO] [User: anonymous] [Action: GET /api/auth/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/auth/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4MjIyMjg0OCwiZXhwIjoxNzgyODI3NjQ4fQ.TaV_WSnk3PV6FZwE5K8WIG-7FL1WPA_XjOjbKP02a1I
+[2026-06-24 19:03:07.163] [INFO] [SSE] User client [019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] connected. Total sessions: 13
+[2026-06-24 19:03:08.268] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/notifications
+[2026-06-24 19:03:08.272] [INFO] [User: anonymous] [Action: GET /api/admin/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4MjIyMjg0OCwiZXhwIjoxNzgyODI3NjQ4fQ.TaV_WSnk3PV6FZwE5K8WIG-7FL1WPA_XjOjbKP02a1I
+[2026-06-24 19:03:08.277] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/analytics?startDate=2026-06-17&endDate=2026-06-24&groupBy=day
+[2026-06-24 19:03:08.345] [INFO] [SSE] Admin client connected. Total admin clients: 1
+[2026-06-24 19:03:08.504] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] [Duration: 237ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 19:03:08.508] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/notifications
+[2026-06-24 19:03:08.542] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] [Duration: 267ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 19:03:08.698] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] [Duration: 192ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 19:03:11.469] [INFO] Backend is running on port 3001
+[2026-06-24 19:03:11.520] [INFO] [NotificationScheduler] Started successfully.
+[2026-06-24 19:03:11.521] [INFO] [Self-Ping] Initialized: Pinging https://phong-thuy-backend.onrender.com/health every 3 minutes.
+[2026-06-24 19:03:12.534] [INFO] [User: anonymous] [Action: GET /api/admin/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4MjIyMjg0OCwiZXhwIjoxNzgyODI3NjQ4fQ.TaV_WSnk3PV6FZwE5K8WIG-7FL1WPA_XjOjbKP02a1I
+[2026-06-24 19:03:12.548] [INFO] [User: anonymous] [Action: GET /api/auth/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/auth/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4MjIyMjg0OCwiZXhwIjoxNzgyODI3NjQ4fQ.TaV_WSnk3PV6FZwE5K8WIG-7FL1WPA_XjOjbKP02a1I
+[2026-06-24 19:03:13.358] [INFO] MongoDB Connected: ac-jk9y7ee-shard-00-00.a5rqrhx.mongodb.net
+[2026-06-24 19:03:13.921] [INFO] [SSE] Admin client connected. Total admin clients: 1
+[2026-06-24 19:03:13.952] [INFO] [SSE] User client [019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] connected. Total sessions: 1
+[2026-06-24 19:03:16.524] [INFO] [NotificationScheduler] Running daily check...
+[2026-06-24 19:03:16.525] [INFO] [NotificationScheduler] Running daily credit increment...
+[2026-06-24 19:03:16.527] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-06-24 19:03:16.603] [INFO] [NotificationScheduler] Daily credit increment completed. Updated 12 users.
+[2026-06-24 19:03:16.604] [INFO] [NotificationScheduler] Purging soft-deleted users inactive for 30+ days...
+[2026-06-24 19:03:16.661] [INFO] [NotificationScheduler] Found 0 users to purge.
+[2026-06-24 19:03:17.969] [INFO] [SSE] Admin client disconnected. Remaining: 0
+[2026-06-24 19:03:17.970] [INFO] [SSE] User client [019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] disconnected.
+[2026-06-24 19:03:18.010] [INFO] [User: anonymous] [Action: GET /api/auth/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/auth/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4MjIyMjg0OCwiZXhwIjoxNzgyODI3NjQ4fQ.TaV_WSnk3PV6FZwE5K8WIG-7FL1WPA_XjOjbKP02a1I
+[2026-06-24 19:03:18.072] [INFO] [SSE] User client [019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] connected. Total sessions: 1
+[2026-06-24 19:03:18.329] [INFO] [User: anonymous] [Action: GET /api/admin/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4MjIyMjg0OCwiZXhwIjoxNzgyODI3NjQ4fQ.TaV_WSnk3PV6FZwE5K8WIG-7FL1WPA_XjOjbKP02a1I
+[2026-06-24 19:03:18.391] [INFO] [SSE] Admin client connected. Total admin clients: 1
+[2026-06-24 19:03:18.394] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/notifications
+[2026-06-24 19:03:18.408] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/analytics?startDate=2026-06-17&endDate=2026-06-24&groupBy=day
+[2026-06-24 19:03:18.592] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] [Duration: 247ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 19:03:18.621] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/notifications
+[2026-06-24 19:03:18.805] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] [Duration: 188ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 19:03:19.361] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] [Duration: 1020ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 19:03:23.408] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/calculations?type=iching&limit=15&search=&status=
+[2026-06-24 19:03:23.810] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations] [IP: ::1] [Duration: 403ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 19:03:25.085] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/calculations?type=bazi&limit=15&search=&status=
+[2026-06-24 19:03:25.395] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations] [IP: ::1] [Duration: 311ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 19:03:25.820] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/calculations?type=tuvi&limit=15&search=&status=
+[2026-06-24 19:03:26.225] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations] [IP: ::1] [Duration: 406ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 19:03:31.412] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations/tuvi/6a3a9eef04db0205e59a90d1] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/calculations/tuvi/6a3a9eef04db0205e59a90d1
+[2026-06-24 19:03:31.661] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations/tuvi/6a3a9eef04db0205e59a90d1] [IP: ::1] [Duration: 250ms] Hoàn thành: Phản hồi thành công (200)
