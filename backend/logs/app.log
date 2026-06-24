@@ -10767,3 +10767,40 @@ Stack: Error: Connection timeout to AI Model API
 [2026-06-24 19:10:14.472] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations] [IP: ::1] [Duration: 317ms] Hoàn thành: Phản hồi thành công (304)
 [2026-06-24 19:10:14.759] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/calculations?type=tuvi&limit=15&search=&status=
 [2026-06-24 19:10:15.091] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations] [IP: ::1] [Duration: 332ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 19:11:26.708] [INFO] [SSE] User client [019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] disconnected.
+[2026-06-24 19:11:26.709] [INFO] [SSE] Admin client disconnected. Remaining: 0
+[2026-06-24 19:13:11.527] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-06-24 19:23:11.537] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-06-24 19:33:11.544] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-06-24 19:38:14.743] [INFO] Backend is running on port 3001
+[2026-06-24 19:38:14.812] [INFO] [NotificationScheduler] Started successfully.
+[2026-06-24 19:38:14.812] [INFO] [Self-Ping] Initialized: Pinging https://phong-thuy-backend.onrender.com/health every 3 minutes.
+[2026-06-24 19:38:15.534] [INFO] MongoDB Connected: ac-jk9y7ee-shard-00-00.a5rqrhx.mongodb.net
+[2026-06-24 19:38:19.828] [INFO] [NotificationScheduler] Running daily credit increment...
+[2026-06-24 19:38:19.832] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-06-24 19:38:19.828] [INFO] [NotificationScheduler] Running daily check...
+[2026-06-24 19:38:19.925] [INFO] [NotificationScheduler] Purging soft-deleted users inactive for 30+ days...
+[2026-06-24 19:38:19.923] [INFO] [NotificationScheduler] Daily credit increment completed. Updated 12 users.
+[2026-06-24 19:38:19.985] [INFO] [NotificationScheduler] Found 0 users to purge.
+[2026-06-24 19:38:47.582] [INFO] [User: anonymous] [Action: GET /api/auth/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/auth/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4MjIyMjg0OCwiZXhwIjoxNzgyODI3NjQ4fQ.TaV_WSnk3PV6FZwE5K8WIG-7FL1WPA_XjOjbKP02a1I
+[2026-06-24 19:38:47.663] [INFO] [SSE] User client [019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] connected. Total sessions: 1
+[2026-06-24 19:38:47.940] [INFO] [User: anonymous] [Action: GET /api/admin/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4MjIyMjg0OCwiZXhwIjoxNzgyODI3NjQ4fQ.TaV_WSnk3PV6FZwE5K8WIG-7FL1WPA_XjOjbKP02a1I
+[2026-06-24 19:38:47.971] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/notifications
+[2026-06-24 19:38:47.984] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/analytics?startDate=2026-06-17&endDate=2026-06-24&groupBy=day
+[2026-06-24 19:38:48.007] [INFO] [SSE] Admin client connected. Total admin clients: 1
+[2026-06-24 19:38:48.178] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] [Duration: 263ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 19:38:48.192] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/notifications
+[2026-06-24 19:38:48.397] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] [Duration: 206ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 19:38:48.923] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] [Duration: 1010ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 19:38:50.603] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/users] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/users?limit=15&search=&role=&status=
+[2026-06-24 19:38:50.801] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/users] [IP: ::1] [Duration: 200ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 19:38:51.700] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/calculations?type=iching&limit=15&search=&status=
+[2026-06-24 19:38:52.069] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations] [IP: ::1] [Duration: 369ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 19:38:53.173] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations/iching/019ef957-e915-7f16-a07d-e6ea7d44879b] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/calculations/iching/019ef957-e915-7f16-a07d-e6ea7d44879b
+[2026-06-24 19:38:53.359] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations/iching/019ef957-e915-7f16-a07d-e6ea7d44879b] [IP: ::1] [Duration: 187ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 19:38:53.362] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations/iching/019ef957-e915-7f16-a07d-e6ea7d44879b] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/calculations/iching/019ef957-e915-7f16-a07d-e6ea7d44879b
+[2026-06-24 19:38:53.529] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations/iching/019ef957-e915-7f16-a07d-e6ea7d44879b] [IP: ::1] [Duration: 166ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 19:38:55.625] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations/iching/019ef957-5643-7c74-8b99-132f63a92cc2] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/calculations/iching/019ef957-5643-7c74-8b99-132f63a92cc2
+[2026-06-24 19:38:55.793] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations/iching/019ef957-5643-7c74-8b99-132f63a92cc2] [IP: ::1] [Duration: 169ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 19:38:59.972] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/users/019ef958-6a7f-7638-a51d-e1bc5a79350b/stats] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/users/019ef958-6a7f-7638-a51d-e1bc5a79350b/stats
+[2026-06-24 19:39:00.084] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/users/019ef958-6a7f-7638-a51d-e1bc5a79350b/stats] [IP: ::1] [Duration: 112ms] Hoàn thành: Phản hồi thành công (200)
