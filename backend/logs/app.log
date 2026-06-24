@@ -10734,3 +10734,36 @@ Stack: Error: Connection timeout to AI Model API
 [2026-06-24 19:03:26.225] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations] [IP: ::1] [Duration: 406ms] Hoàn thành: Phản hồi thành công (200)
 [2026-06-24 19:03:31.412] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations/tuvi/6a3a9eef04db0205e59a90d1] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/calculations/tuvi/6a3a9eef04db0205e59a90d1
 [2026-06-24 19:03:31.661] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations/tuvi/6a3a9eef04db0205e59a90d1] [IP: ::1] [Duration: 250ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 19:08:04.272] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/notifications
+[2026-06-24 19:08:04.276] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/analytics?startDate=2026-06-17&endDate=2026-06-24&groupBy=day
+[2026-06-24 19:08:04.290] [INFO] [SSE] Admin client disconnected. Remaining: 0
+[2026-06-24 19:08:04.336] [INFO] [User: anonymous] [Action: GET /api/admin/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4MjIyMjg0OCwiZXhwIjoxNzgyODI3NjQ4fQ.TaV_WSnk3PV6FZwE5K8WIG-7FL1WPA_XjOjbKP02a1I
+[2026-06-24 19:08:04.395] [INFO] [SSE] Admin client connected. Total admin clients: 1
+[2026-06-24 19:08:04.471] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] [Duration: 199ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 19:08:04.475] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/notifications
+[2026-06-24 19:08:04.651] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] [Duration: 177ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 19:08:04.655] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/notifications
+[2026-06-24 19:08:04.828] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] [Duration: 174ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 19:08:04.963] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] [Duration: 688ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 19:08:04.968] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/analytics?startDate=2026-06-17&endDate=2026-06-24&groupBy=day
+[2026-06-24 19:08:05.466] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] [Duration: 499ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 19:10:08.755] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/calculations?type=iching&limit=15&search=&status=
+[2026-06-24 19:10:09.210] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations] [IP: ::1] [Duration: 456ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 19:10:10.218] [INFO] [SSE] Admin client disconnected. Remaining: 0
+[2026-06-24 19:10:10.219] [INFO] [SSE] User client [019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] disconnected.
+[2026-06-24 19:10:10.307] [INFO] [User: anonymous] [Action: GET /api/auth/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/auth/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4MjIyMjg0OCwiZXhwIjoxNzgyODI3NjQ4fQ.TaV_WSnk3PV6FZwE5K8WIG-7FL1WPA_XjOjbKP02a1I
+[2026-06-24 19:10:10.383] [INFO] [SSE] User client [019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] connected. Total sessions: 1
+[2026-06-24 19:10:10.627] [INFO] [User: anonymous] [Action: GET /api/admin/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4MjIyMjg0OCwiZXhwIjoxNzgyODI3NjQ4fQ.TaV_WSnk3PV6FZwE5K8WIG-7FL1WPA_XjOjbKP02a1I
+[2026-06-24 19:10:10.631] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/analytics?startDate=2026-06-17&endDate=2026-06-24&groupBy=day
+[2026-06-24 19:10:10.637] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/notifications
+[2026-06-24 19:10:10.703] [INFO] [SSE] Admin client connected. Total admin clients: 1
+[2026-06-24 19:10:10.842] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] [Duration: 206ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 19:10:10.846] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/notifications
+[2026-06-24 19:10:10.945] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] [Duration: 315ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 19:10:11.677] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] [Duration: 833ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 19:10:11.762] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/calculations?type=iching&limit=15&search=&status=
+[2026-06-24 19:10:12.122] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations] [IP: ::1] [Duration: 360ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 19:10:14.156] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/calculations?type=bazi&limit=15&search=&status=
+[2026-06-24 19:10:14.472] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations] [IP: ::1] [Duration: 317ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 19:10:14.759] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/calculations?type=tuvi&limit=15&search=&status=
+[2026-06-24 19:10:15.091] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations] [IP: ::1] [Duration: 332ms] Hoàn thành: Phản hồi thành công (304)

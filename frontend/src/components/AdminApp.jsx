@@ -155,7 +155,9 @@ export default function AdminApp({ onSwitchToUser }) {
 
   // Dirty flags caching refs
   const isUsersDirty = useRef(true);
-  const isCalcsDirty = useRef(true);
+  const isIchingDirty = useRef(true);
+  const isBaziDirty = useRef(true);
+  const isTuviDirty = useRef(true);
   const isAnalyticsDirty = useRef(true);
 
   // Dynamic state refs for SSE stability
@@ -255,9 +257,13 @@ export default function AdminApp({ onSwitchToUser }) {
           // Luôn tự động cập nhật ngầm danh sách quẻ/lá số nếu trùng loại đang hiển thị
           if (fetchCalculationsDataRef.current && calcTypeRef.current === calcTypeReceived) {
             fetchCalculationsDataRef.current(calcTypeReceived);
-            isCalcsDirty.current = false;
+            if (calcTypeReceived === 'iching') isIchingDirty.current = false;
+            else if (calcTypeReceived === 'bazi') isBaziDirty.current = false;
+            else isTuviDirty.current = false;
           } else {
-            isCalcsDirty.current = true;
+            if (calcTypeReceived === 'iching') isIchingDirty.current = true;
+            else if (calcTypeReceived === 'bazi') isBaziDirty.current = true;
+            else isTuviDirty.current = true;
           }
           // Tăng badge số đỏ
           if (activeTabRef.current !== 'calculations') {
@@ -344,14 +350,17 @@ export default function AdminApp({ onSwitchToUser }) {
       const last = lastFetchedCalcsParams.current[calcType];
       const activeCalcs = calcType === 'iching' ? ichingCalculations : calcType === 'bazi' ? baziCalculations : tuviCalculations;
       const activeCalcPage = calcType === 'iching' ? ichingPage : calcType === 'bazi' ? baziPage : tuviPage;
+      const isDirty = calcType === 'iching' ? isIchingDirty.current : calcType === 'bazi' ? isBaziDirty.current : isTuviDirty.current;
       if (
         activeCalcs.length === 0 ||
-        isCalcsDirty.current ||
+        isDirty ||
         activeCalcPage !== last.page ||
         calcStatusFilter !== last.status
       ) {
         fetchCalculationsData(calcType);
-        isCalcsDirty.current = false;
+        if (calcType === 'iching') isIchingDirty.current = false;
+        else if (calcType === 'bazi') isBaziDirty.current = false;
+        else isTuviDirty.current = false;
       }
     }
   }, [activeTab, calcType, ichingPage, baziPage, tuviPage, calcStatusFilter, ichingCalculations, baziCalculations, tuviCalculations]);
