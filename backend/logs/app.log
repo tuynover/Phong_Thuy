@@ -10444,3 +10444,166 @@ Stack: Error: Connection timeout to AI Model API
 [2026-06-23 22:13:50.200] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /api/notifications] [IP: ::1] [Duration: 150ms] Hoàn thành: Phản hồi thành công (304)
 [2026-06-23 22:14:50.216] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
 [2026-06-23 22:14:50.367] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /api/notifications] [IP: ::1] [Duration: 153ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-23 22:16:42.214] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-06-23 22:16:42.365] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /api/notifications] [IP: ::1] [Duration: 153ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-23 22:17:20.429] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-06-23 22:17:42.228] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-06-23 22:17:42.401] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /api/notifications] [IP: ::1] [Duration: 175ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-23 22:17:50.747] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-06-23 22:17:50.901] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /api/notifications] [IP: ::1] [Duration: 155ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 18:13:50.091] [INFO] Backend is running on port 3001
+[2026-06-24 18:13:50.175] [INFO] [NotificationScheduler] Started successfully.
+[2026-06-24 18:13:50.175] [INFO] [Self-Ping] Initialized: Pinging https://phong-thuy-backend.onrender.com/health every 3 minutes.
+[2026-06-24 18:13:50.881] [INFO] MongoDB Connected: ac-jk9y7ee-shard-00-00.a5rqrhx.mongodb.net
+[2026-06-24 18:13:55.190] [INFO] [NotificationScheduler] Running daily check...
+[2026-06-24 18:13:55.190] [INFO] [NotificationScheduler] Running daily credit increment...
+[2026-06-24 18:13:55.192] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-06-24 18:13:55.280] [INFO] [NotificationScheduler] Daily credit increment completed. Updated 11 users.
+[2026-06-24 18:13:55.280] [INFO] [NotificationScheduler] Purging soft-deleted users inactive for 30+ days...
+[2026-06-24 18:13:55.348] [INFO] [NotificationScheduler] Found 0 users to purge.
+[2026-06-24 18:14:10.291] [INFO] [User: anonymous] [Action: GET /api/auth/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/auth/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4MjIyMjg0OCwiZXhwIjoxNzgyODI3NjQ4fQ.TaV_WSnk3PV6FZwE5K8WIG-7FL1WPA_XjOjbKP02a1I
+[2026-06-24 18:14:10.370] [INFO] [SSE] User client [019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] connected. Total sessions: 1
+[2026-06-24 18:14:10.620] [INFO] [User: anonymous] [Action: GET /api/admin/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4MjIyMjg0OCwiZXhwIjoxNzgyODI3NjQ4fQ.TaV_WSnk3PV6FZwE5K8WIG-7FL1WPA_XjOjbKP02a1I
+[2026-06-24 18:14:10.691] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/analytics?startDate=2026-06-17&endDate=2026-06-24&groupBy=day
+[2026-06-24 18:14:10.696] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/notifications
+[2026-06-24 18:14:10.700] [INFO] [SSE] Admin client connected. Total admin clients: 1
+[2026-06-24 18:14:11.489] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] [Duration: 859ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 18:14:11.504] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/notifications
+[2026-06-24 18:14:11.965] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] [Duration: 1337ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:14:11.970] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/analytics?startDate=2026-06-17&endDate=2026-06-24&groupBy=day
+[2026-06-24 18:14:12.011] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] [Duration: 509ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 18:14:13.289] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] [Duration: 1321ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:14:14.595] [INFO] [User: anonymous] [Action: GET /api/auth/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/auth/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZTU5NGYtNWZiMy03MDFlLTkxNmEtZDZjZTM3ZDQyNGJkIn0sImlhdCI6MTc4MjIyNjIxNSwiZXhwIjoxNzgyODMxMDE1fQ.6FpNx-lSnaNAw8d4BI1mwvJFfkkVeeP9ceJGoQ3JQPA
+[2026-06-24 18:14:14.656] [INFO] [SSE] User client [019e594f-5fb3-701e-916a-d6ce37d424bd] connected. Total sessions: 1
+[2026-06-24 18:14:14.971] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-06-24 18:14:15.367] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /api/notifications] [IP: ::1] [Duration: 455ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:14:15.370] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-06-24 18:14:16.148] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /api/notifications] [IP: ::1] [Duration: 779ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 18:14:25.067] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: Cập nhật Hồ Sơ Cá Nhân] [IP: ::1] Yêu cầu bắt đầu: PUT /api/auth/profile | Params: {"userId":"019e594f-5fb3-701e-916a-d6ce37d424bd","name":"Trịnh Công Tuyền","phone":"","gender":1,"day":27,"month":8,"year":2004,"hour":7,"minute":30}
+[2026-06-24 18:14:25.209] [INFO] [User: cobatuoc@gmail.com] [Action: Cập nhật Hồ Sơ] Cập nhật Hồ Sơ thành công cho tài khoản [cobatuoc@gmail.com].
+[2026-06-24 18:14:25.211] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: Cập nhật Hồ Sơ Cá Nhân] [IP: ::1] [Duration: 145ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:14:33.996] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/019ef506-7e98-726e-85d9-bd27d5faa63c/messages?page=1&limit=20
+[2026-06-24 18:14:34.088] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 92ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:14:45.407] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: Trò Chuyện Quẻ Dịch AI] [IP: ::1] Yêu cầu bắt đầu: POST /api/history/hexagrams/019ef506-7e98-726e-85d9-bd27d5faa63c/chat | Params: {"question":"yêu thầy","userId":"019e594f-5fb3-701e-916a-d6ce37d424bd"}
+[2026-06-24 18:14:45.960] [INFO] [SSE] Broadcasting event [user_updated] to all admins
+[2026-06-24 18:14:45.969] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/analytics?startDate=2026-06-17&endDate=2026-06-24&groupBy=day
+[2026-06-24 18:14:46.196] [INFO] [SSE] Broadcasting event [user_updated] to all admins
+[2026-06-24 18:14:46.694] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] [Duration: 725ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:14:46.698] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/analytics?startDate=2026-06-17&endDate=2026-06-24&groupBy=day
+[2026-06-24 18:14:47.011] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] [Duration: 315ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:14:51.683] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: Trò Chuyện Quẻ Dịch AI] [IP: ::1] [Duration: 6275ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:14:51.821] [INFO] [SSE] Broadcasting event [user_updated] to all admins
+[2026-06-24 18:14:51.830] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/analytics?startDate=2026-06-17&endDate=2026-06-24&groupBy=day
+[2026-06-24 18:14:52.117] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] [Duration: 290ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:14:54.032] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/users/019e594f-5fb3-701e-916a-d6ce37d424bd/stats] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/users/019e594f-5fb3-701e-916a-d6ce37d424bd/stats
+[2026-06-24 18:14:54.180] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/users/019e594f-5fb3-701e-916a-d6ce37d424bd/stats] [IP: ::1] [Duration: 150ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:15:10.964] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: Gieo Quẻ Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: POST /api/calculate | Params: {"lines":[{"type":1,"moving":false},{"type":0,"moving":false},{"type":0,"moving":false},{"type":0,"moving":false},{"type":1,"moving":false},{"type":1,"moving":false}],"userId":"019e594f-5fb3-701e-916a-d6ce37d424bd","question":"xem sức khỏe và công việc sắp tới có thuận lợi hay không"}
+[2026-06-24 18:15:11.123] [INFO] [SSE] Broadcasting event [new_calculation] to all admins
+[2026-06-24 18:15:11.126] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: Gieo Quẻ Kinh Dịch] [IP: ::1] [Duration: 162ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:15:11.134] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/analytics?startDate=2026-06-17&endDate=2026-06-24&groupBy=day
+[2026-06-24 18:15:11.138] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/calculations?type=iching&limit=15&search=&status=
+[2026-06-24 18:15:11.271] [INFO] [SSE] Broadcasting event [user_updated] to all admins
+[2026-06-24 18:15:11.390] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] [Duration: 257ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:15:11.395] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/analytics?startDate=2026-06-17&endDate=2026-06-24&groupBy=day
+[2026-06-24 18:15:11.472] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations] [IP: ::1] [Duration: 335ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:15:11.668] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] [Duration: 274ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:15:14.920] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-06-24 18:15:15.061] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /api/notifications] [IP: ::1] [Duration: 142ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 18:15:15.079] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations/iching/019ef957-5643-7c74-8b99-132f63a92cc2] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/calculations/iching/019ef957-5643-7c74-8b99-132f63a92cc2
+[2026-06-24 18:15:15.271] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations/iching/019ef957-5643-7c74-8b99-132f63a92cc2] [IP: ::1] [Duration: 192ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:15:20.721] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/users] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/users?limit=15&search=&role=&status=
+[2026-06-24 18:15:20.981] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/users] [IP: ::1] [Duration: 261ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:15:48.541] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: Gieo Quẻ Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: POST /api/calculate | Params: {"lines":[{"type":1,"moving":false},{"type":1,"moving":true},{"type":1,"moving":true},{"type":1,"moving":false},{"type":1,"moving":false},{"type":1,"moving":false}],"userId":"019e594f-5fb3-701e-916a-d6ce37d424bd","question":"xem sức khỏe và công việc sắp tới có thuận lợi hay không"}
+[2026-06-24 18:15:48.705] [INFO] [SSE] Broadcasting event [new_calculation] to all admins
+[2026-06-24 18:15:48.709] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: Gieo Quẻ Kinh Dịch] [IP: ::1] [Duration: 168ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:15:48.724] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/calculations?type=iching&limit=15&search=&status=
+[2026-06-24 18:15:48.871] [INFO] [SSE] Broadcasting event [user_updated] to all admins
+[2026-06-24 18:15:49.098] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations] [IP: ::1] [Duration: 377ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:15:57.983] [INFO] [SSE] User client [019e594f-5fb3-701e-916a-d6ce37d424bd] disconnected.
+[2026-06-24 18:16:14.748] [INFO] [User: g@gmail.com] [Action: Đăng ký tài khoản] [IP: ::1] Yêu cầu bắt đầu: POST /api/auth/register | Params: {"email":"g@gmail.com","password":"******","name":"g","day":"","month":"","year":"","hour":"","minute":"","gender":1}
+[2026-06-24 18:16:14.807] [WARN] [User: g@gmail.com] [Action: Đăng ký tài khoản] Đăng ký thất bại: Tài khoản với email [g@gmail.com] đã tồn tại.
+[2026-06-24 18:16:14.809] [WARN] [User: g@gmail.com] [Action: Đăng ký tài khoản] [IP: ::1] [Duration: 60ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (400)
+[2026-06-24 18:16:21.587] [INFO] [User: h@gmail.com] [Action: Đăng ký tài khoản] [IP: ::1] Yêu cầu bắt đầu: POST /api/auth/register | Params: {"email":"h@gmail.com","password":"******","name":"h","day":"","month":"","year":"","hour":"","minute":"","gender":1}
+[2026-06-24 18:16:21.819] [INFO] [User: h@gmail.com] [Action: Đăng ký tài khoản] Đăng ký tài khoản mới thành công cho email [h@gmail.com] (Tên: h).
+[2026-06-24 18:16:21.820] [INFO] [SSE] Broadcasting event [new_user] to all admins
+[2026-06-24 18:16:21.832] [INFO] [User: h@gmail.com] [Action: Đăng ký tài khoản] [IP: ::1] [Duration: 245ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:16:21.844] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/users] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/users?limit=15&search=&role=&status=
+[2026-06-24 18:16:21.902] [INFO] [User: anonymous] [Action: GET /api/auth/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/auth/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWY5NTgtNmE3Zi03NjM4LWE1MWQtZTFiYzVhNzkzNTBiIn0sImlhdCI6MTc4MjI5OTc4MSwiZXhwIjoxNzgyOTA0NTgxfQ.qVOvCopxtw3C_BxhEI9LcFDk7NJ5h1BMAovX18HUzk0
+[2026-06-24 18:16:21.948] [INFO] [User: h@gmail.com (h)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-06-24 18:16:21.962] [INFO] [SSE] User client [019ef958-6a7f-7638-a51d-e1bc5a79350b] connected. Total sessions: 1
+[2026-06-24 18:16:22.089] [INFO] [User: h@gmail.com (h)] [Action: GET /api/notifications] [IP: ::1] [Duration: 211ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 18:16:22.093] [INFO] [User: h@gmail.com (h)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-06-24 18:16:22.159] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/users] [IP: ::1] [Duration: 317ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:16:22.209] [INFO] [User: h@gmail.com (h)] [Action: GET /api/notifications] [IP: ::1] [Duration: 117ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 18:16:30.983] [INFO] [User: h@gmail.com (h)] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/019ef958-6a7f-7638-a51d-e1bc5a79350b
+[2026-06-24 18:16:30.987] [INFO] [User: h@gmail.com (h)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/019ef958-6a7f-7638-a51d-e1bc5a79350b
+[2026-06-24 18:16:30.990] [INFO] [User: h@gmail.com (h)] [Action: Xem Lịch Sử Tử Vi] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/history/019ef958-6a7f-7638-a51d-e1bc5a79350b
+[2026-06-24 18:16:31.041] [INFO] [User: h@gmail.com (h)] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 58ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:16:31.055] [INFO] [User: h@gmail.com (h)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 69ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:16:31.060] [INFO] [User: h@gmail.com (h)] [Action: Xem Lịch Sử Tử Vi] [IP: ::1] [Duration: 70ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:16:36.633] [INFO] [SSE] User client [019ef958-6a7f-7638-a51d-e1bc5a79350b] disconnected.
+[2026-06-24 18:16:36.675] [INFO] [User: anonymous] [Action: GET /api/auth/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/auth/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWY5NTgtNmE3Zi03NjM4LWE1MWQtZTFiYzVhNzkzNTBiIn0sImlhdCI6MTc4MjI5OTc4MSwiZXhwIjoxNzgyOTA0NTgxfQ.qVOvCopxtw3C_BxhEI9LcFDk7NJ5h1BMAovX18HUzk0
+[2026-06-24 18:16:36.747] [INFO] [SSE] User client [019ef958-6a7f-7638-a51d-e1bc5a79350b] connected. Total sessions: 1
+[2026-06-24 18:16:37.002] [INFO] [User: h@gmail.com (h)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-06-24 18:16:37.144] [INFO] [User: h@gmail.com (h)] [Action: GET /api/notifications] [IP: ::1] [Duration: 142ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 18:16:37.152] [INFO] [User: h@gmail.com (h)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-06-24 18:16:37.279] [INFO] [User: h@gmail.com (h)] [Action: GET /api/notifications] [IP: ::1] [Duration: 130ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 18:16:37.502] [INFO] [User: h@gmail.com (h)] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/019ef958-6a7f-7638-a51d-e1bc5a79350b
+[2026-06-24 18:16:37.503] [INFO] [User: h@gmail.com (h)] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 2ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 18:16:37.505] [INFO] [User: h@gmail.com (h)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/019ef958-6a7f-7638-a51d-e1bc5a79350b
+[2026-06-24 18:16:37.508] [INFO] [User: h@gmail.com (h)] [Action: Xem Lịch Sử Tử Vi] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/history/019ef958-6a7f-7638-a51d-e1bc5a79350b
+[2026-06-24 18:16:37.505] [INFO] [User: h@gmail.com (h)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 1ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 18:16:37.509] [INFO] [User: h@gmail.com (h)] [Action: Xem Lịch Sử Tử Vi] [IP: ::1] [Duration: 2ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 18:16:50.637] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/users/019ef958-6a7f-7638-a51d-e1bc5a79350b/stats] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/users/019ef958-6a7f-7638-a51d-e1bc5a79350b/stats
+[2026-06-24 18:16:50.918] [INFO] [SSE] Broadcasting event [user_updated] to all admins
+[2026-06-24 18:16:50.919] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/users/019ef958-6a7f-7638-a51d-e1bc5a79350b/stats] [IP: ::1] [Duration: 283ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:16:53.420] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/users/019ef958-6a7f-7638-a51d-e1bc5a79350b/stats] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/users/019ef958-6a7f-7638-a51d-e1bc5a79350b/stats
+[2026-06-24 18:16:53.574] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/users/019ef958-6a7f-7638-a51d-e1bc5a79350b/stats] [IP: ::1] [Duration: 155ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:17:26.352] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations/iching/019ef957-e915-7f16-a07d-e6ea7d44879b] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/calculations/iching/019ef957-e915-7f16-a07d-e6ea7d44879b
+[2026-06-24 18:17:26.560] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations/iching/019ef957-e915-7f16-a07d-e6ea7d44879b] [IP: ::1] [Duration: 209ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:17:31.731] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations/iching/019ef506-7e98-726e-85d9-bd27d5faa63c] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/calculations/iching/019ef506-7e98-726e-85d9-bd27d5faa63c
+[2026-06-24 18:17:32.005] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations/iching/019ef506-7e98-726e-85d9-bd27d5faa63c] [IP: ::1] [Duration: 274ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:17:37.014] [INFO] [User: h@gmail.com (h)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-06-24 18:17:37.177] [INFO] [User: h@gmail.com (h)] [Action: GET /api/notifications] [IP: ::1] [Duration: 164ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 18:17:38.543] [INFO] [SSE] User client [019ef958-6a7f-7638-a51d-e1bc5a79350b] disconnected.
+[2026-06-24 18:17:46.546] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-06-24 18:17:46.554] [INFO] [SSE] Admin client disconnected. Remaining: 0
+[2026-06-24 18:17:46.691] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 146ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 18:17:46.693] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-06-24 18:17:46.820] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 128ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 18:17:47.904] [INFO] [User: admin@admin.com (admin)] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/hexagrams/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c
+[2026-06-24 18:17:47.917] [INFO] [User: admin@admin.com (admin)] [Action: Xem Lịch Sử Tử Vi] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/history/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c
+[2026-06-24 18:17:47.910] [INFO] [User: admin@admin.com (admin)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c
+[2026-06-24 18:17:47.974] [INFO] [User: admin@admin.com (admin)] [Action: Xem Lịch Sử Kinh Dịch] [IP: ::1] [Duration: 71ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:17:47.981] [INFO] [User: admin@admin.com (admin)] [Action: Xem Lịch Sử Tử Vi] [IP: ::1] [Duration: 66ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:17:47.987] [INFO] [User: admin@admin.com (admin)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 80ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:17:54.119] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/tu-vi/6a3671292d1d3758becdfa2d] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/6a3671292d1d3758becdfa2d
+[2026-06-24 18:17:54.400] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/tu-vi/6a3671292d1d3758becdfa2d] [IP: ::1] [Duration: 283ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:17:54.495] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/tu-vi/6a3671292d1d3758becdfa2d] [IP: ::1] Yêu cầu bắt đầu: GET /api/tu-vi/6a3671292d1d3758becdfa2d
+[2026-06-24 18:17:54.709] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/tu-vi/6a3671292d1d3758becdfa2d] [IP: ::1] [Duration: 214ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 18:17:57.406] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/notifications
+[2026-06-24 18:17:57.411] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/analytics?startDate=2026-06-17&endDate=2026-06-24&groupBy=day
+[2026-06-24 18:17:57.414] [INFO] [User: anonymous] [Action: GET /api/admin/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4MjIyMjg0OCwiZXhwIjoxNzgyODI3NjQ4fQ.TaV_WSnk3PV6FZwE5K8WIG-7FL1WPA_XjOjbKP02a1I
+[2026-06-24 18:17:57.488] [INFO] [SSE] Admin client connected. Total admin clients: 1
+[2026-06-24 18:17:57.626] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] [Duration: 221ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 18:17:57.631] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/notifications
+[2026-06-24 18:17:57.679] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] [Duration: 270ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:17:57.685] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/analytics?startDate=2026-06-17&endDate=2026-06-24&groupBy=day
+[2026-06-24 18:17:57.827] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] [Duration: 197ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 18:17:57.971] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] [Duration: 288ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:18:00.662] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/users/019e594f-5fb3-701e-916a-d6ce37d424bd/stats] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/users/019e594f-5fb3-701e-916a-d6ce37d424bd/stats
+[2026-06-24 18:18:00.804] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/users/019e594f-5fb3-701e-916a-d6ce37d424bd/stats] [IP: ::1] [Duration: 143ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:18:10.100] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/users] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/users?limit=15&search=&role=&status=
+[2026-06-24 18:18:10.319] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/users] [IP: ::1] [Duration: 219ms] Hoàn thành: Phản hồi thành công (200)
+[2026-06-24 18:18:25.266] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/calculations?type=iching&limit=15&search=&status=
+[2026-06-24 18:18:25.700] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations] [IP: ::1] [Duration: 434ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 18:19:00.721] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/users/019ef958-6a7f-7638-a51d-e1bc5a79350b/stats] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/users/019ef958-6a7f-7638-a51d-e1bc5a79350b/stats
+[2026-06-24 18:19:00.870] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/users/019ef958-6a7f-7638-a51d-e1bc5a79350b/stats] [IP: ::1] [Duration: 149ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 18:19:03.556] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/users/019ef958-6a7f-7638-a51d-e1bc5a79350b/stats] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/users/019ef958-6a7f-7638-a51d-e1bc5a79350b/stats
+[2026-06-24 18:19:03.698] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/users/019ef958-6a7f-7638-a51d-e1bc5a79350b/stats] [IP: ::1] [Duration: 143ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 18:19:09.013] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/users/019e594f-5fb3-701e-916a-d6ce37d424bd/stats] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/users/019e594f-5fb3-701e-916a-d6ce37d424bd/stats
+[2026-06-24 18:19:09.158] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/users/019e594f-5fb3-701e-916a-d6ce37d424bd/stats] [IP: ::1] [Duration: 145ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 18:19:11.152] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations/iching/019ef957-e915-7f16-a07d-e6ea7d44879b] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/calculations/iching/019ef957-e915-7f16-a07d-e6ea7d44879b
+[2026-06-24 18:19:11.367] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations/iching/019ef957-e915-7f16-a07d-e6ea7d44879b] [IP: ::1] [Duration: 215ms] Hoàn thành: Phản hồi thành công (304)
+[2026-06-24 18:21:11.924] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/users/019ef958-6a7f-7638-a51d-e1bc5a79350b/stats] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/users/019ef958-6a7f-7638-a51d-e1bc5a79350b/stats
+[2026-06-24 18:21:12.063] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/users/019ef958-6a7f-7638-a51d-e1bc5a79350b/stats] [IP: ::1] [Duration: 141ms] Hoàn thành: Phản hồi thành công (304)

@@ -205,11 +205,16 @@ export default function AdminApp({ onSwitchToUser }) {
             isAnalyticsDirty.current = true;
           }
         } else if (payload.type === 'new_user') {
-          if (activeTabRef.current === 'users') {
+          // Luôn tự động cập nhật ngầm danh sách thành viên để dữ liệu mới có sẵn ngay lập tức
+          if (fetchUsersDataRef.current) {
             fetchUsersDataRef.current();
+            isUsersDirty.current = false;
           } else {
-            setNewUsersCount(prev => prev + 1);
             isUsersDirty.current = true;
+          }
+          // Tăng badge số đỏ nếu admin đang ở tab khác
+          if (activeTabRef.current !== 'users') {
+            setNewUsersCount(prev => prev + 1);
           }
           if (activeTabRef.current === 'overview') {
             fetchAnalyticsDataRef.current?.();
@@ -218,21 +223,25 @@ export default function AdminApp({ onSwitchToUser }) {
           }
         } else if (payload.type === 'new_calculation') {
           const calcTypeReceived = payload.data?.type;
-          if (activeTabRef.current === 'calculations') {
-            if (calcTypeRef.current === calcTypeReceived) {
-              fetchCalculationsDataRef.current();
-            } else {
-              if (calcTypeReceived === 'iching') setNewIchingCount(prev => prev + 1);
-              else if (calcTypeReceived === 'bazi') setNewBaziCount(prev => prev + 1);
-              else if (calcTypeReceived === 'tuvi') setNewTuviCount(prev => prev + 1);
-              isCalcsDirty.current = true;
-            }
+          // Luôn tự động cập nhật ngầm danh sách quẻ/lá số nếu trùng loại đang hiển thị
+          if (fetchCalculationsDataRef.current && calcTypeRef.current === calcTypeReceived) {
+            fetchCalculationsDataRef.current();
+            isCalcsDirty.current = false;
           } else {
+            isCalcsDirty.current = true;
+          }
+          // Tăng badge số đỏ
+          if (activeTabRef.current !== 'calculations') {
             setNewCalcsCount(prev => prev + 1);
             if (calcTypeReceived === 'iching') setNewIchingCount(prev => prev + 1);
             else if (calcTypeReceived === 'bazi') setNewBaziCount(prev => prev + 1);
             else if (calcTypeReceived === 'tuvi') setNewTuviCount(prev => prev + 1);
-            isCalcsDirty.current = true;
+          } else {
+            if (calcTypeRef.current !== calcTypeReceived) {
+              if (calcTypeReceived === 'iching') setNewIchingCount(prev => prev + 1);
+              else if (calcTypeReceived === 'bazi') setNewBaziCount(prev => prev + 1);
+              else if (calcTypeReceived === 'tuvi') setNewTuviCount(prev => prev + 1);
+            }
           }
           if (activeTabRef.current === 'overview') {
             fetchAnalyticsDataRef.current?.();
@@ -240,10 +249,13 @@ export default function AdminApp({ onSwitchToUser }) {
             isAnalyticsDirty.current = true;
           }
         } else if (payload.type === 'user_updated') {
-          if (activeTabRef.current === 'users') {
-            fetchUsersDataRef.current();
-          } else {
-            isUsersDirty.current = true;
+          // Chỉ reload trang danh sách thành viên nếu đó là hành động sửa quyền, khóa, mở khóa, v.v. (không phải stats tiêu thụ token trong nền)
+          if (payload.data?.action !== 'stats') {
+            if (activeTabRef.current === 'users') {
+              fetchUsersDataRef.current?.();
+            } else {
+              isUsersDirty.current = true;
+            }
           }
           if (activeTabRef.current === 'overview') {
             fetchAnalyticsDataRef.current?.();
@@ -460,15 +472,14 @@ export default function AdminApp({ onSwitchToUser }) {
     if (prefetchedCalcs.current[cacheKey]) {
       setSelectedCalc(prefetchedCalcs.current[cacheKey]);
     } else {
-      setLoading(true);
+      setSelectedCalc({ _id: calc._id, isLoading: true });
       try {
         const res = await getAdminCalculationDetail(calcType, calc._id);
         prefetchedCalcs.current[cacheKey] = res.data;
         setSelectedCalc(res.data);
       } catch (err) {
+        setSelectedCalc(null);
         showAlert('Lỗi tải chi tiết bản ghi.', 'error');
-      } finally {
-        setLoading(false);
       }
     }
   };
@@ -1978,7 +1989,12 @@ export default function AdminApp({ onSwitchToUser }) {
                   Chi Tiết Bản Ghi Luận Giải {calcType === 'iching' ? 'Kinh Dịch' : calcType === 'bazi' ? 'Bát Tự' : 'Tử Vi'}
                 </h3>
 
-                <div className="flex-1 overflow-y-auto space-y-4 pr-1 text-slate-350 text-xs sm:text-sm">
+                {selectedCalc.isLoading ? (
+                  <div className="flex-1 h-64 flex items-center justify-center">
+                    <div className="w-10 h-10 border-4 border-slate-800 border-t-amber-500 rounded-full animate-spin"></div>
+                  </div>
+                ) : (
+                  <div className="flex-1 overflow-y-auto space-y-4 pr-1 text-slate-350 text-xs sm:text-sm">
                   
                   {/* General Metadata Info */}
                   <div className="grid grid-cols-2 gap-3 bg-slate-950/40 p-4 rounded-xl border border-slate-800 text-[11px] sm:text-xs">
@@ -2141,6 +2157,7 @@ export default function AdminApp({ onSwitchToUser }) {
                   </div>
 
                 </div>
+              )}
               </div>
             </div>
           )}

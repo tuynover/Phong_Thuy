@@ -96,11 +96,9 @@ async function updateUserStats(userId) {
 
 function updateUserStatsBackground(userId) {
   if (!userId || userId === 'guest') return;
-  // Trigger asynchronously without blocking the main event loop
-  setImmediate(() => {
-    updateUserStats(userId).catch(err => {
-      console.error(`[UserStatsService] Background stats update failed for user ${userId}:`, err);
-    });
+  // Trigger immediately in the background without delay
+  updateUserStats(userId).catch(err => {
+    console.error(`[UserStatsService] Background stats update failed for user ${userId}:`, err);
   });
 }
 
