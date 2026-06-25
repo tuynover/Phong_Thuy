@@ -8,7 +8,7 @@ import { AlertCircle, BookOpen, ScrollText, MessageCircle } from 'lucide-react';
 import AiChatWidget from './AiChatWidget';
 import { parseMarkdownSections } from '../utils/markdownParser';
 import SectionRenderer from './SectionRenderer';
-import { getColorClass, getBgColorClass, HAO_VI_MEANING, getChiOnly } from '../utils/phongthuyHelpers';
+import { getColorClass, getBgColorClass, HAO_VI_MEANING, getChiOnly } from '../utils/astrologyHelpers';
 import { AuthContext } from '../context/AuthContext';
 
 const LineVisual = ({ type, isRed }) => {
@@ -201,7 +201,7 @@ const HexagramVisual = ({ lines }) => {
     );
 };
 
-const DivinationBoard = ({ result, onUpdateResult, user, onRequireLogin }) => {
+const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin }) => {
     const { setUser, token } = useContext(AuthContext);
     const [selectedHex, setSelectedHex] = useState(null);
     const [isChatOpen, setIsChatOpen] = useState(false);
@@ -898,4 +898,4 @@ const DivinationBoard = ({ result, onUpdateResult, user, onRequireLogin }) => {
     );
 };
 
-export default DivinationBoard;
+export default IChingBoard;

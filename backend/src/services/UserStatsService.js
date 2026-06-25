@@ -1,10 +1,8 @@
 const User = require('../models/User');
-const HexagramRecord = require('../models/HexagramRecord');
+const IChingRecord = require('../models/IChingRecord');
 const BaziRecord = require('../models/BaziRecord');
-const TuViRecord = require('../models/TuViRecord');
-const HexagramConversation = require('../models/HexagramConversation');
-const BaziConversation = require('../models/BaziConversation');
-const TuViConversation = require('../models/TuViConversation');
+const ZiweiRecord = require('../models/ZiweiRecord');
+const Conversation = require('../models/Conversation');
 const SseService = require('./SseService');
 
 async function updateUserStats(userId) {
@@ -16,18 +14,18 @@ async function updateUserStats(userId) {
     const [
       ichingCount,
       baziCount,
-      tuviCount,
+      ziweiCount,
       ichingTokensRes,
       baziTokensRes,
-      tuviTokensRes,
+      ziweiTokensRes,
       ichingChatTokensRes,
       baziChatTokensRes,
-      tuviChatTokensRes
+      ziweiChatTokensRes
     ] = await Promise.all([
-      HexagramRecord.countDocuments({ ...query, isDeleted: { $ne: true } }),
+      IChingRecord.countDocuments({ ...query, isDeleted: { $ne: true } }),
       BaziRecord.countDocuments({ ...query, isDeleted: { $ne: true } }),
-      TuViRecord.countDocuments({ ...query, isDeleted: { $ne: true } }),
-      HexagramRecord.aggregate([
+      ZiweiRecord.countDocuments({ ...query, isDeleted: { $ne: true } }),
+      IChingRecord.aggregate([
         { $match: { ...query, isDeleted: { $ne: true }, 'aiInterpretation.tokensUsed': { $gt: 0 } } },
         { $group: { _id: null, total: { $sum: '$aiInterpretation.tokensUsed' } } }
       ]),
@@ -35,46 +33,46 @@ async function updateUserStats(userId) {
         { $match: { ...query, isDeleted: { $ne: true }, 'aiInterpretation.tokensUsed': { $gt: 0 } } },
         { $group: { _id: null, total: { $sum: '$aiInterpretation.tokensUsed' } } }
       ]),
-      TuViRecord.aggregate([
+      ZiweiRecord.aggregate([
         { $match: { ...query, isDeleted: { $ne: true }, 'aiInterpretation.tokensUsed': { $gt: 0 } } },
         { $group: { _id: null, total: { $sum: '$aiInterpretation.tokensUsed' } } }
       ]),
-      HexagramConversation.aggregate([
-        { $match: query },
+      Conversation.aggregate([
+        { $match: { ...query, system: 'iching' } },
         { $group: { _id: null, total: { $sum: '$totalTokens' } } }
       ]),
-      BaziConversation.aggregate([
-        { $match: query },
+      Conversation.aggregate([
+        { $match: { ...query, system: 'bazi' } },
         { $group: { _id: null, total: { $sum: '$totalTokens' } } }
       ]),
-      TuViConversation.aggregate([
-        { $match: query },
+      Conversation.aggregate([
+        { $match: { ...query, system: 'ziwei' } },
         { $group: { _id: null, total: { $sum: '$totalTokens' } } }
       ])
     ]);
 
     const ichingTokens = ichingTokensRes[0]?.total || 0;
     const baziTokens = baziTokensRes[0]?.total || 0;
-    const tuviTokens = tuviTokensRes[0]?.total || 0;
+    const ziweiTokens = ziweiTokensRes[0]?.total || 0;
 
     const ichingChatTokens = ichingChatTokensRes[0]?.total || 0;
     const baziChatTokens = baziChatTokensRes[0]?.total || 0;
-    const tuviChatTokens = tuviChatTokensRes[0]?.total || 0;
+    const ziweiChatTokens = ziweiChatTokensRes[0]?.total || 0;
 
-    const totalInterpretTokens = ichingTokens + baziTokens + tuviTokens;
-    const totalChatTokens = ichingChatTokens + baziChatTokens + tuviChatTokens;
+    const totalInterpretTokens = ichingTokens + baziTokens + ziweiTokens;
+    const totalChatTokens = ichingChatTokens + baziChatTokens + ziweiChatTokens;
     const totalTokens = totalInterpretTokens + totalChatTokens;
 
     const stats = {
       ichingCount,
       baziCount,
-      tuviCount,
+      ziweiCount,
       ichingTokens,
       baziTokens,
-      tuviTokens,
+      ziweiTokens,
       ichingChatTokens,
       baziChatTokens,
-      tuviChatTokens,
+      ziweiChatTokens,
       totalInterpretTokens,
       totalChatTokens,
       totalTokens,

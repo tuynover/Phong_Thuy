@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { Calendar, Clock, User, Sparkles, MessageCircle, RefreshCw, Star, ShieldAlert, ScrollText } from 'lucide-react';
-import { createTuViChart, getTuViRecord, rateTuVi, getInterpretationStreamUrl } from '../services/api';
+import { createZiweiChart, getZiweiRecord, rateZiwei, getInterpretationStreamUrl } from '../services/api';
 import ChartRenderer from './ChartRenderer';
 import SectionRenderer from './SectionRenderer';
 import AiChatWidget from './AiChatWidget';
@@ -24,7 +24,7 @@ const LUNAR_HOURS = [
   { index: 11, name: "Hợi (21:00 - 22:59)" }
 ];
 
-const TuViBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationComplete }) => {
+const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationComplete }) => {
   const { user: ctxUser, setUser, token } = useContext(AuthContext);
   const activeUser = ctxUser || user;
   const [day, setDay] = useState('');
@@ -86,28 +86,27 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationComp
   // Xem lá số của bản thân
   const [isUpdateBaziOpen, setIsUpdateBaziOpen] = useState(false);
 
-  const getTuViHourIndex = (hour) => {
+  const getZiweiHourIndex = (hour) => {
     if (hour >= 23 || hour < 1) return 0;
     return Math.floor((hour - 1) / 2) + 1;
   };
 
-  const handleTuViComplete = async (dateStr, hourStr, genderStr) => {
+  const handleZiweiComplete = async (dateStr, hourStr, genderStr) => {
+    setError(null);
     setLoading(true);
-    setProgress(0);
-    setError('');
     setResult(null);
     setRated(false);
     setRating(0);
     setFeedback('');
 
     const parsedHour = parseInt(hourStr) || 0;
-    const hourIndexConverted = getTuViHourIndex(parsedHour);
-    const uid = activeUser?.id || activeUser?._id || 'guest';
+    const hourIndexConverted = getZiweiHourIndex(parsedHour);
+    const uid = activeUser ? activeUser.id || activeUser._id : 'guest';
 
     try {
       setLoadingStep('Đang lập mệnh bàn Tử Vi...');
       setProgress(50);
-      const chartRes = await createTuViChart(dateStr, hourIndexConverted, genderStr, uid);
+      const chartRes = await createZiweiChart(dateStr, hourIndexConverted, genderStr, uid);
       const record = chartRes.data;
       setResult(record);
       setProgress(100);
@@ -120,19 +119,17 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationComp
     }
   };
 
-  const handleViewOwnTuVi = async () => {
-    if (!activeUser) {
+  const handleViewOwnZiwei = async () => {
+    if (!activeUser || !activeUser.baziInfo) {
       onRequireLogin();
       return;
     }
-    if (!activeUser.baziInfo || !activeUser.baziInfo.day) {
-      setIsUpdateBaziOpen(true);
-      return;
-    }
-    const { day: d, month: m, year: y, hour: h } = activeUser.baziInfo;
-    const formattedDate = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-    const genderStr = activeUser.gender === 0 ? 'Nữ' : 'Nam';
-    await handleTuViComplete(formattedDate, String(h), genderStr);
+    const { day, month, year, hour } = activeUser.baziInfo;
+    const genderStr = activeUser.gender === 0 ? "Nữ" : "Nam";
+    const formattedDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    let h = hour !== undefined ? hour : 0;
+    
+    await handleZiweiComplete(formattedDate, String(h), genderStr);
   };
 
   // Nếu tải từ lịch sử (historicalRecordId)
@@ -146,7 +143,7 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationComp
     setLoading(true);
     setError('');
     try {
-      const res = await getTuViRecord(id);
+      const res = await getZiweiRecord(id);
       setResult(res.data);
     } catch (err) {
       setError(err.response?.data?.error || 'Không thể nạp lá số từ lịch sử.');
@@ -171,7 +168,7 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationComp
     try {
       setLoadingStep('Đang lập mệnh bàn Tử Vi...');
       setProgress(50);
-      const chartRes = await createTuViChart(formattedDate, hourIndex, gender, uid);
+      const chartRes = await createZiweiChart(formattedDate, hourIndex, gender, uid);
       const record = chartRes.data;
       setResult(record);
       setProgress(100);
@@ -308,7 +305,7 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationComp
     e.preventDefault();
     if (!result?._id) return;
     try {
-      await rateTuVi(result._id, rating, feedback);
+      await rateZiwei(result._id, rating, feedback);
       setRated(true);
     } catch (err) {
       console.error(err);
@@ -323,7 +320,7 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationComp
         <div className="max-w-xl mx-auto mb-10 text-center animate-in fade-in duration-300">
           <button 
             type="button"
-            onClick={handleViewOwnTuVi}
+            onClick={handleViewOwnZiwei}
             className="bg-[#faf6f0] border-2 border-amber-200/60 text-amber-900 px-8 py-4 rounded-2xl font-bold shadow-md transition-all hover:bg-purple-600 hover:border-purple-600 hover:text-white hover:shadow-lg hover:shadow-purple-600/20 active:bg-purple-700 hover:-translate-y-0.5 active:translate-y-0 text-lg w-full mb-4"
           >
             Xem Lá Số Của Bản Thân
@@ -698,7 +695,7 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationComp
           const { day: d, month: m, year: y, hour: h } = updatedUser.baziInfo;
           const formattedDate = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
           const genderStr = updatedUser.gender === 0 ? 'Nữ' : 'Nam';
-          await handleTuViComplete(formattedDate, String(h), genderStr);
+          await handleZiweiComplete(formattedDate, String(h), genderStr);
         }} 
       />
 
@@ -706,4 +703,4 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationComp
   );
 };
 
-export default TuViBoard;
+export default ZiweiBoard;

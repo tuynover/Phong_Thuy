@@ -45,7 +45,7 @@ const MUTAGEN_MAP = {
   "Kỵ": "hoa_ky"
 };
 
-class TuViFormatter {
+class ZiweiFormatter {
   /**
    * Định dạng dữ liệu thô sang Standard Output
    * @param {Object} astrolabe Lá số thô từ iztro
@@ -172,4 +172,4 @@ class TuViFormatter {
   }
 }
 
-module.exports = TuViFormatter;
+module.exports = ZiweiFormatter;

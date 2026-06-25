@@ -3,22 +3,25 @@ import CoinToss from './CoinToss';
 import ProfileBoard from './ProfileBoard';
 import ManualInput from './ManualInput';
 import MaiHoaInput from './MaiHoaInput';
-import DivinationBoard from './DivinationBoard';
+import IChingBoard from './IChingBoard';
 import BaziInput from './BaziInput';
 import AuthModal from './AuthModal';
 import UpdateBaziModal from './UpdateBaziModal';
 import NotificationBell from './NotificationBell';
 import { AuthContext } from '../context/AuthContext';
-import { calculateDivination, analyzeBazi, linkHexagram, linkBazi, getHexagramRecord, getHexagramHistory, getBaziHistory, getTuViHistory } from '../services/api';
+import { calculateDivination, analyzeBazi, linkIChing, linkBazi, getIChingRecord, getIChingHistory, getBaziHistory, getZiweiHistory } from '../services/api';
 import { UserCircle, LogOut, CalendarDays, Shield } from 'lucide-react';
 import { Lunar } from 'lunar-javascript';
 
 const BaziBoard = React.lazy(() => import('./BaziBoard'));
-const TuViBoard = React.lazy(() => import('./TuViBoard'));
+const ZiweiBoard = React.lazy(() => import('./ZiweiBoard'));
 const HistoryBoard = React.lazy(() => import('./HistoryBoard'));
 
 export default function UserApp({ onSwitchToAdmin }) {
-  const [appMode, setAppMode] = useState(() => localStorage.getItem('appMode') || 'iching'); // 'iching' | 'bazi' | 'tuvi' | 'history' | 'profile'
+  const [appMode, setAppMode] = useState(() => {
+    const saved = localStorage.getItem('appMode');
+    return saved === 'tuvi' ? 'ziwei' : (saved || 'iching');
+  }); // 'iching' | 'bazi' | 'ziwei' | 'history' | 'profile'
   
   // Auth
   const { user, logout } = useContext(AuthContext);
@@ -32,14 +35,14 @@ export default function UserApp({ onSwitchToAdmin }) {
     if (!user || preloadedHistoryRef.current) return;
     const userId = user.id || user._id;
     const promise = Promise.all([
-      getHexagramHistory(userId),
+      getIChingHistory(userId),
       getBaziHistory(userId),
-      getTuViHistory(userId)
-    ]).then(([hexRes, baziRes, tuviRes]) => {
+      getZiweiHistory(userId)
+    ]).then(([hexRes, baziRes, ziweiRes]) => {
       const data = {
         hexagrams: hexRes.data,
         bazis: baziRes.data,
-        tuvis: tuviRes.data,
+        tuvis: ziweiRes.data, // keep key name for history component compatibility
         promise: null
       };
       preloadedHistoryRef.current = data;
@@ -71,8 +74,8 @@ export default function UserApp({ onSwitchToAdmin }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Tu Vi State
-  const [historicalTuViId, setHistoricalTuViId] = useState(null);
+  // Ziwei State
+  const [historicalZiweiId, setHistoricalZiweiId] = useState(null);
 
   // I Ching State
   const [mode, setMode] = useState(() => localStorage.getItem('mode') || 'coin'); // 'coin' | 'manual' | 'maihoa'
@@ -159,7 +162,7 @@ export default function UserApp({ onSwitchToAdmin }) {
     let messages = [];
     if (currentRecordId) {
       try {
-        await linkHexagram(currentRecordId, uid);
+        await linkIChing(currentRecordId, uid);
         setCurrentRecordId(null);
         messages.push('quẻ Kinh Dịch');
       } catch (err) {
@@ -217,15 +220,15 @@ export default function UserApp({ onSwitchToAdmin }) {
     setAppMode('bazi');
   };
 
-  const handleViewHistoricalTuVi = (record) => {
-    setHistoricalTuViId(record._id || record.id);
-    setAppMode('tuvi');
+  const handleViewHistoricalZiwei = (record) => {
+    setHistoricalZiweiId(record._id || record.id);
+    setAppMode('ziwei');
   };
 
   const handleNotificationClick = async (hexagramId) => {
     setLoading(true);
     try {
-      const res = await getHexagramRecord(hexagramId);
+      const res = await getIChingRecord(hexagramId);
       handleViewHistoricalHexagram(res.data);
     } catch (err) {
       console.error("Lỗi khi tải thông tin quẻ từ thông báo:", err);
@@ -268,10 +271,10 @@ export default function UserApp({ onSwitchToAdmin }) {
             </button>
             <button 
               onClick={() => {
-                setHistoricalTuViId(null);
-                setAppMode('tuvi');
+                setHistoricalZiweiId(null);
+                setAppMode('ziwei');
               }} 
-              className={`flex-1 sm:flex-none px-2.5 py-1.5 sm:px-5 sm:py-2 rounded-full font-bold transition-all text-[11px] sm:text-xs md:text-sm tracking-wider font-[Montserrat] uppercase ${appMode === 'tuvi' ? 'bg-purple-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-955 hover:bg-neutral-50'}`}
+              className={`flex-1 sm:flex-none px-2.5 py-1.5 sm:px-5 sm:py-2 rounded-full font-bold transition-all text-[11px] sm:text-xs md:text-sm tracking-wider font-[Montserrat] uppercase ${appMode === 'ziwei' ? 'bg-purple-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-955 hover:bg-neutral-50'}`}
             >
               Tử Vi
             </button>
@@ -415,7 +418,7 @@ export default function UserApp({ onSwitchToAdmin }) {
             <h1 className="text-4xl md:text-6xl font-[Lora] font-bold text-blue-955 mb-6 drop-shadow-sm">Khoa Học Tử Bình</h1>
             <p className="text-blue-800/80 max-w-2xl mx-auto text-base md:text-lg font-medium">Hệ thống phân tích Tứ Trụ, đo lường Ngũ Hành và định Dụng Thần cải vận.</p>
           </header>
-        ) : appMode === 'tuvi' ? (
+        ) : appMode === 'ziwei' ? (
           <header className="text-center mb-16 pt-2 animate-in fade-in duration-300 font-sans">
             <div className="inline-block p-4 rounded-full bg-purple-100 border border-purple-200 mb-6">
               <div className="w-16 h-16 rounded-full border-4 border-purple-800 flex items-center justify-center">
@@ -487,7 +490,7 @@ export default function UserApp({ onSwitchToAdmin }) {
 
           {result && !loading && (
             <div className="space-y-12 animate-in fade-in zoom-in-95 duration-700 pb-20 font-sans">
-              <DivinationBoard result={result} onUpdateResult={setResult} user={user} onRequireLogin={() => setIsAuthModalOpen(true)} />
+              <IChingBoard result={result} onUpdateResult={setResult} user={user} onRequireLogin={() => setIsAuthModalOpen(true)} />
               <div className="text-center">
                 <button 
                   onClick={() => setResult(null)} 
@@ -547,17 +550,17 @@ export default function UserApp({ onSwitchToAdmin }) {
         </div>
 
         {/* SYSTEM 3: TỬ VI */}
-        <div className={`animate-in fade-in duration-500 ${appMode === 'tuvi' ? 'block' : 'hidden'}`}>
+        <div className={`animate-in fade-in duration-500 ${appMode === 'ziwei' ? 'block' : 'hidden'}`}>
           <React.Suspense fallback={
             <div className="text-center py-20 animate-in fade-in">
               <div className="w-12 h-12 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mx-auto mb-4"></div>
               <p className="text-purple-900 font-extrabold text-sm tracking-wider uppercase">Đang nạp dữ liệu Tử Vi...</p>
             </div>
           }>
-            <TuViBoard 
+            <ZiweiBoard 
               user={user} 
               onRequireLogin={() => setIsAuthModalOpen(true)} 
-              historicalRecordId={historicalTuViId} 
+              historicalRecordId={historicalZiweiId} 
               onCalculationComplete={invalidateHistoryCache}
             />
           </React.Suspense>
@@ -575,7 +578,7 @@ export default function UserApp({ onSwitchToAdmin }) {
               <HistoryBoard 
                 onViewHexagram={handleViewHistoricalHexagram} 
                 onViewBazi={handleViewHistoricalBazi} 
-                onViewTuVi={handleViewHistoricalTuVi}
+                onViewZiwei={handleViewHistoricalZiwei}
                 preloadedData={preloadedHistoryRef.current}
                 onCacheInvalidate={invalidateHistoryCache}
               />

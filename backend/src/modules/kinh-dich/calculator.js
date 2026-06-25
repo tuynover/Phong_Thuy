@@ -1,4 +1,4 @@
-const HexagramDataService = require('../../services/HexagramDataService');
+const IChingDataService = require('../../services/IChingDataService');
 
 class IChingCalculator {
   /**
@@ -7,7 +7,7 @@ class IChingCalculator {
    * @returns {Object} Dữ liệu Dịch Lý thô
    */
   static calculate(params) {
-    return HexagramDataService.calculate(params);
+    return IChingDataService.calculate(params);
   }
 }
 

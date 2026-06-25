@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const MemoryCacheService = require('./MemoryCacheService');
 
-class TuViCache {
+class ZiweiCache {
   /**
    * Tạo mã hash độc nhất cho bộ máy lập lá số thô (deterministic)
    * @param {Object} params { date, hour, gender, timezone, school, calendarType }
@@ -27,22 +27,22 @@ class TuViCache {
 
   // --- Tầng 1: Cache Đồ Hình Thô ---
   static getChart(chartHash) {
-    return MemoryCacheService.get(`tu_vi:raw_chart:${chartHash}`);
+    return MemoryCacheService.get(`ziwei:raw_chart:${chartHash}`);
   }
 
   static setChart(chartHash, chartData) {
     // Lá số thô không bao giờ thay đổi, lưu trữ trong RAM lâu dài (24h)
-    MemoryCacheService.set(`tu_vi:raw_chart:${chartHash}`, chartData, 86400000);
+    MemoryCacheService.set(`ziwei:raw_chart:${chartHash}`, chartData, 86400000);
   }
 
   // --- Tầng 2: Cache Bài Luận AI ---
   static getInterpretation(aiHash) {
-    return MemoryCacheService.get(`tu_vi:ai_interp:${aiHash}`);
+    return MemoryCacheService.get(`ziwei:ai_interp:${aiHash}`);
   }
 
   static setInterpretation(aiHash, interpretationData) {
     // Bài luận AI lưu trữ trong 12h
-    MemoryCacheService.set(`tu_vi:ai_interp:${aiHash}`, interpretationData, 43200000);
+    MemoryCacheService.set(`ziwei:ai_interp:${aiHash}`, interpretationData, 43200000);
   }
 
   /**
@@ -52,10 +52,10 @@ class TuViCache {
   static invalidate(chartHash) {
     if (!chartHash) return;
     // Xóa cache đồ hình
-    MemoryCacheService.delete(`tu_vi:raw_chart:${chartHash}`);
+    MemoryCacheService.delete(`ziwei:raw_chart:${chartHash}`);
     // Xóa tất cả cache AI luận giải của lá số này (sử dụng prefix)
-    MemoryCacheService.deleteByPrefix(`tu_vi:ai_interp:${chartHash}`);
+    MemoryCacheService.deleteByPrefix(`ziwei:ai_interp:${chartHash}`);
   }
 }
 
-module.exports = TuViCache;
+module.exports = ZiweiCache;

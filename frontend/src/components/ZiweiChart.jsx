@@ -418,7 +418,7 @@ const PalaceListView = ({ palaces, elementHighlight }) => {
   );
 };
 
-const TuViChart = ({ chartData }) => {
+const ZiweiChart = ({ chartData }) => {
   const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
 
   if (!chartData || !chartData.palaces) {
@@ -641,4 +641,4 @@ const TuViChart = ({ chartData }) => {
   );
 };
 
-export default TuViChart;
+export default ZiweiChart;

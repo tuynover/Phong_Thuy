@@ -1,4 +1,4 @@
-const HexagramRecord = require('../models/HexagramRecord');
+const IChingRecord = require('../models/IChingRecord');
 const User = require('../models/User');
 const Notification = require('../models/Notification');
 const EmailService = require('./EmailService');
@@ -6,7 +6,7 @@ const { Solar } = require('lunar-javascript');
 const SystemLog = require('../models/SystemLog');
 const AdminNotification = require('../models/AdminNotification');
 const BaziRecord = require('../models/BaziRecord');
-const TuViRecord = require('../models/TuViRecord');
+const ZiweiRecord = require('../models/ZiweiRecord');
 const BanAppeal = require('../models/BanAppeal');
 
 const logger = require('./LoggerService');
@@ -41,8 +41,8 @@ async function purgeSoftDeletedUsers() {
         for (const user of expiredUsers) {
             const userId = user._id;
             await BaziRecord.deleteMany({ userId });
-            await HexagramRecord.deleteMany({ userId });
-            await TuViRecord.deleteMany({ userId });
+            await IChingRecord.deleteMany({ userId });
+            await ZiweiRecord.deleteMany({ userId });
             await BanAppeal.deleteMany({ userId });
             await Notification.deleteMany({ userId });
             await User.deleteOne({ _id: userId });
@@ -77,7 +77,7 @@ async function checkAndSendNotifications() {
         const todayLunar = todaySolar.getLunar();
         const todayLunarStr = `ngày ${todayLunar.getDay()} tháng ${todayLunar.getMonth()} âm lịch (ngày ${todayLunar.getDayInGanZhiExact()})`;
 
-        const records = await HexagramRecord.find({
+        const records = await IChingRecord.find({
             userId: { $ne: 'guest' },
             'ungKy.status': 'pending'
         });
@@ -233,8 +233,8 @@ async function scanResourceSpikes() {
         // 2. Scan for token spikes by user
         const recordsSearch = [
             { model: BaziRecord, name: 'Bát Tự' },
-            { model: HexagramRecord, name: 'Kinh Dịch' },
-            { model: TuViRecord, name: 'Tử Vi' }
+            { model: IChingRecord, name: 'Kinh Dịch' },
+            { model: ZiweiRecord, name: 'Tử Vi' }
         ];
 
         const tokenSpikeThreshold = 30000; // 30,000 tokens

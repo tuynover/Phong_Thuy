@@ -1,9 +1,10 @@
 import React from 'react';
-import TuViChart from './TuViChart';
+import ZiweiChart from './ZiweiChart';
 
 // Đăng ký các đồ hình vẽ biểu đồ học thuật
 const chartRegistry = {
-  tu_vi: TuViChart
+  tu_vi: ZiweiChart,
+  ziwei: ZiweiChart
 };
 
 const ChartRenderer = ({ system, chartData }) => {

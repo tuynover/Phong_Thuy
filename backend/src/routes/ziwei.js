@@ -1,5 +1,7 @@
 const express = require('express');
-const TuViController = require('../controllers/TuViController');
+const ZiweiController = require('../controllers/ZiweiController');
+const AiInterpretationController = require('../controllers/AiInterpretationController');
+const HistoryController = require('../controllers/HistoryController');
 const rateLimiter = require('../middleware/rateLimiter');
 const creditCheck = require('../middleware/creditCheck');
 const router = express.Router();
@@ -19,25 +21,25 @@ const aiLimiter = rateLimiter({
 });
 
 // 1. Tạo lá số thô (Deterministic)
-router.post('/', calcLimiter, TuViController.createChart);
+router.post('/', calcLimiter, ZiweiController.createChart);
 
 // 2. Yêu cầu giải đoán AI (Async via Queue)
-router.post('/:id/interpret', aiLimiter, creditCheck, TuViController.interpret);
+router.post('/:id/interpret', aiLimiter, creditCheck, AiInterpretationController.interpretZiwei);
 
 // 3. Kiểm tra tiến trình ngầm (Job Status)
-router.get('/jobs/:jobId', TuViController.checkJobStatus);
+router.get('/jobs/:jobId', AiInterpretationController.checkJobStatus);
 
 // 4. Lấy lịch sử lá số của người dùng
-router.get('/history/:userId', TuViController.getHistory);
+router.get('/history/:userId', HistoryController.getZiweiHistory);
 
 // 5. Lấy chi tiết lá số
-router.get('/:id', TuViController.getRecordDetail);
+router.get('/:id', HistoryController.getZiweiRecord);
 
 // 6. Đánh giá lá số
-router.put('/:id/rate', TuViController.rateRecord);
+router.put('/:id/rate', HistoryController.rateZiwei);
 
 // 7. Trò chuyện và hỏi đáp (SSE Streaming & paginated scrolling messages)
-router.get('/:id/messages', TuViController.getChatMessages);
-router.post('/:id/chat', aiLimiter, TuViController.chatFollowUp);
+router.get('/:id/messages', HistoryController.getZiweiChatMessages);
+router.post('/:id/chat', aiLimiter, AiInterpretationController.chatZiwei);
 
 module.exports = router;

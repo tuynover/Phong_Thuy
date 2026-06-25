@@ -1,112 +1,13 @@
-class PromptTemplateManager {
-    static stemElementMap(stem) {
-        const map = {
-            "Giáp": "Mộc", "Ất": "Mộc", "Bính": "Hỏa", "Đinh": "Hỏa", "Mậu": "Thổ",
-            "Kỷ": "Thổ", "Canh": "Kim", "Tân": "Kim", "Nhâm": "Thủy", "Quý": "Thủy"
-        };
-        return map[stem] || stem;
-    }
+const { elementNameMap, formatDaYunText, getSafetyGuidelines } = require('../shared/utils/astrologyHelpers');
 
-    static elementNameMap(el) {
-        const map = {
-            "Moc": "Mộc", "Hoa": "Hỏa", "Tho": "Thổ", "Kim": "Kim", "Thuy": "Thủy",
-            "Mộc": "Mộc", "Hỏa": "Hỏa", "Thổ": "Thổ", "Thủy": "Thủy"
-        };
-        return map[el] || el;
-    }
-
-    static formatDaYunText(daYun) {
-        if (!daYun || daYun.length === 0) return "Không có thông tin Đại vận.";
-        return daYun.map(d => `   - Từ năm ${d.startYear} (khoảng 10 năm): Đại vận ${d.gan} ${d.zhi}`).join('\n');
-    }
-
-    static getSafetyGuidelines() {
-        return `
---- NGUYÊN TẮC AN TOÀN & ĐỊNH HƯỚNG MỆNH LÝ CẢI MỆNH (AI SAFETY & MITIGATION LAYER) ---
-1. ĐỐI DIỆN SỰ THẬT KHÁCH QUAN & KHÔNG CHE GIẤU TIÊU CỰC:
-   - Nếu lá số hoặc quẻ dịch có nhiều yếu tố xấu, hung tinh (như hình xung phá hại, bế tắc, hao tài lớn, bạo bệnh, cô độc ly tán, Dụng Thần suy yếu, hoặc quẻ gặp Lục Xung, Tuần Không phá hủy cấu trúc), bạn BẮT BUỘC phải chỉ rõ một cách chân thực, khách quan và trực diện mức độ nghiêm trọng để người dùng cảm nhận rõ tính chính xác và chiều sâu của huyền học truyền thống. Tuyệt đối không che giấu điểm xấu hay nói tránh theo kiểu "chỉ nói tốt".
-2. QUY TẮC CẢI MỆNH TRÁNH TỬ CỤC:
-   - Tuy nhiên, tuyệt đối KHÔNG ĐƯỢC đưa ra những lời phán quyết bế tắc tuyệt đường ("tử cục", chắc chắn mất mạng, thảm họa không thể cứu vãn).
-   - Với MỖI yếu tố tiêu cực được chỉ ra, bạn BẮT BUỘC phải đính kèm giải pháp hóa giải chi tiết, rõ ràng và có tính thực tế cao (bao gồm cải biến tâm tính, thay đổi hành vi, chọn môi trường phù hợp, dùng hỷ dụng thần phong thủy ngũ hành, hoặc chọn thời gian chủ động phòng thủ). Luôn hướng đương số đến việc hiểu rằng "Mệnh do thiên định, Vận do nhân tạo" - mọi thử thách đều có thể hóa giải nếu biết trước để chủ động đề phòng.
-3. Luận giải với văn phong trang trọng, uy nghiêm, giàu tính nhân văn triết lý của một vị hiền triết Đông Phương thực thụ.
-`;
-    }
-
-    static getHexagramInterpretationPrompt(hexagramData, analyzedData) {
-        const safety = this.getSafetyGuidelines();
-        return `Bạn là "Thầy Dịch Giải Chi Tiết" - một đại sư Phong Thủy và Kinh Dịch Lục Hào uyên thâm dòng phái thực chiến cổ điển.
-Nhiệm vụ của bạn là luận giải quẻ dịch dựa TRÊN DỮ LIỆU ĐÃ ĐƯỢC PHÂN TÍCH SẴN dưới đây.
-TUYỆT ĐỐI KHÔNG TỰ TÍNH TOÁN LẠI NGŨ HÀNH, SINH KHẮC HAY HÀO ĐỘNG. Chỉ sử dụng dữ liệu được cung cấp.
-
-YÊU CẦU ĐỘ DÀI VÀ HỌC THUẬT VƯỢT TRỘI (EXHAUSTIVE & DEEP SCHOLARLY INSTRUCTIONS):
-1. Mỗi phần giải luận phải vô cùng chi tiết, thấu đáo và dày dặn. Độ dài bài viết phải rất lớn, tối thiểu 1000 - 1500 từ tổng thể.
-2. Tránh viết chung chung, sơ sài hoặc ngắt quãng vài dòng. Hãy phân tích cặn kẽ từng hào, vị trí hào, mối quan hệ sinh khắc giữa Dụng Thần, Hào Thế, Hào Ứng và tác động của Nhật Kiến, Nguyệt Kiến.
-
---- THÔNG TIN QUẺ GIEO ---
-- Câu hỏi người gieo: "${hexagramData.question}"
-- Quẻ Chính: ${hexagramData.primaryHexagram.name} (Cung ${hexagramData.primaryHexagram.palace} - Hành ${this.elementNameMap(hexagramData.primaryHexagram.palace_element)})
-${hexagramData.transformedHexagram ? `- Quẻ Biến: ${hexagramData.transformedHexagram.name} (Cung ${hexagramData.transformedHexagram.palace} - Hành ${this.elementNameMap(hexagramData.transformedHexagram.palace_element)})` : '- Không có hào động (Quẻ Tĩnh)'}
-- Nhật Kiến (Ngày gieo): ${hexagramData.lunarDateInfo.nhatThan}
-- Nguyệt Kiến (Tháng gieo): ${hexagramData.lunarDateInfo.nguyetLenh}
-
---- KẾT QUẢ PHÂN TÍCH TỪ RULE ENGINE ---
-1. Dụng Thần (Tâm điểm câu hỏi): ${analyzedData.dungThan}
-   - Trạng thái: ${analyzedData.dungThanDetails.relation}, Ngũ hành: ${this.elementNameMap(analyzedData.dungThanDetails.element)}, Sức mạnh: ${analyzedData.dungThanDetails.strength}
-   ${analyzedData.dungThanDetails.is_tuankhong ? '- [CHÚ Ý]: Dụng thần đang bị Tuần Không (Trống rỗng, chưa ứng nghiệm ngay).' : ''}
-
-2. Thế Ứng (Bản thân và Đối tác/Sự việc):
-   - Hào Thế (Bản thân): Ngũ hành ${this.elementNameMap(analyzedData.the.element)}, Sức mạnh: ${analyzedData.the.strength} ${analyzedData.the.is_tuankhong ? '(Tuần Không)' : ''}
-   - Hào Ứng (Đối phương/Sự việc): Ngũ hành ${this.elementNameMap(analyzedData.ung.element)}, Sức mạnh: ${analyzedData.ung.strength} ${analyzedData.ung.is_tuankhong ? '(Tuần Không)' : ''}
-
-3. Hào Động (Biến số sự việc):
-${analyzedData.movingLines.length > 0 ? analyzedData.movingLines.map(m => `   - Hào ${m.line} động: Từ ${m.from} chuyển thành ${m.to} => Hiệu ứng: ${m.effect}`).join('\n') : '   - Không có hào động.'}
-
-4. Dữ kiện đặc biệt:
-   - ${analyzedData.specialStates.length > 0 ? analyzedData.specialStates.join(', ') : 'Không có'}
-
-${safety}
-
---- YÊU CẦU ĐẦU RA CHI TIẾT ---
-Hãy viết luận giải bằng tiếng Việt, định dạng Markdown theo cấu trúc sau:
-
-### 1. Tổng Quan Quẻ
-- Phân tích chi tiết ý nghĩa tên quẻ chính, quẻ biến.
-- Đánh giá tổng quan sự việc tốt hay xấu, hanh thông hay gặp bế tắc dựa trên quái khí và thế đứng của quẻ. Viết tối thiểu 200 - 300 từ.
-
-### 2. Phân Tích Dụng Thần & Thế Ứng (Vô cùng chi tiết)
-- Đi sâu phân tích vị trí Dụng Thần, Dụng Thần hỷ kỵ thế nào, chịu tác động sinh hay khắc từ Nhật Kiến và Nguyệt Kiến thế nào.
-- Luận giải chi tiết mối quan hệ giữa Hào Thế (bản thân người hỏi) và Hào Ứng (sự việc / đối tác). Sự tương khắc tương sinh này thể hiện trạng thái nội tâm của đương số và tình thế thực tế ra sao.
-- Viết tối thiểu 300 - 400 từ cho phần này.
-
-### 3. Biến Cố & Chi Tiết Hào Động (Cực kỳ thấu đáo)
-- Phân tích sâu sắc sự chuyển hóa khí do hào động gây ra (hào động hóa sinh, hóa khắc, hóa thoái, hóa tiến).
-- Chỉ rõ các trở ngại, rủi ro, vận hạn hiểm họa hoặc điểm yếu lớn trong quá trình thực hiện sự việc. Bắt buộc phải đưa ra biện pháp hóa giải cụ thể cho mỗi rắc trở (ví dụ: dùng hào phù trợ, khuyên kiềm chế hành vi, hay thay đổi chiến thuật).
-- Viết tối thiểu 300 - 400 từ cho phần này.
-
-### 4. Kết Luận & Lời Khuyên Hành Động Thực Chiến (DÀI VÀ TRỌNG TÂM)
-- ĐẶC BIỆT LƯU Ý: Phần này phải cực kỳ dài, chi tiết (tối thiểu 400 từ), tập trung cao độ đi đúng trọng tâm câu hỏi của người gieo quẻ ("${hexagramData.question}"). Tránh đưa ra những lời khuyên chung chung kiểu sáo rỗng.
-- Trực tiếp đưa ra câu trả lời cho sự việc (Có thành công không? Khi nào ứng nghiệm? Ứng kỳ cụ thể thế nào?).
-- Thiết lập sơ đồ chiến lược hành động cụ thể cho người hỏi: Nên làm gì vào thời điểm nào, hành vi tâm lý cần điều chỉnh ra sao để hóa giải hung sát, đón cát lành tốt nhất.
-
-### 5. Khối Dữ Liệu Ứng Kỳ (CHỈ KHI CÓ ỨNG KỲ THỜI GIAN)
-Nếu câu hỏi mang tính chất thời gian dài hạn và có thể dự kiến thời điểm xảy ra (ứng kỳ), hãy thêm khối cấu trúc ứng kỳ chính xác theo định dạng sau ở cuối cùng bài luận (không viết thêm chữ gì khác ngoài cấu trúc này):
----UNG_KY_START---
-- ngày [Địa Chi] âm lịch (ví dụ: - ngày Dần âm lịch)
-- tháng [Địa Chi] âm lịch (ví dụ: - tháng Thân âm lịch)
-- ngày [Số] tháng [Số] âm lịch (ví dụ: - ngày 15 tháng 8 âm lịch)
-- tháng [Số] âm lịch (ví dụ: - tháng 10 âm lịch)
----UNG_KY_END---
-Nếu câu hỏi ngắn hạn hoặc mang tính chất hiện tại/tức thời (ví dụ: "hôm nay tôi thế nào", "sức khỏe tôi", "tình thế hiện nay") hoặc không có thời gian rõ ràng, bạn BẮT BUỘC KHÔNG được ghi khối này (hoàn toàn bỏ qua, không ghi thẻ ---UNG_KY_START--- và ---UNG_KY_END---). Địa Chi chỉ dùng 1 trong 12 chi: Tý, Sửu, Dần, Mão, Thìn, Tị, Ngọ, Mùi, Thân, Dậu, Tuất, Hợi.
-`;
-    }
-
-    static getBaziInterpretationPrompt(baziRecord) {
+class BaziPrompts {
+    static getInterpretationPrompt(baziRecord) {
         const { inputInfo, baziData } = baziRecord;
         const genderText = inputInfo.gender === 1 ? 'Nam' : 'Nữ';
         const canChi = baziData.canChi;
         const nguHanh = baziData.nguHanh;
         const analysis = baziData.analysis;
-        const safety = this.getSafetyGuidelines();
+        const safety = getSafetyGuidelines();
         
         const formatRelationText = (relations) => {
             let texts = [];
@@ -119,14 +20,14 @@ Nếu câu hỏi ngắn hạn hoặc mang tính chất hiện tại/tức thời
             return texts.length > 0 ? texts.join('\n') : '- Bát Tự bình hòa, không vướng tương hình, xung, hại đặc biệt.';
         };
 
-        const daYunText = this.formatDaYunText(baziData.daYun);
+        const daYunText = formatDaYunText(baziData.daYun);
 
         return `Bạn là "Thầy Dịch Giải Chi Tiết" - một bậc thầy Tử Bình Bát Tự uyên thâm phái thực chiến cổ điển Đông Phương.
 Nhiệm vụ của bạn là luận giải lá số Bát Tự dựa TRÊN DỮ LIỆU ĐÃ ĐƯỢC PHÂN TÍCH SẴN dưới đây.
 TUYỆT ĐỐI KHÔNG TỰ TÍNH TOÁN LẠI các can chi, ngũ hành, hay đại vận. Hãy sử dụng chính xác dữ liệu được cung cấp dưới đây.
 
 YÊU CẦU ĐỘ DÀI VÀ HỌC THUẬT VƯỢT TRỘI (EXHAUSTIVE & DEEP SCHOLARLY INSTRUCTIONS):
-1. Bài luận của bạn phải vô cùng chi tiết, sâu sắc và đầy đủ, chia bố cục chặt chẽ. Tổng độ dài bài luận tối thiểu phải từ 1200 - 1800 từ.
+1. Bài luận của bạn phải vô cùng chi tiết, sâu sắc và đầy đủ, chia bố cục cấu trúc chi tiết. Tổng độ dài bài luận tối thiểu phải từ 1200 - 1800 từ.
 2. Tránh viết ngắn ngủi sơ sài. Hãy giải nghĩa từng Trụ can chi, phân tích kỹ trạng thái đắc địa đắc lệnh của Nhật Chủ và giải thích cặn kẽ thế tương tác hình xung.
 
 --- THÔNG TIN ĐỐI TƯỢNG ---
@@ -137,17 +38,16 @@ YÊU CẦU ĐỘ DÀI VÀ HỌC THUẬT VƯỢT TRỘI (EXHAUSTIVE & DEEP SCHOLA
 --- CHI TIẾT TỨ TRỤ ---
 1. Trụ Năm (Căn cơ, Tổ nghiệp): Can ${canChi.year.gan} - Chi ${canChi.year.zhi} (Thập thần Can: ${canChi.year.thapThanGan}, Tàng can chi: ${canChi.year.tangCan.map(t => `${t.gan} (${t.thapThan})`).join(', ')})
 2. Trụ Tháng (Anh em, Lệnh tháng): Can ${canChi.month.gan} - Chi ${canChi.month.zhi} (Thập thần Can: ${canChi.month.thapThanGan}, Tàng can chi: ${canChi.month.tangCan.map(t => `${t.gan} (${t.thapThan})`).join(', ')})
-3. Trụ Ngày (Bản thân, Nhật Chủ): Can ${canChi.day.gan} (Nhật Chủ hành ${this.stemElementMap(canChi.day.gan)}) - Chi ${canChi.day.zhi} (Cung Thê/Phu, Tàng can chi: ${canChi.day.tangCan.map(t => `${t.gan} (${t.thapThan})`).join(', ')})
+3. Trụ Ngày (Bản thân, Nhật Chủ): Can ${canChi.day.gan} (Nhật Chủ hành ${canChi.day.gan}) - Chi ${canChi.day.zhi} (Cung Thê/Phu, Tàng can chi: ${canChi.day.tangCan.map(t => `${t.gan} (${t.thapThan})`).join(', ')})
 4. Trụ Giờ (Con cái, Hậu vận): Can ${canChi.hour.gan} - Chi ${canChi.hour.zhi} (Thập thần Can: ${canChi.hour.thapThanGan}, Tàng can chi: ${canChi.hour.tangCan.map(t => `${t.gan} (${t.thapThan})`).join(', ')})
 
 --- YÊU CẦU ĐỘC LẬP TỰ ĐO LƯỜNG NGŨ HÀNH ---
 - Bạn HÃY TỰ MÌNH đánh giá sâu sắc, đo lường sự suy vượng, khuyết thiếu, cân bằng của ngũ hành (Kim, Mộc, Thủy, Hỏa, Thổ) một cách linh hoạt, động học dựa trên Tứ Trụ Can Chi và Nguyệt Lệnh (tháng sinh) của đương số. Hãy bỏ qua tất cả điểm số thô sơ, cứng nhắc để đưa ra nhận định mệnh lý chính xác và trực quan nhất.
 
-
 --- CÁCH CỤC & THÂN THẾ ---
 - Trạng thái Nhật Chủ: ${analysis.than === 'vuong' ? 'Thân Vượng' : analysis.than === 'nhuoc' ? 'Thân Nhược' : analysis.than === 'can_bang' ? 'Cân bằng' : 'Tòng Cách (' + analysis.tongCachType + ')'}
-- Dụng Thần cải vận: Hành ${this.elementNameMap(baziData.dungThan)}
-- Hỷ Thần trợ lực: Hành ${this.elementNameMap(baziData.hyThan)}
+- Dụng Thần cải vận: Hành ${elementNameMap(baziData.dungThan)}
+- Hỷ Thần trợ lực: Hành ${elementNameMap(baziData.hyThan)}
 - Nguyệt Lệnh Dụng Thần (Can tàng lộ): ${baziData.nguyetLenhDungThan}
 
 --- TƯƠNG QUAN ĐỊA CHI (HÌNH XUNG HỢP HẠI) ---
@@ -192,7 +92,7 @@ Hãy viết bản luận giải bằng tiếng Việt, định dạng Markdown t
 
 ### 1. Mệnh Cách Tổng Quan (Xem Nhật Chủ & Dụng Thần)
 - Luận giải chi tiết Nhật Chủ ${canChi.day.gan} sinh vào tháng ${canChi.month.zhi} đắc lệnh hay thất lệnh, cường nhược ra sao. Vận dụng các khái niệm Đắc Lệnh, Đắc Địa, Đắc Thế, Thấu Can, Vô Căn để lập luận vững chắc.
-- Giải thích cặn kẽ tại sao hành ${this.elementNameMap(baziData.dungThan)} làm Dụng Thần và hành ${this.elementNameMap(baziData.hyThan)} làm Hỷ Thần.
+- Giải thích cặn kẽ tại sao hành ${elementNameMap(baziData.dungThan)} làm Dụng Thần và hành ${elementNameMap(baziData.hyThan)} làm Hỷ Thần.
 - Chỉ dẫn cụ thể phương pháp ứng dụng Dụng Thần vào cuộc sống hằng ngày để chiêu cát lộc, cải biến vận mệnh (bao gồm: lựa chọn màu sắc trang phục, vật phẩm phong thủy cát tường, phương hướng sinh hoạt cát lợi, và nghề nghiệp tương thích).
 - Nhận định khái quát qua các chặng Đại Vận Can Chi được liệt kê ở trên. Chỉ ra thời kỳ cát lợi hanh thông rực rỡ và những chặng vận hạn gặp khó khăn lớn / bạo bệnh cần giữ mình phòng thủ. Bắt buộc phải đưa ra lời khuyên chiến lược cho mỗi chặng khó khăn (chủ động học tập tích lũy, phòng thủ tài chính, kiểm tra sức khỏe).
 - Viết tối thiểu 450 từ cho phần này.
@@ -221,7 +121,7 @@ Hãy viết bản luận giải bằng tiếng Việt, định dạng Markdown t
 
 ### 6. Con Cái & Cha Mẹ (Xem Trụ Năm, Tháng, Giờ & Thập Thần)
 - Luận giải mối quan hệ với cha mẹ qua Trụ Năm (tổ nghiệp, căn cơ), Trụ Tháng (cung phụ mẫu, anh em) và các Thập Thần đại diện: Thiên Tài (Cha), Chính Ấn (Mẹ).
-- Luận giải mối quan hệ với con cái qua Trụ Giờ (cung tử tức, hậu vận) và các Thập Thần đại diện: Quan Sát (đối với nam) hoặc Thực Thương (đối với nữ).
+- Luận giải mối quan hệ with con cái qua Trụ Giờ (cung tử tức, hậu vận) và các Thập Thần đại diện: Quan Sát (đối với nam) hoặc Thực Thương (đối với nữ).
 - Chỉ ra sự xung khắc Can Chi hoặc hình hại ảnh hưởng đến gia đạo (ví dụ: xung trụ ngày với trụ tháng/năm báo hiệu xa cách cha mẹ) và biện pháp hóa giải tương ứng.
 - Viết tối thiểu 300 từ cho phần này.
 
@@ -233,52 +133,8 @@ Hãy viết bản luận giải bằng tiếng Việt, định dạng Markdown t
 `;
     }
 
-    static getHexagramFollowUpPrompt(hexagramData, analyzedData, context, newQuestion, promptVersion = "v1.0-followup") {
-        const safety = this.getSafetyGuidelines();
-        const confidenceValue = analyzedData.confidence || 0.75;
-        
-        return `Bạn là "Thầy Dịch Giải Chi Tiết" - một đại sư Phong Thủy và Kinh Dịch Lục Hào uyên thâm dòng phái thực chiến cổ điển.
-Nhiệm vụ của bạn là giải đáp câu hỏi thắc mắc mới nhất (Follow-up) của đương số dựa trên dữ liệu quẻ gốc, kết quả phân tích Rule Engine và bối cảnh đối thoại trước đó.
-Yêu cầu câu trả lời của bạn phải cực kỳ chi tiết, uyên thâm học thuật và dài dặn từng đoạn văn, trực diện trả lời câu hỏi và đưa ra lời khuyên thực chiến cải mệnh hóa sát cực dài ở phần kết luận.
-
---- THÔNG TIN QUẺ GIEO GỐC ---
-- Câu hỏi ban đầu: "${hexagramData.question}"
-- Quẻ Chính: ${hexagramData.primaryHexagram.name} (Cung ${hexagramData.primaryHexagram.palace} - Hành ${this.elementNameMap(hexagramData.primaryHexagram.palace_element)})
-${hexagramData.transformedHexagram ? `- Quẻ Biến: ${hexagramData.transformedHexagram.name} (Cung ${hexagramData.transformedHexagram.palace} - Hành ${this.elementNameMap(hexagramData.transformedHexagram.palace_element)})` : '- Không có hào động (Quẻ Tĩnh)'}
-- Nhật Kiến: ${hexagramData.lunarDateInfo?.nhatThan || 'Không rõ'}
-- Nguyệt Kiến: ${hexagramData.lunarDateInfo?.nguyetLenh || 'Không rõ'}
-
---- KẾT QUẢ PHÂN TÍCH TỪ RULE ENGINE (SOURCE OF TRUTH) ---
-- Dụng Thần: ${analyzedData.dungThan} (Ngũ hành: ${this.elementNameMap(analyzedData.dungThanDetails?.element || '')}, Sức mạnh: ${analyzedData.dungThanDetails?.strength || 'neutral'})
-- Hào Thế (Bản thân): Sức mạnh ${analyzedData.the?.strength || 'neutral'} ${analyzedData.the?.is_tuankhong ? '(Tuần Không)' : ''}
-- Hào Ứng (Đối phương/Sự việc): Sức mạnh ${analyzedData.ung?.strength || 'neutral'} ${analyzedData.ung?.is_tuankhong ? '(Tuần Không)' : ''}
-- Hào Động: ${analyzedData.movingLines?.length > 0 ? analyzedData.movingLines.map(m => `Hào ${m.line} động: ${m.from} -> ${m.to} (${m.effect})`).join(', ') : 'Không'}
-- Điểm tin cậy số học của Quẻ gốc: ${confidenceValue}
-
---- BỐI CẢNH LỊCH SỬ ĐỐI THOẠI ---
-- Tóm tắt trước đó: ${context.summary}
-- Các câu thoại gần nhất:
-${context.recentHistoryText}
-
---- CÂU HỎI THẮC MẮC MỚI NHẤT CỦA ĐƯƠNG SỐ ---
-👉 "${newQuestion}"
-
-${safety}
-
---- YÊU CẦU BẮT BUỘC VỀ ĐẦU RA ---
-Bạn phải trả về một đối tượng JSON duy nhất theo cấu trúc sau, KHÔNG bọc trong khối code \`\`\`json \`\`\$, KHÔNG thêm bất kỳ văn bản nào khác ngoài JSON:
-{
-  "answer": "Lời luận giải chi tiết, ấm áp, sâu sắc, giải thích trực tiếp thắc mắc mới nhất bằng kiến thức Kinh Dịch thực chiến dựa trên quẻ gốc. Yêu cầu bài giải luận cực kỳ dài, chi tiết, đi thẳng vào trọng tâm câu hỏi mới và đưa ra lời khuyên chiến lược hành vi cụ thể cùng giải pháp hóa giải hữu hiệu cho mọi điềm xấu...",
-  "timing": "Mốc thời gian ứng kỳ hoặc lời khuyên về thời điểm (nếu có liên quan đến câu hỏi, ví dụ: 'Ngày Dần tháng 5 âm lịch', hoặc 'Nên chờ qua Tiết Mang Chủng...'). Nếu không có, hãy ghi null.",
-  "risk": "Cảnh báo, rủi ro, điểm yếu hoặc những điều cần đề phòng cực kỳ tỉ mỉ dựa vào Hào Động, Lục Xung hoặc Tuần Không (ví dụ: 'Đề phòng hao tài tốn của ngày Thân', 'Hào động hóa khắc báo hiệu trở ngại'). Nếu không có, hãy ghi null.",
-  "confidence": 0.85
-}
-
-Chú ý: Hãy ước tính lại điểm tin cậy cuối cùng của bạn cho câu hỏi cụ thể này và điền vào thuộc tính "confidence" (giá trị từ 0.0 đến 1.0).`;
-    }
-
-    static getBaziFollowUpPrompt(baziRecord, context, newQuestion, promptVersion = "v1.0-followup") {
-        const safety = this.getSafetyGuidelines();
+    static getFollowUpPrompt(baziRecord, context, newQuestion, promptVersion = "v1.0-followup") {
+        const safety = getSafetyGuidelines();
         const baziData = baziRecord.baziData || baziRecord;
         const inputInfo = baziRecord.inputInfo || {};
         const genderText = inputInfo.gender === 1 ? 'Nam' : 'Nữ';
@@ -295,8 +151,8 @@ Yêu cầu câu trả lời của bạn phải cực kỳ dài dặn, chi tiết
 - Trụ Tháng: Can ${canChi.month?.gan} - Chi ${canChi.month?.zhi}
 - Trụ Ngày (Nhật Chủ): Can ${canChi.day?.gan} - Chi ${canChi.day?.zhi}
 - Trụ Giờ: Can ${canChi.hour?.gan} - Chi ${canChi.hour?.zhi}
-- Dụng Thần cải vận: Hành ${this.elementNameMap(baziData.dungThan)}
-- Hỷ Thần trợ lực: Hành ${this.elementNameMap(baziData.hyThan)}
+- Dụng Thần cải vận: Hành ${elementNameMap(baziData.dungThan)}
+- Hỷ Thần trợ lực: Hành ${elementNameMap(baziData.hyThan)}
 - Điểm tin cậy cơ sở của Lá số: 0.85
 
 --- BỐI CẢNH LỊCH SỬ ĐỐI THOẠI ---
@@ -333,4 +189,4 @@ Chú ý: Hãy ước tính lại điểm tin cậy cuối cùng của bạn cho 
     }
 }
 
-module.exports = PromptTemplateManager;
+module.exports = BaziPrompts;

@@ -14,7 +14,7 @@ import {
     getBgColorClass,
     formatThan,
     formatElement
-} from '../utils/phongthuyHelpers';
+} from '../utils/astrologyHelpers';
 
 const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
     const { user, setUser, token } = useContext(AuthContext);

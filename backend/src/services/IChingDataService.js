@@ -98,7 +98,7 @@ const lucThuMap = {
     'Quý':  ['Huyền Vũ', 'Thanh Long', 'Chu Tước', 'Câu Trần', 'Đằng Xà', 'Bạch Hổ']
 };
 
-class HexagramDataService {
+class IChingDataService {
     static toVietnamese(val) {
         return toVietnamese(val);
     }
@@ -280,7 +280,20 @@ class HexagramDataService {
             }
         };
     }
-    
+    static parseLines(options) {
+        if (!options) return null;
+        const normalized = {
+            ...options,
+            transformedHexagram: options.transformedHexagram || options.secondaryHexagram,
+            lunarDateInfo: options.lunarDateInfo || {
+                dayCanChi: options.dayGanZhi,
+                monthCanChi: options.monthGanZhi,
+                tuankhong: options.tuankhong || ''
+            }
+        };
+        return this.reconstructLines(normalized);
+    }
+
     // Tái tạo lại primaryLines và secondaryLines từ một record DB
     static reconstructLines(record) {
         const { primaryHexagram, movingLines, lunarDateInfo } = record;
@@ -404,4 +417,4 @@ class HexagramDataService {
     }
 }
 
-module.exports = HexagramDataService;
+module.exports = IChingDataService;

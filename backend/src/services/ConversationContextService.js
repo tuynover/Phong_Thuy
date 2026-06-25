@@ -1,7 +1,5 @@
-const HexagramConversation = require('../models/HexagramConversation');
-const HexagramMessage = require('../models/HexagramMessage');
-const BaziConversation = require('../models/BaziConversation');
-const BaziMessage = require('../models/BaziMessage');
+const Conversation = require('../models/Conversation');
+const Message = require('../models/Message');
 
 const logger = require('./LoggerService');
 const console = {
@@ -97,24 +95,18 @@ class ConversationContextService {
      * Builds structured conversation context for the AI
      * Retrieves previous summary and the last 3-5 messages in chronological order.
      */
-    static async buildConversationContext(type, conversationId, limit = 4) {
-        let conversation = null;
+    static async buildConversationContext(system, conversationId, limit = 4) {
+        let sys = system;
+        if (sys === 'hexagram') sys = 'iching';
+        if (sys === 'tuvi' || sys === 'tu_vi') sys = 'ziwei';
+
+        const conversation = await Conversation.findOne({ _id: conversationId, system: sys }).lean();
         let messages = [];
 
-        if (type === 'hexagram') {
-            conversation = await HexagramConversation.findById(conversationId).lean();
-            if (conversation) {
-                messages = await HexagramMessage.find({ conversationId })
-                    .sort({ timestamp: 1 })
-                    .lean();
-            }
-        } else {
-            conversation = await BaziConversation.findById(conversationId).lean();
-            if (conversation) {
-                messages = await BaziMessage.find({ conversationId })
-                    .sort({ timestamp: 1 })
-                    .lean();
-            }
+        if (conversation) {
+            messages = await Message.find({ conversationId })
+                .sort({ createdAt: 1 })
+                .lean();
         }
 
         if (!conversation) {
@@ -160,26 +152,17 @@ class ConversationContextService {
      * Periodic summarizer to avoid AI context bloat
      * Creates or updates a short summary of the conversation
      */
-    static async updateConversationSummary(type, conversationId, genAIInstance, activeModel) {
+    static async updateConversationSummary(system, conversationId, genAIInstance, activeModel) {
         try {
-            let conversation = null;
-            let messages = [];
-            let ConversationModel = null;
-            let MessageModel = null;
+            let sys = system;
+            if (sys === 'hexagram') sys = 'iching';
+            if (sys === 'tuvi' || sys === 'tu_vi') sys = 'ziwei';
 
-            if (type === 'hexagram') {
-                ConversationModel = HexagramConversation;
-                MessageModel = HexagramMessage;
-            } else {
-                ConversationModel = BaziConversation;
-                MessageModel = BaziMessage;
-            }
-
-            conversation = await ConversationModel.findById(conversationId);
+            const conversation = await Conversation.findOne({ _id: conversationId, system: sys });
             if (!conversation) return;
 
             // Fetch all messages to build a summary
-            messages = await MessageModel.find({ conversationId }).sort({ timestamp: 1 }).lean();
+            const messages = await Message.find({ conversationId }).sort({ createdAt: 1 }).lean();
             if (messages.length < 4) return; // Only summarize if there's enough dialogue
 
             let dialogString = "";
@@ -207,7 +190,6 @@ ${dialogString}
                 const summaryText = result.response.text().trim();
                 
                 conversation.summary = summaryText;
-                conversation.messageCount = messages.length;
                 await conversation.save();
                 console.log(`Summarized conversation ${conversationId} successfully.`);
             }

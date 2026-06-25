@@ -1,4 +1,14 @@
 require('dotenv').config();
+const logger = require('./services/LoggerService');
+
+process.on('unhandledRejection', (reason, promise) => {
+  logger.error('Unhandled Rejection at:', reason);
+});
+
+process.on('uncaughtException', (error) => {
+  logger.error('Uncaught Exception thrown:', error);
+});
+
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');
@@ -23,8 +33,6 @@ app.get('/health', (req, res) => {
 });
 
 app.use('/api', routes);
-
-const logger = require('./services/LoggerService');
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {

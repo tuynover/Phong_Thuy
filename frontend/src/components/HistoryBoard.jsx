@@ -1,24 +1,24 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { getHexagramHistory, getBaziHistory, getTuViHistory, rateHexagram, rateBazi, rateTuVi, deleteCalculation, getHexagramRecord, getBaziRecord, getTuViRecord } from '../services/api';
+import { getIChingHistory, getBaziHistory, getZiweiHistory, rateIChing, rateBazi, rateZiwei, deleteCalculation, getIChingRecord, getBaziRecord, getZiweiRecord } from '../services/api';
 import { Star, Clock, Calendar, Trash2, X, Info, Check, AlertTriangle, Loader2 } from 'lucide-react';
 
 const LUNAR_HOURS_MAP = [
   "Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"
 ];
 
-const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewTuVi, preloadedData, onCacheInvalidate }) => {
+const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, preloadedData, onCacheInvalidate }) => {
     const { user } = useContext(AuthContext);
     const [hexagrams, setHexagrams] = useState([]);
     const [bazis, setBazis] = useState([]);
-    const [tuvis, setTuvis] = useState([]);
+    const [ziweis, setZiweis] = useState([]);
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(false);
-    const [activeTab, setActiveTab] = useState('hexagram'); // 'hexagram' | 'bazi' | 'tu_vi'
+    const [activeTab, setActiveTab] = useState('iching'); // 'iching' | 'bazi' | 'ziwei'
     const [dialog, setDialog] = useState(null); // { type: 'confirm' | 'success' | 'error', message: '', onConfirm: null }
     const prefetchedDetails = useRef({});
 
-    const activeTheme = activeTab === 'hexagram' 
+    const activeTheme = activeTab === 'iching' 
         ? { text: 'text-amber-800', bg: 'bg-amber-800 hover:bg-amber-900', border: 'border-amber-100', textAccent: 'text-amber-600' }
         : activeTab === 'bazi'
             ? { text: 'text-blue-800', bg: 'bg-blue-800 hover:bg-blue-900', border: 'border-blue-100', textAccent: 'text-blue-600' }
@@ -43,7 +43,7 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewTuVi, preloadedData, o
             if (preloadedData.hexagrams) {
                 setHexagrams(preloadedData.hexagrams);
                 setBazis(preloadedData.bazis);
-                setTuvis(preloadedData.tuvis);
+                setZiweis(preloadedData.tuvis); // Map tuvis to ziweis
                 setLoading(false);
             } else if (preloadedData.promise) {
                 setLoading(true);
@@ -52,7 +52,7 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewTuVi, preloadedData, o
                     if (data) {
                         setHexagrams(data.hexagrams);
                         setBazis(data.bazis);
-                        setTuvis(data.tuvis);
+                        setZiweis(data.tuvis);
                     }
                 } catch (err) {
                     console.error("Error loading preloaded history lists:", err);
@@ -70,14 +70,14 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewTuVi, preloadedData, o
         setLoading(true);
         try {
             const userId = user.id || user._id;
-            const [hexRes, baziRes, tuviRes] = await Promise.all([
-                getHexagramHistory(userId),
+            const [hexRes, baziRes, ziweiRes] = await Promise.all([
+                getIChingHistory(userId),
                 getBaziHistory(userId),
-                getTuViHistory(userId)
+                getZiweiHistory(userId)
             ]);
             setHexagrams(hexRes.data);
             setBazis(baziRes.data);
-            setTuvis(tuviRes.data);
+            setZiweis(ziweiRes.data);
         } catch (error) {
             console.error("Error fetching history", error);
         }
@@ -90,12 +90,12 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewTuVi, preloadedData, o
         prefetchedDetails.current[cacheKey] = 'loading';
         try {
             let res;
-            if (type === 'hexagram') {
-                res = await getHexagramRecord(id);
+            if (type === 'iching') {
+                res = await getIChingRecord(id);
             } else if (type === 'bazi') {
                 res = await getBaziRecord(id);
-            } else if (type === 'tu_vi') {
-                res = await getTuViRecord(id);
+            } else if (type === 'ziwei') {
+                res = await getZiweiRecord(id);
             }
             if (res && res.data) {
                 prefetchedDetails.current[cacheKey] = res.data;
@@ -107,12 +107,12 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewTuVi, preloadedData, o
     };
 
     const handleViewHexagramDetail = async (record) => {
-        const cacheKey = `hexagram:${record._id}`;
+        const cacheKey = `iching:${record._id}`;
         let detail = prefetchedDetails.current[cacheKey];
         if (!detail || detail === 'loading') {
             setActionLoading(true);
             try {
-                const res = await getHexagramRecord(record._id);
+                const res = await getIChingRecord(record._id);
                 detail = res.data;
                 prefetchedDetails.current[cacheKey] = detail;
             } catch (err) {
@@ -148,17 +148,17 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewTuVi, preloadedData, o
 
     const handleRate = async (type, id, rating, feedback) => {
         try {
-            if (type === 'hexagram') {
-                await rateHexagram(id, rating, feedback);
+            if (type === 'iching') {
+                await rateIChing(id, rating, feedback);
                 setHexagrams(hexagrams.map(h => h._id === id ? { ...h, rating, feedback } : h));
             } else if (type === 'bazi') {
                 await rateBazi(id, rating, feedback);
                 setBazis(bazis.map(b => b._id === id ? { ...b, rating, feedback } : b));
             } else {
-                await rateTuVi(id, rating, feedback);
-                setTuvis(tuvis.map(t => t._id === id ? { ...t, rating, feedback } : t));
+                await rateZiwei(id, rating, feedback);
+                setZiweis(ziweis.map(t => t._id === id ? { ...t, rating, feedback } : t));
             }
-            const cacheKey = `${type === 'hexagram' ? 'hexagram' : type === 'bazi' ? 'bazi' : 'tu_vi'}:${id}`;
+            const cacheKey = `${type === 'iching' ? 'iching' : type === 'bazi' ? 'bazi' : 'ziwei'}:${id}`;
             delete prefetchedDetails.current[cacheKey];
             if (onCacheInvalidate) onCacheInvalidate();
         } catch (err) {
@@ -170,14 +170,14 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewTuVi, preloadedData, o
         showConfirm("Bạn có chắc chắn muốn xóa vĩnh viễn bản ghi này khỏi lịch sử không?", async () => {
             try {
                 await deleteCalculation(type, id);
-                if (type === 'hexagrams') {
+                if (type === 'iching' || type === 'hexagrams') {
                     setHexagrams(hexagrams.filter(h => h._id !== id));
                 } else if (type === 'bazi') {
                     setBazis(bazis.filter(b => b._id !== id));
                 } else {
-                    setTuvis(tuvis.filter(t => t._id !== id));
+                    setZiweis(ziweis.filter(t => t._id !== id));
                 }
-                const cacheKey = `${type === 'hexagrams' ? 'hexagram' : type === 'bazi' ? 'bazi' : 'tu_vi'}:${id}`;
+                const cacheKey = `${type === 'iching' || type === 'hexagrams' ? 'iching' : type === 'bazi' ? 'bazi' : 'ziwei'}:${id}`;
                 delete prefetchedDetails.current[cacheKey];
                 if (onCacheInvalidate) onCacheInvalidate();
                 showAlert("Xóa bản ghi lịch sử thành công.", "success");
@@ -215,12 +215,12 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewTuVi, preloadedData, o
                     <span className="text-sm font-bold text-amber-900 tracking-wider uppercase">Đang nạp chi tiết...</span>
                 </div>
             )}
-            <h2 className="text-2xl md:text-3xl font-serif font-bold text-amber-950 mb-6 md:mb-8 text-center border-b pb-4">Lịch Sử Của Bạn</h2>
+            <h2 className="text-2xl md:text-3xl font-serif font-bold text-amber-955 mb-6 md:mb-8 text-center border-b pb-4">Lịch Sử Của Bạn</h2>
             
             <div className="flex flex-wrap md:flex-nowrap justify-center gap-2 md:gap-4 mb-6 md:mb-8">
                 <button 
-                    onClick={() => setActiveTab('hexagram')}
-                    className={`flex-1 sm:flex-none px-4 py-2 text-xs md:text-base rounded-full font-bold transition-all ${activeTab === 'hexagram' ? 'bg-amber-800 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
+                    onClick={() => setActiveTab('iching')}
+                    className={`flex-1 sm:flex-none px-4 py-2 text-xs md:text-base rounded-full font-bold transition-all ${activeTab === 'iching' ? 'bg-amber-800 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
                 >
                     Kinh Dịch ({hexagrams.length})
                 </button>
@@ -231,21 +231,21 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewTuVi, preloadedData, o
                     Bát Tự ({bazis.length})
                 </button>
                 <button 
-                    onClick={() => setActiveTab('tu_vi')}
-                    className={`flex-1 sm:flex-none px-4 py-2 text-xs md:text-base rounded-full font-bold transition-all ${activeTab === 'tu_vi' ? 'bg-purple-800 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
+                    onClick={() => setActiveTab('ziwei')}
+                    className={`flex-1 sm:flex-none px-4 py-2 text-xs md:text-base rounded-full font-bold transition-all ${activeTab === 'ziwei' ? 'bg-purple-800 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
                 >
-                    Tử Vi ({tuvis.length})
+                    Tử Vi ({ziweis.length})
                 </button>
             </div>
 
             <div className="space-y-4">
-                {activeTab === 'hexagram' && hexagrams.length === 0 && <p className="text-center text-gray-500">Chưa có quẻ nào được gieo.</p>}
-                {activeTab === 'hexagram' && hexagrams.map((record) => (
+                {activeTab === 'iching' && hexagrams.length === 0 && <p className="text-center text-gray-500">Chưa có quẻ nào được gieo.</p>}
+                {activeTab === 'iching' && hexagrams.map((record) => (
                     <div 
                         key={record._id} 
                         onClick={() => handleViewHexagramDetail(record)} 
-                        onMouseEnter={() => preloadRecord('hexagram', record._id)}
-                        onTouchStart={() => preloadRecord('hexagram', record._id)}
+                        onMouseEnter={() => preloadRecord('iching', record._id)}
+                        onTouchStart={() => preloadRecord('iching', record._id)}
                         className="border border-amber-100 rounded-xl p-4 hover:shadow-md transition-shadow bg-amber-50/20 cursor-pointer"
                     >
                         <div className="flex justify-between items-start mb-2">
@@ -257,7 +257,7 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewTuVi, preloadedData, o
                             <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
                                 <button onClick={() => handleViewHexagramDetail(record)} className="text-amber-600 hover:underline text-sm font-medium">Xem chi tiết</button>
                                 <button 
-                                    onClick={() => handleDelete('hexagrams', record._id)} 
+                                    onClick={() => handleDelete('iching', record._id)} 
                                     className="text-red-500 hover:text-red-750 transition-colors p-1"
                                     title="Xóa vĩnh viễn"
                                 >
@@ -270,7 +270,7 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewTuVi, preloadedData, o
                         <div onClick={(e) => e.stopPropagation()} className="mt-4 pt-4 border-t border-amber-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-default">
                             <div className="flex items-center gap-2">
                                 <span className="text-sm font-medium text-gray-700">Độ chính xác:</span>
-                                {renderStars(record.rating, (rating) => handleRate('hexagram', record._id, rating, document.getElementById(`feedback-hex-${record._id}`)?.value || record.feedback))}
+                                {renderStars(record.rating, (rating) => handleRate('iching', record._id, rating, document.getElementById(`feedback-hex-${record._id}`)?.value || record.feedback))}
                             </div>
                             <div className="flex-1 flex gap-2">
                                 <input 
@@ -284,7 +284,7 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewTuVi, preloadedData, o
                                     onClick={() => {
                                         const val = document.getElementById(`feedback-hex-${record._id}`).value;
                                         if (val !== record.feedback || !record.rating) {
-                                            handleRate('hexagram', record._id, record.rating, val);
+                                            handleRate('iching', record._id, record.rating, val);
                                         }
                                     }}
                                     className="px-4 py-1 bg-amber-600 text-white text-sm font-medium rounded shadow hover:bg-amber-700 transition-colors"
@@ -352,13 +352,13 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewTuVi, preloadedData, o
                     </div>
                 ))}
 
-                {activeTab === 'tu_vi' && tuvis.length === 0 && <p className="text-center text-gray-500">Chưa có lá số Tử Vi nào được lập.</p>}
-                {activeTab === 'tu_vi' && tuvis.map((record) => (
+                {activeTab === 'ziwei' && ziweis.length === 0 && <p className="text-center text-gray-500">Chưa có lá số Tử Vi nào được lập.</p>}
+                {activeTab === 'ziwei' && ziweis.map((record) => (
                     <div 
                         key={record._id} 
-                        onClick={() => onViewTuVi(record)} 
-                        onMouseEnter={() => preloadRecord('tu_vi', record._id)}
-                        onTouchStart={() => preloadRecord('tu_vi', record._id)}
+                        onClick={() => onViewZiwei(record)} 
+                        onMouseEnter={() => preloadRecord('ziwei', record._id)}
+                        onTouchStart={() => preloadRecord('ziwei', record._id)}
                         className="border border-purple-100 rounded-xl p-4 hover:shadow-md transition-shadow bg-purple-50/20 cursor-pointer"
                     >
                         <div className="flex justify-between items-start mb-2">
@@ -369,9 +369,9 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewTuVi, preloadedData, o
                                 </p>
                             </div>
                             <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
-                                <button onClick={() => onViewTuVi(record)} className="text-purple-600 hover:underline text-sm font-medium">Xem chi tiết</button>
+                                <button onClick={() => onViewZiwei(record)} className="text-purple-600 hover:underline text-sm font-medium">Xem chi tiết</button>
                                 <button 
-                                    onClick={() => handleDelete('tu-vi', record._id)} 
+                                    onClick={() => handleDelete('ziwei', record._id)} 
                                     className="text-red-500 hover:text-red-700 transition-colors p-1"
                                     title="Xóa vĩnh viễn"
                                 >
@@ -384,21 +384,21 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewTuVi, preloadedData, o
                         <div onClick={(e) => e.stopPropagation()} className="mt-4 pt-4 border-t border-purple-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-default">
                             <div className="flex items-center gap-2">
                                 <span className="text-sm font-medium text-gray-700">Đánh giá:</span>
-                                {renderStars(record.rating, (rating) => handleRate('tu_vi', record._id, rating, document.getElementById(`feedback-tu-vi-${record._id}`)?.value || record.feedback))}
+                                {renderStars(record.rating, (rating) => handleRate('ziwei', record._id, rating, document.getElementById(`feedback-ziwei-${record._id}`)?.value || record.feedback))}
                             </div>
                             <div className="flex-1 flex gap-2">
                                 <input 
                                     type="text" 
-                                    id={`feedback-tu-vi-${record._id}`}
+                                    id={`feedback-ziwei-${record._id}`}
                                     placeholder="Nhận xét..." 
                                     className="flex-1 text-sm px-3 py-1 border border-gray-200 rounded focus:border-purple-400 focus:outline-none"
                                     defaultValue={record.feedback}
                                 />
                                 <button 
                                     onClick={() => {
-                                        const val = document.getElementById(`feedback-tu-vi-${record._id}`).value;
+                                        const val = document.getElementById(`feedback-ziwei-${record._id}`).value;
                                         if (val !== record.feedback || !record.rating) {
-                                            handleRate('tu_vi', record._id, record.rating, val);
+                                            handleRate('ziwei', record._id, record.rating, val);
                                         }
                                     }}
                                     className="px-4 py-1 bg-purple-600 text-white text-sm font-medium rounded shadow hover:bg-purple-700 transition-colors"

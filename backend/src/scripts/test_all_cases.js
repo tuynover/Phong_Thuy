@@ -6,9 +6,9 @@ const API_URL = 'http://localhost:3001/api';
 
 // Import models
 const User = require('../models/User');
-const HexagramRecord = require('../models/HexagramRecord');
+const IChingRecord = require('../models/IChingRecord');
 const BaziRecord = require('../models/BaziRecord');
-const TuViRecord = require('../models/TuViRecord');
+const ZiweiRecord = require('../models/ZiweiRecord');
 const SystemLog = require('../models/SystemLog');
 const BanAppeal = require('../models/BanAppeal');
 const AdminNotification = require('../models/AdminNotification');
@@ -23,7 +23,7 @@ async function runTests() {
 
   // Clean up existing test users and records
   await User.deleteMany({ email: /test_.*@example\.com/ });
-  await HexagramRecord.deleteMany({ question: /\[TEST\].*/ });
+  await IChingRecord.deleteMany({ question: /\[TEST\].*/ });
   await BaziRecord.deleteMany({ 'baziData.solarDate': '15/06/2026' });
   await BanAppeal.deleteMany({ email: /test_.*@example\.com/ });
   await AdminNotification.deleteMany({ title: /\[TEST\].*/ });
@@ -141,7 +141,7 @@ async function runTests() {
     console.log('\n--- CASE 3: Tiêu thụ credit & Chặn khách vãng lai ---');
     
     // Gieo quẻ cho user
-    const hexRecord = await HexagramRecord.create({
+    const hexRecord = await IChingRecord.create({
       userId: testUser._id,
       question: '[TEST] Hỏi công việc ngày mai',
       primaryHexagram: { name: 'Thuần Càn', symbol: '☰☰', group: 'Càn', binary_code: '111111' },
@@ -383,7 +383,7 @@ async function runTests() {
   } finally {
     // 8. Clean up and disconnect
     await User.deleteMany({ email: /test_.*@example\.com/ });
-    await HexagramRecord.deleteMany({ question: /\[TEST\].*/ });
+    await IChingRecord.deleteMany({ question: /\[TEST\].*/ });
     await BaziRecord.deleteMany({ 'baziData.solarDate': '15/06/2026' });
     await BanAppeal.deleteMany({ email: /test_.*@example\.com/ });
     await AdminNotification.deleteMany({ title: /\[TEST\].*/ });

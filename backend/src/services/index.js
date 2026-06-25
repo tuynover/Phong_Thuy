@@ -1,9 +1,8 @@
 const AiService = require('./AiService');
 const BaziAnalyzer = require('./BaziAnalyzer');
 const ConversationContextService = require('./ConversationContextService');
-const HexagramDataService = require('./HexagramDataService');
+const IChingDataService = require('./IChingDataService');
 const LoggerService = require('./LoggerService');
-const PromptTemplateManager = require('./PromptTemplateManager');
 const RuleEngineService = require('./RuleEngineService');
 const MemoryCacheService = require('./MemoryCacheService');
 
@@ -11,9 +10,8 @@ module.exports = {
     AiService,
     BaziAnalyzer,
     ConversationContextService,
-    HexagramDataService,
+    IChingDataService,
     LoggerService,
-    PromptTemplateManager,
     RuleEngineService,
     MemoryCacheService
 };

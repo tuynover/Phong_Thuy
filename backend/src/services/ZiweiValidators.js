@@ -1,4 +1,4 @@
-class TuViValidator {
+class ZiweiValidator {
   /**
    * Validate dữ liệu đầu vào cho lập lá số Tử Vi
    * @param {Object} data 
@@ -57,4 +57,4 @@ class TuViValidator {
   }
 }
 
-module.exports = TuViValidator;
+module.exports = ZiweiValidator;
