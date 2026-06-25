@@ -34,12 +34,11 @@ class AiService {
     async _executeWithFallback(action, options = {}) {
         const chain = [
             options.model || this.defaultModelName,
-            "gemini-2.5-flash",
-            "gemma-4-31b",
-            "gemma-4-26b",
-            "gemini-2.5-flash-lite",
-            "gemini-3.5-flash",
-            "gemini-3-flash"
+            "gemini-2.0-flash",
+            "gemini-1.5-flash",
+            "gemini-1.5-flash-8b",
+            "gemini-2.0-flash-lite-preview-02-05",
+            "gemini-1.5-pro"
         ];
         
         // Loại bỏ trùng lặp và giữ nguyên thứ tự ưu tiên thử nghiệm
@@ -87,15 +86,11 @@ class AiService {
                 }
             }, options);
         } catch (error) {
-            console.error("All AI fallback models failed for generateInterpretation:", error.message);
-            if (error.message.includes('Timeout')) {
-                throw new Error('Hệ thống AI phản hồi chậm hoặc đang quá tải. Vui lòng thử lại sau.');
-            } else if (error.message.includes('429')) {
-                throw new Error('Hệ thống AI đang chạm giới hạn sử dụng. Vui lòng thử lại sau giây lát.');
-            } else if (error.message.includes('SAFETY')) {
+            console.error("All AI fallback models failed for generateInterpretation:", error);
+            if (error.message.includes('SAFETY')) {
                 throw new Error('Nội dung phân tích vi phạm chính sách an toàn của AI.');
             }
-            throw new Error('Đã có lỗi xảy ra khi kết nối với tất cả máy chủ AI dự phòng.');
+            throw new Error('Tính năng luận giải AI đang bảo trì, quý khách vui lòng thử lại sau.');
         }
     }
 
@@ -115,7 +110,7 @@ class AiService {
             if (error.message.includes('SAFETY')) {
                 throw new Error('Nội dung phân tích vi phạm chính sách an toàn của AI.');
             }
-            throw new Error('Lỗi kết nối với tất cả máy chủ AI dự phòng.');
+            throw new Error('Tính năng luận giải AI đang bảo trì, quý khách vui lòng thử lại sau.');
         }
     }
 
@@ -169,11 +164,8 @@ class AiService {
                 }
             }, options);
         } catch (error) {
-            console.error("All AI fallback models failed for structured output:", error.message);
-            if (error.message.includes('Timeout')) {
-                throw new Error('Hệ thống AI phản hồi chậm hoặc đang quá tải. Vui lòng thử lại sau.');
-            }
-            throw new Error(`Đã có lỗi xảy ra khi xử lý phản hồi cấu trúc từ tất cả các AI dự phòng: ${error.message}`);
+            console.error("All AI fallback models failed for structured output:", error);
+            throw new Error('Tính năng luận giải AI đang bảo trì, quý khách vui lòng thử lại sau.');
         }
     }
 }

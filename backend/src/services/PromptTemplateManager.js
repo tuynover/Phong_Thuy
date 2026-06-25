@@ -190,25 +190,46 @@ ${safety}
 --- CẤU TRÚC BẢN LUẬN GIẢI YÊU CẦU ĐẦU RA ---
 Hãy viết bản luận giải bằng tiếng Việt, định dạng Markdown theo cấu trúc sau:
 
-### 1. Tổng Quan Bản Mệnh (Nhật Chủ)
+### 1. Mệnh Cách Tổng Quan (Xem Nhật Chủ & Dụng Thần)
 - Luận giải chi tiết Nhật Chủ ${canChi.day.gan} sinh vào tháng ${canChi.month.zhi} đắc lệnh hay thất lệnh, cường nhược ra sao. Vận dụng các khái niệm Đắc Lệnh, Đắc Địa, Đắc Thế, Thấu Can, Vô Căn để lập luận vững chắc.
-- Phân tích bản tính cốt lõi, tâm lý, ưu điểm và nhược điểm trong tính cách của đương số qua hình tượng ví dụ Ngũ Hành thực tế sinh động ở trên. Viết tối thiểu 300 từ.
-
-### 2. Phân Tích Cách Cục & Ngũ Hành (Vô cùng sâu sắc)
-- Xác định Cách cục chính và tầm ảnh hưởng của cách cục đến con đường học vấn, công danh sự nghiệp. Diễn giải sâu sắc bằng cách liên hệ ngũ hành.
-- Nhận định thừa/thiếu ngũ hành trong lá số và tác hại đến sức khỏe, trạng thái tâm lý. Đặc biệt lưu tâm các nhược điểm dễ gây suy yếu tạng phủ. Bắt buộc đưa ra biện pháp khắc chế/hóa giải (ăn uống, sinh hoạt, tập luyện, chọn vật phẩm phong thủy). Viết tối thiểu 300 từ.
-
-### 3. Tương Quan Hình Xung Hợp Hại & Hóa Giải
-- Chỉ ra các tương quan Địa chi như Lục Xung, Lục Hại, Tam Hợp cục... dựa trên các quy tắc nâng cao ở trên (Xung động, Xung khai kho, Xung phá cục, Tranh hợp, Hợp hóa...). Nhấn mạnh tác động đến gia đạo, cha mẹ, con cái và biến cố cuộc đời.
-- BẮT BUỘC chỉ rõ mặt trái hung hại nghiêm trọng của các thế xung (ví dụ: lục xung vợ chồng dễ mâu thuẫn ly tán, xung tháng năm gây thăng trầm công danh), tuyệt đối không được nói nhẹ đi. Tuy nhiên, phải ngay lập tức đưa ra biện pháp hóa giải chi tiết (chọn ngày cát lợi, rèn luyện hành vi nhẫn nhịn, dùng vật phẩm ngũ hành chuyển hóa xung đột). Viết tối thiểu 300 từ.
-
-### 4. Dụng Thần & Hỷ Thần Cải Vận
 - Giải thích cặn kẽ tại sao hành ${this.elementNameMap(baziData.dungThan)} làm Dụng Thần và hành ${this.elementNameMap(baziData.hyThan)} làm Hỷ Thần.
-- Chỉ dẫn cụ thể phương pháp ứng dụng Dụng Thần vào cuộc sống hằng ngày để chiêu cát lộc, cải biến vận mệnh (bao gồm: lựa chọn màu sắc trang phục, vật phẩm phong thủy cát tường, phương hướng sinh hoạt cát lợi, và nghề nghiệp tương thích). Viết tối thiểu 200 từ.
+- Chỉ dẫn cụ thể phương pháp ứng dụng Dụng Thần vào cuộc sống hằng ngày để chiêu cát lộc, cải biến vận mệnh (bao gồm: lựa chọn màu sắc trang phục, vật phẩm phong thủy cát tường, phương hướng sinh hoạt cát lợi, và nghề nghiệp tương thích).
+- Nhận định khái quát qua các chặng Đại Vận Can Chi được liệt kê ở trên. Chỉ ra thời kỳ cát lợi hanh thông rực rỡ và những chặng vận hạn gặp khó khăn lớn / bạo bệnh cần giữ mình phòng thủ. Bắt buộc phải đưa ra lời khuyên chiến lược cho mỗi chặng khó khăn (chủ động học tập tích lũy, phòng thủ tài chính, kiểm tra sức khỏe).
+- Viết tối thiểu 450 từ cho phần này.
 
-### 5. Dự Báo Đại Vận Cuộc Đời
-- Nhận định khái quát qua các chặng Đại Vận Can Chi được liệt kê ở trên.
-- Chỉ ra thời kỳ cát lợi hanh thông rực rỡ và những chặng vận hạn gặp khó khăn lớn / bạo bệnh cần giữ mình phòng thủ. Bắt buộc phải đưa ra lời khuyên chiến lược cho mỗi chặng khó khăn (chủ động học tập tích lũy, phòng thủ tài chính, kiểm tra sức khỏe). Viết tối thiểu 300 từ.
+### 2. Tính Cách & Tiềm Năng (Xem Nhật Chủ & Thập Thần)
+- Phân tích bản tính cốt lõi, tâm lý, ưu điểm và nhược điểm trong tính cách của đương số qua hình tượng ví dụ Ngũ Hành thực tế sinh động ở trên.
+- Phân tích tác động của các Thập Thần nổi trội (Chính Quan, Thất Sát, Thiên Tài, Chính Tài, Thực Thần, Thương Quan, Thiên Ấn, Chính Ấn, Tỷ Kiên, Kiếp Tài) tọa thủ hoặc ẩn tàng trong các Trụ để nêu bật ưu khuyết điểm tâm lý của đương số.
+- Viết tối thiểu 300 từ cho phần này.
+
+### 3. Sự Nghiệp & Tài Vận (Xem Tài Tinh & Quan Sát)
+- Xác định Cách cục chính (Nguyệt Lệnh Dụng Thần) và tầm ảnh hưởng của cách cục đến con đường học vấn, công danh sự nghiệp. Diễn giải sâu sắc bằng cách liên hệ ngũ hành.
+- Luận giải tài vận và cơ hội phát triển sự nghiệp dựa trên vị trí và trạng thái của Tài Tinh (Chính Tài/Thiên Tài - đại diện cho tiền tài) và Quan Sát (Chính Quan/Thất Sát - đại diện cho quyền lực, công danh).
+- Nếu có điềm báo tổn hao tài lộc, sự nghiệp thăng trầm (do hình xung khắc hại hoặc kỵ thần vượng), phải đưa ra lời khuyên chiến lược và biện pháp hóa giải cụ thể.
+- Viết tối thiểu 350 từ cho phần này.
+
+### 4. Tình Duyên Hôn Nhân (Xem Trụ Ngày & Thê Tinh/Phu Tinh)
+- Luận giải tình duyên, nhân duyên phối ngẫu và cuộc sống gia đạo qua Trụ Ngày (Cung Phu/Thê) và các sao đại diện cho bạn đời: Thê Tinh (Chính Tài/Thiên Tài đối với nam) hoặc Phu Tinh (Chính Quan/Thất Sát đối với nữ).
+- Phân tích các mối tương quan hợp, xung, hình, hại liên quan đến Trụ Ngày (ví dụ: Lục Xung chi ngày báo hiệu mâu thuẫn, biến động trong hôn nhân).
+- BẮT BUỘC chỉ rõ những bất lợi, xung khắc nếu có và lập tức đưa ra biện pháp hóa giải cụ thể về mặt hành vi, tâm lý, chọn ngày cát lợi hoặc sử dụng vật phẩm phong thủy chuyển hóa xung đột.
+- Viết tối thiểu 300 từ cho phần này.
+
+### 5. Sức Khỏe & Tật Ách (Xem Ngũ Hành Bản Mệnh)
+- Nhận định thừa/thiếu ngũ hành trong lá số và tác hại đến sức khỏe, trạng thái tâm lý. Đặc biệt lưu tâm các nhược điểm dễ gây suy yếu tạng phủ dựa trên ngũ hành (Kim chủ phổi, Mộc chủ gan, Thủy chủ thận, Hỏa chủ tim, Thổ chủ tỳ vị).
+- Bắt buộc đưa ra biện pháp khắc chế/hóa giải chi tiết về lối sống, chế độ ăn uống, rèn luyện thể chất và chọn màu sắc/vật phẩm phong thủy trợ mệnh.
+- Viết tối thiểu 300 từ cho phần này.
+
+### 6. Con Cái & Cha Mẹ (Xem Trụ Năm, Tháng, Giờ & Thập Thần)
+- Luận giải mối quan hệ với cha mẹ qua Trụ Năm (tổ nghiệp, căn cơ), Trụ Tháng (cung phụ mẫu, anh em) và các Thập Thần đại diện: Thiên Tài (Cha), Chính Ấn (Mẹ).
+- Luận giải mối quan hệ với con cái qua Trụ Giờ (cung tử tức, hậu vận) và các Thập Thần đại diện: Quan Sát (đối với nam) hoặc Thực Thương (đối với nữ).
+- Chỉ ra sự xung khắc Can Chi hoặc hình hại ảnh hưởng đến gia đạo (ví dụ: xung trụ ngày với trụ tháng/năm báo hiệu xa cách cha mẹ) và biện pháp hóa giải tương ứng.
+- Viết tối thiểu 300 từ cho phần này.
+
+### 7. Mối Quan Hệ Xã Hội (Xem Tỷ Kiếp & Thực Thương)
+- Luận giải mối quan hệ bạn bè, đồng nghiệp, cấp trên và cấp dưới qua Tỷ Kiếp (Tỷ Kiên/Kiếp Tài - đại diện cho đồng trang lứa, đồng nghiệp, bạn bè) và Thực Thương (Thực Thần/Thương Quan - năng lực giao tiếp, ứng biến xã hội).
+- Phân tích xem đương số có dễ gặp tiểu nhân hãm hại, tranh đoạt quyền lợi (kiếp tài vượng kỵ) hay nhận được sự giúp đỡ, đồng hành từ bạn bè chí cốt (tỷ kiếp là hỷ dụng).
+- Đưa ra lời khuyên ứng xử giao tế xã hội phù hợp và hóa giải các điềm xung hại, tiểu nhân hãm hại nếu có.
+- Viết tối thiểu 300 từ cho phần này.
 `;
     }
 

@@ -34,11 +34,10 @@ Giải đoán cung QUAN LỘC và cung TÀI BẠCH vô cùng thấu đáo:
 `;
 
 const MARRIAGE_PROMPT = `
-[MỤC TIÊU PHÂN TÍCH: TÌNH DUYÊN & GIA ĐẠO]
-Giải đoán cung PHU THÊ và cung TỬ TỨC toàn diện:
-- Luận giải nhân duyên phối ngẫu, tính cách của bạn đời, cuộc sống hôn nhân (hòa thuận, xung khắc, kết hôn muộn).
-- Đánh giá cung Tử Tức để luận đoán về đường con cái (số lượng nhân duyên, sự hiếu thảo và thành đạt của thế hệ sau).
-- Nếu có cung Phu Thê hình xung hay gặp các cô tinh quả tú báo hiệu trắc trở, cô đơn hoặc ly tán, hãy phân tích thẳng thắn nhưng đi kèm lời khuyên hóa giải tinh tế về mặt tâm lý hành vi (sự nhường nhịn, thấu hiểu, kết hôn muộn để giảm thiểu xung khắc Can Chi, cách tổ chức cuộc sống gia đình ôn hòa).
+[MỤC TIÊU PHÂN TÍCH: TÌNH DUYÊN HÔN NHÂN]
+Giải đoán cung PHU THÊ toàn diện:
+- Luận giải nhân duyên phối ngẫu, ngoại hình, gia thế và tính cách của bạn đời, cuộc sống hôn nhân (hòa thuận, xung khắc, kết hôn muộn, duyên nợ bền chặt hay dễ đứt gãy).
+- Nếu có cung Phu Thê hình xung hay gặp các cô tinh quả tú, sát tinh báo hiệu trắc trở, cô đơn hoặc ly tán, hãy phân tích thẳng thắn nhưng đi kèm lời khuyên hóa giải tinh tế về mặt tâm lý hành vi (sự nhường nhịn, thấu hiểu, kết hôn muộn để giảm thiểu xung khắc Can Chi, cách tổ chức cuộc sống gia đình ôn hòa).
 `;
 
 const HEALTH_PROMPT = `
@@ -46,6 +45,22 @@ const HEALTH_PROMPT = `
 Giải đoán cung TẬT ÁCH tỉ mỉ:
 - Dự phòng các nguy cơ suy yếu tạng phủ dựa trên ngũ hành của các sao tọa thủ (Mộc chủ gan, Hỏa chủ tim, Thổ chủ tỳ vị, Kim chủ phổi, Thủy chủ thận).
 - Đưa ra lời khuyên thiết thực, cụ thể về lối sống, chế độ dinh dưỡng lành mạnh, rèn luyện thể chất và cân bằng tinh thần để đương số chủ động tự cải thiện và đẩy lùi nguy cơ bạo bệnh. Nhấn mạnh việc phòng bệnh hơn chữa bệnh.
+`;
+
+const CHILDREN_PARENTS_PROMPT = `
+[MỤC TIÊU PHÂN TÍCH: CON CÁI & CHA MẸ]
+Giải đoán cung TỬ TỨC và cung PHỤ MẪU thấu đáo:
+- Về Cha Mẹ (Cung Phụ Mẫu): Luận giải mối quan hệ giữa đương số với cha mẹ, sức khỏe, thọ trường của đấng sinh thành, sự trợ lực hay rào cản từ gia đình tổ nghiệp.
+- Về Con Cái (Cung Tử Tức): Luận đoán về đường con cái (số lượng nhân duyên, sức khỏe, tính cách, sự hiếu thảo và thành đạt của thế hệ sau).
+- Nếu có hình xung, khắc hại hoặc sát tinh tọa thủ tại hai cung này, hãy phân tích chân thực những bất đồng, khắc khẩu hay vận hạn hiểm họa cho cha mẹ/con cái, sau đó hướng dẫn phương án hóa giải chi tiết (bồi đắp hiếu đạo, cách hành xử nhẫn nại, định hướng giáo dục đúng đắn, hướng nghiệp độc lập sớm).
+`;
+
+const SOCIAL_RELATIONS_PROMPT = `
+[MỤC TIÊU PHÂN TÍCH: MỐI QUAN HỆ XÃ HỘI]
+Giải đoán cung NÔ BỘC và cung THIÊN DI chi tiết:
+- Về Bạn bè, đồng nghiệp (Cung Nô Bộc): Luận giải mối tương tác với bạn bè, đồng nghiệp, cấp dưới, người giúp việc. Chỉ ra xem có điềm báo bị tiểu nhân hãm hại, phản bội, hay nhận được sự trung thành, đồng hành giúp đỡ đắc lực.
+- Về Xuất hành, giao tế (Cung Thiên Di): Luận giải vận trình khi ra ngoài xã hội, đi xa lập nghiệp, đi du lịch, đi du học hay định cư. Có gặp quý nhân giúp đỡ hay dễ vướng họa thị phi, tai ương dọc đường.
+- Nếu có các tổ hợp sát tinh, hao tinh xấu chiếu vào, hãy chỉ rõ cách thức đương số phòng ngừa rủi ro, cải thiện kỹ năng giao tiếp ứng xử và điều chỉnh phong thủy hướng xuất hành để chuyển họa thành cát.
 `;
 
 const RESPONSE_SCHEMA = {
@@ -60,7 +75,7 @@ const RESPONSE_SCHEMA = {
       items: {
         type: "object",
         properties: {
-          "id": { type: "string", enum: ["tong_quan", "tinh_cach", "su_nghiep_tai_loc", "phu_the_tu_tuc", "suc_khoe"] },
+          "id": { type: "string", enum: ["tong_quan", "tinh_cach", "su_nghiep_tai_loc", "tinh_duyen_hon_nhan", "suc_khoe", "con_cai_cha_me", "moi_quan_he_xa_hoi"] },
           "title": { type: "string" },
           "type": { type: "string", enum: ["markdown"] },
           "content": { 
@@ -104,14 +119,61 @@ ${JSON.stringify(symbolicAnalysis.palaceInteractions, null, 2)}
 \`\`\`
 
 HƯỚNG DẪN XÂY DỰNG NỘI DUNG TỪNG PHẦN:
-1. "tong_quan" (Mệnh Cách Tổng Quan): Tổng hợp ngũ hành, bản mệnh, thế đứng của sao Tử Vi và đánh giá chung cách cục. Phân tích rõ cả mặt thuận lợi lẫn những điểm thăng trầm của cuộc đời, định hình trước các hướng hóa giải tổng thể.
-2. "tinh_cach" (Tính Cách & Tiềm Năng): ${PERSONALITY_PROMPT}
-3. "su_nghiep_tai_loc" (Sự Nghiệp & Tài Vận): ${CAREER_PROMPT}
-4. "phu_the_tu_tuc" (Tình Duyên & Gia Đạo): ${MARRIAGE_PROMPT}
-5. "suc_khoe" (Sức Khỏe & Tật Ách): ${HEALTH_PROMPT}
+1. "tong_quan" (Mệnh Cách Tổng Quan - Xem Cung Mệnh): Tổng hợp ngũ hành, bản mệnh, thế đứng của sao Tử Vi và đánh giá chung cách cục. Phân tích rõ cả mặt thuận lợi lẫn những điểm thăng trầm của cuộc đời, định hình trước các hướng hóa giải tổng thể.
+2. "tinh_cach" (Tính Cách & Tiềm Năng - Xem Cung Mệnh & Cung Thân): ${PERSONALITY_PROMPT}
+3. "su_nghiep_tai_loc" (Sự Nghiệp & Tài Vận - Xem Cung Quan Lộc & Cung Tài Bạch): ${CAREER_PROMPT}
+4. "tinh_duyen_hon_nhan" (Tình Duyên Hôn Nhân - Xem Cung Phu Thê): ${MARRIAGE_PROMPT}
+5. "suc_khoe" (Sức Khỏe & Tật Ách - Xem Cung Tật Ách): ${HEALTH_PROMPT}
+6. "con_cai_cha_me" (Con Cái & Cha Mẹ - Xem Cung Tử Tức & Cung Phụ Mẫu): ${CHILDREN_PARENTS_PROMPT}
+7. "moi_quan_he_xa_hoi" (Mối Quan Hệ Xã Hội - Xem Cung Nô Bộc & Cung Thiên Di): ${SOCIAL_RELATIONS_PROMPT}
 
 YÊU CẦU ĐẦU RA:
 Bạn phải trả về phản hồi DUY NHẤT dưới dạng một đối tượng JSON hợp lệ tuân thủ chính xác Schema cấu trúc được định nghĩa. Tuyệt đối không bao bọc JSON trong khối mã markdown hay thêm bất kỳ văn bản giải thích nào bên ngoài.
+`;
+  }
+
+  static buildMarkdownPrompt(compressedChart, symbolicAnalysis) {
+    return `
+${MASTER_PROMPT}
+
+DỮ LIỆU THỰC TẾ LÁ SỐ (FACT DATA):
+\`\`\`json
+${JSON.stringify(compressedChart, null, 2)}
+\`\`\`
+
+CÁC CÁCH CỤC & TỔ HỢP SAO ĐÃ ĐƯỢC XÁC ĐỊNH (METAPHYSICAL PATTERNS):
+- Các cách cục tại Mệnh: ${symbolicAnalysis.patterns.join(", ") || "Không có cách cục đặc biệt nổi bật"}
+- Tổ hợp cung tam hợp và xung chiếu chi tiết:
+\`\`\`json
+${JSON.stringify(symbolicAnalysis.palaceInteractions, null, 2)}
+\`\`\`
+
+HƯỚNG DẪN XÂY DỰNG NỘI DUNG TỪNG PHẦN BẰNG ĐỊNH DẠNG MARKDOWN:
+Bạn hãy viết bài luận giải chi tiết phân bổ cấu trúc thành 7 phần tiêu đề phân cấp chuẩn xác như sau (bắt đầu bằng ###):
+
+### 1. Mệnh Cách Tổng Quan (Xem Cung Mệnh)
+Tổng hợp ngũ hành, bản mệnh, thế đứng của sao Tử Vi và đánh giá chung cách cục. Phân tích rõ cả mặt thuận lợi lẫn những điểm thăng trầm của cuộc đời, định hình trước các hướng hóa giải tổng thể.
+
+### 2. Tính Cách & Tiềm Năng (Xem Cung Mệnh & Cung Thân)
+${PERSONALITY_PROMPT}
+
+### 3. Sự Nghiệp & Tài Vận (Xem Cung Quan Lộc & Cung Tài Bạch)
+${CAREER_PROMPT}
+
+### 4. Tình Duyên Hôn Nhân (Xem Cung Phu Thê)
+${MARRIAGE_PROMPT}
+
+### 5. Sức Khỏe & Tật Ách (Xem Cung Tật Ách)
+${HEALTH_PROMPT}
+
+### 6. Con Cái & Cha Mẹ (Xem Cung Tử Tức & Cung Phụ Mẫu)
+${CHILDREN_PARENTS_PROMPT}
+
+### 7. Mối Quan Hệ Xã Hội (Xem Cung Nô Bộc & Cung Thiên Di)
+${SOCIAL_RELATIONS_PROMPT}
+
+YÊU CẦU ĐẦU RA:
+Hãy viết bài luận giải liền mạch, chi tiết bằng định dạng Markdown hoàn chỉnh với 7 phần tiêu đề nêu trên. Tuyệt đối không thêm phần mở đầu hay kết bài bên ngoài 7 tiêu đề này.
 `;
   }
 

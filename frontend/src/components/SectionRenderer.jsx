@@ -18,19 +18,30 @@ import {
 } from 'lucide-react';
 
 const sectionIcons = {
-  // Tử Vi
+  // Tử Vi (parsed from markdown sections using prefix 'tu_vi')
+  tu_vi_1: Sparkles,
+  tu_vi_2: User,
+  tu_vi_3: Briefcase,
+  tu_vi_4: Heart,
+  tu_vi_5: Activity,
+  tu_vi_6: Users,
+  tu_vi_7: Compass,
+
+  // Bát Tự (parsed from markdown sections using prefix 'bazi')
+  bazi_1: Sparkles,
+  bazi_2: User,
+  bazi_3: Briefcase,
+  bazi_4: Heart,
+  bazi_5: Activity,
+  bazi_6: Users,
+  bazi_7: Compass,
+
+  // Legacy keys (if any)
   tong_quan: Sparkles,
   tinh_cach: User,
   su_nghiep_tai_loc: Briefcase,
   phu_the_tu_tuc: Heart,
   suc_khoe: Activity,
-  
-  // Bát Tự (Bazi)
-  bazi_1: User,
-  bazi_2: Layers,
-  bazi_3: ShieldAlert,
-  bazi_4: Sparkles,
-  bazi_5: TrendingUp,
   
   // Kinh Dịch (I Ching)
   iching_1: Compass,
@@ -41,18 +52,29 @@ const sectionIcons = {
 
 const sectionColors = {
   // Tử Vi
+  tu_vi_1: "from-purple-500 to-indigo-600",
+  tu_vi_2: "from-indigo-500 to-blue-600",
+  tu_vi_3: "from-blue-500 to-cyan-600",
+  tu_vi_4: "from-rose-500 to-pink-600",
+  tu_vi_5: "from-emerald-500 to-teal-600",
+  tu_vi_6: "from-amber-500 to-orange-600",
+  tu_vi_7: "from-cyan-500 to-blue-600",
+
+  // Bát Tự
+  bazi_1: "from-blue-500 to-indigo-600",
+  bazi_2: "from-indigo-500 to-blue-600",
+  bazi_3: "from-blue-500 to-cyan-600",
+  bazi_4: "from-rose-500 to-pink-600",
+  bazi_5: "from-emerald-500 to-teal-600",
+  bazi_6: "from-amber-500 to-orange-600",
+  bazi_7: "from-cyan-500 to-blue-600",
+
+  // Legacy keys
   tong_quan: "from-purple-500 to-indigo-600",
   tinh_cach: "from-indigo-500 to-blue-600",
   su_nghiep_tai_loc: "from-blue-500 to-cyan-600",
   phu_the_tu_tuc: "from-rose-500 to-pink-600",
   suc_khoe: "from-emerald-500 to-teal-600",
-  
-  // Bát Tự
-  bazi_1: "from-blue-500 to-indigo-600",
-  bazi_2: "from-emerald-500 to-teal-600",
-  bazi_3: "from-rose-500 to-pink-600",
-  bazi_4: "from-purple-500 to-indigo-600",
-  bazi_5: "from-cyan-500 to-blue-600",
   
   // Kinh Dịch
   iching_1: "from-amber-500 to-orange-600",
@@ -98,12 +120,17 @@ const SectionCard = ({ section, theme }) => {
         onClick={() => setIsOpen(!isOpen)}
         className={`w-full px-6 py-4.5 flex justify-between items-center text-left transition-all duration-200 ${styles.hoverBg}`}
       >
-        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4.5">
-          <h3 className="font-extrabold text-slate-800 text-base md:text-lg tracking-tight shrink-0">
-            {section.title}
-          </h3>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full">
+          <div className="flex items-center gap-3 shrink-0">
+            <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${gradientColor} flex items-center justify-center text-white shadow-md shrink-0`}>
+              <IconComponent size={16} />
+            </div>
+            <h3 className="font-extrabold text-slate-800 text-base md:text-lg tracking-tight">
+              {section.title}
+            </h3>
+          </div>
           {section.sources && section.sources.length > 0 && (
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap gap-1.5 ml-0 sm:ml-2">
               {section.sources.map((src, idx) => (
                 <span 
                   key={idx} 

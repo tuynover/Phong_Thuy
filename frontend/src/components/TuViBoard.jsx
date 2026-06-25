@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { Calendar, Clock, User, Sparkles, MessageCircle, RefreshCw, Star, ShieldAlert, ScrollText } from 'lucide-react';
-import { createTuViChart, interpretTuVi, checkTuViJob, getTuViRecord, rateTuVi } from '../services/api';
+import { createTuViChart, getTuViRecord, rateTuVi, getInterpretationStreamUrl } from '../services/api';
 import ChartRenderer from './ChartRenderer';
 import SectionRenderer from './SectionRenderer';
 import AiChatWidget from './AiChatWidget';
 import UpdateBaziModal from './UpdateBaziModal';
 import { AuthContext } from '../context/AuthContext';
+import { parseMarkdownSections } from '../utils/markdownParser';
 
 // 12 Can Chi Giờ Sinh trong Tử Vi
 const LUNAR_HOURS = [
@@ -24,7 +25,7 @@ const LUNAR_HOURS = [
 ];
 
 const TuViBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationComplete }) => {
-  const { user: ctxUser, setUser } = useContext(AuthContext);
+  const { user: ctxUser, setUser, token } = useContext(AuthContext);
   const activeUser = ctxUser || user;
   const [day, setDay] = useState('');
   const [month, setMonth] = useState('');
@@ -45,6 +46,12 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationComp
       return null;
     }
   });
+
+  // AI Interpretation States
+  const [interpretation, setInterpretation] = useState('');
+  const [isInterpreting, setIsInterpreting] = useState(false);
+  const [abortController, setAbortController] = useState(null);
+
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [error, setError] = useState('');
 
@@ -53,30 +60,31 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationComp
   const [feedback, setFeedback] = useState('');
   const [rated, setRated] = useState(false);
 
-  const pollIntervalRef = useRef(null);
-
   useEffect(() => {
     if (result) {
       localStorage.setItem('tuViResult', JSON.stringify(result));
+      if (result.aiInterpretation && result.aiInterpretation.content) {
+        setInterpretation(result.aiInterpretation.content);
+      } else {
+        setInterpretation('');
+      }
     } else {
       localStorage.removeItem('tuViResult');
+      setInterpretation('');
     }
   }, [result]);
 
-  // Clean up poll interval on unmount
+  // Clean up abort controller on unmount
   useEffect(() => {
     return () => {
-      if (pollIntervalRef.current) {
-        clearInterval(pollIntervalRef.current);
+      if (abortController) {
+        abortController.abort();
       }
     };
-  }, []);
-
-
+  }, [abortController]);
 
   // Xem lá số của bản thân
   const [isUpdateBaziOpen, setIsUpdateBaziOpen] = useState(false);
-  const [loadingAi, setLoadingAi] = useState(false);
 
   const getTuViHourIndex = (hour) => {
     if (hour >= 23 || hour < 1) return 0;
@@ -187,93 +195,106 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationComp
     }
   };
 
-  // Tiến trình kiểm tra ngầm (Job Polling)
-  const pollJobStatus = (jobId, recordId) => {
-    if (pollIntervalRef.current) {
-      clearInterval(pollIntervalRef.current);
-    }
-    pollIntervalRef.current = setInterval(async () => {
-      try {
-        const jobRes = await checkTuViJob(jobId);
-        const job = jobRes.data;
-
-        if (job.status === 'processing') {
-          setProgress(job.progress || 50);
-          setLoadingStep('Đại sư đang giải nghĩa tổ hợp tinh tú...');
-        } else if (job.status === 'completed') {
-          if (pollIntervalRef.current) {
-            clearInterval(pollIntervalRef.current);
-            pollIntervalRef.current = null;
-          }
-          setProgress(100);
-          
-          // Nạp lại chi tiết lá số đã hoàn tất bài giải luận
-          const recordRes = await getTuViRecord(recordId);
-          setResult(recordRes.data);
-          setLoading(false);
-          setLoadingAi(false);
-          decrementCreditLocally();
-        } else if (job.status === 'failed') {
-          if (pollIntervalRef.current) {
-            clearInterval(pollIntervalRef.current);
-            pollIntervalRef.current = null;
-          }
-          setError(job.error || 'Quá trình giải đoán AI ngầm bị lỗi.');
-          setLoading(false);
-          setLoadingAi(false);
-        }
-      } catch (err) {
-        if (pollIntervalRef.current) {
-          clearInterval(pollIntervalRef.current);
-          pollIntervalRef.current = null;
-        }
-        setError('Mất kết nối kiểm tra hàng đợi.');
-        setLoading(false);
-        setLoadingAi(false);
-      }
-    }, 2000); // Poll mỗi 2 giây
-  };
-
   const handleTriggerInterpretation = async () => {
     if (!activeUser) {
       if (onRequireLogin) onRequireLogin();
       return;
     }
     if (!result || !result._id) return;
-    setLoadingAi(true);
-    setProgress(0);
+    setIsInterpreting(true);
     setError('');
-    setLoadingStep('Đang đưa lá số vào hàng đợi AI...');
+    setInterpretation('');
 
+    const abortCtrl = new AbortController();
+    setAbortController(abortCtrl);
+
+    let currentText = "";
     try {
-      setProgress(10);
-      const interpretRes = await interpretTuVi(result._id);
+      const url = getInterpretationStreamUrl('tu_vi', result._id);
+      const headers = {
+        'Content-Type': 'application/json'
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      const response = await fetch(url, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ userId: activeUser.id || activeUser._id || 'guest' }),
+        signal: abortCtrl.signal
+      });
 
-      if (interpretRes.data.status === 'completed') {
-        setResult(prev => ({
-          ...prev,
-          aiInterpretation: interpretRes.data.result
-        }));
-        setProgress(100);
-        setLoadingAi(false);
-        decrementCreditLocally();
-      } else {
-        const jobId = interpretRes.data.jobId;
-        pollJobStatus(jobId, result._id);
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || `Lỗi kết nối từ server (HTTP ${response.status})`);
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      let done = false;
+
+      while (!done) {
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading;
+        if (value) {
+          const chunk = decoder.decode(value, { stream: !done });
+          const lines = chunk.split('\n');
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (trimmed.startsWith('data: ')) {
+              const dataStr = trimmed.slice(6);
+              if (dataStr === '[DONE]') {
+                done = true;
+                break;
+              }
+              try {
+                const parsed = JSON.parse(dataStr);
+                if (parsed.error) {
+                  throw new Error(parsed.error);
+                }
+                if (parsed.chunk) {
+                  currentText += parsed.chunk;
+                  setInterpretation(currentText);
+                }
+              } catch (e) {
+                if (e.message.includes('bảo trì') || e.message.includes('SAFETY') || e.message.includes('luận giải') || e.message.includes('quá tải')) {
+                  throw e;
+                }
+              }
+            }
+          }
+        }
       }
     } catch (err) {
-      console.error(err);
-      setError(err.response?.data?.error || 'Lỗi gửi yêu cầu luận giải AI.');
-      setLoadingAi(false);
+      if (err.name === 'AbortError') {
+        console.log("Interpretation stream aborted.");
+      } else {
+        console.error(err);
+        setError(err.message || "Hệ thống luận giải đang bận hoặc gặp lỗi. Vui lòng thử lại sau.");
+      }
+    } finally {
+      setIsInterpreting(false);
+      setAbortController(null);
+
+      if (currentText) {
+        setResult(prev => ({
+          ...prev,
+          aiInterpretation: {
+            ...prev.aiInterpretation,
+            content: currentText
+          }
+        }));
+        decrementCreditLocally();
+      }
     }
   };
 
   // Auto-resume polling if the loaded record is currently generating AI interpretation
   useEffect(() => {
-    if (result && result._id && result.isGeneratingInterpretation && !loadingAi && activeUser) {
+    if (result && result._id && result.isGeneratingInterpretation && !isInterpreting && activeUser) {
       handleTriggerInterpretation();
     }
-  }, [result, loadingAi, activeUser]);
+  }, [result, isInterpreting, activeUser]);
 
   const handleAILuanGiaiClick = () => {
     if (!activeUser) {
@@ -457,93 +478,73 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationComp
             }} 
           />
 
-          {/* Render các Accordion phân tích AI thông qua SectionRenderer hoặc nút Yêu cầu luận giải */}
-          <div className="max-w-4xl mx-auto">
-            <div className="flex items-center gap-2 mb-6 ml-1">
-              <Sparkles className="text-purple-500" size={20} />
-              <h2 className="font-extrabold text-slate-800 text-lg md:text-xl">Luận Giải Chuyên Sâu Cát Hung</h2>
+          {/* Render các Accordion phân tích AI thông qua SectionRenderer */}
+          {(interpretation || result.aiInterpretation?.content || (result.aiInterpretation?.sections?.length > 0)) && (
+            <div className="max-w-4xl mx-auto">
+              <div className="flex items-center gap-2 mb-6 ml-1">
+                <Sparkles className="text-purple-500" size={20} />
+                <h2 className="font-extrabold text-slate-800 text-lg md:text-xl">Luận Giải Chuyên Sâu Cát Hung</h2>
+              </div>
+              <SectionRenderer 
+                sections={
+                  interpretation 
+                    ? parseMarkdownSections(interpretation, 'tu_vi') 
+                    : (result.aiInterpretation.content 
+                        ? parseMarkdownSections(result.aiInterpretation.content, 'tu_vi')
+                        : result.aiInterpretation.sections)
+                } 
+                theme="tu_vi"
+              />
             </div>
-            
-            {(!result.aiInterpretation || !result.aiInterpretation.sections || result.aiInterpretation.sections.length === 0) ? (
-              <div className="bg-white p-8 border border-purple-100 rounded-3xl text-center shadow-md max-w-xl mx-auto animate-in fade-in duration-300">
-                <div className="w-12 h-12 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center mx-auto mb-4 border border-purple-100">
-                  <Sparkles size={20} />
+          )}
+
+          {/* ĐÁNH GIÁ PHẢN HỒI */}
+          {(interpretation || result.aiInterpretation?.content || result.aiInterpretation?.sections?.length > 0) && (
+            <div className="mt-12 bg-white/60 border border-purple-100 p-6 rounded-3xl backdrop-blur-md max-w-xl mx-auto shadow-md">
+              <h4 className="font-extrabold text-slate-800 text-center mb-2">Đánh Giá Luận Giải Thầy Tử Vi</h4>
+              <p className="text-center text-xs text-slate-400 mb-6">Nhận xét của bạn sẽ giúp bổ sung tri thức và cải thiện chất lượng của AI tốt hơn.</p>
+
+              {rated ? (
+                <div className="text-center py-4 text-purple-600 font-bold animate-in zoom-in-95">
+                  Xin chân thành cảm ơn ý kiến đánh giá của bạn!
                 </div>
-                <h4 className="font-extrabold text-slate-800 text-lg mb-2">Chưa Có Luận Giải Thầy Tử Vi</h4>
-                <p className="text-slate-500 text-sm mb-6 leading-relaxed">
-                  Mệnh bàn đã được lập thành công. Hãy bấm nút dưới đây để kết nối trí tuệ AI luận giải cát hung 12 cung bản mệnh của bạn.
-                </p>
-                <button
-                  type="button"
-                  onClick={handleAILuanGiaiClick}
-                  disabled={loadingAi}
-                  className="bg-gradient-to-r from-purple-600 to-indigo-700 hover:from-purple-700 hover:to-indigo-800 text-white font-extrabold px-8 py-3.5 rounded-2xl shadow-lg shadow-purple-500/20 transition-transform active:scale-[0.98] w-full flex items-center justify-center gap-2"
-                >
-                  {loadingAi ? (
-                    <>
-                      <RefreshCw size={18} className="animate-spin" />
-                      <span>{loadingStep || 'Đang giải nghĩa cát hung...'} ({progress}%)</span>
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles size={18} />
-                      <span>Yêu Cầu Đại Sư Luận Giải Chi Tiết</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            ) : (
-              <SectionRenderer sections={result.aiInterpretation.sections} />
-            )}
-
-            {/* ĐÁNH GIÁ PHẢN HỒI */}
-            {result.aiInterpretation?.sections?.length > 0 && (
-              <div className="mt-12 bg-white/60 border border-purple-100 p-6 rounded-3xl backdrop-blur-md max-w-xl mx-auto shadow-md">
-                <h4 className="font-extrabold text-slate-800 text-center mb-2">Đánh Giá Luận Giải Thầy Tử Vi</h4>
-                <p className="text-center text-xs text-slate-400 mb-6">Nhận xét của bạn sẽ giúp bổ sung tri thức và cải thiện chất lượng của AI tốt hơn.</p>
-
-                {rated ? (
-                  <div className="text-center py-4 text-purple-600 font-bold animate-in zoom-in-95">
-                    Xin chân thành cảm ơn ý kiến đánh giá của bạn!
+              ) : (
+                <form onSubmit={handleRatingSubmit} className="space-y-4">
+                  <div className="flex justify-center gap-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setRating(star)}
+                        className="transition-transform duration-100 active:scale-95"
+                      >
+                        <Star
+                          size={28}
+                          className={`stroke-2 cursor-pointer ${
+                            star <= rating ? 'fill-amber-400 stroke-amber-500' : 'text-slate-200 hover:text-amber-300'
+                          }`}
+                        />
+                      </button>
+                    ))}
                   </div>
-                ) : (
-                  <form onSubmit={handleRatingSubmit} className="space-y-4">
-                    <div className="flex justify-center gap-2">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <button
-                          key={star}
-                          type="button"
-                          onClick={() => setRating(star)}
-                          className="transition-transform duration-100 active:scale-95"
-                        >
-                          <Star
-                            size={28}
-                            className={`stroke-2 cursor-pointer ${
-                              star <= rating ? 'fill-amber-400 stroke-amber-500' : 'text-slate-200 hover:text-amber-300'
-                            }`}
-                          />
-                        </button>
-                      ))}
-                    </div>
-                    <textarea
-                      placeholder="Ý kiến nhận xét hoặc lưu ý thực tế của bạn..."
-                      value={feedback}
-                      onChange={(e) => setFeedback(e.target.value)}
-                      className="w-full p-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all font-bold placeholder:text-slate-300"
-                      rows={2}
-                    />
-                    <button
-                      type="submit"
-                      disabled={!rating}
-                      className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-extrabold rounded-2xl shadow-md disabled:bg-slate-100 disabled:text-slate-400 disabled:shadow-none transition-all active:scale-[0.98]"
-                    >
-                      Gửi Nhận Xét
-                    </button>
-                  </form>
-                )}
-              </div>
-            )}
-          </div>
+                  <textarea
+                    placeholder="Ý kiến nhận xét hoặc lưu ý thực tế của bạn..."
+                    value={feedback}
+                    onChange={(e) => setFeedback(e.target.value)}
+                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all font-bold placeholder:text-slate-300"
+                    rows={2}
+                  />
+                  <button
+                    type="submit"
+                    disabled={!rating}
+                    className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-extrabold rounded-2xl shadow-md disabled:bg-slate-100 disabled:text-slate-400 disabled:shadow-none transition-all active:scale-[0.98]"
+                  >
+                    Gửi Nhận Xét
+                  </button>
+                </form>
+              )}
+            </div>
+          )}
 
           {/* Gieo lại quẻ/Luận lá số mới */}
           <div className="text-center">
@@ -557,11 +558,28 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationComp
         </div>
       )}
 
-      {/* 4. CHAT HỎI ĐÁP TIẾP THEO (AI CHAT WIDGET CONTROLLED MODE) */}
-      {result && result._id && (
+      {/* FLOATING ACTION BUTTON */}
+      {result && !loading && (
         <>
-          {/* Nút bấm Hỏi thêm nổi bật - Tự động ẩn đi khi Khung chat mở */}
-          {!isChatOpen && (
+          {!(interpretation || result.aiInterpretation?.content || result.aiInterpretation?.sections?.length > 0) ? (
+            <button
+              onClick={handleAILuanGiaiClick}
+              disabled={isInterpreting}
+              className={`fixed bottom-4 md:bottom-8 right-4 md:right-8 z-50 flex items-center gap-2 px-5 py-3 rounded-full shadow-2xl transition-all duration-300 font-bold border ${isInterpreting ? 'bg-purple-100 border-purple-200 text-purple-500 cursor-not-allowed scale-95' : 'bg-gradient-to-r from-purple-800 to-indigo-900 hover:from-purple-900 hover:to-stone-900 text-white border-purple-700 hover:scale-105 hover:shadow-purple-900/40'}`}
+            >
+              {isInterpreting ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+                  <span className="text-sm">Thầy giải nghĩa...</span>
+                </>
+              ) : (
+                <>
+                  <ScrollText className="animate-pulse" size={20} />
+                  <span className="hidden sm:inline">Thầy Luận Giải</span>
+                </>
+              )}
+            </button>
+          ) : !isChatOpen && (
             <button
               onClick={() => {
                 if (!activeUser) onRequireLogin();
@@ -575,13 +593,15 @@ const TuViBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationComp
           )}
 
           {/* Unified chat widget với type="tu_vi" */}
-          <AiChatWidget
-            type="tu_vi"
-            recordId={result._id}
-            userId={activeUser?.id || activeUser?._id || 'guest'}
-            isOpen={isChatOpen}
-            setIsOpen={setIsChatOpen}
-          />
+          {(interpretation || result.aiInterpretation?.content || result.aiInterpretation?.sections?.length > 0) && (
+            <AiChatWidget
+              type="tu_vi"
+              recordId={result._id}
+              userId={activeUser?.id || activeUser?._id || 'guest'}
+              isOpen={isChatOpen}
+              setIsOpen={setIsChatOpen}
+            />
+          )}
         </>
       )}
 
