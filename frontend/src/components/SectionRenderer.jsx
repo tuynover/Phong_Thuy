@@ -18,14 +18,37 @@ import {
 } from 'lucide-react';
 
 const sectionIcons = {
-  // Tử Vi (parsed from markdown sections using prefix 'tu_vi')
-  tu_vi_1: Sparkles,
-  tu_vi_2: User,
-  tu_vi_3: Briefcase,
-  tu_vi_4: Heart,
-  tu_vi_5: Activity,
-  tu_vi_6: Users,
-  tu_vi_7: Compass,
+  // Tử Vi - Markdown parsed (tu_vi_1 to tu_vi_14)
+  tu_vi_1: Sparkles,     // Bản Mệnh
+  tu_vi_2: Heart,        // Hôn Nhân & Tình Cảm
+  tu_vi_3: Briefcase,    // Tài Sản & Nghề Nghiệp
+  tu_vi_4: Users,        // Cha Mẹ & Gia Đình
+  tu_vi_5: Compass,      // Xuất Hành & Ngoại Giao
+  tu_vi_6: ShieldAlert,  // Sức Khỏe & Tai Ương
+  tu_vi_7: Users,        // Bạn Bè & Đồng Nghiệp
+  tu_vi_8: Award,        // Sự Nghiệp & Công Danh
+  tu_vi_9: Layers,       // Đất Đai & Nhà Cửa
+  tu_vi_10: User,        // Đường Con Cái
+  tu_vi_11: Users,       // Anh Chị Em
+  tu_vi_12: Zap,         // Phúc Đức & Tổ Nghiệp
+  tu_vi_13: Zap,         // Đại Vận & Vận Hạn Năm 2026
+  tu_vi_14: TrendingUp,  // Tổng Kết Vận Hạn Cuộc Đời
+
+  // Tử Vi - JSON keys
+  menh: Sparkles,
+  phu_the: Heart,
+  tai_bach: Briefcase,
+  phu_mau: Users,
+  thien_di: Compass,
+  tat_ach: ShieldAlert,
+  no_boc: Users,
+  quan_loc: Award,
+  dien_trach: Layers,
+  tu_tuc: User,
+  huynh_de: Users,
+  phuc_duc: Zap,
+  dai_van_2026: Zap,
+  tong_ket_van_han: TrendingUp,
 
   // Bát Tự (parsed from markdown sections using prefix 'bazi')
   bazi_1: Sparkles,
@@ -51,14 +74,37 @@ const sectionIcons = {
 };
 
 const sectionColors = {
-  // Tử Vi
+  // Tử Vi - Markdown parsed (tu_vi_1 to tu_vi_14)
   tu_vi_1: "from-purple-500 to-indigo-600",
-  tu_vi_2: "from-indigo-500 to-blue-600",
-  tu_vi_3: "from-blue-500 to-cyan-600",
-  tu_vi_4: "from-rose-500 to-pink-600",
-  tu_vi_5: "from-emerald-500 to-teal-600",
-  tu_vi_6: "from-amber-500 to-orange-600",
-  tu_vi_7: "from-cyan-500 to-blue-600",
+  tu_vi_2: "from-rose-500 to-pink-600",
+  tu_vi_3: "from-emerald-500 to-teal-600",
+  tu_vi_4: "from-blue-500 to-indigo-600",
+  tu_vi_5: "from-cyan-500 to-blue-600",
+  tu_vi_6: "from-red-500 to-rose-600",
+  tu_vi_7: "from-amber-500 to-orange-600",
+  tu_vi_8: "from-indigo-500 to-purple-600",
+  tu_vi_9: "from-yellow-500 to-amber-600",
+  tu_vi_10: "from-pink-500 to-rose-600",
+  tu_vi_11: "from-teal-500 to-emerald-600",
+  tu_vi_12: "from-violet-500 to-purple-600",
+  tu_vi_13: "from-orange-500 to-red-600",
+  tu_vi_14: "from-slate-700 to-slate-900",
+
+  // Tử Vi - JSON keys
+  menh: "from-purple-500 to-indigo-600",
+  phu_the: "from-rose-500 to-pink-600",
+  tai_bach: "from-emerald-500 to-teal-600",
+  phu_mau: "from-blue-500 to-indigo-600",
+  thien_di: "from-cyan-500 to-blue-600",
+  tat_ach: "from-red-500 to-rose-600",
+  no_boc: "from-amber-500 to-orange-600",
+  quan_loc: "from-indigo-500 to-purple-600",
+  dien_trach: "from-yellow-500 to-amber-600",
+  tu_tuc: "from-pink-500 to-rose-600",
+  huynh_de: "from-teal-500 to-emerald-600",
+  phuc_duc: "from-violet-500 to-purple-600",
+  dai_van_2026: "from-orange-500 to-red-600",
+  tong_ket_van_han: "from-slate-700 to-slate-900",
 
   // Bát Tự
   bazi_1: "from-blue-500 to-indigo-600",

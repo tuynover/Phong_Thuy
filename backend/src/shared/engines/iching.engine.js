@@ -1,4 +1,4 @@
-const IChingCalculator = require('../../modules/kinh-dich/calculator');
+const IChingDataService = require('../../services/IChingDataService');
 
 class IChingEngine {
   /**
@@ -8,7 +8,7 @@ class IChingEngine {
    */
   generate(params) {
     const { lines } = params;
-    return IChingCalculator.calculate({ lines });
+    return IChingDataService.calculate({ lines });
   }
 }
 

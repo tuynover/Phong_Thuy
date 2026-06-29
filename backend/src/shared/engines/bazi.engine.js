@@ -1,4 +1,4 @@
-const BaziCalculator = require('../../modules/bat-tu/calculator');
+const BaziAnalyzer = require('../../services/BaziAnalyzer');
 
 class BaziEngine {
   /**
@@ -8,7 +8,7 @@ class BaziEngine {
    */
   generate(params) {
     const { date, time, gender } = params;
-    return BaziCalculator.calculate(date, time, parseInt(gender));
+    return BaziAnalyzer.analyze(date, time, parseInt(gender));
   }
 }
 
