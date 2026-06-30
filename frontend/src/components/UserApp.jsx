@@ -104,6 +104,7 @@ export default function UserApp({ onSwitchToAdmin }) {
   const [currentRecordId, setCurrentRecordId] = useState(null);
   const [guestBaziId, setGuestBaziId] = useState(null);
   const [isUpdateBaziOpen, setIsUpdateBaziOpen] = useState(false);
+  const [isZiweiResultLoaded, setIsZiweiResultLoaded] = useState(false);
 
   // Persist State across Refreshes
   useEffect(() => {
@@ -388,7 +389,7 @@ export default function UserApp({ onSwitchToAdmin }) {
       <div className="flex-1 w-full max-w-6xl mx-auto py-6 md:py-10 px-4 space-y-8">
 
         {/* HEADER */}
-        {appMode === 'iching' ? (
+        {appMode === 'iching' && !result ? (
           <header className="text-center mb-12 pt-2 animate-in fade-in duration-300 font-sans">
             <div className="inline-block p-4 rounded-full bg-amber-100 border border-amber-200 mb-6">
               <div className="w-16 h-16 rounded-full border-4 border-amber-800 flex items-center justify-center">
@@ -398,17 +399,15 @@ export default function UserApp({ onSwitchToAdmin }) {
             <h1 className="text-4xl md:text-6xl font-[Lora] font-bold text-amber-955 mb-4 drop-shadow-sm">Kinh Dịch Lục Hào</h1>
             <p className="text-amber-800/80 max-w-2xl mx-auto text-base md:text-lg font-medium mb-6">Hệ thống gieo quẻ và luận giải diễn biến sự việc dựa trên nền tảng Âm Dương Ngũ Hành cổ học.</p>
             
-            {!result && (
-              <div className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-amber-50 border border-amber-200 rounded-full text-amber-900 shadow-sm animate-in fade-in">
-                <CalendarDays size={18} className="text-amber-700" />
-                <span className="font-medium text-sm md:text-base">Hôm nay: {(() => {
-                  const l = Lunar.fromDate(new Date());
-                  return `Ngày ${l.getDay()} tháng ${l.getMonth()} năm ${l.getYear()} Âm lịch`;
-                })()}</span>
-              </div>
-            )}
+            <div className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-amber-50 border border-amber-200 rounded-full text-amber-900 shadow-sm animate-in fade-in">
+              <CalendarDays size={18} className="text-amber-700" />
+              <span className="font-medium text-sm md:text-base">Hôm nay: {(() => {
+                const l = Lunar.fromDate(new Date());
+                return `Ngày ${l.getDay()} tháng ${l.getMonth()} năm ${l.getYear()} Âm lịch`;
+              })()}</span>
+            </div>
           </header>
-        ) : appMode === 'bazi' ? (
+        ) : appMode === 'bazi' && !baziResult ? (
           <header className="text-center mb-16 pt-2 animate-in fade-in duration-300 font-sans">
             <div className="inline-block p-4 rounded-full bg-blue-100 border border-blue-200 mb-6">
               <div className="w-16 h-16 rounded-full border-4 border-blue-800 flex items-center justify-center">
@@ -418,7 +417,7 @@ export default function UserApp({ onSwitchToAdmin }) {
             <h1 className="text-4xl md:text-6xl font-[Lora] font-bold text-blue-955 mb-6 drop-shadow-sm">Khoa Học Tử Bình</h1>
             <p className="text-blue-800/80 max-w-2xl mx-auto text-base md:text-lg font-medium">Hệ thống phân tích Tứ Trụ, đo lường Ngũ Hành và định Dụng Thần cải vận.</p>
           </header>
-        ) : appMode === 'ziwei' ? (
+        ) : appMode === 'ziwei' && !isZiweiResultLoaded ? (
           <header className="text-center mb-16 pt-2 animate-in fade-in duration-300 font-sans">
             <div className="inline-block p-4 rounded-full bg-purple-100 border border-purple-200 mb-6">
               <div className="w-16 h-16 rounded-full border-4 border-purple-800 flex items-center justify-center">
@@ -562,6 +561,7 @@ export default function UserApp({ onSwitchToAdmin }) {
               onRequireLogin={() => setIsAuthModalOpen(true)} 
               historicalRecordId={historicalZiweiId} 
               onCalculationComplete={invalidateHistoryCache}
+              onResultChange={setIsZiweiResultLoaded}
             />
           </React.Suspense>
         </div>

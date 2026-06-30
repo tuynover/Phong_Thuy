@@ -14,7 +14,8 @@ import {
   Zap,
   Award,
   Users,
-  TrendingUp
+  TrendingUp,
+  BookOpen
 } from 'lucide-react';
 
 const sectionIcons = {
@@ -51,13 +52,18 @@ const sectionIcons = {
   tong_ket_van_han: TrendingUp,
 
   // Bát Tự (parsed from markdown sections using prefix 'bazi')
-  bazi_1: Sparkles,
-  bazi_2: User,
-  bazi_3: Briefcase,
-  bazi_4: Heart,
-  bazi_5: Activity,
-  bazi_6: Users,
-  bazi_7: Compass,
+  bazi_1: User,          // Nhật Chủ
+  bazi_2: Layers,        // Cách cục & Dụng thần
+  bazi_3: BookOpen,      // Các phương diện đời người - Intro
+  'bazi_3.1': Award,     // Sự nghiệp (Quan Lộc)
+  'bazi_3.2': Briefcase, // Tiền bạc (Tài Bạch)
+  'bazi_3.3': Heart,     // Tình cảm (Phu Thê)
+  'bazi_3.4': ShieldAlert, // Sức khỏe (Tật Ách)
+  bazi_4: Award,         // Thần Sát
+  bazi_5: TrendingUp,    // Đại vận & Lưu niên - Intro
+  'bazi_5.1': Layers,    // Lộ trình Đại vận
+  'bazi_5.2': Zap,       // Dự báo Lưu niên
+  bazi_6: Compass,       // Xu cát tị hung
 
   // Legacy keys (if any)
   tong_quan: Sparkles,
@@ -109,11 +115,16 @@ const sectionColors = {
   // Bát Tự
   bazi_1: "from-blue-500 to-indigo-600",
   bazi_2: "from-indigo-500 to-blue-600",
-  bazi_3: "from-blue-500 to-cyan-600",
-  bazi_4: "from-rose-500 to-pink-600",
-  bazi_5: "from-emerald-500 to-teal-600",
-  bazi_6: "from-amber-500 to-orange-600",
-  bazi_7: "from-cyan-500 to-blue-600",
+  bazi_3: "from-emerald-500 to-teal-600",
+  'bazi_3.1': "from-indigo-500 to-purple-600",
+  'bazi_3.2': "from-emerald-500 to-teal-600",
+  'bazi_3.3': "from-rose-500 to-pink-600",
+  'bazi_3.4': "from-red-500 to-rose-600",
+  bazi_4: "from-amber-500 to-orange-600",
+  bazi_5: "from-cyan-500 to-blue-600",
+  'bazi_5.1': "from-indigo-500 to-blue-600",
+  'bazi_5.2': "from-orange-500 to-red-600",
+  bazi_6: "from-rose-500 to-pink-600",
 
   // Legacy keys
   tong_quan: "from-purple-500 to-indigo-600",
@@ -164,14 +175,14 @@ const SectionCard = ({ section, theme }) => {
       {/* Header Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full px-6 py-4.5 flex justify-between items-center text-left transition-all duration-200 ${styles.hoverBg}`}
+        className={`w-full px-6 py-3.5 sm:py-4 flex justify-between items-center text-left transition-all duration-200 ${styles.hoverBg}`}
       >
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full">
           <div className="flex items-center gap-3 shrink-0">
-            <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${gradientColor} flex items-center justify-center text-white shadow-md shrink-0`}>
-              <IconComponent size={16} />
+            <div className={`w-9.5 h-9.5 rounded-lg bg-gradient-to-br ${gradientColor} flex items-center justify-center text-white shadow-md shrink-0`}>
+              <IconComponent size={18} />
             </div>
-            <h3 className="font-extrabold text-slate-800 text-base md:text-lg tracking-tight">
+            <h3 className="font-black text-slate-800 text-base sm:text-[18px] md:text-[19.5px] tracking-wide leading-normal">
               {section.title}
             </h3>
           </div>
@@ -201,7 +212,15 @@ const SectionCard = ({ section, theme }) => {
         }`}
       >
         <div className={`px-6 pt-3 pb-5 md:px-8 md:pt-4 md:pb-6 text-slate-700 leading-relaxed text-sm md:text-base prose max-w-none ${styles.prose}`}>
-          <ReactMarkdown>{section.content}</ReactMarkdown>
+          <ReactMarkdown
+            components={{
+              p: ({ children }) => <p className="mb-7 last:mb-0 leading-relaxed">{children}</p>
+            }}
+          >
+            {section.content 
+              ? section.content.replace(/\s*\*\*(Phân Tích|Lộ Trình|Dự Báo)/g, '\n\n**$1').replace(/\n{3,}/g, '\n\n').trim() 
+              : ''}
+          </ReactMarkdown>
         </div>
       </div>
     </div>

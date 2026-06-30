@@ -539,3 +539,58 @@ Stack: Error: [GoogleGenerativeAI Error]: Failed to parse stream
 [2026-06-25 15:27:03.264] [ERROR] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: POST /api/ziwei/6a3ce655ca5d13b667da7c0d/interpret] [IP: ::1] [Duration: 309ms] Thất bại: Phản hồi lỗi hệ thống (500)
 [2026-06-25 15:27:52.389] [ERROR] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: POST /api/ziwei/6a3ce655ca5d13b667da7c0d/interpret] [IP: ::1] [Duration: 281ms] Thất bại: Phản hồi lỗi hệ thống (500)
 [2026-06-25 15:27:53.831] [ERROR] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: POST /api/ziwei/6a3ce655ca5d13b667da7c0d/interpret] [IP: ::1] [Duration: 299ms] Thất bại: Phản hồi lỗi hệ thống (500)
+[2026-06-30 17:00:01.934] [WARN] [User: anonymous] [Action: GET /api/auth/events] [IP: ::1] [Duration: 10032ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (401)
+[2026-06-30 17:00:06.090] [ERROR] [NotificationScheduler] Error during resource spike scanning:
+Stack: MongooseError: Operation `systemlogs.aggregate()` buffering timed out after 10000ms
+    at Timeout._onTimeout (T:\Phongthuy\backend\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:142:25)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-06-30 17:00:06.093] [ERROR] [NotificationScheduler] Error during daily credit increment:
+Stack: MongooseError: Operation `users.updateMany()` buffering timed out after 10000ms
+    at Timeout._onTimeout (T:\Phongthuy\backend\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:142:25)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-06-30 17:00:16.111] [ERROR] [NotificationScheduler] Error during purging soft-deleted users:
+Stack: MongooseError: Operation `users.find()` buffering timed out after 10000ms
+    at Timeout._onTimeout (T:\Phongthuy\backend\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:142:25)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-06-30 17:00:20.042] [WARN] [User: id:019e594f-5fb3-701e-916a-d6ce37d424bd] [Action: GET /api/notifications] [IP: ::1] [Duration: 20034ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (401)
+[2026-06-30 17:00:21.788] [ERROR] [User: id:019e594f-5fb3-701e-916a-d6ce37d424bd] [Action: Lập Bản Đồ Bát Tự] [IP: ::1] [Duration: 20020ms] Thất bại: Phản hồi lỗi hệ thống (500)
+[2026-06-30 17:00:26.137] [ERROR] [NotificationScheduler] Error during daily notifications check:
+Stack: MongooseError: Operation `ichingrecords.find()` buffering timed out after 10000ms
+    at Timeout._onTimeout (T:\Phongthuy\backend\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:142:25)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-06-30 17:00:51.619] [ERROR] [NotificationScheduler] Error during resource spike scanning:
+Stack: MongooseError: Operation `systemlogs.aggregate()` buffering timed out after 10000ms
+    at Timeout._onTimeout (T:\Phongthuy\backend\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:142:25)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-06-30 17:00:51.622] [ERROR] [NotificationScheduler] Error during daily credit increment:
+Stack: MongooseError: Operation `users.updateMany()` buffering timed out after 10000ms
+    at Timeout._onTimeout (T:\Phongthuy\backend\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:142:25)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-06-30 17:01:01.628] [ERROR] [NotificationScheduler] Error during purging soft-deleted users:
+Stack: MongooseError: Operation `users.find()` buffering timed out after 10000ms
+    at Timeout._onTimeout (T:\Phongthuy\backend\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:142:25)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-06-30 17:01:05.813] [ERROR] [User: cobatuoc@gmail.com] [Action: Đăng nhập] Đăng nhập gặp lỗi hệ thống cho email [cobatuoc@gmail.com].
+Stack: MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout._onTimeout (T:\Phongthuy\backend\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:142:25)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-06-30 17:01:05.831] [ERROR] [User: cobatuoc@gmail.com] [Action: Đăng nhập] [IP: ::1] [Duration: 10016ms] Thất bại: Phản hồi lỗi hệ thống (500)
+[2026-06-30 17:01:11.653] [ERROR] [NotificationScheduler] Error during daily notifications check:
+Stack: MongooseError: Operation `ichingrecords.find()` buffering timed out after 10000ms
+    at Timeout._onTimeout (T:\Phongthuy\backend\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:142:25)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-06-30 17:32:57.160] [ERROR] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: Lập Bản Đồ Bát Tự] [IP: ::1] [Duration: 103ms] Thất bại: Phản hồi lỗi hệ thống (500)
+[2026-06-30 17:33:59.021] [ERROR] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: Lập Bản Đồ Bát Tự] [IP: ::1] [Duration: 1038ms] Thất bại: Phản hồi lỗi hệ thống (500)
+[2026-06-30 17:34:46.565] [WARN] [User: anonymous] [Action: GET /api/auth/events] [IP: ::1] [Duration: 10019ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (401)
+[2026-06-30 17:44:57.429] [ERROR] [Self-Ping] Error: read ECONNRESET
+Stack: Error: read ECONNRESET
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20)

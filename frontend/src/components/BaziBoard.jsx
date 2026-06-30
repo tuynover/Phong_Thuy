@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { AuthContext } from '../context/AuthContext';
 import { getInterpretationStreamUrl } from '../services/api';
-import { AlertCircle, BookOpen, ScrollText, MessageCircle } from 'lucide-react';
+import { AlertCircle, BookOpen, ScrollText, MessageCircle, ArrowDown, ArrowUp } from 'lucide-react';
 import AiChatWidget from './AiChatWidget';
 import { parseMarkdownSections } from '../utils/markdownParser';
 import SectionRenderer from './SectionRenderer';
@@ -107,28 +107,141 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
 
     const remedyData = getRemedyData(dungThan);
 
+    const renderCanChiSpans = (canChiStr) => {
+        if (!canChiStr) return '';
+        const parts = canChiStr.trim().split(/\s+/);
+        if (parts.length !== 2) return <span className="font-extrabold">{canChiStr}</span>;
+        const [gan, zhi] = parts;
+        const ganElem = stemElements[gan];
+        const zhiElem = branchElements[zhi];
+        return (
+            <span className="font-extrabold inline-flex items-center">
+                <span className={getColorClass(ganElem)}>{gan}</span>
+                <span className="text-slate-400 font-normal mx-0.5">&nbsp;</span>
+                <span className={getColorClass(zhiElem)}>{zhi}</span>
+            </span>
+        );
+    };
+
+    const getNaYinTextColorClass = (naYinText) => {
+        if (!naYinText) return 'text-slate-800';
+        const cleanText = naYinText.trim();
+        const words = cleanText.split(/\s+/);
+        const lastWord = words[words.length - 1];
+        
+        if (lastWord.includes('Kim')) return 'text-slate-500 font-extrabold';
+        if (lastWord.includes('Mộc') || lastWord.includes('Moc') || lastWord.includes('Lâm')) return 'text-emerald-750 font-extrabold';
+        if (lastWord.includes('Thủy') || lastWord.includes('Thuỷ') || lastWord.includes('Hải')) return 'text-blue-600 font-extrabold';
+        if (lastWord.includes('Hỏa') || lastWord.includes('Hoả')) return 'text-red-650 font-extrabold';
+        if (lastWord.includes('Thổ') || lastWord.includes('Thô')) return 'text-amber-800 font-extrabold';
+        
+        if (cleanText.includes('Kim')) return 'text-slate-500 font-extrabold';
+        if (cleanText.includes('Mộc') || cleanText.includes('Moc')) return 'text-emerald-750 font-extrabold';
+        if (cleanText.includes('Thủy') || cleanText.includes('Thuỷ')) return 'text-blue-600 font-extrabold';
+        if (cleanText.includes('Hỏa') || cleanText.includes('Hoả')) return 'text-red-650 font-extrabold';
+        if (cleanText.includes('Thổ') || cleanText.includes('Thô')) return 'text-amber-800 font-extrabold';
+        return 'text-slate-800';
+    };
+
+    const cleanLunarDate = (lunarStr) => {
+        if (!lunarStr) return '';
+        return lunarStr
+            .replace(/ngày\s+/i, '')
+            .replace(/\s*tháng\s*/i, '/')
+            .replace(/\s*năm\s*/i, '/')
+            .replace(/\s*Âm\s+lịch/i, '')
+            .trim();
+    };
+
+    const getNaYinColorClass = (naYinText) => {
+        if (!naYinText) return 'text-slate-500 bg-slate-100/80 border-slate-200/40';
+        if (naYinText.includes('Kim')) return 'text-slate-700 bg-slate-100 border-slate-350';
+        if (naYinText.includes('Mộc')) return 'text-emerald-700 bg-emerald-50 border-emerald-250/30';
+        if (naYinText.includes('Thủy')) return 'text-blue-700 bg-blue-50 border-blue-200/40';
+        if (naYinText.includes('Hỏa')) return 'text-red-700 bg-red-50 border-red-200/40';
+        if (naYinText.includes('Thổ')) return 'text-amber-800 bg-amber-50/60 border-amber-250/30';
+        return 'text-slate-500 bg-slate-100/80 border-slate-200/40';
+    };
+
+    const getAbbreviatedTruongSinh = (name) => {
+        if (!name) return '';
+        const abbrev = {
+            'Trường Sinh': 'T.Sinh',
+            'Mộc Dục': 'M.Dục',
+            'Quan Đới': 'Q.Đới',
+            'Lâm Quan': 'L.Quan',
+            'Đế Vượng': 'Đ.Vượng',
+            'Suy': 'Suy',
+            'Bệnh': 'Bệnh',
+            'Tử': 'Tử',
+            'Mộ': 'Mộ',
+            'Tuyệt': 'Tuyệt',
+            'Thai': 'Thai',
+            'Dưỡng': 'Dưỡng'
+        };
+        return abbrev[name] || name;
+    };
+
+    const getAbbreviatedThapThan = (name) => {
+        if (!name) return '';
+        const abbrev = {
+            'Chính Ấn': 'Ch.Ấn',
+            'Thiên Ấn': 'Th.Ấn',
+            'Chính Quan': 'Ch.Quan',
+            'Thất Sát': 'Th.Sát',
+            'Chính Tài': 'Ch.Tài',
+            'Thiên Tài': 'Th.Tài',
+            'Thương Quan': 'Th.Quan',
+            'Thực Thần': 'Th.Thần',
+            'Kiếp Tài': 'K.Tài',
+            'Tỷ Kiên': 'T.Kiên'
+        };
+        return abbrev[name.trim()] || name;
+    };
+
     const Pillar = ({ title, pillarData, isDayMaster }) => {
-        const { gan, zhi, thapThanGan, tangCan } = pillarData;
+        if (!pillarData || !pillarData.gan || !pillarData.zhi) return null;
+        const { gan, zhi, thapThanGan, tangCan = [], naYin, truongSinh } = pillarData;
         const ganElem = stemElements[gan];
         const zhiElem = branchElements[zhi];
 
         return (
-            <div className={`flex flex-col items-center p-1.5 sm:p-3 md:p-4 rounded-xl shadow-sm border-2 ${isDayMaster ? 'border-amber-500 bg-amber-50/30 ring-4 ring-amber-100' : 'border-gray-200 bg-white'} flex-1 md:flex-initial md:min-w-[20%] md:flex-shrink-0`}>
-                <div className={`text-[9px] sm:text-xs font-bold uppercase tracking-wider mb-2.5 px-1.5 py-0.5 rounded-full ${isDayMaster ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-500'}`}>
+            <div className={`relative ${truongSinh ? 'pl-6 sm:pl-7 pr-1.5 sm:pr-3 md:pr-4' : 'px-1.5 sm:px-3 md:px-4'} flex flex-col items-center py-1.5 sm:py-3 md:py-4 rounded-xl shadow-sm border-2 ${isDayMaster ? 'border-amber-500 bg-amber-50/30 ring-4 ring-amber-100' : 'border-gray-200 bg-white'} flex-1 md:flex-initial md:min-w-[15%] md:max-w-[20%] md:flex-shrink-0`}>
+                {truongSinh && (
+                    <div 
+                        className="absolute left-1 sm:left-2 top-1/2 -translate-y-1/2 flex flex-col items-center justify-center text-[9px] sm:text-[11px] font-black text-slate-800 [writing-mode:vertical-lr] rotate-180 select-none"
+                        style={{ minWidth: '16px' }}
+                    >
+                        {getAbbreviatedTruongSinh(truongSinh)}
+                    </div>
+                )}
+
+                <div className={`text-[9px] sm:text-xs font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full ${isDayMaster ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-500'}`}>
                     {title}
                 </div>
+
+                {/* Horizontal dashed divider line */}
+                <div className="w-full border-t border-dashed border-gray-200 my-1.5 sm:my-2"></div>
                 
-                <div className="text-[9px] sm:text-sm font-bold text-gray-400 mb-0.5 h-4 sm:h-5">{thapThanGan !== 'Nhật Chủ' ? thapThanGan : ''}</div>
-                <div className={`text-2xl sm:text-4xl font-black mb-1 sm:mb-2 ${getColorClass(ganElem)}`}>{gan}</div>
-                <div className={`text-2xl sm:text-4xl font-black mb-3 sm:mb-6 ${getColorClass(zhiElem)}`}>{zhi}</div>
+                <div className="text-[9px] sm:text-sm font-bold text-gray-400 mb-1.5 h-4 sm:h-5">{thapThanGan !== 'Nhật Chủ' ? thapThanGan : ''}</div>
+                <div className={`text-2xl sm:text-4xl font-black mt-1 mb-1 sm:mb-2 ${getColorClass(ganElem)}`}>{gan}</div>
+                <div className={`text-2xl sm:text-4xl font-black mb-1 sm:mb-2 ${getColorClass(zhiElem)}`}>{zhi}</div>
                 
-                <div className="w-full border-t border-dashed border-gray-300 pt-2 sm:pt-4 flex flex-col gap-1 sm:gap-2">
-                    {tangCan.map((tc, idx) => (
-                        <div key={idx} className="flex flex-col sm:flex-row justify-between items-center bg-gray-50/50 px-1 py-1 rounded gap-0.5 sm:gap-1.5">
-                            <span className={`text-xs sm:text-lg font-bold leading-none ${getColorClass(stemElements[tc.gan])}`}>{tc.gan}</span>
-                            <span className="text-[7.5px] sm:text-xs font-bold text-gray-500 leading-none text-center">{tc.thapThan}</span>
-                        </div>
-                    ))}
+                {naYin && (
+                    <div className={`text-[8px] sm:text-xs font-semibold px-2 py-0.5 rounded-full border my-1 text-center max-w-full truncate ${getNaYinColorClass(naYin)}`}>
+                        {naYin}
+                    </div>
+                )}
+                
+                <div className="w-full border-t border-dashed border-gray-200 mt-2.5 pt-2 flex flex-col items-center justify-center">
+                    <div className="w-full max-w-[95px] sm:max-w-[115px] flex flex-col gap-1 mt-1">
+                        {tangCan.map((tc, idx) => (
+                            <div key={idx} className="flex justify-between items-center text-[10px] sm:text-[12.5px] leading-tight w-full">
+                                <span className={`font-bold shrink-0 text-left ${getColorClass(stemElements[tc.gan])}`}>{tc.gan}</span>
+                                <span className="text-slate-800 font-bold text-right truncate pl-1">{getAbbreviatedThapThan(tc.thapThan)}</span>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
         );
@@ -467,20 +580,77 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
     return (
         <div className="bg-white rounded-2xl md:rounded-[2rem] shadow-2xl overflow-hidden border border-gray-100 max-w-[1240px] mx-auto my-4 md:my-10 font-sans pb-10">
             
-            <div className="bg-[#0f172a] text-white p-6 md:p-12 relative overflow-hidden">
-                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-30"></div>
-                <div className="relative z-10">
-                    <h2 className="text-4xl font-extrabold mb-2 tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-cyan-400">Kết Quả Phân Tích Bát Tự</h2>
-                    <p className="text-blue-200/80 uppercase tracking-widest text-sm font-bold">Lá Số Tử Bình Chuyên Sâu</p>
-                    
-                    <div className="mt-6 flex flex-wrap gap-3 md:gap-4 text-xs md:text-sm text-blue-100/90 font-medium">
-                        <div className="bg-white/10 px-4 py-2 rounded-xl backdrop-blur-md border border-white/10">
-                            <span className="text-blue-300 font-bold mr-2">DƯƠNG LỊCH:</span> {data.solarTimeline}
+            <div className="bg-slate-50/50 p-4 md:p-5 relative overflow-hidden border-b border-gray-200/60">
+                <div className="absolute -top-24 -right-24 w-80 h-80 bg-gradient-to-br from-blue-500/5 to-indigo-500/5 rounded-full blur-3xl pointer-events-none"></div>
+                <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-gradient-to-br from-teal-500/5 to-cyan-500/5 rounded-full blur-3xl pointer-events-none"></div>
+                
+                <div className="relative z-10 max-w-4xl">
+                    <div className="grid grid-cols-1 sm:grid-cols-[160px_1fr] gap-x-6 gap-y-1 text-sm sm:text-base pl-2">
+                        <div className="font-extrabold text-slate-800">Giới tính:</div>
+                        <div className="font-bold text-slate-800">
+                            {parseInt(data.gender) === 0 ? 'Nữ' : 'Nam'}
                         </div>
-                        {data.lunarDateStr && (
-                            <div className="bg-white/10 px-4 py-2 rounded-xl backdrop-blur-md border border-white/10">
-                                <span className="text-blue-300 font-bold mr-2">ÂM LỊCH:</span> {data.lunarDateStr.replace(/(Giáp|Ất|Bính|Đinh|Mậu|Kỷ|Canh|Tân|Nhâm|Quý)(?=[A-Z])/g, '$1 ')}
-                            </div>
+                        
+                        <div className="font-extrabold text-slate-800">Dương / Âm lịch:</div>
+                        <div className="font-bold text-slate-800 flex flex-wrap items-center gap-1.5">
+                            <span className="text-blue-750 font-extrabold">{data.solarTimeline}</span>
+                            <span className="text-slate-400 font-normal"> - </span>
+                            <span className="text-emerald-700 font-extrabold">{cleanLunarDate(data.lunarDateStr)}</span>
+                            {data.tietKhiName && (
+                                <>
+                                    <span className="text-slate-400 font-normal"> - </span>
+                                    <span className="text-amber-800 font-extrabold">{data.tietKhiName}</span>
+                                </>
+                            )}
+                        </div>
+
+                        {data.taiNguyen && (
+                            <>
+                                <div className="font-extrabold text-slate-800">Thai Nguyên:</div>
+                                <div className="font-bold text-slate-800 flex items-center gap-3">
+                                    <span className="font-extrabold">{renderCanChiSpans(data.taiNguyen.canChi)}</span>
+                                    <span className={`text-[13px] font-bold ${getNaYinTextColorClass(data.taiNguyen.naYin)}`}>{data.taiNguyen.naYin}</span>
+                                </div>
+                            </>
+                        )}
+
+                        {data.cungMenh && (
+                            <>
+                                <div className="font-extrabold text-slate-800">Cung Mệnh:</div>
+                                <div className="font-bold text-slate-800 flex items-center gap-3">
+                                    <span className="font-extrabold">{renderCanChiSpans(data.cungMenh.canChi)}</span>
+                                    <span className={`text-[13px] font-bold ${getNaYinTextColorClass(data.cungMenh.naYin)}`}>{data.cungMenh.naYin}</span>
+                                </div>
+                            </>
+                        )}
+
+                        {data.menhQuai && (
+                            <>
+                                <div className="font-extrabold text-slate-800">Mệnh Quái:</div>
+                                <div className="font-bold flex items-center gap-3">
+                                    {(() => {
+                                        const quai = data.menhQuai;
+                                        const elemColor = {
+                                            'Thủy': 'text-blue-700 bg-blue-50 border-blue-200/50',
+                                            'Thổ': 'text-amber-800 bg-amber-50 border-amber-200/50',
+                                            'Mộc': 'text-emerald-700 bg-emerald-50 border-emerald-250/30',
+                                            'Hỏa': 'text-red-700 bg-red-50 border-red-200/40',
+                                            'Kim': 'text-slate-700 bg-slate-100 border-slate-350'
+                                        }[quai.element] || 'text-slate-700';
+
+                                        return (
+                                            <>
+                                                <span className={`px-2.5 py-0.5 rounded-full border text-xs sm:text-[13px] font-extrabold ${elemColor}`}>
+                                                    Cung {quai.cung} {quai.element}
+                                                </span>
+                                                <span className="text-red-600 font-extrabold text-xs sm:text-[13px] bg-red-50 px-2.5 py-0.5 rounded-full border border-red-100">
+                                                    {quai.group}
+                                                </span>
+                                            </>
+                                        );
+                                    })()}
+                                </div>
+                            </>
                         )}
                     </div>
                 </div>
@@ -498,7 +668,9 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
                             </span>
                         )}
                     </h3>
-                    <div className="flex flex-row-reverse justify-center gap-1.5 md:gap-8 w-full">
+                    <div className="flex flex-row-reverse justify-center gap-1.5 md:gap-4 lg:gap-6 w-full flex-wrap md:flex-nowrap">
+                        {data.cungMenh && <Pillar title="Cung Mệnh" pillarData={data.cungMenh} />}
+                        {data.taiNguyen && <Pillar title="Thai Nguyên" pillarData={data.taiNguyen} />}
                         <Pillar title="Giờ Sinh" pillarData={canChi.hour} />
                         <Pillar title="Nhật Chủ" pillarData={canChi.day} isDayMaster={true} />
                         <Pillar title="Nguyệt Lệnh" pillarData={canChi.month} />
@@ -701,6 +873,26 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
                     isOpen={isChatOpen}
                     setIsOpen={setIsChatOpen}
                 />
+            )}
+
+            {/* FLOATING SCROLL BUTTONS */}
+            {interpretation && (
+                <div className="fixed bottom-4 md:bottom-8 left-4 md:left-8 z-40 flex flex-col gap-1 pointer-events-auto bg-transparent border-none shadow-none">
+                    <button
+                        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                        className="flex items-center justify-center w-10 h-10 rounded-full bg-transparent text-slate-400 hover:text-slate-700 active:scale-95 transition-all duration-300 shadow-none border-none pointer-events-auto"
+                        title="Cuộn lên đầu trang"
+                    >
+                        <ArrowUp size={24} />
+                    </button>
+                    <button
+                        onClick={() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' })}
+                        className="flex items-center justify-center w-10 h-10 rounded-full bg-transparent text-slate-400 hover:text-slate-700 active:scale-95 transition-all duration-300 shadow-none border-none pointer-events-auto"
+                        title="Cuộn xuống cuối trang"
+                    >
+                        <ArrowDown size={24} />
+                    </button>
+                </div>
             )}
 
             {/* CONFIRMATION MODAL */}

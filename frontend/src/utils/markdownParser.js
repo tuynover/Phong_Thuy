@@ -12,8 +12,9 @@ export const parseMarkdownSections = (text, prefix = 'sec') => {
   // Regex matches headings like:
   // - ### 1. Title
   // - ### 1 Title
-  // - ## 1. Title
-  const headingRegex = /^(#{2,3})\s+(\d+)(?:\.|\s)\s*(.*)$/;
+  // - ## BƯỚC 1: Title
+  // - ### 3.1. Title
+  const headingRegex = /^(#{2,3})\s*(?:BƯỚC|Bước|Step)?\s*(\d+(?:\.\d+)?)(?:\.|\s|:|-)\s*(.*)$/i;
   
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];

@@ -24,7 +24,7 @@ const LUNAR_HOURS = [
   { index: 11, name: "Hợi (21:00 - 22:59)" }
 ];
 
-const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationComplete }) => {
+const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationComplete, onResultChange }) => {
   const { user: ctxUser, setUser, token } = useContext(AuthContext);
   const activeUser = ctxUser || user;
   const [day, setDay] = useState('');
@@ -68,11 +68,13 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
       } else {
         setInterpretation('');
       }
+      if (onResultChange) onResultChange(true);
     } else {
       localStorage.removeItem('tuViResult');
       setInterpretation('');
+      if (onResultChange) onResultChange(false);
     }
-  }, [result]);
+  }, [result, onResultChange]);
 
   // Clean up abort controller on unmount
   useEffect(() => {
