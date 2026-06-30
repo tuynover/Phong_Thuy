@@ -130,15 +130,15 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
         const lastWord = words[words.length - 1];
         
         if (lastWord.includes('Kim')) return 'text-slate-500 font-extrabold';
-        if (lastWord.includes('Mộc') || lastWord.includes('Moc') || lastWord.includes('Lâm')) return 'text-emerald-750 font-extrabold';
+        if (lastWord.includes('Mộc') || lastWord.includes('Moc') || lastWord.includes('Lâm')) return 'text-emerald-600 font-extrabold';
         if (lastWord.includes('Thủy') || lastWord.includes('Thuỷ') || lastWord.includes('Hải')) return 'text-blue-600 font-extrabold';
-        if (lastWord.includes('Hỏa') || lastWord.includes('Hoả')) return 'text-red-650 font-extrabold';
+        if (lastWord.includes('Hỏa') || lastWord.includes('Hoả')) return 'text-red-600 font-extrabold';
         if (lastWord.includes('Thổ') || lastWord.includes('Thô')) return 'text-amber-800 font-extrabold';
         
         if (cleanText.includes('Kim')) return 'text-slate-500 font-extrabold';
-        if (cleanText.includes('Mộc') || cleanText.includes('Moc')) return 'text-emerald-750 font-extrabold';
+        if (cleanText.includes('Mộc') || cleanText.includes('Moc')) return 'text-emerald-600 font-extrabold';
         if (cleanText.includes('Thủy') || cleanText.includes('Thuỷ')) return 'text-blue-600 font-extrabold';
-        if (cleanText.includes('Hỏa') || cleanText.includes('Hoả')) return 'text-red-650 font-extrabold';
+        if (cleanText.includes('Hỏa') || cleanText.includes('Hoả')) return 'text-red-600 font-extrabold';
         if (cleanText.includes('Thổ') || cleanText.includes('Thô')) return 'text-amber-800 font-extrabold';
         return 'text-slate-800';
     };
