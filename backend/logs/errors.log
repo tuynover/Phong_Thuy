@@ -594,3 +594,33 @@ Stack: MongooseError: Operation `ichingrecords.find()` buffering timed out after
 [2026-06-30 17:44:57.429] [ERROR] [Self-Ping] Error: read ECONNRESET
 Stack: Error: read ECONNRESET
     at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20)
+[2026-06-30 19:58:23.966] [ERROR] [Self-Ping] Error: 
+Stack: AggregateError [ETIMEDOUT]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2026-06-30 19:59:13.735] [WARN] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /api/notifications] [IP: ::1] [Duration: 49304ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (401)
+[2026-06-30 19:59:56.275] [ERROR] [Self-Ping] Error: 
+Stack: AggregateError [ETIMEDOUT]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2026-06-30 20:19:13.351] [ERROR] [Self-Ping] Error: read ECONNRESET
+Stack: Error: read ECONNRESET
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20)
+[2026-06-30 20:31:24.032] [ERROR] [Self-Ping] Error: 
+Stack: AggregateError [ETIMEDOUT]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2026-06-30 20:31:29.975] [WARN] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /api/notifications] [IP: ::1] [Duration: 30015ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (401)
+[2026-06-30 20:31:41.924] [WARN] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /api/notifications] [IP: ::1] [Duration: 61972ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (401)
+[2026-06-30 20:53:47.828] [ERROR] [NotificationScheduler] Error during resource spike scanning:
+Stack: MongoServerSelectionError: getaddrinfo ENOTFOUND ac-jk9y7ee-shard-00-00.a5rqrhx.mongodb.net
+    at Topology.selectServer (T:\Phongthuy\backend\node_modules\mongodb\lib\sdam\topology.js:348:38)
+    at async executeOperationWithRetries (T:\Phongthuy\backend\node_modules\mongodb\lib\operations\execute_operation.js:260:22)
+    at async executeOperation (T:\Phongthuy\backend\node_modules\mongodb\lib\operations\execute_operation.js:83:16)
+    at async FindCursor._initialize (T:\Phongthuy\backend\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (T:\Phongthuy\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:620:27)
+    at async FindCursor.fetchBatch (T:\Phongthuy\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:654:13)
+    at async FindCursor.next (T:\Phongthuy\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:326:17)
+    at async [Symbol.asyncIterator] (T:\Phongthuy\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:254:34)
+    at async FindCursor.toArray (T:\Phongthuy\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:406:26)
+    at async model.Query._find (T:\Phongthuy\backend\node_modules\mongoose\lib\query.js:2473:14)

@@ -3,11 +3,11 @@ import { createPortal } from 'react-dom';
 import { getConcept } from '../services/api';
 import { conceptDictionary } from '../data/concepts';
 
-const Tooltip = ({ term, children, className, placement = 'top' }) => {
+const Tooltip = ({ term, children, className, placement = 'top', unstyled = false }) => {
     const [open, setOpen] = useState(false);
     const [info, setInfo] = useState(null);
     const [loading, setLoading] = useState(false);
-    const [coords, setCoords] = useState({ top: 0, left: 0, width: 320 });
+    const [coords, setCoords] = useState({ top: 0, left: 0, width: 320, placement });
     const targetRef = useRef(null);
     const tooltipRef = useRef(null);
     const closeTimeoutRef = useRef(null);
@@ -56,6 +56,7 @@ const Tooltip = ({ term, children, className, placement = 'top' }) => {
         if (targetRef.current) {
             const rect = targetRef.current.getBoundingClientRect();
             const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
             const tooltipWidth = Math.min(320, viewportWidth - 24);
             const padding = 12;
             
@@ -64,17 +65,27 @@ const Tooltip = ({ term, children, className, placement = 'top' }) => {
             const maxLeft = viewportWidth - tooltipWidth / 2 - padding;
             left = Math.max(minLeft, Math.min(maxLeft, left));
 
-            if (placement === 'bottom') {
+            // Auto-flip placement if there is not enough room (using 310px to avoid tall tooltip clipping)
+            let finalPlacement = placement;
+            if (placement === 'top' && rect.top - 310 < 0) {
+                finalPlacement = 'bottom';
+            } else if (placement === 'bottom' && rect.bottom + 310 > viewportHeight) {
+                finalPlacement = 'top';
+            }
+
+            if (finalPlacement === 'bottom') {
                 setCoords({
                     left,
                     top: rect.bottom + 8,
-                    width: tooltipWidth
+                    width: tooltipWidth,
+                    placement: 'bottom'
                 });
             } else {
                 setCoords({
                     left,
                     top: rect.top - 8,
-                    width: tooltipWidth
+                    width: tooltipWidth,
+                    placement: 'top'
                 });
             }
         }
@@ -150,7 +161,7 @@ const Tooltip = ({ term, children, className, placement = 'top' }) => {
         left: `${coords.left}px`,
         top: `${coords.top}px`,
         width: `${coords.width}px`,
-        transform: placement === 'bottom' ? 'translate(-50%, 0)' : 'translate(-50%, -100%)',
+        transform: coords.placement === 'bottom' ? 'translate(-50%, 0)' : 'translate(-50%, -100%)',
         zIndex: 99999,
         minHeight: '80px',
         pointerEvents: 'auto',
@@ -164,7 +175,7 @@ const Tooltip = ({ term, children, className, placement = 'top' }) => {
             onMouseLeave={handleMouseLeave}
             onTouchStart={handleTouchStart}
         >
-            <span className={`cursor-help border-b border-dashed border-gray-400 hover:text-blue-700 transition-colors ${className}`}>
+            <span className={unstyled ? `cursor-help ${className || ''}` : `cursor-help border-b border-dashed border-gray-400 hover:text-blue-700 transition-colors ${className || ''}`}>
                 {children || term}
             </span>
             {open && createPortal(

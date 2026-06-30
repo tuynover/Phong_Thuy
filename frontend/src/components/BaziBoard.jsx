@@ -6,6 +6,7 @@ import { AlertCircle, BookOpen, ScrollText, MessageCircle, ArrowDown, ArrowUp } 
 import AiChatWidget from './AiChatWidget';
 import { parseMarkdownSections } from '../utils/markdownParser';
 import SectionRenderer from './SectionRenderer';
+import Tooltip from './Tooltip';
 
 import {
     stemElements,
@@ -116,9 +117,13 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
         const zhiElem = branchElements[zhi];
         return (
             <span className="font-extrabold inline-flex items-center">
-                <span className={getColorClass(ganElem)}>{gan}</span>
+                <Tooltip term={gan} unstyled={true}>
+                    <span className={`hover:scale-105 transition-transform inline-block ${getColorClass(ganElem)}`}>{gan}</span>
+                </Tooltip>
                 <span className="text-slate-400 font-normal mx-0.5">&nbsp;</span>
-                <span className={getColorClass(zhiElem)}>{zhi}</span>
+                <Tooltip term={zhi} unstyled={true}>
+                    <span className={`hover:scale-105 transition-transform inline-block ${getColorClass(zhiElem)}`}>{zhi}</span>
+                </Tooltip>
             </span>
         );
     };
@@ -199,6 +204,25 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
         return abbrev[name.trim()] || name;
     };
 
+    const getBatCung = (zhi) => {
+        if (!zhi) return '';
+        const map = {
+            'Tý': 'Cung Khảm Thủy',
+            'Sửu': 'Cung Cấn Thổ',
+            'Dần': 'Cung Cấn Thổ',
+            'Mão': 'Cung Chấn Mộc',
+            'Thìn': 'Cung Tốn Mộc',
+            'Tỵ': 'Cung Tốn Mộc',
+            'Ngọ': 'Cung Ly Hỏa',
+            'Mùi': 'Cung Khôn Thổ',
+            'Thân': 'Cung Khôn Thổ',
+            'Dậu': 'Cung Đoài Kim',
+            'Tuất': 'Cung Càn Kim',
+            'Hợi': 'Cung Càn Kim'
+        };
+        return map[zhi.trim()] || '';
+    };
+
     const Pillar = ({ title, pillarData, isDayMaster }) => {
         if (!pillarData || !pillarData.gan || !pillarData.zhi) return null;
         const { gan, zhi, thapThanGan, tangCan = [], naYin, truongSinh } = pillarData;
@@ -212,33 +236,54 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
                         className="absolute left-1 sm:left-2 top-1/2 -translate-y-1/2 flex flex-col items-center justify-center text-[9px] sm:text-[11px] font-black text-slate-800 [writing-mode:vertical-lr] rotate-180 select-none"
                         style={{ minWidth: '16px' }}
                     >
-                        {getAbbreviatedTruongSinh(truongSinh)}
+                        <Tooltip term={truongSinh} unstyled={true}>
+                            <span className="cursor-help hover:text-blue-700 transition-colors">{getAbbreviatedTruongSinh(truongSinh)}</span>
+                        </Tooltip>
                     </div>
                 )}
 
-                <div className={`text-[9px] sm:text-xs font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full ${isDayMaster ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-500'}`}>
-                    {title}
-                </div>
+                <Tooltip term={title} unstyled={true}>
+                    <div className={`text-[9px] sm:text-xs font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full ${isDayMaster ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-500'}`}>
+                        {title}
+                    </div>
+                </Tooltip>
 
                 {/* Horizontal dashed divider line */}
                 <div className="w-full border-t border-dashed border-gray-200 my-1.5 sm:my-2"></div>
                 
-                <div className="text-[9px] sm:text-sm font-bold text-gray-400 mb-1.5 h-4 sm:h-5">{thapThanGan !== 'Nhật Chủ' ? thapThanGan : ''}</div>
-                <div className={`text-2xl sm:text-4xl font-black mt-1 mb-1 sm:mb-2 ${getColorClass(ganElem)}`}>{gan}</div>
-                <div className={`text-2xl sm:text-4xl font-black mb-1 sm:mb-2 ${getColorClass(zhiElem)}`}>{zhi}</div>
+                <div className="text-[9px] sm:text-sm font-bold text-gray-400 mb-1.5 h-4 sm:h-5">
+                    {thapThanGan !== 'Nhật Chủ' ? (
+                        <Tooltip term={thapThanGan} unstyled={true}>
+                            <span className="cursor-help hover:text-blue-700 transition-colors">{thapThanGan}</span>
+                        </Tooltip>
+                    ) : ''}
+                </div>
+                
+                <Tooltip term={gan} unstyled={true}>
+                    <div className={`text-2xl sm:text-4xl font-black mt-1 mb-1 sm:mb-2 hover:scale-110 transition-transform ${getColorClass(ganElem)}`}>{gan}</div>
+                </Tooltip>
+                <Tooltip term={zhi} unstyled={true}>
+                    <div className={`text-2xl sm:text-4xl font-black mb-1 sm:mb-2 hover:scale-110 transition-transform ${getColorClass(zhiElem)}`}>{zhi}</div>
+                </Tooltip>
                 
                 {naYin && (
-                    <div className={`text-[8px] sm:text-xs font-semibold px-2 py-0.5 rounded-full border my-1 text-center max-w-full truncate ${getNaYinColorClass(naYin)}`}>
-                        {naYin}
-                    </div>
+                    <Tooltip term={naYin} unstyled={true}>
+                        <div className={`text-[8px] sm:text-xs font-semibold px-2 py-0.5 rounded-full border my-1 text-center max-w-full truncate hover:brightness-95 transition-all ${getNaYinColorClass(naYin)}`}>
+                            {naYin}
+                        </div>
+                    </Tooltip>
                 )}
                 
                 <div className="w-full border-t border-dashed border-gray-200 mt-2.5 pt-2 flex flex-col items-center justify-center">
                     <div className="w-full max-w-[95px] sm:max-w-[115px] flex flex-col gap-1 mt-1">
                         {tangCan.map((tc, idx) => (
                             <div key={idx} className="flex justify-between items-center text-[10px] sm:text-[12.5px] leading-tight w-full">
-                                <span className={`font-bold shrink-0 text-left ${getColorClass(stemElements[tc.gan])}`}>{tc.gan}</span>
-                                <span className="text-slate-800 font-bold text-right truncate pl-1">{getAbbreviatedThapThan(tc.thapThan)}</span>
+                                <Tooltip term={tc.gan} unstyled={true}>
+                                    <span className={`font-bold shrink-0 text-left hover:scale-110 transition-transform ${getColorClass(stemElements[tc.gan])}`}>{tc.gan}</span>
+                                </Tooltip>
+                                <Tooltip term={tc.thapThan} unstyled={true}>
+                                    <span className="text-slate-800 font-bold text-right truncate pl-1 hover:text-blue-700 transition-colors">{getAbbreviatedThapThan(tc.thapThan)}</span>
+                                </Tooltip>
                             </div>
                         ))}
                     </div>
@@ -599,34 +644,44 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
                             {data.tietKhiName && (
                                 <>
                                     <span className="text-slate-400 font-normal"> - </span>
-                                    <span className="text-amber-800 font-extrabold">{data.tietKhiName}</span>
+                                    <span className="text-amber-800 font-extrabold">
+                                        {data.tietKhiName.startsWith('Tiết') ? data.tietKhiName : `Tiết ${data.tietKhiName}`}
+                                    </span>
                                 </>
                             )}
                         </div>
 
                         {data.taiNguyen && (
                             <>
-                                <div className="font-extrabold text-slate-800">Thai Nguyên:</div>
-                                <div className="font-bold text-slate-800 flex items-center gap-3">
-                                    <span className="font-extrabold">{renderCanChiSpans(data.taiNguyen.canChi)}</span>
-                                    <span className={`text-[13px] font-bold ${getNaYinTextColorClass(data.taiNguyen.naYin)}`}>{data.taiNguyen.naYin}</span>
+                                <div className="font-extrabold text-slate-800">
+                                    <Tooltip term="Thai Nguyên">Thai Nguyên:</Tooltip>
+                                </div>
+                                <div className="font-bold text-slate-800 flex flex-wrap items-center gap-3">
+                                    <Tooltip term={data.taiNguyen.naYin} unstyled={true}>
+                                        <span className={`text-[13px] font-bold cursor-help hover:text-blue-750 transition-colors ${getNaYinTextColorClass(data.taiNguyen.naYin)}`}>{data.taiNguyen.naYin}</span>
+                                    </Tooltip>
                                 </div>
                             </>
                         )}
 
                         {data.cungMenh && (
                             <>
-                                <div className="font-extrabold text-slate-800">Cung Mệnh:</div>
-                                <div className="font-bold text-slate-800 flex items-center gap-3">
-                                    <span className="font-extrabold">{renderCanChiSpans(data.cungMenh.canChi)}</span>
-                                    <span className={`text-[13px] font-bold ${getNaYinTextColorClass(data.cungMenh.naYin)}`}>{data.cungMenh.naYin}</span>
+                                <div className="font-extrabold text-slate-800">
+                                    <Tooltip term="Cung Mệnh">Cung Mệnh:</Tooltip>
+                                </div>
+                                <div className="font-bold text-slate-800 flex flex-wrap items-center gap-3">
+                                    <Tooltip term={data.cungMenh.naYin} unstyled={true}>
+                                        <span className={`text-[13px] font-bold cursor-help hover:text-blue-750 transition-colors ${getNaYinTextColorClass(data.cungMenh.naYin)}`}>{data.cungMenh.naYin}</span>
+                                    </Tooltip>
                                 </div>
                             </>
                         )}
 
                         {data.menhQuai && (
                             <>
-                                <div className="font-extrabold text-slate-800">Mệnh Quái:</div>
+                                <div className="font-extrabold text-slate-800">
+                                    <Tooltip term="Mệnh Quái">Mệnh Quái:</Tooltip>
+                                </div>
                                 <div className="font-bold flex items-center gap-3">
                                     {(() => {
                                         const quai = data.menhQuai;
@@ -640,12 +695,16 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
 
                                         return (
                                             <>
-                                                <span className={`px-2.5 py-0.5 rounded-full border text-xs sm:text-[13px] font-extrabold ${elemColor}`}>
-                                                    Cung {quai.cung} {quai.element}
-                                                </span>
-                                                <span className="text-red-600 font-extrabold text-xs sm:text-[13px] bg-red-50 px-2.5 py-0.5 rounded-full border border-red-100">
-                                                    {quai.group}
-                                                </span>
+                                                <Tooltip term={`Cung ${quai.cung}`} unstyled={true}>
+                                                    <span className={`px-2.5 py-0.5 rounded-full border text-xs sm:text-[13px] font-extrabold hover:brightness-95 transition-all ${elemColor}`}>
+                                                        Cung {quai.cung} {quai.element}
+                                                    </span>
+                                                </Tooltip>
+                                                <Tooltip term="Mệnh Quái" unstyled={true}>
+                                                    <span className="text-red-605 font-extrabold text-xs sm:text-[13px] bg-red-50 px-2.5 py-0.5 rounded-full border border-red-100 hover:bg-red-100 transition-colors">
+                                                        {quai.group}
+                                                    </span>
+                                                </Tooltip>
                                             </>
                                         );
                                     })()}
@@ -688,8 +747,12 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
                             return (
                                 <div key={idx} className={`flex-shrink-0 flex flex-col items-center p-3.5 rounded-xl border-2 min-w-[95px] transition-all hover:scale-105 shadow-sm ${getBgColorClass(yunElem)}`}>
                                     <div className="text-xs font-black text-slate-700/80 mb-1">{yun.startAge} Tuổi</div>
-                                    <div className={`text-2xl font-black ${getColorClass(yunElem)}`}>{yun.gan}</div>
-                                    <div className={`text-2xl font-black mb-1.5 ${getColorClass(branchElements[yun.zhi])}`}>{yun.zhi}</div>
+                                    <Tooltip term={yun.gan} unstyled={true}>
+                                        <div className={`text-2xl font-black hover:scale-110 transition-transform ${getColorClass(yunElem)}`}>{yun.gan}</div>
+                                    </Tooltip>
+                                    <Tooltip term={yun.zhi} unstyled={true}>
+                                        <div className={`text-2xl font-black mb-1.5 hover:scale-110 transition-transform ${getColorClass(branchElements[yun.zhi])}`}>{yun.zhi}</div>
+                                    </Tooltip>
                                     <div className="text-[10px] font-bold text-gray-400 mt-auto">{yun.startYear}</div>
                                 </div>
                             )
@@ -713,14 +776,22 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
                             <div className="bg-blue-50/50 p-6 rounded-3xl border border-blue-100 flex-1 flex flex-col justify-center space-y-4">
                                 {analysis.cachCuc && (
                                     <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-                                        <span className="font-bold text-gray-600 text-sm sm:text-base">Cách Cục Lá Số</span>
-                                        <span className="text-base sm:text-lg font-bold text-blue-700">{analysis.cachCuc}</span>
+                                        <span className="font-bold text-gray-600 text-sm sm:text-base">
+                                            <Tooltip term="Cách Cục">Cách Cục Lá Số</Tooltip>
+                                        </span>
+                                        <Tooltip term="Cách Cục" unstyled={true}>
+                                            <span className="text-base sm:text-lg font-bold text-blue-755 cursor-help hover:text-blue-900 transition-colors">{analysis.cachCuc}</span>
+                                        </Tooltip>
                                     </div>
                                 )}
 
                                 <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-                                    <span className="font-bold text-gray-600 text-sm sm:text-base">Trạng Thái Nhật Chủ</span>
-                                    <span className="text-lg sm:text-xl font-black text-rose-600">{formatThan(analysis.than)}</span>
+                                    <span className="font-bold text-gray-600 text-sm sm:text-base">
+                                        <Tooltip term="Trạng Thái Nhật Chủ">Trạng Thái Nhật Chủ</Tooltip>
+                                    </span>
+                                    <Tooltip term="Trạng Thái Nhật Chủ" unstyled={true}>
+                                        <span className="text-lg sm:text-xl font-black text-rose-600 cursor-help hover:scale-105 transition-transform">{formatThan(analysis.than)}</span>
+                                    </Tooltip>
                                 </div>
 
                                 {analysis.than === 'tong_cach' && (
@@ -731,13 +802,21 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
                                 )}
 
                                 <div className={`flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border-l-4 ${getBgColorClass(dungThan).replace('bg-', 'border-l-').replace(/border-\w+-200/, '')}`}>
-                                    <span className="font-bold text-gray-600 text-sm sm:text-base">Dụng Thần (Khuyên Dùng)</span>
-                                    <span className={`text-lg sm:text-xl font-black uppercase tracking-widest ${getColorClass(dungThan)}`}>{formatElement(dungThan)}</span>
+                                    <span className="font-bold text-gray-650 text-sm sm:text-base">
+                                        <Tooltip term="Dụng Thần">Dụng Thần (Khuyên Dùng)</Tooltip>
+                                    </span>
+                                    <Tooltip term={formatElement(dungThan)} unstyled={true}>
+                                        <span className={`text-lg sm:text-xl font-black uppercase tracking-widest cursor-help hover:scale-105 transition-transform ${getColorClass(dungThan)}`}>{formatElement(dungThan)}</span>
+                                    </Tooltip>
                                 </div>
 
                                 <div className={`flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border-l-4 ${getBgColorClass(hyThan).replace('bg-', 'border-l-').replace(/border-\w+-200/, '')}`}>
-                                    <span className="font-bold text-gray-600 text-sm sm:text-base">Hỷ Thần (Phụ Trợ)</span>
-                                    <span className={`text-lg sm:text-xl font-black uppercase tracking-widest ${getColorClass(hyThan)}`}>{formatElement(hyThan)}</span>
+                                    <span className="font-bold text-gray-650 text-sm sm:text-base">
+                                        <Tooltip term="Hỷ Thần">Hỷ Thần (Phụ Trợ)</Tooltip>
+                                    </span>
+                                    <Tooltip term={formatElement(hyThan)} unstyled={true}>
+                                        <span className={`text-lg sm:text-xl font-black uppercase tracking-widest cursor-help hover:scale-105 transition-transform ${getColorClass(hyThan)}`}>{formatElement(hyThan)}</span>
+                                    </Tooltip>
                                 </div>
                             </div>
                         </div>
