@@ -41,7 +41,8 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
-  UserCircle
+  UserCircle,
+  Heart
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -109,46 +110,53 @@ export default function AdminApp({ onSwitchToUser }) {
   const [isLockModalOpen, setIsLockModalOpen] = useState(false);
 
   // Calculation management
-  const [calcType, setCalcType] = useState('iching'); // 'iching' | 'bazi' | 'ziwei'
+  const [calcType, setCalcType] = useState('iching'); // 'iching' | 'bazi' | 'ziwei' | 'marriage'
   const [calcLimit] = useState(15); // limit is 15
   const [calcSearch, setCalcSearch] = useState('');
   const [calcStatusFilter, setCalcStatusFilter] = useState('');
   const [selectedCalc, setSelectedCalc] = useState(null);
 
-  // Isolated states for calculations sub-tabs (Iching, Bazi, Ziwei)
+  // Isolated states for calculations sub-tabs (Iching, Bazi, Ziwei, Marriage)
   const [ichingCalculations, setIchingCalculations] = useState([]);
   const [baziCalculations, setBaziCalculations] = useState([]);
   const [ziweiCalculations, setZiweiCalculations] = useState([]);
+  const [marriageCalculations, setMarriageCalculations] = useState([]);
 
   const [ichingTotal, setIchingTotal] = useState(0);
   const [baziTotal, setBaziTotal] = useState(0);
   const [ziweiTotal, setZiweiTotal] = useState(0);
+  const [marriageTotal, setMarriageTotal] = useState(0);
 
   const [ichingPage, setIchingPage] = useState(1);
   const [baziPage, setBaziPage] = useState(1);
   const [ziweiPage, setZiweiPage] = useState(1);
+  const [marriagePage, setMarriagePage] = useState(1);
 
   const [ichingCursors, setIchingCursors] = useState([null]);
   const [baziCursors, setBaziCursors] = useState([null]);
   const [ziweiCursors, setZiweiCursors] = useState([null]);
+  const [marriageCursors, setMarriageCursors] = useState([null]);
 
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
   const [usersLoading, setUsersLoading] = useState(false);
   const [ichingLoading, setIchingLoading] = useState(false);
   const [baziLoading, setBaziLoading] = useState(false);
   const [ziweiLoading, setZiweiLoading] = useState(false);
+  const [marriageLoading, setMarriageLoading] = useState(false);
 
   const isFetchingAnalytics = useRef(false);
   const isFetchingUsers = useRef(false);
   const isFetchingIching = useRef(false);
   const isFetchingBazi = useRef(false);
   const isFetchingZiwei = useRef(false);
+  const isFetchingMarriage = useRef(false);
 
   const [newUsersCount, setNewUsersCount] = useState(0);
   const [newCalcsCount, setNewCalcsCount] = useState(0);
   const [newIchingCount, setNewIchingCount] = useState(0);
   const [newBaziCount, setNewBaziCount] = useState(0);
   const [newZiweiCount, setNewZiweiCount] = useState(0);
+  const [newMarriageCount, setNewMarriageCount] = useState(0);
 
   // Hover preloading cache
   const prefetchedCalcs = useRef({});
@@ -158,6 +166,7 @@ export default function AdminApp({ onSwitchToUser }) {
   const isIchingDirty = useRef(true);
   const isBaziDirty = useRef(true);
   const isZiweiDirty = useRef(true);
+  const isMarriageDirty = useRef(true);
   const isAnalyticsDirty = useRef(true);
 
   // Dynamic state refs for SSE stability
@@ -187,6 +196,7 @@ export default function AdminApp({ onSwitchToUser }) {
       if (calcType === 'iching') setNewIchingCount(0);
       else if (calcType === 'bazi') setNewBaziCount(0);
       else if (calcType === 'ziwei') setNewZiweiCount(0);
+      else if (calcType === 'marriage') setNewMarriageCount(0);
     }
   }, [activeTab, calcType]);
 
@@ -196,7 +206,8 @@ export default function AdminApp({ onSwitchToUser }) {
   const lastFetchedCalcsParams = useRef({
     iching: { page: null, status: null, search: null },
     bazi: { page: null, status: null, search: null },
-    ziwei: { page: null, status: null, search: null }
+    ziwei: { page: null, status: null, search: null },
+    marriage: { page: null, status: null, search: null }
   });
 
   // Fetch initial system warnings and appeals
@@ -259,11 +270,13 @@ export default function AdminApp({ onSwitchToUser }) {
             fetchCalculationsDataRef.current(calcTypeReceived);
             if (calcTypeReceived === 'iching') isIchingDirty.current = false;
             else if (calcTypeReceived === 'bazi') isBaziDirty.current = false;
-            else isZiweiDirty.current = false;
+            else if (calcTypeReceived === 'ziwei') isZiweiDirty.current = false;
+            else if (calcTypeReceived === 'marriage') isMarriageDirty.current = false;
           } else {
             if (calcTypeReceived === 'iching') isIchingDirty.current = true;
             else if (calcTypeReceived === 'bazi') isBaziDirty.current = true;
-            else isZiweiDirty.current = true;
+            else if (calcTypeReceived === 'ziwei') isZiweiDirty.current = true;
+            else if (calcTypeReceived === 'marriage') isMarriageDirty.current = true;
           }
           // Tăng badge số đỏ
           if (activeTabRef.current !== 'calculations') {
@@ -271,11 +284,13 @@ export default function AdminApp({ onSwitchToUser }) {
             if (calcTypeReceived === 'iching') setNewIchingCount(prev => prev + 1);
             else if (calcTypeReceived === 'bazi') setNewBaziCount(prev => prev + 1);
             else if (calcTypeReceived === 'ziwei') setNewZiweiCount(prev => prev + 1);
+            else if (calcTypeReceived === 'marriage') setNewMarriageCount(prev => prev + 1);
           } else {
             if (calcTypeRef.current !== calcTypeReceived) {
               if (calcTypeReceived === 'iching') setNewIchingCount(prev => prev + 1);
               else if (calcTypeReceived === 'bazi') setNewBaziCount(prev => prev + 1);
               else if (calcTypeReceived === 'ziwei') setNewZiweiCount(prev => prev + 1);
+              else if (calcTypeReceived === 'marriage') setNewMarriageCount(prev => prev + 1);
             }
           }
           if (activeTabRef.current === 'overview') {
@@ -348,9 +363,21 @@ export default function AdminApp({ onSwitchToUser }) {
   useEffect(() => {
     if (activeTab === 'calculations') {
       const last = lastFetchedCalcsParams.current[calcType];
-      const activeCalcs = calcType === 'iching' ? ichingCalculations : calcType === 'bazi' ? baziCalculations : ziweiCalculations;
-      const activeCalcPage = calcType === 'iching' ? ichingPage : calcType === 'bazi' ? baziPage : ziweiPage;
-      const isDirty = calcType === 'iching' ? isIchingDirty.current : calcType === 'bazi' ? isBaziDirty.current : isZiweiDirty.current;
+      const activeCalcs = 
+        calcType === 'iching' ? ichingCalculations : 
+        calcType === 'bazi' ? baziCalculations : 
+        calcType === 'ziwei' ? ziweiCalculations : 
+        marriageCalculations;
+      const activeCalcPage = 
+        calcType === 'iching' ? ichingPage : 
+        calcType === 'bazi' ? baziPage : 
+        calcType === 'ziwei' ? ziweiPage : 
+        marriagePage;
+      const isDirty = 
+        calcType === 'iching' ? isIchingDirty.current : 
+        calcType === 'bazi' ? isBaziDirty.current : 
+        calcType === 'ziwei' ? isZiweiDirty.current : 
+        isMarriageDirty.current;
       if (
         activeCalcs.length === 0 ||
         isDirty ||
@@ -360,10 +387,11 @@ export default function AdminApp({ onSwitchToUser }) {
         fetchCalculationsData(calcType);
         if (calcType === 'iching') isIchingDirty.current = false;
         else if (calcType === 'bazi') isBaziDirty.current = false;
-        else isZiweiDirty.current = false;
+        else if (calcType === 'ziwei') isZiweiDirty.current = false;
+        else if (calcType === 'marriage') isMarriageDirty.current = false;
       }
     }
-  }, [activeTab, calcType, ichingPage, baziPage, ziweiPage, calcStatusFilter, ichingCalculations, baziCalculations, ziweiCalculations]);
+  }, [activeTab, calcType, ichingPage, baziPage, ziweiPage, marriagePage, calcStatusFilter, ichingCalculations, baziCalculations, ziweiCalculations, marriageCalculations]);
 
   const handlePresetClick = (days) => {
     const start = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
@@ -453,19 +481,35 @@ export default function AdminApp({ onSwitchToUser }) {
 
   async function fetchCalculationsData(typeToFetch = undefined, overrideSearch = undefined, overrideStatus = undefined) {
     const targetType = typeToFetch !== undefined ? typeToFetch : calcType;
-    const isFetchingRef = targetType === 'iching' ? isFetchingIching : targetType === 'bazi' ? isFetchingBazi : isFetchingZiwei;
+    const isFetchingRef = 
+      targetType === 'iching' ? isFetchingIching : 
+      targetType === 'bazi' ? isFetchingBazi : 
+      targetType === 'ziwei' ? isFetchingZiwei : 
+      isFetchingMarriage;
     if (isFetchingRef.current) return;
     isFetchingRef.current = true;
 
-    const setLoadingState = targetType === 'iching' ? setIchingLoading : targetType === 'bazi' ? setBaziLoading : setZiweiLoading;
+    const setLoadingState = 
+      targetType === 'iching' ? setIchingLoading : 
+      targetType === 'bazi' ? setBaziLoading : 
+      targetType === 'ziwei' ? setZiweiLoading : 
+      setMarriageLoading;
     setLoadingState(true);
 
     try {
       const targetSearch = overrideSearch !== undefined ? overrideSearch : calcSearch;
       const targetStatus = overrideStatus !== undefined ? overrideStatus : calcStatusFilter;
 
-      const activePage = targetType === 'iching' ? ichingPage : targetType === 'bazi' ? baziPage : ziweiPage;
-      const activeCursors = targetType === 'iching' ? ichingCursors : targetType === 'bazi' ? baziCursors : ziweiCursors;
+      const activePage = 
+        targetType === 'iching' ? ichingPage : 
+        targetType === 'bazi' ? baziPage : 
+        targetType === 'ziwei' ? ziweiPage : 
+        marriagePage;
+      const activeCursors = 
+        targetType === 'iching' ? ichingCursors : 
+        targetType === 'bazi' ? baziCursors : 
+        targetType === 'ziwei' ? ziweiCursors : 
+        marriageCursors;
 
       const isFilterReset = overrideSearch !== undefined || overrideStatus !== undefined;
       const targetPage = isFilterReset ? 1 : activePage;
@@ -481,10 +525,26 @@ export default function AdminApp({ onSwitchToUser }) {
       const res = await getAdminCalculations(params);
       const fetchedCalcs = res.data.records || [];
 
-      const setCalculationsState = targetType === 'iching' ? setIchingCalculations : targetType === 'bazi' ? setBaziCalculations : setZiweiCalculations;
-      const setTotalState = targetType === 'iching' ? setIchingTotal : targetType === 'bazi' ? setBaziTotal : setZiweiTotal;
-      const setCursorsState = targetType === 'iching' ? setIchingCursors : targetType === 'bazi' ? setBaziCursors : setZiweiCursors;
-      const setPageState = targetType === 'iching' ? setIchingPage : targetType === 'bazi' ? setBaziPage : setZiweiPage;
+      const setCalculationsState = 
+        targetType === 'iching' ? setIchingCalculations : 
+        targetType === 'bazi' ? setBaziCalculations : 
+        targetType === 'ziwei' ? setZiweiCalculations : 
+        setMarriageCalculations;
+      const setTotalState = 
+        targetType === 'iching' ? setIchingTotal : 
+        targetType === 'bazi' ? setBaziTotal : 
+        targetType === 'ziwei' ? setZiweiTotal : 
+        setMarriageTotal;
+      const setCursorsState = 
+        targetType === 'iching' ? setIchingCursors : 
+        targetType === 'bazi' ? setBaziCursors : 
+        targetType === 'ziwei' ? setZiweiCursors : 
+        setMarriageCursors;
+      const setPageState = 
+        targetType === 'iching' ? setIchingPage : 
+        targetType === 'bazi' ? setBaziPage : 
+        targetType === 'ziwei' ? setZiweiPage : 
+        setMarriagePage;
 
       setCalculationsState(fetchedCalcs);
       setTotalState(res.data.total || 0);
@@ -759,11 +819,31 @@ export default function AdminApp({ onSwitchToUser }) {
     });
   };
 
-  const activeCalcs = calcType === 'iching' ? ichingCalculations : calcType === 'bazi' ? baziCalculations : ziweiCalculations;
-  const activeCalcsLoading = calcType === 'iching' ? ichingLoading : calcType === 'bazi' ? baziLoading : ziweiLoading;
-  const activeCalcPage = calcType === 'iching' ? ichingPage : calcType === 'bazi' ? baziPage : ziweiPage;
-  const activeCalcTotal = calcType === 'iching' ? ichingTotal : calcType === 'bazi' ? baziTotal : ziweiTotal;
-  const activeSetCalcPage = calcType === 'iching' ? setIchingPage : calcType === 'bazi' ? setBaziPage : setZiweiPage;
+  const activeCalcs = 
+    calcType === 'iching' ? ichingCalculations : 
+    calcType === 'bazi' ? baziCalculations : 
+    calcType === 'ziwei' ? ziweiCalculations : 
+    marriageCalculations;
+  const activeCalcsLoading = 
+    calcType === 'iching' ? ichingLoading : 
+    calcType === 'bazi' ? baziLoading : 
+    calcType === 'ziwei' ? ziweiLoading : 
+    marriageLoading;
+  const activeCalcPage = 
+    calcType === 'iching' ? ichingPage : 
+    calcType === 'bazi' ? baziPage : 
+    calcType === 'ziwei' ? ziweiPage : 
+    marriagePage;
+  const activeCalcTotal = 
+    calcType === 'iching' ? ichingTotal : 
+    calcType === 'bazi' ? baziTotal : 
+    calcType === 'ziwei' ? ziweiTotal : 
+    marriageTotal;
+  const activeSetCalcPage = 
+    calcType === 'iching' ? setIchingPage : 
+    calcType === 'bazi' ? setBaziPage : 
+    calcType === 'ziwei' ? setZiweiPage : 
+    setMarriagePage;
 
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-3xl p-4 sm:p-8 text-slate-100 shadow-2xl font-sans min-h-[70vh] flex flex-col space-y-6">
@@ -868,7 +948,7 @@ export default function AdminApp({ onSwitchToUser }) {
           
           {/* STATS OVERVIEW CARDS */}
           {analytics && (
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-6 gap-3 sm:gap-4">
               <div className="bg-slate-950/40 border border-slate-800 p-4 rounded-2xl flex flex-col justify-between">
                 <span className="text-xs text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
                   <Users size={14} className="text-blue-550" />
@@ -896,6 +976,13 @@ export default function AdminApp({ onSwitchToUser }) {
                   Lá Số Tử Vi
                 </span>
                 <span className="text-2xl sm:text-3xl font-extrabold mt-2 font-serif text-purple-500">{analytics.overview.totalZiwei}</span>
+              </div>
+              <div className="bg-slate-950/40 border border-slate-800 p-4 rounded-2xl flex flex-col justify-between">
+                <span className="text-xs text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                  <Heart size={14} className="text-rose-550" />
+                  Hợp Hôn
+                </span>
+                <span className="text-2xl sm:text-3xl font-extrabold mt-2 font-serif text-rose-500">{analytics.overview.totalMarriage || 0}</span>
               </div>
               <div className="bg-slate-950/40 border border-slate-800 p-4 rounded-2xl flex flex-col justify-between col-span-2 md:col-span-1">
                 <span className="text-xs text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
@@ -1005,6 +1092,7 @@ export default function AdminApp({ onSwitchToUser }) {
                   ichingTotal: (entry.ichingInterpretTokens || 0) + (entry.ichingChatTokens || 0),
                   baziTotal: (entry.baziInterpretTokens || 0) + (entry.baziChatTokens || 0),
                   ziweiTotal: (entry.ziweiInterpretTokens || 0) + (entry.ziweiChatTokens || 0),
+                  marriageTotal: (entry.marriageInterpretTokens || 0) + (entry.marriageChatTokens || 0),
                   interpretRatio: total > 0 ? Math.round(((entry.interpretTokens || 0) / total) * 100) : 0,
                   chatRatio: total > 0 ? Math.round(((entry.chatTokens || 0) / total) * 100) : 0
                 };
@@ -1033,8 +1121,9 @@ export default function AdminApp({ onSwitchToUser }) {
                         <Legend />
                         <Area name="Truy cập" type="monotone" dataKey="visits" stroke="#3b82f6" fillOpacity={1} fill="url(#colorVisits)" strokeWidth={2} />
                         <Area name="Kinh Dịch" type="monotone" dataKey="iching" stroke="#f59e0b" fillOpacity={1} fill="url(#colorIching)" strokeWidth={2} />
-                        <Area name="Bát Tự" type="monotone" dataKey="bazi" stroke="#3b82f6" fillOpacity={1} fill="none" strokeWidth={1.5} strokeDasharray="5 5" />
+                        <Area name="Bát Tự" type="monotone" dataKey="bazi" stroke="#06b6d4" fillOpacity={1} fill="none" strokeWidth={1.5} strokeDasharray="5 5" />
                         <Area name="Tử Vi" type="monotone" dataKey="ziwei" stroke="#a855f7" fillOpacity={1} fill="none" strokeWidth={1.5} strokeDasharray="5 5" />
+                        <Area name="Hợp Hôn" type="monotone" dataKey="marriage" stroke="#f43f5e" fillOpacity={1} fill="none" strokeWidth={1.5} strokeDasharray="5 5" />
                       </AreaChart>
                     </ResponsiveContainer>
                   </div>
@@ -1050,7 +1139,7 @@ export default function AdminApp({ onSwitchToUser }) {
                           onChange={(e) => setTokenChartMetric(e.target.value)}
                           className="bg-slate-900 border border-slate-800 text-[11px] rounded-lg px-2.5 py-1 text-slate-300 focus:outline-none focus:border-amber-500 font-semibold"
                         >
-                          <option value="subject">Phân bổ Môn học (Kinh Dịch / Bát Tự / Tử Vi)</option>
+                          <option value="subject">Phân bổ Môn học (Kinh Dịch / Bát Tự / Tử Vi / Hôn Nhân)</option>
                           <option value="type">Phân bổ Mục đích (Luận giải / Trò chuyện)</option>
                           <option value="ratio">Tỷ lệ phần trạng (Luận giải vs Trò chuyện %)</option>
                         </select>
@@ -1087,8 +1176,9 @@ export default function AdminApp({ onSwitchToUser }) {
                           {tokenChartMetric === 'subject' ? (
                             <>
                               <Bar name="Kinh Dịch" dataKey="ichingTotal" stackId="tokens" fill="#f59e0b" />
-                              <Bar name="Bát Tự" dataKey="baziTotal" stackId="tokens" fill="#3b82f6" />
+                              <Bar name="Bát Tự" dataKey="baziTotal" stackId="tokens" fill="#06b6d4" />
                               <Bar name="Tử Vi" dataKey="ziweiTotal" stackId="tokens" fill="#a855f7" />
+                              <Bar name="Hợp Hôn" dataKey="marriageTotal" stackId="tokens" fill="#f43f5e" />
                             </>
                           ) : (
                             <>
@@ -1136,6 +1226,7 @@ export default function AdminApp({ onSwitchToUser }) {
                         <th className="pb-3 text-center">Kinh Dịch</th>
                         <th className="pb-3 text-center">Bát Tự</th>
                         <th className="pb-3 text-center">Tử Vi</th>
+                        <th className="pb-3 text-center">Hợp Hôn</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-850">
@@ -1157,6 +1248,7 @@ export default function AdminApp({ onSwitchToUser }) {
                           <td className="py-3.5 text-center text-slate-300">{uc.iching}</td>
                           <td className="py-3.5 text-center text-slate-300">{uc.bazi}</td>
                           <td className="py-3.5 text-center text-slate-300">{uc.ziwei}</td>
+                          <td className="py-3.5 text-center text-slate-300">{uc.marriage || 0}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -1182,12 +1274,14 @@ export default function AdminApp({ onSwitchToUser }) {
                           <div className="text-sm font-extrabold text-purple-400">{uc.tokens.toLocaleString()} tokens</div>
                         </div>
                       </div>
-                      <div className="flex gap-2 text-[10px] text-slate-450 border-t border-slate-800/40 pt-2">
+                      <div className="flex flex-wrap gap-2 text-[10px] text-slate-450 border-t border-slate-800/40 pt-2">
                         <span>Kinh Dịch: <strong className="text-slate-300">{uc.iching}</strong></span>
                         <span className="text-slate-700">|</span>
                         <span>Bát Tự: <strong className="text-slate-300">{uc.bazi}</strong></span>
                         <span className="text-slate-700">|</span>
                         <span>Tử Vi: <strong className="text-slate-300">{uc.ziwei}</strong></span>
+                        <span className="text-slate-700">|</span>
+                        <span>Hợp Hôn: <strong className="text-slate-300">{uc.marriage || 0}</strong></span>
                       </div>
                     </div>
                   ))}
@@ -1716,12 +1810,13 @@ export default function AdminApp({ onSwitchToUser }) {
       {activeTab === 'calculations' && (
         <div className="space-y-6 animate-in fade-in duration-300">
           
-          {/* TAB CATEGORIES (Iching, Bazi, Ziwei) */}
-          <div className="flex bg-slate-950/80 p-1 rounded-2xl border border-slate-800/80 gap-1 w-full sm:w-80">
+          {/* TAB CATEGORIES (Iching, Bazi, Ziwei, Marriage) */}
+          <div className="flex bg-slate-950/80 p-1 rounded-2xl border border-slate-800/80 gap-1 w-full sm:w-96">
             {[
               { id: 'iching', name: 'Kinh Dịch', count: newIchingCount },
               { id: 'bazi', name: 'Bát Tự', count: newBaziCount },
-              { id: 'ziwei', name: 'Tử Vi', count: newZiweiCount }
+              { id: 'ziwei', name: 'Tử Vi', count: newZiweiCount },
+              { id: 'marriage', name: 'Hôn Nhân', count: newMarriageCount }
             ].map(tab => (
               <button
                 key={tab.id}
@@ -1748,7 +1843,7 @@ export default function AdminApp({ onSwitchToUser }) {
                 value={calcSearch}
                 onChange={(e) => setCalcSearch(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && fetchCalculationsData(calcType, calcSearch)}
-                placeholder={calcType === 'iching' ? 'Tìm theo userId hoặc Ý niệm...' : 'Tìm theo userId...'}
+                placeholder={calcType === 'iching' ? 'Tìm theo userId hoặc Ý niệm...' : calcType === 'marriage' ? 'Tìm theo tên nam/nữ hoặc userId...' : 'Tìm theo userId...'}
                 className="w-full pl-10 pr-10 py-2 bg-slate-900 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-amber-550 text-slate-200"
               />
               <Search className="absolute left-3.5 top-2.5 text-slate-500" size={16} />
@@ -1790,9 +1885,12 @@ export default function AdminApp({ onSwitchToUser }) {
                   } else if (calcType === 'bazi') {
                     setBaziPage(1);
                     setBaziCursors([null]);
-                  } else {
+                  } else if (calcType === 'ziwei') {
                     setZiweiPage(1);
                     setZiweiCursors([null]);
+                  } else if (calcType === 'marriage') {
+                    setMarriagePage(1);
+                    setMarriageCursors([null]);
                   }
                   fetchCalculationsData(calcType, calcSearch, calcStatusFilter);
                 }}
@@ -1817,7 +1915,7 @@ export default function AdminApp({ onSwitchToUser }) {
                     <tr className="border-b border-slate-800 bg-slate-950/60 text-slate-400 font-bold uppercase tracking-wider text-[11px]">
                       <th className="py-4 px-4">Tài Khoản Gieo</th>
                       <th className="py-4 px-3">
-                        {calcType === 'iching' ? 'Ý niệm / Câu hỏi' : calcType === 'bazi' ? 'Giới Tính & Ngày Sinh' : 'Thông Tin Sinh'}
+                        {calcType === 'iching' ? 'Ý niệm / Câu hỏi' : calcType === 'bazi' ? 'Giới Tính & Ngày Sinh' : calcType === 'marriage' ? 'Thông Tin Sinh Nam & Nữ' : 'Thông Tin Sinh'}
                       </th>
                       <th className="py-4 px-3 text-center">Thời gian</th>
                       <th className="py-4 px-3 text-center">Trạng thái</th>
@@ -1858,6 +1956,12 @@ export default function AdminApp({ onSwitchToUser }) {
                             <div className="text-slate-300">
                               Giới tính: <span className="font-bold text-slate-100">{calc.inputInfo?.gender || (calc.gender === 1 ? 'Nam' : 'Nữ')}</span><br />
                               <span className="text-[11px] text-slate-450">Sinh: {calc.inputInfo?.date || calc.date} ({calc.inputInfo?.hour !== undefined ? calc.inputInfo.hour : calc.hour} giờ)</span>
+                            </div>
+                          )}
+                          {calcType === 'marriage' && (
+                            <div className="text-slate-300 text-xs">
+                              <span className="font-bold text-rose-400">Nam:</span> {calc.maleBaziData?.solarTimeline || `${calc.inputInfo?.male?.date || ''} ${calc.inputInfo?.male?.time || ''}`} <br />
+                              <span className="font-bold text-pink-400">Nữ:</span> {calc.femaleBaziData?.solarTimeline || `${calc.inputInfo?.female?.date || ''} ${calc.inputInfo?.female?.time || ''}`}
                             </div>
                           )}
                         </td>
@@ -1970,6 +2074,12 @@ export default function AdminApp({ onSwitchToUser }) {
                         <div className="space-y-0.5">
                           <div>Giới tính: <span className="font-bold text-slate-100">{calc.inputInfo?.gender || (calc.gender === 1 ? 'Nam' : 'Nữ')}</span></div>
                           <div className="text-[11px] text-slate-450 font-semibold">Sinh: {calc.inputInfo?.date || calc.date} ({calc.inputInfo?.hour !== undefined ? calc.inputInfo.hour : calc.hour} giờ)</div>
+                        </div>
+                      )}
+                      {calcType === 'marriage' && (
+                        <div className="space-y-0.5 text-[11px]">
+                          <div><span className="font-bold text-rose-400">Nam</span>: {calc.maleBaziData?.solarTimeline || `${calc.inputInfo?.male?.date || ''} ${calc.inputInfo?.male?.time || ''}`}</div>
+                          <div><span className="font-bold text-pink-400">Nữ</span>: {calc.femaleBaziData?.solarTimeline || `${calc.inputInfo?.female?.date || ''} ${calc.inputInfo?.female?.time || ''}`}</div>
                         </div>
                       )}
                       <div className="text-[10px] text-slate-500 mt-2">
@@ -2204,6 +2314,30 @@ export default function AdminApp({ onSwitchToUser }) {
                     </div>
                   )}
 
+                  {/* Marriage Details */}
+                  {calcType === 'marriage' && selectedCalc.inputInfo && (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="bg-slate-950/30 p-3 rounded-xl border border-slate-850">
+                          <span className="text-slate-450 block text-[11px] uppercase tracking-wider">Họ tên Nam:</span>
+                          <strong className="text-slate-100">{selectedCalc.inputInfo.male?.name || 'N/A'}</strong>
+                        </div>
+                        <div className="bg-slate-950/30 p-3 rounded-xl border border-slate-850">
+                          <span className="text-slate-450 block text-[11px] uppercase tracking-wider">Họ tên Nữ:</span>
+                          <strong className="text-slate-100">{selectedCalc.inputInfo.female?.name || 'N/A'}</strong>
+                        </div>
+                        <div className="bg-slate-950/30 p-3 rounded-xl border border-slate-850">
+                          <span className="text-slate-450 block text-[11px] uppercase tracking-wider">Sinh Nam:</span>
+                          <strong className="text-slate-100">{selectedCalc.maleBaziData?.solarTimeline || `${selectedCalc.inputInfo.male?.date || ''} ${selectedCalc.inputInfo.male?.time || ''}`}</strong>
+                        </div>
+                        <div className="bg-slate-950/30 p-3 rounded-xl border border-slate-850">
+                          <span className="text-slate-450 block text-[11px] uppercase tracking-wider">Sinh Nữ:</span>
+                          <strong className="text-slate-100">{selectedCalc.femaleBaziData?.solarTimeline || `${selectedCalc.inputInfo.female?.date || ''} ${selectedCalc.inputInfo.female?.time || ''}`}</strong>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {/* AI Interpretation & Chat Token Metadata */}
                   <div className="bg-slate-950/50 p-4 rounded-2xl border border-slate-800 space-y-3">
                     <span className="text-purple-400 block font-extrabold text-xs uppercase tracking-widest">Chi Tiết Tiêu Thụ Token AI:</span>
@@ -2421,7 +2555,7 @@ export default function AdminApp({ onSwitchToUser }) {
 
               <div className="space-y-3">
                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Thống kê sử dụng</h4>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   <div className="bg-slate-950/80 p-3 rounded-xl border border-slate-800 text-center flex flex-col justify-between">
                     <div>
                       <span className="block text-[10px] font-bold text-slate-500 mb-1">Kinh Dịch</span>
@@ -2453,6 +2587,17 @@ export default function AdminApp({ onSwitchToUser }) {
                       <div>Dịch lý: {(userStats.stats.ziweiTokens || 0).toLocaleString()}</div>
                       <div>Chat: {(userStats.stats.ziweiChatTokens || 0).toLocaleString()}</div>
                       <div className="text-amber-500 font-bold border-t border-slate-850/60 pt-0.5 mt-0.5">Tổng: {((userStats.stats.ziweiTokens || 0) + (userStats.stats.ziweiChatTokens || 0)).toLocaleString()}</div>
+                    </div>
+                  </div>
+                  <div className="bg-slate-950/80 p-3 rounded-xl border border-slate-800 text-center flex flex-col justify-between">
+                    <div>
+                      <span className="block text-[10px] font-bold text-slate-500 mb-1">Hợp Hôn</span>
+                      <div className="text-sm font-bold text-slate-200 mb-1">{userStats.stats.marriageCount || 0} <span className="text-[10px] text-slate-400 font-normal">lần</span></div>
+                    </div>
+                    <div className="space-y-0.5 border-t border-slate-850 pt-1 text-[10px] text-slate-450 font-mono text-left">
+                      <div>Dịch lý: {(userStats.stats.marriageTokens || 0).toLocaleString()}</div>
+                      <div>Chat: {(userStats.stats.marriageChatTokens || 0).toLocaleString()}</div>
+                      <div className="text-amber-500 font-bold border-t border-slate-850/60 pt-0.5 mt-0.5">Tổng: {((userStats.stats.marriageTokens || 0) + (userStats.stats.marriageChatTokens || 0)).toLocaleString()}</div>
                     </div>
                   </div>
                 </div>

@@ -630,3 +630,5 @@ Stack: Error: read ECONNRESET
 [2026-07-01 16:42:13.070] [ERROR] [Self-Ping] Error: read ECONNRESET
 Stack: Error: read ECONNRESET
     at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20)
+[2026-07-01 18:36:21.710] [WARN] [Self-Ping] Warning: Ping returned status 503
+[2026-07-01 21:09:31.801] [WARN] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations] [IP: ::1] [Duration: 71ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (400)
