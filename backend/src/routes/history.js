@@ -44,6 +44,7 @@ router.get('/ziwei/:id/messages', HistoryController.getZiweiChatMessages);
 router.get('/marriage/record/:id', HistoryController.getMarriageRecord);
 router.get('/marriage/:userId', HistoryController.getMarriageHistory);
 router.put('/marriage/:id/rate', HistoryController.rateMarriage);
+router.get('/marriage/:id/messages', HistoryController.getMarriageChatMessages);
 
 // Backwards compatibility for legacy chat and stream endpoints
 router.post('/iching/:id/interpret', aiLimiter, creditCheck, AiInterpretationController.interpretHexagram);
@@ -56,6 +57,7 @@ router.post('/iching/:id/chat', aiLimiter, AiInterpretationController.chatHexagr
 router.post('/hexagrams/:id/chat', aiLimiter, AiInterpretationController.chatHexagram);
 router.post('/bazi/:id/chat', aiLimiter, AiInterpretationController.chatBazi);
 router.post('/ziwei/:id/chat', aiLimiter, AiInterpretationController.chatZiwei);
+router.post('/marriage/:id/chat', aiLimiter, AiInterpretationController.chatMarriage);
 
 const auth = require('../middleware/auth');
 router.delete('/calculations/:type/:id', auth, HistoryController.deleteCalculation);

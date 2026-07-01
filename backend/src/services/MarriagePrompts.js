@@ -112,6 +112,55 @@ Phân tích chi tiết qua 3 mục con độc lập, ngăn cách nhau bằng dò
 ${safety}
 `;
     }
+
+    static getFollowUpPrompt(marriageRecord, context, newQuestion, promptVersion = "v1.0-followup") {
+        const safety = getSafetyGuidelines();
+        const maleBaziData = marriageRecord.maleBaziData;
+        const femaleBaziData = marriageRecord.femaleBaziData;
+
+        return `Bạn là một chuyên gia/bậc thầy luận giải hợp hôn hôn nhân kết hợp Tử Bình (Bát Tự) và Cung Phi phong thủy có hơn 20 năm kinh nghiệm thực chiến.
+Nhiệm vụ của bạn là giải đáp câu hỏi thắc mắc mới nhất (Follow-up) của đương số liên quan đến việc hòa hợp hôn nhân, tình duyên, gia đạo hoặc con cái của cặp đôi này dựa trên dữ liệu lá số gốc, kết quả phân tích Tứ Trụ hai bên và bối cảnh đối thoại trước đó.
+Yêu cầu câu trả lời của bạn phải cực kỳ dài dặn, chi tiết từng khía cạnh học thuật mệnh lý, và đính kèm biện pháp hóa giải chi tiết cho mọi điểm hình xung sát khắc.
+
+--- THÔNG TIN LÁ SỐ CHỒNG (NAM MỆNH) ---
+- Dương Lịch: ${maleBaziData.solarTimeline}
+- Âm Lịch: ${maleBaziData.lunarDateStr}
+- Trụ Năm: Can ${maleBaziData.canChi.year.gan} - Chi ${maleBaziData.canChi.year.zhi} (Nạp âm: ${maleBaziData.canChi.year.naYin})
+- Trụ Tháng: Can ${maleBaziData.canChi.month.gan} - Chi ${maleBaziData.canChi.month.zhi} (Nạp âm: ${maleBaziData.canChi.month.naYin})
+- Trụ Ngày: Can ${maleBaziData.canChi.day.gan} (Nhật Chủ) - Chi ${maleBaziData.canChi.day.zhi} (Nạp âm: ${maleBaziData.canChi.day.naYin})
+- Trụ Giờ: Can ${maleBaziData.canChi.hour.gan} - Chi ${maleBaziData.canChi.hour.zhi} (Nạp âm: ${maleBaziData.canChi.hour.naYin})
+- Cung Phi: ${maleBaziData.menhQuai ? `${maleBaziData.menhQuai.cung} (${maleBaziData.menhQuai.element})` : 'Chưa rõ'}
+
+--- THÔNG TIN LÁ SỐ VỢ (NỮ MỆNH) ---
+- Dương Lịch: ${femaleBaziData.solarTimeline}
+- Âm Lịch: ${femaleBaziData.lunarDateStr}
+- Trụ Năm: Can ${femaleBaziData.canChi.year.gan} - Chi ${femaleBaziData.canChi.year.zhi} (Nạp âm: ${femaleBaziData.canChi.year.naYin})
+- Trụ Tháng: Can ${femaleBaziData.canChi.month.gan} - Chi ${femaleBaziData.canChi.month.zhi} (Nạp âm: ${femaleBaziData.canChi.month.naYin})
+- Trụ Ngày: Can ${femaleBaziData.canChi.day.gan} (Nhật Chủ) - Chi ${femaleBaziData.canChi.day.zhi} (Nạp âm: ${femaleBaziData.canChi.day.naYin})
+- Trụ Giờ: Can ${femaleBaziData.canChi.hour.gan} - Chi ${femaleBaziData.canChi.hour.zhi} (Nạp âm: ${femaleBaziData.canChi.hour.naYin})
+- Cung Phi: ${femaleBaziData.menhQuai ? `${femaleBaziData.menhQuai.cung} (${femaleBaziData.menhQuai.element})` : 'Chưa rõ'}
+
+--- BỐI CẢNH LỊCH SỬ ĐỐI THOẠI ---
+- Tóm tắt trước đó: ${context.summary}
+- Các câu thoại gần nhất:
+${context.recentHistoryText}
+
+--- CÂU HỎI THẮC MẮC MỚI NHẤT CỦA CẶP ĐÔI ---
+👉 "${newQuestion}"
+
+${safety}
+
+--- YÊU CẦU BẮT BUỘC VỀ ĐẦU RA ---
+Bạn phải trả về một đối tượng JSON duy nhất theo cấu trúc sau, KHÔNG bọc trong khối code \`\`\`json \`\`\$, KHÔNG thêm bất kỳ văn bản nào khác ngoài JSON:
+{
+  "answer": "Lời giải đáp cực kỳ chi tiết, ấm áp, sâu sắc, giải thích trực tiếp câu hỏi bằng mệnh lý Bát Tự hợp hôn kết hợp lập luận khoa học cổ điển và hình tượng ngũ hành rõ nét. Trực tiếp đưa ra câu trả lời chi tiết dài dặn và cách thức hóa giải trắc trở cụ thể thực tế cho cuộc sống hôn nhân của hai người...",
+  "timing": "Dự báo thời điểm hòa hợp, hóa giải hoặc biến động sắp tới liên quan đến gia đạo (ví dụ: 'Năm Bính Ngọ 2026', 'Thời kỳ đại vận...'). Nếu không có, hãy ghi null.",
+  "risk": "Cảnh báo thách thức, nguy cơ xung đột, rủi ro ly tán hay vận hạn cần đề phòng của hai vợ chồng. Nếu không có, hãy ghi null.",
+  "confidence": 0.85
+}
+
+Chú ý: Hãy ước tính lại điểm tin cậy cuối cùng của bạn cho câu hỏi cụ thể này và điền vào thuộc tính "confidence" (giá trị từ 0.0 đến 1.0).`;
+    }
 }
 
 module.exports = MarriagePrompts;

@@ -2,10 +2,11 @@ import React, { useState, useEffect, useContext } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { AuthContext } from '../context/AuthContext';
 import { getInterpretationStreamUrl } from '../services/api';
-import { AlertCircle, BookOpen, ScrollText, Heart, X, ArrowUp, ArrowDown } from 'lucide-react';
+import { AlertCircle, BookOpen, ScrollText, Heart, X, ArrowUp, ArrowDown, MessageCircle } from 'lucide-react';
 import Tooltip from './Tooltip';
 import SectionRenderer from './SectionRenderer';
 import { parseMarkdownSections } from '../utils/markdownParser';
+import AiChatWidget from './AiChatWidget';
 
 import {
     stemElements,
@@ -24,6 +25,7 @@ const MarriageBoard = ({ data, onUpdateData, onRequireLogin }) => {
     const [loadingStep, setLoadingStep] = useState(0);
     const [abortController, setAbortController] = useState(null);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [isChatOpen, setIsChatOpen] = useState(false);
 
     // Set initial interpretation if cached
     useEffect(() => {
@@ -604,7 +606,25 @@ const MarriageBoard = ({ data, onUpdateData, onRequireLogin }) => {
                         </>
                     )}
                 </button>
-            ) : null}
+            ) : !isChatOpen && (
+                <button
+                    onClick={() => setIsChatOpen(true)}
+                    className="fixed bottom-4 md:bottom-8 right-4 md:right-8 z-50 flex items-center gap-2 px-6 py-3.5 rounded-full shadow-2xl transition-all duration-300 font-extrabold border bg-gradient-to-r from-rose-800 to-rose-950 hover:from-rose-900 hover:to-rose-950 text-white border-rose-700 hover:scale-105 hover:shadow-rose-900/40 uppercase text-xs tracking-wider animate-pulse"
+                >
+                    <MessageCircle size={20} />
+                    <span>Hỏi Đáp AI</span>
+                </button>
+            )}
+
+            {interpretation && resolvedRecordId && (
+                <AiChatWidget 
+                    type="marriage" 
+                    recordId={resolvedRecordId} 
+                    userId={user?.id || user?._id || 'guest'} 
+                    isOpen={isChatOpen}
+                    setIsOpen={setIsChatOpen}
+                />
+            )}
 
             {/* CONFIRMATION MODAL */}
             {showConfirmModal && (

@@ -4,7 +4,7 @@ import {
     User, AlertCircle, RefreshCw 
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import { getChatStreamUrl, getHexagramChatMessages, getBaziChatMessages, getTuViChatMessages } from '../services/api';
+import { getChatStreamUrl, getHexagramChatMessages, getBaziChatMessages, getTuViChatMessages, getMarriageChatMessages } from '../services/api';
 
 /**
  * Robust incremental JSON parser to extract the "answer" field in real-time as it streams.
@@ -133,23 +133,30 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
     const isIching = type === 'hexagrams';
     const isBazi = type === 'bazi';
     const isTuVi = type === 'tu_vi';
+    const isMarriage = type === 'marriage';
     
-    const themeColor = isIching ? 'amber' : isBazi ? 'blue' : 'purple';
+    const themeColor = isIching ? 'amber' : isBazi ? 'blue' : isMarriage ? 'rose' : 'purple';
     const themeBg = isIching 
         ? 'bg-amber-800 hover:bg-amber-900 text-white' 
         : isBazi 
             ? 'bg-blue-800 hover:bg-blue-900 text-white' 
-            : 'bg-purple-850 hover:bg-purple-900 text-white';
+            : isMarriage
+                ? 'bg-rose-800 hover:bg-rose-905 text-white'
+                : 'bg-purple-850 hover:bg-purple-900 text-white';
     const themeBorder = isIching 
         ? 'border-amber-100 focus:border-amber-500' 
         : isBazi 
             ? 'border-blue-100 focus:border-blue-500' 
-            : 'border-purple-100 focus:border-purple-500';
+            : isMarriage
+                ? 'border-rose-100 focus:border-rose-500'
+                : 'border-purple-100 focus:border-purple-500';
     const themeHeader = isIching 
         ? 'bg-amber-950 text-amber-50' 
         : isBazi 
             ? 'bg-blue-950 text-blue-50' 
-            : 'bg-purple-950 text-purple-50';
+            : isMarriage
+                ? 'bg-rose-950 text-rose-50'
+                : 'bg-purple-950 text-purple-50';
 
     // Fetch history page helper
     const fetchHistoryPage = async (pageNum, isInitial = false) => {
@@ -161,7 +168,9 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
                 ? getHexagramChatMessages 
                 : isBazi 
                     ? getBaziChatMessages 
-                    : getTuViChatMessages;
+                    : isMarriage
+                        ? getMarriageChatMessages
+                        : getTuViChatMessages;
             const res = await apiCall(recordId, pageNum, 20);
             const { messages: fetchedMessages, hasMore: moreAvailable } = res.data;
 
@@ -503,7 +512,7 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
                                 <div className={`w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-xs font-bold ${
                                     msg.role === 'user' 
                                         ? 'bg-neutral-200 text-neutral-700' 
-                                        : (isIching ? 'bg-amber-100 text-amber-900' : 'bg-blue-100 text-blue-900')
+                                        : (isIching ? 'bg-amber-100 text-amber-900' : isMarriage ? 'bg-rose-100 text-rose-900' : isBazi ? 'bg-blue-100 text-blue-900' : 'bg-purple-100 text-purple-900')
                                 }`}>
                                     {msg.role === 'user' ? <User size={13} /> : <Sparkles size={13} />}
                                 </div>
@@ -527,7 +536,7 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
                         {isStreaming && (
                             <div className="flex gap-2 max-w-[85%] mr-auto">
                                 <div className={`w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-xs font-bold ${
-                                    isIching ? 'bg-amber-100 text-amber-900' : 'bg-blue-100 text-blue-900'
+                                    isIching ? 'bg-amber-100 text-amber-900' : isMarriage ? 'bg-rose-100 text-rose-900' : isBazi ? 'bg-blue-100 text-blue-900' : 'bg-purple-100 text-purple-900'
                                 }`}>
                                     <Sparkles size={13} className="animate-spin" />
                                 </div>
