@@ -1,20 +1,21 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { getIChingHistory, getBaziHistory, getZiweiHistory, rateIChing, rateBazi, rateZiwei, deleteCalculation, getIChingRecord, getBaziRecord, getZiweiRecord } from '../services/api';
+import { getIChingHistory, getBaziHistory, getZiweiHistory, getMarriageHistory, rateIChing, rateBazi, rateZiwei, rateMarriage, deleteCalculation, getIChingRecord, getBaziRecord, getZiweiRecord, getMarriageRecord } from '../services/api';
 import { Star, Clock, Calendar, Trash2, X, Info, Check, AlertTriangle, Loader2 } from 'lucide-react';
 
 const LUNAR_HOURS_MAP = [
   "Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"
 ];
 
-const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, preloadedData, onCacheInvalidate }) => {
+const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage, preloadedData, onCacheInvalidate }) => {
     const { user } = useContext(AuthContext);
     const [hexagrams, setHexagrams] = useState([]);
     const [bazis, setBazis] = useState([]);
     const [ziweis, setZiweis] = useState([]);
+    const [marriages, setMarriages] = useState([]);
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(false);
-    const [activeTab, setActiveTab] = useState('iching'); // 'iching' | 'bazi' | 'ziwei'
+    const [activeTab, setActiveTab] = useState('iching'); // 'iching' | 'bazi' | 'ziwei' | 'marriage'
     const [dialog, setDialog] = useState(null); // { type: 'confirm' | 'success' | 'error', message: '', onConfirm: null }
     const prefetchedDetails = useRef({});
 
@@ -22,7 +23,9 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, preloadedData, 
         ? { text: 'text-amber-800', bg: 'bg-amber-800 hover:bg-amber-900', border: 'border-amber-100', textAccent: 'text-amber-600' }
         : activeTab === 'bazi'
             ? { text: 'text-blue-800', bg: 'bg-blue-800 hover:bg-blue-900', border: 'border-blue-100', textAccent: 'text-blue-600' }
-            : { text: 'text-purple-800', bg: 'bg-purple-800 hover:bg-purple-900', border: 'border-purple-100', textAccent: 'text-purple-600' };
+            : activeTab === 'ziwei'
+                ? { text: 'text-purple-800', bg: 'bg-purple-800 hover:bg-purple-900', border: 'border-purple-100', textAccent: 'text-purple-600' }
+                : { text: 'text-rose-800', bg: 'bg-rose-800 hover:bg-rose-900', border: 'border-rose-100', textAccent: 'text-rose-600' };
 
     const showConfirm = (message, onConfirm) => {
         setDialog({ type: 'confirm', message, onConfirm });
@@ -44,6 +47,11 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, preloadedData, 
                 setHexagrams(preloadedData.hexagrams);
                 setBazis(preloadedData.bazis);
                 setZiweis(preloadedData.tuvis); // Map tuvis to ziweis
+                if (preloadedData.marriages) {
+                    setMarriages(preloadedData.marriages);
+                } else {
+                    fetchMarriageOnly();
+                }
                 setLoading(false);
             } else if (preloadedData.promise) {
                 setLoading(true);
@@ -53,6 +61,11 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, preloadedData, 
                         setHexagrams(data.hexagrams);
                         setBazis(data.bazis);
                         setZiweis(data.tuvis);
+                        if (data.marriages) {
+                            setMarriages(data.marriages);
+                        } else {
+                            fetchMarriageOnly();
+                        }
                     }
                 } catch (err) {
                     console.error("Error loading preloaded history lists:", err);
@@ -66,18 +79,30 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, preloadedData, 
         }
     };
 
+    const fetchMarriageOnly = async () => {
+        try {
+            const userId = user.id || user._id;
+            const res = await getMarriageHistory(userId);
+            setMarriages(res.data);
+        } catch (err) {
+            console.error("Error fetching marriage history", err);
+        }
+    };
+
     const fetchData = async () => {
         setLoading(true);
         try {
             const userId = user.id || user._id;
-            const [hexRes, baziRes, ziweiRes] = await Promise.all([
+            const [hexRes, baziRes, ziweiRes, marriageRes] = await Promise.all([
                 getIChingHistory(userId),
                 getBaziHistory(userId),
-                getZiweiHistory(userId)
+                getZiweiHistory(userId),
+                getMarriageHistory(userId)
             ]);
             setHexagrams(hexRes.data);
             setBazis(baziRes.data);
             setZiweis(ziweiRes.data);
+            setMarriages(marriageRes.data);
         } catch (error) {
             console.error("Error fetching history", error);
         }
@@ -96,6 +121,8 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, preloadedData, 
                 res = await getBaziRecord(id);
             } else if (type === 'ziwei') {
                 res = await getZiweiRecord(id);
+            } else if (type === 'marriage') {
+                res = await getMarriageRecord(id);
             }
             if (res && res.data) {
                 prefetchedDetails.current[cacheKey] = res.data;
@@ -104,6 +131,26 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, preloadedData, 
             console.error(`Error preloading ${type} ${id}:`, err);
             delete prefetchedDetails.current[cacheKey];
         }
+    };
+
+    const handleViewMarriageDetail = async (record) => {
+        const cacheKey = `marriage:${record._id}`;
+        let detail = prefetchedDetails.current[cacheKey];
+        if (!detail || detail === 'loading') {
+            setActionLoading(true);
+            try {
+                const res = await getMarriageRecord(record._id);
+                detail = res.data;
+                prefetchedDetails.current[cacheKey] = detail;
+            } catch (err) {
+                console.error("Lỗi khi tải chi tiết hợp hôn:", err);
+                showAlert("Không thể tải thông tin chi tiết hợp hôn.", "error");
+                setActionLoading(false);
+                return;
+            }
+            setActionLoading(false);
+        }
+        onViewMarriage(detail);
     };
 
     const handleViewHexagramDetail = async (record) => {
@@ -154,11 +201,14 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, preloadedData, 
             } else if (type === 'bazi') {
                 await rateBazi(id, rating, feedback);
                 setBazis(bazis.map(b => b._id === id ? { ...b, rating, feedback } : b));
-            } else {
+            } else if (type === 'ziwei') {
                 await rateZiwei(id, rating, feedback);
                 setZiweis(ziweis.map(t => t._id === id ? { ...t, rating, feedback } : t));
+            } else if (type === 'marriage') {
+                await rateMarriage(id, rating, feedback);
+                setMarriages(marriages.map(m => m._id === id ? { ...m, rating, feedback } : m));
             }
-            const cacheKey = `${type === 'iching' ? 'iching' : type === 'bazi' ? 'bazi' : 'ziwei'}:${id}`;
+            const cacheKey = `${type === 'iching' ? 'iching' : type === 'bazi' ? 'bazi' : type === 'ziwei' ? 'ziwei' : 'marriage'}:${id}`;
             delete prefetchedDetails.current[cacheKey];
             if (onCacheInvalidate) onCacheInvalidate();
         } catch (err) {
@@ -174,10 +224,12 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, preloadedData, 
                     setHexagrams(hexagrams.filter(h => h._id !== id));
                 } else if (type === 'bazi') {
                     setBazis(bazis.filter(b => b._id !== id));
-                } else {
+                } else if (type === 'ziwei') {
                     setZiweis(ziweis.filter(t => t._id !== id));
+                } else if (type === 'marriage') {
+                    setMarriages(marriages.filter(m => m._id !== id));
                 }
-                const cacheKey = `${type === 'iching' || type === 'hexagrams' ? 'iching' : type === 'bazi' ? 'bazi' : 'ziwei'}:${id}`;
+                const cacheKey = `${type === 'iching' || type === 'hexagrams' ? 'iching' : type === 'bazi' ? 'bazi' : type === 'ziwei' ? 'ziwei' : 'marriage'}:${id}`;
                 delete prefetchedDetails.current[cacheKey];
                 if (onCacheInvalidate) onCacheInvalidate();
                 showAlert("Xóa bản ghi lịch sử thành công.", "success");
@@ -235,6 +287,12 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, preloadedData, 
                     className={`flex-1 sm:flex-none px-4 py-2 text-xs md:text-base rounded-full font-bold transition-all ${activeTab === 'ziwei' ? 'bg-purple-800 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
                 >
                     Tử Vi ({ziweis.length})
+                </button>
+                <button 
+                    onClick={() => setActiveTab('marriage')}
+                    className={`flex-1 sm:flex-none px-4 py-2 text-xs md:text-base rounded-full font-bold transition-all ${activeTab === 'marriage' ? 'bg-rose-800 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
+                >
+                    Hôn Nhân ({marriages.length})
                 </button>
             </div>
 
@@ -402,6 +460,62 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, preloadedData, 
                                         }
                                     }}
                                     className="px-4 py-1 bg-purple-600 text-white text-sm font-medium rounded shadow hover:bg-purple-700 transition-colors"
+                                >
+                                    Lưu
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+
+                {activeTab === 'marriage' && marriages.length === 0 && <p className="text-center text-gray-500">Chưa có bản ghi hợp hôn nào.</p>}
+                {activeTab === 'marriage' && marriages.map((record) => (
+                    <div 
+                        key={record._id} 
+                        onClick={() => handleViewMarriageDetail(record)} 
+                        onMouseEnter={() => preloadRecord('marriage', record._id)}
+                        onTouchStart={() => preloadRecord('marriage', record._id)}
+                        className="border border-rose-100 rounded-xl p-4 hover:shadow-md transition-shadow bg-rose-50/20 cursor-pointer"
+                    >
+                        <div className="flex justify-between items-start mb-2">
+                            <div>
+                                <h3 className="font-bold text-lg text-rose-900">Hợp Hôn: Nam ({record.inputInfo?.male?.date || ''}) & Nữ ({record.inputInfo?.female?.date || ''})</h3>
+                                <p className="text-xs text-gray-400 flex items-center gap-1 mt-1"><Clock size={12}/> {new Date(record.createdAt).toLocaleString('vi-VN')}</p>
+                            </div>
+                            <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+                                <button onClick={() => handleViewMarriageDetail(record)} className="text-rose-600 hover:underline text-sm font-medium">Xem chi tiết</button>
+                                <button 
+                                    onClick={() => handleDelete('marriage', record._id)} 
+                                    className="text-red-500 hover:text-red-700 transition-colors p-1"
+                                    title="Xóa vĩnh viễn"
+                                >
+                                    <Trash2 size={16} />
+                                </button>
+                            </div>
+                        </div>
+                        
+                        {/* Rating Section */}
+                        <div onClick={(e) => e.stopPropagation()} className="mt-4 pt-4 border-t border-rose-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-default">
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm font-medium text-gray-700">Đánh giá:</span>
+                                {renderStars(record.rating, (rating) => handleRate('marriage', record._id, rating, document.getElementById(`feedback-marr-${record._id}`)?.value || record.feedback))}
+                            </div>
+                            <div className="flex-1 flex gap-2">
+                                <input 
+                                    type="text" 
+                                    id={`feedback-marr-${record._id}`}
+                                    placeholder="Nhận xét..." 
+                                    className="flex-1 text-sm px-3 py-1 border border-gray-200 rounded focus:border-rose-450 focus:outline-none"
+                                    defaultValue={record.feedback}
+                                />
+                                <button 
+                                    onClick={() => {
+                                        const val = document.getElementById(`feedback-marr-${record._id}`).value;
+                                        if (val !== record.feedback || !record.rating) {
+                                            handleRate('marriage', record._id, record.rating, val);
+                                        }
+                                    }}
+                                    className="px-4 py-1 bg-rose-600 text-white text-sm font-medium rounded shadow hover:bg-rose-700 transition-colors"
                                 >
                                     Lưu
                                 </button>

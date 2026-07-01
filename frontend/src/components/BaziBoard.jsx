@@ -189,19 +189,7 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
 
     const getAbbreviatedThapThan = (name) => {
         if (!name) return '';
-        const abbrev = {
-            'Chính Ấn': 'Ch.Ấn',
-            'Thiên Ấn': 'Th.Ấn',
-            'Chính Quan': 'Ch.Quan',
-            'Thất Sát': 'Th.Sát',
-            'Chính Tài': 'Ch.Tài',
-            'Thiên Tài': 'Th.Tài',
-            'Thương Quan': 'Th.Quan',
-            'Thực Thần': 'Th.Thần',
-            'Kiếp Tài': 'K.Tài',
-            'Tỷ Kiên': 'T.Kiên'
-        };
-        return abbrev[name.trim()] || name;
+        return name.trim();
     };
 
     const getBatCung = (zhi) => {
@@ -955,24 +943,22 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
             )}
 
             {/* FLOATING SCROLL BUTTONS */}
-            {interpretation && (
-                <div className="fixed bottom-4 md:bottom-8 left-4 md:left-8 z-40 flex flex-col gap-1 pointer-events-auto bg-transparent border-none shadow-none">
-                    <button
-                        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                        className="flex items-center justify-center w-10 h-10 rounded-full bg-transparent text-slate-400 hover:text-slate-700 active:scale-95 transition-all duration-300 shadow-none border-none pointer-events-auto"
-                        title="Cuộn lên đầu trang"
-                    >
-                        <ArrowUp size={24} />
-                    </button>
-                    <button
-                        onClick={() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' })}
-                        className="flex items-center justify-center w-10 h-10 rounded-full bg-transparent text-slate-400 hover:text-slate-700 active:scale-95 transition-all duration-300 shadow-none border-none pointer-events-auto"
-                        title="Cuộn xuống cuối trang"
-                    >
-                        <ArrowDown size={24} />
-                    </button>
-                </div>
-            )}
+            <div className="fixed bottom-4 md:bottom-8 left-4 md:left-8 z-40 flex flex-col gap-1 pointer-events-auto bg-transparent border-none shadow-none">
+                <button
+                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                    className="flex items-center justify-center w-10 h-10 rounded-full bg-transparent text-slate-400 hover:text-slate-700 active:scale-95 transition-all duration-300 shadow-none border-none pointer-events-auto"
+                    title="Cuộn lên đầu trang"
+                >
+                    <ArrowUp size={24} />
+                </button>
+                <button
+                    onClick={() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' })}
+                    className="flex items-center justify-center w-10 h-10 rounded-full bg-transparent text-slate-400 hover:text-slate-700 active:scale-95 transition-all duration-300 shadow-none border-none pointer-events-auto"
+                    title="Cuộn xuống cuối trang"
+                >
+                    <ArrowDown size={24} />
+                </button>
+            </div>
 
             {/* CONFIRMATION MODAL */}
             {showConfirmModal && (

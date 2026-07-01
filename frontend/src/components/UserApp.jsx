@@ -9,12 +9,14 @@ import AuthModal from './AuthModal';
 import UpdateBaziModal from './UpdateBaziModal';
 import NotificationBell from './NotificationBell';
 import { AuthContext } from '../context/AuthContext';
-import { calculateDivination, analyzeBazi, linkIChing, linkBazi, getIChingRecord, getIChingHistory, getBaziHistory, getZiweiHistory } from '../services/api';
+import { calculateDivination, analyzeBazi, linkIChing, linkBazi, getIChingRecord, getIChingHistory, getBaziHistory, getZiweiHistory, analyzeMarriage } from '../services/api';
 import { UserCircle, LogOut, CalendarDays, Shield } from 'lucide-react';
 import { Lunar } from 'lunar-javascript';
+import MarriageInput from './MarriageInput';
 
 const BaziBoard = React.lazy(() => import('./BaziBoard'));
 const ZiweiBoard = React.lazy(() => import('./ZiweiBoard'));
+const MarriageBoard = React.lazy(() => import('./MarriageBoard'));
 const HistoryBoard = React.lazy(() => import('./HistoryBoard'));
 
 export default function UserApp({ onSwitchToAdmin }) {
@@ -37,12 +39,14 @@ export default function UserApp({ onSwitchToAdmin }) {
     const promise = Promise.all([
       getIChingHistory(userId),
       getBaziHistory(userId),
-      getZiweiHistory(userId)
-    ]).then(([hexRes, baziRes, ziweiRes]) => {
+      getZiweiHistory(userId),
+      getMarriageHistory(userId)
+    ]).then(([hexRes, baziRes, ziweiRes, marriageRes]) => {
       const data = {
         hexagrams: hexRes.data,
         bazis: baziRes.data,
         tuvis: ziweiRes.data, // keep key name for history component compatibility
+        marriages: marriageRes.data,
         promise: null
       };
       preloadedHistoryRef.current = data;
@@ -56,6 +60,7 @@ export default function UserApp({ onSwitchToAdmin }) {
       hexagrams: null,
       bazis: null,
       tuvis: null,
+      marriages: null,
       promise
     };
   };
@@ -98,6 +103,15 @@ export default function UserApp({ onSwitchToAdmin }) {
       return null;
     }
   });
+
+  const [marriageResult, setMarriageResult] = useState(() => {
+    try {
+      const saved = localStorage.getItem('marriageResult');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
   
   // Shared State
   const [loading, setLoading] = useState(false);
@@ -134,6 +148,14 @@ export default function UserApp({ onSwitchToAdmin }) {
       localStorage.removeItem('baziResult');
     }
   }, [baziResult]);
+
+  useEffect(() => {
+    if (marriageResult) {
+      localStorage.setItem('marriageResult', JSON.stringify(marriageResult));
+    } else {
+      localStorage.removeItem('marriageResult');
+    }
+  }, [marriageResult]);
 
   const handleDivinationComplete = async (lines, customDate, questionSuffix = '') => {
     setLoading(true);
@@ -198,6 +220,20 @@ export default function UserApp({ onSwitchToAdmin }) {
     setLoading(false);
   };
 
+  const handleMarriageComplete = async (male, female) => {
+    setLoading(true);
+    try {
+      const userId = user ? (user.id || user._id) : 'guest';
+      const res = await analyzeMarriage(male, female, userId);
+      setMarriageResult(res.data);
+      invalidateHistoryCache();
+    } catch (err) {
+      console.error(err);
+      alert('Lỗi kết nối tới server phân tích Hợp Hôn.');
+    }
+    setLoading(false);
+  };
+
   const handleViewHistoricalHexagram = (recordWrapper) => {
     setResult({
       recordId: recordWrapper._id || recordWrapper.id,
@@ -224,6 +260,11 @@ export default function UserApp({ onSwitchToAdmin }) {
   const handleViewHistoricalZiwei = (record) => {
     setHistoricalZiweiId(record._id || record.id);
     setAppMode('ziwei');
+  };
+
+  const handleViewHistoricalMarriage = (record) => {
+    setMarriageResult(record);
+    setAppMode('marriage');
   };
 
   const handleNotificationClick = async (hexagramId) => {
@@ -278,6 +319,12 @@ export default function UserApp({ onSwitchToAdmin }) {
               className={`flex-1 sm:flex-none px-2.5 py-1.5 sm:px-5 sm:py-2 rounded-full font-bold transition-all text-[11px] sm:text-xs md:text-sm tracking-wider font-[Montserrat] uppercase ${appMode === 'ziwei' ? 'bg-purple-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-955 hover:bg-neutral-50'}`}
             >
               Tử Vi
+            </button>
+            <button 
+              onClick={() => setAppMode('marriage')} 
+              className={`flex-1 sm:flex-none px-2.5 py-1.5 sm:px-5 sm:py-2 rounded-full font-bold transition-all text-[11px] sm:text-xs md:text-sm tracking-wider font-[Montserrat] uppercase ${appMode === 'marriage' ? 'bg-rose-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-955 hover:bg-neutral-50'}`}
+            >
+              Hôn Nhân
             </button>
             {user && (
               <button 
@@ -427,6 +474,16 @@ export default function UserApp({ onSwitchToAdmin }) {
             <h1 className="text-4xl md:text-6xl font-[Lora] font-bold text-purple-955 mb-6 drop-shadow-sm">Mệnh Số Tử Vi</h1>
             <p className="text-purple-800/80 max-w-2xl mx-auto text-base md:text-lg font-medium">Hệ thống lập lá số 12 Cung mệnh bàn, định hướng cát hung và luận giải Vận Hạn.</p>
           </header>
+        ) : appMode === 'marriage' && !marriageResult ? (
+          <header className="text-center mb-16 pt-2 animate-in fade-in duration-300 font-sans">
+            <div className="inline-block p-4 rounded-full bg-rose-100 border border-rose-200 mb-6">
+              <div className="w-16 h-16 rounded-full border-4 border-rose-800 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full bg-rose-800"></div>
+              </div>
+            </div>
+            <h1 className="text-4xl md:text-6xl font-[Lora] font-bold text-rose-955 mb-6 drop-shadow-sm">Bát Tự Hợp Hôn</h1>
+            <p className="text-rose-800/80 max-w-2xl mx-auto text-base md:text-lg font-medium">Hệ thống đối chiếu âm dương ngũ hành, cung phi bản mệnh của hai phối ngẫu.</p>
+          </header>
         ) : null}
 
         {/* SYSTEM BOARDS */}
@@ -566,6 +623,43 @@ export default function UserApp({ onSwitchToAdmin }) {
           </React.Suspense>
         </div>
 
+        {/* SYSTEM 5: HÔN NHÂN */}
+        <div className={`animate-in fade-in duration-500 ${appMode === 'marriage' ? 'block' : 'hidden'}`}>
+          {loading && (
+            <div className="text-center py-20 animate-in fade-in">
+              <div className="w-16 h-16 border-4 border-rose-200 border-t-rose-600 rounded-full animate-spin mx-auto mb-6"></div>
+              <div className="text-xl font-bold text-rose-800 animate-pulse">Đang đối chiếu lá số hợp hôn...</div>
+            </div>
+          )}
+
+          {!marriageResult && !loading && (
+            <div className="transition-all duration-500 animate-in fade-in slide-in-from-bottom-8">
+              <MarriageInput onComplete={handleMarriageComplete} />
+            </div>
+          )}
+
+          {marriageResult && !loading && (
+            <div className="space-y-12 animate-in fade-in zoom-in-95 duration-700 pb-20 font-sans">
+              <React.Suspense fallback={
+                <div className="text-center py-20 animate-in fade-in">
+                  <div className="w-12 h-12 border-4 border-rose-200 border-t-rose-600 rounded-full animate-spin mx-auto mb-4"></div>
+                  <p className="text-rose-955 font-extrabold text-sm tracking-wider uppercase">Đang nạp dữ liệu Hợp Hôn...</p>
+                </div>
+              }>
+                <MarriageBoard data={marriageResult} onUpdateData={setMarriageResult} onRequireLogin={() => setIsAuthModalOpen(true)} />
+              </React.Suspense>
+              <div className="text-center">
+                <button 
+                  onClick={() => setMarriageResult(null)} 
+                  className="px-10 py-4 bg-white text-rose-900 border-2 border-rose-200 rounded-2xl shadow-md hover:bg-rose-50 hover:border-rose-300 font-bold text-lg transition-all hover:-translate-y-1"
+                >
+                  Xem Cặp Đôi Khác
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* SYSTEM 4: HISTORY */}
         {user && appMode === 'history' && (
           <div className="animate-in fade-in duration-500">
@@ -579,6 +673,7 @@ export default function UserApp({ onSwitchToAdmin }) {
                 onViewHexagram={handleViewHistoricalHexagram} 
                 onViewBazi={handleViewHistoricalBazi} 
                 onViewZiwei={handleViewHistoricalZiwei}
+                onViewMarriage={handleViewHistoricalMarriage}
                 preloadedData={preloadedHistoryRef.current}
                 onCacheInvalidate={invalidateHistoryCache}
               />

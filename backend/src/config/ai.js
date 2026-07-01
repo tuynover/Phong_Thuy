@@ -3,6 +3,7 @@ module.exports = {
     ICHING_PROMPT_VERSION: "v1.2",
     BAZI_PROMPT_VERSION: "v2_7_step_grouped",
     ZIWEI_PROMPT_VERSION: "v3_14_palaces",
+    MARRIAGE_PROMPT_VERSION: "v1_0_marriage",
     COOLDOWN_TIME_SECONDS: 10,
     CHAT_LIMIT_PER_HOUR: 10,
     TIMEOUT_MS: 25000,

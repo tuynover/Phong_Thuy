@@ -20,6 +20,12 @@ export const rateBazi = (id, rating, feedback) => axios.put(`${API_URL}/history/
 export const linkBazi = (id, userId) => axios.put(`${API_URL}/history/bazi/${id}/link`, { userId });
 export const analyzeBazi = (date, time, gender, userId) => axios.post(`${API_URL}/bazi/analyze`, { date, time, gender, userId });
 
+// Marriage (Hôn Nhân) API Endpoints
+export const analyzeMarriage = (male, female, userId) => axios.post(`${API_URL}/marriage/analyze`, { male, female, userId });
+export const getMarriageHistory = (userId) => axios.get(`${API_URL}/history/marriage/${userId}`);
+export const getMarriageRecord = (id) => axios.get(`${API_URL}/history/marriage/record/${id}`);
+export const rateMarriage = (id, rating, feedback) => axios.put(`${API_URL}/history/marriage/${id}/rate`, { rating, feedback });
+
 // Ziwei (Tử Vi) API Endpoints
 export const createZiweiChart = (date, hour, gender, userId) => axios.post(`${API_URL}/ziwei`, { date, hour, gender, userId });
 export const interpretZiwei = (id) => axios.post(`${API_URL}/ziwei/${id}/interpret`);

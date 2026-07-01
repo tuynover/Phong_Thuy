@@ -76,7 +76,18 @@ const sectionIcons = {
   iching_1: Compass,
   iching_2: Users,
   iching_3: Zap,
-  iching_4: Award
+  iching_4: Award,
+
+  // Hôn Nhân (parsed from markdown sections using prefix 'marriage')
+  marriage_1: Sparkles,     // Cung phi cát hung
+  marriage_2: Heart,        // Nhật can tương hợp
+  marriage_3: Compass,      // Nhật chi bình ổn (Cung Phu Thê)
+  marriage_4: Zap,          // Ngũ hành tương tế
+  marriage_5: ShieldAlert,  // Thần sát hình khắc
+  marriage_6: TrendingUp,   // Đồng điệu đại vận
+  marriage_7: Users,        // Trụ năm & Trụ tháng (Gia đạo)
+  marriage_8: User,         // Trụ giờ (Con cái)
+  marriage_9: BookOpen      // Kết luận & Hóa giải
 };
 
 const sectionColors = {
@@ -137,7 +148,18 @@ const sectionColors = {
   iching_1: "from-amber-500 to-orange-600",
   iching_2: "from-blue-500 to-indigo-600",
   iching_3: "from-rose-500 to-orange-600",
-  iching_4: "from-emerald-500 to-teal-600"
+  iching_4: "from-emerald-500 to-teal-600",
+
+  // Hôn Nhân
+  marriage_1: "from-rose-500 to-pink-650",
+  marriage_2: "from-pink-500 to-rose-600",
+  marriage_3: "from-rose-600 to-red-650",
+  marriage_4: "from-red-500 to-rose-600",
+  marriage_5: "from-pink-600 to-pink-700",
+  marriage_6: "from-rose-700 to-slate-900",
+  marriage_7: "from-rose-500 to-pink-500",
+  marriage_8: "from-pink-400 to-rose-500",
+  marriage_9: "from-rose-800 to-rose-950"
 };
 
 const themeStyles = {
@@ -161,6 +183,13 @@ const themeStyles = {
     hoverBg: "hover:bg-amber-50/20",
     chevronActive: "bg-amber-50 text-amber-500 border-amber-200",
     prose: "prose-amber prose-headings:text-amber-950 prose-a:text-amber-600 prose-strong:text-amber-900 prose-code:text-amber-600 prose-code:bg-amber-50"
+  },
+  marriage: {
+    border: "border-rose-100 hover:border-rose-200",
+    shadow: "shadow-rose-950/5 hover:shadow-rose-900/10",
+    hoverBg: "hover:bg-rose-50/20",
+    chevronActive: "bg-rose-50 text-rose-500 border-rose-200",
+    prose: "prose-rose prose-headings:text-rose-950 prose-a:text-rose-600 prose-strong:text-rose-900 prose-code:text-rose-600 prose-code:bg-rose-50"
   }
 };
 

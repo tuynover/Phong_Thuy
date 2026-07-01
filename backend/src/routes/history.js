@@ -40,11 +40,17 @@ router.put('/ziwei/:id/rate', HistoryController.rateZiwei);
 router.put('/ziwei/:id/link', HistoryController.linkZiwei);
 router.get('/ziwei/:id/messages', HistoryController.getZiweiChatMessages);
 
+// Marriage (Kết Hôn) endpoints
+router.get('/marriage/record/:id', HistoryController.getMarriageRecord);
+router.get('/marriage/:userId', HistoryController.getMarriageHistory);
+router.put('/marriage/:id/rate', HistoryController.rateMarriage);
+
 // Backwards compatibility for legacy chat and stream endpoints
 router.post('/iching/:id/interpret', aiLimiter, creditCheck, AiInterpretationController.interpretHexagram);
 router.post('/hexagrams/:id/interpret', aiLimiter, creditCheck, AiInterpretationController.interpretHexagram);
 router.post('/bazi/:id/interpret', aiLimiter, creditCheck, AiInterpretationController.interpretBazi);
 router.post('/ziwei/:id/interpret', aiLimiter, creditCheck, AiInterpretationController.interpretZiwei);
+router.post('/marriage/:id/interpret', aiLimiter, creditCheck, AiInterpretationController.interpretMarriage);
 
 router.post('/iching/:id/chat', aiLimiter, AiInterpretationController.chatHexagram);
 router.post('/hexagrams/:id/chat', aiLimiter, AiInterpretationController.chatHexagram);

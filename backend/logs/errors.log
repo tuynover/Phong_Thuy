@@ -624,3 +624,9 @@ Stack: MongoServerSelectionError: getaddrinfo ENOTFOUND ac-jk9y7ee-shard-00-00.a
     at async [Symbol.asyncIterator] (T:\Phongthuy\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:254:34)
     at async FindCursor.toArray (T:\Phongthuy\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:406:26)
     at async model.Query._find (T:\Phongthuy\backend\node_modules\mongoose\lib\query.js:2473:14)
+[2026-07-01 16:33:18.591] [ERROR] [Self-Ping] Error: read ECONNRESET
+Stack: Error: read ECONNRESET
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20)
+[2026-07-01 16:42:13.070] [ERROR] [Self-Ping] Error: read ECONNRESET
+Stack: Error: read ECONNRESET
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20)
