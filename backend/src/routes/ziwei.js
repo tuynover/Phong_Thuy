@@ -23,11 +23,8 @@ const aiLimiter = rateLimiter({
 // 1. Tạo lá số thô (Deterministic)
 router.post('/', calcLimiter, ZiweiController.createChart);
 
-// 2. Yêu cầu giải đoán AI (Async via Queue)
+// 2. Yêu cầu giải đoán AI (SSE Stream)
 router.post('/:id/interpret', aiLimiter, creditCheck, AiInterpretationController.interpretZiwei);
-
-// 3. Kiểm tra tiến trình ngầm (Job Status)
-router.get('/jobs/:jobId', AiInterpretationController.checkJobStatus);
 
 // 4. Lấy lịch sử lá số của người dùng
 router.get('/history/:userId', HistoryController.getZiweiHistory);

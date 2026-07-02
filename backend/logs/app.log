@@ -16097,3 +16097,21 @@ Stack: Error: read ECONNRESET
 [2026-07-01 22:16:59.958] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/users/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c/stats] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/users/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c/stats
 [2026-07-01 22:17:00.090] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/users/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c/stats] [IP: ::1] [Duration: 133ms] Hoàn thành: Phản hồi thành công (304)
 [2026-07-01 22:24:00.110] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-01 22:32:56.262] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/analytics?startDate=2026-06-24&endDate=2026-07-01&groupBy=hour
+[2026-07-01 22:32:56.570] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] [Duration: 308ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-01 22:33:02.129] [INFO] [SSE] User client [019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] disconnected.
+[2026-07-01 22:33:02.130] [INFO] [SSE] Admin client disconnected. Remaining: 0
+[2026-07-01 22:33:02.201] [INFO] [User: anonymous] [Action: GET /api/auth/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/auth/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4MjkxNDk0MiwiZXhwIjoxNzgzNTE5NzQyfQ.NOakkE1yc5Kzg3Fb_Yl3ak29YhxiirEONpLEJLJ9hKs
+[2026-07-01 22:33:02.277] [INFO] [SSE] User client [019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] connected. Total sessions: 1
+[2026-07-01 22:33:02.513] [INFO] [User: anonymous] [Action: GET /api/admin/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4MjkxNDk0MiwiZXhwIjoxNzgzNTE5NzQyfQ.NOakkE1yc5Kzg3Fb_Yl3ak29YhxiirEONpLEJLJ9hKs
+[2026-07-01 22:33:02.516] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/notifications
+[2026-07-01 22:33:02.521] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/analytics?startDate=2026-06-24&endDate=2026-07-01&groupBy=day
+[2026-07-01 22:33:02.588] [INFO] [SSE] Admin client connected. Total admin clients: 1
+[2026-07-01 22:33:02.738] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] [Duration: 223ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-01 22:33:02.745] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/notifications
+[2026-07-01 22:33:02.825] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] [Duration: 306ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-01 22:33:02.963] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] [Duration: 219ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-01 22:34:00.123] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-01 22:44:00.128] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-01 22:54:00.141] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-01 23:04:00.147] [INFO] [NotificationScheduler] Scanning for request and token spikes...

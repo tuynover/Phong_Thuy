@@ -30,7 +30,6 @@ export const getMarriageChatMessages = (id, page = 1, limit = 20) => axios.get(`
 // Ziwei (Tử Vi) API Endpoints
 export const createZiweiChart = (date, hour, gender, userId) => axios.post(`${API_URL}/ziwei`, { date, hour, gender, userId });
 export const interpretZiwei = (id) => axios.post(`${API_URL}/ziwei/${id}/interpret`);
-export const checkZiweiJob = (jobId) => axios.get(`${API_URL}/ziwei/jobs/${jobId}`);
 export const getZiweiHistory = (userId) => axios.get(`${API_URL}/ziwei/history/${userId}`);
 export const getZiweiRecord = (id) => axios.get(`${API_URL}/ziwei/${id}`);
 export const rateZiwei = (id, rating, feedback) => axios.put(`${API_URL}/ziwei/${id}/rate`, { rating, feedback });
@@ -90,7 +89,6 @@ export const interpretHexagram = interpretIChing;
 
 export const createTuViChart = createZiweiChart;
 export const interpretTuVi = interpretZiwei;
-export const checkTuViJob = checkZiweiJob;
 export const getTuViHistory = getZiweiHistory;
 export const getTuViRecord = getZiweiRecord;
 export const rateTuVi = rateZiwei;
