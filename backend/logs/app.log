@@ -17766,3 +17766,14 @@ Stack: Error: read ECONNRESET
 [2026-07-02 21:53:38.373] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 116ms] Hoàn thành: Phản hồi thành công (304)
 [2026-07-02 21:54:38.260] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
 [2026-07-02 21:54:38.394] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 136ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 21:55:38.263] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 21:55:38.387] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 126ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 21:56:29.929] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-02 21:56:38.266] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 21:56:38.390] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 125ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 21:57:32.989] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 21:57:33.110] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 123ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 21:58:26.270] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 21:58:26.395] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 126ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 21:59:38.253] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 21:59:38.376] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 124ms] Hoàn thành: Phản hồi thành công (304)
