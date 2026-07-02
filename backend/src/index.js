@@ -11,6 +11,7 @@ process.on('uncaughtException', (error) => {
 
 const express = require('express');
 const cors = require('cors');
+const compression = require('compression');
 const connectDB = require('./config/db');
 const routes = require('./routes');
 
@@ -22,6 +23,17 @@ const app = express();
 connectDB();
 
 app.use(cors());
+
+// Configure Gzip/Brotli compression with SSE bypass to prevent buffering
+app.use(compression({
+  filter: (req, res) => {
+    if (req.headers['accept'] === 'text/event-stream' || res.getHeader('Content-Type') === 'text/event-stream') {
+      return false;
+    }
+    return compression.filter(req, res);
+  }
+}));
+
 app.use(express.json());
 
 // Premium Audit Logger Middleware (logs User, Time, Action, Parameters, and Performance)

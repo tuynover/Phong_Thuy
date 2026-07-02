@@ -4,6 +4,16 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
 
 ---
 
+## 📅 Phiên bản: Tích hợp Nén HTTP Compression toàn cục (02/07/2026)
+
+### Backend (Mã hóa & Truyền tải)
+- **Tích hợp nén HTTP Compression:** 
+  - Đã thêm dependency `"compression": "^1.7.5"` trong [package.json](file:///t:/Phongthuy/backend/package.json).
+  - Cấu hình sử dụng middleware `compression` toàn cục trong [index.js](file:///t:/Phongthuy/backend/src/index.js) để nén tự động dữ liệu các API của Admin Dashboard, Lịch sử người dùng, và Chi tiết lá số/quẻ dịch.
+  - Tích hợp **Bộ lọc thông minh (SSE Bypass Filter)** kiểm tra các yêu cầu hoặc phản hồi định dạng `text/event-stream` để loại trừ không nén, tránh lỗi đệm (buffering) dòng stream in chữ thời gian thực của AI Chatbot.
+
+---
+
 ## 📅 Phiên bản: Khắc phục Rò rỉ Lịch sử & Tối ưu hóa Tốc độ Đăng nhập (02/07/2026)
 
 ### 1. Frontend (Giao diện & Bảo mật)
