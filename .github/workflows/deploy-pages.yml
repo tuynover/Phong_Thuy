@@ -46,7 +46,7 @@ jobs:
         # Đặt đường dẫn base name theo tên kho lưu trữ GitHub của bạn
         env:
           VITE_BASE_PATH: /${{ github.event.repository.name }}/
-          VITE_API_URL: https://phong-thuy-backend.onrender.com/api
+          VITE_API_URL: https://phong-thuy-backend-gz15.onrender.com/api
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
