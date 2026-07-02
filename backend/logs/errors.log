@@ -632,3 +632,19 @@ Stack: Error: read ECONNRESET
     at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20)
 [2026-07-01 18:36:21.710] [WARN] [Self-Ping] Warning: Ping returned status 503
 [2026-07-01 21:09:31.801] [WARN] [User: admin@admin.com (admin)] [Action: GET /api/admin/calculations] [IP: ::1] [Duration: 71ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (400)
+[2026-07-02 17:29:08.243] [WARN] [User: cobatuoc@gmail.com] [Action: Đổi mật khẩu] Đổi mật khẩu thất bại: Mật khẩu hiện tại không chính xác cho tài khoản [cobatuoc@gmail.com].
+[2026-07-02 17:29:08.247] [WARN] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: PUT /api/auth/change-password] [IP: ::1] [Duration: 171ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (400)
+[2026-07-02 17:29:29.564] [WARN] [User: cobatuoc@gmail.com] [Action: Đổi mật khẩu] Đổi mật khẩu thất bại: Mật khẩu hiện tại không chính xác cho tài khoản [cobatuoc@gmail.com].
+[2026-07-02 17:29:29.566] [WARN] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: PUT /api/auth/change-password] [IP: ::1] [Duration: 155ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (400)
+[2026-07-02 17:29:30.469] [WARN] [User: cobatuoc@gmail.com] [Action: Đổi mật khẩu] Đổi mật khẩu thất bại: Mật khẩu hiện tại không chính xác cho tài khoản [cobatuoc@gmail.com].
+[2026-07-02 17:29:30.472] [WARN] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: PUT /api/auth/change-password] [IP: ::1] [Duration: 162ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (400)
+[2026-07-02 17:29:31.186] [WARN] [User: cobatuoc@gmail.com] [Action: Đổi mật khẩu] Đổi mật khẩu thất bại: Mật khẩu hiện tại không chính xác cho tài khoản [cobatuoc@gmail.com].
+[2026-07-02 17:29:31.189] [WARN] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: PUT /api/auth/change-password] [IP: ::1] [Duration: 159ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (400)
+[2026-07-02 17:29:31.716] [WARN] [User: cobatuoc@gmail.com] [Action: Đổi mật khẩu] Đổi mật khẩu thất bại: Mật khẩu hiện tại không chính xác cho tài khoản [cobatuoc@gmail.com].
+[2026-07-02 17:29:31.720] [WARN] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: PUT /api/auth/change-password] [IP: ::1] [Duration: 161ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (400)
+[2026-07-02 17:29:32.129] [WARN] [User: cobatuoc@gmail.com] [Action: Đổi mật khẩu] Đổi mật khẩu thất bại: Mật khẩu hiện tại không chính xác cho tài khoản [cobatuoc@gmail.com].
+[2026-07-02 17:29:32.132] [WARN] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: PUT /api/auth/change-password] [IP: ::1] [Duration: 159ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (400)
+[2026-07-02 17:31:36.375] [WARN] [User: cobatuoc@gmail.com] [Action: Đăng ký tài khoản] [IP: ::1] [Duration: 62ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (400)
+[2026-07-02 17:39:49.221] [WARN] [User: cobatuoc@gmail.com] [Action: Đăng ký tài khoản] [IP: ::1] [Duration: 90ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (400)
+[2026-07-02 17:39:50.179] [WARN] [User: cobatuoc@gmail.com] [Action: Đăng ký tài khoản] [IP: ::1] [Duration: 71ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (400)
+[2026-07-02 17:39:50.883] [WARN] [User: cobatuoc@gmail.com] [Action: Đăng ký tài khoản] [IP: ::1] [Duration: 65ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (400)

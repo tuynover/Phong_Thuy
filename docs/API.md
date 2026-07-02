@@ -45,6 +45,24 @@ Tất cả các API Endpoints đều có tiền tố `/api`. Các endpoint yêu 
   - `account_deleted`: Kích hoạt khi tài khoản bị xóa.
   - `account_updated`: Cập nhật credits/role mới.
 
+### 1.4 Thay đổi mật khẩu
+Đổi mật khẩu cho người dùng hiện tại (yêu cầu gửi kèm JWT token).
+- **Endpoint:** `PUT /api/auth/change-password`
+- **Headers:** `Authorization: Bearer <token>`
+- **Body:**
+  ```json
+  {
+    "currentPassword": "OldPassword123",
+    "newPassword": "NewPassword888"
+  }
+  ```
+- **Phản hồi (200):**
+  ```json
+  {
+    "message": "Đổi mật khẩu thành công."
+  }
+  ```
+
 ---
 
 ## ☯️ 2. Gieo Quẻ & Tính toán Số lý

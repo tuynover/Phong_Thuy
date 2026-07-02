@@ -4,6 +4,38 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
 
 ---
 
+## 📅 Phiên bản: Tối ưu hóa Đăng ký, Lịch sử và Modal Đăng ký (02/07/2026)
+
+### 1. Backend (Logic & Hiệu năng)
+- **Cho phép đăng ký lại tài khoản bị xóa mềm:** Cập nhật hàm `register` trong [AuthController.js](file:///t:/Phongthuy/backend/src/controllers/AuthController.js). Nếu phát hiện email đăng ký thuộc về một tài khoản đã bị xóa mềm (`isDeleted === true`), hệ thống sẽ thực hiện kích hoạt lại (reactivate) tài khoản đó bằng mật khẩu băm mới, thông tin mới, đặt lại credits = 1, lockReason = '' và reset lại `stats` của tài khoản này.
+- **Tối ưu hóa hiệu năng list Lịch sử Tử Vi:** Cập nhật hàm `getZiweiHistory` trong [HistoryController.js](file:///t:/Phongthuy/backend/src/controllers/HistoryController.js). Thay đổi `.select('-chartData.palaces -analysisSnapshot')` thành `.select('-chartData -analysisSnapshot -aiInterpretation')` để loại bỏ các trường dữ liệu đồ hình mệnh bàn thô nặng và văn bản giải luận AI dài khỏi danh sách lịch sử (chỉ tải khi vào trang chi tiết).
+
+### 2. Frontend (Giao diện)
+- **Tối ưu hóa Modal Đăng ký chống tràn layout:** Cập nhật [AuthModal.jsx](file:///t:/Phongthuy/frontend/src/components/AuthModal.jsx). Thêm CSS giới hạn chiều cao `max-h-[90vh]` và cho phép cuộn dọc nội bộ `overflow-y-auto` cho khung modal chính. Giúp người dùng cuộn mượt mà để nhập Mật khẩu / bấm Submit khi form Bát Tự được mở rộng trên các thiết bị di động hoặc màn hình nhỏ.
+
+---
+
+## 📅 Phiên bản: Bổ sung tính năng Đổi Mật Khẩu (02/07/2026)
+
+### 1. Backend (Xây dựng API đổi mật khẩu bảo mật)
+- Bổ sung phương thức `changePassword` trong [AuthController.js](file:///t:/Phongthuy/backend/src/controllers/AuthController.js):
+  - Nhận `currentPassword` và `newPassword` từ request body.
+  - Sử dụng `bcrypt.compare` đối chiếu mật khẩu hiện tại với mật khẩu băm trong database.
+  - Kiểm tra độ dài mật khẩu mới (tối thiểu 8 ký tự theo yêu cầu).
+  - Băm mật khẩu mới và lưu vào cơ sở dữ liệu.
+- Đăng ký Endpoint `PUT /api/auth/change-password` đi kèm với middleware `auth` xác thực trong [auth.js](file:///t:/Phongthuy/backend/src/routes/auth.js).
+
+### 2. Frontend (Giao diện đổi mật khẩu)
+- Khai báo API service `changePassword` trong [api.js](file:///t:/Phongthuy/frontend/src/services/api.js).
+- Thiết kế form độc lập **Thay Đổi Mật Khẩu** tích hợp trực tiếp vào [ProfileBoard.jsx](file:///t:/Phongthuy/frontend/src/components/ProfileBoard.jsx).
+- Ràng buộc kiểm tra (Validation) mật khẩu mới tối thiểu 8 ký tự, so khớp hai lần nhập và ngăn không cho trùng mật khẩu hiện tại.
+- Xử lý trạng thái loading và hiển thị thông báo phản hồi (thành công/lỗi) trực quan.
+
+### 3. Cập nhật Tài liệu
+- Cập nhật đặc tả chi tiết API trong [API.md](file:///t:/Phongthuy/docs/API.md) và [README.md](file:///t:/Phongthuy/README.md).
+
+---
+
 ## 📅 Phiên bản: Đồng bộ hóa & Hoàn thiện Tài liệu Hệ thống (02/07/2026)
 
 ### 1. Cập nhật thiết kế Cơ sở Dữ liệu (`DATABASE.md`)

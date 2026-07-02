@@ -42,6 +42,7 @@ export const markNotificationRead = (id) => axios.put(`${API_URL}/notifications/
 export const markAllNotificationsRead = () => axios.put(`${API_URL}/notifications/read-all`);
 export const updateBaziInfo = (userId, day, month, year, hour, minute) => axios.put(`${API_URL}/auth/bazi`, { userId, day, month, year, hour, minute });
 export const updateProfile = (profileData) => axios.put(`${API_URL}/auth/profile`, profileData);
+export const changePassword = (currentPassword, newPassword) => axios.put(`${API_URL}/auth/change-password`, { currentPassword, newPassword });
 
 export const getInterpretationStreamUrl = (type, id) => {
   if (type === 'tu_vi' || type === 'ziwei') return `${API_URL}/ziwei/${id}/interpret`;

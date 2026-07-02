@@ -109,6 +109,8 @@ Hệ thống API Backend sử dụng tiền tố `/api` và phân chia thành c�
 * `POST /api/auth/register`: Đăng ký tài khoản.
 * `POST /api/auth/login`: Đăng nhập nhận JWT.
 * `PUT /api/auth/bazi`: Lưu thông tin ngày sinh mặc định của người dùng.
+* `PUT /api/auth/profile`: Cập nhật thông tin hồ sơ cá nhân.
+* `PUT /api/auth/change-password`: Thay đổi mật khẩu người dùng.
 
 ### ☯️ Gieo Quẻ Kinh Dịch
 * `POST /api/iching/calculate` (và các alias `/api/hexagrams/calculate`, `/api/calculate`): Tính toán thông số quẻ Kinh Dịch từ dữ liệu tung xu hoặc số lý Mai Hoa.

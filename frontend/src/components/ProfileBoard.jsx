@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { updateProfile } from '../services/api';
-import { User, Phone, Mail, Calendar, Clock, Sparkles } from 'lucide-react';
+import { updateProfile, changePassword } from '../services/api';
+import { User, Phone, Mail, Calendar, Clock, Sparkles, Lock } from 'lucide-react';
 
 export default function ProfileBoard() {
   const { user, setUser } = useContext(AuthContext);
@@ -16,6 +16,13 @@ export default function ProfileBoard() {
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+
+  // Password change states
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordMessage, setPasswordMessage] = useState({ type: '', text: '' });
 
   // Update local state when user context changes
   useEffect(() => {
@@ -84,6 +91,42 @@ export default function ProfileBoard() {
       setMessage({ type: 'error', text: err.response?.data?.message || 'Không thể lưu thông tin. Vui lòng thử lại.' });
     }
     setLoading(false);
+  };
+
+  const handlePasswordSubmit = async (e) => {
+    e.preventDefault();
+    setPasswordLoading(true);
+    setPasswordMessage({ type: '', text: '' });
+
+    if (newPassword.length < 8) {
+      setPasswordMessage({ type: 'error', text: 'Mật khẩu mới phải có độ dài tối thiểu 8 ký tự.' });
+      setPasswordLoading(false);
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordMessage({ type: 'error', text: 'Mật khẩu mới và xác nhận mật khẩu không khớp.' });
+      setPasswordLoading(false);
+      return;
+    }
+
+    if (newPassword === currentPassword) {
+      setPasswordMessage({ type: 'error', text: 'Mật khẩu mới không được trùng với mật khẩu hiện tại.' });
+      setPasswordLoading(false);
+      return;
+    }
+
+    try {
+      await changePassword(currentPassword, newPassword);
+      setPasswordMessage({ type: 'success', text: 'Thay đổi mật khẩu thành công!' });
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (err) {
+      console.error(err);
+      setPasswordMessage({ type: 'error', text: err.response?.data?.message || 'Không thể đổi mật khẩu. Vui lòng thử lại.' });
+    }
+    setPasswordLoading(false);
   };
 
   return (
@@ -278,6 +321,87 @@ export default function ProfileBoard() {
         </button>
 
       </form>
+
+      {/* Password Change Section */}
+      <div className="mt-10 pt-8 border-t border-gray-150 animate-in fade-in duration-300">
+        <div className="text-center mb-6">
+          <div className="inline-flex p-3 bg-red-50 rounded-full border border-red-200 mb-3">
+            <Lock className="text-red-800" size={24} />
+          </div>
+          <h3 className="text-xl font-bold font-serif text-amber-950">Thay Đổi Mật Khẩu</h3>
+          <p className="text-xs text-gray-500 mt-1">Cập nhật mật khẩu bảo vệ tài khoản của bạn</p>
+        </div>
+
+        {passwordMessage.text && (
+          <div className={`p-4 rounded-xl mb-6 text-sm font-medium border text-center ${
+            passwordMessage.type === 'success' 
+              ? 'bg-emerald-50 border-emerald-200 text-emerald-800' 
+              : 'bg-red-50 border-red-200 text-red-800'
+          }`}>
+            {passwordMessage.text}
+          </div>
+        )}
+
+        <form onSubmit={handlePasswordSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs sm:text-sm font-bold text-gray-600 mb-1.5 uppercase tracking-wider flex items-center gap-1.5">
+              Mật khẩu hiện tại
+            </label>
+            <input 
+              type="password" 
+              value={currentPassword} 
+              onChange={(e) => setCurrentPassword(e.target.value)} 
+              required
+              className="w-full px-4 py-2.5 bg-amber-50/10 border border-gray-300 rounded-xl text-gray-800 font-medium focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+              placeholder="Nhập mật khẩu hiện tại..."
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs sm:text-sm font-bold text-gray-600 mb-1.5 uppercase tracking-wider flex items-center gap-1.5">
+              Mật khẩu mới
+            </label>
+            <input 
+              type="password" 
+              value={newPassword} 
+              onChange={(e) => setNewPassword(e.target.value)} 
+              required
+              className="w-full px-4 py-2.5 bg-amber-50/10 border border-gray-300 rounded-xl text-gray-800 font-medium focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+              placeholder="Tối thiểu 8 ký tự..."
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs sm:text-sm font-bold text-gray-600 mb-1.5 uppercase tracking-wider flex items-center gap-1.5">
+              Xác nhận mật khẩu mới
+            </label>
+            <input 
+              type="password" 
+              value={confirmPassword} 
+              onChange={(e) => setConfirmPassword(e.target.value)} 
+              required
+              className="w-full px-4 py-2.5 bg-amber-50/10 border border-gray-300 rounded-xl text-gray-800 font-medium focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+              placeholder="Nhập lại mật khẩu mới..."
+            />
+          </div>
+
+          <button 
+            type="submit"
+            disabled={passwordLoading}
+            className="w-full bg-red-800 hover:bg-red-900 text-white font-bold py-3.5 rounded-xl transition-all shadow-md hover:shadow-lg disabled:opacity-50 mt-4 flex items-center justify-center gap-2 text-sm"
+          >
+            {passwordLoading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span>Đang xử lý...</span>
+              </>
+            ) : (
+              <span>Cập Nhật Mật Khẩu</span>
+            )}
+          </button>
+        </form>
+      </div>
+
     </div>
   );
 }

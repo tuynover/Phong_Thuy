@@ -17,6 +17,7 @@ router.post('/login', authLimiter, AuthController.login);
 router.post('/google', authLimiter, AuthController.googleLogin);
 router.put('/bazi', AuthController.updateBaziInfo);
 router.put('/profile', AuthController.updateProfile);
+router.put('/change-password', auth, AuthController.changePassword);
 router.post('/appeal', AuthController.submitAppeal);
 
 const sseService = require('../services/SseService');
