@@ -16,8 +16,20 @@ graph TD
         UserApp --> ZiweiB[ZiweiBoard.jsx]
         UserApp --> MarriageB[MarriageBoard.jsx]
         UserApp --> HistoryB[HistoryBoard.jsx]
+        UserApp --> ProfileB[ProfileBoard.jsx]
+        
+        IChingB --> CoinT[CoinToss.jsx] & MaiHoaIn[MaiHoaInput.jsx] & ManualIn[ManualInput.jsx]
+        BaziB --> BaziIn[BaziInput.jsx]
+        MarriageB --> MarriageIn[MarriageInput.jsx]
+        ZiweiB --> ZiweiCh[ZiweiChart.jsx]
         
         IChingB & BaziB & ZiweiB & MarriageB --> ChatW[AiChatWidget.jsx]
+        IChingB & BaziB & ZiweiB & MarriageB --> Tooltip[Tooltip.jsx]
+        ChatW --> SecR[SectionRenderer.jsx]
+        
+        UserApp --> NotifB[NotificationBell.jsx]
+        UserApp -.-> AuthModal[AuthModal.jsx]
+        BaziB -.-> UpdBaziM[UpdateBaziModal.jsx]
     end
 
     subgraph Backend [Express.js v5]
@@ -25,8 +37,9 @@ graph TD
         Middleware --> AuthM[auth.js / adminAuth.js]
         Middleware --> CreditM[creditCheck.js]
         Middleware --> LogM[logging.js]
+        Middleware --> RateLim[rateLimiter.js]
         
-        AuthM & CreditM & LogM --> Controllers[Controllers]
+        AuthM & CreditM & LogM & RateLim --> Controllers[Controllers]
         
         Controllers --> AuthC[AuthController.js]
         Controllers --> IChingC[IChingController.js]
@@ -36,6 +49,8 @@ graph TD
         Controllers --> AiC[AiInterpretationController.js]
         Controllers --> HistC[HistoryController.js]
         Controllers --> AdminC[AdminController.js]
+        Controllers --> ConceptC[ConceptController.js]
+        Controllers --> NotifC[NotificationController.js]
         
         Controllers --> Services[Services & Logic]
         
@@ -45,6 +60,14 @@ graph TD
         Services --> AiS[AiService.js]
         Services --> SseS[SseService.js]
         Services --> SchedS[NotificationScheduler.js]
+        Services --> ConvCtxS[ConversationContextService.js]
+        Services --> EmailS[EmailService.js]
+        Services --> IChingDataS[IChingDataService.js]
+        Services --> LoggerS[LoggerService.js]
+        Services --> MemCacheS[MemoryCacheService.js]
+        Services --> UserStatsS[UserStatsService.js]
+        Services --> ZiweiCache[ZiweiCache.js]
+        Services --> ZiweiVal[ZiweiValidators.js]
     end
 
     subgraph Database [MongoDB]

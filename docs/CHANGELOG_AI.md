@@ -4,6 +4,24 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
 
 ---
 
+## 📅 Phiên bản: Đồng bộ hóa & Hoàn thiện Tài liệu Hệ thống (02/07/2026)
+
+### 1. Cập nhật thiết kế Cơ sở Dữ liệu (`DATABASE.md`)
+- Bổ sung cấu trúc Schema và chỉ mục (Indexes) chi tiết cho các bảng hỗ trợ Quản trị & Hệ thống bao gồm: `systemlogs` (`SystemLog.js`), `adminnotifications` (`AdminNotification.js`), `notifications` (`Notification.js`), và `banappeals` (`BanAppeal.js`) để đảm bảo tài liệu phản ánh chính xác 100% thuộc tính trường trong code.
+
+### 2. Bổ sung đặc tả các Endpoint còn thiếu (`API.md`)
+- Đặc tả API Tra cứu khái niệm học thuật: `GET /api/concept/:term` (sử dụng trong hiển thị Tooltip).
+- Đặc tả API Thông báo cho người dùng cuối:
+  - `GET /api/notifications`: Lấy danh sách thông báo nhắc nhở Ứng Kỳ.
+  - `PUT /api/notifications/read-all`: Đánh dấu đọc tất cả thông báo.
+  - `PUT /api/notifications/:id/read`: Đánh dấu đọc một thông báo cụ thể.
+
+### 3. Đồng bộ sơ đồ và mô tả Kiến trúc (`ARCHITECTURE.md`)
+- Cập nhật sơ đồ Mermaid của phân hệ Frontend: Bổ sung các component con (`CoinToss`, `MaiHoaInput`, `ManualInput`, `BaziInput`, `MarriageInput`, `ZiweiChart`, `Tooltip`, `SectionRenderer`) và các Modal/Bell (`NotificationBell`, `AuthModal`, `UpdateBaziModal`, `ProfileBoard`).
+- Cập nhật sơ đồ Mermaid của phân hệ Backend: Bổ sung `ConceptController`, `NotificationController` và các Service/Cache/Validator hỗ trợ (`ConversationContextService`, `EmailService`, `IChingDataService`, `LoggerService`, `MemoryCacheService`, `UserStatsService`, `ZiweiCache`, `ZiweiValidators`).
+
+---
+
 ## 📅 Phiên bản: Tái Cấu Trúc Toàn Diện & Chuẩn Hóa Tiếng Anh
 
 ### 1. Chuẩn hóa thuật ngữ & Rename mã nguồn

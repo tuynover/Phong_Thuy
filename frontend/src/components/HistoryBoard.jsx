@@ -9,6 +9,12 @@ const LUNAR_HOURS_MAP = [
 
 const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage, preloadedData, onCacheInvalidate }) => {
     const { user } = useContext(AuthContext);
+    const [hexagramsLoaded, setHexagramsLoaded] = useState(false);
+    const [bazisLoaded, setBazisLoaded] = useState(false);
+    const [ziweisLoaded, setZiweisLoaded] = useState(false);
+    const [marriagesLoaded, setMarriagesLoaded] = useState(false);
+    const prefetchedDetails = useRef({});
+
     const [hexagrams, setHexagrams] = useState([]);
     const [bazis, setBazis] = useState([]);
     const [ziweis, setZiweis] = useState([]);
@@ -17,7 +23,6 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
     const [actionLoading, setActionLoading] = useState(false);
     const [activeTab, setActiveTab] = useState('iching'); // 'iching' | 'bazi' | 'ziwei' | 'marriage'
     const [dialog, setDialog] = useState(null); // { type: 'confirm' | 'success' | 'error', message: '', onConfirm: null }
-    const prefetchedDetails = useRef({});
 
     const activeTheme = activeTab === 'iching' 
         ? { text: 'text-amber-800', bg: 'bg-amber-800 hover:bg-amber-900', border: 'border-amber-100', textAccent: 'text-amber-600' }
@@ -37,76 +42,55 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
 
     useEffect(() => {
         if (user) {
-            initData();
+            loadTabContent(activeTab);
         }
-    }, [user, preloadedData]);
+    }, [user, activeTab]);
 
-    const initData = async () => {
-        if (preloadedData && (preloadedData.hexagrams || preloadedData.promise)) {
-            if (preloadedData.hexagrams) {
-                setHexagrams(preloadedData.hexagrams);
-                setBazis(preloadedData.bazis);
-                setZiweis(preloadedData.tuvis); // Map tuvis to ziweis
-                if (preloadedData.marriages) {
-                    setMarriages(preloadedData.marriages);
-                } else {
-                    fetchMarriageOnly();
-                }
-                setLoading(false);
-            } else if (preloadedData.promise) {
-                setLoading(true);
-                try {
-                    const data = await preloadedData.promise;
-                    if (data) {
-                        setHexagrams(data.hexagrams);
-                        setBazis(data.bazis);
-                        setZiweis(data.tuvis);
-                        if (data.marriages) {
-                            setMarriages(data.marriages);
-                        } else {
-                            fetchMarriageOnly();
-                        }
-                    }
-                } catch (err) {
-                    console.error("Error loading preloaded history lists:", err);
-                    fetchData();
-                    return;
-                }
-                setLoading(false);
+    const loadTabContent = async (tab) => {
+        const userId = user.id || user._id;
+        if (!userId) return;
+
+        if (tab === 'iching' && !hexagramsLoaded) {
+            setLoading(true);
+            try {
+                const res = await getIChingHistory(userId, 15);
+                setHexagrams(res.data || []);
+                setHexagramsLoaded(true);
+            } catch (err) {
+                console.error("Error loading iching history:", err);
             }
-        } else {
-            fetchData();
+            setLoading(false);
+        } else if (tab === 'bazi' && !bazisLoaded) {
+            setLoading(true);
+            try {
+                const res = await getBaziHistory(userId, 15);
+                setBazis(res.data || []);
+                setBazisLoaded(true);
+            } catch (err) {
+                console.error("Error loading bazi history:", err);
+            }
+            setLoading(false);
+        } else if (tab === 'ziwei' && !ziweisLoaded) {
+            setLoading(true);
+            try {
+                const res = await getZiweiHistory(userId, 15);
+                setZiweis(res.data || []);
+                setZiweisLoaded(true);
+            } catch (err) {
+                console.error("Error loading ziwei history:", err);
+            }
+            setLoading(false);
+        } else if (tab === 'marriage' && !marriagesLoaded) {
+            setLoading(true);
+            try {
+                const res = await getMarriageHistory(userId, 15);
+                setMarriages(res.data || []);
+                setMarriagesLoaded(true);
+            } catch (err) {
+                console.error("Error loading marriage history:", err);
+            }
+            setLoading(false);
         }
-    };
-
-    const fetchMarriageOnly = async () => {
-        try {
-            const userId = user.id || user._id;
-            const res = await getMarriageHistory(userId);
-            setMarriages(res.data);
-        } catch (err) {
-            console.error("Error fetching marriage history", err);
-        }
-    };
-
-    const fetchData = async () => {
-        setLoading(true);
-        try {
-            const userId = user.id || user._id;
-            const [hexRes, baziRes, ziweiRes, marriageRes] = await Promise.all([
-                getIChingHistory(userId),
-                getBaziHistory(userId),
-                getZiweiHistory(userId),
-                getMarriageHistory(userId)
-            ]);
-            setHexagrams(hexRes.data);
-            setBazis(baziRes.data);
-            setZiweis(ziweiRes.data);
-            setMarriages(marriageRes.data);
-        } catch (error) {
-            console.error("Error fetching history", error);
-        }
-        setLoading(false);
     };
 
     const preloadRecord = async (type, id) => {
@@ -222,12 +206,16 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                 await deleteCalculation(type, id);
                 if (type === 'iching' || type === 'hexagrams') {
                     setHexagrams(hexagrams.filter(h => h._id !== id));
+                    if (user.stats) user.stats.ichingCount = Math.max(0, (user.stats.ichingCount || 0) - 1);
                 } else if (type === 'bazi') {
                     setBazis(bazis.filter(b => b._id !== id));
+                    if (user.stats) user.stats.baziCount = Math.max(0, (user.stats.baziCount || 0) - 1);
                 } else if (type === 'ziwei') {
                     setZiweis(ziweis.filter(t => t._id !== id));
+                    if (user.stats) user.stats.ziweiCount = Math.max(0, (user.stats.ziweiCount || 0) - 1);
                 } else if (type === 'marriage') {
                     setMarriages(marriages.filter(m => m._id !== id));
+                    if (user.stats) user.stats.marriageCount = Math.max(0, (user.stats.marriageCount || 0) - 1);
                 }
                 const cacheKey = `${type === 'iching' || type === 'hexagrams' ? 'iching' : type === 'bazi' ? 'bazi' : type === 'ziwei' ? 'ziwei' : 'marriage'}:${id}`;
                 delete prefetchedDetails.current[cacheKey];
@@ -274,25 +262,25 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                     onClick={() => setActiveTab('iching')}
                     className={`flex-1 sm:flex-none px-4 py-2 text-xs md:text-base rounded-full font-bold transition-all ${activeTab === 'iching' ? 'bg-amber-800 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
                 >
-                    Kinh Dịch ({hexagrams.length})
+                    Kinh Dịch ({user.stats?.ichingCount ?? 0})
                 </button>
                 <button 
                     onClick={() => setActiveTab('bazi')}
                     className={`flex-1 sm:flex-none px-4 py-2 text-xs md:text-base rounded-full font-bold transition-all ${activeTab === 'bazi' ? 'bg-blue-800 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
                 >
-                    Bát Tự ({bazis.length})
+                    Bát Tự ({user.stats?.baziCount ?? 0})
                 </button>
                 <button 
                     onClick={() => setActiveTab('ziwei')}
                     className={`flex-1 sm:flex-none px-4 py-2 text-xs md:text-base rounded-full font-bold transition-all ${activeTab === 'ziwei' ? 'bg-purple-800 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
                 >
-                    Tử Vi ({ziweis.length})
+                    Tử Vi ({user.stats?.ziweiCount ?? 0})
                 </button>
                 <button 
                     onClick={() => setActiveTab('marriage')}
                     className={`flex-1 sm:flex-none px-4 py-2 text-xs md:text-base rounded-full font-bold transition-all ${activeTab === 'marriage' ? 'bg-rose-800 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
                 >
-                    Hôn Nhân ({marriages.length})
+                    Hôn Nhân ({user.stats?.marriageCount ?? 0})
                 </button>
             </div>
 

@@ -32,7 +32,8 @@ router.get('/me', auth, (req, res) => {
     role: req.dbUser.role,
     credits: req.dbUser.credits,
     status: req.dbUser.status,
-    isDeleted: req.dbUser.isDeleted
+    isDeleted: req.dbUser.isDeleted,
+    stats: req.dbUser.stats
   });
 });
 

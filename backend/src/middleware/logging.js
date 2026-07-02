@@ -2,9 +2,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const logger = require('../services/LoggerService');
 const SystemLog = require('../models/SystemLog');
-
-// In-memory cache for user ID to email/name to optimize database queries
-const userCache = new Map();
+const MemoryCacheService = require('../services/MemoryCacheService');
 
 // Helper to resolve user info from JWT token or params/body
 async function resolveUser(req) {
@@ -41,8 +39,9 @@ async function resolveUser(req) {
         }
 
         // Check cache first
-        if (userCache.has(userId)) {
-            return userCache.get(userId);
+        const cachedUser = MemoryCacheService.get(`user_resolve:${userId}`);
+        if (cachedUser) {
+            return cachedUser;
         }
 
         // Check if it's a valid MongoDB ObjectId or UUID before querying
@@ -56,7 +55,7 @@ async function resolveUser(req) {
                         email: user.email,
                         name: user.name
                     };
-                    userCache.set(userId, userInfo);
+                    MemoryCacheService.set(`user_resolve:${userId}`, userInfo, 300000); // cache for 5 minutes
                     return userInfo;
                 }
             } catch (err) {
@@ -112,42 +111,42 @@ function getActionName(req) {
     return `${method} ${path}`;
 }
 
-const auditLogger = async (req, res, next) => {
+const auditLogger = (req, res, next) => {
     // Skip logging for lightweight health check endpoint to keep logs clean
     if (req.path === '/health' || req.originalUrl === '/health') {
         return next();
     }
+    
+    // Call next immediately to avoid blocking express request processing
+    next();
+
     const start = Date.now();
     const action = getActionName(req);
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
     
-    // Resolve user details asynchronously (non-blocking)
-    let userDetails = { display: 'anonymous' };
-    try {
-        userDetails = await resolveUser(req);
-    } catch (e) {
-        // Resolve error
-    }
+    // Create copy of body for async logging
+    const bodyCopy = req.body ? { ...req.body } : null;
+    if (bodyCopy && bodyCopy.password) bodyCopy.password = '******';
+    const requestDetail = bodyCopy && Object.keys(bodyCopy).length > 0 ? ` | Params: ${JSON.stringify(bodyCopy)}` : "";
 
-    const context = {
-        user: userDetails.display,
-        action: action,
-        ip: ip
-    };
+    // Capture response completion asynchronously
+    res.on('finish', async () => {
+        let userDetails = { display: 'anonymous' };
+        try {
+            userDetails = await resolveUser(req);
+        } catch (e) {
+            // Ignore error
+        }
 
-    // Construct a descriptive request detail string (masking passwords)
-    let requestDetail = "";
-    if (req.body && Object.keys(req.body).length > 0) {
-        const bodyCopy = { ...req.body };
-        if (bodyCopy.password) bodyCopy.password = '******';
-        requestDetail = ` | Params: ${JSON.stringify(bodyCopy)}`;
-    }
+        const context = {
+            user: userDetails.display,
+            action: action,
+            ip: ip
+        };
 
-    // Log request entry
-    logger.info(`Yêu cầu bắt đầu: ${req.method} ${req.originalUrl}${requestDetail}`, context);
+        // Log request entry
+        logger.info(`Yêu cầu bắt đầu: ${req.method} ${req.originalUrl}${requestDetail}`, context);
 
-    // Capture response completion
-    res.on('finish', () => {
         const duration = Date.now() - start;
         const finalContext = { ...context, duration };
         const status = res.statusCode;
@@ -163,11 +162,7 @@ const auditLogger = async (req, res, next) => {
             path: req.originalUrl,
             statusCode: status,
             duration: duration,
-            requestParams: req.body && Object.keys(req.body).length > 0 ? (() => {
-                const bodyCopy = { ...req.body };
-                if (bodyCopy.password) bodyCopy.password = '******';
-                return bodyCopy;
-            })() : null
+            requestParams: bodyCopy && Object.keys(bodyCopy).length > 0 ? bodyCopy : null
         }).catch(err => {
             console.error('[auditLogger] Failed to write SystemLog:', err);
         });
@@ -180,8 +175,6 @@ const auditLogger = async (req, res, next) => {
             logger.info(`Hoàn thành: Phản hồi thành công (${status})`, finalContext);
         }
     });
-
-    next();
 };
 
 module.exports = auditLogger;

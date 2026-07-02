@@ -16115,3 +16115,89 @@ Stack: Error: read ECONNRESET
 [2026-07-01 22:44:00.128] [INFO] [NotificationScheduler] Scanning for request and token spikes...
 [2026-07-01 22:54:00.141] [INFO] [NotificationScheduler] Scanning for request and token spikes...
 [2026-07-01 23:04:00.147] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-02 16:40:44.637] [INFO] Backend is running on port 3001
+[2026-07-02 16:40:44.731] [INFO] [NotificationScheduler] Started successfully.
+[2026-07-02 16:40:44.731] [INFO] [Self-Ping] Initialized: Pinging https://phong-thuy-backend.onrender.com/health every 3 minutes.
+[2026-07-02 16:40:45.670] [INFO] MongoDB Connected: ac-jk9y7ee-shard-00-00.a5rqrhx.mongodb.net
+[2026-07-02 16:40:49.734] [INFO] [NotificationScheduler] Running daily check...
+[2026-07-02 16:40:49.734] [INFO] [NotificationScheduler] Running daily credit increment...
+[2026-07-02 16:40:49.736] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-02 16:40:49.834] [INFO] [NotificationScheduler] Daily credit increment completed. Updated 12 users.
+[2026-07-02 16:41:00.858] [INFO] [SSE] User client [019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] connected. Total sessions: 1
+[2026-07-02 16:41:01.181] [INFO] [SSE] Admin client connected. Total admin clients: 1
+[2026-07-02 16:41:01.448] [INFO] [User: admin@admin.com (admin)] [Action: GET /notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/notifications
+[2026-07-02 16:41:01.458] [INFO] [User: admin@admin.com (admin)] [Action: GET /notifications] [IP: ::1] [Duration: 347ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-02 16:41:01.638] [INFO] [User: admin@admin.com (admin)] [Action: GET /notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/notifications
+[2026-07-02 16:41:01.640] [INFO] [User: admin@admin.com (admin)] [Action: GET /notifications] [IP: ::1] [Duration: 316ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 16:41:01.815] [INFO] [User: admin@admin.com (admin)] [Action: GET /analytics] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/analytics?startDate=2026-06-25&endDate=2026-07-02&groupBy=day
+[2026-07-02 16:41:01.817] [INFO] [User: admin@admin.com (admin)] [Action: GET /analytics] [IP: ::1] [Duration: 709ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-02 16:41:02.680] [INFO] [SSE] Admin client disconnected. Remaining: 0
+[2026-07-02 16:41:02.681] [INFO] [SSE] User client [019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] disconnected.
+[2026-07-02 16:41:10.768] [INFO] [User: cobatuoc@gmail.com] [Action: Đăng nhập] Đăng nhập thành công cho tài khoản [cobatuoc@gmail.com] (Tên: Trịnh Công Tuyền).
+[2026-07-02 16:41:10.772] [INFO] [User: cobatuoc@gmail.com] [Action: POST /login] [IP: ::1] Yêu cầu bắt đầu: POST /api/auth/login | Params: {"email":"cobatuoc@gmail.com","password":"******"}
+[2026-07-02 16:41:10.774] [INFO] [User: cobatuoc@gmail.com] [Action: POST /login] [IP: ::1] [Duration: 210ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-02 16:41:10.976] [INFO] [SSE] User client [019e594f-5fb3-701e-916a-d6ce37d424bd] connected. Total sessions: 1
+[2026-07-02 16:41:11.052] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 209ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-02 16:41:11.051] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 16:41:11.133] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 16:41:11.135] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 141ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 16:41:12.107] [INFO] [SSE] User client [019e594f-5fb3-701e-916a-d6ce37d424bd] disconnected.
+[2026-07-02 16:45:32.670] [INFO] [SSE] User client [019e594f-5fb3-701e-916a-d6ce37d424bd] connected. Total sessions: 1
+[2026-07-02 16:45:33.063] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 16:45:33.064] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 133ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 16:45:33.210] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 140ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 16:45:33.208] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 16:45:34.363] [INFO] [SSE] User client [019e594f-5fb3-701e-916a-d6ce37d424bd] disconnected.
+[2026-07-02 16:45:38.955] [INFO] [SSE] User client [019e594f-5fb3-701e-916a-d6ce37d424bd] connected. Total sessions: 1
+[2026-07-02 16:45:39.446] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 16:45:39.447] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 142ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 16:45:39.597] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 16:45:39.598] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 145ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 16:45:44.863] [INFO] [SSE] User client [019e594f-5fb3-701e-916a-d6ce37d424bd] disconnected.
+[2026-07-02 16:46:33.345] [INFO] [SSE] User client [019e594f-5fb3-701e-916a-d6ce37d424bd] connected. Total sessions: 1
+[2026-07-02 16:46:34.023] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 16:46:34.024] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 199ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 16:46:34.097] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 16:46:34.098] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 134ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 16:47:34.404] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 16:47:34.405] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 135ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 16:48:13.390] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /iching/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/iching/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-02 16:48:13.402] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /iching/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] [Duration: 3ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 16:48:13.391] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /iching/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] [Duration: 132ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-02 16:48:13.401] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /iching/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/iching/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-02 16:48:16.372] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /bazi/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-02 16:48:16.374] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /bazi/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] [Duration: 83ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-02 16:48:17.318] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /history/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] [Duration: 268ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 16:48:17.317] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /history/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] Yêu cầu bắt đầu: GET /api/ziwei/history/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-02 16:48:17.887] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /marriage/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/marriage/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-02 16:48:17.888] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /marriage/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] [Duration: 78ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-02 16:48:33.980] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 16:48:33.981] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 144ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 16:48:38.241] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /iching/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/iching/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-02 16:48:38.241] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /iching/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] [Duration: 1ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 16:48:38.246] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /iching/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/iching/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-02 16:48:38.246] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /iching/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] [Duration: 2ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 16:48:45.042] [INFO] [User: cobatuoc@gmail.com] [Action: Cập nhật Hồ Sơ] Cập nhật Hồ Sơ thành công cho tài khoản [cobatuoc@gmail.com].
+[2026-07-02 16:48:45.048] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: PUT /profile] [IP: ::1] Yêu cầu bắt đầu: PUT /api/auth/profile | Params: {"userId":"019e594f-5fb3-701e-916a-d6ce37d424bd","name":"Trịnh Công Tuyền","phone":"","gender":1,"day":27,"month":8,"year":2004,"hour":7,"minute":30}
+[2026-07-02 16:48:45.050] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: PUT /profile] [IP: ::1] [Duration: 143ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-02 16:48:46.459] [INFO] [SSE] User client [019e594f-5fb3-701e-916a-d6ce37d424bd] disconnected.
+[2026-07-02 16:48:51.735] [INFO] [User: cobatuoc@gmail.com] [Action: Đăng nhập] Đăng nhập thành công cho tài khoản [cobatuoc@gmail.com] (Tên: Trịnh Công Tuyền).
+[2026-07-02 16:48:51.738] [INFO] [User: cobatuoc@gmail.com] [Action: POST /login] [IP: ::1] Yêu cầu bắt đầu: POST /api/auth/login | Params: {"email":"cobatuoc@gmail.com","password":"******"}
+[2026-07-02 16:48:51.739] [INFO] [User: cobatuoc@gmail.com] [Action: POST /login] [IP: ::1] [Duration: 209ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-02 16:48:51.949] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 16:48:51.950] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 142ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 16:48:51.955] [INFO] [SSE] User client [019e594f-5fb3-701e-916a-d6ce37d424bd] connected. Total sessions: 1
+[2026-07-02 16:48:52.104] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 141ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 16:48:52.102] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 16:48:53.110] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /iching/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/iching/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-02 16:48:53.111] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /iching/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] [Duration: 2ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 16:48:53.117] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /iching/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/iching/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-02 16:48:53.118] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /iching/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] [Duration: 2ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 16:48:54.307] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /bazi/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-02 16:48:54.308] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /bazi/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] [Duration: 3ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 16:48:55.223] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /history/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] Yêu cầu bắt đầu: GET /api/ziwei/history/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-02 16:48:55.224] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /history/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] [Duration: 3ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 16:48:55.613] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /marriage/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/marriage/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-02 16:48:55.614] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /marriage/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] [Duration: 2ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 16:48:57.705] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /marriage/record/019f1d1b-89a0-7a2d-8ce0-da7bd9c6c035] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/marriage/record/019f1d1b-89a0-7a2d-8ce0-da7bd9c6c035
+[2026-07-02 16:48:57.706] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /marriage/record/019f1d1b-89a0-7a2d-8ce0-da7bd9c6c035] [IP: ::1] [Duration: 138ms] Hoàn thành: Phản hồi thành công (200)

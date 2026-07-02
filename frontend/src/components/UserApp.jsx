@@ -31,42 +31,9 @@ export default function UserApp({ onSwitchToAdmin }) {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const userMenuRef = useRef(null);
 
-  const preloadedHistoryRef = useRef(null);
-
-  const preloadHistoryLists = () => {
-    if (!user || preloadedHistoryRef.current) return;
-    const userId = user.id || user._id;
-    const promise = Promise.all([
-      getIChingHistory(userId),
-      getBaziHistory(userId),
-      getZiweiHistory(userId),
-      getMarriageHistory(userId)
-    ]).then(([hexRes, baziRes, ziweiRes, marriageRes]) => {
-      const data = {
-        hexagrams: hexRes.data,
-        bazis: baziRes.data,
-        tuvis: ziweiRes.data, // keep key name for history component compatibility
-        marriages: marriageRes.data,
-        promise: null
-      };
-      preloadedHistoryRef.current = data;
-      return data;
-    }).catch(err => {
-      console.error("Error preloading history lists:", err);
-      preloadedHistoryRef.current = null;
-    });
-
-    preloadedHistoryRef.current = {
-      hexagrams: null,
-      bazis: null,
-      tuvis: null,
-      marriages: null,
-      promise
-    };
-  };
-
+  // Preloading history lists has been removed in favor of lazy loading on active tabs
   const invalidateHistoryCache = () => {
-    preloadedHistoryRef.current = null;
+    // Cache invalidation logic handled locally in HistoryBoard
   };
 
   useEffect(() => {
@@ -329,8 +296,6 @@ export default function UserApp({ onSwitchToAdmin }) {
             {user && (
               <button 
                 onClick={() => setAppMode('history')} 
-                onMouseEnter={preloadHistoryLists}
-                onTouchStart={preloadHistoryLists}
                 className={`flex-1 sm:flex-none px-2.5 py-1.5 sm:px-5 sm:py-2 rounded-full font-bold transition-all text-[11px] sm:text-xs md:text-sm tracking-wider font-[Montserrat] uppercase ${appMode === 'history' ? 'bg-slate-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-955 hover:bg-neutral-50'}`}
               >
                 Lịch Sử
@@ -674,7 +639,6 @@ export default function UserApp({ onSwitchToAdmin }) {
                 onViewBazi={handleViewHistoricalBazi} 
                 onViewZiwei={handleViewHistoricalZiwei}
                 onViewMarriage={handleViewHistoricalMarriage}
-                preloadedData={preloadedHistoryRef.current}
                 onCacheInvalidate={invalidateHistoryCache}
               />
             </React.Suspense>

@@ -116,6 +116,20 @@ Tính toán và an hào quẻ Kinh Dịch dựa trên 6 lần gieo đồng xu ho
   ```
 - **Phản hồi (200):** Trả về thông tin an sao 12 cung chi tiết dựa trên thư viện iztro.
 
+### 2.5 Tra cứu khái niệm học thuật
+Lấy thông tin chi tiết (Lục Thân, Lục Thú, Hào Thế/Ứng) để hiển thị tooltip giải nghĩa trên giao diện người dùng.
+- **Endpoint:** `GET /api/concept/:term`
+- **Tham số `:term`:** Tên khái niệm (ví dụ: `Phụ Mẫu`, `Thê Tài`, `Thanh Long`...).
+- **Phản hồi (200):**
+  ```json
+  {
+    "term": "Phụ Mẫu",
+    "category": "Lục Thân",
+    "short_description": "Cha mẹ, bề trên, giấy tờ, xe cộ, nhà cửa.",
+    "full_detail": "▸ Người đại diện: Cha mẹ, ông bà...\n▸ Sự vật: Hợp đồng, văn bằng..."
+  }
+  ```
+
 ---
 
 ## 🤖 3. Luận Giải AI & Trò chuyện Chat (`/api/ai`)
@@ -179,3 +193,16 @@ Tất cả các route yêu cầu tài khoản đăng nhập có quyền `admin` 
 - **Mở khóa tài khoản:** `POST /api/admin/users/:id/unlock`
 - **Báo cáo máy chủ:** `GET /api/admin/analytics`
 - **Xem Live Event Admin (Realtime SSE):** `GET /api/admin/events?token=<admin_jwt>`
+
+---
+
+## 🔔 6. Thông báo Người dùng (`/api/notifications`)
+
+Yêu cầu người dùng đăng nhập. Phục vụ lấy danh sách và quản lý trạng thái đọc thông báo (đặc biệt là thông báo nhắc nhở Ứng Kỳ).
+
+- **Lấy danh sách thông báo:** `GET /api/notifications`
+  - **Phản hồi (200):** Danh sách các thông báo của người dùng.
+- **Đánh dấu đọc tất cả:** `PUT /api/notifications/read-all`
+  - **Phản hồi (200):** `{ "success": true, "modifiedCount": 3 }`
+- **Đánh dấu đọc một thông báo:** `PUT /api/notifications/:id/read`
+  - **Phản hồi (200):** `{ "success": true }`

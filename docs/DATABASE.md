@@ -193,10 +193,80 @@ Lưu trữ kết quả so sánh Bát Tự và độ hòa hợp của hai đối 
   ```
 
 ### 2.8 Các bảng hỗ trợ Quản trị & Hệ thống
-- **`SystemLog` (Audit Log):** Lưu trữ lịch sử thao tác của người dùng, IP, Endpoint và thời gian phản hồi.
-- **`AdminNotification`:** Các cảnh báo vi phạm, khiếu nại gửi tới Admin.
-- **`Notification`:** Thông báo Ứng Kỳ gửi tới người dùng cuối.
-- **`BanAppeal`:** Đơn khiếu nại yêu cầu mở khóa tài khoản của người dùng.
+
+#### a. Bảng Nhật ký Hệ thống (`systemlogs`)
+Lưu trữ lịch sử thao tác của người dùng, IP, Endpoint và thời gian phản hồi.
+- **Model:** [SystemLog.js](file:///t:/Phongthuy/backend/src/models/SystemLog.js)
+- **Cấu trúc Schema:**
+  ```javascript
+  {
+    userId: { type: String, default: 'anonymous' },
+    email: { type: String, default: '' },
+    name: { type: String, default: '' },
+    ip: { type: String, required: true },
+    action: { type: String, required: true }, // Mô tả hành động bằng tiếng Việt
+    method: { type: String, required: true },
+    path: { type: String, required: true },
+    statusCode: { type: Number, required: true },
+    duration: { type: Number, required: true }, // thời gian xử lý (ms)
+    tokensUsed: { type: Number, default: 0 },
+    requestParams: { type: Object, default: null }, // tham số request đã lọc bỏ thông tin nhạy cảm
+    timestamp: { type: Date, default: Date.now }
+  }
+  ```
+- **Chỉ mục phụ:**
+  - `{"timestamp": -1}`
+  - `{"userId": 1, "timestamp": -1}`
+
+#### b. Bảng Cảnh báo Quản trị (`adminnotifications`)
+Các cảnh báo vi phạm chính sách hoặc sử dụng token đột biến gửi tới Admin.
+- **Model:** [AdminNotification.js](file:///t:/Phongthuy/backend/src/models/AdminNotification.js)
+- **Cấu trúc Schema:**
+  ```javascript
+  {
+    _id: { type: String, default: uuidv7 },
+    type: { type: String, enum: ['appeal', 'request_spike', 'token_spike'], required: true },
+    title: { type: String, required: true },
+    message: { type: String, required: true },
+    metadata: { type: Object, default: null }, // Chi tiết lỗi (IP, số lượng, userId...)
+    status: { type: String, enum: ['unread', 'read'], default: 'unread' }
+  }
+  ```
+- **Chỉ mục phụ:**
+  - `{"status": 1, "createdAt": -1}`
+
+#### c. Bảng Thông báo Người dùng (`notifications`)
+Thông báo nhắc nhở sự kiện Ứng Kỳ gửi tới người dùng cuối.
+- **Model:** [Notification.js](file:///t:/Phongthuy/backend/src/models/Notification.js)
+- **Cấu trúc Schema:**
+  ```javascript
+  {
+    _id: { type: String, default: uuidv7 },
+    userId: { type: String, required: true, index: true },
+    hexagramId: { type: String, ref: 'IChingRecord', required: true },
+    title: { type: String, required: true },
+    message: { type: String, required: true },
+    isRead: { type: Boolean, default: false },
+    type: { type: String, default: 'ung_ky' }
+  }
+  ```
+
+#### d. Bảng Đơn Khiếu nại (`banappeals`)
+Đơn khiếu nại yêu cầu mở khóa tài khoản của người dùng bị khóa.
+- **Model:** [BanAppeal.js](file:///t:/Phongthuy/backend/src/models/BanAppeal.js)
+- **Cấu trúc Schema:**
+  ```javascript
+  {
+    _id: { type: String, default: uuidv7 },
+    userId: { type: String, required: true },
+    email: { type: String, required: true },
+    reason: { type: String, required: true },  // Lý do khóa ban đầu
+    message: { type: String, required: true }, // Nội dung giải trình của người dùng
+    status: { type: String, enum: ['pending', 'resolved'], default: 'pending' }
+  }
+  ```
+- **Chỉ mục phụ:**
+  - `{"status": 1, "createdAt": -1}`
 
 ---
 
