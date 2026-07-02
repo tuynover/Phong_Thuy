@@ -292,8 +292,7 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
         <div className="bg-white p-4 md:p-8 rounded-2xl md:rounded-[2rem] shadow-sm border border-gray-100 max-w-4xl mx-auto relative">
             {actionLoading && (
                 <div className="fixed inset-0 bg-white/50 backdrop-blur-[2px] z-50 flex flex-col items-center justify-center animate-in fade-in duration-200">
-                    <Loader2 className="w-10 h-10 text-amber-800 animate-spin mb-2" />
-                    <span className="text-sm font-bold text-amber-900 tracking-wider uppercase">Đang nạp chi tiết...</span>
+                    <Loader2 className="w-10 h-10 text-amber-800 animate-spin" />
                 </div>
             )}
             <h2 className="text-2xl md:text-3xl font-serif font-bold text-amber-955 mb-6 md:mb-8 text-center border-b pb-4">Lịch Sử Của Bạn</h2>
