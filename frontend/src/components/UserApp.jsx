@@ -32,10 +32,10 @@ export default function UserApp({ onSwitchToAdmin }) {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const userMenuRef = useRef(null);
 
-  const preloadedHistoryRef = useRef(null);
+  const [preloadedHistory, setPreloadedHistory] = useState(null);
 
   const preloadHistoryLists = () => {
-    if (!user || preloadedHistoryRef.current) return;
+    if (!user || preloadedHistory) return;
     const userId = user.id || user._id;
     const promise = Promise.all([
       getIChingHistory(userId),
@@ -50,24 +50,24 @@ export default function UserApp({ onSwitchToAdmin }) {
         marriages: marriageRes.data,
         promise: null
       };
-      preloadedHistoryRef.current = data;
+      setPreloadedHistory(data);
       return data;
     }).catch(err => {
       console.error("Error preloading history lists:", err);
-      preloadedHistoryRef.current = null;
+      setPreloadedHistory(null);
     });
 
-    preloadedHistoryRef.current = {
+    setPreloadedHistory({
       hexagrams: null,
       bazis: null,
       tuvis: null,
       marriages: null,
       promise
-    };
+    });
   };
 
   const invalidateHistoryCache = () => {
-    preloadedHistoryRef.current = null;
+    setPreloadedHistory(null);
   };
 
   useEffect(() => {
@@ -662,15 +662,17 @@ export default function UserApp({ onSwitchToAdmin }) {
         </div>
 
         {/* SYSTEM 4: HISTORY */}
-        {user && appMode === 'history' && (
-          <div className="animate-in fade-in duration-500">
+        {user && (
+          <div className={`animate-in fade-in duration-500 ${appMode === 'history' ? 'block' : 'hidden'}`}>
             <HistoryBoard 
               onViewHexagram={handleViewHistoricalHexagram} 
               onViewBazi={handleViewHistoricalBazi} 
               onViewZiwei={handleViewHistoricalZiwei}
               onViewMarriage={handleViewHistoricalMarriage}
-              preloadedData={preloadedHistoryRef.current}
+              preloadedData={preloadedHistory}
               onCacheInvalidate={invalidateHistoryCache}
+              onSaveCache={setPreloadedHistory}
+              active={appMode === 'history'}
             />
           </div>
         )}

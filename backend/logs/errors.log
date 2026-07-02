@@ -648,3 +648,4 @@ Stack: Error: read ECONNRESET
 [2026-07-02 17:39:49.221] [WARN] [User: cobatuoc@gmail.com] [Action: Đăng ký tài khoản] [IP: ::1] [Duration: 90ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (400)
 [2026-07-02 17:39:50.179] [WARN] [User: cobatuoc@gmail.com] [Action: Đăng ký tài khoản] [IP: ::1] [Duration: 71ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (400)
 [2026-07-02 17:39:50.883] [WARN] [User: cobatuoc@gmail.com] [Action: Đăng ký tài khoản] [IP: ::1] [Duration: 65ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (400)
+[2026-07-02 18:00:24.790] [WARN] [NotificationScheduler] Alert: Request spike detected for ::1

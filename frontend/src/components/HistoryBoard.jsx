@@ -7,13 +7,18 @@ const LUNAR_HOURS_MAP = [
   "Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"
 ];
 
-const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage, preloadedData, onCacheInvalidate }) => {
+const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage, preloadedData, onCacheInvalidate, active, onSaveCache }) => {
     const { user } = useContext(AuthContext);
     const [hexagrams, setHexagrams] = useState([]);
     const [bazis, setBazis] = useState([]);
     const [ziweis, setZiweis] = useState([]);
     const [marriages, setMarriages] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(() => {
+        if (preloadedData && preloadedData.hexagrams) {
+            return false;
+        }
+        return true;
+    });
     const [actionLoading, setActionLoading] = useState(false);
     const [activeTab, setActiveTab] = useState('iching'); // 'iching' | 'bazi' | 'ziwei' | 'marriage'
     const [dialog, setDialog] = useState(null); // { type: 'confirm' | 'success' | 'error', message: '', onConfirm: null }
@@ -36,10 +41,10 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
     };
 
     useEffect(() => {
-        if (user) {
+        if (user && (active ?? true)) {
             initData();
         }
-    }, [user, preloadedData]);
+    }, [user, preloadedData, active]);
 
     const initData = async () => {
         if (preloadedData && (preloadedData.hexagrams || preloadedData.promise)) {
@@ -84,6 +89,12 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
             const userId = user.id || user._id;
             const res = await getMarriageHistory(userId);
             setMarriages(res.data);
+            if (onSaveCache && preloadedData) {
+                onSaveCache({
+                    ...preloadedData,
+                    marriages: res.data
+                });
+            }
         } catch (err) {
             console.error("Error fetching marriage history", err);
         }
@@ -103,6 +114,15 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
             setBazis(baziRes.data);
             setZiweis(ziweiRes.data);
             setMarriages(marriageRes.data);
+            if (onSaveCache) {
+                onSaveCache({
+                    hexagrams: hexRes.data,
+                    bazis: baziRes.data,
+                    tuvis: ziweiRes.data,
+                    marriages: marriageRes.data,
+                    promise: null
+                });
+            }
         } catch (error) {
             console.error("Error fetching history", error);
         }
@@ -244,16 +264,10 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
     if (loading) {
         return (
             <div className="bg-white p-12 md:p-20 rounded-2xl md:rounded-[2rem] shadow-sm border border-gray-100 max-w-4xl mx-auto flex flex-col items-center justify-center min-h-[350px] animate-in fade-in duration-300">
-                <div className="relative flex items-center justify-center mb-6">
+                <div className="relative flex items-center justify-center">
                     <div className="absolute w-16 h-16 bg-amber-50 rounded-full blur-xl animate-pulse"></div>
                     <Loader2 className="w-12 h-12 text-amber-800 animate-spin relative z-10" />
                 </div>
-                <h3 className="text-lg md:text-xl font-serif font-bold text-amber-955 mb-2 tracking-wide text-center">
-                    Đang nạp nhật ký lịch sử...
-                </h3>
-                <p className="text-xs md:text-sm text-neutral-400 font-medium tracking-widest uppercase animate-pulse text-center">
-                    Vui lòng chờ trong giây lát
-                </p>
             </div>
         );
     }

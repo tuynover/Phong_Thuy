@@ -8,7 +8,9 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
 
 ### 1. Frontend (Giao diện & Trải nghiệm Người dùng)
 - **Loại bỏ màn hình load kép:** Thay thế cơ chế tải động (Lazy Loading) của component `HistoryBoard` thành Import tĩnh (Static Import) trực tiếp trong [UserApp.jsx](file:///t:/Phongthuy/frontend/src/components/UserApp.jsx) và loại bỏ component bọc `<React.Suspense>`. Giúp triệt tiêu màn hình loading thô đầu tiên khi bấm vào tab Lịch sử.
-- **Nâng cấp giao diện Loading dữ liệu lịch sử:** Thay đổi màn hình loading văn bản đơn giản `"Đang tải lịch sử..."` thành giao diện thẻ tải sang trọng và đồng bộ với giao diện chính trong [HistoryBoard.jsx](file:///t:/Phongthuy/frontend/src/components/HistoryBoard.jsx). Tích hợp biểu tượng spinner xoay tròn (`Loader2` từ `lucide-react`) đi kèm hiệu ứng xung ánh sáng vàng nhạt (`bg-amber-50 animate-pulse`) tạo trải nghiệm tải mượt mà, trực quan.
+- **Hỗ trợ Keep-Alive chống reload thừa:** Thay đổi cơ chế render của `HistoryBoard` từ dựng lại hoàn toàn (conditional rendering `{appMode === 'history' && ...}`) sang ẩn/hiện bằng CSS classes (`block` / `hidden`). Component sẽ được giữ lại trong bộ nhớ DOM, không bị hủy/tái khởi tạo khi chuyển đổi giữa các tab.
+- **Tải dữ liệu tức thì (Zero-flicker loading):** Khởi tạo trạng thái `loading` dựa vào dữ liệu đã preload trước đó. Khi chuyển tab qua lại mà dữ liệu không đổi, trang Lịch sử sẽ hiện ngay lập tức mà không có bất kỳ hiện tượng nhấp nháy hay phải nạp lại dữ liệu từ đầu.
+- **Nâng cấp giao diện Loading tinh giản (Chỉ xoay tròn):** Lược bỏ toàn bộ các phần text thô `"Đang nạp nhật ký lịch sử..."` và `"Vui lòng chờ..."`, chỉ hiển thị một biểu tượng spinner xoay (`Loader2` từ `lucide-react`) tinh tế trên nền hiệu ứng xung ánh sáng vàng nhạt (`bg-amber-50 animate-pulse`) đồng bộ với tông màu Kinh Dịch.
 
 ---
 
