@@ -158,6 +158,11 @@ export default function UserApp({ onSwitchToAdmin }) {
     }
   }, [marriageResult]);
 
+  // Clear history cache when user logs out or switches accounts
+  useEffect(() => {
+    setPreloadedHistory(null);
+  }, [user?.id, user?._id]);
+
   const handleDivinationComplete = async (lines, customDate, questionSuffix = '') => {
     setLoading(true);
     try {
@@ -177,30 +182,30 @@ export default function UserApp({ onSwitchToAdmin }) {
     setLoading(false);
   };
 
-  const handleLoginSuccess = async (loggedInUser) => {
+  const handleLoginSuccess = (loggedInUser) => {
     const activeUser = loggedInUser || user;
     if (!activeUser) return;
     const uid = activeUser.id || activeUser._id;
     if (!uid) return;
 
-    let messages = [];
+    const promises = [];
     if (currentRecordId) {
-      try {
-        await linkIChing(currentRecordId, uid);
-        setCurrentRecordId(null);
-        messages.push('quẻ Kinh Dịch');
-      } catch (err) {
-        console.error("Lỗi khi gán quẻ:", err);
-      }
+      promises.push(
+        linkIChing(currentRecordId, uid)
+          .then(() => setCurrentRecordId(null))
+          .catch(err => console.error("Lỗi khi gán quẻ Kinh Dịch:", err))
+      );
     }
     if (guestBaziId) {
-      try {
-        await linkBazi(guestBaziId, uid);
-        setGuestBaziId(null);
-        messages.push('lá số Bát Tự');
-      } catch (err) {
-        console.error("Lỗi khi gán bát tự:", err);
-      }
+      promises.push(
+        linkBazi(guestBaziId, uid)
+          .then(() => setGuestBaziId(null))
+          .catch(err => console.error("Lỗi khi gán lá số Bát Tự:", err))
+      );
+    }
+
+    if (promises.length > 0) {
+      Promise.all(promises);
     }
   };
 

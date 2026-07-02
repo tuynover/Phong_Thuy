@@ -4,6 +4,19 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
 
 ---
 
+## 📅 Phiên bản: Khắc phục Rò rỉ Lịch sử & Tối ưu hóa Tốc độ Đăng nhập (02/07/2026)
+
+### 1. Frontend (Giao diện & Bảo mật)
+- **Khắc phục lỗi rò rỉ lịch sử khi đổi tài khoản:** 
+  - Bổ sung `useEffect` giám sát thay đổi của ID tài khoản (`user?.id` / `user?._id`) trong [UserApp.jsx](file:///t:/Phongthuy/frontend/src/components/UserApp.jsx) để tự động reset state cache danh sách lịch sử `preloadedHistory` về `null`.
+  - Bổ sung `useEffect` dọn dẹp sạch cache chi tiết hào quẻ `prefetchedDetails.current` trong [HistoryBoard.jsx](file:///t:/Phongthuy/frontend/src/components/HistoryBoard.jsx) khi thay đổi `user`.
+- **Tối ưu hóa đăng nhập không chặn UI:** Loại bỏ `async/await` chặn tuần tự trong hàm `handleLoginSuccess` tại [UserApp.jsx](file:///t:/Phongthuy/frontend/src/components/UserApp.jsx) và chuyển sang thực thi song song/chạy nền bằng `Promise.all`. Giúp đóng Modal đăng nhập và cập nhật trạng thái UI ngay lập tức.
+
+### 2. Backend (Mã hóa & Hiệu năng)
+- **Nâng cấp mã hóa mật khẩu bằng Native Bcrypt:** Thay thế gói `"bcryptjs"` (Pure JS chậm chạp) bằng gói `"bcrypt"` native biên dịch sang mã máy C++ trong [package.json](file:///t:/Phongthuy/backend/package.json) và cập nhật mã nguồn ở [AuthController.js](file:///t:/Phongthuy/backend/src/controllers/AuthController.js) cùng [test_all_cases.js](file:///t:/Phongthuy/backend/src/scripts/test_all_cases.js). Giúp tăng tốc so khớp mật khẩu và ngăn nghẽn luồng Node.js Event Loop.
+
+---
+
 ## 📅 Phiên bản: Tối ưu hóa Trải nghiệm Tải trang Lịch sử (02/07/2026)
 
 ### 1. Frontend (Giao diện & Trải nghiệm Người dùng)

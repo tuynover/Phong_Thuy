@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt');
 
 const MONGODB_URI = 'mongodb+srv://trinhtuyen2004:trinhtuyen2004@phongthuy.a5rqrhx.mongodb.net/phongthuy?appName=phongthuy';
 const API_URL = 'http://localhost:3001/api';

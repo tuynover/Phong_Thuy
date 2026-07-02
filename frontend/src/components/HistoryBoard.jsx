@@ -46,6 +46,11 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
         }
     }, [user, preloadedData, active]);
 
+    // Clear detail cache when user changes (logout/switch accounts)
+    useEffect(() => {
+        prefetchedDetails.current = {};
+    }, [user]);
+
     const initData = async () => {
         if (preloadedData && (preloadedData.hexagrams || preloadedData.promise)) {
             if (preloadedData.hexagrams) {
