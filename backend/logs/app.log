@@ -16546,3 +16546,107 @@ Stack: Error: read ECONNRESET
 [2026-07-02 17:52:53.873] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/ziwei/history/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] [Duration: 2ms] Hoàn thành: Phản hồi thành công (304)
 [2026-07-02 17:52:53.869] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 4ms] Hoàn thành: Phản hồi thành công (304)
 [2026-07-02 17:52:53.866] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-02 17:53:05.271] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 17:53:05.436] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 167ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:54:04.470] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 17:54:04.715] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 245ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:54:59.935] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-02 17:55:05.278] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 17:55:05.450] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 174ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:56:17.262] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 17:56:17.435] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 174ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:56:39.280] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/history/iching/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/iching/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-02 17:56:39.301] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/ziwei/history/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] Yêu cầu bắt đầu: GET /api/ziwei/history/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-02 17:56:39.303] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/ziwei/history/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] [Duration: 5ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:56:39.286] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/history/iching/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] [Duration: 9ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:56:39.296] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 5ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:56:39.293] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-02 17:56:39.716] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/history/iching/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/iching/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-02 17:56:39.722] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/history/iching/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] [Duration: 6ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:56:39.728] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/history/iching/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/iching/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-02 17:56:39.740] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 2ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:56:39.733] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/history/iching/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] [Duration: 7ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:56:39.738] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-02 17:56:39.745] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-02 17:56:39.750] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/ziwei/history/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] Yêu cầu bắt đầu: GET /api/ziwei/history/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-02 17:56:39.747] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 3ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:56:39.759] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/ziwei/history/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] Yêu cầu bắt đầu: GET /api/ziwei/history/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-02 17:56:39.761] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/ziwei/history/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] [Duration: 5ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:56:39.752] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/ziwei/history/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] [Duration: 3ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:56:39.766] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/history/marriage/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/marriage/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-02 17:56:39.831] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/history/marriage/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] [Duration: 67ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:56:39.837] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/history/marriage/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/marriage/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-02 17:56:39.839] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/history/marriage/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] [Duration: 5ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:56:42.352] [INFO] [SSE] User client [019e594f-5fb3-701e-916a-d6ce37d424bd] disconnected.
+[2026-07-02 17:56:51.389] [INFO] [User: admin@admin.com] [Action: Đăng nhập] [IP: ::1] Yêu cầu bắt đầu: POST /api/auth/login | Params: {"email":"admin@admin.com","password":"******"}
+[2026-07-02 17:56:51.607] [INFO] [User: admin@admin.com] [Action: Đăng nhập] Đăng nhập thành công cho tài khoản [admin@admin.com] (Tên: admin).
+[2026-07-02 17:56:51.610] [INFO] [User: admin@admin.com] [Action: Đăng nhập] [IP: ::1] [Duration: 221ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-02 17:56:51.708] [INFO] [User: anonymous] [Action: GET /api/auth/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/auth/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4Mjk4OTgxMSwiZXhwIjoxNzgzNTk0NjExfQ.778fSKMTXz6n1Ze1nZdvXc5mwJeRpJ6eDNnkwV8M6qI
+[2026-07-02 17:56:51.714] [INFO] [User: anonymous] [Action: GET /api/admin/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZWNiZTUtZDBhNy03ZmVmLThmMjAtYTNkMjcyOTFhYTZjIn0sImlhdCI6MTc4Mjk4OTgxMSwiZXhwIjoxNzgzNTk0NjExfQ.778fSKMTXz6n1Ze1nZdvXc5mwJeRpJ6eDNnkwV8M6qI
+[2026-07-02 17:56:51.752] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 17:56:51.789] [INFO] [SSE] Admin client connected. Total admin clients: 1
+[2026-07-02 17:56:51.782] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/notifications
+[2026-07-02 17:56:51.791] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/analytics?startDate=2026-06-25&endDate=2026-07-02&groupBy=day
+[2026-07-02 17:56:51.797] [INFO] [SSE] User client [019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] connected. Total sessions: 1
+[2026-07-02 17:56:51.881] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 191ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-02 17:56:51.885] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 17:56:52.015] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 131ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:56:52.028] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] [Duration: 328ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:56:52.034] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/notifications
+[2026-07-02 17:56:52.277] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] [Duration: 245ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:56:52.535] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] [Duration: 830ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-02 17:56:54.040] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 17:56:54.056] [INFO] [SSE] Admin client disconnected. Remaining: 0
+[2026-07-02 17:56:54.173] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 135ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:56:54.179] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 17:56:54.318] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 141ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:56:54.774] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/history/iching/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/iching/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c
+[2026-07-02 17:56:54.780] [INFO] [User: admin@admin.com (admin)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c
+[2026-07-02 17:56:54.785] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/ziwei/history/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] [IP: ::1] Yêu cầu bắt đầu: GET /api/ziwei/history/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c
+[2026-07-02 17:56:54.848] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/history/iching/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] [IP: ::1] [Duration: 75ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-02 17:56:54.853] [INFO] [User: admin@admin.com (admin)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 75ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-02 17:56:54.863] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/ziwei/history/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] [IP: ::1] [Duration: 79ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-02 17:56:55.077] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/history/iching/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/iching/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c
+[2026-07-02 17:56:55.079] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/history/iching/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] [IP: ::1] [Duration: 2ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:56:55.083] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/history/iching/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] [IP: ::1] [Duration: 2ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:56:55.086] [INFO] [User: admin@admin.com (admin)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c
+[2026-07-02 17:56:55.081] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/history/iching/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/iching/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c
+[2026-07-02 17:56:55.092] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/ziwei/history/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] [IP: ::1] [Duration: 2ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:56:55.090] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/ziwei/history/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] [IP: ::1] Yêu cầu bắt đầu: GET /api/ziwei/history/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c
+[2026-07-02 17:56:55.088] [INFO] [User: admin@admin.com (admin)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 2ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:56:55.097] [INFO] [User: admin@admin.com (admin)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c
+[2026-07-02 17:56:55.104] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/ziwei/history/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] [IP: ::1] [Duration: 2ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:56:55.107] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/history/marriage/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/marriage/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c
+[2026-07-02 17:56:55.103] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/ziwei/history/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] [IP: ::1] Yêu cầu bắt đầu: GET /api/ziwei/history/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c
+[2026-07-02 17:56:55.099] [INFO] [User: admin@admin.com (admin)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 3ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:56:55.176] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/history/marriage/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] [IP: ::1] [Duration: 68ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-02 17:56:55.185] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/history/marriage/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] [IP: ::1] [Duration: 2ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:56:55.183] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/history/marriage/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/marriage/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c
+[2026-07-02 17:56:56.752] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/history/iching/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/iching/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c
+[2026-07-02 17:56:56.754] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/history/iching/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] [IP: ::1] [Duration: 4ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:56:56.766] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/ziwei/history/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] [IP: ::1] Yêu cầu bắt đầu: GET /api/ziwei/history/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c
+[2026-07-02 17:56:56.762] [INFO] [User: admin@admin.com (admin)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 5ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:56:56.759] [INFO] [User: admin@admin.com (admin)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c
+[2026-07-02 17:56:56.768] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/ziwei/history/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] [IP: ::1] [Duration: 3ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:56:57.128] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/history/iching/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/iching/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c
+[2026-07-02 17:56:57.130] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/history/iching/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] [IP: ::1] [Duration: 2ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:56:57.135] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/history/iching/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/iching/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c
+[2026-07-02 17:56:57.141] [INFO] [User: admin@admin.com (admin)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c
+[2026-07-02 17:56:57.149] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/ziwei/history/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] [IP: ::1] Yêu cầu bắt đầu: GET /api/ziwei/history/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c
+[2026-07-02 17:56:57.145] [INFO] [User: admin@admin.com (admin)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 5ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:56:57.157] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/history/marriage/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/marriage/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c
+[2026-07-02 17:56:57.151] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/ziwei/history/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] [IP: ::1] [Duration: 3ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:56:57.138] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/history/iching/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] [IP: ::1] [Duration: 3ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:56:57.164] [INFO] [User: admin@admin.com (admin)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c
+[2026-07-02 17:56:57.166] [INFO] [User: admin@admin.com (admin)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 3ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:56:57.171] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/ziwei/history/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] [IP: ::1] Yêu cầu bắt đầu: GET /api/ziwei/history/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c
+[2026-07-02 17:56:57.174] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/ziwei/history/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] [IP: ::1] [Duration: 4ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:56:57.245] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/history/marriage/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/marriage/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c
+[2026-07-02 17:56:57.248] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/history/marriage/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] [IP: ::1] [Duration: 5ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:56:57.238] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/history/marriage/019ecbe5-d0a7-7fef-8f20-a3d27291aa6c] [IP: ::1] [Duration: 82ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:56:58.120] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/history/iching/record/019efa30-3dc4-7b70-8683-99b64943c996] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/iching/record/019efa30-3dc4-7b70-8683-99b64943c996
+[2026-07-02 17:56:58.168] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/history/iching/record/019ee4b0-6981-702b-8345-f5335e161777] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/iching/record/019ee4b0-6981-702b-8345-f5335e161777
+[2026-07-02 17:56:58.205] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/history/iching/record/019efa30-3dc4-7b70-8683-99b64943c996] [IP: ::1] [Duration: 87ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-02 17:56:58.233] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/history/iching/record/019ee4b0-6981-702b-8345-f5335e161777] [IP: ::1] [Duration: 66ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-02 17:56:58.299] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/history/iching/record/019ee4a9-3896-72ad-a290-9e3d204db965] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/iching/record/019ee4a9-3896-72ad-a290-9e3d204db965
+[2026-07-02 17:56:58.380] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/history/iching/record/019ee4a9-3896-72ad-a290-9e3d204db965] [IP: ::1] [Duration: 83ms] Hoàn thành: Phản hồi thành công (200)
