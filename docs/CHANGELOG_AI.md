@@ -4,6 +4,14 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
 
 ---
 
+## 📅 Phiên bản: Tối ưu hóa Trải nghiệm Tải trang Lịch sử (02/07/2026)
+
+### 1. Frontend (Giao diện & Trải nghiệm Người dùng)
+- **Loại bỏ màn hình load kép:** Thay thế cơ chế tải động (Lazy Loading) của component `HistoryBoard` thành Import tĩnh (Static Import) trực tiếp trong [UserApp.jsx](file:///t:/Phongthuy/frontend/src/components/UserApp.jsx) và loại bỏ component bọc `<React.Suspense>`. Giúp triệt tiêu màn hình loading thô đầu tiên khi bấm vào tab Lịch sử.
+- **Nâng cấp giao diện Loading dữ liệu lịch sử:** Thay đổi màn hình loading văn bản đơn giản `"Đang tải lịch sử..."` thành giao diện thẻ tải sang trọng và đồng bộ với giao diện chính trong [HistoryBoard.jsx](file:///t:/Phongthuy/frontend/src/components/HistoryBoard.jsx). Tích hợp biểu tượng spinner xoay tròn (`Loader2` từ `lucide-react`) đi kèm hiệu ứng xung ánh sáng vàng nhạt (`bg-amber-50 animate-pulse`) tạo trải nghiệm tải mượt mà, trực quan.
+
+---
+
 ## 📅 Phiên bản: Tối ưu hóa Đăng ký, Lịch sử và Modal Đăng ký (02/07/2026)
 
 ### 1. Backend (Logic & Hiệu năng)

@@ -14,10 +14,11 @@ import { UserCircle, LogOut, CalendarDays, Shield } from 'lucide-react';
 import { Lunar } from 'lunar-javascript';
 import MarriageInput from './MarriageInput';
 
+import HistoryBoard from './HistoryBoard';
+
 const BaziBoard = React.lazy(() => import('./BaziBoard'));
 const ZiweiBoard = React.lazy(() => import('./ZiweiBoard'));
 const MarriageBoard = React.lazy(() => import('./MarriageBoard'));
-const HistoryBoard = React.lazy(() => import('./HistoryBoard'));
 
 export default function UserApp({ onSwitchToAdmin }) {
   const [appMode, setAppMode] = useState(() => {
@@ -663,21 +664,14 @@ export default function UserApp({ onSwitchToAdmin }) {
         {/* SYSTEM 4: HISTORY */}
         {user && appMode === 'history' && (
           <div className="animate-in fade-in duration-500">
-            <React.Suspense fallback={
-              <div className="text-center py-20 animate-in fade-in">
-                <div className="w-12 h-12 border-4 border-slate-200 border-t-slate-600 rounded-full animate-spin mx-auto mb-4"></div>
-                <p className="text-slate-900 font-extrabold text-sm tracking-wider uppercase">Đang nạp nhật ký lịch sử...</p>
-              </div>
-            }>
-              <HistoryBoard 
-                onViewHexagram={handleViewHistoricalHexagram} 
-                onViewBazi={handleViewHistoricalBazi} 
-                onViewZiwei={handleViewHistoricalZiwei}
-                onViewMarriage={handleViewHistoricalMarriage}
-                preloadedData={preloadedHistoryRef.current}
-                onCacheInvalidate={invalidateHistoryCache}
-              />
-            </React.Suspense>
+            <HistoryBoard 
+              onViewHexagram={handleViewHistoricalHexagram} 
+              onViewBazi={handleViewHistoricalBazi} 
+              onViewZiwei={handleViewHistoricalZiwei}
+              onViewMarriage={handleViewHistoricalMarriage}
+              preloadedData={preloadedHistoryRef.current}
+              onCacheInvalidate={invalidateHistoryCache}
+            />
           </div>
         )}
 
