@@ -60,3 +60,26 @@ AI Agent có vai trò:
 1. **Không can thiệp logic an sao:** Không tự ý thay đổi thư viện `lunar-javascript` hay `iztro` vì có thể gây sai lệch kết quả an sao của hàng vạn lá số hiện có.
 2. **Tuân thủ quy trình kiểm thử:** Khi sửa đổi Backend, phải kiểm tra cú pháp node của tệp tin trước bằng lệnh `node --check src/path/to/file.js`.
 3. **Cập nhật CHANGELOG_AI.md:** Bất kỳ thay đổi cấu trúc lớn nào do AI thực hiện phải được ghi nhận vào tài liệu lịch sử AI.
+
+---
+
+## 📄 6. Quy sách Cập nhật Tài liệu (Documentation Policy)
+Sau mỗi thay đổi source code, AI phải kiểm tra xem tài liệu có cần cập nhật hay không.
+**Nguyên tắc:**
+- Tuyệt đối không để tài liệu và source code khác nhau.
+- Nếu thay đổi API → cập nhật [API.md](file:///t:/Phongthuy/docs/API.md).
+- Nếu thay đổi Database → cập nhật [DATABASE.md](file:///t:/Phongthuy/docs/DATABASE.md).
+- Nếu thay đổi kiến trúc → cập nhật [ARCHITECTURE.md](file:///t:/Phongthuy/docs/ARCHITECTURE.md).
+- Nếu thay đổi nghiệp vụ → cập nhật [BUSINESS_RULES.md](file:///t:/Phongthuy/docs/BUSINESS_RULES.md).
+- Nếu thêm module → cập nhật [PROJECT_CONTEXT.md](file:///t:/Phongthuy/docs/PROJECT_CONTEXT.md).
+- Nếu thay đổi tổng quan, cấu trúc cài đặt hoặc luồng khởi chạy hệ thống → cập nhật [README.md](file:///t:/Phongthuy/README.md).
+- Mọi thay đổi đều phải ghi vào [CHANGELOG_AI.md](file:///t:/Phongthuy/docs/CHANGELOG_AI.md).
+
+**Tiêu chuẩn hoàn thành nhiệm vụ:**
+Một tác vụ (task) chỉ được xem là hoàn thành khi:
+1. Source code đã được chỉnh sửa và kiểm thử hoàn thiện.
+2. Tất cả các tài liệu kỹ thuật liên quan (bao gồm cả [README.md](file:///t:/Phongthuy/README.md)) đã được cập nhật chính xác.
+3. [CHANGELOG_AI.md](file:///t:/Phongthuy/docs/CHANGELOG_AI.md) đã ghi nhận đầy đủ chi tiết thay đổi.
+
+---
+

@@ -16201,3 +16201,81 @@ Stack: Error: read ECONNRESET
 [2026-07-02 16:48:55.614] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /marriage/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] [Duration: 2ms] Hoàn thành: Phản hồi thành công (304)
 [2026-07-02 16:48:57.705] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /marriage/record/019f1d1b-89a0-7a2d-8ce0-da7bd9c6c035] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/marriage/record/019f1d1b-89a0-7a2d-8ce0-da7bd9c6c035
 [2026-07-02 16:48:57.706] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /marriage/record/019f1d1b-89a0-7a2d-8ce0-da7bd9c6c035] [IP: ::1] [Duration: 138ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-02 16:49:43.531] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /marriage/record/019f1d38-f7b1-7d48-b7b3-a5a239d077cc] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/marriage/record/019f1d38-f7b1-7d48-b7b3-a5a239d077cc
+[2026-07-02 16:49:43.532] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /marriage/record/019f1d38-f7b1-7d48-b7b3-a5a239d077cc] [IP: ::1] [Duration: 130ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-02 16:49:52.398] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 16:49:52.399] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 130ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 16:50:44.742] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-02 16:50:52.406] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 16:50:52.407] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 137ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 16:51:52.464] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 16:51:52.465] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 196ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 16:52:50.587] [INFO] [SSE] User client [019e594f-5fb3-701e-916a-d6ce37d424bd] disconnected.
+[2026-07-02 16:52:54.947] [INFO] [User: cobatuoc@gmail.com] [Action: Đăng nhập] Đăng nhập thành công cho tài khoản [cobatuoc@gmail.com] (Tên: Trịnh Công Tuyền).
+[2026-07-02 16:52:54.949] [INFO] [User: cobatuoc@gmail.com] [Action: POST /login] [IP: ::1] [Duration: 156ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-02 16:52:54.948] [INFO] [User: cobatuoc@gmail.com] [Action: POST /login] [IP: ::1] Yêu cầu bắt đầu: POST /api/auth/login | Params: {"email":"cobatuoc@gmail.com","password":"******"}
+[2026-07-02 16:52:55.153] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 16:52:55.153] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 131ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 16:52:55.156] [INFO] [SSE] User client [019e594f-5fb3-701e-916a-d6ce37d424bd] connected. Total sessions: 1
+[2026-07-02 16:52:55.288] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 16:52:55.289] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 130ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 16:53:55.400] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 16:53:55.401] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 141ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 16:54:24.256] [INFO] [SSE] User client [019e594f-5fb3-701e-916a-d6ce37d424bd] connected. Total sessions: 2
+[2026-07-02 16:54:24.932] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 16:54:24.933] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 132ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 16:54:25.076] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 16:54:25.077] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 140ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 16:54:27.552] [INFO] [SSE] User client [019e594f-5fb3-701e-916a-d6ce37d424bd] disconnected.
+[2026-07-02 16:54:55.404] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 16:54:55.404] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 131ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 16:55:55.406] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 16:55:55.407] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 144ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 16:56:55.478] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 16:56:55.479] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 211ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 16:57:55.395] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 16:57:55.395] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 131ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 16:58:55.408] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 16:58:55.410] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 137ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:00:16.400] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 17:00:16.401] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 135ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:00:44.744] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-02 17:01:17.404] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 17:01:17.405] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 134ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:02:18.466] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 17:02:18.467] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 210ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:03:19.391] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 17:03:19.392] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 132ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:04:20.394] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 132ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:04:20.393] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 17:05:21.400] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 17:05:21.401] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 141ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:06:22.404] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 17:06:22.405] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 134ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:07:23.461] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 17:07:23.463] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 195ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:08:24.398] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 17:08:24.400] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 134ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:08:43.398] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 17:08:43.398] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 130ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:08:43.532] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 17:08:43.533] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 132ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:08:43.663] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 17:08:43.664] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 128ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:08:43.799] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 131ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:08:43.798] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 17:09:44.396] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 17:09:44.397] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 133ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:10:44.385] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 17:10:44.387] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 138ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:10:44.735] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-02 17:11:44.391] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 17:11:44.392] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 129ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:12:44.463] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 17:12:44.464] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 201ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:13:44.388] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 17:13:44.389] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 135ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:14:44.410] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 17:14:44.412] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 136ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-02 17:16:32.384] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-02 17:16:32.385] [INFO] [User: cobatuoc@gmail.com (Trịnh Công Tuyền)] [Action: GET /] [IP: ::1] [Duration: 130ms] Hoàn thành: Phản hồi thành công (304)

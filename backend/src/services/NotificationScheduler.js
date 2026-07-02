@@ -30,7 +30,28 @@ function getDayDifference(date1, date2) {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 }
 
-// soft-deleted users purging logic has been removed to preserve user history data
+async function purgeSoftDeletedUsers() {
+    console.log('[NotificationScheduler] Purging soft-deleted users inactive for 30+ days...');
+    try {
+        const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+        const expiredUsers = await User.find({ isDeleted: true, updatedAt: { $lt: thirtyDaysAgo } });
+
+        console.log(`[NotificationScheduler] Found ${expiredUsers.length} users to purge.`);
+
+        for (const user of expiredUsers) {
+            const userId = user._id;
+            await BaziRecord.deleteMany({ userId });
+            await IChingRecord.deleteMany({ userId });
+            await ZiweiRecord.deleteMany({ userId });
+            await BanAppeal.deleteMany({ userId });
+            await Notification.deleteMany({ userId });
+            await User.deleteOne({ _id: userId });
+            console.log(`[NotificationScheduler] Permanently purged user: ${user.email}`);
+        }
+    } catch (err) {
+        console.error('[NotificationScheduler] Error during purging soft-deleted users:', err);
+    }
+}
 
 async function checkAndSendNotifications() {
     console.log('[NotificationScheduler] Running daily check...');
@@ -47,7 +68,8 @@ async function checkAndSendNotifications() {
         console.error('[NotificationScheduler] Error during daily credit increment:', err);
     }
 
-    // 1b. Purge expired soft-deleted users logic removed
+    // 1b. Purge expired soft-deleted users
+    await purgeSoftDeletedUsers();
 
     try {
         const today = new Date();

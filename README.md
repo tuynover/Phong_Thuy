@@ -43,7 +43,7 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
 * **Phân tích Tinh Tú:** Hiển thị Chính tinh kèm độ sáng (Miếu, Vượng, Đắc, Bình, Hãm), Lục cát tinh, Lục sát tinh và tạp tinh được chia thành các cột Cát/Sát rõ ràng, phân biệt màu sắc ngũ hành từng sao.
 * **Vòng Trường Sinh & Hạn:** Hiển thị Đại Hạn, Tiểu Hạn, Nguyệt Hạn tương ứng trên các cung vị.
 * **Mobile List View:** Tự động tối ưu hóa và thu gọn bố cục thành danh sách dọc mượt mà trên thiết bị di động.
-* **Thầy Tử Vi AI:** Gửi yêu cầu giải đoán ngầm. Hệ thống hiển thị tiến độ và kết quả từ hàng đợi (Polling).
+* **Thầy Tử Vi AI:** Gửi yêu cầu giải đoán trực tiếp. Hệ thống hiển thị dòng văn bản luận giải trực quan qua luồng SSE Stream thời gian thực tương tự như Kinh Dịch và Bát Tự.
 * Tệp tin liên quan: [ZiweiBoard.jsx](file:///t:/Phongthuy/frontend/src/components/ZiweiBoard.jsx), [ZiweiChart.jsx](file:///t:/Phongthuy/frontend/src/components/ZiweiChart.jsx).
 
 #### D. Hợp Hôn - Xem Tuổi Kết Hôn (Marriage Board)
@@ -84,22 +84,19 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
 2. **Hệ Thống An Sao Tử Vi (`ZiweiFormatter.js` & `ZiweiValidators.js`):**
    * Xây dựng đồ hình Tử Vi, xác định Cung Mệnh/Thân, Cục, sao chủ và an hệ thống phụ tinh phong phú (Bác Sĩ, Trường Sinh, Tuế Tiền, Tướng Tinh, Tuần, Triệt...).
    * Tệp tin: [ZiweiFormatter.js](file:///t:/Phongthuy/backend/src/services/ZiweiFormatter.js).
-3. **Quản lý Hàng đợi (Dự phòng/Legacy - `JobQueueService.js`):**
-   * Chứa cơ chế xử lý hàng đợi chạy ngầm cho các tác vụ giải đoán. Hiện tại phân hệ Tử Vi đã được đồng bộ để chạy trực tiếp bằng dòng dữ liệu SSE Stream thời gian thực tương tự như các phân hệ khác, do đó Dịch vụ Hàng đợi này đóng vai trò dự phòng hoặc legacy.
-   * Tệp tin: [JobQueueService.js](file:///t:/Phongthuy/backend/src/services/JobQueueService.js).
-4. **Hợp nhất Lược đồ Chat:**
+3. **Hợp nhất Lược đồ Chat:**
    * Thay thế các bảng chat riêng rẽ bằng cấu trúc dùng chung [Conversation.js](file:///t:/Phongthuy/backend/src/models/Conversation.js) (phân loại qua trường `system`: `'iching' | 'bazi' | 'ziwei' | 'marriage'`) và [Message.js](file:///t:/Phongthuy/backend/src/models/Message.js) để tối ưu lưu trữ.
-5. **Gộp Controller Core xử lý AI và Lịch sử:**
+4. **Gộp Controller Core xử lý AI và Lịch sử:**
    * [AiInterpretationController.js](file:///t:/Phongthuy/backend/src/controllers/AiInterpretationController.js): Xử lý stream SSE luận đoán ban đầu và trò chuyện follow-up cho toàn bộ các phân hệ.
    * [HistoryController.js](file:///t:/Phongthuy/backend/src/controllers/HistoryController.js): Xem lịch sử bản ghi, xếp hạng đánh giá (rate), liên kết dữ liệu guest vào tài khoản (link), xóa bản ghi.
-6. **Quản lý Prompt động:**
+5. **Quản lý Prompt động:**
    * Tách biệt các bộ prompt chuyên môn bằng tiếng Anh giúp nâng cao chất lượng phản hồi từ Gemini: [IChingPrompts.js](file:///t:/Phongthuy/backend/src/services/IChingPrompts.js), [BaziPrompts.js](file:///t:/Phongthuy/backend/src/services/BaziPrompts.js), [ZiweiPrompts.js](file:///t:/Phongthuy/backend/src/services/ZiweiPrompts.js), [MarriagePrompts.js](file:///t:/Phongthuy/backend/src/services/MarriagePrompts.js).
-7. **Hệ thống Nhật ký cao cấp (`LoggerService.js`):**
+6. **Hệ thống Nhật ký cao cấp (`LoggerService.js`):**
    * Hoạt động song song: In console có mã màu ANSI và ghi tệp log vật lý (`logs/app.log`, `logs/errors.log`). Tự động truy quét định danh JWT để ghi nhận IP, Email người dùng và ẩn mật khẩu bảo mật.
    * Tệp tin: [LoggerService.js](file:///t:/Phongthuy/backend/src/services/LoggerService.js).
-8. **Duy trì kết nối SSE Keepalive Ping:**
+7. **Duy trì kết nối SSE Keepalive Ping:**
    * Gửi gói tin heartbeat định kỳ mỗi 15 giây ngăn chặn lỗi ngắt kết nối rác do Idle Timeout khi phân phối qua Nginx, Render hoặc Vercel.
-9. **Cơ chế Cache tối ưu chi phí:**
+8. **Cơ chế Cache tối ưu chi phí:**
    * Tự động lưu snapshot luận giải (`analysisSnapshot`) và lưu trữ đệm qua [MemoryCacheService.js](file:///t:/Phongthuy/backend/src/services/MemoryCacheService.js) để tái sử dụng, giúp giảm thiểu đáng kể chi phí gọi Gemini API.
 
 ---
@@ -124,8 +121,10 @@ Hệ thống API Backend sử dụng tiền tố `/api` và phân chia thành c�
 
 ### 🌠 Hệ thống Tử Vi (`/api/ziwei` & `/api/tu-vi`)
 * `POST /api/ziwei/`: Tạo lập đồ hình Tử Vi thô.
-* `GET /api/ziwei/jobs/:jobId`: Lấy tiến độ của tác vụ luận giải ngầm (Endpoint dự phòng/legacy).
 * `GET /api/ziwei/:id`: Chi tiết bản ghi Tử Vi.
+
+### ☯️ Tra cứu khái niệm học thuật (`/api/concept`)
+* `GET /api/concept/:term`: Tra cứu chi tiết một thuật ngữ phong thủy/gieo quẻ (Lục Thân, Lục Thú, hào Thế/Ứng) phục vụ hiển thị Tooltip giải thích.
 
 ### 🤖 Luận Giải AI & Trò chuyện Chat (`/api/ai` hoặc thông qua `/api/history`)
 * `POST /api/ai/iching/:id/interpret` (hoặc `/api/history/iching/:id/interpret`): Stream kết quả phân tích quẻ Kinh Dịch (SSE).
@@ -158,6 +157,13 @@ Hệ thống API Backend sử dụng tiền tố `/api` và phân chia thành c�
 * `POST /api/admin/appeals/:id/resolve`: Giải quyết đơn khiếu nại mở khóa.
 * `GET /api/admin/events`: Đăng ký luồng sự kiện quản trị thời gian thực (SSE).
 
+### 🔔 Thông báo Người dùng (`/api/notifications`)
+* `GET /api/notifications`: Lấy danh sách thông báo nhắc nhở Ứng Kỳ của người dùng hiện tại.
+* `PUT /api/notifications/read-all`: Đánh dấu đọc tất cả thông báo.
+* `PUT /api/notifications/:id/read`: Đánh dấu đọc một thông báo cụ thể.
+
+---
+
 ---
 
 ## 🚀 Hướng dẫn khởi chạy dự án tại địa phương
@@ -177,7 +183,7 @@ Hệ thống API Backend sử dụng tiền tố `/api` và phân chia thành c�
 3. Tạo tệp `.env` tại thư mục `/backend` với nội dung mẫu:
    ```env
    PORT=3001
-   MONGO_URI=mongodb://localhost:27017/phongthuy
+   MONGODB_URI=mongodb://localhost:27017/phongthuy
    JWT_SECRET=your_secret_key_here
    GEMINI_API_KEY=your_gemini_api_key_here
    ```
