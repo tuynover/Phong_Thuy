@@ -433,7 +433,7 @@ const MarriageBoard = ({ data, onUpdateData, onRequireLogin }) => {
                 )}
                 
                 <div className="w-full border-t border-dashed border-gray-200 mt-2.5 pt-2 flex flex-col items-center justify-center">
-                    <div className="w-full max-w-[95px] sm:max-w-[115px] flex flex-col gap-1 mt-1">
+                    <div className="w-full max-w-[125px] sm:max-w-[145px] flex flex-col gap-1 mt-1">
                         {tangCan && tangCan.map((tc, idx) => (
                             <div key={idx} className="flex justify-between items-center text-[10px] sm:text-[12.5px] leading-tight w-full font-sans">
                                 <Tooltip term={tc.gan} unstyled={true}>

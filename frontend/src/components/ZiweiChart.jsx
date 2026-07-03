@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Calendar, User, Sparkles } from 'lucide-react';
+import Tooltip from './Tooltip';
 
 const GRID_COORDINATES = {
   "Dần": { row: 4, col: 1 },
@@ -83,6 +84,20 @@ const BRANCH_ELEMENTS = {
   "Tỵ": "Hỏa", "Ngọ": "Hỏa",
   "Thân": "Kim", "Dậu": "Kim",
   "Thìn": "Thổ", "Tuất": "Thổ", "Sửu": "Thổ", "Mùi": "Thổ"
+};
+
+const normalizeStarName = (name) => {
+  if (!name) return "";
+  const trimmed = name.trim();
+  if (trimmed === "Triệt Lộ" || trimmed === "Triệt Không" || trimmed === "Triệt Lộ Không Vong") return "Triệt";
+  if (trimmed === "Tuần Không" || trimmed === "Tuần Trung" || trimmed === "Tuần Trung Không Vong") return "Tuần";
+  if (trimmed === "Bác Sỹ") return "Bác Sĩ";
+  if (trimmed === "Phượng các") return "Phượng Các";
+  if (trimmed === "Thiên trù") return "Thiên Trù";
+  if (trimmed === "Bát tòa") return "Bát Tọa";
+  if (trimmed === "Tướng tinh") return "Tướng Tinh";
+  if (trimmed === "Mục Dục") return "Mộc Dục";
+  return trimmed;
 };
 
 // Phân loại Cát/Sát tinh để chia cột
@@ -213,9 +228,15 @@ const PalaceCell = React.memo(({ palace, elementHighlight }) => {
         </span>
 
         {/* Đỉnh giữa: Tên cung (in hoa đậm, CĂN GIỮA TUYỆT ĐỐI, theo ngũ hành bản cung) */}
-        <span className={`text-center font-black uppercase tracking-tight text-[9px] md:text-[13px] whitespace-nowrap ${branchColorClass}`}>
-          {palace.name}
-          {palace.isBodyPalace && <span className="text-[7.5px] md:text-[9.5px] ml-0.5 font-extrabold">(Thân)</span>}
+        <span className={`text-center font-black uppercase tracking-tight text-[9px] md:text-[13px] whitespace-nowrap cursor-help ${branchColorClass}`}>
+          <Tooltip term={palace.name} unstyled={true}>
+            <span>{palace.name}</span>
+          </Tooltip>
+          {palace.isBodyPalace && (
+            <Tooltip term="Thân" unstyled={true}>
+              <span className="text-[7.5px] md:text-[9.5px] ml-0.5 font-extrabold">(Thân)</span>
+            </Tooltip>
+          )}
         </span>
 
         {/* Đỉnh phải: Số Đại Hạn tuổi khởi đầu */}
@@ -232,24 +253,30 @@ const PalaceCell = React.memo(({ palace, elementHighlight }) => {
             const colorClass = ELEMENT_COLORS[el] || "text-neutral-900";
             return (
               <div key={idx} className="flex items-center gap-0.5 leading-none">
-                <span className={`font-black text-[10px] md:text-[13.5px] tracking-tight group-hover:scale-105 transition-transform ${colorClass}`} title={`${star.name} (${el})`}>
-                  {star.name}
-                  {star.brightness && (
-                    <span className="text-[8px] md:text-[9.5px] text-slate-400 font-bold ml-0.5">({star.brightness})</span>
-                  )}
-                </span>
-                {star.mutagen && (
-                  <span className={`text-[7px] md:text-[8.5px] px-0.5 rounded border font-black uppercase tracking-wider ${MUTAGEN_STYLES[star.mutagen]}`}>
-                    {MUTAGEN_LABELS[star.mutagen]}
+                <Tooltip term={normalizeStarName(star.name)} unstyled={true}>
+                  <span className={`font-black text-[10px] md:text-[13.5px] tracking-tight hover:scale-105 transition-transform cursor-help ${colorClass}`}>
+                    {star.name}
+                    {star.brightness && (
+                      <span className="text-[8px] md:text-[9.5px] text-slate-400 font-bold ml-0.5">({star.brightness})</span>
+                    )}
                   </span>
+                </Tooltip>
+                {star.mutagen && (
+                  <Tooltip term={MUTAGEN_LABELS[star.mutagen]} unstyled={true}>
+                    <span className={`text-[7px] md:text-[8.5px] px-0.5 rounded border font-black uppercase tracking-wider cursor-help ${MUTAGEN_STYLES[star.mutagen]}`}>
+                      {MUTAGEN_LABELS[star.mutagen]}
+                    </span>
+                  </Tooltip>
                 )}
               </div>
             );
           })}
         </div>
       ) : (
-        <div className="my-1 shrink-0 flex items-center justify-center select-none">
-          <span className="text-[9px] md:text-[11px] text-slate-300 font-extrabold tracking-widest">VÔ CHÍNH DIỆU</span>
+        <div className="my-1 shrink-0 flex items-center justify-center select-none cursor-help">
+          <Tooltip term="Vô Chính Diệu" unstyled={true}>
+            <span className="text-[9px] md:text-[11px] text-slate-300 font-extrabold tracking-widest hover:text-slate-400 transition-colors">VÔ CHÍNH DIỆU</span>
+          </Tooltip>
         </div>
       )}
 
@@ -261,12 +288,14 @@ const PalaceCell = React.memo(({ palace, elementHighlight }) => {
             const el = STAR_ELEMENTS[star.name] || "Thủy";
             const colorClass = ELEMENT_COLORS[el] || "text-neutral-900";
             return (
-              <span key={idx} className={`font-semibold tracking-tight ${colorClass} w-full`} title={`${star.name} (${el})`}>
-                {star.name}
-                {star.brightness && (
-                  <span className="text-[6.5px] md:text-[7.5px] text-slate-400 font-medium ml-0.5">({star.brightness})</span>
-                )}
-              </span>
+              <Tooltip key={idx} term={normalizeStarName(star.name)} unstyled={true}>
+                <span className={`font-semibold tracking-tight cursor-help hover:brightness-75 transition-all ${colorClass} w-full`}>
+                  {star.name}
+                  {star.brightness && (
+                    <span className="text-[6.5px] md:text-[7.5px] text-slate-400 font-medium ml-0.5">({star.brightness})</span>
+                  )}
+                </span>
+              </Tooltip>
             );
           })}
         </div>
@@ -277,12 +306,14 @@ const PalaceCell = React.memo(({ palace, elementHighlight }) => {
             const el = STAR_ELEMENTS[star.name] || "Thủy";
             const colorClass = ELEMENT_COLORS[el] || "text-neutral-900";
             return (
-              <span key={idx} className={`font-semibold tracking-tight ${colorClass} w-full`} title={`${star.name} (${el})`}>
-                {star.name}
-                {star.brightness && (
-                  <span className="text-[6.5px] md:text-[7.5px] text-slate-400 font-medium ml-0.5">({star.brightness})</span>
-                )}
-              </span>
+              <Tooltip key={idx} term={normalizeStarName(star.name)} unstyled={true}>
+                <span className={`font-semibold tracking-tight cursor-help hover:brightness-75 transition-all ${colorClass} w-full`}>
+                  {star.name}
+                  {star.brightness && (
+                    <span className="text-[6.5px] md:text-[7.5px] text-slate-400 font-medium ml-0.5">({star.brightness})</span>
+                  )}
+                </span>
+              </Tooltip>
             );
           })}
         </div>
@@ -296,8 +327,10 @@ const PalaceCell = React.memo(({ palace, elementHighlight }) => {
         </span>
 
         {/* Đáy giữa: Tên vòng Trường sinh (Mộc Dục) */}
-        <span className="font-semibold text-slate-500">
-          {cleanChangsheng(palace.changsheng12)}
+        <span className="font-semibold text-slate-500 cursor-help hover:text-slate-700 transition-colors">
+          <Tooltip term={cleanChangsheng(palace.changsheng12)} unstyled={true}>
+            <span>{cleanChangsheng(palace.changsheng12)}</span>
+          </Tooltip>
         </span>
 
         {/* Đáy phải: Chỉ số Nguyệt Hạn (màu xanh tím mặc định) */}
@@ -339,9 +372,15 @@ const PalaceListView = ({ palaces, elementHighlight }) => {
             {/* Header: Palace Name, Can Chi, Age */}
             <div className="flex justify-between items-center border-b border-purple-50 pb-2">
               <div className="flex items-center gap-2">
-                <span className={`text-sm font-black uppercase tracking-wider ${branchColorClass}`}>
-                  {palace.name}
-                  {palace.isBodyPalace && <span className="text-xs ml-1 font-extrabold">(Thân)</span>}
+                <span className={`text-sm font-black uppercase tracking-wider cursor-help ${branchColorClass}`}>
+                  <Tooltip term={palace.name} unstyled={true}>
+                    <span>{palace.name}</span>
+                  </Tooltip>
+                  {palace.isBodyPalace && (
+                    <Tooltip term="Thân" unstyled={true}>
+                      <span className="text-xs ml-1 font-extrabold">(Thân)</span>
+                    </Tooltip>
+                  )}
                 </span>
                 <span className="text-[10px] text-slate-500 font-bold bg-slate-100 px-2 py-0.5 rounded">
                   {palace.heavenlyStem} {palace.earthlyBranch}
@@ -355,7 +394,7 @@ const PalaceListView = ({ palaces, elementHighlight }) => {
             {/* Content: Major and Minor Stars */}
             <div className="grid grid-cols-1 gap-2.5">
               {/* Major Stars */}
-              {palace.majorStars.length > 0 && (
+              {palace.majorStars.length > 0 ? (
                 <div className="flex flex-wrap gap-1.5 items-center">
                   <span className="text-[10px] font-bold text-slate-400">Chính tinh:</span>
                   {palace.majorStars.map((star, sIdx) => {
@@ -363,16 +402,29 @@ const PalaceListView = ({ palaces, elementHighlight }) => {
                     const colorClass = ELEMENT_COLORS[el] || "text-neutral-900";
                     return (
                       <span key={sIdx} className={`font-black text-xs bg-slate-50 px-2 py-0.5 rounded border border-gray-100 flex items-center gap-1 ${colorClass}`}>
-                        {star.name}
-                        {star.brightness && <span className="text-[9px] text-slate-400">({star.brightness})</span>}
-                        {star.mutagen && (
-                          <span className={`text-[7px] px-1 rounded border font-black uppercase ${MUTAGEN_STYLES[star.mutagen]}`}>
-                            {MUTAGEN_LABELS[star.mutagen]}
+                        <Tooltip term={normalizeStarName(star.name)} unstyled={true}>
+                          <span className="cursor-help hover:scale-105 transition-transform flex items-center gap-0.5">
+                            {star.name}
+                            {star.brightness && <span className="text-[9px] text-slate-400">({star.brightness})</span>}
                           </span>
+                        </Tooltip>
+                        {star.mutagen && (
+                          <Tooltip term={MUTAGEN_LABELS[star.mutagen]} unstyled={true}>
+                            <span className={`text-[7px] px-1 rounded border font-black uppercase cursor-help ${MUTAGEN_STYLES[star.mutagen]}`}>
+                              {MUTAGEN_LABELS[star.mutagen]}
+                            </span>
+                          </Tooltip>
                         )}
                       </span>
                     );
                   })}
+                </div>
+              ) : (
+                <div className="flex items-center gap-1.5 cursor-help select-none">
+                  <span className="text-[10px] font-bold text-slate-400">Chính tinh:</span>
+                  <Tooltip term="Vô Chính Diệu" unstyled={true}>
+                    <span className="text-xs font-black text-slate-300 bg-slate-50/50 px-2 py-0.5 rounded border border-dashed border-slate-200 hover:text-slate-400 transition-colors">VÔ CHÍNH DIỆU</span>
+                  </Tooltip>
                 </div>
               )}
 
@@ -383,9 +435,11 @@ const PalaceListView = ({ palaces, elementHighlight }) => {
                     <div className="flex flex-wrap gap-1.5 items-center">
                       <span className="text-[10px] font-bold text-emerald-600">Cát tinh:</span>
                       {leftStars.map((star, sIdx) => (
-                        <span key={sIdx} className={`text-xs font-semibold ${ELEMENT_COLORS[STAR_ELEMENTS[star.name] || 'Thủy']}`}>
-                          {star.name}{star.brightness ? `(${star.brightness})` : ''}
-                        </span>
+                        <Tooltip key={sIdx} term={normalizeStarName(star.name)} unstyled={true}>
+                          <span className={`text-xs font-semibold cursor-help hover:brightness-75 transition-all ${ELEMENT_COLORS[STAR_ELEMENTS[star.name] || 'Thủy']}`}>
+                            {star.name}{star.brightness ? `(${star.brightness})` : ''}
+                          </span>
+                        </Tooltip>
                       ))}
                     </div>
                   )}
@@ -393,9 +447,11 @@ const PalaceListView = ({ palaces, elementHighlight }) => {
                     <div className="flex flex-wrap gap-1.5 items-center">
                       <span className="text-[10px] font-bold text-rose-600">Sát/Bại tinh:</span>
                       {rightStars.map((star, sIdx) => (
-                        <span key={sIdx} className={`text-xs font-semibold ${ELEMENT_COLORS[STAR_ELEMENTS[star.name] || 'Thủy']}`}>
-                          {star.name}{star.brightness ? `(${star.brightness})` : ''}
-                        </span>
+                        <Tooltip key={sIdx} term={normalizeStarName(star.name)} unstyled={true}>
+                          <span className={`text-xs font-semibold cursor-help hover:brightness-75 transition-all ${ELEMENT_COLORS[STAR_ELEMENTS[star.name] || 'Thủy']}`}>
+                            {star.name}{star.brightness ? `(${star.brightness})` : ''}
+                          </span>
+                        </Tooltip>
                       ))}
                     </div>
                   )}
@@ -405,7 +461,12 @@ const PalaceListView = ({ palaces, elementHighlight }) => {
 
             {/* Footer: Changsheng, Tieu Han, Nguyet Han */}
             <div className="flex justify-between items-center border-t border-purple-50/50 pt-2 text-[10px] text-slate-500 font-semibold mt-1">
-              <span>Trường sinh: <strong className="text-slate-700">{palace.changsheng12 === "Mục Dục" ? "Mộc Dục" : palace.changsheng12}</strong></span>
+              <span className="flex items-center gap-1">
+                Trường sinh: 
+                <Tooltip term={palace.changsheng12 === "Mục Dục" ? "Mộc Dục" : palace.changsheng12} unstyled={true}>
+                  <strong className="text-slate-700 cursor-help hover:text-slate-900 transition-colors">{palace.changsheng12 === "Mục Dục" ? "Mộc Dục" : palace.changsheng12}</strong>
+                </Tooltip>
+              </span>
               <div className="flex gap-3">
                 <span>Tiểu hạn: <strong className="text-indigo-600">{BRANCHES[(BRANCHES.indexOf(palace.earthlyBranch) - 2 + 12) % 12]}</strong></span>
                 <span>Nguyệt hạn: <strong className="text-purple-650">Th.{((BRANCHES.indexOf(palace.earthlyBranch) - (new Date().getFullYear() - 4) % 12 + 12) % 12 + 1)}</strong></span>
@@ -516,11 +577,21 @@ const ZiweiChart = ({ chartData }) => {
                   <div className="grid grid-cols-2 gap-1 md:gap-3 bg-purple-50/20 p-1 md:p-4 rounded-xl md:rounded-2xl border border-purple-100/30 text-[7px] md:text-sm">
                     <div className="flex flex-col">
                       <span className="text-[6px] md:text-[10px] text-slate-400 font-extrabold uppercase tracking-wider mb-0.5">Bản Mệnh Cục</span>
-                      <span className="font-extrabold text-slate-900 leading-none">{chartData.fiveElementsClass || "Kim Tứ Cục"}</span>
+                      <Tooltip term={chartData.fiveElementsClass || "Kim Tứ Cục"} unstyled={true}>
+                        <span className="font-extrabold text-slate-900 leading-none cursor-help hover:text-slate-600">{chartData.fiveElementsClass || "Kim Tứ Cục"}</span>
+                      </Tooltip>
                     </div>
                     <div className="flex flex-col">
                       <span className="text-[6px] md:text-[10px] text-slate-400 font-extrabold uppercase tracking-wider mb-0.5">Mệnh / Thân Chủ</span>
-                      <span className="font-extrabold text-slate-900 leading-none">{chartData.soul || "Liêm Trinh"} / {chartData.body || "Thiên Lương"}</span>
+                      <span className="font-extrabold text-slate-900 leading-none flex items-center gap-0.5">
+                        <Tooltip term={chartData.soul || "Liêm Trinh"} unstyled={true}>
+                          <span className="cursor-help hover:text-slate-600">{chartData.soul || "Liêm Trinh"}</span>
+                        </Tooltip>
+                        <span className="text-slate-300 font-normal">/</span>
+                        <Tooltip term={chartData.body || "Thiên Lương"} unstyled={true}>
+                          <span className="cursor-help hover:text-slate-600">{chartData.body || "Thiên Lương"}</span>
+                        </Tooltip>
+                      </span>
                     </div>
                     <div className="flex flex-col col-span-2 border-t border-purple-100/30 pt-1 md:pt-2 mt-0.5 md:mt-1">
                       <span className="text-[6px] md:text-[10px] text-slate-400 font-extrabold uppercase tracking-wider mb-0.5">Tứ Trụ Can Chi</span>
@@ -571,11 +642,21 @@ const ZiweiChart = ({ chartData }) => {
             <div className="grid grid-cols-2 gap-2 text-xs bg-purple-50/20 p-3 rounded-xl border border-purple-100/20">
               <div className="flex flex-col">
                 <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Bản Mệnh Cục</span>
-                <span className="font-extrabold text-slate-900">{chartData.fiveElementsClass || "Kim Tứ Cục"}</span>
+                <Tooltip term={chartData.fiveElementsClass || "Kim Tứ Cục"} unstyled={true}>
+                  <span className="font-extrabold text-slate-900 cursor-help hover:text-slate-600">{chartData.fiveElementsClass || "Kim Tứ Cục"}</span>
+                </Tooltip>
               </div>
               <div className="flex flex-col">
                 <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Mệnh / Thân Chủ</span>
-                <span className="font-extrabold text-slate-900">{chartData.soul || "Liêm Trinh"} / {chartData.body || "Thiên Lương"}</span>
+                <span className="font-extrabold text-slate-900 flex items-center gap-0.5">
+                  <Tooltip term={chartData.soul || "Liêm Trinh"} unstyled={true}>
+                    <span className="cursor-help hover:text-slate-600">{chartData.soul || "Liêm Trinh"}</span>
+                  </Tooltip>
+                  <span className="text-slate-350 font-normal">/</span>
+                  <Tooltip term={chartData.body || "Thiên Lương"} unstyled={true}>
+                    <span className="cursor-help hover:text-slate-600">{chartData.body || "Thiên Lương"}</span>
+                  </Tooltip>
+                </span>
               </div>
               <div className="flex flex-col col-span-2 border-t border-purple-100/20 pt-2 mt-1">
                 <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Tứ Trụ Can Chi</span>

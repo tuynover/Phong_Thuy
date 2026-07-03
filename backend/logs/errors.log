@@ -649,3 +649,37 @@ Stack: Error: read ECONNRESET
 [2026-07-02 17:39:50.179] [WARN] [User: cobatuoc@gmail.com] [Action: Đăng ký tài khoản] [IP: ::1] [Duration: 71ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (400)
 [2026-07-02 17:39:50.883] [WARN] [User: cobatuoc@gmail.com] [Action: Đăng ký tài khoản] [IP: ::1] [Duration: 65ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (400)
 [2026-07-02 18:00:24.790] [WARN] [NotificationScheduler] Alert: Request spike detected for ::1
+[2026-07-03 15:38:16.269] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 15:38:49.073] [WARN] [User: cobatuoc@gmail.com (Tuyen)] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] [Duration: 7ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (404)
+[2026-07-03 15:38:49.786] [WARN] [User: cobatuoc@gmail.com (Tuyen)] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] [Duration: 6ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (404)
+[2026-07-03 15:41:16.575] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 15:41:49.931] [WARN] [User: cobatuoc@gmail.com (Tuyen)] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] [Duration: 5ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (404)
+[2026-07-03 15:42:03.311] [WARN] [User: cobatuoc@gmail.com (Tuyen)] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] [Duration: 6ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (404)
+[2026-07-03 15:42:03.380] [WARN] [User: cobatuoc@gmail.com (Tuyen)] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] [Duration: 7ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (404)
+[2026-07-03 15:42:05.279] [WARN] [User: cobatuoc@gmail.com (Tuyen)] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] [Duration: 7ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (404)
+[2026-07-03 15:42:10.412] [WARN] [User: cobatuoc@gmail.com (Tuyen)] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] [Duration: 7ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (404)
+[2026-07-03 15:42:14.610] [WARN] [User: cobatuoc@gmail.com (Tuyen)] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] [Duration: 6ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (404)
+[2026-07-03 15:42:15.158] [WARN] [User: cobatuoc@gmail.com (Tuyen)] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] [Duration: 6ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (404)
+[2026-07-03 15:44:16.637] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 15:45:12.996] [WARN] [User: cobatuoc@gmail.com (Tuyen)] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] [Duration: 9ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (404)
+[2026-07-03 15:45:25.202] [WARN] [User: cobatuoc@gmail.com (Tuyen)] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] [Duration: 2ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (404)
+[2026-07-03 15:47:16.232] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 15:50:05.088] [WARN] [User: cobatuoc@gmail.com (Tuyen)] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] [Duration: 2ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (404)
+[2026-07-03 15:50:06.404] [WARN] [User: cobatuoc@gmail.com (Tuyen)] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] [Duration: 5ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (404)
+[2026-07-03 15:50:16.311] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 15:51:53.604] [WARN] [User: cobatuoc@gmail.com (Tuyen)] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] [Duration: 7ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (404)
+[2026-07-03 15:53:16.230] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 15:56:16.342] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 15:57:50.204] [WARN] [User: cobatuoc@gmail.com (Tuyen)] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] [Duration: 5ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (404)
+[2026-07-03 15:57:54.338] [WARN] [User: cobatuoc@gmail.com (Tuyen)] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] [Duration: 7ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (404)
+[2026-07-03 15:58:02.134] [WARN] [User: cobatuoc@gmail.com (Tuyen)] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] [Duration: 2ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (404)
+[2026-07-03 15:58:02.162] [WARN] [User: cobatuoc@gmail.com (Tuyen)] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] [Duration: 2ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (404)
+[2026-07-03 15:58:04.959] [WARN] [User: cobatuoc@gmail.com (Tuyen)] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] [Duration: 2ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (404)
+[2026-07-03 15:58:06.909] [WARN] [User: cobatuoc@gmail.com (Tuyen)] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] [Duration: 2ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (404)
+[2026-07-03 15:58:06.928] [WARN] [User: cobatuoc@gmail.com (Tuyen)] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] [Duration: 2ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (404)
+[2026-07-03 15:58:47.125] [WARN] [User: cobatuoc@gmail.com (Tuyen)] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] [Duration: 1ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (404)
+[2026-07-03 15:59:16.236] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 16:02:16.326] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 16:05:16.278] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 16:08:16.682] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 16:11:16.592] [WARN] [Self-Ping] Warning: Ping returned status 404

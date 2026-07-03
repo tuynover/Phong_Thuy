@@ -189,7 +189,20 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
 
     const getAbbreviatedThapThan = (name) => {
         if (!name) return '';
-        return name.trim();
+        const trimmed = name.trim();
+        const map = {
+            'Tỷ Kiên': 'Tỷ',
+            'Kiếp Tài': 'Kiếp',
+            'Thực Thần': 'Thực',
+            'Thương Quan': 'Thương',
+            'Thiên Tài': 'T.Tài',
+            'Chính Tài': 'Tài',
+            'Thất Sát': 'Sát',
+            'Chính Quan': 'Quan',
+            'Thiên Ấn': 'Kiêu',
+            'Chính Ấn': 'Ấn'
+        };
+        return map[trimmed] || trimmed;
     };
 
     const getBatCung = (zhi) => {
@@ -242,7 +255,7 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
                 <div className="text-[9px] sm:text-sm font-bold text-gray-400 mb-1.5 h-4 sm:h-5">
                     {thapThanGan !== 'Nhật Chủ' ? (
                         <Tooltip term={thapThanGan} unstyled={true}>
-                            <span className="cursor-help hover:text-blue-700 transition-colors">{thapThanGan}</span>
+                            <span className="cursor-help hover:text-blue-700 transition-colors">{getAbbreviatedThapThan(thapThanGan)}</span>
                         </Tooltip>
                     ) : ''}
                 </div>
