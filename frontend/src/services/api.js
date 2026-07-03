@@ -22,6 +22,8 @@ export const analyzeBazi = (date, time, gender, userId) => axios.post(`${API_URL
 
 // Marriage (Hôn Nhân) API Endpoints
 export const analyzeMarriage = (male, female, userId) => axios.post(`${API_URL}/marriage/analyze`, { male, female, userId });
+export const checkAuspiciousDate = (birthYear, solarDate, solarHour, activity) => axios.post(`${API_URL}/date/check`, { birthYear, solarDate, solarHour, activity });
+export const consultAuspiciousDates = (birthYear, startDate, endDate, activity) => axios.post(`${API_URL}/date/consult`, { birthYear, startDate, endDate, activity });
 export const getMarriageHistory = (userId) => axios.get(`${API_URL}/history/marriage/${userId}`);
 export const getMarriageRecord = (id) => axios.get(`${API_URL}/history/marriage/record/${id}`);
 export const rateMarriage = (id, rating, feedback) => axios.put(`${API_URL}/history/marriage/${id}/rate`, { rating, feedback });

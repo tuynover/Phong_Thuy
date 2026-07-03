@@ -224,3 +224,104 @@ Yêu cầu người dùng đăng nhập. Phục vụ lấy danh sách và quản
   - **Phản hồi (200):** `{ "success": true, "modifiedCount": 3 }`
 - **Đánh dấu đọc một thông báo:** `PUT /api/notifications/:id/read`
   - **Phản hồi (200):** `{ "success": true }`
+
+---
+
+## 📅 7. Xem Ngày & Giờ Hoàng Đạo (Trạch Cát) (`/api/date`)
+
+Chức năng chạy in-memory, phục vụ xem ngày cát hung và tư vấn khoảng thời gian hoàng đạo phù hợp với tuổi. Không lưu trữ thông tin vào cơ sở dữ liệu.
+
+### 7.1 Kiểm tra một ngày cụ thể (Xem Ngày)
+- **Endpoint:** `POST /api/date/check`
+- **Body:**
+  ```json
+  {
+    "birthYear": 1990,
+    "solarDate": "2026-07-03", // YYYY-MM-DD hoặc DD/MM/YYYY
+    "solarHour": "12:00",      // HH:mm (Tùy chọn)
+    "activity": "dai_su"       // "dai_su" | "khoi_nghiep" | "xay_dung"
+  }
+  ```
+- **Phản hồi (200):**
+  ```json
+  {
+    "userYearInfo": {
+      "yearCanChi": "Canh Ngọ",
+      "naYin": "Lộ Bàng Thổ",
+      "gan": "Canh",
+      "zhi": "Ngọ"
+    },
+    "dayEvaluation": {
+      "rating": "Nên", // "Rất tốt" | "Nên" | "Không nên" | "Không được"
+      "score": 1.5,
+      "positiveFactors": [
+        "Ngũ hành ngày là Thành Đầu Thổ (Thổ) Tương Hòa với bản mệnh Lộ Bàng Thổ (Thổ) của bạn.",
+        "Ngày có Trực Thành tốt cho công việc dự kiến."
+      ],
+      "negativeFactors": [
+        "Ngày Hắc Đạo xung kỵ (Bạch Hổ)."
+      ],
+      "lunarDateInfo": {
+        "year": 2026,
+        "month": 5,
+        "day": 19,
+        "yearCanChi": "Bính Ngọ",
+        "monthCanChi": "Mậu Ngọ",
+        "dayCanChi": "Mậu Dần",
+        "truc": "Thành",
+        "deity": "Bạch Hổ",
+        "deityType": "Hắc Đạo"
+      }
+    },
+    "hourEvaluation": {
+      "rating": "Rất tốt",
+      "score": 2,
+      "positiveFactors": [ "Giờ Hoàng Đạo trị nhật bởi thần Thiên Đức." ],
+      "negativeFactors": [],
+      "hourName": "Tỵ",
+      "hourCanChi": "Đinh Tỵ",
+      "deity": "Thiên Đức",
+      "deityType": "Hoàng Đạo",
+      "timeRange": "9h - 11h"
+    },
+    "solarDateInfo": {
+      "date": "03/07/2026",
+      "hour": "12:00"
+    }
+  }
+  ```
+
+### 7.2 Tư vấn ngày hoàng đạo trong một khoảng thời gian
+- **Endpoint:** `POST /api/date/consult`
+- **Body:**
+  ```json
+  {
+    "birthYear": 1990,
+    "startDate": "2026-07-01",
+    "endDate": "2026-07-07",
+    "activity": "dai_su"
+  }
+  ```
+- **Phản hồi (200):**
+  ```json
+  {
+    "userYearInfo": {
+      "yearCanChi": "Canh Ngọ",
+      "naYin": "Lộ Bàng Thổ",
+      "gan": "Canh",
+      "zhi": "Ngọ"
+    },
+    "recommendations": [
+      {
+        "solarDate": "02/07/2026",
+        "dayEvaluation": { ... },
+        "goodHours": [
+          { "hourName": "Dần", "timeRange": "3h - 5h", "rating": "Rất tốt", "deity": "Kim Quỹ" },
+          ...
+        ]
+      },
+      ...
+    ]
+  }
+  ```
+

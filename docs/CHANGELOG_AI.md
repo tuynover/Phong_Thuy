@@ -4,6 +4,32 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
 
 ---
 
+## 📅 Phiên bản: Bổ sung Phân Hệ Xem Ngày & Tư Vấn Ngày Hoàng Đạo (03/07/2026)
+
+### 1. Backend (Thuật toán Trạch cát & Router)
+- **Xây dựng DateService.js:**
+  - Tích hợp công cụ chuyển đổi Dương lịch sang Âm lịch dựa trên `lunar-javascript`.
+  - Phân tích tương sinh/khắc can chi tuổi người dùng (**Lục Xung, Lục Hại, Thiên Can khắc, Nạp Âm khắc**).
+  - Tích hợp đánh giá hệ thống **Thập Nhị Thần Hoàng Đạo/Hắc Đạo** (12 vị thần) và **Thập Nhị Kiến Trừ** (12 Trực) cho từng nhóm việc (Đại sự, Khởi nghiệp, Xây dựng).
+  - Thiết kế thang điểm đánh giá chi tiết chia thành **4 cấp độ**: **Rất tốt**, **Nên**, **Không nên**, **Không được**.
+  - Tính toán và đề xuất dải giờ hoàng đạo cát lợi cùng ngày không xung khắc với tuổi.
+- **Xây dựng DateController.js:** Expose hai API endpoints: `/api/date/check` (xem một ngày) và `/api/date/consult` (tư vấn ngày tốt trong khoảng thời gian). Các API này chạy hoàn toàn trên bộ nhớ (in-memory) và không ghi dữ liệu vào database.
+- **Đăng ký Route:** Liên kết các endpoints mới trong [routes/index.js](file:///t:/Phongthuy/backend/src/routes/index.js).
+
+### 2. Frontend (Giao diện người dùng)
+- **Tích hợp API endpoints:** Khai báo hàm `checkAuspiciousDate` và `consultAuspiciousDates` trong [api.js](file:///t:/Phongthuy/frontend/src/services/api.js).
+- **Xây dựng component DateSelectionBoard.jsx:**
+  - Tạo giao diện 2 sub-tabs chuyển đổi: "Xem ngày cụ thể" và "Tư vấn ngày hoàng đạo".
+  - Hiển thị kết quả trực quan bằng màu sắc và huy hiệu (Badge) tương ứng với 4 cấp độ đánh giá.
+  - Hỗ trợ lưu trữ tự động các lựa chọn năm sinh và công việc vào `localStorage` để đồng bộ giữa hai tab.
+  - Cung cấp nút chuyển đổi nhanh (CTA) tự động pre-fill năm sinh và công việc khi chuyển từ Xem ngày sang Tư vấn ngày.
+- **Bổ sung tab Xem Ngày:** Tích hợp liên kết điều hướng mượt mà, hỗ trợ Lazy Loading trong [UserApp.jsx](file:///t:/Phongthuy/frontend/src/components/UserApp.jsx).
+
+### 3. Cập nhật Tài liệu
+- Cập nhật đặc tả chi tiết API trong [API.md](file:///t:/Phongthuy/docs/API.md).
+
+---
+
 ## 📅 Phiên bản: Tích hợp Nén HTTP Compression toàn cục (02/07/2026)
 
 ### Backend (Mã hóa & Truyền tải)

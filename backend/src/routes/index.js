@@ -4,6 +4,7 @@ const IChingController = require('../controllers/IChingController');
 const ConceptController = require('../controllers/ConceptController');
 const BaziController = require('../controllers/BaziController');
 const MarriageController = require('../controllers/MarriageController');
+const DateController = require('../controllers/DateController');
 const authRoutes = require('./auth');
 const historyRoutes = require('./history');
 const aiRoutes = require('./ai');
@@ -35,5 +36,7 @@ router.post('/calculate', calcLimiter, IChingController.calculate);
 router.get('/concept/:term', ConceptController.getConcept);
 router.post('/bazi/analyze', calcLimiter, BaziController.analyze);
 router.post('/marriage/analyze', calcLimiter, MarriageController.analyze);
+router.post('/date/check', calcLimiter, DateController.check);
+router.post('/date/consult', calcLimiter, DateController.consult);
 
 module.exports = router;

@@ -19,12 +19,13 @@ import HistoryBoard from './HistoryBoard';
 const BaziBoard = React.lazy(() => import('./BaziBoard'));
 const ZiweiBoard = React.lazy(() => import('./ZiweiBoard'));
 const MarriageBoard = React.lazy(() => import('./MarriageBoard'));
+const DateSelectionBoard = React.lazy(() => import('./DateSelectionBoard'));
 
 export default function UserApp({ onSwitchToAdmin }) {
   const [appMode, setAppMode] = useState(() => {
     const saved = localStorage.getItem('appMode');
     return saved === 'tuvi' ? 'ziwei' : (saved || 'iching');
-  }); // 'iching' | 'bazi' | 'ziwei' | 'history' | 'profile'
+  }); // 'iching' | 'bazi' | 'ziwei' | 'marriage' | 'xemngay' | 'history' | 'profile'
   
   // Auth
   const { user, logout } = useContext(AuthContext);
@@ -332,6 +333,13 @@ export default function UserApp({ onSwitchToAdmin }) {
             >
               Hôn Nhân
             </button>
+            <button 
+              onClick={() => setAppMode('xemngay')} 
+              className={`flex-1 sm:flex-none px-2.5 py-1.5 sm:px-5 sm:py-2 rounded-full font-bold transition-all text-[11px] sm:text-xs md:text-sm tracking-wider font-[Montserrat] uppercase ${appMode === 'xemngay' ? 'text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-955 hover:bg-neutral-50'}`}
+              style={appMode === 'xemngay' ? { backgroundColor: '#065f46', color: '#ffffff' } : {}}
+            >
+              Xem ngày
+            </button>
             {user && (
               <button 
                 onClick={() => setAppMode('history')} 
@@ -489,6 +497,16 @@ export default function UserApp({ onSwitchToAdmin }) {
             </div>
             <h1 className="text-4xl md:text-6xl font-[Lora] font-bold text-rose-955 mb-6 drop-shadow-sm">Bát Tự Hợp Hôn</h1>
             <p className="text-rose-800/80 max-w-2xl mx-auto text-base md:text-lg font-medium">Hệ thống đối chiếu âm dương ngũ hành, cung phi bản mệnh của hai phối ngẫu.</p>
+          </header>
+        ) : appMode === 'xemngay' ? (
+          <header className="text-center mb-16 pt-2 animate-in fade-in duration-300 font-sans">
+            <div className="inline-block p-4 rounded-full bg-emerald-100 border border-emerald-200 mb-6">
+              <div className="w-16 h-16 rounded-full border-4 border-emerald-800 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full bg-emerald-800"></div>
+              </div>
+            </div>
+            <h1 className="text-4xl md:text-6xl font-[Lora] font-bold text-emerald-955 mb-6 drop-shadow-sm">XEM NGÀY ĐẸP</h1>
+            <p className="text-emerald-800/80 max-w-2xl mx-auto text-base md:text-lg font-medium">Hệ thống chọn lựa ngày lành tháng tốt, xem cát hung giờ hoàng đạo cá nhân hóa theo phong thủy tuổi mệnh.</p>
           </header>
         ) : null}
 
@@ -664,6 +682,18 @@ export default function UserApp({ onSwitchToAdmin }) {
               </div>
             </div>
           )}
+        </div>
+        
+        {/* SYSTEM 6: DATE SELECTION */}
+        <div className={`animate-in fade-in duration-500 ${appMode === 'xemngay' ? 'block' : 'hidden'}`}>
+          <React.Suspense fallback={
+            <div className="text-center py-20 animate-in fade-in">
+              <div className="w-12 h-12 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-emerald-955 font-extrabold text-sm tracking-wider uppercase animate-pulse">Đang nạp dữ liệu Trạch Cát...</p>
+            </div>
+          }>
+            <DateSelectionBoard user={user} />
+          </React.Suspense>
         </div>
 
         {/* SYSTEM 4: HISTORY */}

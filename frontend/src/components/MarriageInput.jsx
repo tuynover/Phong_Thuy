@@ -1,5 +1,73 @@
-import React, { useState } from 'react';
-import { Calendar, Clock, User } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Calendar, Clock, User, ChevronDown } from 'lucide-react';
+
+// UNIFIED COMBOBOX COMPONENT - ALLOWS TYPING AND SELECTING
+function CustomSelect({ value, onChange, options, placeholder, borderClass, focusBorderClass, hoverClass, activeClass }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [search, setSearch] = useState(value || '');
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    setSearch(value || '');
+  }, [value]);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setIsOpen(false);
+        setSearch(value || '');
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [value]);
+
+  const filteredOptions = options.filter(opt => opt.includes(search));
+
+  const handleInputChange = (e) => {
+    const val = e.target.value;
+    setSearch(val);
+    onChange(val);
+    setIsOpen(true);
+  };
+
+  return (
+    <div ref={containerRef} className="relative flex-1">
+      <div className="relative">
+        <input
+          type="text"
+          value={search}
+          onChange={handleInputChange}
+          onFocus={() => setIsOpen(true)}
+          placeholder={placeholder}
+          className={`bg-white border text-center text-gray-950 text-base rounded-xl block w-full p-2.5 font-bold transition-all focus:outline-none pr-8 shadow-sm ${borderClass} ${isOpen ? focusBorderClass : ''}`}
+        />
+        <ChevronDown
+          size={14}
+          className="absolute right-2 top-4 text-gray-400 cursor-pointer shrink-0"
+          onClick={() => setIsOpen(!isOpen)}
+        />
+      </div>
+      {isOpen && filteredOptions.length > 0 && (
+        <ul className="absolute z-50 w-full mt-1 bg-white border rounded-xl shadow-lg py-1.5 max-h-48 overflow-y-auto text-center font-bold">
+          {filteredOptions.map(opt => (
+            <li
+              key={opt}
+              onClick={() => {
+                onChange(opt);
+                setSearch(opt);
+                setIsOpen(false);
+              }}
+              className={`px-3 py-1.5 text-sm cursor-pointer transition-colors ${hoverClass} ${value === opt ? activeClass : 'text-gray-700'}`}
+            >
+              {opt}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
 
 const MarriageInput = ({ onComplete }) => {
     // Male state
@@ -19,6 +87,11 @@ const MarriageInput = ({ onComplete }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         
+        if (!mDay || !mMonth || !mYear || !mHour || !mMinute || !fDay || !fMonth || !fYear || !fHour || !fMinute) {
+            alert('Vui lòng chọn đầy đủ thông tin ngày giờ sinh cho cả Nam và Nữ.');
+            return;
+        }
+
         // Pad and construct dates/times
         const mD = String(mDay).padStart(2, '0');
         const mM = String(mMonth).padStart(2, '0');
@@ -45,6 +118,13 @@ const MarriageInput = ({ onComplete }) => {
         onComplete(maleData, femaleData);
     };
 
+    // Arrays of options
+    const days = Array.from({ length: 31 }, (_, i) => String(i + 1));
+    const months = Array.from({ length: 12 }, (_, i) => String(i + 1));
+    const years = Array.from({ length: 97 }, (_, i) => String(2026 - i));
+    const hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
+    const minutes = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
+
     return (
         <div className="flex flex-col items-center bg-white p-5 md:p-8 rounded-2xl md:rounded-[2rem] shadow-xl border border-gray-100 max-w-4xl mx-auto font-sans">
             <h3 className="text-2xl font-bold text-slate-800 mb-6 uppercase tracking-wide text-center">Lập Lá Số Hợp Hôn (Bát Tự Hợp Hôn)</h3>
@@ -68,18 +148,36 @@ const MarriageInput = ({ onComplete }) => {
                                 <Calendar className="w-3.5 h-3.5" /> Ngày - Tháng - Năm Sinh (Dương lịch)
                             </label>
                             <div className="flex gap-2">
-                                <div className="flex-1">
-                                    <input type="number" required min="1" max="31" placeholder="Ngày" value={mDay} onChange={(e) => setMDay(e.target.value)}
-                                        className="bg-white border border-blue-200 text-center text-gray-900 text-base rounded-xl focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 font-bold transition-colors appearance-none focus:outline-none" />
-                                </div>
-                                <div className="flex-1">
-                                    <input type="number" required min="1" max="12" placeholder="Tháng" value={mMonth} onChange={(e) => setMMonth(e.target.value)}
-                                        className="bg-white border border-blue-200 text-center text-gray-900 text-base rounded-xl focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 font-bold transition-colors appearance-none focus:outline-none" />
-                                </div>
-                                <div className="flex-[1.5]">
-                                    <input type="number" required min="1900" max="2100" placeholder="Năm" value={mYear} onChange={(e) => setMYear(e.target.value)}
-                                        className="bg-white border border-blue-200 text-center text-gray-900 text-base rounded-xl focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 font-bold transition-colors appearance-none focus:outline-none" />
-                                </div>
+                                <CustomSelect
+                                  value={mDay}
+                                  onChange={setMDay}
+                                  options={days}
+                                  placeholder="Ngày"
+                                  borderClass="border-blue-200"
+                                  focusBorderClass="border-blue-500 ring-1 ring-blue-500"
+                                  hoverClass="hover:bg-blue-50 hover:text-blue-900"
+                                  activeClass="bg-blue-50 text-blue-800 font-extrabold"
+                                />
+                                <CustomSelect
+                                  value={mMonth}
+                                  onChange={setMMonth}
+                                  options={months}
+                                  placeholder="Tháng"
+                                  borderClass="border-blue-200"
+                                  focusBorderClass="border-blue-500 ring-1 ring-blue-500"
+                                  hoverClass="hover:bg-blue-50 hover:text-blue-900"
+                                  activeClass="bg-blue-50 text-blue-800 font-extrabold"
+                                />
+                                <CustomSelect
+                                  value={mYear}
+                                  onChange={setMYear}
+                                  options={years}
+                                  placeholder="Năm"
+                                  borderClass="border-blue-200"
+                                  focusBorderClass="border-blue-500 ring-1 ring-blue-500"
+                                  hoverClass="hover:bg-blue-50 hover:text-blue-900"
+                                  activeClass="bg-blue-50 text-blue-800 font-extrabold"
+                                />
                             </div>
                         </div>
 
@@ -89,15 +187,27 @@ const MarriageInput = ({ onComplete }) => {
                                 <Clock className="w-3.5 h-3.5" /> Giờ & Phút Sinh
                             </label>
                             <div className="flex gap-2 items-center">
-                                <div className="flex-1">
-                                    <input type="number" required min="0" max="23" placeholder="Giờ" value={mHour} onChange={(e) => setMHour(e.target.value)}
-                                        className="bg-white border border-blue-200 text-center text-gray-900 text-base rounded-xl focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 font-bold transition-colors appearance-none focus:outline-none" />
-                                </div>
+                                <CustomSelect
+                                  value={mHour}
+                                  onChange={setMHour}
+                                  options={hours}
+                                  placeholder="Giờ"
+                                  borderClass="border-blue-200"
+                                  focusBorderClass="border-blue-500 ring-1 ring-blue-500"
+                                  hoverClass="hover:bg-blue-50 hover:text-blue-900"
+                                  activeClass="bg-blue-50 text-blue-800 font-extrabold"
+                                />
                                 <div className="text-gray-400 font-bold">:</div>
-                                <div className="flex-1">
-                                    <input type="number" required min="0" max="59" placeholder="Phút" value={mMinute} onChange={(e) => setMMinute(e.target.value)}
-                                        className="bg-white border border-blue-200 text-center text-gray-900 text-base rounded-xl focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 font-bold transition-colors appearance-none focus:outline-none" />
-                                </div>
+                                <CustomSelect
+                                  value={mMinute}
+                                  onChange={setMMinute}
+                                  options={minutes}
+                                  placeholder="Phút"
+                                  borderClass="border-blue-200"
+                                  focusBorderClass="border-blue-500 ring-1 ring-blue-500"
+                                  hoverClass="hover:bg-blue-50 hover:text-blue-900"
+                                  activeClass="bg-blue-50 text-blue-800 font-extrabold"
+                                />
                             </div>
                         </div>
                     </div>
@@ -117,18 +227,36 @@ const MarriageInput = ({ onComplete }) => {
                                 <Calendar className="w-3.5 h-3.5" /> Ngày - Tháng - Năm Sinh (Dương lịch)
                             </label>
                             <div className="flex gap-2">
-                                <div className="flex-1">
-                                    <input type="number" required min="1" max="31" placeholder="Ngày" value={fDay} onChange={(e) => setFDay(e.target.value)}
-                                        className="bg-white border border-rose-200 text-center text-gray-900 text-base rounded-xl focus:ring-rose-500 focus:border-rose-500 block w-full p-2.5 font-bold transition-colors appearance-none focus:outline-none" />
-                                </div>
-                                <div className="flex-1">
-                                    <input type="number" required min="1" max="12" placeholder="Tháng" value={fMonth} onChange={(e) => setFMonth(e.target.value)}
-                                        className="bg-white border border-rose-200 text-center text-gray-900 text-base rounded-xl focus:ring-rose-500 focus:border-rose-500 block w-full p-2.5 font-bold transition-colors appearance-none focus:outline-none" />
-                                </div>
-                                <div className="flex-[1.5]">
-                                    <input type="number" required min="1900" max="2100" placeholder="Năm" value={fYear} onChange={(e) => setFYear(e.target.value)}
-                                        className="bg-white border border-rose-200 text-center text-gray-900 text-base rounded-xl focus:ring-rose-500 focus:border-rose-500 block w-full p-2.5 font-bold transition-colors appearance-none focus:outline-none" />
-                                </div>
+                                <CustomSelect
+                                  value={fDay}
+                                  onChange={setFDay}
+                                  options={days}
+                                  placeholder="Ngày"
+                                  borderClass="border-rose-200"
+                                  focusBorderClass="border-rose-500 ring-1 ring-rose-500"
+                                  hoverClass="hover:bg-rose-50 hover:text-rose-900"
+                                  activeClass="bg-rose-50 text-rose-800 font-extrabold"
+                                />
+                                <CustomSelect
+                                  value={fMonth}
+                                  onChange={setFMonth}
+                                  options={months}
+                                  placeholder="Tháng"
+                                  borderClass="border-rose-200"
+                                  focusBorderClass="border-rose-500 ring-1 ring-rose-500"
+                                  hoverClass="hover:bg-rose-50 hover:text-rose-900"
+                                  activeClass="bg-rose-50 text-rose-800 font-extrabold"
+                                />
+                                <CustomSelect
+                                  value={fYear}
+                                  onChange={setFYear}
+                                  options={years}
+                                  placeholder="Năm"
+                                  borderClass="border-rose-200"
+                                  focusBorderClass="border-rose-500 ring-1 ring-rose-500"
+                                  hoverClass="hover:bg-rose-50 hover:text-rose-900"
+                                  activeClass="bg-rose-50 text-rose-800 font-extrabold"
+                                />
                             </div>
                         </div>
 
@@ -138,15 +266,27 @@ const MarriageInput = ({ onComplete }) => {
                                 <Clock className="w-3.5 h-3.5" /> Giờ & Phút Sinh
                             </label>
                             <div className="flex gap-2 items-center">
-                                <div className="flex-1">
-                                    <input type="number" required min="0" max="23" placeholder="Giờ" value={fHour} onChange={(e) => setFHour(e.target.value)}
-                                        className="bg-white border border-rose-200 text-center text-gray-900 text-base rounded-xl focus:ring-rose-500 focus:border-rose-500 block w-full p-2.5 font-bold transition-colors appearance-none focus:outline-none" />
-                                </div>
+                                <CustomSelect
+                                  value={fHour}
+                                  onChange={setFHour}
+                                  options={hours}
+                                  placeholder="Giờ"
+                                  borderClass="border-rose-200"
+                                  focusBorderClass="border-rose-500 ring-1 ring-rose-500"
+                                  hoverClass="hover:bg-rose-50 hover:text-rose-900"
+                                  activeClass="bg-rose-50 text-rose-800 font-extrabold"
+                                />
                                 <div className="text-gray-400 font-bold">:</div>
-                                <div className="flex-1">
-                                    <input type="number" required min="0" max="59" placeholder="Phút" value={fMinute} onChange={(e) => setFMinute(e.target.value)}
-                                        className="bg-white border border-rose-200 text-center text-gray-900 text-base rounded-xl focus:ring-rose-500 focus:border-rose-500 block w-full p-2.5 font-bold transition-colors appearance-none focus:outline-none" />
-                                </div>
+                                <CustomSelect
+                                  value={fMinute}
+                                  onChange={setFMinute}
+                                  options={minutes}
+                                  placeholder="Phút"
+                                  borderClass="border-rose-200"
+                                  focusBorderClass="border-rose-500 ring-1 ring-rose-500"
+                                  hoverClass="hover:bg-rose-50 hover:text-rose-900"
+                                  activeClass="bg-rose-50 text-rose-800 font-extrabold"
+                                />
                             </div>
                         </div>
                     </div>

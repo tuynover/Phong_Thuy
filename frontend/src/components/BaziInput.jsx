@@ -1,5 +1,73 @@
-import React, { useState } from 'react';
-import { Calendar, Clock, User } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Calendar, Clock, User, ChevronDown } from 'lucide-react';
+
+// UNIFIED COMBOBOX SELECTOR (BLUE THEME)
+function CustomSelect({ value, onChange, options, placeholder }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [search, setSearch] = useState(value || '');
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    setSearch(value || '');
+  }, [value]);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setIsOpen(false);
+        setSearch(value || '');
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [value]);
+
+  const filteredOptions = options.filter(opt => opt.includes(search));
+
+  const handleInputChange = (e) => {
+    const val = e.target.value;
+    setSearch(val);
+    onChange(val);
+    setIsOpen(true);
+  };
+
+  return (
+    <div ref={containerRef} className="relative flex-1">
+      <div className="relative">
+        <input
+          type="text"
+          value={search}
+          onChange={handleInputChange}
+          onFocus={() => setIsOpen(true)}
+          placeholder={placeholder}
+          className={`bg-gray-50 border border-gray-200 text-center text-gray-905 text-base rounded-xl block w-full p-2.5 font-bold transition-all focus:outline-none pr-8 shadow-sm ${isOpen ? 'ring-2 ring-blue-550 border-blue-550' : ''}`}
+        />
+        <ChevronDown
+          size={14}
+          className="absolute right-2 top-4 text-blue-500 cursor-pointer shrink-0"
+          onClick={() => setIsOpen(!isOpen)}
+        />
+      </div>
+      {isOpen && filteredOptions.length > 0 && (
+        <ul className="absolute z-50 w-full mt-1 bg-white border border-blue-100 rounded-xl shadow-lg py-1.5 max-h-48 overflow-y-auto text-center font-bold">
+          {filteredOptions.map(opt => (
+            <li
+              key={opt}
+              onClick={() => {
+                onChange(opt);
+                setSearch(opt);
+                setIsOpen(false);
+              }}
+              className={`px-3 py-1.5 text-sm cursor-pointer transition-colors hover:bg-blue-50 hover:text-blue-900 ${value === opt ? 'bg-blue-50 text-blue-800 font-extrabold' : 'text-gray-700'}`}
+            >
+              {opt}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
 
 const BaziInput = ({ onComplete }) => {
     const [day, setDay] = useState('');
@@ -12,6 +80,11 @@ const BaziInput = ({ onComplete }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         
+        if (!day || !month || !year || !hour || !minute) {
+            alert('Vui lòng điền đầy đủ ngày giờ sinh.');
+            return;
+        }
+
         // Pad single digits with leading zero
         const d = String(day).padStart(2, '0');
         const m = String(month).padStart(2, '0');
@@ -25,6 +98,13 @@ const BaziInput = ({ onComplete }) => {
         onComplete(formattedDate, formattedTime, gender);
     };
 
+    // Arrays of options
+    const days = Array.from({ length: 31 }, (_, i) => String(i + 1));
+    const months = Array.from({ length: 12 }, (_, i) => String(i + 1));
+    const years = Array.from({ length: 97 }, (_, i) => String(2026 - i));
+    const hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
+    const minutes = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
+
     return (
         <div className="flex flex-col items-center bg-white p-5 md:p-8 rounded-2xl md:rounded-[2rem] shadow-xl border border-gray-100 max-w-xl mx-auto font-sans">
             <h3 className="text-2xl font-bold text-slate-800 mb-6 uppercase tracking-wide">Nhập Thông Tin Bát Tự</h3>
@@ -32,6 +112,7 @@ const BaziInput = ({ onComplete }) => {
 
             <form onSubmit={handleSubmit} className="w-full space-y-6">
                 
+                {/* Giới tính */}
                 <div>
                     <label className="block text-sm font-bold text-gray-700 mb-3">Giới Tính (Quyết định chiều Đại Vận)</label>
                     <div className="flex gap-4">
@@ -46,6 +127,7 @@ const BaziInput = ({ onComplete }) => {
                     </div>
                 </div>
 
+                {/* Ngày tháng năm */}
                 <div>
                     <label className="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
                         <Calendar className="w-4 h-4" /> Ngày - Tháng - Năm Sinh (Dương lịch)
@@ -53,22 +135,35 @@ const BaziInput = ({ onComplete }) => {
                     <div className="flex gap-3">
                         <div className="flex-1">
                             <span className="block text-xs text-gray-400 font-bold mb-1 ml-1 text-center">NGÀY</span>
-                            <input type="number" required min="1" max="31" placeholder="DD" value={day} onChange={(e) => setDay(e.target.value)}
-                                className="bg-gray-50 border border-gray-200 text-center text-gray-900 text-lg rounded-xl focus:ring-blue-500 focus:border-blue-500 block w-full p-3 font-bold transition-colors appearance-none" />
+                            <CustomSelect
+                              value={day}
+                              onChange={setDay}
+                              options={days}
+                              placeholder="DD"
+                            />
                         </div>
                         <div className="flex-1">
                             <span className="block text-xs text-gray-400 font-bold mb-1 ml-1 text-center">THÁNG</span>
-                            <input type="number" required min="1" max="12" placeholder="MM" value={month} onChange={(e) => setMonth(e.target.value)}
-                                className="bg-gray-50 border border-gray-200 text-center text-gray-900 text-lg rounded-xl focus:ring-blue-500 focus:border-blue-500 block w-full p-3 font-bold transition-colors appearance-none" />
+                            <CustomSelect
+                              value={month}
+                              onChange={setMonth}
+                              options={months}
+                              placeholder="MM"
+                            />
                         </div>
                         <div className="flex-[1.5]">
                             <span className="block text-xs text-gray-400 font-bold mb-1 ml-1 text-center">NĂM</span>
-                            <input type="number" required min="1900" max="2100" placeholder="YYYY" value={year} onChange={(e) => setYear(e.target.value)}
-                                className="bg-gray-50 border border-gray-200 text-center text-gray-900 text-lg rounded-xl focus:ring-blue-500 focus:border-blue-500 block w-full p-3 font-bold transition-colors appearance-none" />
+                            <CustomSelect
+                              value={year}
+                              onChange={setYear}
+                              options={years}
+                              placeholder="YYYY"
+                            />
                         </div>
                     </div>
                 </div>
 
+                {/* Giờ phút */}
                 <div>
                     <label className="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
                         <Clock className="w-4 h-4" /> Thời Gian Sinh
@@ -76,14 +171,22 @@ const BaziInput = ({ onComplete }) => {
                     <div className="flex gap-3">
                         <div className="flex-1">
                             <span className="block text-xs text-gray-400 font-bold mb-1 ml-1 text-center">GIỜ (0-23)</span>
-                            <input type="number" required min="0" max="23" placeholder="HH" value={hour} onChange={(e) => setHour(e.target.value)}
-                                className="bg-gray-50 border border-gray-200 text-center text-gray-900 text-lg rounded-xl focus:ring-blue-500 focus:border-blue-500 block w-full p-3 font-bold transition-colors appearance-none" />
+                            <CustomSelect
+                              value={hour}
+                              onChange={setHour}
+                              options={hours}
+                              placeholder="HH"
+                            />
                         </div>
                         <div className="flex items-center pt-5 font-black text-gray-400 text-xl">:</div>
                         <div className="flex-1">
                             <span className="block text-xs text-gray-400 font-bold mb-1 ml-1 text-center">PHÚT (0-59)</span>
-                            <input type="number" required min="0" max="59" placeholder="MM" value={minute} onChange={(e) => setMinute(e.target.value)}
-                                className="bg-gray-50 border border-gray-200 text-center text-gray-900 text-lg rounded-xl focus:ring-blue-500 focus:border-blue-500 block w-full p-3 font-bold transition-colors appearance-none" />
+                            <CustomSelect
+                              value={minute}
+                              onChange={setMinute}
+                              options={minutes}
+                              placeholder="MM"
+                            />
                         </div>
                     </div>
                 </div>

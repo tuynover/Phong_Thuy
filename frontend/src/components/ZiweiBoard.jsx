@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
-import { Calendar, Clock, User, Sparkles, MessageCircle, RefreshCw, Star, ShieldAlert, ScrollText, ArrowUp, ArrowDown } from 'lucide-react';
+import { Calendar, Clock, User, Sparkles, MessageCircle, RefreshCw, Star, ShieldAlert, ScrollText, ArrowUp, ArrowDown, ChevronDown } from 'lucide-react';
 import { createZiweiChart, getZiweiRecord, rateZiwei, getInterpretationStreamUrl } from '../services/api';
 import ChartRenderer from './ChartRenderer';
 import SectionRenderer from './SectionRenderer';
@@ -24,9 +24,82 @@ const LUNAR_HOURS = [
   { index: 11, name: "Hợi (21:00 - 22:59)" }
 ];
 
+// UNIFIED COMBOBOX SELECTOR (PURPLE THEME)
+function CustomSelect({ value, onChange, options, placeholder }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [search, setSearch] = useState(value || '');
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    setSearch(value || '');
+  }, [value]);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setIsOpen(false);
+        setSearch(value || '');
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [value]);
+
+  const filteredOptions = options.filter(opt => opt.includes(search));
+
+  const handleInputChange = (e) => {
+    const val = e.target.value;
+    setSearch(val);
+    onChange(val);
+    setIsOpen(true);
+  };
+
+  return (
+    <div ref={containerRef} className="relative flex-1">
+      <div className="relative">
+        <input
+          type="text"
+          value={search}
+          onChange={handleInputChange}
+          onFocus={() => setIsOpen(true)}
+          placeholder={placeholder}
+          className={`bg-slate-50/80 border border-slate-200 text-center text-slate-800 text-base rounded-2xl block w-full p-2.5 font-bold transition-all focus:outline-none pr-8 shadow-sm ${isOpen ? 'ring-2 ring-purple-400 border-purple-400' : ''}`}
+        />
+        <ChevronDown
+          size={14}
+          className="absolute right-2 top-4 text-purple-500 cursor-pointer shrink-0"
+          onClick={() => setIsOpen(!isOpen)}
+        />
+      </div>
+      {isOpen && filteredOptions.length > 0 && (
+        <ul className="absolute z-50 w-full mt-1 bg-white border border-purple-100 rounded-2xl shadow-lg py-1.5 max-h-48 overflow-y-auto text-center font-bold">
+          {filteredOptions.map(opt => (
+            <li
+              key={opt}
+              onClick={() => {
+                onChange(opt);
+                setSearch(opt);
+                setIsOpen(false);
+              }}
+              className={`px-3 py-1.5 text-sm cursor-pointer transition-colors hover:bg-purple-50 hover:text-purple-900 ${value === opt ? 'bg-purple-50 text-purple-800 font-extrabold' : 'text-gray-700'}`}
+            >
+              {opt}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationComplete, onResultChange }) => {
   const { user: ctxUser, setUser, token } = useContext(AuthContext);
   const activeUser = ctxUser || user;
+
+  const days = Array.from({ length: 31 }, (_, i) => String(i + 1));
+  const months = Array.from({ length: 12 }, (_, i) => String(i + 1));
+  const years = Array.from({ length: 97 }, (_, i) => String(2026 - i));
+
   const [day, setDay] = useState('');
   const [month, setMonth] = useState('');
   const [year, setYear] = useState('');
@@ -376,18 +449,30 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
               <div className="flex gap-3">
                 <div className="flex-1">
                   <span className="block text-[10px] text-slate-400 font-bold mb-1 text-center">NGÀY</span>
-                  <input type="number" required min="1" max="31" placeholder="DD" value={day} onChange={(e) => setDay(e.target.value)}
-                    className="bg-slate-50/80 border border-slate-200 text-center text-slate-800 text-lg rounded-2xl focus:ring-2 focus:ring-purple-400 focus:border-purple-400 block w-full py-3.5 font-bold transition-all placeholder:text-slate-300" />
+                  <CustomSelect
+                    value={day}
+                    onChange={setDay}
+                    options={days}
+                    placeholder="DD"
+                  />
                 </div>
                 <div className="flex-1">
                   <span className="block text-[10px] text-slate-400 font-bold mb-1 text-center">THÁNG</span>
-                  <input type="number" required min="1" max="12" placeholder="MM" value={month} onChange={(e) => setMonth(e.target.value)}
-                    className="bg-slate-50/80 border border-slate-200 text-center text-slate-800 text-lg rounded-2xl focus:ring-2 focus:ring-purple-400 focus:border-purple-400 block w-full py-3.5 font-bold transition-all placeholder:text-slate-300" />
+                  <CustomSelect
+                    value={month}
+                    onChange={setMonth}
+                    options={months}
+                    placeholder="MM"
+                  />
                 </div>
                 <div className="flex-[1.5]">
                   <span className="block text-[10px] text-slate-400 font-bold mb-1 text-center">NĂM</span>
-                  <input type="number" required min="1900" max="2100" placeholder="YYYY" value={year} onChange={(e) => setYear(e.target.value)}
-                    className="bg-slate-50/80 border border-slate-200 text-center text-slate-800 text-lg rounded-2xl focus:ring-2 focus:ring-purple-400 focus:border-purple-400 block w-full py-3.5 font-bold transition-all placeholder:text-slate-300" />
+                  <CustomSelect
+                    value={year}
+                    onChange={setYear}
+                    options={years}
+                    placeholder="YYYY"
+                  />
                 </div>
               </div>
             </div>
