@@ -212,3 +212,17 @@ Hệ thống API Backend sử dụng tiền tố `/api` và phân chia thành c�
    npm run dev
    ```
 5. Mở trình duyệt và truy cập `http://localhost:5173`.
+
+---
+
+### 🐳 Cách 2: Khởi chạy bằng Docker Compose (Khuyên dùng cho AWS VM hoặc môi trường đóng gói)
+
+Nếu bạn muốn chạy đóng gói Backend cùng Nginx Reverse Proxy (lắng nghe ở cổng 80), hãy làm theo các bước sau:
+
+1. Đảm bảo đã tạo và cấu hình tệp `.env` tại thư mục `/backend` (kết nối MongoDB Atlas, cấu hình JWT_SECRET, GEMINI_API_KEY...).
+2. Tại thư mục gốc của dự án, khởi chạy Docker Compose:
+   ```bash
+   docker compose up -d --build
+   ```
+3. Dịch vụ Backend sẽ được phân phối qua cổng `80` (HTTP) của máy host thông qua Nginx. Hãy truy cập `http://localhost/health` (hoặc địa chỉ IP public của máy ảo AWS) để kiểm tra trạng thái hoạt động của Backend.
+

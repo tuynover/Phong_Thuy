@@ -93,3 +93,40 @@ VITE_API_URL=http://localhost:3001/api
   ```bash
   npm run build
   ```
+
+---
+
+## 🐳 6. Khởi chạy bằng Docker & Triển khai trên AWS VM
+
+Hệ thống cung cấp sẵn cấu hình Docker và Nginx Reverse Proxy để chạy môi trường đóng gói hoặc triển khai lên máy ảo AWS (EC2/Lighthouse).
+
+### 6.1 Yêu cầu trước khi chạy
+- Máy ảo AWS đã cài đặt **Docker** và **Docker Compose**.
+- Đã cấu hình Security Group trên AWS để mở cổng **80** (HTTP).
+- Đã chuẩn bị file `.env` tại thư mục `/backend` (chứa các cấu hình kết nối MongoDB Atlas, Gemini API Key...).
+
+### 6.2 Khởi chạy với Docker Compose
+Từ thư mục gốc của dự án, chạy lệnh sau:
+```bash
+docker compose up -d --build
+```
+Lệnh này sẽ thực hiện:
+1. Build image của `backend` dựa trên tệp `backend/Dockerfile` (sử dụng `node:20-slim`).
+2. Khởi chạy container `phongthuy-backend` với cấu hình môi trường từ `backend/.env` (kết nối cơ sở dữ liệu MongoDB Atlas).
+3. Khởi chạy container `phongthuy-nginx` lắng nghe cổng `80` trên máy host AWS, chuyển tiếp yêu cầu đến backend và tối ưu hóa kết nối thời gian thực SSE.
+
+### 6.3 Kiểm tra trạng thái và Logs
+- Kiểm tra danh sách container đang chạy:
+  ```bash
+  docker compose ps
+  ```
+- Xem log thời gian thực của backend:
+  ```bash
+  docker compose logs -f backend
+  ```
+- Kiểm tra health-check thông qua Nginx:
+  ```bash
+  curl http://localhost/health
+  ```
+  Nếu nhận về `ok` tức là hệ thống đã hoạt động bình thường qua proxy.
+

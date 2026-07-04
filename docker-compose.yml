@@ -1,0 +1,33 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: phongthuy-backend
+    restart: always
+    # Nạp các biến môi trường trực tiếp từ tệp .env hiện tại để kết nối tới MongoDB Atlas
+    env_file:
+      - ./backend/.env
+    # Mở cổng 3001 nội bộ để container khác trong mạng kết nối, hoặc máy host kết nối trực tiếp nếu cần
+    ports:
+      - "3001"
+    networks:
+      - phongthuy-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: phongthuy-nginx
+    restart: always
+    # Ánh xạ cổng 80 của máy ảo AWS vào cổng 80 của container Nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - backend
+    networks:
+      - phongthuy-network
+
+networks:
+  phongthuy-network:
+    driver: bridge

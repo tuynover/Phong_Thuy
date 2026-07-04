@@ -4,6 +4,32 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
 
 ---
 
+## 📅 Phiên bản: Docker hóa Backend & Thiết lập Nginx cho AWS VM (04/07/2026)
+
+### 1. Backend (Cấu hình Container hóa)
+- **Tạo Dockerfile cho Backend:**
+  - Sử dụng base image `node:20-slim` để giảm dung lượng image và tương thích sẵn với binary của thư viện native `bcrypt`.
+  - Thực hiện cài đặt dependency bằng `npm ci --omit=dev` để loại bỏ các thư viện phát triển (devDependencies).
+  - Khai báo mở cổng `3001` và chạy ứng dụng thông qua `node src/index.js`.
+- **Tạo .dockerignore cho Backend:** Loại trừ các file cục bộ không cần thiết như `node_modules`, `logs`, `.env` giúp tối ưu hóa dung lượng build context truyền lên Docker daemon.
+
+### 2. Nginx (Cấu hình Reverse Proxy & SSE Stream)
+- **Tạo thư mục `nginx` và cấu hình `default.conf`:**
+  - Thiết lập Nginx lắng nghe ở cổng `80` của máy host.
+  - Chuyển tiếp các yêu cầu client đến `http://backend:3001` thông qua mạng ảo Docker.
+  - Tích hợp cấu hình đặc biệt cho **Server-Sent Events (SSE)**: Tắt bộ đệm (`proxy_buffering off;`), tắt cache (`proxy_cache off;`) và mở rộng thời gian chờ (`proxy_read_timeout 86400s;`) nhằm đảm bảo luồng giải đoán từ Gemini AI không bị chặn đệm hay ngắt kết nối giữa chừng.
+
+### 3. Docker Compose (Điều phối dịch vụ AWS)
+- **Tạo `docker-compose.yml` tại thư mục gốc:**
+  - Định nghĩa dịch vụ `backend` tự động build từ thư mục `./backend` và nạp các biến môi trường trực tiếp từ tệp `.env` hiện tại để kết nối với cơ sở dữ liệu MongoDB Atlas của dự án.
+  - Định nghĩa dịch vụ `nginx` chạy image `nginx:alpine`, ánh xạ cổng `80:80` ra ngoài máy ảo AWS, mount tệp cấu hình `nginx/default.conf` và liên kết phụ thuộc `depends_on` với `backend`.
+
+### 4. Cập nhật Tài liệu
+- **Cập nhật README.md:** Bổ sung hướng dẫn ngắn gọn cách khởi động toàn bộ cụm backend và Nginx chỉ bằng một lệnh docker compose.
+- **Cập nhật DEVELOPMENT_GUIDE.md:** Bổ sung hướng dẫn chi tiết cách cấu hình cổng Security Group AWS, kiểm tra Logs và chạy thử health-check qua Nginx proxy.
+
+---
+
 ## 📅 Phiên bản: Bổ sung Phân Hệ Xem Ngày & Tư Vấn Ngày Hoàng Đạo (03/07/2026)
 
 ### 1. Backend (Thuật toán Trạch cát & Router)
