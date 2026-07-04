@@ -4,6 +4,31 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
 
 ---
 
+## 📅 Phiên bản: Docker hóa Frontend & Tái cấu trúc Đa Container (05/07/2026)
+
+### 1. Frontend (Cấu hình Container hóa)
+- **Tạo Dockerfile cho Frontend:**
+  - Thiết kế quy trình Multi-stage build: Giai đoạn 1 biên dịch React/Vite bằng Node 20; Giai đoạn 2 phục vụ các tệp giao diện tĩnh bằng image nhẹ `nginx:alpine`.
+  - Hỗ trợ truyền biến môi trường thông qua ARG (`VITE_API_URL` mặc định là `/api` và `VITE_GOOGLE_CLIENT_ID`).
+- **Tạo .dockerignore cho Frontend:** Bỏ qua `node_modules`, `dist` và các tệp cấu hình docker cục bộ để tăng tốc độ build image.
+- **Tạo cấu hình `nginx.conf` cho Frontend:** Thiết lập khối server lắng nghe trên cổng `80` và cấu hình `try_files $uri $uri/ /index.html` nhằm giải quyết triệt để lỗi 404 khi người dùng tải lại trang (SPA Router fallback).
+
+### 2. Định tuyến Nginx Gateway
+- **Cập nhật `nginx/default.conf` ở gốc:**
+  - Phân chia định tuyến: Chuyển tiếp `/api` và `/health` sang container backend (`http://backend:3001`).
+  - Chuyển tiếp tất cả các đường dẫn giao diện còn lại `/` sang container frontend (`http://frontend:80`).
+  - Giữ nguyên tối ưu hóa SSE cho các luồng xử lý AI.
+
+### 3. Docker Compose (Hợp nhất Đa Container)
+- **Cập nhật `docker-compose.yml` ở gốc:**
+  - Bổ sung service `frontend` build trực tiếp từ `./frontend`.
+  - Cập nhật dependency của service `nginx` thành `depends_on` cả `backend` và `frontend`.
+
+### 4. Cập nhật Tài liệu
+- **Cập nhật README.md & DEVELOPMENT_GUIDE.md:** Cập nhật hướng dẫn chạy trọn gói cả 2 phân hệ Frontend và Backend bằng Docker Compose và truy cập qua cổng 80 của Nginx.
+
+---
+
 ## 📅 Phiên bản: Docker hóa Backend & Thiết lập Nginx cho AWS VM (04/07/2026)
 
 ### 1. Backend (Cấu hình Container hóa)

@@ -111,22 +111,27 @@ Từ thư mục gốc của dự án, chạy lệnh sau:
 docker compose up -d --build
 ```
 Lệnh này sẽ thực hiện:
-1. Build image của `backend` dựa trên tệp `backend/Dockerfile` (sử dụng `node:20-slim`).
-2. Khởi chạy container `phongthuy-backend` với cấu hình môi trường từ `backend/.env` (kết nối cơ sở dữ liệu MongoDB Atlas).
-3. Khởi chạy container `phongthuy-nginx` lắng nghe cổng `80` trên máy host AWS, chuyển tiếp yêu cầu đến backend và tối ưu hóa kết nối thời gian thực SSE.
+1. Build image của `frontend` dựa trên tệp `frontend/Dockerfile` (sử dụng `node:20-slim` để biên dịch React/Vite và `nginx:alpine` để serve file giao diện tĩnh, đồng thời cấu hình Nginx riêng cho SPA hỗ trợ React Router).
+2. Build image của `backend` dựa trên tệp `backend/Dockerfile` (sử dụng `node:20-slim`).
+3. Khởi chạy container `phongthuy-frontend` và `phongthuy-backend` chạy ẩn trong mạng nội bộ.
+4. Khởi chạy container `phongthuy-nginx` lắng nghe cổng `80` trên máy host AWS, phân phối: các yêu cầu `/api` và `/health` sang backend, các yêu cầu còn lại sang frontend.
 
 ### 6.3 Kiểm tra trạng thái và Logs
 - Kiểm tra danh sách container đang chạy:
   ```bash
   docker compose ps
   ```
-- Xem log thời gian thực của backend:
+- Xem log thời gian thực của toàn bộ hệ thống hoặc từng service:
   ```bash
-  docker compose logs -f backend
+  docker compose logs -f
+  # hoặc xem riêng frontend
+  docker compose logs -f frontend
   ```
-- Kiểm tra health-check thông qua Nginx:
-  ```bash
-  curl http://localhost/health
-  ```
-  Nếu nhận về `ok` tức là hệ thống đã hoạt động bình thường qua proxy.
+- Kiểm tra kết nối qua cổng 80:
+  - Kiểm tra health-check của backend:
+    ```bash
+    curl http://localhost/health
+    ```
+    Nếu nhận về `ok` tức là backend đã kết nối thành công qua Nginx.
+  - Kiểm tra giao diện frontend: Truy cập địa chỉ IP public của máy ảo AWS hoặc `http://localhost/` trên trình duyệt. Thử bấm F5 làm mới trang tại các trang con để kiểm chứng cơ chế SPA routing hoạt động tốt.
 
