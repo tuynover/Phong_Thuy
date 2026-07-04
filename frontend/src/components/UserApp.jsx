@@ -616,7 +616,14 @@ export default function UserApp({ onSwitchToAdmin }) {
 
           {baziResult && !loading && (
             <div className="space-y-12 animate-in fade-in zoom-in-95 duration-700 pb-20 font-sans">
-              <BaziBoard data={baziResult} onUpdateData={setBaziResult} onRequireLogin={() => setIsAuthModalOpen(true)} />
+              <React.Suspense fallback={
+                <div className="text-center py-20 animate-in fade-in">
+                  <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+                  <p className="text-blue-900 font-extrabold text-sm tracking-wider uppercase animate-pulse">Đang nạp dữ liệu Bát Tự...</p>
+                </div>
+              }>
+                <BaziBoard data={baziResult} onUpdateData={setBaziResult} onRequireLogin={() => setIsAuthModalOpen(true)} />
+              </React.Suspense>
               <div className="text-center">
                 <button 
                   onClick={() => setBaziResult(null)} 
