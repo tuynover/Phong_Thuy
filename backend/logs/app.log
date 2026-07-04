@@ -19510,3 +19510,91 @@ Stack: Error: read ECONNRESET
 [2026-07-03 21:54:47.748] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/history/iching/record/019efe3c-f802-75c3-a05f-57e7606463a4] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/iching/record/019efe3c-f802-75c3-a05f-57e7606463a4
 [2026-07-03 21:54:47.791] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/history/iching/record/019f1829-57a7-72b7-82fb-1e9a0ac4bbe4] [IP: ::1] [Duration: 73ms] Hoàn thành: Phản hồi thành công (304)
 [2026-07-03 21:54:47.817] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/history/iching/record/019efe3c-f802-75c3-a05f-57e7606463a4] [IP: ::1] [Duration: 70ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-03 21:55:42.533] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 21:55:44.268] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-03 21:55:44.400] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 134ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-03 21:56:26.853] [INFO] [SSE] User client [019e594f-5fb3-701e-916a-d6ce37d424bd] disconnected.
+[2026-07-03 21:57:41.803] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-03 21:58:42.269] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 22:01:42.555] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 22:04:42.352] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 22:07:41.813] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-03 22:07:42.542] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 22:10:42.303] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 22:13:42.617] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 22:16:42.351] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 22:17:41.823] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-03 22:19:42.289] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 22:22:42.628] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 22:25:42.367] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 22:27:41.833] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-03 22:28:42.371] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 22:31:42.668] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 22:34:42.704] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 22:37:41.844] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-03 22:37:42.294] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 22:40:42.372] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 22:43:42.622] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 22:46:42.421] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 22:47:41.857] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-03 22:49:42.357] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 22:52:42.439] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 22:55:42.345] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 22:57:41.874] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-03 22:58:42.411] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 23:01:42.438] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 23:04:42.469] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 23:07:41.875] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-03 23:07:42.377] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 23:10:42.461] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 23:13:42.396] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 23:16:42.743] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 23:17:41.889] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-03 23:19:42.419] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 23:22:42.839] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 23:25:42.802] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 23:27:41.894] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-03 23:28:42.586] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 23:31:42.469] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 23:34:42.470] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 23:37:41.909] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-03 23:37:42.492] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 23:40:42.879] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 23:43:42.495] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 23:46:42.901] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 23:47:41.922] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-03 23:49:42.478] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 23:52:42.744] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 23:55:42.489] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-03 23:57:41.934] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-03 23:58:42.584] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-04 00:01:42.483] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-04 00:04:42.938] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-04 00:07:41.940] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-04 00:07:42.481] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-04 00:10:42.588] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-04 00:13:43.217] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-04 00:16:42.636] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-04 00:17:41.946] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-04 00:19:42.867] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-04 00:22:42.632] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-04 00:25:42.539] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-04 00:27:41.948] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-04 00:28:43.604] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-04 00:31:42.592] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-04 00:34:42.652] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-04 00:37:41.812] [INFO] [NotificationScheduler] Running daily check...
+[2026-07-04 00:37:41.813] [INFO] [NotificationScheduler] Running daily credit increment...
+[2026-07-04 00:37:41.897] [INFO] [NotificationScheduler] Daily credit increment completed. Updated 13 users.
+[2026-07-04 00:37:41.899] [INFO] [NotificationScheduler] Purging soft-deleted users inactive for 30+ days...
+[2026-07-04 00:37:41.951] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-04 00:37:41.960] [INFO] [NotificationScheduler] Found 0 users to purge.
+[2026-07-04 00:37:42.528] [INFO] [NotificationScheduler] Created UI notification for user cobatuoc@gmail.com: Ứng kỳ còn 3 ngày
+[2026-07-04 00:37:42.582] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-04 00:37:47.374] [INFO] [EmailService] Email sent to cobatuoc@gmail.com: <f95c351e-2cee-e9b2-9dc0-5c2651d3bb91@gmail.com>
+[2026-07-04 00:37:47.682] [INFO] [NotificationScheduler] Created UI notification for user cobatuoc@gmail.com: Ứng kỳ còn 1 ngày
+[2026-07-04 00:37:48.000] [INFO] [SSE] Broadcasting event [user_updated] to all admins
+[2026-07-04 00:37:48.212] [INFO] [SSE] Broadcasting event [user_updated] to all admins
+[2026-07-04 00:37:48.322] [INFO] [NotificationScheduler] Created UI notification for user cobatuoc10@gmail.com: Ứng kỳ còn 1 ngày
+[2026-07-04 00:37:49.038] [INFO] [SSE] Broadcasting event [user_updated] to all admins
+[2026-07-04 00:40:42.647] [WARN] [Self-Ping] Warning: Ping returned status 404
