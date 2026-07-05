@@ -4,3 +4,6 @@ backend/logs
 # Mongo Backup
 backups/*
 !backups/.gitkeep
+.env
+.env.production
+config/rclone/rclone.conf
