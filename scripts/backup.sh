@@ -25,16 +25,6 @@ if [ -z "$MONGODB_URI" ]; then
     exit 1
 fi
 
-# Đọc biến môi trường
-set -a
-source "$ENV_FILE"
-set +a
-
-if [ -z "$MONGODB_URI" ]; then
-    echo "MONGODB_URI chưa được cấu hình trong backend/.env"
-    exit 1
-fi
-
 DATE=$(date +"%Y-%m-%d_%H-%M-%S")
 TMP_DIR="$BACKUP_DIR/tmp_$DATE"
 
