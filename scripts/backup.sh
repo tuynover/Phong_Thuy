@@ -13,6 +13,19 @@ if [ ! -f "$ENV_FILE" ]; then
 fi
 
 # Đọc biến môi trường
+MONGODB_URI=$(grep '^MONGODB_URI=' "$ENV_FILE" | cut -d '=' -f2-)
+
+if [ -z "$MONGODB_URI" ]; then
+    echo "Không tìm thấy MONGODB_URI trong backend/.env"
+    exit 1
+fi
+
+if [ -z "$MONGODB_URI" ]; then
+    echo "MONGODB_URI chưa được cấu hình trong backend/.env"
+    exit 1
+fi
+
+# Đọc biến môi trường
 set -a
 source "$ENV_FILE"
 set +a
@@ -30,6 +43,7 @@ mkdir -p "$TMP_DIR"
 echo "Bắt đầu backup MongoDB..."
 
 docker run --rm \
+    --user $(id -u):$(id -g) \
     -v "$TMP_DIR:/backup" \
     mongo:8 \
     bash -c "mongodump --uri=\"$MONGODB_URI\" --out=/backup"
