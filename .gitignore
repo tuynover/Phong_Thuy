@@ -1,3 +1,6 @@
 
 scratch/
 backend/logs
+# Mongo Backup
+backups/*
+!backups/.gitkeep
