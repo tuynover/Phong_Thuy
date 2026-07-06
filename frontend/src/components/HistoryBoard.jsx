@@ -24,6 +24,34 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
     const [dialog, setDialog] = useState(null); // { type: 'confirm' | 'success' | 'error', message: '', onConfirm: null }
     const prefetchedDetails = useRef({});
 
+    const ITEMS_PER_PAGE = 15;
+    const [currentPage, setCurrentPage] = useState(1);
+
+    // Reset page to 1 when changing tabs
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [activeTab]);
+
+    // Scroll to top of window when page changes
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, [currentPage]);
+
+    const getActiveListData = () => {
+        if (activeTab === 'iching') return hexagrams;
+        if (activeTab === 'bazi') return bazis;
+        if (activeTab === 'ziwei') return ziweis;
+        if (activeTab === 'marriage') return marriages;
+        return [];
+    };
+
+    const activeList = getActiveListData();
+    const totalItems = activeList.length;
+    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const paginatedList = activeList.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
     const activeTheme = activeTab === 'iching' 
         ? { text: 'text-amber-800', bg: 'bg-amber-800 hover:bg-amber-900', border: 'border-amber-100', textAccent: 'text-amber-600' }
         : activeTab === 'bazi'
@@ -331,7 +359,7 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
 
             <div className="space-y-4">
                 {activeTab === 'iching' && hexagrams.length === 0 && <p className="text-center text-gray-500">Chưa có quẻ nào được gieo.</p>}
-                {activeTab === 'iching' && hexagrams.map((record) => (
+                {activeTab === 'iching' && paginatedList.map((record) => (
                     <div 
                         key={record._id} 
                         onClick={() => handleViewHexagramDetail(record)} 
@@ -370,193 +398,246 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                                     placeholder="Ghi chú ứng kỳ..." 
                                     className="flex-1 text-sm px-3 py-1 border border-gray-200 rounded focus:border-amber-400 focus:outline-none"
                                     defaultValue={record.feedback}
-                                />
-                                <button 
-                                    onClick={() => {
-                                        const val = document.getElementById(`feedback-hex-${record._id}`).value;
-                                        if (val !== record.feedback || !record.rating) {
-                                            handleRate('iching', record._id, record.rating, val);
-                                        }
-                                    }}
-                                    className="px-4 py-1 bg-amber-600 text-white text-sm font-medium rounded shadow hover:bg-amber-700 transition-colors"
-                                >
-                                    Lưu
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                ))}
-
-                {activeTab === 'bazi' && bazis.length === 0 && <p className="text-center text-gray-500">Chưa có lá số nào được lập.</p>}
-                {activeTab === 'bazi' && bazis.map((record) => (
-                    <div 
-                        key={record._id} 
-                        onClick={() => handleViewBaziDetail(record)} 
-                        onMouseEnter={() => preloadRecord('bazi', record._id)}
-                        onTouchStart={() => preloadRecord('bazi', record._id)}
-                        className="border border-blue-100 rounded-xl p-4 hover:shadow-md transition-shadow bg-blue-50/20 cursor-pointer"
-                    >
-                        <div className="flex justify-between items-start mb-2">
-                            <div>
-                                <h3 className="font-bold text-lg text-blue-900">Lá số Bát Tự: {record.inputInfo.date} {record.inputInfo.time} ({record.inputInfo.gender === 1 ? 'Nam' : 'Nữ'})</h3>
-                                <p className="text-xs text-gray-400 flex items-center gap-1 mt-1"><Calendar size={12}/> Tiết khí: {record.tietKhiTimeline}</p>
-                            </div>
-                            <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
-                                <button onClick={() => handleViewBaziDetail(record)} className="text-blue-600 hover:underline text-sm font-medium">Xem chi tiết</button>
-                                <button 
-                                    onClick={() => handleDelete('bazi', record._id)} 
-                                    className="text-red-500 hover:text-red-700 transition-colors p-1"
-                                    title="Xóa vĩnh viễn"
-                                >
-                                    <Trash2 size={16} />
-                                </button>
-                            </div>
-                        </div>
-                        
-                        {/* Rating Section */}
-                        <div onClick={(e) => e.stopPropagation()} className="mt-4 pt-4 border-t border-blue-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-default">
-                            <div className="flex items-center gap-2">
-                                <span className="text-sm font-medium text-gray-700">Đánh giá:</span>
-                                {renderStars(record.rating, (rating) => handleRate('bazi', record._id, rating, document.getElementById(`feedback-bazi-${record._id}`)?.value || record.feedback))}
-                            </div>
-                            <div className="flex-1 flex gap-2">
-                                <input 
-                                    type="text" 
-                                    id={`feedback-bazi-${record._id}`}
-                                    placeholder="Nhận xét..." 
-                                    className="flex-1 text-sm px-3 py-1 border border-gray-200 rounded focus:border-blue-400 focus:outline-none"
-                                    defaultValue={record.feedback}
-                                />
-                                <button 
-                                    onClick={() => {
-                                        const val = document.getElementById(`feedback-bazi-${record._id}`).value;
-                                        if (val !== record.feedback || !record.rating) {
-                                            handleRate('bazi', record._id, record.rating, val);
-                                        }
-                                    }}
-                                    className="px-4 py-1 bg-blue-600 text-white text-sm font-medium rounded shadow hover:bg-blue-700 transition-colors"
-                                >
-                                    Lưu
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                ))}
-
-                {activeTab === 'ziwei' && ziweis.length === 0 && <p className="text-center text-gray-500">Chưa có lá số Tử Vi nào được lập.</p>}
-                {activeTab === 'ziwei' && ziweis.map((record) => (
-                    <div 
-                        key={record._id} 
-                        onClick={() => onViewZiwei(record)} 
-                        onMouseEnter={() => preloadRecord('ziwei', record._id)}
-                        onTouchStart={() => preloadRecord('ziwei', record._id)}
-                        className="border border-purple-100 rounded-xl p-4 hover:shadow-md transition-shadow bg-purple-50/20 cursor-pointer"
-                    >
-                        <div className="flex justify-between items-start mb-2">
-                            <div>
-                                <h3 className="font-bold text-lg text-purple-900">Lá số Tử Vi: {record.inputInfo?.date || ''} ({record.inputInfo?.gender || ''} Mệnh)</h3>
-                                <p className="text-xs text-gray-400 flex items-center gap-1 mt-1">
-                                    <Clock size={12}/> Giờ sinh: {record.inputInfo?.hour !== undefined ? LUNAR_HOURS_MAP[record.inputInfo.hour] : ''}
-                                </p>
-                            </div>
-                            <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
-                                <button onClick={() => onViewZiwei(record)} className="text-purple-600 hover:underline text-sm font-medium">Xem chi tiết</button>
-                                <button 
-                                    onClick={() => handleDelete('ziwei', record._id)} 
-                                    className="text-red-500 hover:text-red-700 transition-colors p-1"
-                                    title="Xóa vĩnh viễn"
-                                >
-                                    <Trash2 size={16} />
-                                </button>
-                            </div>
-                        </div>
-                        
-                        {/* Rating Section */}
-                        <div onClick={(e) => e.stopPropagation()} className="mt-4 pt-4 border-t border-purple-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-default">
-                            <div className="flex items-center gap-2">
-                                <span className="text-sm font-medium text-gray-700">Đánh giá:</span>
-                                {renderStars(record.rating, (rating) => handleRate('ziwei', record._id, rating, document.getElementById(`feedback-ziwei-${record._id}`)?.value || record.feedback))}
-                            </div>
-                            <div className="flex-1 flex gap-2">
-                                <input 
-                                    type="text" 
-                                    id={`feedback-ziwei-${record._id}`}
-                                    placeholder="Nhận xét..." 
-                                    className="flex-1 text-sm px-3 py-1 border border-gray-200 rounded focus:border-purple-400 focus:outline-none"
-                                    defaultValue={record.feedback}
-                                />
-                                <button 
-                                    onClick={() => {
-                                        const val = document.getElementById(`feedback-ziwei-${record._id}`).value;
-                                        if (val !== record.feedback || !record.rating) {
-                                            handleRate('ziwei', record._id, record.rating, val);
-                                        }
-                                    }}
-                                    className="px-4 py-1 bg-purple-600 text-white text-sm font-medium rounded shadow hover:bg-purple-700 transition-colors"
-                                >
-                                    Lưu
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                ))}
-
-                {activeTab === 'marriage' && marriages.length === 0 && <p className="text-center text-gray-500">Chưa có bản ghi hợp hôn nào.</p>}
-                {activeTab === 'marriage' && marriages.map((record) => (
-                    <div 
-                        key={record._id} 
-                        onClick={() => handleViewMarriageDetail(record)} 
-                        onMouseEnter={() => preloadRecord('marriage', record._id)}
-                        onTouchStart={() => preloadRecord('marriage', record._id)}
-                        className="border border-rose-100 rounded-xl p-4 hover:shadow-md transition-shadow bg-rose-50/20 cursor-pointer"
-                    >
-                        <div className="flex justify-between items-start mb-2">
-                            <div>
-                                <h3 className="font-bold text-lg text-rose-900">Hợp Hôn: Nam ({record.inputInfo?.male?.date || ''}) & Nữ ({record.inputInfo?.female?.date || ''})</h3>
-                                <p className="text-xs text-gray-400 flex items-center gap-1 mt-1"><Clock size={12}/> {new Date(record.createdAt).toLocaleString('vi-VN')}</p>
-                            </div>
-                            <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
-                                <button onClick={() => handleViewMarriageDetail(record)} className="text-rose-600 hover:underline text-sm font-medium">Xem chi tiết</button>
-                                <button 
-                                    onClick={() => handleDelete('marriage', record._id)} 
-                                    className="text-red-500 hover:text-red-700 transition-colors p-1"
-                                    title="Xóa vĩnh viễn"
-                                >
-                                    <Trash2 size={16} />
-                                </button>
-                            </div>
-                        </div>
-                        
-                        {/* Rating Section */}
-                        <div onClick={(e) => e.stopPropagation()} className="mt-4 pt-4 border-t border-rose-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-default">
-                            <div className="flex items-center gap-2">
-                                <span className="text-sm font-medium text-gray-700">Đánh giá:</span>
-                                {renderStars(record.rating, (rating) => handleRate('marriage', record._id, rating, document.getElementById(`feedback-marr-${record._id}`)?.value || record.feedback))}
-                            </div>
-                            <div className="flex-1 flex gap-2">
-                                <input 
-                                    type="text" 
-                                    id={`feedback-marr-${record._id}`}
-                                    placeholder="Nhận xét..." 
-                                    className="flex-1 text-sm px-3 py-1 border border-gray-200 rounded focus:border-rose-450 focus:outline-none"
-                                    defaultValue={record.feedback}
-                                />
-                                <button 
-                                    onClick={() => {
-                                        const val = document.getElementById(`feedback-marr-${record._id}`).value;
-                                        if (val !== record.feedback || !record.rating) {
-                                            handleRate('marriage', record._id, record.rating, val);
-                                        }
-                                    }}
-                                    className="px-4 py-1 bg-rose-600 text-white text-sm font-medium rounded shadow hover:bg-rose-700 transition-colors"
-                                >
-                                    Lưu
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                ))}
+                                  />
+                                  <button 
+                                      onClick={() => {
+                                          const val = document.getElementById(`feedback-hex-${record._id}`).value;
+                                          if (val !== record.feedback || !record.rating) {
+                                              handleRate('iching', record._id, record.rating, val);
+                                          }
+                                      }}
+                                      className="px-4 py-1 bg-amber-600 text-white text-sm font-medium rounded shadow hover:bg-amber-700 transition-colors"
+                                  >
+                                      Lưu
+                                  </button>
+                              </div>
+                          </div>
+                      </div>
+                  ))}
+  
+                  {activeTab === 'bazi' && bazis.length === 0 && <p className="text-center text-gray-500">Chưa có lá số nào được lập.</p>}
+                  {activeTab === 'bazi' && paginatedList.map((record) => (
+                      <div 
+                          key={record._id} 
+                          onClick={() => handleViewBaziDetail(record)} 
+                          onMouseEnter={() => preloadRecord('bazi', record._id)}
+                          onTouchStart={() => preloadRecord('bazi', record._id)}
+                          className="border border-blue-100 rounded-xl p-4 hover:shadow-md transition-shadow bg-blue-50/20 cursor-pointer"
+                      >
+                          <div className="flex justify-between items-start mb-2">
+                              <div>
+                                  <h3 className="font-bold text-lg text-blue-900">Lá số Bát Tự: {record.inputInfo.date} {record.inputInfo.time} ({record.inputInfo.gender === 1 ? 'Nam' : 'Nữ'})</h3>
+                                  <p className="text-xs text-gray-400 flex items-center gap-1 mt-1"><Calendar size={12}/> Tiết khí: {record.tietKhiTimeline}</p>
+                              </div>
+                              <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+                                  <button onClick={() => handleViewBaziDetail(record)} className="text-blue-600 hover:underline text-sm font-medium">Xem chi tiết</button>
+                                  <button 
+                                      onClick={() => handleDelete('bazi', record._id)} 
+                                      className="text-red-500 hover:text-red-755 transition-colors p-1"
+                                      title="Xóa vĩnh viễn"
+                                  >
+                                      <Trash2 size={16} />
+                                  </button>
+                              </div>
+                          </div>
+                          
+                          {/* Rating Section */}
+                          <div onClick={(e) => e.stopPropagation()} className="mt-4 pt-4 border-t border-blue-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-default">
+                              <div className="flex items-center gap-2">
+                                  <span className="text-sm font-medium text-gray-700">Đánh giá:</span>
+                                  {renderStars(record.rating, (rating) => handleRate('bazi', record._id, rating, document.getElementById(`feedback-bazi-${record._id}`)?.value || record.feedback))}
+                              </div>
+                              <div className="flex-1 flex gap-2">
+                                  <input 
+                                      type="text" 
+                                      id={`feedback-bazi-${record._id}`}
+                                      placeholder="Nhận xét..." 
+                                      className="flex-1 text-sm px-3 py-1 border border-gray-200 rounded focus:border-blue-400 focus:outline-none"
+                                      defaultValue={record.feedback}
+                                  />
+                                  <button 
+                                      onClick={() => {
+                                          const val = document.getElementById(`feedback-bazi-${record._id}`).value;
+                                          if (val !== record.feedback || !record.rating) {
+                                              handleRate('bazi', record._id, record.rating, val);
+                                          }
+                                      }}
+                                      className="px-4 py-1 bg-blue-600 text-white text-sm font-medium rounded shadow hover:bg-blue-700 transition-colors"
+                                  >
+                                      Lưu
+                                  </button>
+                              </div>
+                          </div>
+                      </div>
+                  ))}
+  
+                  {activeTab === 'ziwei' && ziweis.length === 0 && <p className="text-center text-gray-500">Chưa có lá số Tử Vi nào được lập.</p>}
+                  {activeTab === 'ziwei' && paginatedList.map((record) => (
+                      <div 
+                          key={record._id} 
+                          onClick={() => onViewZiwei(record)} 
+                          onMouseEnter={() => preloadRecord('ziwei', record._id)}
+                          onTouchStart={() => preloadRecord('ziwei', record._id)}
+                          className="border border-purple-100 rounded-xl p-4 hover:shadow-md transition-shadow bg-purple-50/20 cursor-pointer"
+                      >
+                          <div className="flex justify-between items-start mb-2">
+                              <div>
+                                  <h3 className="font-bold text-lg text-purple-900">Lá số Tử Vi: {record.inputInfo?.date || ''} ({record.inputInfo?.gender || ''} Mệnh)</h3>
+                                  <p className="text-xs text-gray-400 flex items-center gap-1 mt-1">
+                                      <Clock size={12}/> Giờ sinh: {record.inputInfo?.hour !== undefined ? LUNAR_HOURS_MAP[record.inputInfo.hour] : ''}
+                                  </p>
+                              </div>
+                              <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+                                  <button onClick={() => onViewZiwei(record)} className="text-purple-600 hover:underline text-sm font-medium">Xem chi tiết</button>
+                                  <button 
+                                      onClick={() => handleDelete('ziwei', record._id)} 
+                                      className="text-red-500 hover:text-red-755 transition-colors p-1"
+                                      title="Xóa vĩnh viễn"
+                                  >
+                                      <Trash2 size={16} />
+                                  </button>
+                              </div>
+                          </div>
+                          
+                          {/* Rating Section */}
+                          <div onClick={(e) => e.stopPropagation()} className="mt-4 pt-4 border-t border-purple-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-default">
+                              <div className="flex items-center gap-2">
+                                  <span className="text-sm font-medium text-gray-700">Đánh giá:</span>
+                                  {renderStars(record.rating, (rating) => handleRate('ziwei', record._id, rating, document.getElementById(`feedback-ziwei-${record._id}`)?.value || record.feedback))}
+                              </div>
+                              <div className="flex-1 flex gap-2">
+                                  <input 
+                                      type="text" 
+                                      id={`feedback-ziwei-${record._id}`}
+                                      placeholder="Nhận xét..." 
+                                      className="flex-1 text-sm px-3 py-1 border border-gray-200 rounded focus:border-purple-400 focus:outline-none"
+                                      defaultValue={record.feedback}
+                                  />
+                                  <button 
+                                      onClick={() => {
+                                          const val = document.getElementById(`feedback-ziwei-${record._id}`).value;
+                                          if (val !== record.feedback || !record.rating) {
+                                              handleRate('ziwei', record._id, record.rating, val);
+                                          }
+                                      }}
+                                      className="px-4 py-1 bg-purple-600 text-white text-sm font-medium rounded shadow hover:bg-purple-700 transition-colors"
+                                  >
+                                      Lưu
+                                  </button>
+                              </div>
+                          </div>
+                      </div>
+                  ))}
+  
+                  {activeTab === 'marriage' && marriages.length === 0 && <p className="text-center text-gray-500">Chưa có bản ghi hợp hôn nào.</p>}
+                  {activeTab === 'marriage' && paginatedList.map((record) => (
+                      <div 
+                          key={record._id} 
+                          onClick={() => handleViewMarriageDetail(record)} 
+                          onMouseEnter={() => preloadRecord('marriage', record._id)}
+                          onTouchStart={() => preloadRecord('marriage', record._id)}
+                          className="border border-rose-100 rounded-xl p-4 hover:shadow-md transition-shadow bg-rose-50/20 cursor-pointer"
+                      >
+                          <div className="flex justify-between items-start mb-2">
+                              <div>
+                                  <h3 className="font-bold text-lg text-rose-900">Hợp Hôn: Nam ({record.inputInfo?.male?.date || ''}) & Nữ ({record.inputInfo?.female?.date || ''})</h3>
+                                  <p className="text-xs text-gray-400 flex items-center gap-1 mt-1"><Clock size={12}/> {new Date(record.createdAt).toLocaleString('vi-VN')}</p>
+                              </div>
+                              <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+                                  <button onClick={() => handleViewMarriageDetail(record)} className="text-rose-600 hover:underline text-sm font-medium">Xem chi tiết</button>
+                                  <button 
+                                      onClick={() => handleDelete('marriage', record._id)} 
+                                      className="text-red-500 hover:text-red-755 transition-colors p-1"
+                                      title="Xóa vĩnh viễn"
+                                  >
+                                      <Trash2 size={16} />
+                                  </button>
+                              </div>
+                          </div>
+                          
+                          {/* Rating Section */}
+                          <div onClick={(e) => e.stopPropagation()} className="mt-4 pt-4 border-t border-rose-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-default">
+                              <div className="flex items-center gap-2">
+                                  <span className="text-sm font-medium text-gray-700">Đánh giá:</span>
+                                  {renderStars(record.rating, (rating) => handleRate('marriage', record._id, rating, document.getElementById(`feedback-marr-${record._id}`)?.value || record.feedback))}
+                              </div>
+                              <div className="flex-1 flex gap-2">
+                                  <input 
+                                      type="text" 
+                                      id={`feedback-marr-${record._id}`}
+                                      placeholder="Nhận xét..." 
+                                      className="flex-1 text-sm px-3 py-1 border border-gray-200 rounded focus:border-rose-450 focus:outline-none"
+                                      defaultValue={record.feedback}
+                                  />
+                                  <button 
+                                      onClick={() => {
+                                          const val = document.getElementById(`feedback-marr-${record._id}`).value;
+                                          if (val !== record.feedback || !record.rating) {
+                                              handleRate('marriage', record._id, record.rating, val);
+                                          }
+                                      }}
+                                      className="px-4 py-1 bg-rose-600 text-white text-sm font-medium rounded shadow hover:bg-rose-700 transition-colors"
+                                  >
+                                      Lưu
+                                  </button>
+                              </div>
+                          </div>
+                      </div>
+                  ))}
             </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-2 mt-8 pt-6 border-t border-gray-100 animate-in fade-in duration-300">
+                    <button
+                        onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                        disabled={currentPage === 1}
+                        className={`px-3 py-1.5 rounded-lg border text-xs font-bold transition-all ${
+                            currentPage === 1 
+                                ? 'border-gray-150 text-gray-300 cursor-not-allowed bg-gray-50' 
+                                : 'border-gray-200 text-gray-600 hover:bg-gray-50 active:scale-95'
+                        }`}
+                    >
+                        Trang trước
+                    </button>
+                    
+                    <div className="flex items-center gap-1">
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => {
+                            if (totalPages > 5 && page !== 1 && page !== totalPages && Math.abs(page - currentPage) > 1) {
+                                if (page === 2 && currentPage > 3) return <span key="dots-start" className="text-gray-400 px-1 text-xs">...</span>;
+                                if (page === totalPages - 1 && currentPage < totalPages - 2) return <span key="dots-end" className="text-gray-400 px-1 text-xs">...</span>;
+                                return null;
+                            }
+                            
+                            return (
+                                <button
+                                    key={page}
+                                    onClick={() => setCurrentPage(page)}
+                                    className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-extrabold transition-all active:scale-95 ${
+                                        currentPage === page
+                                            ? `${activeTheme.bg} text-white shadow-md`
+                                            : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+                                    }`}
+                                >
+                                    {page}
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    <button
+                        onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                        disabled={currentPage === totalPages}
+                        className={`px-3 py-1.5 rounded-lg border text-xs font-bold transition-all ${
+                            currentPage === totalPages 
+                                ? 'border-gray-150 text-gray-300 cursor-not-allowed bg-gray-50' 
+                                : 'border-gray-200 text-gray-600 hover:bg-gray-50 active:scale-95'
+                        }`}
+                    >
+                        Trang sau
+                    </button>
+                </div>
+            )}
 
             {/* CUSTOM CONFIRMATION AND NOTIFICATION DIALOG */}
             {dialog && (

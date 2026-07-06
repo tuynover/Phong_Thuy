@@ -4,6 +4,41 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
 
 ---
 
+## 📅 Phiên bản: Bổ sung Footer & Phân trang Lịch sử (06/07/2026)
+
+### Frontend (Giao diện & Tính năng)
+- **Bổ sung Footer toàn trang:** Thiết kế và thêm chân trang **Footer** ở cuối [UserApp.jsx](file:///t:/Phongthuy/frontend/src/components/UserApp.jsx) chứa Logo chữ 'PT' cách điệu, thông tin Email (`trinhtuyen270804@gmail.com`), SĐT Zalo (`0868960506`) cùng liên kết chuyển đổi phân hệ trang trí. Footer hiển thị ở tất cả các tab người dùng, bao gồm cả Lịch sử.
+- **Phân trang Lịch sử 15 bản ghi:** Tích hợp logic phân trang client-side tại [HistoryBoard.jsx](file:///t:/Phongthuy/frontend/src/components/HistoryBoard.jsx), giới hạn hiển thị tối đa 15 bản ghi/trang cho cả 4 phân hệ (Kinh Dịch, Bát Tự, Tử Vi, Hôn Nhân). Thêm bộ điều hướng Pagination Controls trực quan, tự động chuyển màu theo từng chủ đề của Tab, đồng thời tự động cuộn lên đầu trang mượt mà (`window.scrollTo`) khi thay đổi trang.
+
+---
+
+## 📅 Phiên bản: Tự động hóa Backup & Đồng bộ Google Drive qua Cronjob (06/07/2026)
+
+### 1. Phân tích & Kiến trúc Vận hành
+- Nghiên cứu hiện trạng dự án, so sánh 3 giải pháp tự động hóa tác vụ backup MongoDB Atlas và đồng bộ Google Drive:
+  1. Host-level Cronjob (Độc lập, tối ưu tài nguyên, an toàn cao).
+  2. Application-level Scheduler (Tích hợp trong backend Node.js, rủi ro bảo mật leo thang đặc quyền khi phải mount Docker Socket).
+  3. Docker Sidecar Container (Ofelia scheduler, đóng gói hạ tầng tốt).
+- Thống nhất chọn **Giải pháp 1 (Host-level Cronjob)** để tối ưu bảo mật, tận dụng các shell script sẵn có và đảm bảo tính cô lập tuyệt đối của web server.
+
+### 2. Cập nhật Tài liệu & Hướng dẫn Vận hành
+- **Tạo tài liệu hướng dẫn mới:** Viết tệp hướng dẫn setup chi tiết [setup_cronjob_guide.md](file:///C:/Users/cobat/.gemini/antigravity/brain/59c2d2c2-da08-45fc-bd4d-da5722a00d82/setup_cronjob_guide.md) chỉ dẫn cài đặt crontab, kiểm tra múi giờ, phân quyền chạy docker cho user non-root, debug log và tích hợp cảnh báo qua Telegram Webhook.
+- **Cập nhật [README.md](file:///t:/Phongthuy/README.md):** Thêm phần `## 💾 4. Hệ thống Sao lưu & Đồng bộ Google Drive Tự động` mô tả chức năng của các script backup và các bước cấu hình cronjob chạy lúc 00:00 hàng ngày.
+- **Cập nhật [docs/ARCHITECTURE.md](file:///t:/Phongthuy/docs/ARCHITECTURE.md):** Thêm phần `## 5. Cơ chế Sao lưu & Đồng bộ Google Drive (Backup System)` tích hợp biểu đồ luồng hoạt động bằng Mermaid và phân tích lợi ích thiết kế kiến trúc cô lập tiến trình.
+
+---
+
+## 📅 Phiên bản: Việt hóa Lỗi Đăng Nhập & Cập nhật Default Credits (06/07/2026)
+
+### 1. Hệ thống Đăng nhập (Trải nghiệm Người dùng)
+- **Backend:** Cập nhật [AuthController.js](file:///t:/Phongthuy/backend/src/controllers/AuthController.js) để trả về `'Tài khoản hoặc mật khẩu không đúng'` thay vì `'Invalid Credentials'` khi sai thông tin đăng nhập.
+- **Frontend:** Cập nhật [AuthModal.jsx](file:///t:/Phongthuy/frontend/src/components/AuthModal.jsx) dịch lỗi từ `'Invalid Credentials'` sang tiếng Việt giúp giao diện đồng bộ hơn.
+
+### 2. Quản lý Credit
+- **Cập nhật Default Credits khi đăng ký:** Thay đổi số lượng credit khởi tạo mặc định cho người dùng mới từ `1` thành `2` ở cả API đăng ký thường, Google đăng ký và kích hoạt lại tài khoản trong [AuthController.js](file:///t:/Phongthuy/backend/src/controllers/AuthController.js) cũng như Schema mặc định trong [User.js](file:///t:/Phongthuy/backend/src/models/User.js).
+
+---
+
 ## 📅 Phiên bản: Ẩn Tính Năng Hỏi Thêm Thầy Khi Người Dùng Đăng Xuất (05/07/2026)
 
 ### Frontend (Bảo mật & Tối ưu hóa Token)

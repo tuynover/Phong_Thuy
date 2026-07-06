@@ -49,7 +49,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
         setAppealReason(res.data?.reason || 'Tài khoản bị tạm ngưng/xóa');
         setHasPendingAppeal(res.data?.hasPendingAppeal || false);
       } else {
-        setError(res.message);
+        setError(res.message === 'Invalid Credentials' ? 'Tài khoản hoặc mật khẩu không đúng' : res.message);
       }
     }
   };
@@ -125,7 +125,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
         setAppealReason(res.data?.reason || 'Khóa/xóa tài khoản');
         setHasPendingAppeal(res.data?.hasPendingAppeal || false);
       } else {
-        setError(res.message);
+        setError(res.message === 'Invalid Credentials' ? 'Tài khoản hoặc mật khẩu không đúng' : res.message);
       }
     }
   };

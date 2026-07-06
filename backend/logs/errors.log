@@ -849,3 +849,5 @@ Stack: Error: read ECONNRESET
 [2026-07-04 00:34:42.652] [WARN] [Self-Ping] Warning: Ping returned status 404
 [2026-07-04 00:37:42.582] [WARN] [Self-Ping] Warning: Ping returned status 404
 [2026-07-04 00:40:42.647] [WARN] [Self-Ping] Warning: Ping returned status 404
+[2026-07-06 14:53:02.565] [WARN] [User: cobatuoc@gmail.com] [Action: Đăng nhập] [IP: ::1] [Duration: 179ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (400)
+[2026-07-06 14:53:02.555] [WARN] [User: cobatuoc@gmail.com] [Action: Đăng nhập] Đăng nhập thất bại: Mật khẩu không chính xác cho tài khoản [cobatuoc@gmail.com].

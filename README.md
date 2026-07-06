@@ -223,5 +223,34 @@ Nếu bạn muốn chạy đóng gói toàn bộ hệ thống (Frontend và Back
    docker compose up -d --build
    ```
 3. Toàn bộ hệ thống sẽ được phục vụ qua cổng `80` (HTTP) của máy host thông qua Nginx:
-   - Truy cập `http://localhost/` hoặc địa chỉ IP public của máy ảo AWS để trải nghiệm giao diện người dùng (Frontend).
-   - Truy cập `http://localhost/health` để kiểm tra trạng thái hoạt động của Backend.
+    - Truy cập `http://localhost/` hoặc địa chỉ IP public của máy ảo AWS để trải nghiệm giao diện người dùng (Frontend).
+    - Truy cập `http://localhost/health` để kiểm tra trạng thái hoạt động của Backend.
+
+---
+
+## 💾 4. Hệ thống Sao lưu & Đồng bộ Google Drive Tự động
+
+Dự án cung cấp sẵn một bộ công cụ tự động hóa sao lưu cơ sở dữ liệu MongoDB Atlas và tải lên Google Drive của bạn định kỳ để phòng ngừa sự cố mất mát dữ liệu.
+
+### 📁 Các Script hỗ trợ (Thư mục `/scripts`)
+* [backup.sh](file:///t:/Phongthuy/scripts/backup.sh): Khởi chạy container `mongo:8` chạy `mongodump` theo URI trong `.env`, nén file thành `.tar.gz` lưu trữ tại `backups/` và giới hạn tối đa 7 bản lưu cục bộ. Tự động gọi tiếp `upload_drive.sh` và `cleanup_drive.sh`.
+* [upload_drive.sh](file:///t:/Phongthuy/scripts/upload_drive.sh): Sử dụng cấu hình `rclone` (trong `config/rclone/rclone.conf`) đồng bộ bản sao lưu lên tài khoản Google Drive đã liên kết.
+* [cleanup_drive.sh](file:///t:/Phongthuy/scripts/cleanup_drive.sh): Tự động xóa các bản sao lưu cũ trên Google Drive, chỉ giữ lại **30 bản gần nhất**.
+* [restore.sh](file:///t:/Phongthuy/scripts/restore.sh): Khôi phục dữ liệu từ tệp tin backup `.tar.gz`.
+
+### ⏱️ Tự động hóa qua Host-level Cronjob (GMT+7)
+Thiết lập cronjob chạy tự động vào **00:00 đêm hàng ngày** trên hệ điều hành của máy chủ AWS/VPS:
+1. Đăng nhập vào Server qua SSH.
+2. Cấp quyền chạy cho các script:
+   ```bash
+   chmod +x scripts/*.sh
+   ```
+3. Mở cấu hình cronjob của Server:
+   ```bash
+   crontab -e
+   ```
+4. Thêm cấu hình chạy lúc 00:00 hàng ngày (đảm bảo Server đã được đổi múi giờ Việt Nam qua lệnh `sudo timedatectl set-timezone Asia/Ho_Chi_Minh`):
+   ```cron
+   0 0 * * * /bin/bash /home/ubuntu/phongthuy/Phong_Thuy/scripts/backup.sh >> /home/ubuntu/phongthuy/Phong_Thuy/logs/backup.log 2>&1
+   ```
+5. Theo dõi nhật ký chạy tại `/home/ubuntu/phongthuy/Phong_Thuy/logs/backup.log`.

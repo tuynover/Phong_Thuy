@@ -144,3 +144,32 @@ Hệ thống triển khai dịch vụ [SseService.js](file:///t:/Phongthuy/backe
 - **Admin Channel (`/api/admin/events`):** Đăng ký các kết nối của Admin để cập nhật live hoạt động của người dùng, lượt chạy API, khiếu nại tài khoản.
 - **User Channel (`/api/auth/events`):** Lắng nghe các thay đổi về quyền hạn (Role), số dư credit hoặc lệnh khóa tài khoản từ admin. Nếu tài khoản bị khóa hoặc xóa từ Admin Panel, Client sẽ nhận được sự kiện qua SSE và tự động thực hiện đăng xuất (F5/Clear localStorage) ngay lập tức.
 - **SSE Keepalive Ping:** Mọi kết nối SSE đều được đăng ký vào vòng lặp heartbeat gửi gói tin trống `:\n\n` định kỳ 15 giây nhằm duy trì kết nối luôn sống qua các cổng reverse proxy.
+
+---
+
+## 5. Cơ chế Sao lưu & Đồng bộ Google Drive (Backup System)
+
+Để bảo vệ tính toàn vẹn của dữ liệu người dùng, lá số đã gieo, lịch sử chat và tài khoản, hệ thống áp dụng cơ chế sao lưu độc lập ở cấp độ hạ tầng (Host-level Cronjob) thay vì tích hợp sâu vào tiến trình Node.js Backend.
+
+### 5.1 Sơ đồ Quy trình Backup & Đồng bộ
+```mermaid
+graph TD
+    Cron[OS Cron Daemon - 00:00] -->|Kích hoạt| BackupSh[backup.sh]
+    BackupSh -->|Khởi chạy| MongoContainer[Docker Container mongo:8]
+    MongoContainer -->|mongodump --uri| DB[(MongoDB Atlas)]
+    DB -->|Xuất dữ liệu| RawBackup[Dữ liệu backup thô]
+    BackupSh -->|Nén tar.gz| LocalArchive[mongodb_date.tar.gz]
+    LocalArchive -->|Lưu cục bộ| LocalDir[Thư mục /backups - Giữ tối đa 7 file]
+    
+    BackupSh -->|Kích hoạt| UploadSh[upload_drive.sh]
+    UploadSh -->|rclone copy| GDrive[(Google Drive: backup/mongo_atlas)]
+    
+    BackupSh -->|Kích hoạt| CleanSh[cleanup_drive.sh]
+    CleanSh -->|rclone deletefile| GDrive
+    Note over CleanSh: Chỉ giữ lại 30 file mới nhất trên Drive
+```
+
+### 5.2 Lợi ích Thiết kế Kiến trúc
+- **Tách biệt Tiến trình (Process Isolation):** Tác vụ nén và upload tốn CPU/RAM được xử lý bởi cronjob hệ điều hành và chạy qua container Docker phụ trợ ngắn hạn, tránh hiện tượng nghẽn Event Loop của Express.js hoặc làm crash máy chủ web khi lượng dữ liệu lớn.
+- **Tính tự lập cao:** Ngay cả khi Node.js Backend gặp sự cố ngừng hoạt động, tác vụ backup vẫn hoạt động độc lập và gửi dữ liệu lên đám mây bình thường.
+- **Tiết kiệm tài nguyên:** Các container và tiến trình backup chỉ được sinh ra trong thời gian ngắn lúc 00:00 đêm và tự động bị tiêu hủy (`--rm`) ngay sau khi hoàn thành.

@@ -32,7 +32,7 @@ const register = async (req, res) => {
         } : undefined;
         user.isDeleted = false;
         user.status = 'active';
-        user.credits = 1;
+        user.credits = 2;
         user.lockReason = '';
         user.stats = {
           ichingCount: 0,
@@ -89,7 +89,7 @@ const register = async (req, res) => {
       } : undefined,
       gender: gender !== undefined ? parseInt(gender) : 1,
       role: 'user',
-      credits: 1,
+      credits: 2,
       status: 'active'
     });
 
@@ -126,7 +126,7 @@ const login = async (req, res) => {
     let user = await User.findOne({ email });
     if (!user) {
       logger.warn(`Đăng nhập thất bại: Không tìm thấy tài khoản với email [${email}].`, { user: email, action: 'Đăng nhập' });
-      return res.status(400).json({ message: 'Invalid Credentials' });
+      return res.status(400).json({ message: 'Tài khoản hoặc mật khẩu không đúng' });
     }
 
     if (user.isDeleted) {
@@ -159,7 +159,7 @@ const login = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       logger.warn(`Đăng nhập thất bại: Mật khẩu không chính xác cho tài khoản [${email}].`, { user: email, action: 'Đăng nhập' });
-      return res.status(400).json({ message: 'Invalid Credentials' });
+      return res.status(400).json({ message: 'Tài khoản hoặc mật khẩu không đúng' });
     }
 
     logger.info(`Đăng nhập thành công cho tài khoản [${user.email}] (Tên: ${user.name}).`, { user: user.email, action: 'Đăng nhập' });
@@ -240,7 +240,7 @@ const googleLogin = async (req, res) => {
         name: name || 'Google User',
         gender: 1,
         role: 'user',
-        credits: 1,
+        credits: 2,
         status: 'active'
       });
       await user.save();
