@@ -606,7 +606,7 @@ const MarriageBoard = ({ data, onUpdateData, onRequireLogin }) => {
                         </>
                     )}
                 </button>
-            ) : !isChatOpen && (
+            ) : !isChatOpen && user && (
                 <button
                     onClick={() => setIsChatOpen(true)}
                     className="fixed bottom-4 md:bottom-8 right-4 md:right-8 z-50 flex items-center gap-2 px-6 py-3.5 rounded-full shadow-2xl transition-all duration-300 font-extrabold border bg-gradient-to-r from-rose-800 to-rose-950 hover:from-rose-900 hover:to-rose-950 text-white border-rose-700 hover:scale-105 hover:shadow-rose-900/40 uppercase text-xs tracking-wider animate-pulse"
@@ -616,11 +616,11 @@ const MarriageBoard = ({ data, onUpdateData, onRequireLogin }) => {
                 </button>
             )}
 
-            {interpretation && resolvedRecordId && (
+            {interpretation && resolvedRecordId && user && (
                 <AiChatWidget 
                     type="marriage" 
                     recordId={resolvedRecordId} 
-                    userId={user?.id || user?._id || 'guest'} 
+                    userId={user?.id || user?._id} 
                     isOpen={isChatOpen}
                     setIsOpen={setIsChatOpen}
                 />

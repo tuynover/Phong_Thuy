@@ -4,6 +4,17 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
 
 ---
 
+## 📅 Phiên bản: Ẩn Tính Năng Hỏi Thêm Thầy Khi Người Dùng Đăng Xuất (05/07/2026)
+
+### Frontend (Bảo mật & Tối ưu hóa Token)
+- **Ẩn nút chat follow-up và chat widget khi logout:**
+  - Cập nhật [BaziBoard.jsx](file:///t:/Phongthuy/frontend/src/components/BaziBoard.jsx): Nút "Hỏi Thêm Thầy" và `AiChatWidget` chỉ hiển thị khi `user` tồn tại trong `AuthContext`.
+  - Cập nhật [IChingBoard.jsx](file:///t:/Phongthuy/frontend/src/components/IChingBoard.jsx): Đồng bộ `user` từ `AuthContext` thông qua `activeUser` và chỉ render nút "Hỏi Thêm Thầy" cũng như `AiChatWidget` khi đã đăng nhập.
+  - Cập nhật [MarriageBoard.jsx](file:///t:/Phongthuy/frontend/src/components/MarriageBoard.jsx): Nút "Hỏi Đáp AI" và `AiChatWidget` chỉ hiển thị khi `user` tồn tại.
+  - Cập nhật [ZiweiBoard.jsx](file:///t:/Phongthuy/frontend/src/components/ZiweiBoard.jsx): Điều chỉnh nút "Hỏi Thêm Thầy" và `AiChatWidget` chỉ hiển thị khi `activeUser` đã đăng nhập (thay vì cho phép bấm rồi mở form đăng nhập), ngăn chặn triệt để hành vi spam API chat sau khi đăng xuất.
+
+---
+
 ## 📅 Phiên bản: Docker hóa Frontend & Tái cấu trúc Đa Container (05/07/2026)
 
 ### 1. Frontend (Cấu hình Container hóa)

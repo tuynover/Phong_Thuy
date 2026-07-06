@@ -663,12 +663,9 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
                 </>
               )}
             </button>
-          ) : !isChatOpen && (
+          ) : !isChatOpen && activeUser && (
             <button
-              onClick={() => {
-                if (!activeUser) onRequireLogin();
-                else setIsChatOpen(true);
-              }}
+              onClick={() => setIsChatOpen(true)}
               className="fixed bottom-4 md:bottom-8 right-4 md:right-8 z-50 flex items-center gap-2 px-6 py-3.5 rounded-full shadow-2xl transition-all duration-300 font-extrabold border bg-gradient-to-r from-purple-800 to-indigo-950 hover:from-purple-900 hover:to-stone-900 text-white border-purple-700 hover:scale-105 hover:shadow-purple-900/40 uppercase text-xs tracking-wider animate-pulse"
             >
               <MessageCircle className="animate-bounce shrink-0" size={18} />
@@ -677,11 +674,11 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
           )}
 
           {/* Unified chat widget với type="tu_vi" */}
-          {(interpretation || result.aiInterpretation?.content || result.aiInterpretation?.sections?.length > 0) && (
+          {(interpretation || result.aiInterpretation?.content || result.aiInterpretation?.sections?.length > 0) && activeUser && (
             <AiChatWidget
               type="tu_vi"
               recordId={result._id}
-              userId={activeUser?.id || activeUser?._id || 'guest'}
+              userId={activeUser?.id || activeUser?._id}
               isOpen={isChatOpen}
               setIsOpen={setIsChatOpen}
             />

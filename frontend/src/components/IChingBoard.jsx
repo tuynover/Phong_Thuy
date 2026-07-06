@@ -202,7 +202,8 @@ const HexagramVisual = ({ lines }) => {
 };
 
 const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin }) => {
-    const { setUser, token } = useContext(AuthContext);
+    const { user: ctxUser, setUser, token } = useContext(AuthContext);
+    const activeUser = ctxUser || user;
     const [selectedHex, setSelectedHex] = useState(null);
     const [isChatOpen, setIsChatOpen] = useState(false);
     const [isInterpreting, setIsInterpreting] = useState(false);
@@ -731,7 +732,7 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin }) => {
                         </>
                     )}
                 </button>
-            ) : !isChatOpen && (
+            ) : !isChatOpen && activeUser && (
                 <button
                     onClick={() => setIsChatOpen(true)}
                     className="fixed bottom-4 md:bottom-8 right-4 md:right-8 z-50 flex items-center gap-2 px-6 py-3.5 rounded-full shadow-2xl transition-all duration-300 font-extrabold border bg-gradient-to-r from-amber-800 to-amber-950 hover:from-amber-900 hover:to-stone-900 text-white border-amber-700 hover:scale-105 hover:shadow-amber-900/40 uppercase text-xs tracking-wider animate-pulse"
@@ -741,11 +742,11 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin }) => {
                 </button>
             )}
 
-            {interpretation && result?.recordId && (
+            {interpretation && result?.recordId && activeUser && (
                 <AiChatWidget 
                     type="hexagrams" 
                     recordId={result.recordId} 
-                    userId={user?.id || user?._id || 'guest'} 
+                    userId={activeUser?.id || activeUser?._id} 
                     isOpen={isChatOpen}
                     setIsOpen={setIsChatOpen}
                 />
