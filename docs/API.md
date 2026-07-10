@@ -4,6 +4,30 @@ Tất cả các API Endpoints đều có tiền tố `/api`. Các endpoint yêu 
 
 ---
 
+## 🚀 Hướng dẫn Kiểm thử & Thử nghiệm API (Testing Guides)
+
+Hệ thống hỗ trợ hai phương thức kiểm thử và tra cứu API nhanh chóng:
+
+### 1. Swagger UI (Thử nghiệm Trực quan trên Trình duyệt)
+Khi máy chủ backend đang chạy (mặc định tại `http://localhost:3001`), bạn có thể truy cập:
+- **Đường dẫn Swagger UI:** [http://localhost:3001/api-docs](http://localhost:3001/api-docs)
+- **Tính năng:**
+  - Liệt kê trực quan toàn bộ API, mô hình dữ liệu (schemas).
+  - Đã tích hợp đầy đủ dữ liệu mẫu (Request Examples) cho Bát Tự, Tử Vi, Kinh Dịch, Trạch Cát để người dùng bấm **"Try it out"** và **"Execute"** chạy thử ngay lập tức.
+  - Hỗ trợ lưu token JWT cho các route yêu cầu bảo mật thông qua nút **"Authorize"** (chọn `bearerAuth` và nhập JWT token).
+
+### 2. Postman Collection (Thử nghiệm Tự động hóa)
+Tệp đặc tả Postman Collection được đặt tại:
+- **Tệp tin:** [docs/PhongThuy_API.postman_collection.json](file:///t:/Phongthuy/docs/PhongThuy_API.postman_collection.json)
+- **Cách sử dụng:**
+  1. Mở phần mềm Postman, chọn **Import** và tải lên tệp tin `PhongThuy_API.postman_collection.json`.
+  2. Collection chứa sẵn 7 thư mục được phân loại khoa học (Xác thực, Gieo quẻ, Luận giải AI, Lịch sử, Thông báo, Trạch cát, Admin).
+  3. Cấu hình sẵn các biến bộ sưu tập (`baseUrl`, `token`, `userId`, `recordId`).
+  4. Các yêu cầu **Đăng ký / Đăng nhập** chứa mã tự động (Test Scripts) để trích xuất `token` và `userId` ghi vào biến bộ sưu tập, giúp các yêu cầu tiếp theo chạy mượt mà mà không cần copy thủ công.
+  5. Các yêu cầu **Lập quẻ / Lập lá số** cũng tự động lưu lại `recordId` của bản ghi để chuyển tiếp sang API Luận giải AI và Chat.
+
+---
+
 ## 🔐 1. Xác thực & Người dùng (`/api/auth`)
 
 ### 1.1 Đăng ký tài khoản
@@ -60,6 +84,17 @@ Tất cả các API Endpoints đều có tiền tố `/api`. Các endpoint yêu 
   ```json
   {
     "message": "Đổi mật khẩu thành công."
+  }
+  ```
+
+### 1.5 Đăng xuất tài khoản
+Đăng xuất và hủy bỏ hiệu lực của toàn bộ JWT token hiện tại trên máy chủ (yêu cầu gửi kèm JWT token).
+- **Endpoint:** `POST /api/auth/logout`
+- **Headers:** `Authorization: Bearer <token>`
+- **Phản hồi (200):**
+  ```json
+  {
+    "message": "Đăng xuất thành công."
   }
   ```
 
@@ -189,6 +224,10 @@ Lấy thông tin chi tiết (Lục Thân, Lục Thú, Hào Thế/Ứng) để hi
 
 - **Lấy danh sách lịch sử:**
   `GET /api/history/:system/:userId` (với `:system` là `iching`, `bazi`, `ziwei`, `marriage`)
+  - **Query parameters (Tùy chọn):**
+    - `limit`: Số lượng bản ghi tối đa (mặc định: 50).
+    - `startDate`: Ngày bắt đầu lọc (định dạng `YYYY-MM-DD`).
+    - `endDate`: Ngày kết thúc lọc (định dạng `YYYY-MM-DD`).
 - **Lấy chi tiết một bản ghi:**
   `GET /api/history/:system/record/:id`
 - **Đánh giá bản ghi:**

@@ -54,6 +54,7 @@ const register = async (req, res) => {
         const payload = {
           user: {
             id: user.id,
+            tokenVersion: user.tokenVersion || 0
           },
         };
 
@@ -101,6 +102,7 @@ const register = async (req, res) => {
     const payload = {
       user: {
         id: user.id,
+        tokenVersion: user.tokenVersion || 0
       },
     };
 
@@ -168,6 +170,7 @@ const login = async (req, res) => {
     const payload = {
       user: {
         id: user.id,
+        tokenVersion: user.tokenVersion || 0
       },
     };
 
@@ -279,6 +282,7 @@ const googleLogin = async (req, res) => {
     const tokenPayload = {
       user: {
         id: user.id,
+        tokenVersion: user.tokenVersion || 0
       },
     };
 
@@ -419,6 +423,22 @@ const changePassword = async (req, res) => {
   }
 };
 
+const logout = async (req, res) => {
+  try {
+    const userId = req.dbUser.id || req.dbUser._id.toString();
+    const user = await User.findById(userId);
+    if (user) {
+      user.tokenVersion = (user.tokenVersion || 0) + 1;
+      await user.save();
+      logger.info(`Đăng xuất thành công cho tài khoản [${user.email}] (Vô hiệu hóa token).`, { user: user.email, action: 'Đăng xuất' });
+    }
+    res.json({ message: 'Đăng xuất thành công.' });
+  } catch (err) {
+    logger.error(`Đăng xuất gặp lỗi hệ thống cho tài khoản ID [${req.dbUser?.id}].`, err, { action: 'Đăng xuất' });
+    res.status(500).send('Server error');
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -427,4 +447,5 @@ module.exports = {
   updateProfile,
   submitAppeal,
   changePassword,
+  logout,
 };

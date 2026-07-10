@@ -193,7 +193,9 @@ class HistoryController {
             if (!userId) return res.status(400).json({ error: 'User ID is required' });
             
             const limit = parseInt(req.query.limit) || 50;
-            const cacheKey = `history:${userId}:hexagrams:${limit}`;
+            const startDate = req.query.startDate || '';
+            const endDate = req.query.endDate || '';
+            const cacheKey = `history:${userId}:hexagrams:${limit}:${startDate}:${endDate}`;
             
             // Check in-memory cache
             const cachedData = MemoryCacheService.get(cacheKey);
@@ -201,11 +203,25 @@ class HistoryController {
                 return res.json(cachedData);
             }
             
-            const records = await IChingRecord.find({ 
+            const query = { 
                 userId, 
                 isDeleted: { $ne: true }, 
                 status: { $ne: 'locked' } 
-            })
+            };
+
+            if (startDate || endDate) {
+                query.dateCast = {};
+                if (startDate) {
+                    query.dateCast.$gte = new Date(startDate);
+                }
+                if (endDate) {
+                    const end = new Date(endDate);
+                    end.setHours(23, 59, 59, 999);
+                    query.dateCast.$lte = end;
+                }
+            }
+
+            const records = await IChingRecord.find(query)
                 .sort({ createdAt: -1 })
                 .select('-analysisSnapshot -aiInterpretation -ungKy -movingLines')
                 .limit(limit)
@@ -227,7 +243,9 @@ class HistoryController {
             if (!userId) return res.status(400).json({ error: 'User ID is required' });
             
             const limit = parseInt(req.query.limit) || 50;
-            const cacheKey = `history:${userId}:bazi:${limit}`;
+            const startDate = req.query.startDate || '';
+            const endDate = req.query.endDate || '';
+            const cacheKey = `history:${userId}:bazi:${limit}:${startDate}:${endDate}`;
             
             // Check in-memory cache
             const cachedData = MemoryCacheService.get(cacheKey);
@@ -235,11 +253,25 @@ class HistoryController {
                 return res.json(cachedData);
             }
             
-            const records = await BaziRecord.find({ 
+            const query = { 
                 userId, 
                 isDeleted: { $ne: true }, 
                 status: { $ne: 'locked' } 
-            })
+            };
+
+            if (startDate || endDate) {
+                query.createdAt = {};
+                if (startDate) {
+                    query.createdAt.$gte = new Date(startDate);
+                }
+                if (endDate) {
+                    const end = new Date(endDate);
+                    end.setHours(23, 59, 59, 999);
+                    query.createdAt.$lte = end;
+                }
+            }
+
+            const records = await BaziRecord.find(query)
                 .sort({ createdAt: -1 })
                 .select('-analysisSnapshot -aiInterpretation -baziData')
                 .limit(limit)
@@ -279,7 +311,9 @@ class HistoryController {
             if (!userId) return res.status(400).json({ error: 'User ID is required' });
             
             const limit = parseInt(req.query.limit) || 50;
-            const cacheKey = `history:${userId}:ziwei:${limit}`;
+            const startDate = req.query.startDate || '';
+            const endDate = req.query.endDate || '';
+            const cacheKey = `history:${userId}:ziwei:${limit}:${startDate}:${endDate}`;
             
             // Check in-memory cache
             const cachedData = MemoryCacheService.get(cacheKey);
@@ -287,11 +321,25 @@ class HistoryController {
                 return res.json(cachedData);
             }
             
-            const records = await ZiweiRecord.find({ 
+            const query = { 
                 userId, 
                 isDeleted: { $ne: true }, 
                 status: { $ne: 'locked' } 
-            })
+            };
+
+            if (startDate || endDate) {
+                query.createdAt = {};
+                if (startDate) {
+                    query.createdAt.$gte = new Date(startDate);
+                }
+                if (endDate) {
+                    const end = new Date(endDate);
+                    end.setHours(23, 59, 59, 999);
+                    query.createdAt.$lte = end;
+                }
+            }
+
+            const records = await ZiweiRecord.find(query)
                 .sort({ createdAt: -1 })
                 .select('-chartData -analysisSnapshot -aiInterpretation')
                 .limit(limit)
@@ -535,18 +583,34 @@ class HistoryController {
             if (!userId) return res.status(400).json({ error: 'User ID is required' });
             
             const limit = parseInt(req.query.limit) || 50;
-            const cacheKey = `history:${userId}:marriage:${limit}`;
+            const startDate = req.query.startDate || '';
+            const endDate = req.query.endDate || '';
+            const cacheKey = `history:${userId}:marriage:${limit}:${startDate}:${endDate}`;
             
             const cachedData = MemoryCacheService.get(cacheKey);
             if (cachedData) {
                 return res.json(cachedData);
             }
             
-            const records = await MarriageRecord.find({ 
+            const query = { 
                 userId, 
                 isDeleted: { $ne: true }, 
                 status: { $ne: 'locked' } 
-            })
+            };
+
+            if (startDate || endDate) {
+                query.createdAt = {};
+                if (startDate) {
+                    query.createdAt.$gte = new Date(startDate);
+                }
+                if (endDate) {
+                    const end = new Date(endDate);
+                    end.setHours(23, 59, 59, 999);
+                    query.createdAt.$lte = end;
+                }
+            }
+
+            const records = await MarriageRecord.find(query)
                 .sort({ createdAt: -1 })
                 .select('-maleBaziData -femaleBaziData -aiInterpretation')
                 .limit(limit)

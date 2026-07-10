@@ -146,10 +146,18 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
-    setToken(null);
-    setUser(null);
-    localStorage.removeItem('user');
+  const logout = async () => {
+    try {
+      if (token) {
+        await axios.post(`${API_URL}/auth/logout`);
+      }
+    } catch (err) {
+      console.error('Logout error on server:', err);
+    } finally {
+      setToken(null);
+      setUser(null);
+      localStorage.removeItem('user');
+    }
   };
 
   return (

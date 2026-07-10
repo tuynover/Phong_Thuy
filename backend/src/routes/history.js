@@ -12,52 +12,56 @@ const aiLimiter = rateLimiter({
     message: 'Bạn đã gửi quá nhiều yêu cầu luận giải AI. Vui lòng thử lại sau.'
 });
 
+const optionalAuth = require('../middleware/optionalAuth');
+const checkRecordOwnership = require('../middleware/checkRecordOwnership');
+const checkHistoryOwnership = require('../middleware/checkHistoryOwnership');
+
 // IChing (Kinh Dịch) endpoints
-router.get('/iching/record/:id', HistoryController.getHexagramRecord);
-router.get('/iching/:userId', HistoryController.getHexagramHistory);
-router.put('/iching/:id/rate', HistoryController.rateHexagram);
-router.put('/iching/:id/link', HistoryController.linkHexagram);
-router.get('/iching/:id/messages', HistoryController.getHexagramChatMessages);
+router.get('/iching/record/:id', optionalAuth, checkRecordOwnership, HistoryController.getHexagramRecord);
+router.get('/iching/:userId', optionalAuth, checkHistoryOwnership, HistoryController.getHexagramHistory);
+router.put('/iching/:id/rate', optionalAuth, checkRecordOwnership, HistoryController.rateHexagram);
+router.put('/iching/:id/link', optionalAuth, checkRecordOwnership, HistoryController.linkHexagram);
+router.get('/iching/:id/messages', optionalAuth, checkRecordOwnership, HistoryController.getHexagramChatMessages);
 
 // Legacy Hexagrams endpoints (alias for iching)
-router.get('/hexagrams/record/:id', HistoryController.getHexagramRecord);
-router.get('/hexagrams/:userId', HistoryController.getHexagramHistory);
-router.put('/hexagrams/:id/rate', HistoryController.rateHexagram);
-router.put('/hexagrams/:id/link', HistoryController.linkHexagram);
-router.get('/hexagrams/:id/messages', HistoryController.getHexagramChatMessages);
+router.get('/hexagrams/record/:id', optionalAuth, checkRecordOwnership, HistoryController.getHexagramRecord);
+router.get('/hexagrams/:userId', optionalAuth, checkHistoryOwnership, HistoryController.getHexagramHistory);
+router.put('/hexagrams/:id/rate', optionalAuth, checkRecordOwnership, HistoryController.rateHexagram);
+router.put('/hexagrams/:id/link', optionalAuth, checkRecordOwnership, HistoryController.linkHexagram);
+router.get('/hexagrams/:id/messages', optionalAuth, checkRecordOwnership, HistoryController.getHexagramChatMessages);
 
 // Bazi (Bát Tự) endpoints
-router.get('/bazi/record/:id', HistoryController.getBaziRecord);
-router.get('/bazi/:userId', HistoryController.getBaziHistory);
-router.put('/bazi/:id/rate', HistoryController.rateBazi);
-router.put('/bazi/:id/link', HistoryController.linkBazi);
-router.get('/bazi/:id/messages', HistoryController.getBaziChatMessages);
+router.get('/bazi/record/:id', optionalAuth, checkRecordOwnership, HistoryController.getBaziRecord);
+router.get('/bazi/:userId', optionalAuth, checkHistoryOwnership, HistoryController.getBaziHistory);
+router.put('/bazi/:id/rate', optionalAuth, checkRecordOwnership, HistoryController.rateBazi);
+router.put('/bazi/:id/link', optionalAuth, checkRecordOwnership, HistoryController.linkBazi);
+router.get('/bazi/:id/messages', optionalAuth, checkRecordOwnership, HistoryController.getBaziChatMessages);
 
 // Ziwei (Tử Vi) endpoints
-router.get('/ziwei/record/:id', HistoryController.getZiweiRecord);
-router.get('/ziwei/:userId', HistoryController.getZiweiHistory);
-router.put('/ziwei/:id/rate', HistoryController.rateZiwei);
-router.put('/ziwei/:id/link', HistoryController.linkZiwei);
-router.get('/ziwei/:id/messages', HistoryController.getZiweiChatMessages);
+router.get('/ziwei/record/:id', optionalAuth, checkRecordOwnership, HistoryController.getZiweiRecord);
+router.get('/ziwei/:userId', optionalAuth, checkHistoryOwnership, HistoryController.getZiweiHistory);
+router.put('/ziwei/:id/rate', optionalAuth, checkRecordOwnership, HistoryController.rateZiwei);
+router.put('/ziwei/:id/link', optionalAuth, checkRecordOwnership, HistoryController.linkZiwei);
+router.get('/ziwei/:id/messages', optionalAuth, checkRecordOwnership, HistoryController.getZiweiChatMessages);
 
 // Marriage (Kết Hôn) endpoints
-router.get('/marriage/record/:id', HistoryController.getMarriageRecord);
-router.get('/marriage/:userId', HistoryController.getMarriageHistory);
-router.put('/marriage/:id/rate', HistoryController.rateMarriage);
-router.get('/marriage/:id/messages', HistoryController.getMarriageChatMessages);
+router.get('/marriage/record/:id', optionalAuth, checkRecordOwnership, HistoryController.getMarriageRecord);
+router.get('/marriage/:userId', optionalAuth, checkHistoryOwnership, HistoryController.getMarriageHistory);
+router.put('/marriage/:id/rate', optionalAuth, checkRecordOwnership, HistoryController.rateMarriage);
+router.get('/marriage/:id/messages', optionalAuth, checkRecordOwnership, HistoryController.getMarriageChatMessages);
 
 // Backwards compatibility for legacy chat and stream endpoints
-router.post('/iching/:id/interpret', aiLimiter, creditCheck, AiInterpretationController.interpretHexagram);
-router.post('/hexagrams/:id/interpret', aiLimiter, creditCheck, AiInterpretationController.interpretHexagram);
-router.post('/bazi/:id/interpret', aiLimiter, creditCheck, AiInterpretationController.interpretBazi);
-router.post('/ziwei/:id/interpret', aiLimiter, creditCheck, AiInterpretationController.interpretZiwei);
-router.post('/marriage/:id/interpret', aiLimiter, creditCheck, AiInterpretationController.interpretMarriage);
+router.post('/iching/:id/interpret', optionalAuth, checkRecordOwnership, aiLimiter, creditCheck, AiInterpretationController.interpretHexagram);
+router.post('/hexagrams/:id/interpret', optionalAuth, checkRecordOwnership, aiLimiter, creditCheck, AiInterpretationController.interpretHexagram);
+router.post('/bazi/:id/interpret', optionalAuth, checkRecordOwnership, aiLimiter, creditCheck, AiInterpretationController.interpretBazi);
+router.post('/ziwei/:id/interpret', optionalAuth, checkRecordOwnership, aiLimiter, creditCheck, AiInterpretationController.interpretZiwei);
+router.post('/marriage/:id/interpret', optionalAuth, checkRecordOwnership, aiLimiter, creditCheck, AiInterpretationController.interpretMarriage);
 
-router.post('/iching/:id/chat', aiLimiter, AiInterpretationController.chatHexagram);
-router.post('/hexagrams/:id/chat', aiLimiter, AiInterpretationController.chatHexagram);
-router.post('/bazi/:id/chat', aiLimiter, AiInterpretationController.chatBazi);
-router.post('/ziwei/:id/chat', aiLimiter, AiInterpretationController.chatZiwei);
-router.post('/marriage/:id/chat', aiLimiter, AiInterpretationController.chatMarriage);
+router.post('/iching/:id/chat', optionalAuth, checkRecordOwnership, aiLimiter, AiInterpretationController.chatHexagram);
+router.post('/hexagrams/:id/chat', optionalAuth, checkRecordOwnership, aiLimiter, AiInterpretationController.chatHexagram);
+router.post('/bazi/:id/chat', optionalAuth, checkRecordOwnership, aiLimiter, AiInterpretationController.chatBazi);
+router.post('/ziwei/:id/chat', optionalAuth, checkRecordOwnership, aiLimiter, AiInterpretationController.chatZiwei);
+router.post('/marriage/:id/chat', optionalAuth, checkRecordOwnership, aiLimiter, AiInterpretationController.chatMarriage);
 
 const auth = require('../middleware/auth');
 router.delete('/calculations/:type/:id', auth, HistoryController.deleteCalculation);

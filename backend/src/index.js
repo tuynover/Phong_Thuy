@@ -44,6 +44,11 @@ app.get('/health', (req, res) => {
   res.status(200).send('ok');
 });
 
+// Swagger UI Documentation Route
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./config/swagger.json');
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 app.use('/api', routes);
 
 const PORT = process.env.PORT || 3001;

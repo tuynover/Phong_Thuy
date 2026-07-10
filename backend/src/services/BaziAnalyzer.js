@@ -248,7 +248,18 @@ class BaziAnalyzer {
 
     analyze(dateStr, timeStr, gender = 1, dayBoundaryMode = 'midnight') { // gender: 1 (Nam), 0 (Nữ)
         // 1. Data Prep
-        const [day, month, year] = dateStr.split('/').map(Number);
+        let day, month, year;
+        if (dateStr.includes('-')) {
+            const parts = dateStr.split('-').map(Number);
+            year = parts[0];
+            month = parts[1];
+            day = parts[2];
+        } else {
+            const parts = dateStr.split('/').map(Number);
+            day = parts[0];
+            month = parts[1];
+            year = parts[2];
+        }
         const [hour, minute] = timeStr.split(':').map(Number);
         
         const genderInt = parseInt(gender) === 0 ? 0 : 1;

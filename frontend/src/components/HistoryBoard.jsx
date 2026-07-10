@@ -1,11 +1,232 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { getIChingHistory, getBaziHistory, getZiweiHistory, getMarriageHistory, rateIChing, rateBazi, rateZiwei, rateMarriage, deleteCalculation, getIChingRecord, getBaziRecord, getZiweiRecord, getMarriageRecord } from '../services/api';
-import { Star, Clock, Calendar, Trash2, X, Info, Check, AlertTriangle, Loader2 } from 'lucide-react';
+import { Star, Clock, Calendar, Trash2, X, Info, Check, AlertTriangle, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const LUNAR_HOURS_MAP = [
   "Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"
 ];
+
+const CustomDatePicker = ({ value, onChange, label, activeTheme, activeTab, align = 'left' }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [currentDate, setCurrentDate] = useState(value ? new Date(value) : new Date());
+    const containerRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (containerRef.current && !containerRef.current.contains(e.target)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    useEffect(() => {
+        if (value) {
+            setCurrentDate(new Date(value));
+        }
+    }, [value]);
+
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+
+    const getDaysInMonth = (y, m) => {
+        const date = new Date(y, m, 1);
+        const days = [];
+        let dayOfWeek = date.getDay();
+        let startOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+
+        const prevMonthLastDate = new Date(y, m, 0).getDate();
+        for (let i = startOffset - 1; i >= 0; i--) {
+            days.push({
+                day: prevMonthLastDate - i,
+                isCurrentMonth: false,
+                dateObj: new Date(y, m - 1, prevMonthLastDate - i)
+            });
+        }
+
+        const totalDays = new Date(y, m + 1, 0).getDate();
+        for (let i = 1; i <= totalDays; i++) {
+            days.push({
+                day: i,
+                isCurrentMonth: true,
+                dateObj: new Date(y, m, i)
+            });
+        }
+
+        const remainingCells = 42 - days.length;
+        for (let i = 1; i <= remainingCells; i++) {
+            days.push({
+                day: i,
+                isCurrentMonth: false,
+                dateObj: new Date(y, m + 1, i)
+            });
+        }
+
+        return days;
+    };
+
+    const days = getDaysInMonth(year, month);
+
+    const handlePrevMonth = (e) => {
+        e.stopPropagation();
+        setCurrentDate(new Date(year, month - 1, 1));
+    };
+
+    const handleNextMonth = (e) => {
+        e.stopPropagation();
+        setCurrentDate(new Date(year, month + 1, 1));
+    };
+
+    const handleSelectDay = (dateObj, e) => {
+        e.stopPropagation();
+        const localDateStr = dateObj.getFullYear() + '-' + 
+            String(dateObj.getMonth() + 1).padStart(2, '0') + '-' + 
+            String(dateObj.getDate()).padStart(2, '0');
+        onChange(localDateStr);
+        setIsOpen(false);
+    };
+
+    const handleClear = (e) => {
+        e.stopPropagation();
+        onChange('');
+        setIsOpen(false);
+    };
+
+    const handleToday = (e) => {
+        e.stopPropagation();
+        const todayStr = new Date().toISOString().split('T')[0];
+        onChange(todayStr);
+        setIsOpen(false);
+    };
+
+    const formatDisplayDate = (val) => {
+        if (!val) return '';
+        const parts = val.split('-');
+        if (parts.length !== 3) return val;
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    };
+
+    const themeBg = activeTab === 'iching' ? 'bg-amber-800 text-white hover:bg-amber-900' : activeTab === 'bazi' ? 'bg-blue-800 text-white hover:bg-blue-900' : activeTab === 'ziwei' ? 'bg-purple-800 text-white hover:bg-purple-900' : 'bg-rose-800 text-white hover:bg-rose-900';
+    const themeText = activeTab === 'iching' ? 'text-amber-800 hover:bg-amber-50' : activeTab === 'bazi' ? 'text-blue-800 hover:bg-blue-50' : activeTab === 'ziwei' ? 'text-purple-800 hover:bg-purple-50' : 'text-rose-800 hover:bg-rose-50';
+    const themeBorder = activeTab === 'iching' ? 'focus:border-amber-600 focus:ring-amber-500/20' : activeTab === 'bazi' ? 'focus:border-blue-600 focus:ring-blue-500/20' : activeTab === 'ziwei' ? 'focus:border-purple-600 focus:ring-purple-500/20' : 'focus:border-rose-600 focus:border-rose-500/20';
+
+    return (
+        <div className="relative flex-1 sm:flex-none" ref={containerRef}>
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-400 pointer-events-none">{label}</span>
+            <button
+                type="button"
+                onClick={() => setIsOpen(!isOpen)}
+                className={`w-full sm:w-44 text-left pl-11 pr-3 py-2.5 text-sm border border-gray-200 rounded-2xl bg-white shadow-sm transition-all duration-300 flex items-center justify-between hover:border-gray-300 focus:outline-none focus:ring-4 ${themeBorder}`}
+            >
+                <span className={value ? 'text-gray-800 font-semibold' : 'text-gray-405'}>
+                    {formatDisplayDate(value) || 'Chọn ngày...'}
+                </span>
+                <Calendar size={14} className="text-gray-400 ml-1.5 flex-shrink-0" />
+            </button>
+
+            {isOpen && (
+                <>
+                    {/* Backdrop blur overlay for Mobile only */}
+                    <div 
+                        className="fixed inset-0 bg-black/40 backdrop-blur-[1.5px] z-50 sm:hidden animate-in fade-in duration-200"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setIsOpen(false);
+                        }}
+                    />
+                    
+                    {/* Calendar Popup Container */}
+                    <div 
+                        onClick={(e) => e.stopPropagation()}
+                        className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-[310px] bg-white rounded-[2rem] p-5 shadow-2xl border border-gray-100 z-50 animate-in fade-in zoom-in-95 duration-200 
+                            sm:absolute sm:top-auto sm:left-auto sm:translate-x-0 sm:translate-y-0 sm:w-72 sm:p-4 sm:border-gray-150 sm:shadow-xl sm:mt-2 sm:rounded-3xl
+                            ${align === 'right' ? 'sm:right-0 sm:left-auto' : 'sm:left-0 sm:right-auto'}`}
+                    >
+                        <div className="flex items-center justify-between mb-3.5 pb-2 border-b border-gray-100">
+                            <div className="flex items-center gap-1.5">
+                                <span className="text-sm font-bold text-gray-800">
+                                    Tháng {month + 1}
+                                </span>
+                                <span className="text-xs font-bold text-gray-400">
+                                    {year}
+                                </span>
+                            </div>
+                            <div className="flex gap-1">
+                                <button
+                                    type="button"
+                                    onClick={handlePrevMonth}
+                                    className="p-2 sm:p-1.5 rounded-xl hover:bg-gray-100 text-gray-650 transition-colors"
+                                >
+                                    <ChevronLeft size={18} className="sm:w-4 sm:h-4" />
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleNextMonth}
+                                    className="p-2 sm:p-1.5 rounded-xl hover:bg-gray-100 text-gray-650 transition-colors"
+                                >
+                                    <ChevronRight size={18} className="sm:w-4 sm:h-4" />
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-7 gap-1 text-center mb-2">
+                            {['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'].map((dayName) => (
+                                <span key={dayName} className="text-xs sm:text-[10px] font-bold text-gray-400 select-none">
+                                    {dayName}
+                                </span>
+                            ))}
+                        </div>
+
+                        <div className="grid grid-cols-7 gap-1 text-center">
+                            {days.map((dayItem, idx) => {
+                                const isSelected = value && value === dayItem.dateObj.toISOString().split('T')[0];
+                                const isToday = new Date().toISOString().split('T')[0] === dayItem.dateObj.toISOString().split('T')[0];
+                                return (
+                                    <button
+                                        key={idx}
+                                        type="button"
+                                        onClick={(e) => handleSelectDay(dayItem.dateObj, e)}
+                                        disabled={!dayItem.isCurrentMonth}
+                                        className={`aspect-square text-sm sm:text-xs font-semibold rounded-full flex items-center justify-center transition-all p-2 sm:p-0 ${
+                                            !dayItem.isCurrentMonth
+                                                ? 'text-gray-200 cursor-default pointer-events-none'
+                                                : isSelected
+                                                    ? themeBg + ' shadow-md font-bold scale-105'
+                                                    : isToday
+                                                        ? 'border border-gray-350 font-bold ' + themeText
+                                                        : 'text-gray-700 hover:bg-gray-105'
+                                        }`}
+                                    >
+                                        {dayItem.day}
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        <div className="flex items-center justify-between mt-3.5 pt-2 border-t border-gray-100 text-xs">
+                            <button
+                                type="button"
+                                onClick={handleClear}
+                                className="text-red-500 hover:text-red-750 font-bold px-3 py-2 sm:px-2.5 sm:py-1 rounded-xl hover:bg-red-50 transition-colors"
+                            >
+                                Xóa
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleToday}
+                                className={`${themeText} font-bold px-3 py-2 sm:px-2.5 sm:py-1 rounded-xl transition-colors`}
+                            >
+                                Hôm nay
+                            </button>
+                        </div>
+                    </div>
+                </>
+            )}
+        </div>
+    );
+};
 
 const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage, preloadedData, onCacheInvalidate, active, onSaveCache }) => {
     const { user } = useContext(AuthContext);
@@ -22,6 +243,40 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
     const [actionLoading, setActionLoading] = useState(false);
     const [activeTab, setActiveTab] = useState('iching'); // 'iching' | 'bazi' | 'ziwei' | 'marriage'
     const [dialog, setDialog] = useState(null); // { type: 'confirm' | 'success' | 'error', message: '', onConfirm: null }
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+    const [activeQuickFilter, setActiveQuickFilter] = useState('');
+
+    const handleQuickFilter = (type) => {
+        const end = new Date();
+        const start = new Date();
+        const todayStr = end.getFullYear() + '-' + String(end.getMonth() + 1).padStart(2, '0') + '-' + String(end.getDate()).padStart(2, '0');
+
+        if (type === 'today') {
+            setStartDate(todayStr);
+            setEndDate(todayStr);
+            setActiveQuickFilter('today');
+        } else if (type === 'yesterday') {
+            start.setDate(end.getDate() - 1);
+            const yesterdayStr = start.getFullYear() + '-' + String(start.getMonth() + 1).padStart(2, '0') + '-' + String(start.getDate()).padStart(2, '0');
+            setStartDate(yesterdayStr);
+            setEndDate(yesterdayStr);
+            setActiveQuickFilter('yesterday');
+        } else if (type === '7days') {
+            start.setDate(end.getDate() - 7);
+            const startStr = start.getFullYear() + '-' + String(start.getMonth() + 1).padStart(2, '0') + '-' + String(start.getDate()).padStart(2, '0');
+            setStartDate(startStr);
+            setEndDate(todayStr);
+            setActiveQuickFilter('7days');
+        } else if (type === '30days') {
+            start.setDate(end.getDate() - 30);
+            const startStr = start.getFullYear() + '-' + String(start.getMonth() + 1).padStart(2, '0') + '-' + String(start.getDate()).padStart(2, '0');
+            setStartDate(startStr);
+            setEndDate(todayStr);
+            setActiveQuickFilter('30days');
+        }
+        setCurrentPage(1);
+    };
     const prefetchedDetails = useRef({});
 
     const ITEMS_PER_PAGE = 15;
@@ -72,7 +327,7 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
         if (user && (active ?? true)) {
             initData();
         }
-    }, [user, preloadedData, active]);
+    }, [user, preloadedData, active, startDate, endDate]);
 
     // Clear detail cache when user changes (logout/switch accounts)
     useEffect(() => {
@@ -80,6 +335,11 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
     }, [user]);
 
     const initData = async () => {
+        if (startDate || endDate) {
+            fetchData({ startDate, endDate });
+            return;
+        }
+
         if (preloadedData && (preloadedData.hexagrams || preloadedData.promise)) {
             if (preloadedData.hexagrams) {
                 setHexagrams(preloadedData.hexagrams);
@@ -133,21 +393,25 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
         }
     };
 
-    const fetchData = async () => {
+    const fetchData = async (filters = {}) => {
         setLoading(true);
         try {
             const userId = user.id || user._id;
+            const params = {};
+            if (filters.startDate) params.startDate = filters.startDate;
+            if (filters.endDate) params.endDate = filters.endDate;
+
             const [hexRes, baziRes, ziweiRes, marriageRes] = await Promise.all([
-                getIChingHistory(userId),
-                getBaziHistory(userId),
-                getZiweiHistory(userId),
-                getMarriageHistory(userId)
+                getIChingHistory(userId, params),
+                getBaziHistory(userId, params),
+                getZiweiHistory(userId, params),
+                getMarriageHistory(userId, params)
             ]);
             setHexagrams(hexRes.data);
             setBazis(baziRes.data);
             setZiweis(ziweiRes.data);
             setMarriages(marriageRes.data);
-            if (onSaveCache) {
+            if (onSaveCache && !filters.startDate && !filters.endDate) {
                 onSaveCache({
                     hexagrams: hexRes.data,
                     bazis: baziRes.data,
@@ -355,6 +619,114 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                 >
                     Hôn Nhân ({marriages.length})
                 </button>
+            </div>
+
+            {/* Bộ lọc ngày lập */}
+            <div className={`mb-8 p-5 rounded-3xl border ${activeTheme.border} bg-gradient-to-br from-gray-50/90 to-white/95 shadow-sm backdrop-blur-md flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5 transition-all duration-500 hover:shadow-md`}>
+                {/* Tiêu đề bộ lọc */}
+                <div className="flex items-center gap-3.5 flex-shrink-0">
+                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 transition-colors duration-500 ${
+                        activeTab === 'iching' ? 'bg-amber-50 text-amber-800' : activeTab === 'bazi' ? 'bg-blue-50 text-blue-800' : activeTab === 'ziwei' ? 'bg-purple-50 text-purple-800' : 'bg-rose-50 text-rose-800'
+                    }`}>
+                        <Calendar size={24} className="animate-pulse" />
+                    </div>
+                    <span className="text-lg md:text-xl font-extrabold text-gray-800 leading-none">Bộ lọc thời gian</span>
+                </div>
+                
+                {/* Khu vực controls xếp 2 hàng thẳng tắp bên phải */}
+                <div className="flex flex-col gap-3.5 items-stretch lg:items-end flex-grow w-full lg:w-auto">
+                    {/* Hàng 1: Các nút lọc nhanh */}
+                    <div className="flex items-center bg-gray-100/60 p-1.5 rounded-2xl gap-1 w-full lg:w-auto overflow-x-auto scrollbar-none flex-nowrap justify-between sm:justify-start">
+                        <button
+                            type="button"
+                            onClick={() => handleQuickFilter('today')}
+                            className={`flex-shrink-0 flex-1 sm:flex-none px-4 py-1.5 text-xs font-bold rounded-xl transition-all duration-300 ${
+                                activeQuickFilter === 'today'
+                                    ? activeTab === 'iching' ? 'bg-amber-800 text-white shadow-sm scale-105' : activeTab === 'bazi' ? 'bg-blue-800 text-white shadow-sm scale-105' : activeTab === 'ziwei' ? 'bg-purple-800 text-white shadow-sm scale-105' : 'bg-rose-800 text-white shadow-sm scale-105'
+                                    : 'text-gray-500 hover:text-gray-800 hover:bg-white/40'
+                            }`}
+                        >
+                            Hôm nay
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => handleQuickFilter('yesterday')}
+                            className={`flex-shrink-0 flex-1 sm:flex-none px-4 py-1.5 text-xs font-bold rounded-xl transition-all duration-300 ${
+                                activeQuickFilter === 'yesterday'
+                                    ? activeTab === 'iching' ? 'bg-amber-800 text-white shadow-sm scale-105' : activeTab === 'bazi' ? 'bg-blue-800 text-white shadow-sm scale-105' : activeTab === 'ziwei' ? 'bg-purple-800 text-white shadow-sm scale-105' : 'bg-rose-800 text-white shadow-sm scale-105'
+                                    : 'text-gray-500 hover:text-gray-800 hover:bg-white/40'
+                            }`}
+                        >
+                            Hôm qua
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => handleQuickFilter('7days')}
+                            className={`flex-shrink-0 flex-1 sm:flex-none px-4 py-1.5 text-xs font-bold rounded-xl transition-all duration-300 ${
+                                activeQuickFilter === '7days'
+                                    ? activeTab === 'iching' ? 'bg-amber-800 text-white shadow-sm scale-105' : activeTab === 'bazi' ? 'bg-blue-800 text-white shadow-sm scale-105' : activeTab === 'ziwei' ? 'bg-purple-800 text-white shadow-sm scale-105' : 'bg-rose-800 text-white shadow-sm scale-105'
+                                    : 'text-gray-500 hover:text-gray-800 hover:bg-white/40'
+                            }`}
+                        >
+                            7 ngày qua
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => handleQuickFilter('30days')}
+                            className={`flex-shrink-0 flex-1 sm:flex-none px-4 py-1.5 text-xs font-bold rounded-xl transition-all duration-300 ${
+                                activeQuickFilter === '30days'
+                                    ? activeTab === 'iching' ? 'bg-amber-800 text-white shadow-sm scale-105' : activeTab === 'bazi' ? 'bg-blue-800 text-white shadow-sm scale-105' : activeTab === 'ziwei' ? 'bg-purple-800 text-white shadow-sm scale-105' : 'bg-rose-800 text-white shadow-sm scale-105'
+                                    : 'text-gray-500 hover:text-gray-800 hover:bg-white/40'
+                            }`}
+                        >
+                            30 ngày qua
+                        </button>
+                    </div>
+
+                    {/* Hàng 2: Bộ lịch chọn thủ công và nút đặt lại */}
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-grow sm:flex-grow-0">
+                            <CustomDatePicker
+                                value={startDate}
+                                onChange={(val) => {
+                                    setStartDate(val);
+                                    setActiveQuickFilter('');
+                                    setCurrentPage(1);
+                                }}
+                                label="Từ:"
+                                activeTheme={activeTheme}
+                                activeTab={activeTab}
+                                align="left"
+                            />
+                            <CustomDatePicker
+                                value={endDate}
+                                onChange={(val) => {
+                                    setEndDate(val);
+                                    setActiveQuickFilter('');
+                                    setCurrentPage(1);
+                                }}
+                                label="Đến:"
+                                activeTheme={activeTheme}
+                                activeTab={activeTab}
+                                align="right"
+                            />
+                        </div>
+                        {(startDate || endDate) && (
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setStartDate('');
+                                    setEndDate('');
+                                    setActiveQuickFilter('');
+                                    setCurrentPage(1);
+                                }}
+                                className="px-4 py-2.5 text-xs font-bold text-red-500 hover:text-red-750 hover:bg-red-50/80 rounded-2xl transition-all border border-red-100 bg-white shadow-sm hover:scale-105 active:scale-95 flex items-center justify-center flex-shrink-0"
+                            >
+                                Đặt lại
+                            </button>
+                        )}
+                    </div>
+                </div>
             </div>
 
             <div className="space-y-4">

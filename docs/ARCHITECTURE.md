@@ -120,7 +120,7 @@ Tất cả các phân hệ Kinh Dịch, Bát Tự, Tử Vi và Hợp Hôn hiện
 
 ## 3. Các Middleware & Hệ thống Kiểm soát
 
-Hệ thống Express.js sử dụng chuỗi Middleware để bảo vệ tài nguyên và ghi nhận nhật ký hành vi:
+Hệ thống Express.js sử dụng chuỗi Middleware để bảo vệ tài nguyên, phân quyền và ghi nhận nhật ký hành vi:
 
 1. **`logging.js` (Audit Logging):**
    - Đánh chặn tất cả các yêu cầu.
@@ -128,6 +128,7 @@ Hệ thống Express.js sử dụng chuỗi Middleware để bảo vệ tài ngu
    - Masking (ẩn) các thông tin nhạy cảm như mật khẩu trước khi lưu vào `SystemLog` trong MongoDB.
 2. **`auth.js` / `adminAuth.js` (Authentication & Authorization):**
    - Xác thực JWT token từ Header Authorization `Bearer <token>` hoặc query parameter `?token=`.
+   - Đối chiếu trường `tokenVersion` từ payload token JWT với giá trị thực tế trong cơ sở dữ liệu. Nếu người dùng đã thực hiện đăng xuất (logout), `tokenVersion` của họ trong DB sẽ tăng lên, lập tức làm vô hiệu hóa token cũ này và trả về `401 Unauthorized`.
    - Kiểm tra tài khoản có bị khóa (`status === 'locked'`) hoặc xóa mềm (`isDeleted === true`) không.
    - `adminAuth.js` đính kèm thêm helper `req.hasAuthorityOver(targetUser)` để ngăn Co-Admin thao tác trên Admin khác.
 3. **`creditCheck.js` (Credit Quota Protection):**
@@ -135,6 +136,14 @@ Hệ thống Express.js sử dụng chuỗi Middleware để bảo vệ tài ngu
    - Bỏ qua kiểm tra đối với các tài khoản Admin / Co-Admin.
 4. **`rateLimiter.js` (Rate Limiting):**
    - Giới hạn tần suất gọi API (ví dụ: tối đa 30 lần lập lá số trong 15 phút, 20 lần gọi AI trong 15 phút) để tránh tấn công DDOS hoặc spam API tốn phí.
+5. **`checkRecordOwnership.js` (Record Privacy Protection):**
+   - Tự động xác định loại bản ghi (Kinh Dịch, Bát Tự, Tử Vi, Hợp Hôn) dựa trên URL API và thực hiện truy vấn cơ sở dữ liệu để bảo vệ quyền riêng tư.
+   - Chỉ cho phép chủ sở hữu của bản ghi hoặc quản trị viên (Admin/Co-Admin) xem chi tiết, yêu cầu giải đoán AI, hoặc chat AI liên quan đến bản ghi đó. Chặn đứng các hành vi dùng ID để xem lén dữ liệu của người khác.
+   - Cho phép khách truy cập bản ghi do khách (guest) tự lập.
+6. **`checkHistoryOwnership.js` (History Access Protection):**
+   - Ngăn chặn người dùng xem trộm lịch sử của tài khoản khác bằng cách đối chiếu ID người dùng trong token JWT với `:userId` trên endpoint API.
+7. **`optionalAuth.js` (Optional Authentication):**
+   - Thực hiện giải mã thông tin token và gán vào `req.user` nếu có, nhưng không chặn request nếu người dùng chưa đăng nhập (cho phép khách tiếp tục sử dụng các chức năng không bắt buộc tài khoản).
 
 ---
 

@@ -5,7 +5,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 // IChing (Kinh Dịch) API Endpoints
 export const calculateDivination = (lines, userId, question, now) => axios.post(`${API_URL}/iching/calculate`, { lines, userId, question, now });
 export const getConcept = (term) => axios.get(`${API_URL}/concept/${term}`);
-export const getIChingHistory = (userId) => axios.get(`${API_URL}/history/iching/${userId}`);
+export const getIChingHistory = (userId, params) => axios.get(`${API_URL}/history/iching/${userId}`, { params });
 export const getIChingRecord = (id) => axios.get(`${API_URL}/history/iching/record/${id}`);
 export const getIChingChatMessages = (id, page = 1, limit = 20) => axios.get(`${API_URL}/history/iching/${id}/messages?page=${page}&limit=${limit}`);
 export const rateIChing = (id, rating, feedback) => axios.put(`${API_URL}/history/iching/${id}/rate`, { rating, feedback });
@@ -13,7 +13,7 @@ export const linkIChing = (id, userId) => axios.put(`${API_URL}/history/iching/$
 export const interpretIChing = (id) => axios.post(`${API_URL}/history/iching/${id}/interpret`);
 
 // Bazi (Bát Tự) API Endpoints
-export const getBaziHistory = (userId) => axios.get(`${API_URL}/history/bazi/${userId}`);
+export const getBaziHistory = (userId, params) => axios.get(`${API_URL}/history/bazi/${userId}`, { params });
 export const getBaziRecord = (id) => axios.get(`${API_URL}/history/bazi/record/${id}`);
 export const getBaziChatMessages = (id, page = 1, limit = 20) => axios.get(`${API_URL}/history/bazi/${id}/messages?page=${page}&limit=${limit}`);
 export const rateBazi = (id, rating, feedback) => axios.put(`${API_URL}/history/bazi/${id}/rate`, { rating, feedback });
@@ -24,7 +24,7 @@ export const analyzeBazi = (date, time, gender, userId) => axios.post(`${API_URL
 export const analyzeMarriage = (male, female, userId) => axios.post(`${API_URL}/marriage/analyze`, { male, female, userId });
 export const checkAuspiciousDate = (birthYear, solarDate, solarHour, activity) => axios.post(`${API_URL}/date/check`, { birthYear, solarDate, solarHour, activity });
 export const consultAuspiciousDates = (birthYear, startDate, endDate, activity) => axios.post(`${API_URL}/date/consult`, { birthYear, startDate, endDate, activity });
-export const getMarriageHistory = (userId) => axios.get(`${API_URL}/history/marriage/${userId}`);
+export const getMarriageHistory = (userId, params) => axios.get(`${API_URL}/history/marriage/${userId}`, { params });
 export const getMarriageRecord = (id) => axios.get(`${API_URL}/history/marriage/record/${id}`);
 export const rateMarriage = (id, rating, feedback) => axios.put(`${API_URL}/history/marriage/${id}/rate`, { rating, feedback });
 export const getMarriageChatMessages = (id, page = 1, limit = 20) => axios.get(`${API_URL}/history/marriage/${id}/messages?page=${page}&limit=${limit}`);
@@ -32,7 +32,7 @@ export const getMarriageChatMessages = (id, page = 1, limit = 20) => axios.get(`
 // Ziwei (Tử Vi) API Endpoints
 export const createZiweiChart = (date, hour, gender, userId) => axios.post(`${API_URL}/ziwei`, { date, hour, gender, userId });
 export const interpretZiwei = (id) => axios.post(`${API_URL}/ziwei/${id}/interpret`);
-export const getZiweiHistory = (userId) => axios.get(`${API_URL}/ziwei/history/${userId}`);
+export const getZiweiHistory = (userId, params) => axios.get(`${API_URL}/ziwei/history/${userId}`, { params });
 export const getZiweiRecord = (id) => axios.get(`${API_URL}/ziwei/${id}`);
 export const rateZiwei = (id, rating, feedback) => axios.put(`${API_URL}/ziwei/${id}/rate`, { rating, feedback });
 export const getZiweiChatMessages = (id, page = 1, limit = 20) => axios.get(`${API_URL}/ziwei/${id}/messages?page=${page}&limit=${limit}`);

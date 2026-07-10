@@ -26,6 +26,7 @@ AI Agent có vai trò:
 ### 2.2 Frontend (React 19 & Vite)
 - **State Persistence:** Trạng thái phân hệ hiện tại, lá số đang mở, quẻ đang xem và bối cảnh chat phải được đồng bộ vào `localStorage` của trình duyệt.
 - **Lazy Loading:** Phân hệ người dùng (`UserApp.jsx`) và quản trị (`AdminApp.jsx`) phải được tải động (lazy load) qua `React.lazy` và `React.Suspense` ở cấp độ cao nhất (`App.jsx`).
+- **Premium UI Components:** Không được sử dụng input date mặc định (`input[type="date"]`) của trình duyệt cho các chức năng chọn ngày vì giao diện thô cứng của hệ điều hành làm giảm tính thẩm mỹ của dự án. Bắt buộc sử dụng component lịch tùy chỉnh viết bằng React (`CustomDatePicker`) để đảm bảo các yếu tố bo tròn mềm mại, đồng bộ màu sắc động theo Tab và tương thích tối đa trên thiết bị di động (hiển thị dạng modal ở giữa màn hình có backdrop).
 
 ---
 
@@ -41,6 +42,8 @@ AI Agent có vai trò:
   ```
 - **Phân quyền Admin/Co-Admin:** Admin có toàn quyền. Co-Admin chỉ có quyền thao tác trên các bản ghi và người dùng có role là `user` hoặc `vip` (được xác thực qua hàm hỗ trợ `req.hasAuthorityOver(targetUser)`).
 - **Lọc Intent (isDivinationRelated):** Bất kỳ câu hỏi chat follow-up nào gửi lên từ phía người dùng đều phải được kiểm tra tính liên quan thông qua `ConversationContextService.js` để tránh việc lạm dụng LLM hỏi các chủ đề lạc đề.
+- **Kiểm tra quyền sở hữu dữ liệu (Data Privacy Boundary):** Tất cả các API xem chi tiết bản ghi, trò chuyện AI hoặc lịch sử chat đều bắt buộc đi qua middleware kiểm tra quyền sở hữu (`checkRecordOwnership` hoặc `checkHistoryOwnership`) để chặn xem chéo thông tin trái phép của người dùng khác.
+- **Hủy phiên tức thời khi Đăng xuất (Token Revocation):** Khi đăng xuất, bắt buộc phải gọi request `POST /api/auth/logout` lên Backend trước khi xóa thông tin lưu trữ cục bộ, mục đích là tăng `tokenVersion` của người dùng trong cơ sở dữ liệu lên 1 để vô hiệu hóa token này vĩnh viễn trên máy chủ.
 
 ---
 
@@ -60,6 +63,7 @@ AI Agent có vai trò:
 1. **Không can thiệp logic an sao:** Không tự ý thay đổi thư viện `lunar-javascript` hay `iztro` vì có thể gây sai lệch kết quả an sao của hàng vạn lá số hiện có.
 2. **Tuân thủ quy trình kiểm thử:** Khi sửa đổi Backend, phải kiểm tra cú pháp node của tệp tin trước bằng lệnh `node --check src/path/to/file.js`.
 3. **Cập nhật CHANGELOG_AI.md:** Bất kỳ thay đổi cấu trúc lớn nào do AI thực hiện phải được ghi nhận vào tài liệu lịch sử AI.
+4. **Quy tắc thiết kế giao diện (UI Aesthetics):** Khi viết code CSS/Tailwind cho các thành phần UI, phải tuân thủ chuẩn Premium Aesthetics (bo góc lớn `rounded-2xl` hoặc `rounded-3xl`, sử dụng màu sắc HSL phối hài hòa nhẹ nhàng, tránh dùng màu sắc chói thô cứng, và tích hợp các micro-animations chuyển đổi mượt mà).
 
 ---
 

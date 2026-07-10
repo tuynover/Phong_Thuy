@@ -4,6 +4,56 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
 
 ---
 
+## 📅 Phiên bản: Bảo mật Quyền riêng tư, Hủy Token khi Đăng xuất & Bộ lọc Thời gian Lịch sử (10/07/2026)
+
+### Backend (Bảo mật & Quyền riêng tư)
+- **Bảo mật Quyền sở hữu Bản ghi:**
+  - Tạo mới middleware [checkRecordOwnership.js](file:///t:/Phongthuy/backend/src/middleware/checkRecordOwnership.js) kiểm tra quyền truy cập của người dùng đối với các bản ghi chi tiết, đánh giá sao, liên kết tài khoản và trò chuyện AI theo ID của 4 phân hệ (Kinh Dịch, Bát Tự, Tử Vi, Hôn Nhân). Bản ghi của `guest` được cho phép xem công khai, còn bản ghi của người dùng đã đăng ký chỉ cho phép chính chủ sở hữu hoặc tài khoản Admin/Co-Admin truy cập (trả về `403 Forbidden` nếu vi phạm).
+  - Tạo mới middleware [checkHistoryOwnership.js](file:///t:/Phongthuy/backend/src/middleware/checkHistoryOwnership.js) bảo vệ danh sách lịch sử theo `userId` (chỉ cho phép bản thân user đó hoặc Admin/Co-Admin lấy dữ liệu).
+  - Tạo mới middleware [optionalAuth.js](file:///t:/Phongthuy/backend/src/middleware/optionalAuth.js) giải mã JWT token một cách tùy chọn để lấy hồ sơ người dùng mà không chặn các request của khách vãng lai (guest).
+  - Áp dụng 3 middleware này trên tất cả các route lịch sử, AI giải đoán và chat trong [history.js](file:///t:/Phongthuy/backend/src/routes/history.js), [ai.js](file:///t:/Phongthuy/backend/src/routes/ai.js), và [ziwei.js](file:///t:/Phongthuy/backend/src/routes/ziwei.js).
+- **Hủy bỏ mã Token khi Đăng xuất (Server-side Token Invalidation):**
+  - Thêm trường `tokenVersion` (kiểu số nguyên, mặc định là `0`) vào lược đồ [User.js](file:///t:/Phongthuy/backend/src/models/User.js).
+  - Cập nhật [AuthController.js](file:///t:/Phongthuy/backend/src/controllers/AuthController.js) để đưa `tokenVersion` vào payload của JWT token khi Đăng ký, Đăng nhập thường và Đăng nhập bằng Google.
+  - Viết mới API `/api/auth/logout` tăng `tokenVersion` của User trong Database thêm 1 đơn vị, vô hiệu hóa ngay lập tức mọi token đã được cấp trước đó của người dùng.
+  - Cập nhật middleware xác thực [auth.js](file:///t:/Phongthuy/backend/src/middleware/auth.js) để so khớp `tokenVersion` trong token gửi lên với giá trị hiện tại trong Database. Trả về `401 Unauthorized` nếu không trùng khớp (ép đăng xuất trên client).
+- **Lọc Lịch sử theo Thời gian ở Backend:**
+  - Cập nhật 4 phương thức lấy lịch sử trong [HistoryController.js](file:///t:/Phongthuy/backend/src/controllers/HistoryController.js) hỗ trợ tham số query `startDate` và `endDate`.
+  - Thực hiện lọc trực tiếp trên MongoDB Atlas thông qua điều kiện `$gte` và `$lte` trên trường `createdAt` (hoặc `dateCast` đối với Kinh Dịch).
+  - Đồng bộ cập nhật cache key để chứa các khoảng ngày lọc, ngăn chặn việc lấy sai dữ liệu từ in-memory cache.
+
+### Frontend (Giao diện & Đồng bộ)
+- **Tích hợp Logout Server-side:**
+  - Cập nhật hàm `logout` trong [AuthContext.jsx](file:///t:/Phongthuy/frontend/src/context/AuthContext.jsx) gửi yêu cầu `POST /api/auth/logout` trước khi xóa thông tin cục bộ nhằm vô hiệu hóa token trên máy chủ hoàn toàn.
+- **Bộ lọc Lịch sử theo Ngày tháng & Custom Datepicker (React):**
+  - Cập nhật [api.js](file:///t:/Phongthuy/frontend/src/services/api.js) để hỗ trợ truyền tham số params (startDate, endDate) cho 4 hàm gọi lịch sử.
+  - Tự xây dựng component **`CustomDatePicker`** thay thế hoàn toàn cho input date mặc định của trình duyệt để hiển thị popup lịch chọn ngày (date picker calendar popup) cực kỳ mềm mại, bo tròn, đồng bộ màu sắc động theo Tab theme, có nút chuyển tháng bằng ChevronLeft/ChevronRight mượt mà.
+  - Thiết kế thanh điều khiển Lọc theo ngày lập ở phía dưới Tab selector trong [HistoryBoard.jsx](file:///t:/Phongthuy/frontend/src/components/HistoryBoard.jsx) sử dụng component lịch mới này.
+  - Bổ sung cụm phím tắt chọn nhanh (Hôm nay, Hôm qua, 7 ngày qua, 30 ngày qua) tiện lợi với thuật toán tính toán ngày theo múi giờ địa phương (local time) tránh bị lệch ngày do múi giờ UTC.
+  - Tối ưu bố cục phân bổ các khối điều khiển (Lọc nhanh bên trái, Chọn ngày & Đặt lại bên phải) trên cùng một hàng ngang để triệt tiêu các khoảng trống dư thừa, tự động co giãn và xuống hàng linh hoạt trên Mobile.
+  - Tích hợp trạng thái Active sáng lên đồng bộ theo Tab theme (Amber, Blue, Purple, Rose) cho các nút lọc nhanh khi được kích hoạt, tự động tắt khi người dùng tùy chọn ngày thủ công hoặc bấm Đặt lại.
+  - Khi thay đổi ngày lọc, ứng dụng tự động fetch lại danh sách từ server theo ngày lập thực tế và reset số trang phân loại về trang `1`.
+
+---
+
+## 📅 Phiên bản: Tích hợp Thử nghiệm API với Swagger UI & Postman Collection (09/07/2026)
+
+### Backend (Định cấu hình & Route mới)
+- **Tích hợp Swagger UI:**
+  - Cài đặt thư viện `swagger-ui-express` để dựng giao diện tài liệu API trực quan.
+  - Tạo tệp tin đặc tả OpenAPI 3.0 [swagger.json](file:///t:/Phongthuy/backend/src/config/swagger.json) mô tả chi tiết toàn bộ các endpoints của hệ thống bao gồm: Các tham số, cấu trúc Body, Headers và dữ liệu mẫu đầy đủ để hỗ trợ test nhanh (như lập quẻ, lập lá số Bát Tự, Tử Vi, Trạch Cát).
+  - Tích hợp route `/api-docs` vào [index.js](file:///t:/Phongthuy/backend/src/index.js) để phục vụ giao diện Swagger UI khi ứng dụng khởi chạy.
+- **Kiểm tra cú pháp:** Đã chạy lệnh `node --check src/index.js` và xác minh mã nguồn hoạt động chính xác.
+
+### Tài liệu & Công cụ Kiểm thử
+- **Tạo Postman Collection:**
+  - Viết tệp cấu hình Postman [PhongThuy_API.postman_collection.json](file:///t:/Phongthuy/docs/PhongThuy_API.postman_collection.json) bao gồm đầy đủ 7 thư mục tương ứng với các phân hệ chính của hệ thống.
+  - Cấu hình sẵn dữ liệu mẫu thực tế trong phần request body cho mọi API.
+  - Tích hợp **Test Scripts** tự động lưu token JWT và `userId` vào Collection Variables sau khi gọi Đăng nhập/Đăng ký để tự động điền cho các API tiếp theo, đồng thời tự động lưu `recordId` sau khi gieo quẻ/lập lá số để chat AI liền mạch.
+- **Cập nhật [API.md](file:///t:/Phongthuy/docs/API.md):** Bổ sung mục `🚀 Hướng dẫn Kiểm thử & Thử nghiệm API (Testing Guides)` hướng dẫn chi tiết cách truy cập Swagger UI cục bộ tại `/api-docs` và cách import, vận hành file Postman Collection.
+
+---
+
 ## 📅 Phiên bản: Bổ sung Footer & Phân trang Lịch sử (06/07/2026)
 
 ### Frontend (Giao diện & Tính năng)

@@ -30,6 +30,7 @@ Lưu trữ thông tin tài khoản, hồ sơ Bát Tự mặc định, số dư c
     status: { type: String, enum: ['active', 'locked'], default: 'active' },
     lockReason: { type: String, default: '' },
     isDeleted: { type: Boolean, default: false },
+    tokenVersion: { type: Number, default: 0 },
     baziInfo: {
       day: Number, month: Number, year: Number, hour: Number, minute: Number
     },
