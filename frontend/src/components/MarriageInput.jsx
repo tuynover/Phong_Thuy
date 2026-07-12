@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Calendar, Clock, User, ChevronDown } from 'lucide-react';
+import { Calendar, Clock, User, ChevronDown, HelpCircle } from 'lucide-react';
 
 // UNIFIED COMBOBOX COMPONENT - ALLOWS TYPING AND SELECTING
 function CustomSelect({ value, onChange, options, placeholder, borderClass, focusBorderClass, hoverClass, activeClass }) {
@@ -301,6 +301,111 @@ const MarriageInput = ({ onComplete }) => {
                     </button>
                 </div>
             </form>
+
+            {/* Academic Informational Cards & FAQs */}
+            <div className="mt-10 border-t border-slate-100 pt-8 w-full space-y-8 text-left font-sans">
+              <div className="bg-white p-6 md:p-8 rounded-3xl border border-rose-50 shadow-sm space-y-6">
+                <h4 className="text-sm font-extrabold text-rose-800 uppercase tracking-widest text-center">Kiến thức học thuật Bát Tự Hợp Hôn</h4>
+                
+                <div className="space-y-6">
+                  {/* Item 1 */}
+                  <div className="border-b border-slate-100 pb-5">
+                    <h5 className="font-extrabold text-slate-800 text-base mb-2 flex items-center gap-2">
+                      <span className="w-1.5 h-6 rounded bg-rose-600 block"></span>
+                      1. Bát Tự Hợp Hôn là gì?
+                    </h5>
+                    <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed pl-3.5 mb-2">
+                      Bát Tự Hợp Hôn (hay còn gọi là đối chiếu lá số phu thê) là phương pháp xem tuổi vợ chồng khoa học và chuyên sâu nhất. Phương pháp này xem xét sự hòa hợp của toàn bộ 8 chữ (Giờ, Ngày, Tháng, Năm sinh) của cả hai người thay vì chỉ xem tuổi con giáp sơ sài.
+                    </p>
+                    <ul className="list-disc pl-8 text-xs text-slate-500 space-y-1 font-medium">
+                      <li><strong>Độ hòa hợp Can Chi:</strong> Đo lường sự đồng điệu bẩm sinh trong mối quan hệ vợ chồng.</li>
+                      <li><strong>Ngũ hành bổ trợ:</strong> Xem xét ngũ hành của người này có là Hỷ/Dụng thần bù đắp cho người kia hay không.</li>
+                    </ul>
+                  </div>
+
+                  {/* Item 2 */}
+                  <div className="border-b border-slate-100 pb-5">
+                    <h5 className="font-extrabold text-slate-800 text-base mb-2 flex items-center gap-2">
+                      <span className="w-1.5 h-6 rounded bg-rose-600 block"></span>
+                      2. Quy trình đối sánh lá số phu thê
+                    </h5>
+                    <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed pl-3.5 mb-2">
+                      Thuật số đối sánh hợp hôn sử dụng các trụ cột thông tin cốt lõi sau:
+                    </p>
+                    <ul className="list-disc pl-8 text-xs text-slate-500 space-y-1.5 font-medium">
+                      <li><strong>Nhật Chi (Phu Thê Cung):</strong> Địa chi của ngày sinh đại diện cho người phối ngẫu. Sự tương tác sinh khắc giữa hai Nhật Chi thể hiện sự hòa hợp trong cuộc sống hằng ngày.</li>
+                      <li><strong>Cung Phi Bát Quái:</strong> Xác định các cung phi bát quái (Càn, Khôn, Chấn, Tốn...) kết hợp xem thuộc nhóm Diên Niên, Sinh Khí (tốt) hay Tuyệt Mệnh, Họa Hại (hung).</li>
+                      <li><strong>Ngũ Hành Nạp Âm:</strong> Đối sánh tương sinh tương khắc giữa mệnh nạp âm (ví dụ Hải Trung Kim và Lộ Bàng Thổ).</li>
+                    </ul>
+                  </div>
+
+                  {/* Item 3 */}
+                  <div>
+                    <h5 className="font-extrabold text-slate-800 text-base mb-2 flex items-center gap-2">
+                      <span className="w-1.5 h-6 rounded bg-rose-600 block"></span>
+                      3. Bản phân tích phu thê cung cấp chi tiết gì?
+                    </h5>
+                    <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed pl-3.5 mb-2">
+                      Bài luận giải hợp hôn chuyên sâu cung cấp báo cáo:
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-3.5 mt-3">
+                      <div className="bg-rose-50/40 p-3 rounded-xl border border-rose-100/50">
+                        <span className="block text-xs font-bold text-rose-800 uppercase tracking-wider mb-1">✓ Chỉ số hòa hợp tổng quan (%)</span>
+                        <span className="text-[11px] text-slate-500 font-medium block">Điểm số phần trăm phản ánh độ tương hợp tổng thể dựa trên thuật toán tích hợp các tiêu chí Can, Chi, Cung Phi, Nạp Âm.</span>
+                      </div>
+                      <div className="bg-rose-50/40 p-3 rounded-xl border border-rose-100/50">
+                        <span className="block text-xs font-bold text-rose-800 uppercase tracking-wider mb-1">✓ Đánh giá chi tiết 5 Trụ Cột</span>
+                        <span className="text-[11px] text-slate-500 font-medium block">Phân tích từng khía cạnh: Can ngày (tâm tính), Chi ngày (phu thê), Trụ năm (tổ tông), Cung phi (gia đạo), Nạp âm (mệnh).</span>
+                      </div>
+                      <div className="bg-rose-50/40 p-3 rounded-xl border border-rose-100/50">
+                        <span className="block text-xs font-bold text-rose-800 uppercase tracking-wider mb-1">✓ Ưu thế duyên phận</span>
+                        <span className="text-[11px] text-slate-500 font-medium block">Liệt kê các điểm mạnh giúp vợ chồng nâng đỡ sự nghiệp, tài lộc và gắn kết tình cảm.</span>
+                      </div>
+                      <div className="bg-rose-50/40 p-3 rounded-xl border border-rose-100/50">
+                        <span className="block text-xs font-bold text-rose-800 uppercase tracking-wider mb-1">✓ Giải pháp hóa giải xung khắc</span>
+                        <span className="text-[11px] text-slate-500 font-medium block">Phương pháp hóa giải thực tế (hướng giường ngủ, bếp, năm sinh con) giúp chuyển hung thành cát nếu gặp xung khắc.</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* FAQs section */}
+              <div className="bg-white p-6 md:p-8 rounded-3xl border border-slate-150 shadow-sm space-y-6">
+                <h4 className="text-sm font-extrabold text-rose-800 uppercase tracking-widest text-center">Các câu hỏi thường gặp về Hợp Hôn</h4>
+                <div className="space-y-4">
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100/70">
+                    <h5 className="font-extrabold text-slate-800 text-xs sm:text-sm mb-1.5 flex items-center gap-1.5">
+                      <HelpCircle size={15} className="text-rose-600 shrink-0" />
+                      Hai tuổi phạm "Tứ Hành Xung" thì có kết hôn được không?
+                    </h5>
+                    <p className="text-xs text-slate-500 font-medium leading-relaxed pl-5">
+                      Hoàn toàn có thể kết hôn. Tứ hành xung chỉ xét theo Địa Chi năm sinh (rất sơ sài). Hợp hôn chuyên sâu cần xem xét tương tác ngũ hành toàn diện của 8 chữ (Bát Tự) của cả hai người, đặc biệt là Nhật Can và Phu Thê Cung để tìm phương án hóa giải thực tế.
+                    </p>
+                  </div>
+                  
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100/70">
+                    <h5 className="font-extrabold text-slate-800 text-xs sm:text-sm mb-1.5 flex items-center gap-1.5">
+                      <HelpCircle size={15} className="text-rose-600 shrink-0" />
+                      Cung Phi Bát Quái có vai trò gì trong việc xem tuổi vợ chồng?
+                    </h5>
+                    <p className="text-xs text-slate-500 font-medium leading-relaxed pl-5">
+                      Cung Phi Bát Quái (như Càn kết hợp Khôn được Diên Niên, Ly kết hợp Chấn được Sinh Khí...) giúp đánh giá mức độ đồng điệu về phong cách sống, thế giới quan và định hướng xây dựng tổ ấm chung của hai vợ chồng.
+                    </p>
+                  </div>
+
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100/70">
+                    <h5 className="font-extrabold text-slate-800 text-xs sm:text-sm mb-1.5 flex items-center gap-1.5">
+                      <HelpCircle size={15} className="text-rose-600 shrink-0" />
+                      Làm sao để hóa giải khi vợ chồng gặp phải xung khắc lớn trên lá số?
+                    </h5>
+                    <p className="text-xs text-slate-500 font-medium leading-relaxed pl-5">
+                      Có nhiều cách hóa giải hiệu quả như: chọn năm sinh con hợp tuổi bố mẹ để tạo cầu nối điều hòa ngũ hành, thiết kế phong thủy nhà ở (đặt hướng bếp, giường ngủ quay về hướng cát lành của người gánh vác chính) để giải trừ xung khắc.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
         </div>
     );
 };

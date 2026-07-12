@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
-import { Calendar, Clock, User, Sparkles, MessageCircle, RefreshCw, Star, ShieldAlert, ScrollText, ArrowUp, ArrowDown, ChevronDown } from 'lucide-react';
+import { Calendar, Clock, User, Sparkles, MessageCircle, RefreshCw, Star, ShieldAlert, ScrollText, ArrowUp, ArrowDown, ChevronDown, HelpCircle } from 'lucide-react';
 import { createZiweiChart, getZiweiRecord, rateZiwei, getInterpretationStreamUrl } from '../services/api';
 import ChartRenderer from './ChartRenderer';
 import SectionRenderer from './SectionRenderer';
@@ -92,7 +92,7 @@ function CustomSelect({ value, onChange, options, placeholder }) {
   );
 }
 
-const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationComplete, onResultChange }) => {
+const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationComplete, onResultChange, autoSubmitInfo, onClearAutoSubmit }) => {
   const { user: ctxUser, setUser, token } = useContext(AuthContext);
   const activeUser = ctxUser || user;
 
@@ -193,6 +193,13 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (autoSubmitInfo && autoSubmitInfo.dateStr) {
+      handleZiweiComplete(autoSubmitInfo.dateStr, autoSubmitInfo.hourStr, autoSubmitInfo.genderStr);
+      if (onClearAutoSubmit) onClearAutoSubmit();
+    }
+  }, [autoSubmitInfo]);
 
   const handleViewOwnZiwei = async () => {
     if (!activeUser || !activeUser.baziInfo) {
@@ -410,7 +417,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
 
       {/* 1. INPUT BIRTH INFO FORM */}
       {!result && !loading && (
-        <div className="bg-white/80 backdrop-blur-xl p-5 md:p-10 rounded-2xl md:rounded-[2rem] shadow-xl border border-purple-100 max-w-xl mx-auto animate-in fade-in slide-in-from-bottom-6 duration-300">
+        <div className="bg-white/80 backdrop-blur-xl p-5 md:p-10 rounded-2xl md:rounded-[2rem] shadow-xl border border-purple-100 max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-6 duration-300">
           <div className="flex items-center gap-3 justify-center mb-6">
             <div className="p-2 rounded-xl bg-purple-500 text-white shadow-md shadow-purple-500/20">
               <Sparkles size={20} />
@@ -513,6 +520,111 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
               </button>
             </div>
           </form>
+
+          {/* Academic Informational Cards & FAQs */}
+          <div className="mt-10 border-t border-slate-100 pt-8 w-full space-y-8 text-left font-sans animate-in fade-in duration-300">
+            <div className="bg-white p-6 md:p-8 rounded-3xl border border-purple-50 shadow-sm space-y-6">
+              <h4 className="text-sm font-extrabold text-purple-800 uppercase tracking-widest text-center">Kiến thức học thuật Tử Vi</h4>
+              
+              <div className="space-y-6">
+                {/* Item 1 */}
+                <div className="border-b border-slate-100 pb-5">
+                  <h5 className="font-extrabold text-slate-800 text-base mb-2 flex items-center gap-2">
+                    <span className="w-1.5 h-6 rounded bg-purple-600 block"></span>
+                    1. Tử Vi Đẩu Số là gì?
+                  </h5>
+                  <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed pl-3.5 mb-2">
+                    Tử Vi Đẩu Số là môn mệnh lý học đồ sộ dựa trên giờ sinh và ngày tháng năm sinh âm lịch để thiết lập một sơ đồ an sao gọi là Mệnh Bàn Tinh Đồ. Mệnh bàn gồm 12 cung số, mô tả chi tiết các khía cạnh cuộc đời con người.
+                  </p>
+                  <ul className="list-disc pl-8 text-xs text-slate-500 space-y-1 font-medium">
+                    <li><strong>Tinh hệ chính tinh (14):</strong> Gồm các sao chủ quản lớn như Tử Vi, Thiên Phủ, Vũ Khúc, Thái Dương... quyết định tính chất căn bản của cung vị.</li>
+                    <li><strong>Các trục đối cung:</strong> Cung đối xứng trực tiếp (như Mệnh và Di, Quan và Thê) tương tác năng lượng mạnh mẽ bổ trợ lẫn nhau.</li>
+                  </ul>
+                </div>
+
+                {/* Item 2 */}
+                <div className="border-b border-slate-100 pb-5">
+                  <h5 className="font-extrabold text-slate-800 text-base mb-2 flex items-center gap-2">
+                    <span className="w-1.5 h-6 rounded bg-purple-600 block"></span>
+                    2. Phương pháp luận Mệnh Bàn chuyên sâu
+                  </h5>
+                  <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed pl-3.5 mb-2">
+                    Quy trình đọc hiểu lá số Tử Vi kết hợp giữa tiên thiên mệnh cách và hậu thiên nỗ lực hành động:
+                  </p>
+                  <ul className="list-disc pl-8 text-xs text-slate-500 space-y-1.5 font-medium">
+                    <li><strong>Cung Mệnh / Thân:</strong> Cung Mệnh là tư chất tiên thiên (trước 30 tuổi), Cung Thân là nỗ lực hậu thiên và hậu vận (sau 30 tuổi).</li>
+                    <li><strong>Tam Phương Tứ Chính:</strong> Xem xét sự tương tác của cụm 3 cung tam hợp (ví dụ: Mệnh - Tài - Quan) và cung xung chiếu để đánh giá tổng thể thời vận.</li>
+                    <li><strong>Cát Tinh & Hung Tinh:</strong> Đánh giá mức độ đắc địa hãm địa của Văn Xương, Văn Khúc, Tả Phụ, Hữu Bật (cát) đối chiếu với Kình Dương, Đà La, Hỏa Tinh, Linh Tinh (hung).</li>
+                  </ul>
+                </div>
+
+                {/* Item 3 */}
+                <div>
+                  <h5 className="font-extrabold text-slate-800 text-base mb-2 flex items-center gap-2">
+                    <span className="w-1.5 h-6 rounded bg-purple-600 block"></span>
+                    3. Bản luận giải mệnh lý cung cấp những gì?
+                  </h5>
+                  <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed pl-3.5 mb-2">
+                    Bài phân tích mệnh bàn chi tiết cung cấp:
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-3.5 mt-3">
+                    <div className="bg-purple-50/40 p-3 rounded-xl border border-purple-100/50">
+                      <span className="block text-xs font-bold text-purple-800 uppercase tracking-wider mb-1">✓ Đồ hình Mệnh Bàn 12 Cung</span>
+                      <span className="text-[11px] text-slate-500 font-medium block">Bản đồ trực quan hiển thị vị trí đắc/hãm địa của hơn 100 sao tại Mệnh, Phụ, Phúc, Điền, Quan, Nô, Di, Tật, Tài, Tử, Phu, Huynh.</span>
+                    </div>
+                    <div className="bg-purple-50/40 p-3 rounded-xl border border-purple-100/50">
+                      <span className="block text-xs font-bold text-purple-800 uppercase tracking-wider mb-1">✓ Phân tích Cung Mệnh cốt lõi</span>
+                      <span className="text-[11px] text-slate-500 font-medium block">Chi tiết về năng lực bản thân, tính cách bẩm sinh, ngoại hình và xu hướng tư duy nghề nghiệp phù hợp.</span>
+                    </div>
+                    <div className="bg-purple-50/40 p-3 rounded-xl border border-purple-100/50">
+                      <span className="block text-xs font-bold text-purple-800 uppercase tracking-wider mb-1">✓ Vận trình Tài Bạch & Quan Lộc</span>
+                      <span className="text-[11px] text-slate-500 font-medium block">Dự đoán tài vận hanh thông hay bấp bênh, ngành nghề thăng tiến vượt trội và thời cơ làm ăn.</span>
+                    </div>
+                    <div className="bg-purple-50/40 p-3 rounded-xl border border-purple-100/50">
+                      <span className="block text-xs font-bold text-purple-800 uppercase tracking-wider mb-1">✓ Dự báo Lưu Niên / Hạn Năm</span>
+                      <span className="text-[11px] text-slate-500 font-medium block">Cảnh báo cụ thể về sức khỏe, đi lại, cơ hội công việc trong năm hiện tại giúp chủ động đón cát lánh hung.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* FAQs Section */}
+            <div className="bg-white p-6 md:p-8 rounded-3xl border border-slate-150 shadow-sm space-y-6">
+              <h4 className="text-sm font-extrabold text-purple-800 uppercase tracking-widest text-center">Các câu hỏi thường gặp về Tử Vi</h4>
+              <div className="space-y-4">
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100/70">
+                  <h5 className="font-extrabold text-slate-800 text-xs sm:text-sm mb-1.5 flex items-center gap-1.5">
+                    <HelpCircle size={15} className="text-purple-600 shrink-0" />
+                    Xem Tử Vi và Bát Tự khác nhau như thế nào?
+                  </h5>
+                  <p className="text-xs text-slate-500 font-medium leading-relaxed pl-5">
+                    Bát Tự tập trung vào phân tích năng lượng ngũ hành vượng suy của Thiên Can Địa Chi để tìm Dụng Thần cải vận. Tử Vi tập trung vào việc bố cục các chòm sao (chính tinh, phụ tinh) trên 12 cung mệnh bàn để luận đoán cụ thể các sự kiện, hoàn cảnh trong suốt cuộc đời.
+                  </p>
+                </div>
+                
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100/70">
+                  <h5 className="font-extrabold text-slate-800 text-xs sm:text-sm mb-1.5 flex items-center gap-1.5">
+                    <HelpCircle size={15} className="text-purple-600 shrink-0" />
+                    Cung Thân trên lá số Tử Vi có ý nghĩa gì?
+                  </h5>
+                  <p className="text-xs text-slate-500 font-medium leading-relaxed pl-5">
+                    Cung Thân biểu hiện nỗ lực hành động và hậu vận của con người từ sau tuổi 30 trở đi. Cung Mệnh là tiên thiên (tính cách bẩm sinh lúc nhỏ), cung Thân là hậu thiên (sự trưởng thành, xoay xở cải thiện số phận của bản thân).
+                  </p>
+                </div>
+
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100/70">
+                  <h5 className="font-extrabold text-slate-800 text-xs sm:text-sm mb-1.5 flex items-center gap-1.5">
+                    <HelpCircle size={15} className="text-purple-600 shrink-0" />
+                    Lá số Tử Vi có thay đổi được không?
+                  </h5>
+                  <p className="text-xs text-slate-500 font-medium leading-relaxed pl-5">
+                    Bản đồ an sao là cố định theo giờ sinh của bạn. Tuy nhiên, cách bạn hành xử, tu tâm dưỡng tính và lựa chọn nghề nghiệp (Nhân lực) sẽ thay đổi kết quả thực tế. Người xưa có câu "Đức năng thắng số" chính là để chỉ nỗ lực này.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 

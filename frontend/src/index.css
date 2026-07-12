@@ -62,3 +62,131 @@
 .coin-text-bottom { position: absolute; bottom: 4px; font-size: 10px; font-weight: 900; color: #5c3a21; font-family: serif; }
 .coin-text-left { position: absolute; left: 4px; font-size: 10px; font-weight: 900; color: #5c3a21; font-family: serif; }
 .coin-text-right { position: absolute; right: 4px; font-size: 10px; font-weight: 900; color: #5c3a21; font-family: serif; }
+
+/* MARKDOWN FORMATTING STYLES FOR CHAT WINDOWS */
+.markdown-content ul {
+  list-style-type: disc !important;
+  padding-left: 1.25rem !important;
+  margin-top: 0.5rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.markdown-content ol {
+  list-style-type: decimal !important;
+  padding-left: 1.25rem !important;
+  margin-top: 0.5rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.markdown-content li {
+  margin-bottom: 0.35rem !important;
+  line-height: 1.6 !important;
+}
+
+.markdown-content p {
+  margin-bottom: 0.75rem !important;
+  line-height: 1.6 !important;
+}
+
+.markdown-content h1, 
+.markdown-content h2, 
+.markdown-content h3, 
+.markdown-content h4 {
+  font-weight: 800 !important;
+  color: #1f2937 !important;
+  margin-top: 1.25rem !important;
+  margin-bottom: 0.5rem !important;
+  font-family: 'Montserrat', sans-serif !important;
+}
+
+.markdown-content h1 { font-size: 1.25rem !important; }
+.markdown-content h2 { font-size: 1.15rem !important; }
+.markdown-content h3 { font-size: 1.05rem !important; }
+.markdown-content h4 { font-size: 0.95rem !important; }
+
+.markdown-content strong {
+  font-weight: 700 !important;
+  color: #111827 !important;
+}
+
+/* PREMIUM LANDING PAGE UTILITIES */
+.aurora-bg {
+  position: relative;
+  background-color: #ffffff;
+  overflow: hidden;
+}
+
+.aurora-spot {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.45;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+/* Floating animation for elements */
+@keyframes float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-12px) rotate(2deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float-reverse {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(12px) rotate(-2deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+.animate-float-reverse {
+  animation: float-reverse 8s ease-in-out infinite;
+}
+
+/* Noise overlay for premium grain texture */
+.noise-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.02'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Custom premium glassmorphism card */
+.glass-card {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.04), 
+              0 1px 1px 0 rgba(255, 255, 255, 0.8) inset;
+}
+
+/* Border sweep animation on hover */
+.border-beam-container {
+  position: relative;
+  border-radius: inherit;
+}
+
+/* Infinite horizontal scroll marquee */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 40s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+

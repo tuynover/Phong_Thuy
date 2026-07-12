@@ -7,7 +7,7 @@ const LUNAR_HOURS_MAP = [
   "Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"
 ];
 
-const CustomDatePicker = ({ value, onChange, label, activeTheme, activeTab, align = 'left' }) => {
+const CustomDatePicker = ({ value, onChange, label, activeTheme, activeTab, align = 'left', minDate, maxDate }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [currentDate, setCurrentDate] = useState(value ? new Date(value) : new Date());
     const containerRef = useRef(null);
@@ -181,22 +181,33 @@ const CustomDatePicker = ({ value, onChange, label, activeTheme, activeTab, alig
 
                         <div className="grid grid-cols-7 gap-1 text-center">
                             {days.map((dayItem, idx) => {
+                                let isDisabled = !dayItem.isCurrentMonth;
+                                if (dayItem.isCurrentMonth) {
+                                    const dateStr = dayItem.dateObj.getFullYear() + '-' + 
+                                        String(dayItem.dateObj.getMonth() + 1).padStart(2, '0') + '-' + 
+                                        String(dayItem.dateObj.getDate()).padStart(2, '0');
+                                    if (minDate && dateStr < minDate) isDisabled = true;
+                                    if (maxDate && dateStr > maxDate) isDisabled = true;
+                                }
+
                                 const isSelected = value && value === dayItem.dateObj.toISOString().split('T')[0];
                                 const isToday = new Date().toISOString().split('T')[0] === dayItem.dateObj.toISOString().split('T')[0];
                                 return (
                                     <button
                                         key={idx}
                                         type="button"
-                                        onClick={(e) => handleSelectDay(dayItem.dateObj, e)}
-                                        disabled={!dayItem.isCurrentMonth}
+                                        onClick={(e) => !isDisabled && handleSelectDay(dayItem.dateObj, e)}
+                                        disabled={isDisabled}
                                         className={`aspect-square text-sm sm:text-xs font-semibold rounded-full flex items-center justify-center transition-all p-2 sm:p-0 ${
                                             !dayItem.isCurrentMonth
                                                 ? 'text-gray-200 cursor-default pointer-events-none'
-                                                : isSelected
-                                                    ? themeBg + ' shadow-md font-bold scale-105'
-                                                    : isToday
-                                                        ? 'border border-gray-350 font-bold ' + themeText
-                                                        : 'text-gray-700 hover:bg-gray-105'
+                                                : isDisabled
+                                                    ? 'text-gray-300 bg-gray-50/50 cursor-not-allowed pointer-events-none'
+                                                    : isSelected
+                                                        ? themeBg + ' shadow-md font-bold scale-105'
+                                                        : isToday
+                                                            ? 'border border-gray-350 font-bold ' + themeText
+                                                            : 'text-gray-705 hover:bg-gray-105'
                                         }`}
                                     >
                                         {dayItem.day}
@@ -697,6 +708,7 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                                 activeTheme={activeTheme}
                                 activeTab={activeTab}
                                 align="left"
+                                maxDate={endDate}
                             />
                             <CustomDatePicker
                                 value={endDate}
@@ -709,6 +721,7 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                                 activeTheme={activeTheme}
                                 activeTab={activeTab}
                                 align="right"
+                                minDate={startDate}
                             />
                         </div>
                         {(startDate || endDate) && (

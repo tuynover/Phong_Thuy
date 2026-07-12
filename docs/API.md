@@ -98,6 +98,40 @@ Tệp đặc tả Postman Collection được đặt tại:
   }
   ```
 
+### 1.6 Quên mật khẩu (Yêu cầu gửi OTP)
+Yêu cầu gửi mã OTP ngẫu nhiên gồm 6 chữ số về email đăng ký của người dùng để chuẩn bị khôi phục mật khẩu.
+- **Endpoint:** `POST /api/auth/forgot-password`
+- **Body:**
+  ```json
+  {
+    "email": "user@example.com"
+  }
+  ```
+- **Phản hồi (200):**
+  ```json
+  {
+    "message": "Mã OTP khôi phục mật khẩu đã được gửi đến email của bạn."
+  }
+  ```
+
+### 1.7 Khôi phục mật khẩu
+Sử dụng mã OTP nhận được trong email để đặt lại mật khẩu mới cho tài khoản.
+- **Endpoint:** `POST /api/auth/reset-password`
+- **Body:**
+  ```json
+  {
+    "email": "user@example.com",
+    "otp": "123456",
+    "newPassword": "MyNewPassword123"
+  }
+  ```
+- **Phản hồi (200):**
+  ```json
+  {
+    "message": "Khôi phục mật khẩu thành công!"
+  }
+  ```
+
 ---
 
 ## ☯️ 2. Gieo Quẻ & Tính toán Số lý

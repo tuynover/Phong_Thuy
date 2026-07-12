@@ -4,6 +4,165 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
 
 ---
 
+## 📅 Phiên bản: Trang chủ Hệ sinh thái & Thanh điều hướng Awwwards (12/07/2026)
+
+### Giao diện & Trải nghiệm (Rebranding & Xem Vận Mệnh)
+- **Tái cấu trúc Thương hiệu (Rebranding):**
+  - Chuyển đổi tên thương hiệu hiển thị từ "PHONG THỦY AI" thành "PHONG THỦY" trên toàn bộ giao diện Header, Footer, và các bản quyền phần mềm.
+- **Thêm tính năng "Xem Vận Mệnh" nhanh:**
+  - Thiết kế và phát triển hộp thoại modal "Xem Vận Mệnh" trên trang chủ.
+  - Cho phép người dùng nhập Ngày, Tháng, Năm, Giờ sinh (dương lịch) và Giới tính thông qua các trường chọn select tùy chỉnh.
+  - Cung cấp hai nút lựa chọn hành động: "Xem Lá Số Bát Tự" và "Xem Lá Số Tử Vi".
+  - Khi click lựa chọn nào, hệ thống tự động lập lá số, phân tích mệnh cách tương ứng và chuyển tiếp mượt mà sang tab chức năng của phân hệ đó.
+- **Bổ sung Khối kiến thức học thuật ở các phân hệ:**
+  - Ở giao diện nhập thông tin (trước khi phân tích) của Kinh Dịch, Bát Tự, Tử Vi và Hợp Hôn, bổ sung các thẻ học thuật chi tiết giải thích: Định nghĩa phân hệ là gì, Phương pháp lập/luận giải khoa học học thuật, và Nội dung chi tiết mà báo cáo sẽ cung cấp cho người xem.
+- **Bổ sung Phần Kiến Thức Phong Thủy trên Trang chủ:**
+  - Thiết kế thêm phân đoạn "Kiến Thức Phong Thủy" gồm 4 học thuyết nền tảng: Kinh Dịch, Bát Tự, Tử Vi và Ngày Hoàng Đạo để giải nghĩa học thuật tĩnh trực quan cho người dùng mà không cần đi qua bước luận giải.
+- **Tối ưu hóa & Hiệu chỉnh Trang chủ (`HomeBoard.jsx`):**
+  - Chuyển đổi toàn bộ giao diện xuất hiện động (entrance transitions) của Hero section thành tĩnh hoàn toàn (Sử dụng thẻ HTML tĩnh thay vì motion tags) giúp trang chủ tải ngay lập tức không có độ trễ.
+  - Gỡ bỏ huy hiệu "AI-Powered Eastern Wisdom" khỏi đầu trang Hero theo yêu cầu thiết kế.
+  - Sửa đổi nội dung phần mô tả sự khác biệt sang thuật ngữ "Luận giải logic học thuật khoa học chính thống" và loại bỏ hoàn toàn các đề cập tới "AI".
+  - Gỡ bỏ hoàn toàn phần thống kê số liệu (Statistics) khỏi trang chủ để giảm tải trọng giao diện.
+  - Tối ưu hóa hiệu năng cực đại: Loại bỏ bộ lọc CSS `blur` trên hoạt ảnh Framer Motion (vốn gây hao tổn tài nguyên GPU để tính toán lại điểm ảnh khi chuyển động), ngưng cơ chế lắng nghe MouseMove và cập nhật State 3D rotation liên tục trên SVG tinh vân.
+- **Hiệu chỉnh thanh Sticky Header & Mobile Menu:**
+  - Thêm nút tab "Trang Chủ" nằm bên trái Kinh Dịch trên thanh điều hướng trung tâm desktop giúp dễ dàng quay lại.
+  - Loại bỏ hoàn toàn nút chuyển đổi giao diện Dark Mode (Biểu tượng Moon) khỏi phần tiện ích bên phải của Header do không cần thiết.
+  - Dọn dẹp các import không sử dụng (`Moon`, `Sun` từ thư viện `lucide-react`).
+  - Hoàn trả màu nền kích hoạt (Active tab colors) của các môn học thuật về nguyên bản gốc (Dịch Lý: `bg-amber-800`, Bát Tự: `bg-blue-800`, v.v.).
+  - Sửa đổi giao diện mobile menu: Chuyển dải nền kính mờ mờ nhạt sang thẻ màu nền trắng đục hoàn toàn (`bg-white`), loại bỏ blur gây khó đọc văn bản trên màn hình nhỏ, nâng cao tính tương phản và khả năng tiếp cận.
+- **Tối ưu hóa layout & Sửa lỗi import:**
+  - Điều chỉnh lớp phủ bao bọc layout chính trong [UserApp.jsx](file:///t:/Phongthuy/frontend/src/components/UserApp.jsx) để trang chủ hiển thị full-width tràn màn hình, đồng thời ẩn footer mặc định thô ráp và thay bằng footer Awwwards tối giản.
+  - Sửa lỗi thiếu import hàm API `getMarriageHistory` gây crash phần tải trước lịch sử trong UserApp.
+
+## 📅 Phiên bản: Bổ sung tính năng Quên mật khẩu qua Email OTP (12/07/2026)
+
+### Backend (API & Định tuyến)
+- **Tích hợp API Quên/Khôi phục mật khẩu:**
+  - Viết mới hàm `forgotPassword` trong [AuthController.js](file:///t:/Phongthuy/backend/src/controllers/AuthController.js): Xác thực email tồn tại, sinh mã OTP 6 số ngẫu nhiên, lưu vào DB có thời hạn 15 phút, và gửi mã OTP khôi phục qua Gmail.
+  - Viết mới hàm `resetPassword` trong [AuthController.js](file:///t:/Phongthuy/backend/src/controllers/AuthController.js): So khớp mã OTP, tiến hành mã hóa (bcrypt hash) mật khẩu mới, cập nhật DB, tăng `tokenVersion` để vô hiệu hóa tất cả các phiên đăng nhập cũ, xóa OTP.
+  - Đăng ký 2 endpoint public giới hạn rate limit: `POST /api/auth/forgot-password` và `POST /api/auth/reset-password` trong [auth.js](file:///t:/Phongthuy/backend/src/routes/auth.js).
+
+### Frontend (Giao diện & Gọi API)
+- **Tích hợp Form Quên mật khẩu trong Đăng nhập:**
+  - Đăng ký 2 api helper `forgotPassword` và `resetPassword` trong [api.js](file:///t:/Phongthuy/frontend/src/services/api.js).
+  - Cập nhật [AuthModal.jsx](file:///t:/Phongthuy/frontend/src/components/AuthModal.jsx):
+    - Thêm link kích hoạt "Quên mật khẩu?" tại khung nhập mật khẩu ở giao diện Đăng nhập.
+    - Xây dựng form 2 bước: Bước 1 (Nhập Email gửi OTP), Bước 2 (Nhập mã OTP email, Mật khẩu mới & Xác nhận mật khẩu mới).
+    - Ẩn nút Google Sign-in và toggle tài khoản khi đang thực hiện luồng Quên mật khẩu.
+
+## 📅 Phiên bản: Gỡ bỏ tính năng xác thực Số điện thoại & Sửa đổi gốc Prompt Tử Vi (12/07/2026)
+
+### Backend (Sửa đổi prompt & Controller Tử Vi)
+- **Loại bỏ timing/risk khỏi trò chuyện Tử Vi:**
+  - Sửa đổi hàm `buildFollowUpPrompt` trong [ZiweiPrompts.js](file:///t:/Phongthuy/backend/src/services/ZiweiPrompts.js) để loại bỏ hoàn toàn các thuộc tính `"timing"` và `"risk"` khỏi JSON schema đầu ra được yêu cầu từ AI.
+  - Sửa đổi hàm `chatZiwei` trong [AiInterpretationController.js](file:///t:/Phongthuy/backend/src/controllers/AiInterpretationController.js) để gỡ bỏ regex parse `timing`/`risk` và gán cứng giá trị rỗng (`""`) khi tạo lưu trữ `Message` vào MongoDB, giải quyết tận gốc từ phía máy chủ.
+
+### Backend (Dọn dẹp code & Cấu hình)
+- **Gỡ bỏ Firebase Admin SDK & SMS routes:**
+  - Xóa file cấu hình khởi chạy `src/config/firebase.js`.
+  - Xóa câu lệnh `require('./config/firebase')` trong [index.js](file:///t:/Phongthuy/backend/src/index.js).
+  - Xóa các endpoint `/send-verification-sms` và `/verify-phone` trong [auth.js](file:///t:/Phongthuy/backend/src/routes/auth.js).
+  - Xóa bỏ các hàm controller `sendVerificationSms`, `verifyPhone` và gỡ bỏ `firebase-admin` import khỏi [AuthController.js](file:///t:/Phongthuy/backend/src/controllers/AuthController.js).
+  - Xóa các trường schema `isPhoneVerified`, `phoneOtp`, `phoneOtpExpires` trong model [User.js](file:///t:/Phongthuy/backend/src/models/User.js).
+  - Gỡ bỏ các biến cấu hình môi trường Firebase khỏi [`.env`](file:///t:/Phongthuy/backend/.env).
+
+### Frontend (Dọn dẹp giao diện & Client SDK)
+- **Gỡ bỏ UI xác thực số điện thoại & Client Firebase:**
+  - Xóa card hiển thị "Trạng thái SĐT", popup nhập OTP và các state/handlers liên quan khỏi [ProfileBoard.jsx](file:///t:/Phongthuy/frontend/src/components/ProfileBoard.jsx). Khôi phục cấu hình 2 cột hiển thị (Credits, Trạng thái Email).
+  - Xóa các API wrapper `sendVerificationSms` và `verifyPhone` trong [api.js](file:///t:/Phongthuy/frontend/src/services/api.js).
+  - Xóa file khởi tạo Firebase Client `src/config/firebase.js`.
+  - Gỡ bỏ các biến cấu hình môi trường Firebase Client khỏi [`.env`](file:///t:/Phongthuy/frontend/.env) và [`.env.production`](file:///t:/Phongthuy/frontend/.env.production).
+
+## 📅 Phiên bản: Tối ưu hóa Chat AI, Phân trừ Credits & Xác thực Email OTP (11/07/2026)
+
+### Backend (Bảo mật & Tích hợp Firebase Admin SDK)
+- **Tích hợp Firebase Phone Authentication:**
+  - Cài đặt dependency `firebase-admin`.
+  - Tạo file cấu hình khởi chạy `src/config/firebase.js` nạp key từ `firebase-service-account.json` và import vào `src/index.js` khi server startup.
+  - Viết lại hàm `verifyPhone` trong [AuthController.js](file:///t:/Phongthuy/backend/src/controllers/AuthController.js). Nhận `idToken` từ Client gửi lên, sử dụng `admin.auth().verifyIdToken` để giải mã và xác thực. Sau khi chuẩn hóa so khớp số điện thoại thành công, tiến hành cập nhật trạng thái xác thực và cộng thưởng **+2 credits** cho tài khoản.
+
+### Frontend (Giao diện & Tích hợp Firebase Web SDK)
+- **Tích hợp Firebase Phone Auth Client:**
+  - Cài đặt dependency `firebase`.
+  - Tạo file cấu hình và khởi tạo Firebase App & Auth tại `src/config/firebase.js` sử dụng các biến cấu hình từ môi trường Vite.
+  - Cập nhật API helper `verifyPhone(idToken)` trong [api.js](file:///t:/Phongthuy/frontend/src/services/api.js) để đẩy ID Token thay cho mã OTP thô.
+  - Nâng cấp [ProfileBoard.jsx](file:///t:/Phongthuy/frontend/src/components/ProfileBoard.jsx): Tích hợp Google reCAPTCHA ẩn (`recaptcha-container` div), gọi hàm `signInWithPhoneNumber` gửi SMS OTP thật qua Google, và tiến hành lấy `idToken` bằng phương thức `.getIdToken()` sau khi người dùng nhập đúng OTP để gửi lên backend.
+  - Bổ sung các cấu hình Firebase tương ứng vào các file môi trường `.env` và `.env.production`.
+
+### Backend (Bảo mật & Đồng bộ hóa phản hồi API & Sửa đổi Ziwei prompt cũ)
+- **Đồng bộ hóa isEmailVerified & isPhoneVerified khi Cập nhật hồ sơ:** Cập nhật hàm `updateProfile` trong [AuthController.js](file:///t:/Phongthuy/backend/src/controllers/AuthController.js) để luôn trả về `isEmailVerified` và `isPhoneVerified` trong payload `user` của phản hồi JSON. Việc này giải quyết lỗi frontend bị mất trạng thái xác thực (hiển thị chưa xác thực) sau khi lưu thay đổi thông tin cá nhân.
+- **Sửa đổi giải luận Tử Vi:** Sửa lại `buildFollowUpPrompt` trong [ZiweiPrompts.js](file:///t:/Phongthuy/backend/src/services/ZiweiPrompts.js) và logic parse của `chatZiwei` trong [AiInterpretationController.js](file:///t:/Phongthuy/backend/src/controllers/AiInterpretationController.js) để loại bỏ hoàn toàn hai thuộc tính `timing` (Ứng kỳ) và `risk` (Cảnh báo), chỉ tập trung trả về câu trả lời trực tiếp `answer` cho đương số dưới dạng Markdown gạch đầu dòng rõ ràng.
+
+### Frontend (Giao diện & Cải tiến Trải nghiệm người dùng)
+- **Tự động cuộn đến cảnh báo lỗi (Smooth Scrolling):** Tích hợp hai hiệu ứng `useEffect` tự động cuộn màn hình (`scrollIntoView` mượt mà) đến vị trí của banner thông báo lỗi/thành công khi người dùng bấm Lưu hồ sơ hoặc Đổi mật khẩu trong [ProfileBoard.jsx](file:///t:/Phongthuy/frontend/src/components/ProfileBoard.jsx).
+- **Tối ưu hiển thị lỗi xác thực SĐT/Email:** 
+  - Khắc phục lỗi ẩn thông báo khi bấm nút "Xác thực" bị lỗi (do form OTP bị đóng làm ẩn luôn dòng lỗi). Đã đưa phần hiển thị `phoneVerificationError` và `verificationError` ra bên ngoài form OTP để luôn hiển thị trực quan ngay dưới thẻ trạng thái.
+  - Bổ sung validate định dạng sđt ngay trước khi gọi API OTP trong `handleSendPhoneOtp`.
+- **Đồng bộ hóa hiển thị Chat Tử Vi:** Cập nhật [AiChatWidget.jsx](file:///t:/Phongthuy/frontend/src/components/AiChatWidget.jsx) để loại bỏ hoàn toàn thẻ Ứng kỳ/Thời điểm cát lợi và Cảnh báo/Hạn vận cho phân hệ Tử Vi (chỉ giữ lại cho Kinh Dịch).
+
+### Backend (Mô hình & Bảo mật & Tối ưu hóa Prompt cũ)
+- **Cập nhật Database Schemas & API SMS:**
+  - Thêm các trường `isPhoneVerified`, `phoneOtp`, và `phoneOtpExpires` vào [User.js](file:///t:/Phongthuy/backend/src/models/User.js) và tài liệu [DATABASE.md](file:///t:/Phongthuy/docs/DATABASE.md).
+  - Đăng ký route và lập hàm `sendVerificationSms` và `verifyPhone` trong [auth.js](file:///t:/Phongthuy/backend/src/routes/auth.js) và [AuthController.js](file:///t:/Phongthuy/backend/src/controllers/AuthController.js). Hỗ trợ sinh OTP 6 số ngẫu nhiên, ghi logs mô phỏng dịch vụ SMS ra `app.log` và tặng thưởng **+2 credits** sau khi xác thực thành công.
+- **Ràng buộc validate 10 chữ số cho SĐT:** Bổ sung regex `/^0[0-9]{9}$/` kiểm tra số điện thoại Việt Nam hợp lệ (đúng 10 số bắt đầu bằng số 0) trong phương thức cập nhật hồ sơ `updateProfile`.
+- **Đồng bộ hóa Prompt Tử Vi:** Cập nhật `buildFollowUpPrompt` trong [ZiweiPrompts.js](file:///t:/Phongthuy/backend/src/services/ZiweiPrompts.js) để yêu cầu AI trả về hai mảng `dos` và `donts` đồng bộ với Bát Tự và Hôn Nhân thay vì `timing`/`risk` của Kinh Dịch.
+
+### Frontend (Giao diện & Cải tiến Trải nghiệm người dùng)
+- **Tối ưu hóa định dạng Markdown Gạch đầu dòng:**
+  - Định nghĩa các quy tắc CSS `.markdown-content` tùy chỉnh cho các thẻ `ul`, `ol`, `li`, `p` và các thẻ headings `h1`-`h4` trong [index.css](file:///t:/Phongthuy/frontend/src/index.css) để giải quyết triệt để vấn đề Reset CSS của Tailwind làm mất gạch đầu dòng.
+  - Thay thế toàn bộ class `prose` bằng `markdown-content` trong [AiChatWidget.jsx](file:///t:/Phongthuy/frontend/src/components/AiChatWidget.jsx) giúp phần luận giải chat hiển thị gạch đầu dòng, thụt lề cực kỳ đẹp và khoa học.
+- **Loại bỏ nhãn tiếng Anh "(Dos)" và "(Dont's)":** Việt hóa hoàn toàn các tiêu đề thẻ thành "Khuyên nên làm" và "Tránh làm".
+- **Xác thực số điện thoại OTP UI:** 
+  - Nâng cấp phần Status Cards trong [ProfileBoard.jsx](file:///t:/Phongthuy/frontend/src/components/ProfileBoard.jsx) thành 3 cột hiển thị: Credits, Trạng thái Email và Trạng thái Điện thoại.
+  - Tích hợp OTP popup xác thực số điện thoại và validate format 10 số ngay tại client.
+- **Ràng buộc ngày tháng trên Lịch chọn (minDate & maxDate):**
+  - Cập nhật signature và thuật toán disable ngày của component `CustomDatePicker` cục bộ trong cả [HistoryBoard.jsx](file:///t:/Phongthuy/frontend/src/components/HistoryBoard.jsx) và [DateSelectionBoard.jsx](file:///t:/Phongthuy/frontend/src/components/DateSelectionBoard.jsx).
+  - Đồng bộ truyền `maxDate={endDate}` cho picker "Từ ngày" và `minDate={startDate}` cho picker "Đến ngày", giúp khóa (disable) các ngày không hợp lệ trên giao diện một cách trực quan.
+- **Cập nhật Database Schemas:**
+  - Cập nhật [User.js](file:///t:/Phongthuy/backend/src/models/User.js) thêm các trường `isEmailVerified` (mặc định `false`), `emailOtp` và `emailOtpExpires` để phục vụ chức năng xác thực email nhận quà tặng.
+  - Cập nhật [Message.js](file:///t:/Phongthuy/backend/src/models/Message.js) thêm trường `dos` và `donts` vào `structuredContent` để hỗ trợ lưu trữ các khuyến nghị hành vi riêng biệt cho Bát Tự, Tử Vi và Hôn Nhân.
+- **Middleware Phân trừ Credits Chat (`chatCreditCheck`):**
+  - Viết mới middleware [chatCreditCheck.js](file:///t:/Phongthuy/backend/src/middleware/chatCreditCheck.js) thực hiện trừ nguyên tử `-0.5` credits trong cơ sở dữ liệu cho mỗi tin nhắn chat của người dùng. Chặn truy cập nếu số dư `< 0.5` credits (trừ Admin/Co-Admin).
+  - Tích hợp middleware mới này thay thế `optionalAuth` trên tất cả các route chat follow-up trong [history.js](file:///t:/Phongthuy/backend/src/routes/history.js), [ai.js](file:///t:/Phongthuy/backend/src/routes/ai.js), và [ziwei.js](file:///t:/Phongthuy/backend/src/routes/ziwei.js).
+- **API Xác thực Email qua OTP:**
+  - Đăng ký route mới `/auth/send-verification-email` và `/auth/verify-email` trong [auth.js](file:///t:/Phongthuy/backend/src/routes/auth.js).
+  - Viết 2 hàm điều khiển `sendVerificationEmail` và `verifyEmail` trong [AuthController.js](file:///t:/Phongthuy/backend/src/controllers/AuthController.js): sinh OTP 6 số ngẫu nhiên lưu trong 10 phút, gửi email HTML qua Nodemailer và cộng thưởng **+2 credits** sau khi xác thực OTP thành công.
+- **Riêng biệt hóa Prompt chat AI:**
+  - Sửa đổi 4 tệp prompt [IChingPrompts.js](file:///t:/Phongthuy/backend/src/services/IChingPrompts.js), [BaziPrompts.js](file:///t:/Phongthuy/backend/src/services/BaziPrompts.js), [ZiweiPrompts.js](file:///t:/Phongthuy/backend/src/services/ZiweiPrompts.js) và [MarriagePrompts.js](file:///t:/Phongthuy/backend/src/services/MarriagePrompts.js).
+  - Bắt buộc AI trả về JSON có chứa `dos` (Nên làm) và `donts` (Tránh làm) cho Bát Tự, Tử Vi, Hôn Nhân, thay thế cho `timing`/`risk` của Kinh Dịch.
+  - Cảnh báo AI đi thẳng vào câu hỏi thắc mắc mới, trình bày gạch đầu dòng rõ ràng bằng Markdown và tuyệt đối không chào hỏi dài dòng hay lặp lại các lý thuyết cũ của quẻ/lá số.
+  - Cập nhật hàm chat tương ứng trong [AiInterpretationController.js](file:///t:/Phongthuy/backend/src/controllers/AiInterpretationController.js) để parse và lưu các trường mới này.
+
+### Frontend (Giao diện & Trải nghiệm Người dùng)
+- **Đồng bộ hóa User Profile & Credits khi tải trang:**
+  - Cập nhật [AuthContext.jsx](file:///t:/Phongthuy/frontend/src/context/AuthContext.jsx) để khi ứng dụng khởi chạy hoặc tải lại trang, nếu có token hợp lệ, client sẽ tự động gửi request đến `/api/auth/me` để fetch lại thông tin hồ sơ và số dư credit mới nhất từ cơ sở dữ liệu. Việc này giải quyết triệt để vấn đề lệch credits hiển thị (ví dụ: hiển thị 79 nhưng thực tế trong DB là 80, khiến khi cộng 2 credits do xác thực email xong thì nhảy lên 82).
+- **Tích hợp API và Hiển thị Credits:**
+  - Khai báo 2 hàm gọi API xác thực mới trong [api.js](file:///t:/Phongthuy/frontend/src/services/api.js).
+  - Hiển thị số dư credit hiện tại kèm biểu tượng 🪙 nổi bật trên Header chính của [UserApp.jsx](file:///t:/Phongthuy/frontend/src/components/UserApp.jsx).
+- **Sửa lỗi ReferenceError `useContext`:** Bổ sung lại dòng import `React` và các React hooks (`useState`, `useEffect`, `useRef`, `useContext`) bị vô tình xóa mất ở đầu tệp [AiChatWidget.jsx](file:///t:/Phongthuy/frontend/src/components/AiChatWidget.jsx).
+- **Nút Thu phóng & Hiển thị Credit ở Khung chat:**
+  - Cập nhật [AiChatWidget.jsx](file:///t:/Phongthuy/frontend/src/components/AiChatWidget.jsx) thêm nút mở rộng/thu nhỏ (`Maximize2` / `Minimize2`) giúp thay đổi kích thước khung chat linh hoạt từ `380px` thành `680px` phục vụ đương số đọc luận giải học thuật dễ dàng hơn.
+  - Hiển thị số dư credit cùng dòng cảnh báo trừ 🪙 ngay dưới tiêu đề của header khung chat.
+  - Tự động trừ cục bộ `-0.5` credits trên state sau mỗi câu chat thành công để cập nhật giao diện ngay lập tức.
+  - Render các block thẻ "Nên làm (Dos)" và "Tránh làm (Dont's)" đẹp mắt, có bo góc mềm mại, màu sắc HSL hài hòa cho 3 phân hệ Bát Tự, Tử Vi, Hôn Nhân.
+- **OTP Verification UI trong Profile:**
+  - Thiết kế thêm thẻ hiển thị thông tin credit và trạng thái xác thực email trong [ProfileBoard.jsx](file:///t:/Phongthuy/frontend/src/components/ProfileBoard.jsx).
+  - Tích hợp giao diện nhập mã OTP gồm 6 chữ số có hiệu ứng chuyển động mượt mà, hỗ trợ nút "Xác thực" gửi mã OTP qua email và xác nhận mã để nhận thưởng credits tức thời.
+  - Tối ưu hóa hiển thị tức thời: Thay đổi trạng thái hiển thị khung nhập OTP sang trạng thái `true` ngay lập tức khi nhấn nút "Xác thực" (cùng thông báo đang gửi email), cải thiện đáng kể tốc độ phản hồi cảm nhận (perceived performance) của giao diện người dùng.
+
+---
+
+## 📅 Phiên bản: Sửa lỗi Phân quyền Trò chuyện AI (AiChatWidget) (11/07/2026)
+
+### Frontend (Giao diện & Bảo mật Kết nối)
+- **Truyền token Authorization trong Trò chuyện AI:**
+  - Cập nhật [AiChatWidget.jsx](file:///t:/Phongthuy/frontend/src/components/AiChatWidget.jsx) sử dụng hook `useContext` lấy `AuthContext` để truy xuất mã token JWT của người dùng hiện tại (lấy từ `AuthContext` hoặc làm fallback từ `localStorage` nếu cần).
+  - Đính kèm token JWT vào headers (`Authorization: Bearer <token>`) của request `fetch` gọi API stream chat (`/chat`). Việc này giúp backend (thông qua middleware `checkRecordOwnership`) xác minh chính xác danh tính của người dùng sở hữu bản ghi giải đoán tương ứng trước khi cho phép bắt đầu phiên trò chuyện follow-up, sửa triệt để lỗi "Bạn không có quyền truy cập bản ghi này." (mã lỗi `403 Forbidden`).
+- **Đồng bộ hóa các API Stream giải đoán:**
+  - Cập nhật [MarriageBoard.jsx](file:///t:/Phongthuy/frontend/src/components/MarriageBoard.jsx) kiểm tra sự tồn tại của `token` trước khi truyền header `Authorization` vào request giải đoán của phân hệ Hôn Nhân (tương tự Bazi, IChing, Ziwei). Điều này tránh lỗi backend trả về `401 Unauthorized` đối với khách vãng lai (guest) do gửi token dạng `'Bearer null'` / `'Bearer undefined'`.
+
+---
+
 ## 📅 Phiên bản: Bảo mật Quyền riêng tư, Hủy Token khi Đăng xuất & Bộ lọc Thời gian Lịch sử (10/07/2026)
 
 ### Backend (Bảo mật & Quyền riêng tư)

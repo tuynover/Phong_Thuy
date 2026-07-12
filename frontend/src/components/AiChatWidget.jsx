@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import { 
     MessageCircle, X, Send, Clock, AlertTriangle, Sparkles, 
-    User, AlertCircle, RefreshCw 
+    User, AlertCircle, RefreshCw, Maximize2, Minimize2 
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { getChatStreamUrl, getHexagramChatMessages, getBaziChatMessages, getTuViChatMessages, getMarriageChatMessages } from '../services/api';
+import { AuthContext } from '../context/AuthContext';
 
 /**
  * Robust incremental JSON parser to extract the "answer" field in real-time as it streams.
@@ -82,7 +83,7 @@ function robustParseJSON(text) {
                     try {
                         return JSON.parse(jsonContent);
                     } catch (e3) {
-                        const answerMatch = jsonContent.match(/"answer"\s*:\s*"([\s\S]*?)"\s*,\s*"timing"/);
+                        const answerMatch = jsonContent.match(/"answer"\s*:\s*"([\s\S]*?)"/);
                         const answer = answerMatch ? answerMatch[1] : "";
                         
                         const timingMatch = jsonContent.match(/"timing"\s*:\s*(?:"([\s\S]*?)"|null)/);
@@ -90,12 +91,18 @@ function robustParseJSON(text) {
                         
                         const riskMatch = jsonContent.match(/"risk"\s*:\s*(?:"([\s\S]*?)"|null)/);
                         const risk = riskMatch ? (riskMatch[1] || null) : null;
+
+                        const dosMatch = jsonContent.match(/"dos"\s*:\s*(?:"([\s\S]*?)"|null)/);
+                        const dos = dosMatch ? (dosMatch[1] || null) : null;
+
+                        const dontsMatch = jsonContent.match(/"donts"\s*:\s*(?:"([\s\S]*?)"|null)/);
+                        const donts = dontsMatch ? (dontsMatch[1] || null) : null;
                         
                         const confidenceMatch = jsonContent.match(/"confidence"\s*:\s*([0-9.]+)/);
                         const confidence = confidenceMatch ? parseFloat(confidenceMatch[1]) : 0.8;
                         
                         if (answer) {
-                            return { answer, timing, risk, confidence };
+                            return { answer, timing, risk, dos, donts, confidence };
                         }
                     }
                 }
@@ -108,7 +115,10 @@ function robustParseJSON(text) {
 }
 
 const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpen: setExternalIsOpen }) => {
+    const auth = useContext(AuthContext);
+    const token = auth ? auth.token : localStorage.getItem('token');
     const [localIsOpen, setLocalIsOpen] = useState(false);
+    const [isMaximized, setIsMaximized] = useState(false);
     const isOpen = externalIsOpen !== undefined ? externalIsOpen : localIsOpen;
     const setIsOpen = setExternalIsOpen !== undefined ? setExternalIsOpen : setLocalIsOpen;
     const isControlled = externalIsOpen !== undefined;
@@ -263,11 +273,15 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
 
         try {
             const url = getChatStreamUrl(type, recordId);
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
             const response = await fetch(url, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers,
                 body: JSON.stringify({ question, userId })
             });
 
@@ -341,6 +355,15 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
             setMessages(prev => [...prev, aiMsg]);
             setStreamText('');
 
+            // Debits local user credits by 0.5 to keep UI in sync
+            if (auth && auth.user && auth.user.role !== 'admin' && auth.user.role !== 'co-admin') {
+                const updatedUser = { ...auth.user, credits: Math.max(0, (auth.user.credits || 0) - 0.5) };
+                if (auth.setUser) {
+                    auth.setUser(updatedUser);
+                    localStorage.setItem('user', JSON.stringify(updatedUser));
+                }
+            }
+
         } catch (err) {
             console.error("Chat Stream Error:", err);
             setError(err.message || 'Lỗi xảy ra trong quá trình truyền dữ liệu.');
@@ -364,6 +387,8 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
                     answer: parsedObj.answer || "",
                     timing: parsedObj.timing || null,
                     risk: parsedObj.risk || null,
+                    dos: parsedObj.dos || null,
+                    donts: parsedObj.donts || null,
                     confidence: parsedObj.confidence !== undefined ? parsedObj.confidence : null
                 };
             }
@@ -376,6 +401,8 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
                     answer: msg.structuredContent.answer,
                     timing: msg.structuredContent.timing,
                     risk: msg.structuredContent.risk,
+                    dos: msg.structuredContent.dos,
+                    donts: msg.structuredContent.donts,
                     confidence: msg.structuredContent.confidence
                 };
             }
@@ -387,36 +414,62 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
                 answer: msg.content || "",
                 timing: null,
                 risk: null,
+                dos: null,
+                donts: null,
                 confidence: null
             };
         }
 
-        const confidencePercent = sc.confidence ? Math.round(sc.confidence * 100) : null;
+        const isBaziOrMarriage = isBazi || isMarriage || isTuVi;
 
         return (
             <div className="space-y-3 text-neutral-800 text-sm">
-                <div className="prose max-w-none prose-sm leading-relaxed">
+                <div className="markdown-content text-neutral-800 text-sm leading-relaxed">
                     <ReactMarkdown>{sc.answer}</ReactMarkdown>
                 </div>
 
-                {/* Timing Card */}
-                {sc.timing && (
+                {/* For IChing & Ziwei: Render Timing & Risk Cards */}
+                {!isBaziOrMarriage && sc.timing && (
                     <div className="flex gap-2.5 p-3 rounded-xl bg-teal-50/70 border border-teal-100 animate-in fade-in slide-in-from-bottom-2 duration-300">
                         <Clock size={16} className="text-teal-700 shrink-0 mt-0.5" />
                         <div>
                             <div className="text-[11px] font-bold text-teal-800 uppercase tracking-wider">Ứng kỳ / Thời điểm cát lợi</div>
-                            <div className="text-xs text-teal-900 font-medium mt-0.5">{sc.timing}</div>
+                            <div className="text-xs text-teal-900 font-medium mt-0.5 whitespace-pre-line leading-relaxed markdown-content">{sc.timing}</div>
                         </div>
                     </div>
                 )}
 
-                {/* Risk Card */}
-                {sc.risk && (
+                {!isBaziOrMarriage && sc.risk && (
                     <div className="flex gap-2.5 p-3 rounded-xl bg-orange-50/70 border border-orange-100 animate-in fade-in slide-in-from-bottom-2 duration-300">
                         <AlertTriangle size={16} className="text-orange-700 shrink-0 mt-0.5" />
                         <div>
                             <div className="text-[11px] font-bold text-orange-800 uppercase tracking-wider">Cảnh báo / Điểm đề phòng</div>
-                            <div className="text-xs text-orange-900 font-medium mt-0.5">{sc.risk}</div>
+                            <div className="text-xs text-orange-900 font-medium mt-0.5 whitespace-pre-line leading-relaxed markdown-content">{sc.risk}</div>
+                        </div>
+                    </div>
+                )}
+
+                {/* For Bazi, Marriage: Render Dos & Donts Cards */}
+                {isBaziOrMarriage && sc.dos && (
+                    <div className="flex gap-2.5 p-3 rounded-xl bg-emerald-50/70 border border-emerald-100 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        <Sparkles size={16} className="text-emerald-700 shrink-0 mt-0.5" />
+                        <div>
+                            <div className="text-[11px] font-bold text-emerald-800 uppercase tracking-wider">Khuyên nên làm</div>
+                            <div className="text-xs text-emerald-900 font-medium mt-0.5 whitespace-pre-line leading-relaxed markdown-content">
+                                <ReactMarkdown>{sc.dos}</ReactMarkdown>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {isBaziOrMarriage && sc.donts && (
+                    <div className="flex gap-2.5 p-3 rounded-xl bg-rose-50/70 border border-rose-100 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        <AlertTriangle size={16} className="text-rose-700 shrink-0 mt-0.5" />
+                        <div>
+                            <div className="text-[11px] font-bold text-rose-800 uppercase tracking-wider">Tránh làm</div>
+                            <div className="text-xs text-rose-900 font-medium mt-0.5 whitespace-pre-line leading-relaxed markdown-content">
+                                <ReactMarkdown>{sc.donts}</ReactMarkdown>
+                            </div>
                         </div>
                     </div>
                 )}
@@ -451,7 +504,11 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
             {/* CHAT BOX CONTAINER */}
             {isOpen && (
                 <div 
-                    className={`fixed bottom-4 sm:bottom-24 right-4 left-4 sm:left-auto sm:right-6 z-40 w-auto sm:w-[380px] h-[500px] sm:h-[520px] max-h-[85vh] rounded-3xl shadow-2xl border border-gray-100 bg-white flex flex-col overflow-hidden animate-in slide-in-from-bottom-12 fade-in duration-300`}
+                    className={`fixed bottom-4 sm:bottom-24 right-4 left-4 sm:left-auto sm:right-6 z-40 ${
+                        isMaximized 
+                            ? 'sm:w-[680px] h-[580px] sm:h-[620px]' 
+                            : 'sm:w-[380px] h-[500px] sm:h-[520px]'
+                    } max-h-[85vh] rounded-3xl shadow-2xl border border-gray-100 bg-white flex flex-col overflow-hidden transition-all duration-300 animate-in slide-in-from-bottom-12 fade-in`}
                 >
                     {/* Header */}
                     <div className={`p-4 flex justify-between items-center ${themeHeader}`}>
@@ -461,15 +518,27 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
                             </div>
                             <div>
                                 <h4 className="font-serif font-bold text-sm">Phong Thủy Luận Giải</h4>
-                                <p className="text-[10px] text-white/70">Tham vấn sâu về Quẻ Dịch & Lá số</p>
+                                <p className="text-[10px] text-white/70">
+                                    {auth && auth.user ? `Còn ${auth.user.credits || 0} credits (Trừ 0.5/câu)` : 'Tham vấn sâu về Quẻ & Lá số'}
+                                </p>
                             </div>
                         </div>
-                        <button 
-                            onClick={() => setIsOpen(false)}
-                            className="p-1.5 rounded-full hover:bg-white/15 text-white/80 hover:text-white transition-colors"
-                        >
-                            <X size={18} />
-                        </button>
+                        <div className="flex items-center gap-1.5">
+                            <button
+                                type="button"
+                                onClick={() => setIsMaximized(!isMaximized)}
+                                className="p-1.5 rounded-full hover:bg-white/15 text-white/80 hover:text-white transition-colors"
+                                title={isMaximized ? "Thu nhỏ" : "Phóng to"}
+                            >
+                                {isMaximized ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+                            </button>
+                            <button 
+                                onClick={() => setIsOpen(false)}
+                                className="p-1.5 rounded-full hover:bg-white/15 text-white/80 hover:text-white transition-colors"
+                            >
+                                <X size={18} />
+                            </button>
+                        </div>
                     </div>
 
                     {/* Messages Panel */}
@@ -542,7 +611,7 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
                                 </div>
                                 <div className="p-3.5 rounded-2xl bg-white border border-gray-100 shadow-sm rounded-tl-none space-y-2">
                                     {streamAnswer ? (
-                                        <div className="prose max-w-none prose-sm text-sm text-neutral-800 leading-relaxed">
+                                        <div className="markdown-content text-sm text-neutral-800 leading-relaxed">
                                             <ReactMarkdown>{streamAnswer}</ReactMarkdown>
                                         </div>
                                     ) : (

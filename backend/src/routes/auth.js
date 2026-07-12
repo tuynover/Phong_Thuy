@@ -20,6 +20,10 @@ router.put('/profile', AuthController.updateProfile);
 router.put('/change-password', auth, AuthController.changePassword);
 router.post('/logout', auth, AuthController.logout);
 router.post('/appeal', AuthController.submitAppeal);
+router.post('/send-verification-email', auth, AuthController.sendVerificationEmail);
+router.post('/verify-email', auth, AuthController.verifyEmail);
+router.post('/forgot-password', authLimiter, AuthController.forgotPassword);
+router.post('/reset-password', authLimiter, AuthController.resetPassword);
 
 const sseService = require('../services/SseService');
 
@@ -34,7 +38,8 @@ router.get('/me', auth, (req, res) => {
     role: req.dbUser.role,
     credits: req.dbUser.credits,
     status: req.dbUser.status,
-    isDeleted: req.dbUser.isDeleted
+    isDeleted: req.dbUser.isDeleted,
+    isEmailVerified: req.dbUser.isEmailVerified || false
   });
 });
 

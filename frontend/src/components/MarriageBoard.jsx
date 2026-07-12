@@ -292,12 +292,15 @@ const MarriageBoard = ({ data, onUpdateData, onRequireLogin }) => {
         let currentText = "";
         try {
             const streamUrl = getInterpretationStreamUrl('marriage', resolvedRecordId);
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
             const response = await fetch(streamUrl, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
+                headers,
                 body: JSON.stringify({ userId: user?.id || user?._id || 'guest' }),
                 signal: controller.signal
             });

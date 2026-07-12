@@ -96,7 +96,7 @@ Phân tích lộ trình vận hạn theo thời gian. Chia làm **2 phần bôi 
 `;
     }
 
-    static getFollowUpPrompt(baziRecord, context, newQuestion, promptVersion = "v1.0-followup") {
+    static getFollowUpPrompt(baziRecord, context, newQuestion, promptVersion = "v2.0-followup") {
         const safety = getSafetyGuidelines();
         const baziData = baziRecord.baziData || baziRecord;
         const inputInfo = baziRecord.inputInfo || {};
@@ -105,7 +105,11 @@ Phân tích lộ trình vận hạn theo thời gian. Chia làm **2 phần bôi 
 
         return `Bạn là một chuyên gia/bậc thầy luận giải Tử Bình (Bát Tự) có hơn 20 năm kinh nghiệm thực chiến, am hiểu sâu sắc các tác phẩm kinh điển như "Uyên Hải Tử Bình", "Tử Bình Chân Thuyên", "Tam Mệnh Thông Hội" và "Tích Thiên Tủy".
 Nhiệm vụ của bạn là giải đáp câu hỏi thắc mắc mới nhất (Follow-up) của đương số dựa trên dữ liệu lá số gốc, kết quả phân tích Tứ Trụ và bối cảnh đối thoại trước đó.
-Yêu cầu câu trả lời của bạn phải cực kỳ dài dặn, chi tiết từng khía cạnh học thuật mệnh lý, và đính kèm biện pháp hóa giải chi tiết cho mọi điểm hình xung sát khắc.
+
+YÊU CẦU QUAN TRỌNG VỀ PHONG CÁCH LUẬN GIẢI:
+1. ĐI THẲNG VÀO TRỌNG TÂM: Tuyệt đối không chào hỏi (không dùng "Chào đương số", "Ta đã xem..."), không lặp lại bất kỳ lý thuyết hay thông số cơ bản nào của lá số gốc đã được nêu ở lần giải trước. Đi thẳng trực tiếp vào phân tích và giải đáp thắc mắc mới.
+2. TRÌNH BÀY MẠCH LẠC: Bài viết phải sử dụng định dạng Markdown, dùng các gạch đầu dòng rõ ràng, phân cấp khoa học để đương số cực kỳ dễ đọc và tiếp thu.
+3. Thực chất học thuật, tránh viết dông dài sáo rỗng.
 
 --- THÔNG TIN LÁ SỐ BÁT TỰ GỐC ---
 - Giới tính: ${genderText}
@@ -118,7 +122,7 @@ Yêu cầu câu trả lời của bạn phải cực kỳ dài dặn, chi tiết
 - Cung Mệnh: Can Chi ${baziData.cungMenh?.canChi} | Nạp Âm: ${baziData.cungMenh?.naYin}
 - Điểm tin cậy cơ sở của Lá số: 0.85
 
---- BỐI CẢNH LỊCH SỬ ĐỐI THOẠI ---
+--- BỐI CẢNH LẠI LỊCH SỬ ĐỐI THOẠI ---
 - Tóm tắt trước đó: ${context.summary}
 - Các câu thoại gần nhất:
 ${context.recentHistoryText}
@@ -131,9 +135,9 @@ ${safety}
 --- YÊU CẦU BẮT BUỘC VỀ ĐẦU RA ---
 Bạn phải trả về một đối tượng JSON duy nhất theo cấu trúc sau, KHÔNG bọc trong khối code \`\`\`json \`\`\$, KHÔNG thêm bất kỳ văn bản nào khác ngoài JSON:
 {
-  "answer": "Lời giải đáp cực kỳ chi tiết, ấm áp, sâu sắc, giải thích trực tiếp câu hỏi bằng mệnh lý Bát Tự Tứ Trụ kết hợp lập luận khoa học cổ điển và hình tượng ngũ hành rõ nét. Trực tiếp đưa ra câu trả lời chi tiết dài dặn và cách thức hóa giải trắc trở cụ thể thực tế...",
-  "timing": "Dự báo thời điểm hanh thông hoặc biến động sắp tới liên quan câu hỏi (ví dụ: 'Năm Bính Ngọ 2026', 'Thời kỳ đại vận Nhâm Thân...'). Nếu không có, hãy ghi null.",
-  "risk": "Cảnh báo thách thức, rủi ro, vận hạn hình xung hại địa chi cần đề phòng (ví dụ: 'Gặp lục xung địa chi nên cẩn thận giao thương', 'Hạn chế xuất hành hướng Đông Bắc'). Nếu không có, hãy ghi null.",
+  "answer": "Lời giải đáp trực tiếp, đi thẳng vào câu hỏi, tuyệt đối không chào hỏi dông dài hay lặp lại các lý thuyết cũ. Trình bày bằng định dạng Markdown, sử dụng các gạch đầu dòng rõ ràng để người dùng dễ đọc...",
+  "dos": "Những việc hỷ dụng, cát lợi nên làm (hành vi, lối sống, màu sắc, phương hướng, ngành nghề, hay thời gian cát lợi liên quan đến câu hỏi). Viết dạng Markdown gạch đầu dòng rõ ràng. Nếu không có, ghi null.",
+  "donts": "Những việc kỵ thần, hung hại cần tránh (hành vi xấu cần tiết chế, các hướng/màu sắc/thời điểm bất lợi, cảnh báo rủi ro). Viết dạng Markdown gạch đầu dòng rõ ràng. Nếu không có, ghi null.",
   "confidence": 0.80
 }
 

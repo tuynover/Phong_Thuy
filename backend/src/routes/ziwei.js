@@ -7,6 +7,7 @@ const creditCheck = require('../middleware/creditCheck');
 const optionalAuth = require('../middleware/optionalAuth');
 const checkRecordOwnership = require('../middleware/checkRecordOwnership');
 const checkHistoryOwnership = require('../middleware/checkHistoryOwnership');
+const chatCreditCheck = require('../middleware/chatCreditCheck');
 const router = express.Router();
 
 // Giới hạn 30 lượt lập mệnh bàn Tử Vi trong 15 phút
@@ -40,6 +41,6 @@ router.put('/:id/rate', optionalAuth, checkRecordOwnership, HistoryController.ra
 
 // 7. Trò chuyện và hỏi đáp (SSE Streaming & paginated scrolling messages)
 router.get('/:id/messages', optionalAuth, checkRecordOwnership, HistoryController.getZiweiChatMessages);
-router.post('/:id/chat', optionalAuth, checkRecordOwnership, aiLimiter, AiInterpretationController.chatZiwei);
+router.post('/:id/chat', chatCreditCheck, checkRecordOwnership, aiLimiter, AiInterpretationController.chatZiwei);
 
 module.exports = router;

@@ -32,7 +32,23 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
       }
     }
-    setLoading(false);
+    
+    // Fetch latest user data from server to keep state in sync (e.g. credits, verification status)
+    if (token) {
+      axios.get(`${API_URL}/auth/me`)
+        .then(res => {
+          setUser(res.data);
+          localStorage.setItem('user', JSON.stringify(res.data));
+        })
+        .catch(err => {
+          console.error('[AuthContext] Failed to fetch latest user profile:', err);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else {
+      setLoading(false);
+    }
   }, [token]);
 
   // Axios response interceptor to catch 401/403 and force logout

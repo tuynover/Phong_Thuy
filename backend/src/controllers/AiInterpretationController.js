@@ -925,7 +925,7 @@ class AiInterpretationController {
 
             // 9. Lưu trữ AI message dạng structured JSON
             const cleanedContent = AiService.cleanMarkdown(accumulatedText);
-            let parsed = { answer: "", timing: null, risk: null, confidence: 0.80 };
+            let parsed = { answer: "", dos: "", donts: "", confidence: 0.80 };
             
             try {
                 parsed = JSON.parse(cleanedContent);
@@ -938,20 +938,20 @@ class AiInterpretationController {
                         });
                         parsed = JSON.parse(escaped);
                     } catch (e2) {
-                        const answerMatch = match[0].match(/"answer"\s*:\s*"([\s\S]*?)"\s*,\s*"timing"/);
+                        const answerMatch = match[0].match(/"answer"\s*:\s*"([\s\S]*?)"/);
                         const answer = answerMatch ? answerMatch[1] : "";
                         
-                        const timingMatch = match[0].match(/"timing"\s*:\s*(?:"([\s\S]*?)"|null)/);
-                        const timing = timingMatch ? (timingMatch[1] || null) : null;
+                        const dosMatch = match[0].match(/"dos"\s*:\s*"([\s\S]*?)"/);
+                        const dos = dosMatch ? dosMatch[1] : "";
                         
-                        const riskMatch = match[0].match(/"risk"\s*:\s*(?:"([\s\S]*?)"|null)/);
-                        const risk = riskMatch ? (riskMatch[1] || null) : null;
+                        const dontsMatch = match[0].match(/"donts"\s*:\s*"([\s\S]*?)"/);
+                        const donts = dontsMatch ? dontsMatch[1] : "";
                         
                         const confidenceMatch = match[0].match(/"confidence"\s*:\s*([0-9.]+)/);
                         const confidence = confidenceMatch ? parseFloat(confidenceMatch[1]) : 0.80;
 
                         if (answer) {
-                            parsed = { answer, timing, risk, confidence };
+                            parsed = { answer, dos, donts, confidence };
                         } else {
                             parsed.answer = cleanedContent;
                         }
@@ -975,8 +975,8 @@ class AiInterpretationController {
                 totalTokens: totalTurnTokens,
                 structuredContent: {
                     answer: parsed.answer || cleanedContent,
-                    timing: parsed.timing || null,
-                    risk: parsed.risk || null,
+                    dos: parsed.dos || "",
+                    donts: parsed.donts || "",
                     confidence: parsed.confidence !== undefined ? parsed.confidence : 0.80
                 }
             });
@@ -1124,7 +1124,7 @@ class AiInterpretationController {
 
             // 8. Lưu trữ AI message dạng structured JSON
             const cleanedContent = AiService.cleanMarkdown(accumulatedText);
-            let parsed = { answer: "", timing: null, risk: null, confidence: 0.85 };
+            let parsed = { answer: "", dos: "", donts: "", confidence: 0.85 };
             
             try {
                 parsed = JSON.parse(cleanedContent);
@@ -1137,20 +1137,20 @@ class AiInterpretationController {
                         });
                         parsed = JSON.parse(escaped);
                     } catch (e2) {
-                        const answerMatch = match[0].match(/"answer"\s*:\s*"([\s\S]*?)"\s*,\s*"timing"/);
+                        const answerMatch = match[0].match(/"answer"\s*:\s*"([\s\S]*?)"/);
                         const answer = answerMatch ? answerMatch[1] : "";
                         
-                        const timingMatch = match[0].match(/"timing"\s*:\s*(?:"([\s\S]*?)"|null)/);
-                        const timing = timingMatch ? (timingMatch[1] || null) : null;
+                        const dosMatch = match[0].match(/"dos"\s*:\s*"([\s\S]*?)"/);
+                        const dos = dosMatch ? dosMatch[1] : "";
                         
-                        const riskMatch = match[0].match(/"risk"\s*:\s*(?:"([\s\S]*?)"|null)/);
-                        const risk = riskMatch ? (riskMatch[1] || null) : null;
+                        const dontsMatch = match[0].match(/"donts"\s*:\s*"([\s\S]*?)"/);
+                        const donts = dontsMatch ? dontsMatch[1] : "";
                         
                         const confidenceMatch = match[0].match(/"confidence"\s*:\s*([0-9.]+)/);
                         const confidence = confidenceMatch ? parseFloat(confidenceMatch[1]) : 0.85;
 
                         if (answer) {
-                            parsed = { answer, timing, risk, confidence };
+                            parsed = { answer, dos, donts, confidence };
                         } else {
                             parsed.answer = cleanedContent;
                         }
@@ -1174,8 +1174,8 @@ class AiInterpretationController {
                 totalTokens: totalTurnTokens,
                 structuredContent: {
                     answer: parsed.answer || cleanedContent,
-                    timing: parsed.timing || null,
-                    risk: parsed.risk || null,
+                    dos: parsed.dos || "",
+                    donts: parsed.donts || "",
                     confidence: parsed.confidence !== undefined ? parsed.confidence : 0.85
                 }
             });
@@ -1339,7 +1339,7 @@ class AiInterpretationController {
 
             // Xử lý lưu trữ phản hồi dạng cấu trúc
             const cleanedContent = AiService.cleanMarkdown(accumulatedText);
-            let parsed = { answer: "", timing: null, risk: null, confidence: 0.85 };
+            let parsed = { answer: "", confidence: 0.85 };
             try {
                 parsed = JSON.parse(cleanedContent);
             } catch (e) {
@@ -1351,20 +1351,14 @@ class AiInterpretationController {
                         });
                         parsed = JSON.parse(escaped);
                     } catch (e2) {
-                        const answerMatch = match[0].match(/"answer"\s*:\s*"([\s\S]*?)"\s*,\s*"timing"/);
+                        const answerMatch = match[0].match(/"answer"\s*:\s*"([\s\S]*?)"/);
                         const answer = answerMatch ? answerMatch[1] : "";
-                        
-                        const timingMatch = match[0].match(/"timing"\s*:\s*(?:"([\s\S]*?)"|null)/);
-                        const timing = timingMatch ? (timingMatch[1] || null) : null;
-                        
-                        const riskMatch = match[0].match(/"risk"\s*:\s*(?:"([\s\S]*?)"|null)/);
-                        const risk = riskMatch ? (riskMatch[1] || null) : null;
                         
                         const confidenceMatch = match[0].match(/"confidence"\s*:\s*([0-9.]+)/);
                         const confidence = confidenceMatch ? parseFloat(confidenceMatch[1]) : 0.85;
 
                         if (answer) {
-                            parsed = { answer, timing, risk, confidence };
+                            parsed = { answer, confidence };
                         } else {
                             parsed.answer = cleanedContent;
                         }
@@ -1388,8 +1382,8 @@ class AiInterpretationController {
                 totalTokens: tokensUsed,
                 structuredContent: {
                     answer: parsed.answer || cleanedContent,
-                    timing: parsed.timing || "",
-                    risk: parsed.risk || "",
+                    timing: "",
+                    risk: "",
                     confidence: parsed.confidence || 0.85
                 }
             });

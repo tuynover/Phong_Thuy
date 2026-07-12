@@ -15,6 +15,7 @@ const aiLimiter = rateLimiter({
 const optionalAuth = require('../middleware/optionalAuth');
 const checkRecordOwnership = require('../middleware/checkRecordOwnership');
 const checkHistoryOwnership = require('../middleware/checkHistoryOwnership');
+const chatCreditCheck = require('../middleware/chatCreditCheck');
 
 // IChing (Kinh Dịch) endpoints
 router.get('/iching/record/:id', optionalAuth, checkRecordOwnership, HistoryController.getHexagramRecord);
@@ -57,11 +58,11 @@ router.post('/bazi/:id/interpret', optionalAuth, checkRecordOwnership, aiLimiter
 router.post('/ziwei/:id/interpret', optionalAuth, checkRecordOwnership, aiLimiter, creditCheck, AiInterpretationController.interpretZiwei);
 router.post('/marriage/:id/interpret', optionalAuth, checkRecordOwnership, aiLimiter, creditCheck, AiInterpretationController.interpretMarriage);
 
-router.post('/iching/:id/chat', optionalAuth, checkRecordOwnership, aiLimiter, AiInterpretationController.chatHexagram);
-router.post('/hexagrams/:id/chat', optionalAuth, checkRecordOwnership, aiLimiter, AiInterpretationController.chatHexagram);
-router.post('/bazi/:id/chat', optionalAuth, checkRecordOwnership, aiLimiter, AiInterpretationController.chatBazi);
-router.post('/ziwei/:id/chat', optionalAuth, checkRecordOwnership, aiLimiter, AiInterpretationController.chatZiwei);
-router.post('/marriage/:id/chat', optionalAuth, checkRecordOwnership, aiLimiter, AiInterpretationController.chatMarriage);
+router.post('/iching/:id/chat', chatCreditCheck, checkRecordOwnership, aiLimiter, AiInterpretationController.chatHexagram);
+router.post('/hexagrams/:id/chat', chatCreditCheck, checkRecordOwnership, aiLimiter, AiInterpretationController.chatHexagram);
+router.post('/bazi/:id/chat', chatCreditCheck, checkRecordOwnership, aiLimiter, AiInterpretationController.chatBazi);
+router.post('/ziwei/:id/chat', chatCreditCheck, checkRecordOwnership, aiLimiter, AiInterpretationController.chatZiwei);
+router.post('/marriage/:id/chat', chatCreditCheck, checkRecordOwnership, aiLimiter, AiInterpretationController.chatMarriage);
 
 const auth = require('../middleware/auth');
 router.delete('/calculations/:type/:id', auth, HistoryController.deleteCalculation);

@@ -13,6 +13,7 @@ Mục tiêu cốt lõi:
 
 Hệ thống được chia làm hai phân hệ lớn:
 1. **Phân hệ Người dùng (User End-User Interface):**
+   - **Trang chủ Hệ sinh thái (HomeBoard):** Trang đích sang trọng tối giản theo chuẩn Awwwards tích hợp hiệu ứng Mesh Gradient, SVG Bát Quái xoay và vũ trụ tinh hà tương tác, kết nối 5 môn học thuật và quản lý luồng điều hướng mượt mà.
    - **Kinh Dịch (IChing):** Hỗ trợ gieo quẻ Lục Hào bằng đồng xu ảo, hoặc lập quẻ Mai Hoa Dịch Số dựa trên giờ động tâm/seri tiền. Hiển thị đồ hình quẻ, hào động, và kích hoạt giải đoán AI + Chat.
    - **Bát Tự (Bazi):** Lập lá số Bát Tự, tính Thập Thần, tìm Dụng Thần và hiển thị tương sinh tương khắc Ngũ Hành trực quan.
    - **Tử Vi (Ziwei):** Lập mệnh bàn 12 cung dạng lưới 4x4 truyền thống hoặc danh sách rút gọn trên di động, hiển thị các sao và đại/tiểu hạn.
@@ -65,3 +66,10 @@ Trước đây, mỗi phân hệ có các bảng hội thoại và tin nhắn ri
 - **Bảo vệ quyền riêng tư dữ liệu:** Tích hợp hệ thống middleware bảo vệ quyền riêng tư dữ liệu chéo (`checkRecordOwnership.js`, `checkHistoryOwnership.js`). Người dùng thông thường không thể sử dụng ID để truy cập các lá số/quẻ hoặc lịch sử chat AI của người khác. Phiên đăng nhập được kiểm soát chặt chẽ qua cơ chế `tokenVersion` trên máy chủ, hết hạn sau 7 ngày và bị thu hồi lập tức khi người dùng bấm đăng xuất.
 - **Custom Date Picker (React):** Thiết kế component `CustomDatePicker` viết riêng trên React 19 thay thế hoàn toàn cho lịch chọn ngày mặc định thô ráp của các trình duyệt. Component hỗ trợ đổi màu chủ đạo (theme) động theo Tab môn học thuật, chuyển tháng bằng ChevronLeft/ChevronRight mượt mà, hiển thị dạng Modal Dialog ở chính giữa màn hình kèm phủ nền tối mờ ảo trên Mobile, và dock sát viền phải chống tràn trên Desktop.
 - **Bố cục bộ lọc tối ưu:** Thiết kế thanh lọc dạng hàng song song xếp chồng bên phải (`lg:items-end`) giúp phân tách cụm chọn nhanh (Hôm nay, Hôm qua, 7 ngày, 30 ngày) và cụm chọn ngày thủ công, triệt tiêu khoảng trống thừa và tối ưu cuộn ngang cho thiết bị di động.
+
+### 4.5 Loại bỏ Firebase Phone OTP & Tích hợp Quên Mật Khẩu qua Email OTP (07/2026)
+Để tối ưu hóa chi phí vận hành và loại bỏ các ràng buộc thẻ thanh toán quốc tế của Firebase:
+- **Gỡ bỏ Firebase Phone Authentication:** Xóa bỏ hoàn toàn Firebase Client/Admin SDK, dọn dẹp các trường OTP điện thoại trong database và giao diện `ProfileBoard.jsx` (đưa giao diện quản lý trạng thái tài khoản về grid 2 cột sạch sẽ).
+- **Sửa đổi Prompt & UI Tử Vi:** Gỡ bỏ các trường dự đoán phụ không cần thiết như `timing` (Ứng kỳ) và `risk` (Cảnh báo) khỏi prompt hệ thống Tử Vi, đảm bảo trải nghiệm chat luận giải Tử Vi tập trung vào nội dung học thuật cốt lõi.
+- **Tích hợp Quên mật khẩu qua Email OTP:** Viết mới luồng gửi mã xác thực OTP 6 số qua email (sử dụng mẫu email HTML sang trọng) và cho phép đặt lại mật khẩu mới. Áp dụng cơ chế tăng `tokenVersion` khi đổi mật khẩu để thu hồi token cũ trên mọi thiết bị.
+- **Tối ưu hóa UI/UX AuthModal:** Nâng cấp form Quên mật khẩu 2 bước, tự động chuyển sang trang nhập OTP ngay lập tức khi bấm gửi mã để tăng trải nghiệm người dùng, ẩn các nút mạng xã hội gây nhiễu, và hiển thị thông báo thành công nguyên màn hình kèm hiệu ứng nhún (bounce) sinh động khi hoàn tất thành công.

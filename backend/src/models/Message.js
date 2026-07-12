@@ -25,6 +25,8 @@ const messageSchema = new mongoose.Schema({
     answer: String,
     timing: String,
     risk: String,
+    dos: String,
+    donts: String,
     confidence: Number
   },
   promptTokens: {

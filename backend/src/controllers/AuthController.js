@@ -6,6 +6,7 @@ const { OAuth2Client } = require('google-auth-library');
 const BanAppeal = require('../models/BanAppeal');
 const AdminNotification = require('../models/AdminNotification');
 const sseService = require('../services/SseService');
+const EmailService = require('../services/EmailService');
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -316,7 +317,14 @@ const updateProfile = async (req, res) => {
 
     if (name !== undefined) user.name = name;
     if (gender !== undefined) user.gender = parseInt(gender);
-    if (phone !== undefined) user.phone = phone;
+    if (phone !== undefined) {
+      if (phone !== "" && !/^0[0-9]{9}$/.test(phone)) {
+        return res.status(400).json({ message: 'Số điện thoại không hợp lệ. Phải gồm đúng 10 số và bắt đầu bằng số 0.' });
+      }
+      if (user.phone !== phone) {
+        user.phone = phone;
+      }
+    }
 
     if (day !== undefined && month !== undefined && year !== undefined && hour !== undefined && minute !== undefined) {
       user.baziInfo = {
@@ -334,7 +342,7 @@ const updateProfile = async (req, res) => {
     
     logger.info(`Cập nhật Hồ Sơ thành công cho tài khoản [${user.email}].`, { user: user.email, action: 'Cập nhật Hồ Sơ' });
 
-    res.json({ user: { id: user.id, email: user.email, name: user.name, baziInfo: user.baziInfo, gender: user.gender, phone: user.phone || "", role: user.role, credits: user.credits, status: user.status } });
+    res.json({ user: { id: user.id, email: user.email, name: user.name, baziInfo: user.baziInfo, gender: user.gender, phone: user.phone || "", role: user.role, credits: user.credits, status: user.status, isEmailVerified: user.isEmailVerified || false } });
   } catch (err) {
     logger.error(`Cập nhật Hồ Sơ gặp lỗi hệ thống cho tài khoản ID [${userId}].`, err, { user: `id:${userId}`, action: 'Cập nhật Hồ Sơ' });
     res.status(500).send('Server error');
@@ -439,6 +447,182 @@ const logout = async (req, res) => {
   }
 };
 
+const sendVerificationEmail = async (req, res) => {
+  try {
+    const user = req.dbUser;
+    if (user.isEmailVerified) {
+      return res.status(400).json({ message: 'Email đã được xác thực trước đó.' });
+    }
+
+    // Sinh mã OTP 6 chữ số
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.emailOtp = otp;
+    user.emailOtpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 phút hiệu lực
+    await user.save();
+
+    // Gửi email
+    const emailResult = await EmailService.sendEmail({
+      to: user.email,
+      subject: '[Phong Thủy Luận Giải] Mã xác thực email của bạn',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
+          <h2 style="color: #8b5a2b; text-align: center;">Xác Thực Email Nhận Lượt Sử Dụng</h2>
+          <p>Chào bạn <strong>${user.name || 'đương số'}</strong>,</p>
+          <p>Cảm ơn bạn đã sử dụng dịch vụ Phong Thủy & Gieo Quẻ. Dưới đây là mã OTP xác thực email của bạn:</p>
+          <div style="background-color: #f9f5f0; padding: 15px; border-radius: 6px; text-align: center; margin: 20px 0;">
+            <span style="font-size: 28px; font-weight: bold; letter-spacing: 5px; color: #8b5a2b;">${otp}</span>
+          </div>
+          <p style="color: #666; font-size: 13px;">Mã OTP này có hiệu lực trong vòng <strong>10 phút</strong>. Sau khi xác thực thành công, tài khoản của bạn sẽ được tặng thêm <strong>+2 lượt sử dụng (credits)</strong>.</p>
+          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+          <p style="font-size: 12px; color: #999; text-align: center;">Đây là email tự động, vui lòng không phản hồi email này.</p>
+        </div>
+      `
+    });
+
+    if (!emailResult.success) {
+      return res.status(500).json({ message: 'Không thể gửi email xác thực. Vui lòng thử lại sau.' });
+    }
+
+    res.json({ message: 'Mã xác thực OTP đã được gửi đến email của bạn.' });
+  } catch (err) {
+    logger.error('Gửi email xác thực gặp lỗi:', err);
+    res.status(500).json({ message: 'Lỗi máy chủ nội bộ.' });
+  }
+};
+
+const verifyEmail = async (req, res) => {
+  const { otp } = req.body;
+  if (!otp) {
+    return res.status(400).json({ message: 'Vui lòng cung cấp mã OTP.' });
+  }
+
+  try {
+    const user = req.dbUser;
+    if (user.isEmailVerified) {
+      return res.status(400).json({ message: 'Email đã được xác thực trước đó.' });
+    }
+
+    if (!user.emailOtp || user.emailOtp !== otp || !user.emailOtpExpires || new Date(user.emailOtpExpires) < new Date()) {
+      return res.status(400).json({ message: 'Mã OTP không chính xác hoặc đã hết hạn.' });
+    }
+
+    // Xác thực thành công
+    user.isEmailVerified = true;
+    user.emailOtp = null;
+    user.emailOtpExpires = null;
+    user.credits = (user.credits || 0) + 2;
+
+    await user.save();
+
+    logger.info(`Tài khoản [${user.email}] xác thực email thành công và được cộng 2 credits.`, { user: user.email, action: 'Xác thực Email' });
+
+    res.json({
+      message: 'Xác thực email thành công! Bạn đã được tặng +2 lượt sử dụng.',
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        baziInfo: user.baziInfo,
+        gender: user.gender,
+        phone: user.phone || "",
+        role: user.role,
+        credits: user.credits,
+        status: user.status,
+        isEmailVerified: user.isEmailVerified,
+        isPhoneVerified: user.isPhoneVerified || false
+      }
+    });
+  } catch (err) {
+    logger.error('Xác thực OTP gặp lỗi:', err);
+    res.status(500).json({ message: 'Lỗi máy chủ nội bộ.' });
+  }
+};
+
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ message: 'Vui lòng cung cấp địa chỉ email.' });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user || user.isDeleted) {
+      return res.status(404).json({ message: 'Không tìm thấy tài khoản với email này.' });
+    }
+
+    if (user.status === 'locked') {
+      return res.status(403).json({ message: 'Tài khoản này hiện đang bị khóa.' });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.emailOtp = otp;
+    user.emailOtpExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 phút
+    await user.save();
+
+    await EmailService.sendEmail({
+      to: user.email,
+      subject: 'Mã OTP khôi phục mật khẩu - Phong Thủy',
+      html: `<div style="font-family: sans-serif; padding: 20px; color: #333; max-width: 500px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
+        <h2 style="color: #78350f; font-family: serif; border-bottom: 2px solid #fef3c7; padding-bottom: 10px;">Khôi phục mật khẩu - Phong Thủy</h2>
+        <p>Xin chào <strong>${user.name}</strong>,</p>
+        <p>Hệ thống nhận được yêu cầu khôi phục mật khẩu từ tài khoản của bạn.</p>
+        <p>Mã OTP xác thực của bạn là:</p>
+        <div style="background-color: #fef3c7; border: 1px solid #f59e0b; padding: 15px 10px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 4px; border-radius: 8px; margin: 15px 0; color: #78350f;">
+          ${otp}
+        </div>
+        <p style="font-size: 13px; color: #666;">Mã này có hiệu lực trong vòng 15 phút. Vui lòng không chia sẻ mã này cho bất kỳ ai khác.</p>
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+        <p style="font-size: 11px; color: #999; text-align: center;">Đây là email tự động từ hệ thống Phong Thủy & Gieo Quẻ. Vui lòng không phản hồi email này.</p>
+      </div>`
+    });
+
+    logger.info(`Đã gửi OTP khôi phục mật khẩu tới email [${user.email}].`, { user: user.email, action: 'Quên mật khẩu' });
+    res.json({ message: 'Mã OTP khôi phục mật khẩu đã được gửi đến email của bạn.' });
+  } catch (err) {
+    logger.error('Quên mật khẩu gặp lỗi:', err);
+    res.status(500).json({ message: 'Lỗi máy chủ nội bộ.' });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+    if (!email || !otp || !newPassword) {
+      return res.status(400).json({ message: 'Vui lòng điền đầy đủ các thông tin yêu cầu.' });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: 'Mật khẩu mới phải có ít nhất 6 ký tự.' });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user || user.isDeleted) {
+      return res.status(404).json({ message: 'Không tìm thấy tài khoản.' });
+    }
+
+    if (!user.emailOtp || !user.emailOtpExpires || user.emailOtpExpires < new Date()) {
+      return res.status(400).json({ message: 'Mã OTP đã hết hạn hoặc không tồn tại. Vui lòng bấm gửi lại mã.' });
+    }
+
+    if (user.emailOtp !== otp) {
+      return res.status(400).json({ message: 'Mã OTP không chính xác.' });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    user.emailOtp = null;
+    user.emailOtpExpires = null;
+    user.tokenVersion = (user.tokenVersion || 0) + 1; // Hủy các phiên đăng nhập cũ
+    await user.save();
+
+    logger.info(`Khôi phục mật khẩu thành công cho tài khoản [${user.email}].`, { user: user.email, action: 'Khôi phục mật khẩu' });
+    res.json({ message: 'Khôi phục mật khẩu thành công! Vui lòng đăng nhập lại với mật khẩu mới.' });
+  } catch (err) {
+    logger.error('Khôi phục mật khẩu gặp lỗi:', err);
+    res.status(500).json({ message: 'Lỗi máy chủ nội bộ.' });
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -448,4 +632,8 @@ module.exports = {
   submitAppeal,
   changePassword,
   logout,
+  sendVerificationEmail,
+  verifyEmail,
+  forgotPassword,
+  resetPassword,
 };

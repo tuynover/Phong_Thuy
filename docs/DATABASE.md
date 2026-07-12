@@ -24,6 +24,9 @@ Lưu trữ thông tin tài khoản, hồ sơ Bát Tự mặc định, số dư c
     password: { type: String, required: true },
     name: { type: String, default: 'User' },
     phone: { type: String, default: '' },
+    isEmailVerified: { type: Boolean, default: false },
+    emailOtp: { type: String, default: null },
+    emailOtpExpires: { type: Date, default: null },
     gender: { type: Number, default: 1 }, // 1: Nam, 0: Nữ
     role: { type: String, enum: ['admin', 'co-admin', 'vip', 'user'], default: 'user' },
     credits: { type: Number, default: 1 },
@@ -185,6 +188,8 @@ Lưu trữ kết quả so sánh Bát Tự và độ hòa hợp của hai đối 
       answer: String,
       timing: String,
       risk: String,
+      dos: String,
+      donts: String,
       confidence: Number
     },
     promptTokens: { type: Number, default: 0 },

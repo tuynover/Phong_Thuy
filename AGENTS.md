@@ -27,6 +27,9 @@ AI Agent có vai trò:
 - **State Persistence:** Trạng thái phân hệ hiện tại, lá số đang mở, quẻ đang xem và bối cảnh chat phải được đồng bộ vào `localStorage` của trình duyệt.
 - **Lazy Loading:** Phân hệ người dùng (`UserApp.jsx`) và quản trị (`AdminApp.jsx`) phải được tải động (lazy load) qua `React.lazy` và `React.Suspense` ở cấp độ cao nhất (`App.jsx`).
 - **Premium UI Components:** Không được sử dụng input date mặc định (`input[type="date"]`) của trình duyệt cho các chức năng chọn ngày vì giao diện thô cứng của hệ điều hành làm giảm tính thẩm mỹ của dự án. Bắt buộc sử dụng component lịch tùy chỉnh viết bằng React (`CustomDatePicker`) để đảm bảo các yếu tố bo tròn mềm mại, đồng bộ màu sắc động theo Tab và tương thích tối đa trên thiết bị di động (hiển thị dạng modal ở giữa màn hình có backdrop).
+- **Trải nghiệm Luồng Quên Mật Khẩu (OTP UI/UX):**
+  - Khi người dùng nhấn nút gửi mã OTP khôi phục mật khẩu, bắt buộc phải kích hoạt chuyển sang bước 2 (nhập OTP và mật khẩu mới) ngay lập tức để tạo cảm giác mượt mà, không được bắt người dùng đợi phản hồi từ API gửi thư. Nếu API gửi ngầm thất bại, giao diện sẽ rollback lại bước 1 kèm theo banner thông báo lỗi.
+  - Khi khôi phục mật khẩu thành công (happy path), toàn bộ input và form nhập liệu phải được ẩn đi hoàn toàn, chỉ hiển thị thông báo thành công nguyên màn hình modal kèm hiệu ứng nhún (bounce) và tự động chuyển hướng về form đăng nhập chính sau 1.2 giây.
 
 ---
 
@@ -44,6 +47,8 @@ AI Agent có vai trò:
 - **Lọc Intent (isDivinationRelated):** Bất kỳ câu hỏi chat follow-up nào gửi lên từ phía người dùng đều phải được kiểm tra tính liên quan thông qua `ConversationContextService.js` để tránh việc lạm dụng LLM hỏi các chủ đề lạc đề.
 - **Kiểm tra quyền sở hữu dữ liệu (Data Privacy Boundary):** Tất cả các API xem chi tiết bản ghi, trò chuyện AI hoặc lịch sử chat đều bắt buộc đi qua middleware kiểm tra quyền sở hữu (`checkRecordOwnership` hoặc `checkHistoryOwnership`) để chặn xem chéo thông tin trái phép của người dùng khác.
 - **Hủy phiên tức thời khi Đăng xuất (Token Revocation):** Khi đăng xuất, bắt buộc phải gọi request `POST /api/auth/logout` lên Backend trước khi xóa thông tin lưu trữ cục bộ, mục đích là tăng `tokenVersion` của người dùng trong cơ sở dữ liệu lên 1 để vô hiệu hóa token này vĩnh viễn trên máy chủ.
+- **Hủy phiên đăng nhập cũ khi thay đổi/khôi phục mật khẩu:** Khi thực hiện đổi mật khẩu hoặc khôi phục mật khẩu thành công, máy chủ bắt buộc phải tăng `tokenVersion` lên 1 để vô hiệu hóa tất cả các JWT token cũ đang lưu hành.
+- **Quản lý mã Email OTP:** Mã OTP khôi phục mật khẩu gồm 6 chữ số ngẫu nhiên gửi qua email có thời hạn hết hạn nghiêm ngặt là 15 phút. Nội dung email gửi đi bắt buộc phải ở định dạng HTML có CSS inline đồng bộ phong cách học thuật.
 
 ---
 

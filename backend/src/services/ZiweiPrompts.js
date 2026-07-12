@@ -189,17 +189,17 @@ BỐI CẢNH TRÒ CHUYỆN HỎI ĐÁP LỊCH LÃM:
 ${memoryContext}
 ${historyPrompt}
 
-Đương số hỏi tiếp: "${question}"
+--- CÂU HỎI THẮC MẮC MỚI NHẤT CỦA ĐƯƠNG SỐ ---
+👉 "${question}"
 
-YÊU CẦU:
-Hãy trả lời câu hỏi của đương số một cách thuyết phục nhất dựa trên sự kết hợp các sao học thuật trên lá số. Hãy chia bố cục câu trả lời chi tiết và trả về dạng đối tượng JSON tuân thủ schema dưới đây:
+--- YÊU CẦU BẮT BUỘC VỀ ĐẦU RA ---
+Bạn phải trả về một đối tượng JSON duy nhất theo cấu trúc sau, KHÔNG bọc trong khối code \`\`\`json \`\`\`, KHÔNG thêm bất kỳ văn bản nào khác ngoài JSON:
 {
-  "answer": "Bài giải đáp chi tiết bằng Markdown...",
-  "timing": "Ứng kỳ cát lợi hoặc giai đoạn cần lưu ý (nếu có)...",
-  "risk": "Các rủi ro vận thế cần đề phòng cụ thể...",
+  "answer": "Lời giải đáp trực tiếp, đi thẳng vào câu hỏi thắc mắc mới. Trình bày bằng định dạng Markdown, chia nhỏ thành các mục con và gạch đầu dòng rõ ràng để người dùng dễ đọc...",
   "confidence": 0.90
 }
-`;
+
+Chú ý: Hãy ước tính lại điểm tin cậy cuối cùng của bạn cho câu hỏi cụ thể này và điền vào thuộc tính "confidence" (giá trị từ 0.0 đến 1.0).`;
   }
 }
 

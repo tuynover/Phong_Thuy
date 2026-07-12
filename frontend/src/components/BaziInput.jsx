@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Calendar, Clock, User, ChevronDown } from 'lucide-react';
+import { Calendar, Clock, User, ChevronDown, HelpCircle } from 'lucide-react';
 
 // UNIFIED COMBOBOX SELECTOR (BLUE THEME)
 function CustomSelect({ value, onChange, options, placeholder }) {
@@ -106,7 +106,7 @@ const BaziInput = ({ onComplete }) => {
     const minutes = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
 
     return (
-        <div className="flex flex-col items-center bg-white p-5 md:p-8 rounded-2xl md:rounded-[2rem] shadow-xl border border-gray-100 max-w-xl mx-auto font-sans">
+        <div className="flex flex-col items-center bg-white p-5 md:p-8 rounded-2xl md:rounded-[2rem] shadow-xl border border-gray-100 max-w-3xl mx-auto font-sans">
             <h3 className="text-2xl font-bold text-slate-800 mb-6 uppercase tracking-wide">Nhập Thông Tin Bát Tự</h3>
             <p className="text-gray-500 mb-8 text-center text-[15px]">Hệ thống phân tích Tứ Trụ Tử Bình sẽ tự động quy đổi Âm/Dương lịch và Tiết khí để lập lá số chính xác nhất.</p>
 
@@ -200,6 +200,111 @@ const BaziInput = ({ onComplete }) => {
                     </button>
                 </div>
             </form>
+
+            {/* Academic Informational Cards & FAQs */}
+            <div className="mt-10 border-t border-slate-100 pt-8 w-full space-y-8 text-left font-sans">
+              <div className="bg-white p-6 md:p-8 rounded-3xl border border-blue-50 shadow-sm space-y-6">
+                <h4 className="text-sm font-extrabold text-blue-800 uppercase tracking-widest text-center">Kiến thức học thuật Bát Tự</h4>
+                
+                <div className="space-y-6">
+                  {/* Item 1 */}
+                  <div className="border-b border-slate-100 pb-5">
+                    <h5 className="font-extrabold text-slate-800 text-base mb-2 flex items-center gap-2">
+                      <span className="w-1.5 h-6 rounded bg-blue-600 block"></span>
+                      1. Bát Tự Tứ Trụ là gì?
+                    </h5>
+                    <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed pl-3.5 mb-2">
+                      Tứ Trụ Bát Tự là hệ thống dự đoán mệnh lý Đông Phương dựa trên Giờ, Ngày, Tháng, Năm sinh dương lịch quy đổi sang Can Chi tiết khí. Gồm 8 chữ (4 Thiên Can, 4 Địa Chi) đại diện cho phân bổ năng lượng Ngũ Hành bản nguyên.
+                    </p>
+                    <ul className="list-disc pl-8 text-xs text-slate-500 space-y-1 font-medium">
+                      <li><strong>Thiên Can (10):</strong> Giáp, Ất, Bính, Đinh, Mậu, Kỷ, Canh, Tân, Nhâm, Quý. Phản ánh năng lượng bên ngoài lộ diện.</li>
+                      <li><strong>Địa Chi (12):</strong> Tí, Sửu, Dần, Mão, Thìn, Tỵ, Ngọ, Mùi, Thân, Dậu, Tuất, Hợi. Phản ánh thực thể, căn cơ ẩn giấu.</li>
+                    </ul>
+                  </div>
+
+                  {/* Item 2 */}
+                  <div className="border-b border-slate-100 pb-5">
+                    <h5 className="font-extrabold text-slate-800 text-base mb-2 flex items-center gap-2">
+                      <span className="w-1.5 h-6 rounded bg-blue-600 block"></span>
+                      2. Quy trình phân tích Tứ Trụ chuyên sâu
+                    </h5>
+                    <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed pl-3.5 mb-2">
+                      Phương pháp xem Tử Bình chuyên nghiệp bao gồm các bước:
+                    </p>
+                    <ul className="list-disc pl-8 text-xs text-slate-500 space-y-1.5 font-medium">
+                      <li><strong>Nhật Can (Mệnh chủ):</strong> Thiên can ngày sinh là đại diện cho bạn. Các Can Chi còn lại tương tác với Nhật Can để phân định Mệnh Cách.</li>
+                      <li><strong>Xác định Thể Vượng Suy:</strong> Đo lường năng lượng tương tác ngũ hành để xác định Nhật Can là Vượng, Nhược, hay tòng cách cực đoan.</li>
+                      <li><strong>Định vị Dụng Thần & Hỷ Thần:</strong> Tìm ra ngũ hành có nhiệm vụ cân bằng, hòa giải xung đột cho lá số (Ví dụ: Thân nhược cần Ấn/Tỷ, Thân vượng cần Quan/Sát/Thực/Tài).</li>
+                    </ul>
+                  </div>
+
+                  {/* Item 3 */}
+                  <div>
+                    <h5 className="font-extrabold text-slate-800 text-base mb-2 flex items-center gap-2">
+                      <span className="w-1.5 h-6 rounded bg-blue-600 block"></span>
+                      3. Bản phân tích học thuật cung cấp chi tiết gì?
+                    </h5>
+                    <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed pl-3.5 mb-2">
+                      Hệ thống luận giải chuyên sâu cung cấp báo cáo chi tiết bao gồm các mục học thuật:
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-3.5 mt-3">
+                      <div className="bg-blue-50/40 p-3 rounded-xl border border-blue-100/50">
+                        <span className="block text-xs font-bold text-blue-800 uppercase tracking-wider mb-1">✓ Phân tích Thập Thần</span>
+                        <span className="text-[11px] text-slate-500 font-medium block">Phân tích mối quan hệ giữa Mệnh chủ với Chính Tài, Thiên Tài, Chính Quan, Thiên Quan... định hình năng lực xã hội.</span>
+                      </div>
+                      <div className="bg-blue-50/40 p-3 rounded-xl border border-blue-100/50">
+                        <span className="block text-xs font-bold text-blue-800 uppercase tracking-wider mb-1">✓ Vận trình Đại Vận 10 năm</span>
+                        <span className="text-[11px] text-slate-500 font-medium block">Biểu đồ thăng trầm của các giai đoạn cuộc đời lớn giúp bạn chủ động chuẩn bị nắm bắt hoặc phòng thủ.</span>
+                      </div>
+                      <div className="bg-blue-50/40 p-3 rounded-xl border border-blue-100/50">
+                        <span className="block text-xs font-bold text-blue-800 uppercase tracking-wider mb-1">✓ Phương án Cải Vận</span>
+                        <span className="text-[11px] text-slate-500 font-medium block">Lời khuyên ứng dụng Dụng Thần qua màu sắc bổ trợ, phương hướng phong thủy, ngành nghề tối ưu.</span>
+                      </div>
+                      <div className="bg-blue-50/40 p-3 rounded-xl border border-blue-100/50">
+                        <span className="block text-xs font-bold text-blue-800 uppercase tracking-wider mb-1">✓ Thần Sát luận cát hung</span>
+                        <span className="text-[11px] text-slate-500 font-medium block">Xác định các sao tốt/xấu ảnh hưởng bản mệnh như Thiên Ất Quý Nhân, Văn Xương Tinh, Cô Thần, Quả Tú.</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* FAQs section */}
+              <div className="bg-white p-6 md:p-8 rounded-3xl border border-slate-150 shadow-sm space-y-6">
+                <h4 className="text-sm font-extrabold text-blue-800 uppercase tracking-widest text-center">Các câu hỏi thường gặp về Bát Tự</h4>
+                <div className="space-y-4">
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100/70">
+                    <h5 className="font-extrabold text-slate-800 text-xs sm:text-sm mb-1.5 flex items-center gap-1.5">
+                      <HelpCircle size={15} className="text-blue-600 shrink-0" />
+                      Nếu không nhớ chính xác giờ sinh thì có lập được lá số Bát Tự không?
+                    </h5>
+                    <p className="text-xs text-slate-500 font-medium leading-relaxed pl-5">
+                      Có thể lập được dựa trên Ngày, Tháng, Năm sinh (gọi là Tam Trụ). Tuy nhiên, thiếu Trụ Giờ sẽ làm giảm độ chính xác khoảng 25-30% vì giờ sinh quyết định cung con cái và hậu vận tuổi già.
+                    </p>
+                  </div>
+                  
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100/70">
+                    <h5 className="font-extrabold text-slate-800 text-xs sm:text-sm mb-1.5 flex items-center gap-1.5">
+                      <HelpCircle size={15} className="text-blue-600 shrink-0" />
+                      Nhật Can là gì và tại sao nó lại quan trọng nhất trong Bát Tự?
+                    </h5>
+                    <p className="text-xs text-slate-500 font-medium leading-relaxed pl-5">
+                      Nhật Can (Thiên can của ngày sinh) đại diện cho chính bản thể cốt lõi của bạn. Toàn bộ các tương tác sinh khắc chế hóa của các can chi khác trong lá số đều xoay quanh việc hỗ trợ hay kìm hãm Nhật Can này, quyết định tính cách và tài lộc.
+                    </p>
+                  </div>
+
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100/70">
+                    <h5 className="font-extrabold text-slate-800 text-xs sm:text-sm mb-1.5 flex items-center gap-1.5">
+                      <HelpCircle size={15} className="text-blue-600 shrink-0" />
+                      Dụng Thần và Hỷ Thần giúp ích gì cho cuộc sống thực tế?
+                    </h5>
+                    <p className="text-xs text-slate-500 font-medium leading-relaxed pl-5">
+                      Dụng Thần và Hỷ Thần là các hành ngũ hành giúp cân bằng năng lượng lá số của bạn. Bạn có thể ứng dụng qua màu sắc trang phục, hướng làm việc, nghề nghiệp hoặc vật phẩm phong thủy bổ trợ để chủ động tăng cát khí, chiêu tài đón lộc.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
         </div>
     );
 };

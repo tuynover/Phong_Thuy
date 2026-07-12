@@ -15,7 +15,7 @@ const ACTIVITIES = [
 ];
 
 // CUSTOM DATE PICKER COMPONENT - Requirement 2
-function CustomDatePicker({ value, onChange }) {
+function CustomDatePicker({ value, onChange, minDate, maxDate }) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
   
@@ -103,6 +103,15 @@ function CustomDatePicker({ value, onChange }) {
           </div>
           <div className="grid grid-cols-7 gap-1 text-center">
             {cells.map((cell, idx) => {
+              let isDisabled = !cell.isCurrentMonth;
+              if (cell.isCurrentMonth) {
+                const dateStr = viewDate.getFullYear() + '-' + 
+                  String(viewDate.getMonth() + 1).padStart(2, '0') + '-' + 
+                  String(cell.day).padStart(2, '0');
+                if (minDate && dateStr < minDate) isDisabled = true;
+                if (maxDate && dateStr > maxDate) isDisabled = true;
+              }
+
               const isSelected = cell.isCurrentMonth && 
                 selectedDate.getDate() === cell.day && 
                 selectedDate.getMonth() === viewDate.getMonth() && 
@@ -112,13 +121,14 @@ function CustomDatePicker({ value, onChange }) {
                 <button
                   key={idx}
                   type="button"
-                  onClick={() => cell.isCurrentMonth && selectDate(cell.day)}
+                  onClick={() => !isDisabled && selectDate(cell.day)}
+                  disabled={isDisabled}
                   className={`h-7 w-7 text-xs rounded-full flex items-center justify-center transition-all ${
                     isSelected 
                       ? 'bg-emerald-800 text-white font-bold' 
-                      : cell.isCurrentMonth 
+                      : !isDisabled 
                         ? 'hover:bg-emerald-50 text-neutral-700 hover:text-emerald-900' 
-                        : 'text-gray-300 pointer-events-none'
+                        : 'text-gray-300 pointer-events-none bg-gray-50/50 cursor-not-allowed'
                   }`}
                 >
                   {cell.day}
@@ -310,6 +320,7 @@ export default function DateSelectionBoard({ user }) {
 
   // Help/Accordion state
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [isFaqOpen, setIsFaqOpen] = useState(false);
 
   // Custom Dropdowns states & refs
   const [isCheckActivityOpen, setIsCheckActivityOpen] = useState(false);
@@ -777,11 +788,11 @@ export default function DateSelectionBoard({ user }) {
               <div className="lg:col-span-4 grid grid-cols-2 gap-2">
                 <div>
                   <label className="block text-[10px] font-bold text-neutral-500 uppercase tracking-wider mb-2">Từ ngày</label>
-                  <CustomDatePicker value={startDate} onChange={setStartDate} />
+                  <CustomDatePicker value={startDate} onChange={setStartDate} maxDate={endDate} />
                 </div>
                 <div>
                   <label className="block text-[10px] font-bold text-neutral-500 uppercase tracking-wider mb-2">Đến ngày</label>
-                  <CustomDatePicker value={endDate} onChange={setEndDate} />
+                  <CustomDatePicker value={endDate} onChange={setEndDate} minDate={startDate} />
                 </div>
               </div>
 
@@ -1054,6 +1065,50 @@ export default function DateSelectionBoard({ user }) {
               </ul>
             </div>
 
+          </div>
+        )}
+      </div>
+
+      {/* ACCORDION: FAQS SECTION */}
+      <div className="bg-white rounded-3xl border border-gray-150 shadow-sm overflow-hidden mt-6 transition-all">
+        <button
+          onClick={() => setIsFaqOpen(!isFaqOpen)}
+          className="w-full flex items-center justify-between p-5 bg-slate-50/50 border-b border-gray-100 text-left font-bold text-neutral-800 text-sm sm:text-base focus:outline-none"
+        >
+          <span className="flex items-center gap-2 text-emerald-800"><HelpCircle size={18} /> Các Câu Hỏi Thường Gặp Về Trạch Cát (Chọn Ngày Đẹp)</span>
+          {isFaqOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+        </button>
+        {isFaqOpen && (
+          <div className="p-5 sm:p-7 space-y-6 text-sm text-neutral-700 leading-relaxed max-h-[500px] overflow-y-auto animate-in slide-in-from-top-4 duration-300">
+            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100/70 text-left">
+              <h5 className="font-extrabold text-slate-800 text-xs sm:text-sm mb-1.5 flex items-center gap-1.5">
+                <HelpCircle size={15} className="text-emerald-750 shrink-0" />
+                Thế nào là ngày Hoàng Đạo và ngày Hắc Đạo?
+              </h5>
+              <p className="text-xs text-slate-500 font-medium leading-relaxed pl-5">
+                Ngày Hoàng Đạo là ngày có các cát tinh (Thanh Long, Minh Đường, Kim Quỹ...) cai quản trị nhật, mang trường năng lượng tốt lành, hanh thông cho khởi sự. Ngày Hắc Đạo có các hung thần (Thiên Hình, Chu Tước, Bạch Hổ...) chủ sự, dễ xảy ra trục trặc, hao tài.
+              </p>
+            </div>
+
+            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100/70 text-left">
+              <h5 className="font-extrabold text-slate-800 text-xs sm:text-sm mb-1.5 flex items-center gap-1.5">
+                <HelpCircle size={15} className="text-emerald-750 shrink-0" />
+                Tại sao một ngày Hoàng Đạo tốt với người này lại có thể xấu với người khác?
+              </h5>
+              <p className="text-xs text-slate-500 font-medium leading-relaxed pl-5">
+                Vì xem ngày phải cá nhân hóa theo ngũ hành bản mệnh của gia chủ. Nếu ngũ hành của ngày đó tương khắc trực tiếp với Thiên can/Địa chi năm sinh của bạn (gọi là ngày xung tuổi), ngày đó dù là Hoàng Đạo chung bạn cũng không nên dùng để tránh rủi ro.
+              </p>
+            </div>
+
+            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100/70 text-left">
+              <h5 className="font-extrabold text-slate-800 text-xs sm:text-sm mb-1.5 flex items-center gap-1.5">
+                <HelpCircle size={15} className="text-emerald-750 shrink-0" />
+                Nếu bắt buộc phải động thổ hoặc kết hôn vào ngày Hắc Đạo thì làm cách nào giảm tai họa?
+              </h5>
+              <p className="text-xs text-slate-500 font-medium leading-relaxed pl-5">
+                Bạn có thể áp dụng phương pháp "Tránh ngày dùng giờ" (chọn khung giờ Hoàng Đạo cát lành nhất trong ngày đó để tiến hành đại sự) nhằm mượn năng lượng của cát thần hóa giải hung khí, hoặc thực hiện thêm các nghi thức thành kính tâm linh.
+              </p>
+            </div>
           </div>
         )}
       </div>

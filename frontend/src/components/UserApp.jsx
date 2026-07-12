@@ -9,12 +9,24 @@ import AuthModal from './AuthModal';
 import UpdateBaziModal from './UpdateBaziModal';
 import NotificationBell from './NotificationBell';
 import { AuthContext } from '../context/AuthContext';
-import { calculateDivination, analyzeBazi, linkIChing, linkBazi, getIChingRecord, getIChingHistory, getBaziHistory, getZiweiHistory, analyzeMarriage } from '../services/api';
-import { UserCircle, LogOut, CalendarDays, Shield } from 'lucide-react';
+import { 
+  calculateDivination, 
+  analyzeBazi, 
+  linkIChing, 
+  linkBazi, 
+  getIChingRecord, 
+  getIChingHistory, 
+  getBaziHistory, 
+  getZiweiHistory, 
+  analyzeMarriage,
+  getMarriageHistory
+} from '../services/api';
+import { UserCircle, LogOut, CalendarDays, Shield, Menu, X, History, Compass, Activity, BarChart3, Heart, Calendar, HelpCircle } from 'lucide-react';
 import { Lunar } from 'lunar-javascript';
 import MarriageInput from './MarriageInput';
-
 import HistoryBoard from './HistoryBoard';
+import HomeBoard from './HomeBoard';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const BaziBoard = React.lazy(() => import('./BaziBoard'));
 const ZiweiBoard = React.lazy(() => import('./ZiweiBoard'));
@@ -24,8 +36,16 @@ const DateSelectionBoard = React.lazy(() => import('./DateSelectionBoard'));
 export default function UserApp({ onSwitchToAdmin }) {
   const [appMode, setAppMode] = useState(() => {
     const saved = localStorage.getItem('appMode');
-    return saved === 'tuvi' ? 'ziwei' : (saved || 'iching');
-  }); // 'iching' | 'bazi' | 'ziwei' | 'marriage' | 'xemngay' | 'history' | 'profile'
+    return saved === 'tuvi' ? 'ziwei' : (saved || 'home');
+  }); // 'home' | 'iching' | 'bazi' | 'ziwei' | 'marriage' | 'xemngay' | 'history' | 'profile'
+  
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+
+  const triggerToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(''), 3000);
+  };
   
   // Auth
   const { user, logout } = useContext(AuthContext);
@@ -83,6 +103,7 @@ export default function UserApp({ onSwitchToAdmin }) {
 
   // Ziwei State
   const [historicalZiweiId, setHistoricalZiweiId] = useState(null);
+  const [autoSubmitZiwei, setAutoSubmitZiwei] = useState(null);
 
   // I Ching State
   const [mode, setMode] = useState(() => localStorage.getItem('mode') || 'coin'); // 'coin' | 'manual' | 'maihoa'
@@ -227,6 +248,27 @@ export default function UserApp({ onSwitchToAdmin }) {
     setLoading(false);
   };
 
+  const handleViewDestinyFromHome = (info) => {
+    const { day, month, year, hour, gender, target } = info;
+    const d = String(day).padStart(2, '0');
+    const m = String(month).padStart(2, '0');
+    const y = String(year);
+    const h = String(hour).padStart(2, '0');
+    
+    if (target === 'bazi') {
+      const formattedDate = `${d}/${m}/${y}`;
+      const formattedTime = `${h}:00`;
+      const genderVal = gender === 'Nam' ? 1 : 0;
+      handleBaziComplete(formattedDate, formattedTime, genderVal);
+      setAppMode('bazi');
+    } else if (target === 'ziwei') {
+      const dateStr = `${y}-${m}-${d}`;
+      setAutoSubmitZiwei({ dateStr, hourStr: h, genderStr: gender });
+      setHistoricalZiweiId(null);
+      setAppMode('ziwei');
+    }
+  };
+
   const handleMarriageComplete = async (male, female) => {
     setLoading(true);
     try {
@@ -299,22 +341,61 @@ export default function UserApp({ onSwitchToAdmin }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8f5f0] font-sans text-neutral-800 flex flex-col animate-in fade-in duration-300">
+    <div className={`min-h-screen font-sans text-neutral-800 flex flex-col ${appMode === 'home' ? 'bg-slate-50' : 'bg-[#f8f5f0]'}`}>
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {toastMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 50, scale: 0.95 }}
+            className="fixed bottom-6 right-6 z-50 glass-card bg-slate-900/90 text-white border border-slate-800 px-6 py-4 rounded-2xl shadow-xl flex items-center gap-3 font-semibold text-xs sm:text-sm"
+          >
+            <Sparkles size={16} className="text-amber-400 shrink-0" />
+            <span>{toastMessage}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* GLOBAL STICKY HEADER */}
-      <header className="sticky top-0 z-40 w-full bg-[#f8f5f0]/95 backdrop-blur-md border-b border-gray-200/50 py-2.5 px-3 sm:px-4 shadow-sm">
-        <div className="max-w-6xl mx-auto flex items-center justify-between gap-3 sm:gap-6 w-full">
+      <motion.header 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.25, ease: "easeOut" }}
+        className={`sticky top-0 z-40 w-full backdrop-blur-md border-b border-slate-200/50 py-2.5 px-3 sm:px-4 shadow-sm ${appMode === 'home' ? 'bg-white/80' : 'bg-[#f8f5f0]/95'}`}
+      >
+        <div className="max-w-6xl mx-auto flex items-center justify-between gap-3 sm:gap-6 w-full relative">
           
-          {/* TABS (Horizontal Layout) */}
-          <div className="bg-white p-1 flex gap-0.5 sm:gap-1 rounded-full shadow-sm border border-gray-200/50 justify-center items-center w-full sm:w-auto overflow-x-auto">
+          {/* Logo on the left */}
+          <div 
+            onClick={() => setAppMode('home')} 
+            className="flex items-center gap-2.5 cursor-pointer select-none shrink-0"
+          >
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center shadow-md">
+              <span className="text-white font-serif font-extrabold text-sm">PT</span>
+            </div>
+            <span className="font-extrabold text-slate-800 tracking-wider text-xs sm:text-sm font-[Montserrat] hidden min-[380px]:inline">
+              PHONG THỦY
+            </span>
+          </div>
+
+          {/* Desktop Center Navigation Tabs */}
+          <div className="hidden md:flex items-center bg-white/70 p-1 gap-0.5 sm:gap-1 rounded-full border border-slate-200/50 shadow-sm backdrop-blur-sm">
+            <button 
+              onClick={() => setAppMode('home')} 
+              className={`px-4 py-1.5 rounded-full font-bold text-xs tracking-wider font-[Montserrat] uppercase ${appMode === 'home' ? 'bg-slate-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/50'}`}
+            >
+              Trang Chủ
+            </button>
             <button 
               onClick={() => setAppMode('iching')} 
-              className={`flex-1 sm:flex-none px-2.5 py-1.5 sm:px-5 sm:py-2 rounded-full font-bold transition-all text-[11px] sm:text-xs md:text-sm tracking-wider font-[Montserrat] uppercase ${appMode === 'iching' ? 'bg-amber-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-955 hover:bg-neutral-50'}`}
+              className={`px-4 py-1.5 rounded-full font-bold text-xs tracking-wider font-[Montserrat] uppercase ${appMode === 'iching' ? 'bg-amber-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/50'}`}
             >
-              Dịch Lý
+              Kinh Dịch
             </button>
             <button 
               onClick={() => setAppMode('bazi')} 
-              className={`flex-1 sm:flex-none px-2.5 py-1.5 sm:px-5 sm:py-2 rounded-full font-bold transition-all text-[11px] sm:text-xs md:text-sm tracking-wider font-[Montserrat] uppercase ${appMode === 'bazi' ? 'bg-blue-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-955 hover:bg-neutral-50'}`}
+              className={`px-4 py-1.5 rounded-full font-bold text-xs tracking-wider font-[Montserrat] uppercase ${appMode === 'bazi' ? 'bg-blue-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/50'}`}
             >
               Bát Tự
             </button>
@@ -323,52 +404,54 @@ export default function UserApp({ onSwitchToAdmin }) {
                 setHistoricalZiweiId(null);
                 setAppMode('ziwei');
               }} 
-              className={`flex-1 sm:flex-none px-2.5 py-1.5 sm:px-5 sm:py-2 rounded-full font-bold transition-all text-[11px] sm:text-xs md:text-sm tracking-wider font-[Montserrat] uppercase ${appMode === 'ziwei' ? 'bg-purple-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-955 hover:bg-neutral-50'}`}
+              className={`px-4 py-1.5 rounded-full font-bold text-xs tracking-wider font-[Montserrat] uppercase ${appMode === 'ziwei' ? 'bg-purple-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/50'}`}
             >
               Tử Vi
             </button>
             <button 
               onClick={() => setAppMode('marriage')} 
-              className={`flex-1 sm:flex-none px-2.5 py-1.5 sm:px-5 sm:py-2 rounded-full font-bold transition-all text-[11px] sm:text-xs md:text-sm tracking-wider font-[Montserrat] uppercase ${appMode === 'marriage' ? 'bg-rose-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-955 hover:bg-neutral-50'}`}
+              className={`px-4 py-1.5 rounded-full font-bold text-xs tracking-wider font-[Montserrat] uppercase ${appMode === 'marriage' ? 'bg-rose-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/50'}`}
             >
               Hôn Nhân
             </button>
             <button 
               onClick={() => setAppMode('xemngay')} 
-              className={`flex-1 sm:flex-none px-2.5 py-1.5 sm:px-5 sm:py-2 rounded-full font-bold transition-all text-[11px] sm:text-xs md:text-sm tracking-wider font-[Montserrat] uppercase ${appMode === 'xemngay' ? 'text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-955 hover:bg-neutral-50'}`}
-              style={appMode === 'xemngay' ? { backgroundColor: '#065f46', color: '#ffffff' } : {}}
+              className={`px-4 py-1.5 rounded-full font-bold text-xs tracking-wider font-[Montserrat] uppercase ${appMode === 'xemngay' ? 'bg-emerald-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/50'}`}
             >
-              Xem ngày
+              Xem Ngày
             </button>
             {user && (
               <button 
                 onClick={() => setAppMode('history')} 
                 onMouseEnter={preloadHistoryLists}
                 onTouchStart={preloadHistoryLists}
-                className={`flex-1 sm:flex-none px-2.5 py-1.5 sm:px-5 sm:py-2 rounded-full font-bold transition-all text-[11px] sm:text-xs md:text-sm tracking-wider font-[Montserrat] uppercase ${appMode === 'history' ? 'bg-slate-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-955 hover:bg-neutral-50'}`}
+                className={`px-4 py-1.5 rounded-full font-bold text-xs tracking-wider font-[Montserrat] uppercase ${appMode === 'history' ? 'bg-slate-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/50'}`}
               >
                 Lịch Sử
               </button>
             )}
           </div>
 
-          {/* RIGHT SIDE SECTION: ADMIN TOGGLE & AUTH */}
+          {/* RIGHT SIDE SECTION: UTILITIES & AUTH */}
           <div className="flex items-center gap-3 shrink-0">
+
+
             {/* Sliding Pill Toggle Switch for Admin/Co-admin in UserApp */}
             {user && (user.role === 'admin' || user.role === 'co-admin') && (
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider hidden md:inline">Giao diện:</span>
-                <div className="relative inline-flex items-center bg-gray-200/70 rounded-full p-1 cursor-pointer select-none w-36 h-9 border border-gray-350/40">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider hidden lg:inline">Giao diện:</span>
+                <div className="relative inline-flex items-center bg-gray-200/70 rounded-full p-1 cursor-pointer select-none w-28 h-8 border border-slate-200">
                   <div 
                     onClick={onSwitchToAdmin}
-                    className="absolute top-1 bottom-1 left-1 bg-amber-800 rounded-full transition-all duration-300 shadow-sm"
+                    className="absolute top-0.5 bottom-0.5 left-0.5 bg-indigo-650 rounded-full transition-all duration-300 shadow-sm"
                     style={{
-                      width: 'calc(50% - 4px)',
-                      transform: 'translateX(68px)'
+                      width: 'calc(50% - 2px)',
+                      transform: 'translateX(52px)',
+                      backgroundColor: '#4f46e5'
                     }}
                   />
-                  <div className="flex w-full text-center text-[10px] font-extrabold tracking-wider z-10">
-                    <span onClick={onSwitchToAdmin} className="flex-1 text-neutral-550 hover:text-neutral-900 transition-colors select-none py-1">ADMIN</span>
+                  <div className="flex w-full text-center text-[9px] font-extrabold tracking-wider z-10">
+                    <span onClick={onSwitchToAdmin} className="flex-1 text-slate-550 hover:text-slate-900 transition-colors select-none py-1">ADMIN</span>
                     <span className="flex-1 text-white select-none pointer-events-none py-1">USER</span>
                   </div>
                 </div>
@@ -381,14 +464,19 @@ export default function UserApp({ onSwitchToAdmin }) {
                 <div className="flex items-center gap-1.5 bg-white px-2 py-1 rounded-full shadow-sm border border-gray-200/50 text-xs sm:text-sm relative">
                   <NotificationBell onNotificationClick={handleNotificationClick} />
                   
+                  {/* Credits Display */}
+                  <div className="flex items-center gap-1 px-2 py-0.5 bg-indigo-50 text-indigo-850 rounded-full border border-indigo-200/50 text-[11px] font-extrabold font-[Montserrat] shrink-0">
+                    <span>{user.credits !== undefined ? user.credits : 0} 🪙</span>
+                  </div>
+
                   {/* User Dropdown Toggle */}
                   <div className="relative">
                     <button 
                       onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                      className="flex items-center gap-1 text-amber-900 font-semibold max-w-[80px] sm:max-w-none hover:text-amber-955 transition-colors focus:outline-none"
+                      className="flex items-center gap-1 text-slate-800 font-semibold max-w-[80px] sm:max-w-none hover:text-slate-950 transition-colors focus:outline-none"
                       title="Hồ sơ cá nhân"
                     >
-                      <UserCircle size={18} className="text-amber-800 shrink-0" />
+                      <UserCircle size={18} className="text-slate-600 shrink-0" />
                       <span className="hidden sm:inline truncate max-w-[100px]">{user.name}</span>
                     </button>
 
@@ -399,9 +487,9 @@ export default function UserApp({ onSwitchToAdmin }) {
                             setAppMode('profile');
                             setIsUserMenuOpen(false);
                           }}
-                          className="w-full text-left px-4 py-2 text-xs sm:text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-955 font-bold transition-colors flex items-center gap-2"
+                          className="w-full text-left px-4 py-2 text-xs sm:text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-950 font-bold transition-colors flex items-center gap-2"
                         >
-                          <UserCircle size={15} className="text-amber-800" />
+                          <UserCircle size={15} className="text-indigo-600" />
                           Hồ sơ cá nhân
                         </button>
                         {(user?.role === 'admin' || user?.role === 'co-admin') && (
@@ -410,9 +498,9 @@ export default function UserApp({ onSwitchToAdmin }) {
                               onSwitchToAdmin();
                               setIsUserMenuOpen(false);
                             }}
-                            className="w-full text-left px-4 py-2 text-xs sm:text-sm text-amber-900 hover:bg-amber-50 font-bold transition-colors flex items-center gap-2 border-t border-gray-100"
+                            className="w-full text-left px-4 py-2 text-xs sm:text-sm text-indigo-900 hover:bg-indigo-50 font-bold transition-colors flex items-center gap-2 border-t border-gray-100"
                           >
-                            <Shield size={15} className="text-amber-700" />
+                            <Shield size={15} className="text-indigo-700" />
                             Trang quản trị
                           </button>
                         )}
@@ -420,7 +508,7 @@ export default function UserApp({ onSwitchToAdmin }) {
                           onClick={() => {
                             logout();
                             setIsUserMenuOpen(false);
-                            setAppMode('iching');
+                            setAppMode('home');
                           }}
                           className="w-full text-left px-4 py-2 text-xs sm:text-sm text-red-650 hover:bg-red-50 font-bold transition-colors flex items-center gap-2 border-t border-gray-100"
                         >
@@ -434,20 +522,100 @@ export default function UserApp({ onSwitchToAdmin }) {
               ) : (
                 <button 
                   onClick={() => setIsAuthModalOpen(true)}
-                  className="flex items-center gap-1.5 bg-amber-800 hover:bg-amber-900 text-white px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-full shadow-sm hover:shadow transition-all duration-200 font-bold text-xs sm:text-sm"
+                  className="flex items-center gap-1.5 bg-indigo-650 hover:bg-indigo-700 text-white px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-xl shadow-sm hover:shadow transition-all duration-205 font-bold text-xs sm:text-sm"
+                  style={{ backgroundColor: '#4f46e5' }}
                 >
                   <UserCircle size={16} className="shrink-0" />
                   <span className="hidden sm:inline">Đăng Nhập</span>
                 </button>
               )}
             </div>
+
+            {/* Mobile Layout Menu Button & Always Visible History Button */}
+            <div className="flex md:hidden items-center gap-1.5">
+              <button 
+                onClick={() => {
+                  if (user) {
+                    setAppMode('history');
+                  } else {
+                    setIsAuthModalOpen(true);
+                  }
+                }}
+                onMouseEnter={preloadHistoryLists}
+                onTouchStart={preloadHistoryLists}
+                className={`p-2 rounded-full transition-colors ${appMode === 'history' ? 'bg-slate-800 text-white' : 'hover:bg-slate-100 text-slate-500 hover:text-slate-800'}`}
+                title="Lịch sử phân tích"
+              >
+                <History size={17} />
+              </button>
+              
+              <button 
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="p-2 rounded-full hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors"
+              >
+                <Menu size={20} />
+              </button>
+            </div>
           </div>
 
+          <AnimatePresence>
+            {isMobileMenuOpen && (
+              <motion.div 
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="absolute top-full left-0 w-full bg-white border-b border-slate-100 shadow-xl p-4 grid grid-cols-2 gap-3 md:hidden z-40"
+              >
+                <div className="col-span-2 flex justify-between items-center mb-2 px-1">
+                  <span className="font-bold text-slate-400 text-xs uppercase tracking-wider">Danh mục</span>
+                  <button onClick={() => setIsMobileMenuOpen(false)}><X size={16} className="text-slate-400"/></button>
+                </div>
+                <div className="grid grid-cols-2 gap-3 col-span-2">
+                  <button 
+                    onClick={() => { setAppMode('iching'); setIsMobileMenuOpen(false); }}
+                    className="p-3.5 rounded-2xl bg-amber-50/50 hover:bg-amber-50 border border-amber-100 flex flex-col gap-2 items-start text-left transition-all"
+                  >
+                    <Compass className="text-indigo-600" size={18} />
+                    <span className="font-extrabold text-xs text-slate-800">Kinh Dịch</span>
+                  </button>
+                  <button 
+                    onClick={() => { setAppMode('bazi'); setIsMobileMenuOpen(false); }}
+                    className="p-3.5 rounded-2xl bg-blue-50/50 hover:bg-blue-50 border border-blue-100 flex flex-col gap-2 items-start text-left transition-all"
+                  >
+                    <Activity className="text-blue-600" size={18} />
+                    <span className="font-extrabold text-xs text-slate-800">Bát Tự</span>
+                  </button>
+                  <button 
+                    onClick={() => { setAppMode('ziwei'); setIsMobileMenuOpen(false); }}
+                    className="p-3.5 rounded-2xl bg-purple-50/50 hover:bg-purple-50 border border-purple-100 flex flex-col gap-2 items-start text-left transition-all"
+                  >
+                    <BarChart3 className="text-purple-600" size={18} />
+                    <span className="font-extrabold text-xs text-slate-800">Tử Vi</span>
+                  </button>
+                  <button 
+                    onClick={() => { setAppMode('marriage'); setIsMobileMenuOpen(false); }}
+                    className="p-3.5 rounded-2xl bg-rose-50/50 hover:bg-rose-50 border border-rose-100 flex flex-col gap-2 items-start text-left transition-all"
+                  >
+                    <Heart className="text-rose-600" size={18} />
+                    <span className="font-extrabold text-xs text-slate-800">Hôn Nhân</span>
+                  </button>
+                  <button 
+                    onClick={() => { setAppMode('xemngay'); setIsMobileMenuOpen(false); }}
+                    className="col-span-2 p-3.5 rounded-2xl bg-emerald-50/50 hover:bg-emerald-50 border border-emerald-100 flex gap-3 items-center text-left transition-all"
+                  >
+                    <Calendar className="text-emerald-600" size={18} />
+                    <span className="font-extrabold text-xs text-slate-800">Xem Ngày Đẹp Hoàng Đạo</span>
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
         </div>
-      </header>
+      </motion.header>
 
       {/* MAIN CONTAINER */}
-      <div className="flex-1 w-full max-w-6xl mx-auto py-6 md:py-10 px-4 space-y-8">
+      <div className={appMode === 'home' ? "flex-1 w-full" : "flex-1 w-full max-w-6xl mx-auto py-6 md:py-10 px-4 space-y-8"}>
 
         {/* HEADER */}
         {appMode === 'iching' && !result ? (
@@ -511,8 +679,30 @@ export default function UserApp({ onSwitchToAdmin }) {
         ) : null}
 
         {/* SYSTEM BOARDS */}
+        {/* SYSTEM 0: HOMEPAGE */}
+        {appMode === 'home' && (
+          <div>
+            <HomeBoard 
+              onSelectModule={(module) => {
+                if (module === 'history') {
+                  if (user) {
+                    setAppMode('history');
+                  } else {
+                    setIsAuthModalOpen(true);
+                  }
+                } else {
+                  setAppMode(module);
+                }
+              }}
+              user={user}
+              onRequireLogin={() => setIsAuthModalOpen(true)}
+              onViewDestiny={handleViewDestinyFromHome}
+            />
+          </div>
+        )}
+
         {/* SYSTEM 1: I CHING */}
-        <div className={`animate-in fade-in duration-500 ${appMode === 'iching' ? 'block' : 'hidden'}`}>
+        <div className={`${appMode === 'iching' ? 'block' : 'hidden'}`}>
           {!result && !loading && (
             <div className="max-w-xl mx-auto mb-10 bg-white p-6 rounded-2xl shadow-sm border border-amber-100">
               <label className="block text-amber-900 font-bold mb-3 text-lg text-center">Sự việc cần hỏi (Ý niệm)</label>
@@ -568,6 +758,115 @@ export default function UserApp({ onSwitchToAdmin }) {
             </div>
           )}
 
+          {!result && !loading && (
+            <div className="max-w-3xl mx-auto mt-10 space-y-8 font-sans">
+              {/* Detailed Academic Cards */}
+              <div className="bg-white p-6 md:p-8 rounded-3xl border border-amber-100 shadow-md">
+                <h4 className="text-sm font-extrabold text-amber-800 uppercase tracking-widest text-center mb-6">Kiến thức học thuật Dịch Lý</h4>
+                
+                <div className="space-y-6">
+                  {/* Card 1 */}
+                  <div className="border-b border-slate-100 pb-5 text-left">
+                    <h5 className="font-extrabold text-slate-800 text-base mb-2.5 flex items-center gap-2">
+                      <span className="w-1.5 h-6 rounded bg-amber-600 block"></span>
+                      1. Kinh Dịch Lục Hào là gì?
+                    </h5>
+                    <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed pl-3.5 mb-2">
+                      Kinh Dịch Lục Hào là phương pháp chiêm cát hung cổ học dựa trên 64 quẻ Dịch. Mỗi quẻ gồm 6 hào đại diện cho sự biến thiên âm dương của vạn vật tại một thời điểm hệ trọng.
+                    </p>
+                    <ul className="list-disc pl-8 text-xs text-slate-500 space-y-1 font-medium">
+                      <li><strong>Nguyên lý:</strong> Dùng tương tác giữa Thiên Địa Nhân để phản ánh trạng thái sự việc cần hỏi.</li>
+                      <li><strong>Quẻ Chủ:</strong> Đại diện cho bối cảnh hiện tại của sự việc khi gieo quẻ.</li>
+                      <li><strong>Quẻ Biến:</strong> Kết quả xu hướng phát triển trong tương lai do các Hào Động sinh ra.</li>
+                    </ul>
+                  </div>
+
+                  {/* Card 2 */}
+                  <div className="border-b border-slate-100 pb-5 text-left">
+                    <h5 className="font-extrabold text-slate-800 text-base mb-2.5 flex items-center gap-2">
+                      <span className="w-1.5 h-6 rounded bg-amber-600 block"></span>
+                      2. Phương pháp luận quẻ chuyên sâu
+                    </h5>
+                    <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed pl-3.5 mb-2">
+                      Để giải mã thông tin ẩn chứa trong quẻ, các bậc thầy Dịch học sử dụng các hệ tọa độ tương tác:
+                    </p>
+                    <ul className="list-disc pl-8 text-xs text-slate-500 space-y-1.5 font-medium">
+                      <li><strong>Hào Thế (世):</strong> Đại diện cho bản thể người hỏi, phản ánh nội tâm, năng lực và tình trạng hiện tại.</li>
+                      <li><strong>Hào Ứng (应):</strong> Đại diện cho đối phương, mục tiêu cần hướng tới hoặc hoàn cảnh khách quan của sự việc.</li>
+                      <li><strong>Dụng Thần (用神):</strong> Chọn 1 trong 5 hào Lục Thân (Phụ Mẫu, Huynh Đệ, Tử Tôn, Thê Tài, Quan Quỷ) làm trung tâm để luận sự việc (ví dụ hỏi tiền tài lấy Thê Tài làm Dụng Thần).</li>
+                      <li><strong>Nhật Nguyệt (日/月):</strong> Thiên can và Địa chi của ngày gieo quẻ làm thước đo năng lượng sinh, khắc, vượng, suy cho các Hào.</li>
+                    </ul>
+                  </div>
+
+                  {/* Card 3 */}
+                  <div className="text-left">
+                    <h5 className="font-extrabold text-slate-800 text-base mb-2.5 flex items-center gap-2">
+                      <span className="w-1.5 h-6 rounded bg-amber-600 block"></span>
+                      3. Bản luận giải cung cấp những thông tin gì?
+                    </h5>
+                    <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed pl-3.5 mb-2">
+                      Bản phân tích học thuật từ hệ thống sẽ cung cấp chi tiết:
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-3.5 mt-3">
+                      <div className="bg-amber-50/40 p-3 rounded-xl border border-amber-100/50">
+                        <span className="block text-xs font-bold text-amber-800 uppercase tracking-wider mb-1">✓ Cát hung bản chất</span>
+                        <span className="text-[11px] text-slate-500 font-medium block">Xác định sự việc thành công hay thất bại dựa trên tương sinh tương khắc giữa Thế và Dụng Thần.</span>
+                      </div>
+                      <div className="bg-amber-50/40 p-3 rounded-xl border border-amber-100/50">
+                        <span className="block text-xs font-bold text-amber-800 uppercase tracking-wider mb-1">✓ Thời gian ứng kỳ</span>
+                        <span className="text-[11px] text-slate-500 font-medium block">Chỉ rõ thời điểm (ngày, tháng) sự việc sẽ diễn ra cụ thể dựa trên quy luật Hào Động, Tuần Không hoặc Xung Thực.</span>
+                      </div>
+                      <div className="bg-amber-50/40 p-3 rounded-xl border border-amber-100/50">
+                        <span className="block text-xs font-bold text-amber-800 uppercase tracking-wider mb-1">✓ Lời khuyên Dịch lý</span>
+                        <span className="text-[11px] text-slate-500 font-medium block">Lời khuyên ứng xử phù hợp đạo lý nhân quả giúp bạn xu cát tị hung, chủ động chuyển hóa tình huống.</span>
+                      </div>
+                      <div className="bg-amber-50/40 p-3 rounded-xl border border-amber-100/50">
+                        <span className="block text-xs font-bold text-amber-800 uppercase tracking-wider mb-1">✓ Lục thú trì thế</span>
+                        <span className="text-[11px] text-slate-500 font-medium block">Tác động tâm lý từ Thanh Long, Chu Tước, Câu Trận, Đằng Xà, Bạch Hổ, Huyền Vũ đến diễn biến sự việc.</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* FAQs Section */}
+              <div className="bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-md space-y-6">
+                <h4 className="text-sm font-extrabold text-amber-800 uppercase tracking-widest text-center">Các câu hỏi thường gặp về Kinh Dịch</h4>
+                <div className="space-y-4">
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100/70">
+                    <h5 className="font-extrabold text-slate-800 text-xs sm:text-sm mb-1.5 flex items-center gap-1.5 text-left">
+                      <HelpCircle size={15} className="text-amber-600 shrink-0" />
+                      Làm thế nào để gieo quẻ có độ chính xác cao nhất?
+                    </h5>
+                    <p className="text-xs text-slate-500 font-medium leading-relaxed pl-5 text-left">
+                      Bạn cần chọn nơi yên tĩnh, giữ tâm thế thoải mái, tập trung cao độ ý niệm vào câu hỏi duy nhất trong khoảng 1-2 phút trước khi gieo quẻ. Tránh hỏi khi tâm trạng đang quá tức giận, lo âu hoặc hỏi đùa giỡn.
+                    </p>
+                  </div>
+                  
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100/70">
+                    <h5 className="font-extrabold text-slate-800 text-xs sm:text-sm mb-1.5 flex items-center gap-1.5 text-left">
+                      <HelpCircle size={15} className="text-amber-600 shrink-0" />
+                      Có nên gieo quẻ nhiều lần cho cùng một sự việc không?
+                    </h5>
+                    <p className="text-xs text-slate-500 font-medium leading-relaxed pl-5 text-left">
+                      Không nên. Kinh Dịch có câu "Sơ phệ cáo, tái tam độc, độc tắc bất cáo" (Lần đầu thì báo tin, hỏi lại hai ba lần là gây nhiễu loạn, nhiễu thì không báo nữa). Chỉ gieo lại khi tình huống có sự biến chuyển hoàn toàn mới.
+                    </p>
+                  </div>
+
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100/70">
+                    <h5 className="font-extrabold text-slate-800 text-xs sm:text-sm mb-1.5 flex items-center gap-1.5 text-left">
+                      <HelpCircle size={15} className="text-amber-600 shrink-0" />
+                      Nếu quẻ dịch cho kết quả không tốt thì có thay đổi được không?
+                    </h5>
+                    <p className="text-xs text-slate-500 font-medium leading-relaxed pl-5 text-left">
+                      Kết quả của quẻ dịch chỉ phản ánh diễn biến tự nhiên nếu bạn giữ nguyên thói quen và cách hành xử hiện tại. Kinh Dịch là môn học về "Biến dịch", quẻ xấu là lời cảnh báo để bạn chủ động thay đổi hành vi, tâm tính và cách giải quyết sự việc nhằm đảo chiều kết quả xấu thành cát lành.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {result && !loading && (
             <div className="space-y-12 animate-in fade-in zoom-in-95 duration-700 pb-20 font-sans">
               <IChingBoard result={result} onUpdateResult={setResult} user={user} onRequireLogin={() => setIsAuthModalOpen(true)} />
@@ -584,7 +883,7 @@ export default function UserApp({ onSwitchToAdmin }) {
         </div>
 
         {/* SYSTEM 2: BAZI */}
-        <div className={`animate-in fade-in duration-500 ${appMode === 'bazi' ? 'block' : 'hidden'}`}>
+        <div className={`${appMode === 'bazi' ? 'block' : 'hidden'}`}>
           {user && !baziResult && !loading && (
             <div className="max-w-xl mx-auto mb-10 text-center">
               <button 
@@ -637,7 +936,7 @@ export default function UserApp({ onSwitchToAdmin }) {
         </div>
 
         {/* SYSTEM 3: TỬ VI */}
-        <div className={`animate-in fade-in duration-500 ${appMode === 'ziwei' ? 'block' : 'hidden'}`}>
+        <div className={`${appMode === 'ziwei' ? 'block' : 'hidden'}`}>
           <React.Suspense fallback={
             <div className="text-center py-20 animate-in fade-in">
               <div className="w-12 h-12 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mx-auto mb-4"></div>
@@ -650,12 +949,14 @@ export default function UserApp({ onSwitchToAdmin }) {
               historicalRecordId={historicalZiweiId} 
               onCalculationComplete={invalidateHistoryCache}
               onResultChange={setIsZiweiResultLoaded}
+              autoSubmitInfo={autoSubmitZiwei}
+              onClearAutoSubmit={() => setAutoSubmitZiwei(null)}
             />
           </React.Suspense>
         </div>
 
         {/* SYSTEM 5: HÔN NHÂN */}
-        <div className={`animate-in fade-in duration-500 ${appMode === 'marriage' ? 'block' : 'hidden'}`}>
+        <div className={`${appMode === 'marriage' ? 'block' : 'hidden'}`}>
           {loading && (
             <div className="text-center py-20 animate-in fade-in">
               <div className="w-16 h-16 border-4 border-rose-200 border-t-rose-600 rounded-full animate-spin mx-auto mb-6"></div>
@@ -692,7 +993,7 @@ export default function UserApp({ onSwitchToAdmin }) {
         </div>
         
         {/* SYSTEM 6: DATE SELECTION */}
-        <div className={`animate-in fade-in duration-500 ${appMode === 'xemngay' ? 'block' : 'hidden'}`}>
+        <div className={`${appMode === 'xemngay' ? 'block' : 'hidden'}`}>
           <React.Suspense fallback={
             <div className="text-center py-20 animate-in fade-in">
               <div className="w-12 h-12 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin mx-auto mb-4"></div>
@@ -705,7 +1006,7 @@ export default function UserApp({ onSwitchToAdmin }) {
 
         {/* SYSTEM 4: HISTORY */}
         {user && (
-          <div className={`animate-in fade-in duration-500 ${appMode === 'history' ? 'block' : 'hidden'}`}>
+          <div className={`${appMode === 'history' ? 'block' : 'hidden'}`}>
             <HistoryBoard 
               onViewHexagram={handleViewHistoricalHexagram} 
               onViewBazi={handleViewHistoricalBazi} 
@@ -721,7 +1022,7 @@ export default function UserApp({ onSwitchToAdmin }) {
 
         {/* SYSTEM 5: USER PROFILE */}
         {user && appMode === 'profile' && (
-          <div className="animate-in fade-in duration-500">
+          <div>
             <ProfileBoard />
           </div>
         )}
@@ -729,51 +1030,53 @@ export default function UserApp({ onSwitchToAdmin }) {
       </div>
 
       {/* GLOBAL FOOTER */}
-      <footer className="w-full bg-[#faf6f0] border-t border-amber-100/70 py-6 mt-auto">
-        <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
-          {/* Logo & Slogan */}
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-full bg-amber-800 flex items-center justify-center shadow-md">
-              <span className="text-white font-serif font-extrabold text-base">PT</span>
+      {appMode !== 'home' && (
+        <footer className="w-full bg-[#faf6f0] border-t border-amber-100/70 py-6 mt-auto">
+          <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
+            {/* Logo & Slogan */}
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-full bg-amber-800 flex items-center justify-center shadow-md">
+                <span className="text-white font-serif font-extrabold text-base">PT</span>
+              </div>
+              <div>
+                <h4 className="font-serif font-extrabold text-sm text-amber-955 tracking-wide">PHONG THỦY & KINH DỊCH</h4>
+                <p className="text-[10px] text-gray-500 font-medium">Bản quyền học thuật cổ phương Đông © 2026</p>
+              </div>
             </div>
-            <div>
-              <h4 className="font-serif font-extrabold text-sm text-amber-955 tracking-wide">PHONG THỦY & KINH DỊCH</h4>
-              <p className="text-[10px] text-gray-500 font-medium">Bản quyền học thuật cổ phương Đông © 2026</p>
+
+            {/* Contact Info */}
+            <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 text-xs text-neutral-600 font-bold">
+              <a 
+                href="mailto:trinhtuyen270804@gmail.com" 
+                className="flex items-center gap-1.5 hover:text-amber-800 transition-colors"
+              >
+                <span className="text-amber-800">Email:</span>
+                <span className="font-medium">trinhtuyen270804@gmail.com</span>
+              </a>
+              <a 
+                href="https://zalo.me/0868960506" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="flex items-center gap-1.5 hover:text-amber-800 transition-colors"
+              >
+                <span className="text-amber-800">Zalo:</span>
+                <span className="font-medium">0868960506</span>
+              </a>
+            </div>
+
+            {/* Additional decorative links */}
+            <div className="text-[11px] text-neutral-400 font-medium flex items-center gap-3">
+              <span>Kinh Dịch</span>
+              <span className="text-amber-200">•</span>
+              <span>Bát Tự</span>
+              <span className="text-amber-200">•</span>
+              <span>Tử Vi</span>
+              <span className="text-amber-200">•</span>
+              <span>Hôn Nhân</span>
             </div>
           </div>
-
-          {/* Contact Info */}
-          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 text-xs text-neutral-600 font-bold">
-            <a 
-              href="mailto:trinhtuyen270804@gmail.com" 
-              className="flex items-center gap-1.5 hover:text-amber-800 transition-colors"
-            >
-              <span className="text-amber-800">Email:</span>
-              <span className="font-medium">trinhtuyen270804@gmail.com</span>
-            </a>
-            <a 
-              href="https://zalo.me/0868960506" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="flex items-center gap-1.5 hover:text-amber-800 transition-colors"
-            >
-              <span className="text-amber-800">Zalo:</span>
-              <span className="font-medium">0868960506</span>
-            </a>
-          </div>
-
-          {/* Additional decorative links */}
-          <div className="text-[11px] text-neutral-400 font-medium flex items-center gap-3">
-            <span>Kinh Dịch</span>
-            <span className="text-amber-200">•</span>
-            <span>Bát Tự</span>
-            <span className="text-amber-200">•</span>
-            <span>Tử Vi</span>
-            <span className="text-amber-200">•</span>
-            <span>Hôn Nhân</span>
-          </div>
-        </div>
-      </footer>
+        </footer>
+      )}
 
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} onLoginSuccess={handleLoginSuccess} />
       <UpdateBaziModal 
