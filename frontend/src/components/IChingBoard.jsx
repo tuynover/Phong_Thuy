@@ -3,8 +3,8 @@ import { createPortal } from 'react-dom';
 import Tooltip from './Tooltip';
 import { hexagramDictionary } from '../data/hexagrams';
 import ReactMarkdown from 'react-markdown';
-import { getInterpretationStreamUrl } from '../services/api';
-import { AlertCircle, BookOpen, ScrollText, MessageCircle, ArrowUp, ArrowDown } from 'lucide-react';
+import { getInterpretationStreamUrl, rateIChing } from '../services/api';
+import { AlertCircle, BookOpen, ScrollText, MessageCircle, ArrowUp, ArrowDown, Star } from 'lucide-react';
 import AiChatWidget from './AiChatWidget';
 import { parseMarkdownSections } from '../utils/markdownParser';
 import SectionRenderer from './SectionRenderer';
@@ -201,7 +201,7 @@ const HexagramVisual = ({ lines }) => {
     );
 };
 
-const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin }) => {
+const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidateHistory }) => {
     const { user: ctxUser, setUser, token } = useContext(AuthContext);
     const activeUser = ctxUser || user;
     const [selectedHex, setSelectedHex] = useState(null);
@@ -221,9 +221,22 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin }) => {
     const [error, setError] = useState('');
     const [loadingStep, setLoadingStep] = useState(0);
 
+    const [rating, setRating] = useState(0);
+    const [feedback, setFeedback] = useState('');
+    const [justRated, setJustRated] = useState(false);
+
+    const prevIdRef = useRef(null);
+
     // Update interpretation if result changes (e.g. user clicks another history item)
     useEffect(() => {
+        const currentId = result?._id || result?.recordId;
+        if (currentId !== prevIdRef.current) {
+            setJustRated(false);
+            prevIdRef.current = currentId;
+        }
         setInterpretation(getInitialInterpretationText(result?.aiInterpretation));
+        setRating(result?.rating || 0);
+        setFeedback(result?.feedback || '');
     }, [result]);
 
     // Elegant minimalist loading texts
@@ -252,6 +265,26 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin }) => {
             }
         };
     }, [abortController]);
+
+    const handleRatingSubmit = async (e) => {
+        e.preventDefault();
+        const resolvedId = result?._id || result?.recordId;
+        if (!resolvedId) return;
+        try {
+            await rateIChing(resolvedId, rating, feedback);
+            setJustRated(true);
+            if (onInvalidateHistory) onInvalidateHistory();
+            if (onUpdateResult) {
+                onUpdateResult({
+                    ...result,
+                    rating,
+                    feedback
+                });
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
 
     const triggerLuanGiai = async () => {
         setShowConfirmModal(false);
@@ -307,8 +340,15 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin }) => {
                                     throw new Error(parsed.error);
                                 }
                                 if (parsed.chunk) {
+                                    const isFirstChunk = !currentText;
                                     currentText += parsed.chunk;
                                     setInterpretation(currentText);
+                                    if (isFirstChunk) {
+                                        setTimeout(() => {
+                                            const element = document.getElementById('iching-interpretation-section');
+                                            element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                        }, 100);
+                                    }
                                 }
                             } catch (e) {
                                 if (e.message.includes('SAFETY') || e.message.includes('luận giải') || e.message.includes('quá tải')) {
@@ -693,9 +733,8 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin }) => {
                 </div>
             </div>
 
-            {/* KẾT QUẢ THẦY DỊCH GIẢI */}
             {interpretation && (
-                <div className="w-full mt-4 mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div id="iching-interpretation-section" className="w-full mt-4 mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <div className="flex items-center gap-3 mb-6 ml-1">
                         <div className="w-8 h-8 bg-amber-800 rounded-lg flex items-center justify-center shadow-md">
                             <BookOpen className="text-white" size={16} />
@@ -703,8 +742,56 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin }) => {
                         <h3 className="text-xl font-extrabold text-slate-800 tracking-tight">Thầy Dịch Giải Chi Tiết</h3>
                     </div>
                     <SectionRenderer sections={parseMarkdownSections(interpretation, 'iching')} theme="iching" />
-                </div>
-            )}
+
+                    {/* ĐÁNH GIÁ PHẢN HỒI */}
+                    {(!result?.rating || justRated) && (
+                        <div className="mt-12 bg-white/60 border border-amber-100 p-6 rounded-3xl backdrop-blur-md max-w-xl mx-auto shadow-md">
+                            <h4 className="font-extrabold text-slate-800 text-center mb-2">Đánh Giá Luận Giải Thầy Dịch Lý</h4>
+                            <p className="text-center text-xs text-slate-400 mb-6">Nhận xét của bạn sẽ giúp bổ sung tri thức và cải thiện chất lượng của AI tốt hơn.</p>
+
+                            {justRated ? (
+                                <div className="text-center py-4 text-amber-700 font-bold animate-in zoom-in-95">
+                                    Xin chân thành cảm ơn ý kiến đánh giá của bạn!
+                                </div>
+                            ) : (
+                                <form onSubmit={handleRatingSubmit} className="space-y-4">
+                                <div className="flex justify-center gap-2">
+                                    {[1, 2, 3, 4, 5].map((star) => (
+                                        <button
+                                            key={star}
+                                            type="button"
+                                            onClick={() => setRating(star)}
+                                            className="transition-transform duration-100 active:scale-95"
+                                        >
+                                            <Star
+                                                size={28}
+                                                className={`stroke-2 cursor-pointer ${
+                                                    star <= rating ? 'fill-amber-400 stroke-amber-500' : 'text-slate-200 hover:text-amber-300'
+                                                }`}
+                                            />
+                                        </button>
+                                    ))}
+                                </div>
+                                <textarea
+                                    placeholder="Ý kiến nhận xét hoặc lưu ý thực tế của bạn..."
+                                    value={feedback}
+                                    onChange={(e) => setFeedback(e.target.value)}
+                                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition-all font-bold placeholder:text-slate-300 focus:outline-none"
+                                    rows={2}
+                                />
+                                <button
+                                    type="submit"
+                                    disabled={!rating}
+                                    className="w-full py-3 bg-amber-800 hover:bg-amber-900 text-white font-extrabold rounded-2xl shadow-md disabled:bg-slate-100 disabled:text-slate-400 disabled:shadow-none transition-all active:scale-[0.98]"
+                                >
+                                    Gửi Nhận Xét
+                                </button>
+                            </form>
+                        )}
+                    </div>
+                )}
+            </div>
+        )}
 
             {error && (
                 <div className="w-full mt-4 mb-8 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-xl flex items-start gap-3">

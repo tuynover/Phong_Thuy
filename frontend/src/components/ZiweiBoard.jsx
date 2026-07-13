@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { Calendar, Clock, User, Sparkles, MessageCircle, RefreshCw, Star, ShieldAlert, ScrollText, ArrowUp, ArrowDown, ChevronDown, HelpCircle } from 'lucide-react';
-import { createZiweiChart, getZiweiRecord, rateZiwei, getInterpretationStreamUrl } from '../services/api';
+import { createZiweiChart, getZiweiRecord, rateZiwei, getInterpretationStreamUrl, updateBaziInfo } from '../services/api';
 import ChartRenderer from './ChartRenderer';
 import SectionRenderer from './SectionRenderer';
 import AiChatWidget from './AiChatWidget';
@@ -92,7 +92,7 @@ function CustomSelect({ value, onChange, options, placeholder }) {
   );
 }
 
-const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationComplete, onResultChange, autoSubmitInfo, onClearAutoSubmit }) => {
+const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationComplete, onResultChange, autoSubmitInfo, onClearAutoSubmit, onInvalidateHistory }) => {
   const { user: ctxUser, setUser, token } = useContext(AuthContext);
   const activeUser = ctxUser || user;
 
@@ -131,20 +131,32 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
   // Đánh giá sao
   const [rating, setRating] = useState(0);
   const [feedback, setFeedback] = useState('');
-  const [rated, setRated] = useState(false);
+  const [justRated, setJustRated] = useState(false);
+
+  const prevIdRef = useRef(null);
 
   useEffect(() => {
     if (result) {
       localStorage.setItem('tuViResult', JSON.stringify(result));
+      const currentId = result._id || result.id;
+      if (currentId !== prevIdRef.current) {
+        setJustRated(false);
+        prevIdRef.current = currentId;
+      }
       if (result.aiInterpretation && result.aiInterpretation.content) {
         setInterpretation(result.aiInterpretation.content);
       } else {
         setInterpretation('');
       }
+      setRating(result.rating || 0);
+      setFeedback(result.feedback || '');
       if (onResultChange) onResultChange(true);
     } else {
       localStorage.removeItem('tuViResult');
       setInterpretation('');
+      setRating(0);
+      setFeedback('');
+      setJustRated(false);
       if (onResultChange) onResultChange(false);
     }
   }, [result, onResultChange]);
@@ -170,7 +182,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
     setError(null);
     setLoading(true);
     setResult(null);
-    setRated(false);
+    setJustRated(false);
     setRating(0);
     setFeedback('');
 
@@ -210,8 +222,65 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
     const genderStr = activeUser.gender === 0 ? "Nữ" : "Nam";
     const formattedDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     let h = hour !== undefined ? hour : 0;
-    
-    await handleZiweiComplete(formattedDate, String(h), genderStr);
+    const parsedHour = parseInt(h) || 0;
+    const hourIndexConverted = getZiweiHourIndex(parsedHour);
+
+    if (activeUser.baziInfo.ownZiweiRecordId) {
+      setLoading(true);
+      setError('');
+      try {
+        const res = await getZiweiRecord(activeUser.baziInfo.ownZiweiRecordId);
+        const record = res.data;
+        if (record && record.inputInfo && 
+            record.inputInfo.date === formattedDate && 
+            record.inputInfo.hour === hourIndexConverted && 
+            record.inputInfo.gender === genderStr &&
+            !record.isDeleted) {
+          setResult(record);
+          setLoading(false);
+          return;
+        }
+      } catch (err) {
+        console.error("Lỗi khi tải lá số Tử Vi bản thân:", err);
+      }
+    }
+
+    setError(null);
+    setLoading(true);
+    setResult(null);
+    setJustRated(false);
+    setRating(0);
+    setFeedback('');
+
+    const uid = activeUser.id || activeUser._id;
+    try {
+      setLoadingStep('Đang lập mệnh bàn Tử Vi...');
+      setProgress(50);
+      const chartRes = await createZiweiChart(formattedDate, hourIndexConverted, genderStr, uid);
+      const record = chartRes.data;
+      setResult(record);
+      setProgress(100);
+      setLoading(false);
+      if (onCalculationComplete) onCalculationComplete();
+
+      const newRecordId = record._id || record.id;
+      if (newRecordId) {
+        const updateRes = await updateBaziInfo(
+          uid, 
+          day, month, year, hour, activeUser.baziInfo.minute || 0,
+          activeUser.baziInfo.ownBaziRecordId,
+          newRecordId // pass ownZiweiRecordId
+        );
+        if (updateRes.data && updateRes.data.user) {
+          setUser(updateRes.data.user);
+          localStorage.setItem('user', JSON.stringify(updateRes.data.user));
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      setError(err.response?.data?.error || 'Lỗi xảy ra trong quá trình lập lá số.');
+      setLoading(false);
+    }
   };
 
   // Nếu tải từ lịch sử (historicalRecordId)
@@ -240,7 +309,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
     setProgress(0);
     setError('');
     setResult(null);
-    setRated(false);
+    setJustRated(false);
     setRating(0);
     setFeedback('');
 
@@ -332,8 +401,15 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
                   throw new Error(parsed.error);
                 }
                 if (parsed.chunk) {
+                  const isFirstChunk = !currentText;
                   currentText += parsed.chunk;
                   setInterpretation(currentText);
+                  if (isFirstChunk) {
+                    setTimeout(() => {
+                      const element = document.getElementById('ziwei-interpretation-section');
+                      element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 100);
+                  }
                 }
               } catch (e) {
                 if (e.message.includes('bảo trì') || e.message.includes('SAFETY') || e.message.includes('luận giải') || e.message.includes('quá tải')) {
@@ -388,7 +464,8 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
     if (!result?._id) return;
     try {
       await rateZiwei(result._id, rating, feedback);
-      setRated(true);
+      setJustRated(true);
+      if (onInvalidateHistory) onInvalidateHistory();
     } catch (err) {
       console.error(err);
     }
@@ -422,7 +499,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
             <div className="p-2 rounded-xl bg-purple-500 text-white shadow-md shadow-purple-500/20">
               <Sparkles size={20} />
             </div>
-            <h3 className="text-xl md:text-2xl font-extrabold text-slate-800 uppercase tracking-tight">
+            <h3 id="ziwei-input-header" className="text-xl md:text-2xl font-extrabold text-slate-800 uppercase tracking-tight">
               Nhập Thông Tin Tử Vi
             </h3>
           </div>
@@ -433,7 +510,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Giới Tính */}
             <div>
-              <label className="block text-xs font-black uppercase text-slate-500 tracking-wider mb-2.5 ml-1">
+              <label id="ziwei-input-gender" className="block text-xs font-black uppercase text-slate-500 tracking-wider mb-2.5 ml-1">
                 Giới Tính Mệnh Cách
               </label>
               <div className="flex gap-4">
@@ -676,7 +753,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
 
           {/* Render các Accordion phân tích AI thông qua SectionRenderer */}
           {(interpretation || result.aiInterpretation?.content || (result.aiInterpretation?.sections?.length > 0)) && (
-            <div className="max-w-4xl mx-auto">
+            <div id="ziwei-interpretation-section" className="max-w-4xl mx-auto">
               <div className="flex items-center gap-2 mb-6 ml-1">
                 <Sparkles className="text-purple-500" size={20} />
                 <h2 className="font-extrabold text-slate-800 text-lg md:text-xl">Luận Giải Chuyên Sâu Cát Hung</h2>
@@ -695,12 +772,12 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
           )}
 
           {/* ĐÁNH GIÁ PHẢN HỒI */}
-          {(interpretation || result.aiInterpretation?.content || result.aiInterpretation?.sections?.length > 0) && (
+          {(interpretation || result.aiInterpretation?.content || result.aiInterpretation?.sections?.length > 0) && (!result.rating || justRated) && (
             <div className="mt-12 bg-white/60 border border-purple-100 p-6 rounded-3xl backdrop-blur-md max-w-xl mx-auto shadow-md">
               <h4 className="font-extrabold text-slate-800 text-center mb-2">Đánh Giá Luận Giải Thầy Tử Vi</h4>
               <p className="text-center text-xs text-slate-400 mb-6">Nhận xét của bạn sẽ giúp bổ sung tri thức và cải thiện chất lượng của AI tốt hơn.</p>
 
-              {rated ? (
+              {justRated ? (
                 <div className="text-center py-4 text-purple-600 font-bold animate-in zoom-in-95">
                   Xin chân thành cảm ơn ý kiến đánh giá của bạn!
                 </div>
@@ -745,7 +822,17 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
           {/* Gieo lại quẻ/Luận lá số mới */}
           <div className="text-center">
             <button
-              onClick={() => setResult(null)}
+              onClick={() => {
+                setResult(null);
+                setTimeout(() => {
+                  const element = document.getElementById('ziwei-input-gender');
+                  if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  } else {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }
+                }, 50);
+              }}
               className="px-10 py-4 bg-white text-purple-900 border-2 border-purple-200 rounded-2xl shadow-md hover:bg-purple-50 hover:border-purple-300 font-extrabold text-lg transition-all hover:-translate-y-0.5 active:translate-y-0"
             >
               Luận Giải Lá Số Khác
@@ -894,23 +981,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
           await handleZiweiComplete(formattedDate, String(h), genderStr);
         }} 
       />
-      {/* FLOATING SCROLL BUTTONS */}
-      <div className="fixed bottom-4 md:bottom-8 left-4 md:left-8 z-40 flex flex-col gap-1 pointer-events-auto bg-transparent border-none shadow-none">
-        <button
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="flex items-center justify-center w-10 h-10 rounded-full bg-transparent text-slate-400 hover:text-slate-700 active:scale-95 transition-all duration-300 shadow-none border-none pointer-events-auto"
-          title="Cuộn lên đầu trang"
-        >
-          <ArrowUp size={24} />
-        </button>
-        <button
-          onClick={() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' })}
-          className="flex items-center justify-center w-10 h-10 rounded-full bg-transparent text-slate-400 hover:text-slate-700 active:scale-95 transition-all duration-300 shadow-none border-none pointer-events-auto"
-          title="Cuộn xuống cuối trang"
-        >
-          <ArrowDown size={24} />
-        </button>
-      </div>
+
 
     </div>
   );

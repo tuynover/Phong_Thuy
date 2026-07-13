@@ -127,7 +127,7 @@ const MarriageInput = ({ onComplete }) => {
 
     return (
         <div className="flex flex-col items-center bg-white p-5 md:p-8 rounded-2xl md:rounded-[2rem] shadow-xl border border-gray-100 max-w-4xl mx-auto font-sans">
-            <h3 className="text-2xl font-bold text-slate-800 mb-6 uppercase tracking-wide text-center">Lập Lá Số Hợp Hôn (Bát Tự Hợp Hôn)</h3>
+            <h3 id="marriage-input-header" className="text-2xl font-bold text-slate-800 mb-6 uppercase tracking-wide text-center">Lập Lá Số Hợp Hôn (Bát Tự Hợp Hôn)</h3>
             <p className="text-gray-500 mb-8 text-center text-[15px] max-w-2xl">Nhập đầy đủ thông tin ngày giờ sinh Dương lịch của Nam và Nữ để hệ thống quy đổi tiết khí và đối chiếu tương sinh hợp khắc.</p>
 
             <form onSubmit={handleSubmit} className="w-full space-y-8">
@@ -139,7 +139,7 @@ const MarriageInput = ({ onComplete }) => {
                             <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
                                 <User className="w-4 h-4" />
                             </div>
-                            <h4 className="text-lg font-bold text-blue-900 uppercase">Thông Tin Nam Mệnh</h4>
+                            <h4 id="marriage-input-nam" className="text-lg font-bold text-blue-900 uppercase">Thông Tin Nam Mệnh</h4>
                         </div>
 
                         {/* Birth date */}

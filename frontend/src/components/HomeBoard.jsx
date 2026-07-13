@@ -124,7 +124,7 @@ export default function HomeBoard({ onSelectModule, user, onRequireLogin, onView
     },
     {
       id: 'xemngay',
-      name: 'Trạch Cát Nhật',
+      name: 'Trạch Cư Cát Nhật',
       slogan: 'Xem Ngày Đại Cát',
       desc: 'Chọn giờ hoàng đạo, ngày tốt động thổ, cưới hỏi, khai trương cá nhân hóa theo thiên can địa chi tuổi.',
       icon: Calendar,
@@ -403,9 +403,9 @@ export default function HomeBoard({ onSelectModule, user, onRequireLogin, onView
               <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 mb-6 border border-emerald-100">
                 <Calendar size={22} />
               </div>
-              <h3 className="font-extrabold text-slate-900 text-lg mb-3">Trạch Cát Nhật</h3>
+              <h3 className="font-extrabold text-slate-900 text-lg mb-3">Trạch Cư Cát Nhật</h3>
               <p className="text-xs sm:text-sm text-slate-500 font-medium leading-relaxed font-sans">
-                Phương pháp chọn lựa thời gian cát lành (Trạch cát nhật) dựa trên can chi, thập nhị kiến tinh và nhị thập bát tú. Trạch cát giúp chọn lựa thời gian động thổ, cưới hỏi, khai trương thu hút cát khí tốt nhất.
+                Phương pháp chọn lựa thời gian cát lành (Trạch cư cát nhật) dựa trên can chi, thập nhị kiến tinh và nhị thập bát tú. Trạch cát giúp chọn lựa thời gian động thổ, cưới hỏi, khai trương thu hút cát khí tốt nhất.
               </p>
             </motion.div>
           </motion.div>
@@ -478,7 +478,7 @@ export default function HomeBoard({ onSelectModule, user, onRequireLogin, onView
                 </div>
 
                 <div className="mt-8 flex items-center text-xs font-bold text-slate-400 group-hover:text-indigo-600 transition-colors pt-4 border-t border-slate-100">
-                  <span>Trải nghiệm mô-đun</span>
+                  <span>Trải nghiệm</span>
                   <ChevronRight size={14} className="ml-1 group-hover:translate-x-1 transition-transform" />
                 </div>
               </motion.div>

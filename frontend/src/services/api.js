@@ -42,7 +42,7 @@ export const linkZiwei = (id, userId) => axios.put(`${API_URL}/history/ziwei/${i
 export const getNotifications = () => axios.get(`${API_URL}/notifications`);
 export const markNotificationRead = (id) => axios.put(`${API_URL}/notifications/${id}/read`);
 export const markAllNotificationsRead = () => axios.put(`${API_URL}/notifications/read-all`);
-export const updateBaziInfo = (userId, day, month, year, hour, minute) => axios.put(`${API_URL}/auth/bazi`, { userId, day, month, year, hour, minute });
+export const updateBaziInfo = (userId, day, month, year, hour, minute, ownBaziRecordId, ownZiweiRecordId) => axios.put(`${API_URL}/auth/bazi`, { userId, day, month, year, hour, minute, ownBaziRecordId, ownZiweiRecordId });
 export const updateProfile = (profileData) => axios.put(`${API_URL}/auth/profile`, profileData);
 export const changePassword = (currentPassword, newPassword) => axios.put(`${API_URL}/auth/change-password`, { currentPassword, newPassword });
 export const sendVerificationEmail = () => axios.post(`${API_URL}/auth/send-verification-email`);

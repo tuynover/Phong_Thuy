@@ -23,7 +23,7 @@ class ZiweiController {
 
       // 1. Kiểm tra bằng Idempotency Key header nếu được cung cấp
       if (idempotencyKey) {
-        const dupRecord = await ZiweiRecord.findOne({ idempotencyKey });
+        const dupRecord = await ZiweiRecord.findOne({ idempotencyKey, isDeleted: { $ne: true } });
         if (dupRecord) {
           return res.json(dupRecord);
         }
@@ -39,7 +39,7 @@ class ZiweiController {
       }
 
       // B. Kiểm tra Database xem đã tồn tại lá số này cho user chưa (Database Idempotency)
-      const existingRecord = await ZiweiRecord.findOne({ userId, chartHash });
+      const existingRecord = await ZiweiRecord.findOne({ userId, chartHash, isDeleted: { $ne: true } });
       if (existingRecord) {
         // Cập nhật lại bộ nhớ đệm và trả về bản ghi cũ
         ZiweiCache.setChart(chartHash, existingRecord);

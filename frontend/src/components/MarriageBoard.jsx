@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { AuthContext } from '../context/AuthContext';
-import { getInterpretationStreamUrl } from '../services/api';
-import { AlertCircle, BookOpen, ScrollText, Heart, X, ArrowUp, ArrowDown, MessageCircle } from 'lucide-react';
+import { getInterpretationStreamUrl, rateMarriage } from '../services/api';
+import { AlertCircle, BookOpen, ScrollText, Heart, X, ArrowUp, ArrowDown, MessageCircle, Star } from 'lucide-react';
 import Tooltip from './Tooltip';
 import SectionRenderer from './SectionRenderer';
 import { parseMarkdownSections } from '../utils/markdownParser';
@@ -15,7 +15,7 @@ import {
     getBgColorClass,
 } from '../utils/astrologyHelpers';
 
-const MarriageBoard = ({ data, onUpdateData, onRequireLogin }) => {
+const MarriageBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) => {
     const { user, setUser, token } = useContext(AuthContext);
 
     // AI Interpretation States
@@ -27,13 +27,26 @@ const MarriageBoard = ({ data, onUpdateData, onRequireLogin }) => {
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [isChatOpen, setIsChatOpen] = useState(false);
 
-    // Set initial interpretation if cached
+    const [rating, setRating] = useState(0);
+    const [feedback, setFeedback] = useState('');
+    const [justRated, setJustRated] = useState(false);
+
+    const prevIdRef = useRef(null);
+
+    // Set initial interpretation and rating if cached
     useEffect(() => {
+        const currentId = data?.recordId || data?._id;
+        if (currentId !== prevIdRef.current) {
+            setJustRated(false);
+            prevIdRef.current = currentId;
+        }
         if (data?.aiInterpretation && data.aiInterpretation.content) {
             setInterpretation(data.aiInterpretation.content);
         } else {
             setInterpretation('');
         }
+        setRating(data?.rating || 0);
+        setFeedback(data?.feedback || '');
     }, [data]);
 
     // Fake progressive loading steps
@@ -63,6 +76,26 @@ const MarriageBoard = ({ data, onUpdateData, onRequireLogin }) => {
             }
         };
     }, [abortController]);
+
+    const handleRatingSubmit = async (e) => {
+        e.preventDefault();
+        const resolvedId = data?.recordId || data?._id;
+        if (!resolvedId) return;
+        try {
+            await rateMarriage(resolvedId, rating, feedback);
+            setJustRated(true);
+            if (onInvalidateHistory) onInvalidateHistory();
+            if (onUpdateData) {
+                onUpdateData(prev => ({
+                    ...prev,
+                    rating,
+                    feedback
+                }));
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
 
     if (!data) return null;
 
@@ -331,8 +364,15 @@ const MarriageBoard = ({ data, onUpdateData, onRequireLogin }) => {
                         try {
                             const parsed = JSON.parse(dataStr);
                             if (parsed.chunk) {
+                                const isFirstChunk = !currentText;
                                 currentText += parsed.chunk;
                                 setInterpretation(currentText);
+                                if (isFirstChunk) {
+                                    setTimeout(() => {
+                                        const element = document.getElementById('marriage-interpretation-section');
+                                        element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                    }, 100);
+                                }
                             }
                             if (parsed.error) {
                                 setError(parsed.error);
@@ -553,9 +593,8 @@ const MarriageBoard = ({ data, onUpdateData, onRequireLogin }) => {
                 </div>
             </div>
 
-            {/* SECTION 4: AI LUẬN GIẢI */}
             {interpretation && (
-                <div className="bg-transparent space-y-6">
+                <div id="marriage-interpretation-section" className="bg-transparent space-y-6">
                     <div className="flex items-center gap-3 mb-6 ml-1">
                         <div className="w-8 h-8 bg-rose-800 rounded-lg flex items-center justify-center shadow-md">
                             <BookOpen className="text-white" size={16} />
@@ -563,8 +602,56 @@ const MarriageBoard = ({ data, onUpdateData, onRequireLogin }) => {
                         <h3 className="text-xl font-extrabold text-slate-800 tracking-tight">Thầy Luận Giải Bát Tự Hợp Hôn</h3>
                     </div>
                     <SectionRenderer sections={parseMarkdownSections(interpretation, 'marriage')} theme="marriage" />
-                </div>
-            )}
+
+                    {/* ĐÁNH GIÁ PHẢN HỒI */}
+                    {(!data?.rating || justRated) && (
+                        <div className="mt-12 bg-white/60 border border-rose-100 p-6 rounded-3xl backdrop-blur-md max-w-xl mx-auto shadow-md">
+                            <h4 className="font-extrabold text-slate-800 text-center mb-2">Đánh Giá Luận Giải Thầy Hợp Hôn</h4>
+                            <p className="text-center text-xs text-slate-400 mb-6">Nhận xét của bạn sẽ giúp bổ sung tri thức và cải thiện chất lượng của AI tốt hơn.</p>
+
+                            {justRated ? (
+                                <div className="text-center py-4 text-rose-600 font-bold animate-in zoom-in-95">
+                                    Xin chân thành cảm ơn ý kiến đánh giá của bạn!
+                                </div>
+                            ) : (
+                                <form onSubmit={handleRatingSubmit} className="space-y-4">
+                                <div className="flex justify-center gap-2">
+                                    {[1, 2, 3, 4, 5].map((star) => (
+                                        <button
+                                            key={star}
+                                            type="button"
+                                            onClick={() => setRating(star)}
+                                            className="transition-transform duration-100 active:scale-95"
+                                        >
+                                            <Star
+                                                size={28}
+                                                className={`stroke-2 cursor-pointer ${
+                                                    star <= rating ? 'fill-amber-400 stroke-amber-500' : 'text-slate-200 hover:text-amber-300'
+                                                }`}
+                                            />
+                                        </button>
+                                    ))}
+                                </div>
+                                <textarea
+                                    placeholder="Ý kiến nhận xét hoặc lưu ý thực tế của bạn..."
+                                    value={feedback}
+                                    onChange={(e) => setFeedback(e.target.value)}
+                                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-rose-400 focus:border-rose-400 transition-all font-bold placeholder:text-slate-300 focus:outline-none"
+                                    rows={2}
+                                />
+                                <button
+                                    type="submit"
+                                    disabled={!rating}
+                                    className="w-full py-3 bg-rose-600 hover:bg-rose-700 text-white font-extrabold rounded-2xl shadow-md disabled:bg-slate-100 disabled:text-slate-400 disabled:shadow-none transition-all active:scale-[0.98]"
+                                >
+                                    Gửi Nhận Xét
+                                </button>
+                            </form>
+                        )}
+                    </div>
+                )}
+            </div>
+        )}
 
             {isInterpreting && !interpretation && (
                 <div className="bg-[#faf6f0] p-10 md:p-20 rounded-[2rem] border border-amber-200/50 shadow-sm text-center space-y-4">

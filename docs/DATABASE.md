@@ -35,7 +35,9 @@ Lưu trữ thông tin tài khoản, hồ sơ Bát Tự mặc định, số dư c
     isDeleted: { type: Boolean, default: false },
     tokenVersion: { type: Number, default: 0 },
     baziInfo: {
-      day: Number, month: Number, year: Number, hour: Number, minute: Number
+      day: Number, month: Number, year: Number, hour: Number, minute: Number,
+      ownBaziRecordId: { type: String, default: null },
+      ownZiweiRecordId: { type: String, default: null }
     },
     stats: {
       ichingCount: { type: Number, default: 0 },

@@ -15,15 +15,8 @@ class MarriagePrompts {
 `;
         };
 
-        const formatNguHanhInfo = (nguHanh) => {
-            return Object.entries(nguHanh).map(([k, v]) => `${elementNameMap(k)}: ${v}%`).join(', ');
-        };
-
         const malePillars = formatPillarsInfo(maleBaziData);
         const femalePillars = formatPillarsInfo(femaleBaziData);
-
-        const maleNguHanhText = formatNguHanhInfo(maleBaziData.nguHanh);
-        const femaleNguHanhText = formatNguHanhInfo(femaleBaziData.nguHanh);
 
         const maleDaYunText = formatDaYunText(maleBaziData.daYun);
         const femaleDaYunText = formatDaYunText(femaleBaziData.daYun);
@@ -38,14 +31,13 @@ LƯU Ý QUAN TRỌNG:
 - Nói thẳng, nói thật, có gì nói đó. Tuyệt đối không nói giảm nói tránh các xung khắc nguy hiểm, nguy cơ ly tán, tai ách, bệnh tật hoặc bế tắc kinh tế.
 - Tập trung hoàn toàn vào các khía cạnh liên quan đến hôn nhân, con cái, tài lộc gia đạo. Không đi lan man vào phân tích chi tiết tính cách hay cuộc đời đơn lẻ của từng người.
 - Sử dụng giọng văn trang trọng, cổ kính, giàu tính học thuật mệnh lý nhưng rõ ràng, đanh thép.
+- TỰ TÍNH TOÁN NGŨ HÀNH & DỤNG THẦN: Bạn phải tự mình phân tích, đánh giá tỷ lệ phân bổ ngũ hành vượng suy, tự xác định Dụng Thần và Kỵ Thần cho từng đương số dựa trên can chi Tứ Trụ và Nguyệt Lệnh để luận giải sự tương tế bù trừ. Tuyệt đối không được bịa ra các con số phần trăm (%) thập phân giả lập (ví dụ không viết những con số tự chế như 268.44%), chỉ nhận định định tính (như Vượng, Nhược, Khuyết, dư thừa) để đảm bảo tính chân thực của phân tích học thuật.
 
 --- DỮ LIỆU TỨ TRỤ NAM MỆNH (CHỒNG) ---
 - Ngày sinh Dương lịch: ${inputInfo.male.date} ${inputInfo.male.time}
 - Can Chi Tứ Trụ: ${malePillars}
 - Nạp Âm Bản Mệnh: ${maleBaziData.canChi.day.naYin}
 - Cung Phi (Mệnh Quái): ${maleCungPhi}
-- Phân bổ ngũ hành: ${maleNguHanhText}
-- Dụng Thần: ${elementNameMap(maleBaziData.dungThan)} | Kỵ Thần: ${elementNameMap(maleBaziData.kyThan)}
 - Đại Vận Cuộc Đời:
 ${maleDaYunText}
 
@@ -54,8 +46,6 @@ ${maleDaYunText}
 - Can Chi Tứ Trụ: ${femalePillars}
 - Nạp Âm Bản Mệnh: ${femaleBaziData.canChi.day.naYin}
 - Cung Phi (Mệnh Quái): ${femaleCungPhi}
-- Phân bổ ngũ hành: ${femaleNguHanhText}
-- Dụng Thần: ${elementNameMap(femaleBaziData.dungThan)} | Kỵ Thần: ${elementNameMap(femaleBaziData.kyThan)}
 - Đại Vận Cuộc Đời:
 ${femaleDaYunText}
 

@@ -142,7 +142,7 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
 
     const isIching = type === 'hexagrams';
     const isBazi = type === 'bazi';
-    const isTuVi = type === 'tu_vi';
+    const isTuVi = type === 'tu_vi' || type === 'ziwei';
     const isMarriage = type === 'marriage';
     
     const themeColor = isIching ? 'amber' : isBazi ? 'blue' : isMarriage ? 'rose' : 'purple';
@@ -420,7 +420,11 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
             };
         }
 
-        const isBaziOrMarriage = isBazi || isMarriage || isTuVi;
+        const isMeaningful = (val) => {
+            if (!val) return false;
+            const cleaned = val.trim().toLowerCase();
+            return cleaned !== "" && cleaned !== "null" && cleaned !== "none" && cleaned !== "không có" && cleaned !== "không";
+        };
 
         return (
             <div className="space-y-3 text-neutral-800 text-sm">
@@ -428,8 +432,8 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
                     <ReactMarkdown>{sc.answer}</ReactMarkdown>
                 </div>
 
-                {/* For IChing & Ziwei: Render Timing & Risk Cards */}
-                {!isBaziOrMarriage && sc.timing && (
+                {/* Render timing / risk if meaningful */}
+                {isMeaningful(sc.timing) && (
                     <div className="flex gap-2.5 p-3 rounded-xl bg-teal-50/70 border border-teal-100 animate-in fade-in slide-in-from-bottom-2 duration-300">
                         <Clock size={16} className="text-teal-700 shrink-0 mt-0.5" />
                         <div>
@@ -439,7 +443,7 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
                     </div>
                 )}
 
-                {!isBaziOrMarriage && sc.risk && (
+                {isMeaningful(sc.risk) && (
                     <div className="flex gap-2.5 p-3 rounded-xl bg-orange-50/70 border border-orange-100 animate-in fade-in slide-in-from-bottom-2 duration-300">
                         <AlertTriangle size={16} className="text-orange-700 shrink-0 mt-0.5" />
                         <div>
@@ -449,8 +453,8 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
                     </div>
                 )}
 
-                {/* For Bazi, Marriage: Render Dos & Donts Cards */}
-                {isBaziOrMarriage && sc.dos && (
+                {/* Render dos / donts if meaningful */}
+                {isMeaningful(sc.dos) && (
                     <div className="flex gap-2.5 p-3 rounded-xl bg-emerald-50/70 border border-emerald-100 animate-in fade-in slide-in-from-bottom-2 duration-300">
                         <Sparkles size={16} className="text-emerald-700 shrink-0 mt-0.5" />
                         <div>
@@ -462,7 +466,7 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
                     </div>
                 )}
 
-                {isBaziOrMarriage && sc.donts && (
+                {isMeaningful(sc.donts) && (
                     <div className="flex gap-2.5 p-3 rounded-xl bg-rose-50/70 border border-rose-100 animate-in fade-in slide-in-from-bottom-2 duration-300">
                         <AlertTriangle size={16} className="text-rose-700 shrink-0 mt-0.5" />
                         <div>

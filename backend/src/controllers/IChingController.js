@@ -24,7 +24,8 @@ class IChingController {
                 userId,
                 question,
                 'primaryHexagram.binary_code': resultPayload.primary.binary_code,
-                movingLines: movingLinesArray
+                movingLines: movingLinesArray,
+                isDeleted: { $ne: true }
             });
 
             if (existingRecord) {

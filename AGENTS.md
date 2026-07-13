@@ -21,6 +21,10 @@ AI Agent có vai trò:
 - **Tách biệt Logic và AI:** 
   - Phải tính toán học thuật tĩnh (như Vượng Suy, Quái Thân, Can Chi, Sao...) trước bằng Rule Engine (`RuleEngineService.js`) hoặc thư viện `lunar-javascript` / `iztro`.
   - Snapshot kết quả tính toán (`analysisSnapshot`) được lưu vào record tương ứng trước khi truyền sang Prompt gửi cho AI. AI không trực tiếp tính toán học thuật.
+- **Xem Lá số Bản thân & Kiểm tra trùng lặp (Idempotency & Linkage):**
+  - Trong `User.baziInfo`, lưu trữ `ownBaziRecordId` và `ownZiweiRecordId` để liên kết trực tiếp tới lá số bản thân của người dùng.
+  - Khi kiểm tra trùng lặp bản ghi (Idempotency) trong các controller (`BaziController`, `ZiweiController`, `IChingController`, `MarriageController`), bắt buộc loại trừ các bản ghi đã xóa mềm bằng điều kiện `isDeleted: { $ne: true }`.
+  - Khi thực hiện xóa lịch sử trong `HistoryController.deleteCalculation`, nếu bản ghi bị xóa trùng với lá số bản thân đã liên kết, bắt buộc phải cập nhật hủy liên kết (`ownBaziRecordId` hoặc `ownZiweiRecordId` đặt về `null`).
 - **SSE Keepalive:** Tất cả các luồng SSE stream (luận giải và chat) phải được tích hợp Heartbeat Ping gửi gói tin rỗng mỗi 15 giây để chống ngắt kết nối rác.
 
 ### 2.2 Frontend (React 19 & Vite)

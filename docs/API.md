@@ -132,6 +132,48 @@ Sử dụng mã OTP nhận được trong email để đặt lại mật khẩu 
   }
   ```
 
+### 1.8 Cập nhật thông tin Bát Tự & Thiết lập/Liên kết lá số bản thân
+Cập nhật thông tin ngày giờ sinh mặc định và thiết lập liên kết trực tiếp tới lá số bản thân (Bát Tự/Tử Vi) của người dùng để tránh tạo trùng lặp.
+- **Endpoint:** `PUT /api/auth/bazi`
+- **Headers:** `Authorization: Bearer <token>`
+- **Body:**
+  ```json
+  {
+    "userId": "uuid-v7-user-id",
+    "day": 27,
+    "month": 8,
+    "year": 2004,
+    "hour": 7,
+    "minute": 30,
+    "ownBaziRecordId": "uuid-v7-bazi-record-id", // Tùy chọn
+    "ownZiweiRecordId": "uuid-v7-ziwei-record-id"  // Tùy chọn
+  }
+  ```
+- **Phản hồi (200):**
+  ```json
+  {
+    "user": {
+      "id": "uuid-v7-user-id",
+      "email": "user@example.com",
+      "name": "Nguyen Van A",
+      "baziInfo": {
+        "day": 27,
+        "month": 8,
+        "year": 2004,
+        "hour": 7,
+        "minute": 30,
+        "ownBaziRecordId": "uuid-v7-bazi-record-id",
+        "ownZiweiRecordId": "uuid-v7-ziwei-record-id"
+      },
+      "gender": 1,
+      "phone": "",
+      "role": "user",
+      "credits": 2,
+      "status": "active"
+    }
+  }
+  ```
+
 ---
 
 ## ☯️ 2. Gieo Quẻ & Tính toán Số lý
@@ -270,6 +312,8 @@ Lấy thông tin chi tiết (Lục Thân, Lục Thú, Hào Thế/Ứng) để hi
   `PUT /api/history/:system/:id/link` (Liên kết bản ghi của khách vãng lai vào tài khoản vừa đăng nhập).
 - **Xóa bản ghi (Soft Delete):**
   `DELETE /api/history/calculations/:type/:id` (Với `:type` là `iching`, `bazi`, `ziwei`, `marriage`).
+  - Hệ thống thực hiện xóa mềm (Soft Delete) bằng cách đặt cờ `isDeleted` thành `true` để ẩn khỏi danh sách lịch sử của người dùng nhưng vẫn giữ nguyên dữ liệu gốc ở phía máy chủ.
+  - Nếu bản ghi Bát Tự hoặc Tử Vi bị xóa trùng với lá số bản thân đã liên kết của người dùng, hệ thống sẽ tự động hủy liên kết (`ownBaziRecordId` hoặc `ownZiweiRecordId` đặt về `null`).
 
 ---
 

@@ -71,7 +71,7 @@ class BaziController {
 
             // 1. Check by Idempotency Key header if provided
             if (idempotencyKey) {
-                const dupRecord = await BaziRecord.findOne({ idempotencyKey });
+                const dupRecord = await BaziRecord.findOne({ idempotencyKey, isDeleted: { $ne: true } });
                 if (dupRecord) {
                     let updated = false;
                     if (!dupRecord.baziData || !dupRecord.baziData.cungMenh || !dupRecord.baziData.cungMenh.gan || !dupRecord.baziData.tietKhiName) {
@@ -110,7 +110,8 @@ class BaziController {
                 'inputInfo.date': date,
                 'inputInfo.time': time,
                 'inputInfo.gender': parseInt(gender),
-                'inputInfo.dayBoundaryMode': dayBoundaryMode || 'midnight'
+                'inputInfo.dayBoundaryMode': dayBoundaryMode || 'midnight',
+                isDeleted: { $ne: true }
             });
 
             if (existingRecord) {

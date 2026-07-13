@@ -74,6 +74,8 @@ const userSchema = new mongoose.Schema({
     year: Number,
     hour: Number,
     minute: Number,
+    ownBaziRecordId: { type: String, default: null },
+    ownZiweiRecordId: { type: String, default: null },
   },
   stats: {
     ichingCount: { type: Number, default: 0 },

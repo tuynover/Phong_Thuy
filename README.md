@@ -62,6 +62,8 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
 #### F. Tiện ích Phụ trợ & UI/UX Đột phá
 * **Khung Chat Thông Minh (AiChatWidget):** Bounded Slide-in Panel trượt mềm mại từ góc phải màn hình, hỗ trợ hiển thị luồng SSE thời gian thực từ AI, có thanh tiến độ độ tin cậy (Confidence Bar), Ứng Kỳ (Timing), Cảnh báo rủi ro (Risk) và bộ đếm cooldown 10s tránh spam.
 * **State Persistence:** Sử dụng `localStorage` lưu trữ trạng thái phân hệ, quẻ hiện tại, lá số hiện tại và lịch sử chat để tránh mất dữ liệu khi Refresh/F5.
+* **Tránh trùng lặp Lá số Bản thân:** Tự động so khớp ngày sinh, giờ sinh và giới tính khi click "Xem Lá Số Của Bản Thân" ở Bát Tự và Tử Vi, nạp lại bản ghi cũ đã liên kết nếu khớp hoàn toàn thay vì sinh mới để tối ưu hóa quota credit AI và tránh rác lịch sử.
+* **Xóa mềm (Soft Delete) & Hủy liên kết:** Danh sách lịch sử gieo quẻ/lá số được xóa dưới dạng xóa mềm (`isDeleted: true`). Nếu bản ghi bị xóa trùng khớp với liên kết lá số bản thân của người dùng, hệ thống sẽ tự động hủy liên kết đó trong hồ sơ cá nhân (`ownBaziRecordId`/`ownZiweiRecordId` đặt về `null`).
 * **Grid Selector:** Thay thế dropdown chọn giờ sinh bằng bảng chọn Can Chi 3 cột trực quan.
 * Tệp tin liên quan: [AiChatWidget.jsx](file:///t:/Phongthuy/frontend/src/components/AiChatWidget.jsx), [HistoryBoard.jsx](file:///t:/Phongthuy/frontend/src/components/HistoryBoard.jsx), [NotificationBell.jsx](file:///t:/Phongthuy/frontend/src/components/NotificationBell.jsx).
 

@@ -8,6 +8,7 @@ const Conversation = require('../models/Conversation');
 const Message = require('../models/Message');
 const mongoose = require('mongoose');
 const BaziAnalyzer = require('../services/BaziAnalyzer');
+const User = require('../models/User');
 
 const findByIdFlex = async (Model, id) => {
     let record = await Model.findById(id);
@@ -654,9 +655,22 @@ class HistoryController {
             if (record.userId !== userId && record.userId?.toString() !== userId) {
                 return res.status(403).json({ error: 'Bạn không có quyền xóa bản ghi này.' });
             }
+            // Soft delete the record from database
+            await Model.updateOne({ _id: record._id }, { $set: { isDeleted: true } });
 
-            // Permanently delete the record from database
-            await Model.deleteOne({ _id: record._id });
+            // Clear linked own record IDs from user profile if this was their "own" chart
+            const recordIdStr = record._id?.toString() || record._id;
+            if (type === 'bazi' || type === 'bat_tu') {
+                await User.updateOne(
+                    { _id: userId, 'baziInfo.ownBaziRecordId': recordIdStr },
+                    { $set: { 'baziInfo.ownBaziRecordId': null } }
+                );
+            } else if (type === 'tu_vi' || type === 'tu-vi' || type === 'ziwei') {
+                await User.updateOne(
+                    { _id: userId, 'baziInfo.ownZiweiRecordId': recordIdStr },
+                    { $set: { 'baziInfo.ownZiweiRecordId': null } }
+                );
+            }
 
             // Clear cache
             MemoryCacheService.clearUserHistoryCache(userId);

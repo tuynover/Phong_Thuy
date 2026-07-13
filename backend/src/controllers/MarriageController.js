@@ -83,7 +83,8 @@ class MarriageController {
                 'inputInfo.male.date': male.date,
                 'inputInfo.male.time': male.time,
                 'inputInfo.female.date': female.date,
-                'inputInfo.female.time': female.time
+                'inputInfo.female.time': female.time,
+                isDeleted: { $ne: true }
             });
 
             if (existingRecord) {

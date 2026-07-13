@@ -191,7 +191,7 @@ const login = async (req, res) => {
 };
 
 const updateBaziInfo = async (req, res) => {
-  const { userId, day, month, year, hour, minute } = req.body;
+  const { userId, day, month, year, hour, minute, ownBaziRecordId, ownZiweiRecordId } = req.body;
   try {
     let user = await User.findById(userId);
     if (!user || user.isDeleted) {
@@ -203,12 +203,21 @@ const updateBaziInfo = async (req, res) => {
       return res.status(403).json({ error: 'Tài khoản của bạn đang bị khóa.' });
     }
 
+    const isSameBaziInfo = user.baziInfo &&
+      user.baziInfo.day === parseInt(day) &&
+      user.baziInfo.month === parseInt(month) &&
+      user.baziInfo.year === parseInt(year) &&
+      user.baziInfo.hour === parseInt(hour) &&
+      user.baziInfo.minute === parseInt(minute);
+
     user.baziInfo = {
       day: parseInt(day),
       month: parseInt(month),
       year: parseInt(year),
       hour: parseInt(hour),
-      minute: parseInt(minute)
+      minute: parseInt(minute),
+      ownBaziRecordId: ownBaziRecordId !== undefined ? ownBaziRecordId : (isSameBaziInfo ? user.baziInfo.ownBaziRecordId : null),
+      ownZiweiRecordId: ownZiweiRecordId !== undefined ? ownZiweiRecordId : (isSameBaziInfo ? user.baziInfo.ownZiweiRecordId : null)
     };
     await user.save();
     
@@ -327,12 +336,21 @@ const updateProfile = async (req, res) => {
     }
 
     if (day !== undefined && month !== undefined && year !== undefined && hour !== undefined && minute !== undefined) {
+      const isSameBaziInfo = user.baziInfo &&
+        user.baziInfo.day === parseInt(day) &&
+        user.baziInfo.month === parseInt(month) &&
+        user.baziInfo.year === parseInt(year) &&
+        user.baziInfo.hour === parseInt(hour) &&
+        user.baziInfo.minute === parseInt(minute);
+
       user.baziInfo = {
         day: parseInt(day),
         month: parseInt(month),
         year: parseInt(year),
         hour: parseInt(hour),
-        minute: parseInt(minute)
+        minute: parseInt(minute),
+        ownBaziRecordId: isSameBaziInfo ? user.baziInfo.ownBaziRecordId : null,
+        ownZiweiRecordId: isSameBaziInfo ? user.baziInfo.ownZiweiRecordId : null
       };
     } else if (day === null) {
       user.baziInfo = undefined;

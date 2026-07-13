@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { AuthContext } from '../context/AuthContext';
-import { getInterpretationStreamUrl } from '../services/api';
-import { AlertCircle, BookOpen, ScrollText, MessageCircle, ArrowDown, ArrowUp } from 'lucide-react';
+import { getInterpretationStreamUrl, rateBazi } from '../services/api';
+import { AlertCircle, BookOpen, ScrollText, MessageCircle, ArrowDown, ArrowUp, Star } from 'lucide-react';
 import AiChatWidget from './AiChatWidget';
 import { parseMarkdownSections } from '../utils/markdownParser';
 import SectionRenderer from './SectionRenderer';
@@ -17,7 +17,7 @@ import {
     formatElement
 } from '../utils/astrologyHelpers';
 
-const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
+const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) => {
     const { user, setUser, token } = useContext(AuthContext);
 
     // AI Interpretation States
@@ -29,13 +29,27 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
     const [loadingStep, setLoadingStep] = useState(0);
     const [abortController, setAbortController] = useState(null);
 
-    // Set initial interpretation if cached in data
+    // Đánh giá sao
+    const [rating, setRating] = useState(0);
+    const [feedback, setFeedback] = useState('');
+    const [justRated, setJustRated] = useState(false);
+
+    const prevIdRef = useRef(null);
+
+    // Set initial interpretation and rating if cached in data
     useEffect(() => {
+        const currentId = data?.recordId || data?._id;
+        if (currentId !== prevIdRef.current) {
+            setJustRated(false);
+            prevIdRef.current = currentId;
+        }
         if (data?.aiInterpretation && data.aiInterpretation.content) {
             setInterpretation(data.aiInterpretation.content);
         } else {
             setInterpretation('');
         }
+        setRating(data?.rating || 0);
+        setFeedback(data?.feedback || '');
     }, [data]);
 
     // Loading texts
@@ -65,6 +79,26 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
             }
         };
     }, [abortController]);
+
+    const handleRatingSubmit = async (e) => {
+        e.preventDefault();
+        const resolvedId = data?.recordId || data?._id;
+        if (!resolvedId) return;
+        try {
+            await rateBazi(resolvedId, rating, feedback);
+            setJustRated(true);
+            if (onInvalidateHistory) onInvalidateHistory();
+            if (onUpdateData) {
+                onUpdateData({
+                    ...data,
+                    rating,
+                    feedback
+                });
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
 
     if (!data) return null;
 
@@ -578,8 +612,15 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
                                     throw new Error(parsed.error);
                                 }
                                 if (parsed.chunk) {
+                                    const isFirstChunk = !currentText;
                                     currentText += parsed.chunk;
                                     setInterpretation(currentText);
+                                    if (isFirstChunk) {
+                                        setTimeout(() => {
+                                            const element = document.getElementById('interpretation-section');
+                                            element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                        }, 100);
+                                    }
                                 }
                             } catch (e) {
                                 if (e.message.includes('SAFETY') || e.message.includes('luận giải') || e.message.includes('quá tải')) {
@@ -895,9 +936,8 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
                     </div>
                 </div>
 
-                {/* LUẬN GIẢI CHI TIẾT TỪ THẦY */}
                 {interpretation && (
-                    <div className="w-full mt-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div id="interpretation-section" className="w-full mt-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
                         <div className="flex items-center gap-3 mb-6 ml-1">
                             <div className="w-8 h-8 bg-blue-800 rounded-lg flex items-center justify-center shadow-md">
                                 <BookOpen className="text-white" size={16} />
@@ -905,8 +945,56 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin }) => {
                             <h3 className="text-xl font-extrabold text-slate-800 tracking-tight">Thầy Luận Giải Chi Tiết</h3>
                         </div>
                         <SectionRenderer sections={parseMarkdownSections(interpretation, 'bazi')} theme="bazi" />
-                    </div>
-                )}
+
+                        {/* ĐÁNH GIÁ PHẢN HỒI */}
+                        {(!data?.rating || justRated) && (
+                            <div className="mt-12 bg-white/60 border border-blue-100 p-6 rounded-3xl backdrop-blur-md max-w-xl mx-auto shadow-md">
+                                <h4 className="font-extrabold text-slate-800 text-center mb-2">Đánh Giá Luận Giải Thầy Bát Tự</h4>
+                                <p className="text-center text-xs text-slate-400 mb-6">Nhận xét của bạn sẽ giúp bổ sung tri thức và cải thiện chất lượng của AI tốt hơn.</p>
+
+                                {justRated ? (
+                                    <div className="text-center py-4 text-blue-600 font-bold animate-in zoom-in-95">
+                                        Xin chân thành cảm ơn ý kiến đánh giá của bạn!
+                                    </div>
+                                ) : (
+                                    <form onSubmit={handleRatingSubmit} className="space-y-4">
+                                    <div className="flex justify-center gap-2">
+                                        {[1, 2, 3, 4, 5].map((star) => (
+                                            <button
+                                                key={star}
+                                                type="button"
+                                                onClick={() => setRating(star)}
+                                                className="transition-transform duration-100 active:scale-95"
+                                            >
+                                                <Star
+                                                    size={28}
+                                                    className={`stroke-2 cursor-pointer ${
+                                                        star <= rating ? 'fill-amber-400 stroke-amber-500' : 'text-slate-200 hover:text-amber-300'
+                                                    }`}
+                                                />
+                                            </button>
+                                        ))}
+                                    </div>
+                                    <textarea
+                                        placeholder="Ý kiến nhận xét hoặc lưu ý thực tế của bạn..."
+                                        value={feedback}
+                                        onChange={(e) => setFeedback(e.target.value)}
+                                        className="w-full p-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all font-bold placeholder:text-slate-300 focus:outline-none"
+                                        rows={2}
+                                    />
+                                    <button
+                                        type="submit"
+                                        disabled={!rating}
+                                        className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-2xl shadow-md disabled:bg-slate-100 disabled:text-slate-400 disabled:shadow-none transition-all active:scale-[0.98]"
+                                    >
+                                        Gửi Nhận Xét
+                                    </button>
+                                </form>
+                            )}
+                        </div>
+                    )}
+                </div>
+            )}
 
                 {error && (
                     <div className="w-full mt-4 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-xl flex items-start gap-3">

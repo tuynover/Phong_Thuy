@@ -4,6 +4,61 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
 
 ---
 
+## 📅 Phiên bản: Sửa lỗi hiển thị Đánh giá sau khi refresh, Xóa mềm lịch sử và Tránh trùng lặp Lá số bản thân (12/07/2026)
+
+### Frontend (Giao diện & Cải tiến Luồng)
+- **Làm mới lịch sử khi Submit Đánh giá:**
+  - Bổ sung prop `onInvalidateHistory` cho cả 4 phân hệ (`BaziBoard`, `IChingBoard`, `MarriageBoard`, `ZiweiBoard`).
+  - Khi người dùng gửi đánh giá thành công, frontend sẽ lập tức xóa cache lịch sử hiện tại (`preloadedHistory = null`), đảm bảo khi người dùng tải lại trang hoặc mở lịch sử, quẻ/lá số đã lưu điểm sẽ hiển thị chính xác trạng thái đã đánh giá và ẩn đi khung đánh giá.
+- **Tránh trùng lặp Lá số Bản thân:**
+  - Thiết kế logic so khớp thông tin ngày, tháng, năm, giờ sinh và giới tính khi click nút "Xem Lá Số Của Bản Thân" ở Bát Tự (`UserApp.jsx`) và Tử Vi (`ZiweiBoard.jsx`).
+  - Nếu trùng khớp hoàn toàn với lá số bản thân đã có (`ownBaziRecordId`/`ownZiweiRecordId`), hệ thống nạp trực tiếp dữ liệu cũ lên giao diện mà không gọi API tạo mới, giúp tiết kiệm Credit AI và không spam tạo nhiều bản ghi rác trong cơ sở dữ liệu.
+  - Nếu thông tin ngày sinh thay đổi (hoặc chưa từng tạo), hệ thống sẽ gửi phân tích mới và liên kết lại ID lá số mới vào hồ sơ tài khoản của người dùng.
+
+### Backend (Xóa mềm & Lưu liên kết)
+- **Chuyển đổi sang Xóa mềm (Soft Delete) trong Lịch sử:**
+  - Sửa đổi phương thức `deleteCalculation` trong [HistoryController.js](file:///t:/Phongthuy/backend/src/controllers/HistoryController.js) từ xóa cứng (`deleteOne`) thành xóa mềm: cập nhật trường `isDeleted: true` trong MongoDB.
+  - Đảm bảo dữ liệu gốc vẫn an toàn trên máy chủ, chỉ ẩn đi ở phía người dùng.
+- **Loại trừ bản ghi đã xóa mềm khỏi kiểm tra trùng lặp (Semantic Idempotency):**
+  - Bổ sung điều kiện `isDeleted: { $ne: true }` vào tất cả các truy vấn kiểm tra trùng lặp (duplicate check) trong 4 controller: [BaziController.js](file:///t:/Phongthuy/backend/src/controllers/BaziController.js), [ZiweiController.js](file:///t:/Phongthuy/backend/src/controllers/ZiweiController.js), [IChingController.js](file:///t:/Phongthuy/backend/src/controllers/IChingController.js) và [MarriageController.js](file:///t:/Phongthuy/backend/src/controllers/MarriageController.js).
+  - Trước đây, nếu người dùng xóa mềm một bản ghi rồi tạo lại quẻ/lá số cùng thông tin, hệ thống sẽ trả về bản ghi cũ đã xóa thay vì tạo mới. Giờ đây bản ghi đã xóa mềm được bỏ qua hoàn toàn.
+- **Tự động hủy liên kết lá số bản thân khi xóa mềm:**
+  - Khi người dùng xóa mềm một bản ghi Bát Tự hoặc Tử Vi, nếu bản ghi đó đang được gắn làm lá số bản thân (`ownBaziRecordId`/`ownZiweiRecordId`), hệ thống tự động xóa liên kết đó trong hồ sơ người dùng (`User.baziInfo`).
+  - Khi click "Xem Lá Số Của Bản Thân" lần tiếp theo, hệ thống sẽ tạo bản ghi mới thay vì cố tải bản ghi đã xóa.
+- **Cập nhật API cập nhật Giờ sinh & Hồ sơ:**
+  - Bổ sung hỗ trợ lưu trữ `ownBaziRecordId` và `ownZiweiRecordId` trong `user.baziInfo` khi gọi `/auth/bazi` hoặc `/auth/profile`.
+  - Tích hợp logic tự động xóa các liên kết lá số này nếu người dùng thực hiện sửa đổi thay đổi thông tin ngày sinh mới trong Hồ sơ cá nhân.
+- **Cập nhật User Schema:**
+  - Bổ sung trường `ownBaziRecordId` và `ownZiweiRecordId` (kiểu `String`, default `null`) vào subdocument `baziInfo` trong model [User.js](file:///t:/Phongthuy/backend/src/models/User.js) để Mongoose nhận diện và lưu trữ chính xác.
+
+---
+
+## 📅 Phiên bản: Tối ưu cuộn màn hình mượt mà, Sửa lỗi recommendations rỗng và Tự tính Ngũ Hành Hợp Hôn (12/07/2026)
+
+### Frontend (Giao diện & Cải tiến Cuộn trang)
+- **Tự động cuộn đến phần nhập liệu khi reset form:**
+  - Cập nhật các nút gieo lại/xem lá số khác ở cuối trang của cả 4 phân hệ để tự động cuộn màn hình mượt mà đến đúng mục nhập liệu đầu tiên (block: 'center') thay vì cuộn lên đầu trang thô ráp.
+  - Kinh Dịch: Cuộn đến "Sự việc cần hỏi (Ý niệm)" (`iching-input-header`).
+  - Bát Tự: Cuộn đến chọn "Giới Tính" (`bazi-input-gender`).
+  - Tử Vi: Cuộn đến chọn "Giới Tính" (`ziwei-input-gender`).
+  - Hôn Nhân: Cuộn đến mục "Thông Tin Nam Mệnh" (`marriage-input-nam`).
+- **Tự động cuộn xuống phần Luận Giải:**
+  - Tích hợp cuộn màn hình mượt mà tự động đến khối kết quả "Thầy Luận Giải Chi Tiết" ngay khi nhận được luồng sse chunk đầu tiên cho cả 4 phân hệ.
+- **Tích hợp nút Cuộn Nhanh Lên/Xuống (Floating scroll buttons):**
+  - Thêm hai nút mũi tên Lên và Xuống siêu mỏng ở góc dưới bên trái màn hình (`fixed bottom-6 left-6 z-50`).
+  - Sử dụng thiết kế không nền trong suốt (`bg-transparent`) để tránh che khuất nội dung hoặc biểu mẫu bên dưới khi lướt trên điện thoại (mobile).
+  - Tự động hiển thị trên Trang Chủ, Lịch Sử, và các bước Nhập thông tin của 4 phân hệ. Dọn dẹp bộ nút cuộn trùng lặp trong Tử Vi (`ZiweiBoard.jsx`).
+- **Sửa lỗi hiển thị trống thẻ Nên làm/Tránh làm:**
+  - Bổ sung bộ lọc nội dung `isMeaningful` để ẩn các khối "Khuyên nên làm" và "Tránh làm" nếu AI trả về giá trị trống, `"null"`, `"none"`, hoặc `"không có"`.
+  - Sửa đổi mã nhận diện phân hệ Tử Vi (`ziwei`) để hỗ trợ đồng bộ hiển thị các thẻ khuyến nghị trong ô chat AI follow-up.
+
+### Backend (Sửa đổi Prompt Hôn Nhân)
+- **Gỡ bỏ phân bổ Ngũ Hành tính sẵn:**
+  - Sửa đổi `getInterpretationPrompt` trong [MarriagePrompts.js](file:///t:/Phongthuy/backend/src/services/MarriagePrompts.js) để gỡ bỏ hoàn toàn dữ liệu phần trăm (%) Ngũ Hành tính sẵn (`maleNguHanhText`, `femaleNguHanhText`) và thông tin Dụng Thần/Kỵ Thần của hai đương số gửi lên AI.
+  - Bổ sung hướng dẫn bắt buộc AI tự phân tích vượng suy và tương tác ngũ hành thực tế (định tính), cấm AI tự bịa ra các con số phần trăm (%) thập phân giả lập để đảm bảo chất lượng giải đoán học thuật.
+
+---
+
 ## 📅 Phiên bản: Trang chủ Hệ sinh thái & Thanh điều hướng Awwwards (12/07/2026)
 
 ### Giao diện & Trải nghiệm (Rebranding & Xem Vận Mệnh)

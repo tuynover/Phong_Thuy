@@ -19,9 +19,11 @@ import {
   getBaziHistory, 
   getZiweiHistory, 
   analyzeMarriage,
-  getMarriageHistory
+  getMarriageHistory,
+  getBaziRecord,
+  updateBaziInfo
 } from '../services/api';
-import { UserCircle, LogOut, CalendarDays, Shield, Menu, X, History, Compass, Activity, BarChart3, Heart, Calendar, HelpCircle } from 'lucide-react';
+import { UserCircle, LogOut, CalendarDays, Shield, Menu, X, History, Compass, Activity, BarChart3, Heart, Calendar, HelpCircle, ArrowUp, ArrowDown } from 'lucide-react';
 import { Lunar } from 'lunar-javascript';
 import MarriageInput from './MarriageInput';
 import HistoryBoard from './HistoryBoard';
@@ -48,7 +50,7 @@ export default function UserApp({ onSwitchToAdmin }) {
   };
   
   // Auth
-  const { user, logout } = useContext(AuthContext);
+  const { user, setUser, logout } = useContext(AuthContext);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const userMenuRef = useRef(null);
@@ -284,24 +286,32 @@ export default function UserApp({ onSwitchToAdmin }) {
   };
 
   const handleViewHistoricalHexagram = (recordWrapper) => {
+    const id = recordWrapper._id || recordWrapper.id;
     setResult({
-      recordId: recordWrapper._id || recordWrapper.id,
+      _id: id,
+      recordId: id,
       primary: recordWrapper.primaryHexagram,
       secondary: recordWrapper.transformedHexagram,
       primaryLines: recordWrapper.primaryLines || [],
       secondaryLines: recordWrapper.secondaryLines || [],
       movingLines: recordWrapper.movingLines || [],
       dateInfo: recordWrapper.lunarDateInfo,
-      aiInterpretation: recordWrapper.aiInterpretation || ''
+      aiInterpretation: recordWrapper.aiInterpretation || '',
+      rating: recordWrapper.rating,
+      feedback: recordWrapper.feedback
     });
     setAppMode('iching');
   };
 
   const handleViewHistoricalBazi = (record) => {
+    const id = record._id || record.id;
     setBaziResult({
       ...record.baziData,
-      recordId: record._id || record.id,
-      aiInterpretation: record.aiInterpretation
+      _id: id,
+      recordId: id,
+      aiInterpretation: record.aiInterpretation,
+      rating: record.rating,
+      feedback: record.feedback
     });
     setAppMode('bazi');
   };
@@ -337,8 +347,67 @@ export default function UserApp({ onSwitchToAdmin }) {
     const { day, month, year, hour, minute } = user.baziInfo;
     const formattedDate = `${String(day).padStart(2,'0')}/${String(month).padStart(2,'0')}/${year}`;
     const formattedTime = `${String(hour).padStart(2,'0')}:${String(minute).padStart(2,'0')}`;
-    await handleBaziComplete(formattedDate, formattedTime, user.gender !== undefined ? user.gender : 1);
+    const genderVal = user.gender !== undefined ? user.gender : 1;
+
+    if (user.baziInfo.ownBaziRecordId) {
+      setLoading(true);
+      try {
+        const res = await getBaziRecord(user.baziInfo.ownBaziRecordId);
+        const record = res.data;
+        if (record && record.inputInfo && 
+            record.inputInfo.date === formattedDate && 
+            record.inputInfo.time === formattedTime && 
+            record.inputInfo.gender === genderVal &&
+            !record.isDeleted) {
+          setBaziResult(record.baziData ? {
+            ...record.baziData,
+            gender: record.inputInfo.gender,
+            recordId: record._id,
+            aiInterpretation: record.aiInterpretation,
+            rating: record.rating,
+            feedback: record.feedback
+          } : record);
+          setLoading(false);
+          return;
+        }
+      } catch (err) {
+        console.error("Lỗi khi tải lá số bản thân:", err);
+      }
+    }
+
+    setLoading(true);
+    try {
+      const userId = user.id || user._id;
+      const res = await analyzeBazi(formattedDate, formattedTime, genderVal, userId);
+      setBaziResult(res.data);
+      invalidateHistoryCache();
+
+      const newRecordId = res.data.recordId || res.data._id;
+      if (newRecordId) {
+        const updateRes = await updateBaziInfo(
+          userId, 
+          day, month, year, hour, minute, 
+          newRecordId, // pass ownBaziRecordId
+          user.baziInfo.ownZiweiRecordId // pass existing ownZiweiRecordId
+        );
+        if (updateRes.data && updateRes.data.user) {
+          setUser(updateRes.data.user);
+          localStorage.setItem('user', JSON.stringify(updateRes.data.user));
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Lỗi kết nối tới server phân tích Bát Tự.');
+    }
+    setLoading(false);
   };
+  const shouldShowScrollButtons = 
+    appMode === 'home' ||
+    appMode === 'history' ||
+    (appMode === 'iching' && !result) ||
+    (appMode === 'bazi' && !baziResult) ||
+    (appMode === 'marriage' && !marriageResult) ||
+    appMode === 'ziwei';
 
   return (
     <div className={`min-h-screen font-sans text-neutral-800 flex flex-col ${appMode === 'home' ? 'bg-slate-50' : 'bg-[#f8f5f0]'}`}>
@@ -704,7 +773,7 @@ export default function UserApp({ onSwitchToAdmin }) {
         {/* SYSTEM 1: I CHING */}
         <div className={`${appMode === 'iching' ? 'block' : 'hidden'}`}>
           {!result && !loading && (
-            <div className="max-w-xl mx-auto mb-10 bg-white p-6 rounded-2xl shadow-sm border border-amber-100">
+            <div id="iching-input-header" className="max-w-xl mx-auto mb-10 bg-white p-6 rounded-2xl shadow-sm border border-amber-100">
               <label className="block text-amber-900 font-bold mb-3 text-lg text-center">Sự việc cần hỏi (Ý niệm)</label>
               <textarea
                 value={question}
@@ -869,10 +938,20 @@ export default function UserApp({ onSwitchToAdmin }) {
 
           {result && !loading && (
             <div className="space-y-12 animate-in fade-in zoom-in-95 duration-700 pb-20 font-sans">
-              <IChingBoard result={result} onUpdateResult={setResult} user={user} onRequireLogin={() => setIsAuthModalOpen(true)} />
+              <IChingBoard result={result} onUpdateResult={setResult} user={user} onRequireLogin={() => setIsAuthModalOpen(true)} onInvalidateHistory={invalidateHistoryCache} />
               <div className="text-center">
                 <button 
-                  onClick={() => setResult(null)} 
+                  onClick={() => {
+                    setResult(null);
+                    setTimeout(() => {
+                      const element = document.getElementById('iching-input-header');
+                      if (element) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      } else {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }
+                    }, 50);
+                  }} 
                   className="px-10 py-4 bg-white text-amber-900 border-2 border-amber-200 rounded-2xl shadow-md hover:bg-amber-50 hover:border-amber-300 font-bold text-lg transition-all hover:-translate-y-1"
                 >
                   Gieo Quẻ Mới
@@ -921,11 +1000,21 @@ export default function UserApp({ onSwitchToAdmin }) {
                   <p className="text-blue-900 font-extrabold text-sm tracking-wider uppercase animate-pulse">Đang nạp dữ liệu Bát Tự...</p>
                 </div>
               }>
-                <BaziBoard data={baziResult} onUpdateData={setBaziResult} onRequireLogin={() => setIsAuthModalOpen(true)} />
+                <BaziBoard data={baziResult} onUpdateData={setBaziResult} onRequireLogin={() => setIsAuthModalOpen(true)} onInvalidateHistory={invalidateHistoryCache} />
               </React.Suspense>
               <div className="text-center">
                 <button 
-                  onClick={() => setBaziResult(null)} 
+                  onClick={() => {
+                    setBaziResult(null);
+                    setTimeout(() => {
+                      const element = document.getElementById('bazi-input-gender');
+                      if (element) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      } else {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }
+                    }, 50);
+                  }} 
                   className="px-10 py-4 bg-white text-blue-900 border-2 border-blue-200 rounded-2xl shadow-md hover:bg-blue-50 hover:border-blue-300 font-bold text-lg transition-all hover:-translate-y-1"
                 >
                   Luận Lá Số Khác
@@ -951,6 +1040,7 @@ export default function UserApp({ onSwitchToAdmin }) {
               onResultChange={setIsZiweiResultLoaded}
               autoSubmitInfo={autoSubmitZiwei}
               onClearAutoSubmit={() => setAutoSubmitZiwei(null)}
+              onInvalidateHistory={invalidateHistoryCache}
             />
           </React.Suspense>
         </div>
@@ -978,11 +1068,21 @@ export default function UserApp({ onSwitchToAdmin }) {
                   <p className="text-rose-955 font-extrabold text-sm tracking-wider uppercase">Đang nạp dữ liệu Hợp Hôn...</p>
                 </div>
               }>
-                <MarriageBoard data={marriageResult} onUpdateData={setMarriageResult} onRequireLogin={() => setIsAuthModalOpen(true)} />
+                <MarriageBoard data={marriageResult} onUpdateData={setMarriageResult} onRequireLogin={() => setIsAuthModalOpen(true)} onInvalidateHistory={invalidateHistoryCache} />
               </React.Suspense>
               <div className="text-center">
                 <button 
-                  onClick={() => setMarriageResult(null)} 
+                  onClick={() => {
+                    setMarriageResult(null);
+                    setTimeout(() => {
+                      const element = document.getElementById('marriage-input-nam');
+                      if (element) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      } else {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }
+                    }, 50);
+                  }} 
                   className="px-10 py-4 bg-white text-rose-900 border-2 border-rose-200 rounded-2xl shadow-md hover:bg-rose-50 hover:border-rose-300 font-bold text-lg transition-all hover:-translate-y-1"
                 >
                   Xem Cặp Đôi Khác
@@ -1089,6 +1189,25 @@ export default function UserApp({ onSwitchToAdmin }) {
           handleBaziComplete(formattedDate, formattedTime, updatedUser.gender !== undefined ? updatedUser.gender : 1);
         }} 
       />
+
+      {shouldShowScrollButtons && (
+        <div className="fixed bottom-6 left-6 z-50 flex flex-col items-center gap-2 animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <button 
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            title="Cuộn lên đầu"
+            className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-slate-800 transition-all active:scale-90 bg-transparent"
+          >
+            <ArrowUp size={24} strokeWidth={2.5} />
+          </button>
+          <button 
+            onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })}
+            title="Cuộn xuống cuối"
+            className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-slate-800 transition-all active:scale-90 bg-transparent"
+          >
+            <ArrowDown size={24} strokeWidth={2.5} />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
