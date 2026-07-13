@@ -251,15 +251,16 @@ export default function UserApp({ onSwitchToAdmin }) {
   };
 
   const handleViewDestinyFromHome = (info) => {
-    const { day, month, year, hour, gender, target } = info;
+    const { day, month, year, hour, minute, gender, target } = info;
     const d = String(day).padStart(2, '0');
     const m = String(month).padStart(2, '0');
     const y = String(year);
     const h = String(hour).padStart(2, '0');
+    const min = String(minute || '00').padStart(2, '0');
     
     if (target === 'bazi') {
       const formattedDate = `${d}/${m}/${y}`;
-      const formattedTime = `${h}:00`;
+      const formattedTime = `${h}:${min}`;
       const genderVal = gender === 'Nam' ? 1 : 0;
       handleBaziComplete(formattedDate, formattedTime, genderVal);
       setAppMode('bazi');

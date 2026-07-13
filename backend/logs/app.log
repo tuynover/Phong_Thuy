@@ -26821,3 +26821,28 @@ Stack: Error: getaddrinfo ENOTFOUND phong-thuy-backend-gz15.onrender.com
 [2026-07-13 21:29:28.424] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 159ms] Hoàn thành: Phản hồi thành công (304)
 [2026-07-13 21:30:28.268] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
 [2026-07-13 21:30:28.417] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 149ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-13 21:31:28.258] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-13 21:31:28.468] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 210ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-13 21:32:28.266] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-13 21:32:28.412] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 147ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-13 21:33:28.272] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-13 21:33:28.423] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 154ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-13 21:33:47.785] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-13 21:34:28.260] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-13 21:34:28.412] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 153ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-13 21:35:28.255] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-13 21:35:28.397] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 143ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-13 21:36:26.271] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-13 21:36:26.426] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 159ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-13 21:37:28.261] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-13 21:37:28.408] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 148ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-13 21:38:28.266] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-13 21:38:28.425] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 161ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-13 21:39:26.259] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-13 21:39:26.417] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 158ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-13 21:39:52.182] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Lập Bản Đồ Bát Tự] [IP: ::1] Yêu cầu bắt đầu: POST /api/bazi/analyze | Params: {"date":"04/02/2026","time":"00:01","gender":1,"userId":"019e594f-5fb3-701e-916a-d6ce37d424bd"}
+[2026-07-13 21:39:52.354] [INFO] [SSE] Broadcasting event [new_calculation] to all admins
+[2026-07-13 21:39:52.367] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Lập Bản Đồ Bát Tự] [IP: ::1] [Duration: 186ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-13 21:39:52.927] [INFO] [SSE] Broadcasting event [user_updated] to all admins
+[2026-07-13 21:40:26.254] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-13 21:40:26.378] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 123ms] Hoàn thành: Phản hồi thành công (304)

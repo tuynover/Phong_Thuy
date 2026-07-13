@@ -13,6 +13,12 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
   - **Tiết khí cực đoan (Con vượng Mẹ kiệt) & Mẫu dĩ tử quý:** Khi ngũ hành con chiếm $>35\%$ tổng điểm thô $\rightarrow$ Giảm **30%** điểm số của ngũ hành mẹ (Mẹ bị kiệt quệ do tiết khí cực độ). Nếu ngũ hành con vượng vừa phải ($25\% - 35\%$) $\rightarrow$ Tăng **10%** điểm số của ngũ hành mẹ (Mẫu dĩ tử quý).
   - **Phá điểm sàn phục vụ Tòng Cách:** Nếu một hành cực thịnh chiếm tỷ lệ $>65\%$ điểm thô $\rightarrow$ Vô hiệu hóa điểm sàn tối thiểu $5\%$ đối với các hành bị xung khắc hoàn toàn để phục vụ nhận diện cách cục Tòng cách chuẩn xác.
 
+### Frontend (Giao diện người dùng)
+- **Đồng bộ hóa Ô Nhập Liệu Destiny Modal (Xem Vận Mệnh):**
+  - Tích hợp component `<CustomSelect />` tự làm sạch và tìm kiếm thông minh thay thế cho các thẻ `<select>` mặc định thô cứng của trình duyệt trong hộp thoại modal "Xem Vận Mệnh" ở Trang chủ.
+  - Tích hợp thêm **ô chọn Phút sinh (MM)** song song với Giờ sinh (HH) theo đúng bố cục phân bổ `:` chuẩn hóa của Bát Tự, giúp truyền dữ liệu thời gian sinh tuyệt đối lên hệ thống xử lý.
+  - Đồng bộ hóa các góc bo tròn (`rounded-xl`), biểu tượng chọn, hiệu ứng focus và phong cách phối màu (Gender buttons xanh/rose chứa icon `User`) chuẩn hóa giao diện hoàn toàn đồng bộ với trang lập lá số Bát Tự (`BaziInput.jsx`).
+
 ## 📅 Phiên bản: Nâng cấp Toàn diện Thuật toán Tính Ngũ Hành Bát tự (13/07/2026)
 
 ### Backend (Tính toán Ngũ hành Bát tự)

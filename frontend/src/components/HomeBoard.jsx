@@ -17,7 +17,9 @@ import {
   BarChart3, 
   Activity,
   Play,
-  X
+  X,
+  ChevronDown,
+  User
 } from 'lucide-react';
 
 // Custom clean animations for subtle modern rendering
@@ -42,6 +44,74 @@ const cardItemVariants = {
   }
 };
 
+// UNIFIED COMBOBOX SELECTOR (BLUE THEME)
+function CustomSelect({ value, onChange, options, placeholder }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [search, setSearch] = useState(value || '');
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    setSearch(value || '');
+  }, [value]);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setIsOpen(false);
+        setSearch(value || '');
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [value]);
+
+  const filteredOptions = options.filter(opt => opt.includes(search));
+
+  const handleInputChange = (e) => {
+    const val = e.target.value;
+    setSearch(val);
+    onChange(val);
+    setIsOpen(true);
+  };
+
+  return (
+    <div ref={containerRef} className="relative flex-1">
+      <div className="relative">
+        <input
+          type="text"
+          value={search}
+          onChange={handleInputChange}
+          onFocus={() => setIsOpen(true)}
+          placeholder={placeholder}
+          className={`bg-gray-50 border border-gray-200 text-center text-gray-905 text-base rounded-xl block w-full p-2.5 font-bold transition-all focus:outline-none pr-8 shadow-sm ${isOpen ? 'ring-2 ring-blue-550 border-blue-550' : ''}`}
+        />
+        <ChevronDown
+          size={14}
+          className="absolute right-2 top-4 text-blue-500 cursor-pointer shrink-0"
+          onClick={() => setIsOpen(!isOpen)}
+        />
+      </div>
+      {isOpen && filteredOptions.length > 0 && (
+        <ul className="absolute z-50 w-full mt-1 bg-white border border-blue-100 rounded-xl shadow-lg py-1.5 max-h-48 overflow-y-auto text-center font-bold">
+          {filteredOptions.map(opt => (
+            <li
+              key={opt}
+              onClick={() => {
+                onChange(opt);
+                setSearch(opt);
+                setIsOpen(false);
+              }}
+              className={`px-3 py-1.5 text-sm cursor-pointer transition-colors hover:bg-blue-50 hover:text-blue-900 ${value === opt ? 'bg-blue-50 text-blue-800 font-extrabold' : 'text-gray-700'}`}
+            >
+              {opt}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 export default function HomeBoard({ onSelectModule, user, onRequireLogin, onViewDestiny }) {
   const [hoveredCard, setHoveredCard] = useState(null);
 
@@ -51,15 +121,17 @@ export default function HomeBoard({ onSelectModule, user, onRequireLogin, onView
   const [destinyMonth, setDestinyMonth] = useState('');
   const [destinyYear, setDestinyYear] = useState('');
   const [destinyHour, setDestinyHour] = useState('');
+  const [destinyMinute, setDestinyMinute] = useState('');
   const [destinyGender, setDestinyGender] = useState('Nam');
 
   const daysOptions = Array.from({ length: 31 }, (_, i) => String(i + 1));
   const monthsOptions = Array.from({ length: 12 }, (_, i) => String(i + 1));
   const yearsOptions = Array.from({ length: 97 }, (_, i) => String(2026 - i));
   const hoursOptions = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
+  const minutesOptions = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
 
   const handleDestinySubmit = (target) => {
-    if (!destinyDay || !destinyMonth || !destinyYear || destinyHour === '') {
+    if (!destinyDay || !destinyMonth || !destinyYear || destinyHour === '' || destinyMinute === '') {
       alert('Vui lòng chọn đầy đủ ngày tháng năm giờ sinh.');
       return;
     }
@@ -69,6 +141,7 @@ export default function HomeBoard({ onSelectModule, user, onRequireLogin, onView
         month: destinyMonth,
         year: destinyYear,
         hour: destinyHour,
+        minute: destinyMinute,
         gender: destinyGender,
         target
       });
@@ -782,15 +855,15 @@ export default function HomeBoard({ onSelectModule, user, onRequireLogin, onView
                   <div className="flex gap-4">
                     <button 
                       onClick={() => setDestinyGender('Nam')}
-                      className={`flex-1 py-2.5 rounded-xl border-2 font-bold text-sm transition-all ${destinyGender === 'Nam' ? 'border-indigo-600 bg-indigo-50/20 text-indigo-700' : 'border-slate-100 text-slate-500 hover:bg-slate-50'}`}
+                      className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-xl border-2 cursor-pointer transition-all ${destinyGender === 'Nam' ? 'border-blue-500 bg-blue-50 text-blue-700 font-bold' : 'border-gray-200 text-gray-500 hover:bg-gray-50'}`}
                     >
-                      Nam Mệnh
+                      <User className="w-5 h-5" /> Nam Mệnh
                     </button>
                     <button 
                       onClick={() => setDestinyGender('Nữ')}
-                      className={`flex-1 py-2.5 rounded-xl border-2 font-bold text-sm transition-all ${destinyGender === 'Nữ' ? 'border-indigo-600 bg-indigo-50/20 text-indigo-700' : 'border-slate-100 text-slate-500 hover:bg-slate-50'}`}
+                      className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-xl border-2 cursor-pointer transition-all ${destinyGender === 'Nữ' ? 'border-rose-500 bg-rose-50 text-rose-700 font-bold' : 'border-gray-200 text-gray-500 hover:bg-gray-50'}`}
                     >
-                      Nữ Mệnh
+                      <User className="w-5 h-5" /> Nữ Mệnh
                     </button>
                   </div>
                 </div>
@@ -798,45 +871,52 @@ export default function HomeBoard({ onSelectModule, user, onRequireLogin, onView
                 {/* Ngày sinh */}
                 <div>
                   <span className="block text-[11px] font-black uppercase text-slate-400 tracking-wider mb-2 ml-1">Ngày - Tháng - Năm Sinh (Dương Lịch)</span>
-                  <div className="grid grid-cols-3 gap-2">
-                    <select 
+                  <div className="flex gap-2">
+                    <CustomSelect 
                       value={destinyDay}
-                      onChange={(e) => setDestinyDay(e.target.value)}
-                      className="bg-slate-50 border border-slate-200 text-slate-800 text-xs sm:text-sm rounded-xl block w-full p-2.5 font-bold transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    >
-                      <option value="">Ngày</option>
-                      {daysOptions.map(d => <option key={d} value={d}>{d}</option>)}
-                    </select>
-                    <select 
+                      onChange={setDestinyDay}
+                      options={daysOptions}
+                      placeholder="Ngày"
+                    />
+                    <CustomSelect 
                       value={destinyMonth}
-                      onChange={(e) => setDestinyMonth(e.target.value)}
-                      className="bg-slate-50 border border-slate-200 text-slate-800 text-xs sm:text-sm rounded-xl block w-full p-2.5 font-bold transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    >
-                      <option value="">Tháng</option>
-                      {monthsOptions.map(m => <option key={m} value={m}>{m}</option>)}
-                    </select>
-                    <select 
+                      onChange={setDestinyMonth}
+                      options={monthsOptions}
+                      placeholder="Tháng"
+                    />
+                    <CustomSelect 
                       value={destinyYear}
-                      onChange={(e) => setDestinyYear(e.target.value)}
-                      className="bg-slate-50 border border-slate-200 text-slate-800 text-xs sm:text-sm rounded-xl block w-full p-2.5 font-bold transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    >
-                      <option value="">Năm</option>
-                      {yearsOptions.map(y => <option key={y} value={y}>{y}</option>)}
-                    </select>
+                      onChange={setDestinyYear}
+                      options={yearsOptions}
+                      placeholder="Năm"
+                    />
                   </div>
                 </div>
 
-                {/* Giờ sinh */}
+                {/* Giờ - Phút sinh */}
                 <div>
-                  <span className="block text-[11px] font-black uppercase text-slate-400 tracking-wider mb-2 ml-1">Giờ Sinh</span>
-                  <select 
-                    value={destinyHour}
-                    onChange={(e) => setDestinyHour(e.target.value)}
-                    className="bg-slate-50 border border-slate-200 text-slate-800 text-xs sm:text-sm rounded-xl block w-full p-2.5 font-bold transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  >
-                    <option value="">Chọn giờ sinh</option>
-                    {hoursOptions.map(h => <option key={h} value={h}>{h} giờ</option>)}
-                  </select>
+                  <span className="block text-[11px] font-black uppercase text-slate-400 tracking-wider mb-2 ml-1">Thời Gian Sinh</span>
+                  <div className="flex gap-3">
+                    <div className="flex-1">
+                      <span className="block text-xs text-gray-400 font-bold mb-1 ml-1 text-center">GIỜ (0-23)</span>
+                      <CustomSelect 
+                        value={destinyHour}
+                        onChange={setDestinyHour}
+                        options={hoursOptions}
+                        placeholder="HH"
+                      />
+                    </div>
+                    <div className="flex items-center pt-5 font-black text-gray-400 text-xl">:</div>
+                    <div className="flex-1">
+                      <span className="block text-xs text-gray-400 font-bold mb-1 ml-1 text-center">PHÚT (0-59)</span>
+                      <CustomSelect 
+                        value={destinyMinute}
+                        onChange={setDestinyMinute}
+                        options={minutesOptions}
+                        placeholder="MM"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
 
