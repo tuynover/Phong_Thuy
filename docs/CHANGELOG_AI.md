@@ -4,6 +4,30 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
 
 ---
 
+## 📅 Phiên bản: Thuật toán Bát tự Ngũ hành 4.0 (13/07/2026)
+
+### Backend (Tính toán học thuật Bát tự)
+- **Cải tiến và nâng cấp Thuật toán Bát tự Ngũ hành 4.0:**
+  - **Tổ hợp chi tranh đoạt (Ưu tiên hợp xung):** Phân cấp độ ưu tiên của các quan hệ Địa Chi (Tam Hội/Tam Hợp > Lục Hợp > Lục Xung/Hình/Hại). Nếu chi đã tham gia tổ hợp có ưu tiên cao hơn, sức ảnh hưởng điểm số của nó ở các tổ hợp có ưu tiên thấp hơn sẽ bị giảm trừ **80%** (Hợp giải xung).
+  - **Đa thấu phân khí (Nguyệt Lệnh):** Nếu có $N \ge 2$ Thiên can cùng thấu từ Chi tháng sinh, phần điểm thưởng Root Power thấu can cộng thêm cho mỗi can sẽ chia đều cho $N$ để thể hiện sự phân tán khí của Nguyệt Lệnh.
+  - **Tiết khí cực đoan (Con vượng Mẹ kiệt) & Mẫu dĩ tử quý:** Khi ngũ hành con chiếm $>35\%$ tổng điểm thô $\rightarrow$ Giảm **30%** điểm số của ngũ hành mẹ (Mẹ bị kiệt quệ do tiết khí cực độ). Nếu ngũ hành con vượng vừa phải ($25\% - 35\%$) $\rightarrow$ Tăng **10%** điểm số của ngũ hành mẹ (Mẫu dĩ tử quý).
+  - **Phá điểm sàn phục vụ Tòng Cách:** Nếu một hành cực thịnh chiếm tỷ lệ $>65\%$ điểm thô $\rightarrow$ Vô hiệu hóa điểm sàn tối thiểu $5\%$ đối với các hành bị xung khắc hoàn toàn để phục vụ nhận diện cách cục Tòng cách chuẩn xác.
+
+## 📅 Phiên bản: Nâng cấp Toàn diện Thuật toán Tính Ngũ Hành Bát tự (13/07/2026)
+
+### Backend (Tính toán Ngũ hành Bát tự)
+- **Tái cấu trúc và nâng cấp Thuật toán Bát tự Bazi 2.0:**
+  - **Phân bổ trọng số cơ sở tĩnh:** Nâng Thiên can thường lên 15 điểm, Can tháng 7.5 điểm (1/2 can thường), Chi thường 10 điểm, Chi tháng 25 điểm (Nguyệt lệnh giữ quyền lực tuyệt đối). Tổng điểm cơ sở tĩnh ban đầu là 107.5 điểm.
+  - **Phân rã Địa chi vào Tàng can:** Phân bổ hoàn toàn điểm số của Địa chi vào các tàng can của nó (Quý = 100% cho Tý; Đinh/Kỷ = 70/30 cho Ngọ; Bản khí/Trung khí/Dư khí = 60/30/10 cho các địa chi khác).
+  - **Quyền lực Trụ Tháng (Nguyệt Lệnh):** Tích hợp tính điểm Can tháng qua 4 cấp độ (Thấu Can, Đồng hành 70% bản khí, Đắc sinh +3 điểm, Bị khắc +1 điểm hoặc bị phạt -3 điểm nếu không có gốc) và Thấu Can toàn lá số suy giảm theo khoảng cách trụ ($1.0$, $0.75$, $0.5$, $0.2$).
+  - **Thông Căn Địa Chi (Can có gốc):** Tính điểm cộng thông căn cho Thiên can từ các Tàng can cùng ngũ hành trong Địa chi, áp dụng hệ số suy giảm khoảng cách trụ ($1.0$, $0.75$, $0.5$, $0.2$).
+  - **Độ vượng Ngũ hành theo mùa (Vượng, Tướng, Hưu, Tù, Tử):** Nhân điểm số ngũ hành tương ứng với hệ số mùa sinh: Vượng ($\times 1.5$), Tướng ($\times 1.2$), Hưu ($\times 1.0$), Tù ($\times 0.8$), Tử ($\times 0.6$).
+  - **Xét Chân Thần - Giả Thần:** Cộng thêm $+3$ điểm cho ngũ hành có Thiên can là Chân thần (có gốc trong tàng can của Chi tháng sinh).
+  - **Hội Cục Địa Chi:** Tích hợp kiểm tra Tam Hội ($+12$ điểm) và Bán Tam Hội ($+4$ điểm).
+  - **Tương tác Thiên Can & Thổ khô - Thổ ướt:** Tích hợp tương tác sinh khắc giữa các Thiên can theo khoảng cách. Điều chỉnh lực khắc Thủy và sinh Kim/Hỏa của Thìn, Sửu (Thổ ướt) và Tuất, Mùi (Thổ khô). Áp dụng phạt Mộc và Thủy nếu Thổ quá vượng ($> 35\%$).
+  - **Ngũ hành Phản sinh & Phản khắc:** Áp dụng thuật toán phạt năng lượng do phản sinh/phản khắc (cha yếu con vượng, mẹ quá vượng hại con).
+  - **Chuẩn hóa tỷ lệ & Bù sai số float:** Chuẩn hóa toàn bộ ngũ hành về tổng bằng đúng 100 điểm, tự động bù sai số làm tròn vào ngũ hành có điểm số cao nhất.
+
 ## 📅 Phiên bản: Sửa lỗi hiển thị Đánh giá sau khi refresh, Xóa mềm lịch sử và Tránh trùng lặp Lá số bản thân (12/07/2026)
 
 ### Frontend (Giao diện & Cải tiến Luồng)

@@ -947,3 +947,7 @@ Require stack:
 [2026-07-12 21:29:30.610] [WARN] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 70ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (401)
 [2026-07-12 21:31:24.724] [WARN] [User: cobatuoc@gmail.com (Tuyen)] [Action: POST /api/ziwei] [IP: ::1] [Duration: 3ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (400)
 [2026-07-12 22:33:00.414] [WARN] [User: cobatuoc@gmail.com (Tuyen)] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] [Duration: 6ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (404)
+[2026-07-13 18:58:13.694] [ERROR] [Self-Ping] Error: getaddrinfo ENOTFOUND phong-thuy-backend-gz15.onrender.com
+Stack: Error: getaddrinfo ENOTFOUND phong-thuy-backend-gz15.onrender.com
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26)
+[2026-07-13 20:57:10.818] [WARN] [User: anonymous] [Action: Luận Giải Kinh Dịch AI] [IP: ::1] [Duration: 73ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)

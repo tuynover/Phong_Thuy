@@ -90,3 +90,33 @@ Tác vụ chạy định kỳ lúc nửa đêm của `NotificationScheduler.js` 
 - **Gửi Email OTP:** Máy chủ gửi một email định dạng HTML chứa mã OTP nổi bật đến email của người dùng.
 - **Xác thực đặt lại mật khẩu (`POST /reset-password`):** Người dùng nhập đúng mã OTP còn hiệu lực kèm mật khẩu mới (độ dài tối thiểu 6 ký tự). Sau khi cập nhật thành công mật khẩu mới (mã hóa bcrypt), hệ thống sẽ tăng `tokenVersion` lên 1 để tự động đăng xuất tất cả phiên đăng nhập cũ của tài khoản.
 - **Rate Limit:** Cả hai endpoint quên mật khẩu và khôi phục mật khẩu đều được bảo vệ bởi middleware `authLimiter` nhằm chống brute-force và spam email.
+
+---
+
+## 🌌 5. Quy tắc Học thuật Bát tự Ngũ hành (Bazi) - Phiên bản 4.0
+
+### 5.1 Trọng số điểm cơ sở
+- **Thiên can thường:** 15 điểm. Can tháng: 7.5 điểm (1/2 can thường).
+- **Địa chi thường:** 10 điểm. Chi tháng (Nguyệt lệnh): 25 điểm. Điểm của địa chi được phân rã hoàn toàn vào các tàng can theo tỷ lệ (Tý/Mão/Dậu = 100%; Ngọ/Hợi = 70/30; Sửu/Dần/Thìn/Tỵ/Mùi/Thân/Tuất/Hợi = 60/30/10).
+
+### 5.2 Lệnh Mùa của các tháng Tứ Quý (Thìn, Sửu, Mùi, Tuất)
+- **Tháng Thìn, Sửu:** Thổ vượng ($\times 1.5$), Kim tướng ($\times 1.2$), Hỏa & Thủy nửa Hưu nửa Tù ($\times 0.9$), Mộc tử ($\times 0.6$).
+- **Tháng Mùi, Tuất:** Thổ vượng ($\times 1.5$), Kim tướng ($\times 1.2$), Hỏa nửa Tướng nửa Tù ($\times 1.0$), Thủy nửa Tù nửa Tử ($\times 0.7$), Mộc tử ($\times 0.6$).
+
+### 5.3 Quan hệ Địa chi Ưu tiên (Hợp xung giải trừ)
+- Định nghĩa phân cấp độ ưu tiên của các quan hệ địa chi:
+  - Cấp 1 (Cao nhất): Tam Hội, Tam Hợp.
+  - Cấp 2: Lục Hợp.
+  - Cấp 3 (Thấp nhất): Lục Xung, Lục Hại, Lục Phá, Hình.
+- Nếu một Địa Chi đã tham gia vào tổ hợp có ưu tiên cao hơn, sức ảnh hưởng điểm số của nó ở các tổ hợp có ưu tiên thấp hơn (như bị xung, hình, hại) sẽ bị giảm trừ **80%** (Hợp giải xung).
+
+### 5.4 Đa thấu phân khí (Nguyệt lệnh)
+- Nếu có $N \ge 2$ Thiên can cùng thấu từ các tàng can của Chi tháng sinh (Nguyệt lệnh), điểm số Root Power thấu can được cộng thêm cho mỗi can sẽ được chia đều cho $N$ để thể hiện sự phân tán khí lực của Nguyệt lệnh.
+
+### 5.5 Tiết khí cực đoan (Con vượng Mẹ kiệt)
+- Nếu một ngũ hành bất kỳ chiếm tỷ lệ $>35\%$ tổng điểm thô, hành sinh ra nó (mẹ) bị tiết khí cực đoan và suy giảm **30%** điểm số hiện có.
+- Nếu ngũ hành con vượng vừa phải ($25\% \le \text{tỷ lệ} \le 35\%$), hành mẹ được cộng hưởng tăng thêm **10%** điểm số (Mẫu dĩ tử quý).
+
+### 5.6 Phá điểm sàn phục vụ Tòng Cách
+- Nếu một ngũ hành bất kỳ chiếm tỷ lệ cực thịnh $>65\%$ tổng điểm thô trước khi xét điểm sàn, hệ thống kích hoạt trạng thái **Khắc nhập Tòng Cách** và **vô hiệu hóa điểm sàn tối thiểu 5%** đối với các hành bị khắc/tử tuyệt hoàn toàn, cho phép điểm số của chúng hạ sát về 0% nhằm nhận diện cách cục Tòng cách chính xác.
+
