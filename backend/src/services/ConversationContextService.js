@@ -44,14 +44,19 @@ class ConversationContextService {
             // Career / Money
             'công việc', 'sự nghiệp', 'tiền tài', 'tài lộc', 'đầu tư', 'kinh doanh', 'mua bán', 'hợp tác', 'đối tác',
             'sếp', 'đồng nghiệp', 'xin việc', 'phỏng vấn', 'thăng chức', 'tăng lương', 'chuyển việc', 'thất nghiệp',
+            'tiền', 'tiền bạc', 'làm ăn', 'buôn bán', 'thua lỗ',
             // Love / Marriage
             'tình duyên', 'kết hôn', 'cưới', 'ly hôn', 'vợ', 'chồng', 'bạn trai', 'bạn gái', 'người yêu', 'tình cảm',
-            'chia tay', 'quay lại', 'hẹn hò', 'mối quan hệ',
-            // Health / Safety
+            'chia tay', 'quay lại', 'hẹn hò', 'mối quan hệ', 'phu thê',
+            // Family & Home
+            'gia đạo', 'gia đình', 'con cái', 'cha mẹ', 'bố mẹ', 'mẹ', 'bố', 'cha', 'anh em', 'chị em', 'nhà cửa', 'đất đai', 'bất động sản',
+            // Health / Safety / Life events
             'sức khỏe', 'bệnh', 'tai nạn', 'tai ương', 'bình an', 'mổ', 'khám', 'thuốc', 'chữa',
+            'sinh con', 'bầu bí', 'mang thai', 'khai trương', 'xuất hành', 'động thổ', 'thi cử', 'học hành', 'đỗ đạt',
             // Timing / Decisions
             'khi nào', 'bao giờ', 'thời điểm', 'ngày nào', 'tháng mấy', 'năm nào', 'nên', 'không nên',
             'làm thế nào', 'giải pháp', 'hóa giải', 'hướng nào', 'phong thủy', 'cải vận', 'vận hạn', 'đại vận',
+            'vận', 'hạn', 'hợp', 'xung', 'khắc', 'sinh',
             // Heavenly Stems (Thiên can) - normalized to NFC
             'giáp', 'ất', 'bính', 'đinh', 'mậu', 'kỷ', 'canh', 'tân', 'nhâm', 'quý',
             // Earthly Branches (Địa chi) - normalized to NFC

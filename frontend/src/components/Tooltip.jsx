@@ -4,6 +4,7 @@ import { getConcept } from '../services/api';
 import { conceptDictionary } from '../data/concepts';
 
 const Tooltip = ({ term, children, className, placement = 'top', unstyled = false }) => {
+    const termStr = typeof term === 'string' ? term : (term ? String(term) : '');
     const [open, setOpen] = useState(false);
     const [info, setInfo] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -92,8 +93,8 @@ const Tooltip = ({ term, children, className, placement = 'top', unstyled = fals
     };
 
     const loadConceptData = async () => {
-        if (!info && term) {
-            const trimmedTerm = term.trim();
+        if (!info && termStr) {
+            const trimmedTerm = termStr.trim();
             if (conceptDictionary[trimmedTerm]) {
                 setInfo(conceptDictionary[trimmedTerm]);
             } else {
@@ -154,7 +155,7 @@ const Tooltip = ({ term, children, className, placement = 'top', unstyled = fals
         }, 150);
     };
 
-    if (!term) return <span>{children}</span>;
+    if (!termStr.trim()) return <span>{children}</span>;
 
     const tooltipStyle = {
         position: 'fixed',
@@ -176,7 +177,7 @@ const Tooltip = ({ term, children, className, placement = 'top', unstyled = fals
             onTouchStart={handleTouchStart}
         >
             <span className={unstyled ? `cursor-help ${className || ''}` : `cursor-help border-b border-dashed border-gray-400 hover:text-blue-700 transition-colors ${className || ''}`}>
-                {children || term}
+                {children || termStr}
             </span>
             {open && createPortal(
                 <div
@@ -188,7 +189,7 @@ const Tooltip = ({ term, children, className, placement = 'top', unstyled = fals
                 >
                     {/* Header */}
                     <div className="flex justify-between items-center mb-2 pb-1.5 border-b border-amber-300">
-                        <span className="font-bold text-red-800 text-base">{term}</span>
+                        <span className="font-bold text-red-800 text-base">{termStr}</span>
                         {info?.category && (
                             <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700 bg-amber-200 px-2 py-0.5 rounded-full">
                                 {info.category}

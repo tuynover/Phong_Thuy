@@ -65,6 +65,10 @@ const baziRecordSchema = new mongoose.Schema({
     enum: ['active', 'locked'],
     default: 'active'
   },
+  isPinned: {
+    type: Boolean,
+    default: false
+  },
   isDeleted: {
     type: Boolean,
     default: false

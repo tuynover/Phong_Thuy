@@ -4,7 +4,41 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
 
 ---
 
+## 📅 Phiên bản: Thuật toán Bát tự Ngũ hành 5.1 - Nâng cấp Cự Ly & Tương Tác Cản Trở (14/07/2026)
+
+### Backend (Tính toán học thuật Bát tự)
+- **Tích Hợp Khoảng Cách Địa Chi (Branch Distance Multipliers):** Điều chỉnh các phần thưởng/hình phạt từ tổ hợp địa chi theo khoảng cách địa lý giữa các trụ (Kề nhau $\times 1.0$, Cách 1 trụ $\times 0.6$, Cách 2 trụ $\times 0.3$; Tam hợp/Tam hội có chi xa giảm còn $0.7$ hoặc $0.5$).
+- **Can Trung Gian Cản Trở (Blockage):** Giảm $90\%$ lực lượng tương tác giữa 2 can cách xa nhau nếu có Can trung gian mạnh (tổng điểm gốc $\ge 5.0$) và khắc một trong hai Can đầu cuối.
+- **Quá Tải Tương Tác Can (Saturation):** Can ưu tiên tương tác ở cự ly gần nhất trước ($100\%$), cự ly trung bình giảm còn $50\%$, cự ly xa nhất giảm còn $20\%$.
+
+### Tài liệu (Documentation)
+- **Cập nhật Tài liệu:** Bổ sung mô tả cơ cấu toán học Bát tự 5.1 vào [BUSINESS_RULES.md](file:///t:/Phongthuy/docs/BUSINESS_RULES.md#L126-L135).
+
+---
+
+## 📅 Phiên bản: Thuật toán Bát tự Ngũ hành 5.0 - Toán Học Cân Bằng Động (13/07/2026)
+
+### Backend (Tính toán học thuật Bát tự)
+- **Thiết lập toán học Tầng 1 (Base Score) & Tầng 2 (Multiplier):** Loại bỏ hiện tượng đếm trùng (Double Counting) bằng cách tách biệt điểm nền tĩnh và chuyển toàn bộ các khoản thưởng phụ sang hệ số nhân tỷ lệ phần trăm.
+- **Thông căn Diminishing Returns:** Áp dụng hệ số suy giảm thông căn nhiều lần (gốc 1: 100%, gốc 2: 70%, gốc 3: 40%, gốc 4: 20%) và phân cấp trọng số gốc (Bản khí: 100%, Trung khí: 70%, Dư khí: 40%).
+- **Hợp Xung dạng tỷ lệ & Hóa mồi:** Quy đổi các tổ hợp chi sang hệ số nhân phần trăm. Cấp điểm mồi $3.0$ điểm cho ngũ hành khuyết (0 điểm) nếu chúng tham gia hợp hóa.
+- **Tương sinh tương khắc phi tuyến:** Thay thế tương khắc tuyến tính bằng công thức tỷ lệ tương quan động phi tuyến giữa hai hành.
+- **Làm mượt ngưỡng kích hoạt:** Tích hợp hàm **Smoothstep** làm mượt ranh giới phản sinh/phản khắc ($30\% - 40\%$) và con vượng mẹ kiệt để tránh bước nhảy bậc năng lượng đột ngột.
+- **Bão hòa & Bù đắp:** Tự động giảm bonus khi hành cực thịnh ($>40\%$) và tăng bonus khi hành cực suy ($<8\%$, $<5\%$).
+- **Điểm sàn phân cấp:** Can lộ ($5\%$), Bản khí ẩn ($4\%$), Trung khí ẩn ($2\%$), Dư khí ẩn ($1\%$).
+- **Chỉ số nâng cao:** Tính toán và lưu trữ song song `nguHanhRaw` (Điểm thô), `entropy` (Chỉ số cân bằng), `dominanceIndex` (Chỉ số chuyên chế), và `confidenceScore` (Chỉ số tin cậy Nhật Chủ).
+
+### Tài liệu (Documentation)
+- **Đồng bộ hóa Tài liệu:** Cập nhật [BUSINESS_RULES.md](file:///t:/Phongthuy/docs/BUSINESS_RULES.md#L96-L140) và [AGENTS.md](file:///t:/Phongthuy/AGENTS.md#L71-L76) mô tả các ràng buộc và thông số chi tiết của thuật toán toán học 5.0.
+
 ## 📅 Phiên bản: Thuật toán Bát tự Ngũ hành 4.0 (13/07/2026)
+
+### Tài liệu (Documentation)
+- **Đồng bộ hóa toàn bộ Tài liệu Dự án:**
+  - Cập nhật [AGENTS.md](file:///t:/Phongthuy/AGENTS.md#L71-L76) để thiết lập các nguyên tắc và hạn chế kỹ thuật của Bát tự Ngũ hành 4.0, tránh rủi ro phá vỡ code từ các AI agent khác trong tương lai.
+  - Cập nhật [README.md](file:///t:/Phongthuy/README.md#L90-L95) giới thiệu tệp tin và cơ chế lõi của `BaziAnalyzer.js` trong mục Core Services.
+  - Cập nhật [PROJECT_CONTEXT.md](file:///t:/Phongthuy/docs/PROJECT_CONTEXT.md#L18) đồng bộ mô tả các tính năng toán học của thuật toán 4.0.
+  - Cập nhật [BUSINESS_RULES.md](file:///t:/Phongthuy/docs/BUSINESS_RULES.md#L94-L125) để tài liệu hóa toàn diện các công thức phần trăm sinh khắc tương đối, quy tắc ưu tiên chi, đa thấu phân khí, và điều kiện bypass điểm sàn tòng cách.
 
 ### Backend (Tính toán học thuật Bát tự)
 - **Cải tiến và nâng cấp Thuật toán Bát tự Ngũ hành 4.0:**
@@ -552,5 +586,38 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
 - **Backend:**
   - Viết mới [AdminController.js](file:///t:/Phongthuy/backend/src/controllers/AdminController.js) phục vụ các endpoints quản trị: lấy danh sách user, khóa tài khoản, cộng trừ credit, quản lý khiếu nại.
   - Tích hợp route `/events` trong [admin.js](file:///t:/Phongthuy/backend/src/routes/admin.js) để phát các sự kiện hệ thống thời gian thực tới Admin Dashboard qua SSE.
-- **Frontend:**
   - Viết mới [AdminApp.jsx](file:///t:/Phongthuy/frontend/src/components/AdminApp.jsx) chứa đầy đủ biểu đồ Recharts, bộ lọc tìm kiếm bản ghi, giao diện nạp credit và xử lý khiếu nại của người dùng.
+
+---
+
+## 📅 Phiên bản: Sửa Lỗi Giao Diện Trắng Khi Chat & Nâng Cấp Bộ Lọc Từ Khóa Ý Định
+
+### 1. Khắc phục lỗi crash trắng màn hình ở Frontend
+- **Sửa đổi component [Tooltip.jsx](file:///t:/Phongthuy/frontend/src/components/Tooltip.jsx):** Khắc phục triệt để lỗi `TypeError: e.trim is not a function` bằng cách ép kiểu an toàn cho prop `term` về định dạng chuỗi trước khi gọi phương thức `.trim()` và xử lý hiển thị an toàn.
+- **Sửa đổi component [AiChatWidget.jsx](file:///t:/Phongthuy/frontend/src/components/AiChatWidget.jsx):** Giải quyết lỗi `TypeError: val.trim is not a function` trong phương thức helper `isMeaningful` và cơ chế hiển thị các trường ý định phụ (`dos`, `donts`, `timing`, `risk`) bằng cách xử lý an toàn cho cả định dạng mảng (Array) hoặc đối tượng (Object) khi AI trả về kết quả cấu trúc. Đồng thời xử lý lọc bỏ các ký tự gạch đầu dòng trùng lặp (`-`, `*`, `•`) khi định dạng mảng để tránh lỗi hiển thị nested list (lồng danh sách trống).
+
+### 2. Mở rộng từ khóa cho Bộ lọc Ý định Chat (Intent Filtering) ở Backend
+- **Sửa đổi [ConversationContextService.js](file:///t:/Phongthuy/backend/src/services/ConversationContextService.js):** Bổ sung thêm danh sách phong phú các từ khóa thường dùng trong đời sống hàng ngày và thuật ngữ chuyên môn của Bát Tự/Dịch Lý (như "con cái", "gia đạo", "tiền", "làm ăn", "bầu bí", v.v.) vào hàm `isDivinationRelated` để giảm thiểu các trường hợp từ chối sai (lỗi 400).
+
+---
+
+## 📅 Phiên bản: Bổ sung Chức năng Ghim Bản ghi Lịch sử (Pin Calculations)
+
+### 1. Database (MongoDB / Mongoose Models)
+- **Thêm trường `isPinned`:** Cập nhật các schemas: [IChingRecord.js](file:///t:/Phongthuy/backend/src/models/IChingRecord.js), [BaziRecord.js](file:///t:/Phongthuy/backend/src/models/BaziRecord.js), [ZiweiRecord.js](file:///t:/Phongthuy/backend/src/models/ZiweiRecord.js), và [MarriageRecord.js](file:///t:/Phongthuy/backend/src/models/MarriageRecord.js) để thêm trường `isPinned: { type: Boolean, default: false }`.
+
+### 2. Backend (Routes & Controllers)
+- **API Ghim bản ghi:** Đăng ký route mới `PUT /api/history/calculations/:type/:id/pin` trong [history.js](file:///t:/Phongthuy/backend/src/routes/history.js).
+- **Controller Logic (`HistoryController.js`):**
+  - Viết mới phương thức `pinCalculation` để kiểm tra phân quyền, thay đổi giá trị `isPinned` của bản ghi chỉ định và xóa cache lịch sử của người dùng tương ứng.
+  - Cập nhật các hàm `getHexagramHistory`, `getBaziHistory`, `getZiweiHistory`, và `getMarriageHistory` để sắp xếp dữ liệu ưu tiên bản ghi được ghim lên đầu: `.sort({ isPinned: -1, createdAt: -1 })`.
+
+### 3. Frontend (Services & Components)
+- **API Call:** Khai báo hàm `pinCalculation` trong [api.js](file:///t:/Phongthuy/frontend/src/services/api.js).
+- **Giao diện Lịch sử (`HistoryBoard.jsx`):**
+  - Tích hợp biểu tượng `Pin` từ thư viện `lucide-react`.
+  - Thiết kế nút Ghim (Pin) tương ứng với mỗi thẻ bản ghi. Hỗ trợ hiển thị hiệu ứng đổi màu động theo trạng thái ghim và theo tông màu chủ đạo của phân hệ (Amber cho Kinh Dịch, Blue cho Bát Tự, Purple cho Tử Vi, Rose cho Hợp Hôn).
+  - Tự động thay đổi phong cách hiển thị viền nổi bật (border highlight), bóng mờ (shadow) và hiển thị nhãn "Đã ghim" (badge) bên cạnh ngày sinh/ngày gieo quẻ cho các thẻ được ghim.
+  - Viết mới hàm `handleTogglePin` xử lý thay đổi trạng thái và tự động sắp xếp lại (re-sort) danh sách tại client-side để đồng bộ tức thời không cần tải lại trang. Loại bỏ thông báo popup thành công (`showAlert`) khi ghim để thao tác ghim/bỏ ghim diễn ra mượt mà và yên lặng (silent toggle).
+- **Phong cách hiển thị danh sách (`index.css`):**
+  - Thu nhỏ khoảng cách căn lề trái (padding-left) của thẻ danh sách `.markdown-content ul` và `.markdown-content ol` từ `1.25rem` xuống `0.9rem` để tối ưu hóa không gian hiển thị của danh sách gạch đầu dòng trên các thiết bị di động và các thẻ chat có diện tích hẹp.

@@ -70,9 +70,10 @@ AI Agent có vai trò:
 
 ## 🛠️ 5. Hướng dẫn sửa đổi mã nguồn cho Agent
 1. **Không can thiệp logic an sao:** Không tự ý thay đổi thư viện `lunar-javascript` hay `iztro` vì có thể gây sai lệch kết quả an sao của hàng vạn lá số hiện có.
-2. **Tuân thủ quy trình kiểm thử:** Khi sửa đổi Backend, phải kiểm tra cú pháp node của tệp tin trước bằng lệnh `node --check src/path/to/file.js`.
-3. **Cập nhật CHANGELOG_AI.md:** Bất kỳ thay đổi cấu trúc lớn nào do AI thực hiện phải được ghi nhận vào tài liệu lịch sử AI.
-4. **Quy tắc thiết kế giao diện (UI Aesthetics):** Khi viết code CSS/Tailwind cho các thành phần UI, phải tuân thủ chuẩn Premium Aesthetics (bo góc lớn `rounded-2xl` hoặc `rounded-3xl`, sử dụng màu sắc HSL phối hài hòa nhẹ nhàng, tránh dùng màu sắc chói thô cứng, và tích hợp các micro-animations chuyển đổi mượt mà).
+2. **Bảo toàn thuật toán Bát tự Ngũ hành 4.0:** Khi thay đổi logic tính toán ngũ hành Bát tự, bắt buộc phải bảo toàn cơ chế điều chỉnh điểm tương đối theo tỷ lệ phần trăm, quy tắc hợp giải xung (ưu tiên tổ hợp địa chi), đa thấu phân khí, tiết khí cực đoan (con vượng mẹ kiệt), và cơ chế bypass điểm sàn 5% khi cách cục đạt trạng thái Tòng Cách.
+3. **Tuân thủ quy trình kiểm thử:** Khi sửa đổi Backend, phải kiểm tra cú pháp node của tệp tin trước bằng lệnh `node --check src/path/to/file.js`.
+4. **Cập nhật CHANGELOG_AI.md:** Bất kỳ thay đổi cấu trúc lớn nào do AI thực hiện phải được ghi nhận vào tài liệu lịch sử AI.
+5. **Quy tắc thiết kế giao diện (UI Aesthetics):** Khi viết code CSS/Tailwind cho các thành phần UI, phải tuân thủ chuẩn Premium Aesthetics (bo góc lớn `rounded-2xl` hoặc `rounded-3xl`, sử dụng màu sắc HSL phối hài hòa nhẹ nhàng, tránh dùng màu sắc chói thô cứng, và tích hợp các micro-animations chuyển đổi mượt mà).
 
 ---
 

@@ -422,8 +422,32 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
 
         const isMeaningful = (val) => {
             if (!val) return false;
-            const cleaned = val.trim().toLowerCase();
+            let strVal = "";
+            if (Array.isArray(val)) {
+                if (val.length === 0) return false;
+                strVal = val.join(" ");
+            } else if (typeof val === 'object') {
+                if (Object.keys(val).length === 0) return false;
+                strVal = JSON.stringify(val);
+            } else {
+                strVal = String(val);
+            }
+            const cleaned = strVal.trim().toLowerCase();
             return cleaned !== "" && cleaned !== "null" && cleaned !== "none" && cleaned !== "không có" && cleaned !== "không";
+        };
+
+        const formatFieldSafe = (val) => {
+            if (!val) return "";
+            if (Array.isArray(val)) {
+                return val.map(item => {
+                    const cleanItem = String(item).trim().replace(/^[-*•\s+]+/, '');
+                    return `- ${cleanItem}`;
+                }).join('\n');
+            }
+            if (typeof val === 'object') {
+                return JSON.stringify(val);
+            }
+            return String(val);
         };
 
         return (
@@ -438,7 +462,7 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
                         <Clock size={16} className="text-teal-700 shrink-0 mt-0.5" />
                         <div>
                             <div className="text-[11px] font-bold text-teal-800 uppercase tracking-wider">Ứng kỳ / Thời điểm cát lợi</div>
-                            <div className="text-xs text-teal-900 font-medium mt-0.5 whitespace-pre-line leading-relaxed markdown-content">{sc.timing}</div>
+                            <div className="text-xs text-teal-900 font-medium mt-0.5 whitespace-pre-line leading-relaxed markdown-content">{formatFieldSafe(sc.timing)}</div>
                         </div>
                     </div>
                 )}
@@ -448,7 +472,7 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
                         <AlertTriangle size={16} className="text-orange-700 shrink-0 mt-0.5" />
                         <div>
                             <div className="text-[11px] font-bold text-orange-800 uppercase tracking-wider">Cảnh báo / Điểm đề phòng</div>
-                            <div className="text-xs text-orange-900 font-medium mt-0.5 whitespace-pre-line leading-relaxed markdown-content">{sc.risk}</div>
+                            <div className="text-xs text-orange-900 font-medium mt-0.5 whitespace-pre-line leading-relaxed markdown-content">{formatFieldSafe(sc.risk)}</div>
                         </div>
                     </div>
                 )}
@@ -460,7 +484,7 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
                         <div>
                             <div className="text-[11px] font-bold text-emerald-800 uppercase tracking-wider">Khuyên nên làm</div>
                             <div className="text-xs text-emerald-900 font-medium mt-0.5 whitespace-pre-line leading-relaxed markdown-content">
-                                <ReactMarkdown>{sc.dos}</ReactMarkdown>
+                                <ReactMarkdown>{formatFieldSafe(sc.dos)}</ReactMarkdown>
                             </div>
                         </div>
                     </div>
@@ -472,7 +496,7 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
                         <div>
                             <div className="text-[11px] font-bold text-rose-800 uppercase tracking-wider">Tránh làm</div>
                             <div className="text-xs text-rose-900 font-medium mt-0.5 whitespace-pre-line leading-relaxed markdown-content">
-                                <ReactMarkdown>{sc.donts}</ReactMarkdown>
+                                <ReactMarkdown>{formatFieldSafe(sc.donts)}</ReactMarkdown>
                             </div>
                         </div>
                     </div>

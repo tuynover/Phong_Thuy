@@ -15,7 +15,7 @@ Hệ thống được chia làm hai phân hệ lớn:
 1. **Phân hệ Người dùng (User End-User Interface):**
    - **Trang chủ Hệ sinh thái (HomeBoard):** Trang đích sang trọng tối giản theo chuẩn Awwwards tích hợp hiệu ứng Mesh Gradient, SVG Bát Quái xoay và vũ trụ tinh hà tương tác, kết nối 5 môn học thuật và quản lý luồng điều hướng mượt mà.
    - **Kinh Dịch (IChing):** Hỗ trợ gieo quẻ Lục Hào bằng đồng xu ảo, hoặc lập quẻ Mai Hoa Dịch Số dựa trên giờ động tâm/seri tiền. Hiển thị đồ hình quẻ, hào động, và kích hoạt giải đoán AI + Chat.
-   - **Bát Tự (Bazi):** Lập lá số Bát Tự, tính Thập Thần, tìm Dụng Thần và hiển thị tương sinh tương khắc Ngũ Hành trực quan.
+   - **Bát Tự (Bazi):** Lập lá số Bát Tự và tính toán phân bổ ngũ hành theo thuật toán 4.0 với các cơ chế điều chỉnh điểm tương đối, ưu tiên tổ hợp địa chi, đa thấu phân khí nguyệt lệnh, tiết khí cực đoan (con vượng mẹ kiệt) và phá điểm sàn đối với cách cục Tòng Cách chính xác. Hoàn toàn hiển thị màu sắc tương sinh tương khắc Ngũ Hành trực quan.
    - **Tử Vi (Ziwei):** Lập mệnh bàn 12 cung dạng lưới 4x4 truyền thống hoặc danh sách rút gọn trên di động, hiển thị các sao và đại/tiểu hạn.
    - **Hợp Hôn (Marriage):** Đối chiếu độ hòa hợp Bát Tự, Cung Phi, Mệnh Quái của cặp đôi Nam - Nữ và đưa ra lời khuyên gia đạo từ AI.
    - **Hộp thoại Chat (AiChatWidget):** Cửa sổ chat thông minh trượt lên hiển thị stream SSE từ AI kèm các chỉ số Ứng Kỳ, Độ Tin Cậy và Rủi Ro.

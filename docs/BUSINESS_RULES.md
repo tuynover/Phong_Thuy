@@ -93,30 +93,50 @@ Tác vụ chạy định kỳ lúc nửa đêm của `NotificationScheduler.js` 
 
 ---
 
-## 🌌 5. Quy tắc Học thuật Bát tự Ngũ hành (Bazi) - Phiên bản 4.0
+## 🌌 5. Quy tắc Học thuật Bát tự Ngũ hành (Bazi) - Phiên bản 5.0 (Toán Học Cân Bằng Động)
 
-### 5.1 Trọng số điểm cơ sở
-- **Thiên can thường:** 15 điểm. Can tháng: 7.5 điểm (1/2 can thường).
-- **Địa chi thường:** 10 điểm. Chi tháng (Nguyệt lệnh): 25 điểm. Điểm của địa chi được phân rã hoàn toàn vào các tàng can theo tỷ lệ (Tý/Mão/Dậu = 100%; Ngọ/Hợi = 70/30; Sửu/Dần/Thìn/Tỵ/Mùi/Thân/Tuất/Hợi = 60/30/10).
+### 5.1 Phân Tách Hai Tầng (Base vs Multipliers)
+*   **Tầng 1 (Base Score - Điểm Nền):** Chỉ tính điểm Thiên can ($15$ điểm, Can tháng $7.5$ điểm), Địa chi ($10$ điểm, Chi tháng $25$ điểm) phân rã theo tỷ lệ tàng can và điểm cộng thấu can Nguyệt Lệnh (Root Power thấu can). Không cộng điểm thưởng tĩnh.
+*   **Tầng 2 (Multipliers - Hệ Số Nhân Tỷ Lệ %):** Tất cả các quan hệ học thuật khác (Season, Thông căn, Chân thần, Hợp/Xung/Hại, Sinh khắc phi tuyến, Bão hòa/Bù đắp) hoạt động dưới dạng hệ số nhân tăng/giảm theo tỷ lệ phần trăm trực tiếp trên điểm nền, triệt tiêu hiện tượng đếm trùng (Double Counting).
 
-### 5.2 Lệnh Mùa của các tháng Tứ Quý (Thìn, Sửu, Mùi, Tuất)
-- **Tháng Thìn, Sửu:** Thổ vượng ($\times 1.5$), Kim tướng ($\times 1.2$), Hỏa & Thủy nửa Hưu nửa Tù ($\times 0.9$), Mộc tử ($\times 0.6$).
-- **Tháng Mùi, Tuất:** Thổ vượng ($\times 1.5$), Kim tướng ($\times 1.2$), Hỏa nửa Tướng nửa Tù ($\times 1.0$), Thủy nửa Tù nửa Tử ($\times 0.7$), Mộc tử ($\times 0.6$).
+### 5.2 Hiệu Ứng Suy Giảm (Diminishing Returns) & Trọng Số Gốc
+*   **Thông Căn Diminishing Returns:** Khi thiên can có nhiều gốc thông căn ở các địa chi, hiệu lực các gốc được sắp xếp giảm dần để tránh lạm phát năng lượng: Gốc 1 ($100\%$), Gốc 2 ($70\%$), Gốc 3 ($40\%$), Gốc 4 ($20\%$).
+*   **Trọng Số Gốc:** Phân biệt rõ rệt nguồn gốc thông căn dựa trên loại tàng can: Bản khí ($100\%$ sức mạnh gốc), Trung khí ($70\%$), Dư khí ($40\%$).
 
-### 5.3 Quan hệ Địa chi Ưu tiên (Hợp xung giải trừ)
-- Định nghĩa phân cấp độ ưu tiên của các quan hệ địa chi:
-  - Cấp 1 (Cao nhất): Tam Hội, Tam Hợp.
-  - Cấp 2: Lục Hợp.
-  - Cấp 3 (Thấp nhất): Lục Xung, Lục Hại, Lục Phá, Hình.
-- Nếu một Địa Chi đã tham gia vào tổ hợp có ưu tiên cao hơn, sức ảnh hưởng điểm số của nó ở các tổ hợp có ưu tiên thấp hơn (như bị xung, hình, hại) sẽ bị giảm trừ **80%** (Hợp giải xung).
+### 5.3 Bonus Hợp/Xung Dạng Phần Trăm (%)
+*   Các tổ hợp địa chi biến đổi hệ số nhân: Tam Hợp ($+20\%$), Bán Tam Hợp ($+5\%$), Tam Hội ($+15\%$), Lục Hợp ($+12\%$ chia đều), Lục Xung ($-12\%$), Hình ($-12\%$), Lục Hại ($-6\%$), Lục Phá ($-5\%$).
+*   **Hóa khí mồi cho hành khuyết:** Nếu một hành hoàn toàn khuyết ($0$ điểm) nhưng tham gia vào Hợp cục hóa khí, hệ thống sẽ tự động cấp một lượng điểm nền mồi bằng $3.0$ điểm trước khi nhân hệ số hợp hóa.
 
-### 5.4 Đa thấu phân khí (Nguyệt lệnh)
-- Nếu có $N \ge 2$ Thiên can cùng thấu từ các tàng can của Chi tháng sinh (Nguyệt lệnh), điểm số Root Power thấu can được cộng thêm cho mỗi can sẽ được chia đều cho $N$ để thể hiện sự phân tán khí lực của Nguyệt lệnh.
+### 5.4 Tương Sinh Khắc Phi Tuyến & Ngưỡng Mượt (Smooth Activation)
+*   **Sinh khắc tương đối:** Lực sinh khắc tính theo tỷ lệ tương đối giữa hai hành $\frac{\text{Score}(A)}{\text{Score}(A) + \text{Score}(B)}$ thay vì tuyến tính, phản ánh thực tế giằng co năng lượng.
+*   **Làm mượt ngưỡng kích hoạt:** Thay thế các ngưỡng cứng (như $35\%$ cho phản sinh, $65\%$ cho tòng cách) bằng hàm mượt **Smoothstep** liên tục để triệt tiêu việc nhảy bậc năng lượng đột ngột tại ranh giới.
+*   **Bão hòa & Bù đắp:** 
+    *   Hành cực thịnh bị bão hòa năng lượng (tỷ lệ $>40\% \rightarrow$ giảm $30\%$ bonus; $>50\% \rightarrow$ giảm $50\%$; $>60\% \rightarrow$ giảm $80\%$).
+    *   Hành cực suy được bù đắp hỗ trợ chuyển hóa (tỷ lệ $<8\% \rightarrow$ nhân $1.3$ lần bonus; $<5\% \rightarrow$ nhân $1.5$ lần).
 
-### 5.5 Tiết khí cực đoan (Con vượng Mẹ kiệt)
-- Nếu một ngũ hành bất kỳ chiếm tỷ lệ $>35\%$ tổng điểm thô, hành sinh ra nó (mẹ) bị tiết khí cực đoan và suy giảm **30%** điểm số hiện có.
-- Nếu ngũ hành con vượng vừa phải ($25\% \le \text{tỷ lệ} \le 35\%$), hành mẹ được cộng hưởng tăng thêm **10%** điểm số (Mẫu dĩ tử quý).
+### 5.5 Điểm Sàn Phân Cấp & Chuẩn Hóa
+*   **Điểm sàn phân cấp:** Khi không tòng cách, điểm sàn tối thiểu phụ thuộc vào mức độ hiện diện: Can lộ ($5\%$), Bản khí ẩn ($4\%$), Trung khí ẩn ($2\%$), Dư khí ẩn ($1\%$) của điểm cơ sở ngũ hành.
+*   **Tòng cách bypass:** Nếu có 1 hành vượt trội chiếm $>65\%$ tổng điểm thô $\rightarrow$ Vô hiệu hóa hoàn toàn điểm sàn để các hành bị xung khắc rơi tự do về $0\%$.
 
-### 5.6 Phá điểm sàn phục vụ Tòng Cách
-- Nếu một ngũ hành bất kỳ chiếm tỷ lệ cực thịnh $>65\%$ tổng điểm thô trước khi xét điểm sàn, hệ thống kích hoạt trạng thái **Khắc nhập Tòng Cách** và **vô hiệu hóa điểm sàn tối thiểu 5%** đối với các hành bị khắc/tử tuyệt hoàn toàn, cho phép điểm số của chúng hạ sát về 0% nhằm nhận diện cách cục Tòng cách chính xác.
+### 5.6 Các Chỉ Số Học Thuật Cao Cấp (Output)
+*   **Entropy ($H$):** Đo lường mức độ lưu thông/cân bằng của lá số:
+    $$H = -\sum_{i=1}^{5} P_i \ln(P_i)$$
+*   **Dominance Index:** Đo mức độ chuyên chế, chuyên khí của lá số:
+    $$\text{Dominance} = \text{Max}(P_i) - 0.20$$
+*   **Confidence Score:** Chỉ số độ tin cậy của lá số tính bằng nguồn lực thấu can và thông căn thực tế của Nhật Chủ.
+*   **Raw Scores:** Lưu trữ điểm thô thực tế chưa chuẩn hóa của ngũ hành để so sánh tổng lượng khí lực của đương số.
+
+### 5.7 Tương Tác Khoảng Cách & Cản Trở Dòng Khí (Bazi 5.1 Upgrade)
+*   **Cự ly Can Chi:** Khoảng cách địa lý giữa các cột (Trụ) ảnh hưởng trực tiếp đến cường độ giao thoa khí lực.
+*   **Quá Tải Tương Tác Can (Saturation):** Thiên can ưu tiên tương sinh/khắc ở cự ly gần nhất ($100\%$ lực). Cự ly xa hơn bị suy hao: Cách 1 trụ ($50\%$ lực), Cách 2 trụ ($20\%$ lực).
+*   **Can Trung Gian Cản Trở (Blockage):** Hai Can ở xa nhau (Năm-Ngày, Tháng-Giờ, Năm-Giờ) bị cản trở triệt để (giảm $90\%$ lực tương tác, hệ số $0.1$) nếu có Can ở giữa mạnh (tổng điểm gốc $\ge 5.0$ hoặc có bản khí thông căn) và khắc một trong hai Can đầu cuối.
+*   **Cự Ly Địa Chi (Branch Distance Multiplier):** Các tổ hợp địa chi bị giảm lực hợp/xung theo khoảng cách:
+    *   *Cặp chi (Xung, Hợp, Bán tam hợp):* Kề nhau ($\times 1.0$), Cách 1 trụ ($\times 0.6$), Cách 2 trụ ($\times 0.3$).
+    *   *Bộ 3 chi (Tam Hợp, Tam Hội):* Liền kề ($\times 1.0$), Có 1 chi rời rạc ($\times 0.7$), Rời rạc hoàn toàn ($\times 0.5$).
+
+
+
+
+
+
 

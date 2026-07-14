@@ -85,6 +85,7 @@ export const submitBanAppeal = (userId, email, reason, message) => axios.post(`$
 export const restoreAdminUser = (id) => axios.post(`${API_URL}/admin/users/${id}/restore`);
 export const getAdminUserStats = (id) => axios.get(`${API_URL}/admin/users/${id}/stats`);
 export const deleteCalculation = (type, id) => axios.delete(`${API_URL}/history/calculations/${type}/${id}`);
+export const pinCalculation = (type, id) => axios.put(`${API_URL}/history/calculations/${type}/${id}/pin`);
 
 // Backward compatibility legacy aliases
 export const getHexagramHistory = getIChingHistory;

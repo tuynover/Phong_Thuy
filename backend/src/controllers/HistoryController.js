@@ -223,7 +223,7 @@ class HistoryController {
             }
 
             const records = await IChingRecord.find(query)
-                .sort({ createdAt: -1 })
+                .sort({ isPinned: -1, createdAt: -1 })
                 .select('-analysisSnapshot -aiInterpretation -ungKy -movingLines')
                 .limit(limit)
                 .lean();
@@ -273,7 +273,7 @@ class HistoryController {
             }
 
             const records = await BaziRecord.find(query)
-                .sort({ createdAt: -1 })
+                .sort({ isPinned: -1, createdAt: -1 })
                 .select('-analysisSnapshot -aiInterpretation -baziData')
                 .limit(limit)
                 .lean();
@@ -341,7 +341,7 @@ class HistoryController {
             }
 
             const records = await ZiweiRecord.find(query)
-                .sort({ createdAt: -1 })
+                .sort({ isPinned: -1, createdAt: -1 })
                 .select('-chartData -analysisSnapshot -aiInterpretation')
                 .limit(limit)
                 .lean();
@@ -612,7 +612,7 @@ class HistoryController {
             }
 
             const records = await MarriageRecord.find(query)
-                .sort({ createdAt: -1 })
+                .sort({ isPinned: -1, createdAt: -1 })
                 .select('-maleBaziData -femaleBaziData -aiInterpretation')
                 .limit(limit)
                 .lean();
@@ -679,6 +679,51 @@ class HistoryController {
         } catch (error) {
             console.error('deleteCalculation error:', error);
             return res.status(500).json({ error: 'Lỗi máy chủ khi xóa bản ghi.' });
+        }
+    }
+
+    static async pinCalculation(req, res) {
+        try {
+            const { type, id } = req.params;
+            const userId = req.user.id || req.user._id?.toString();
+
+            if (!userId) {
+                return res.status(401).json({ error: 'Người dùng chưa xác thực.' });
+            }
+
+            let Model;
+            if (type === 'hexagrams' || type === 'iching') {
+                Model = IChingRecord;
+            } else if (type === 'bazi' || type === 'bat_tu') {
+                Model = BaziRecord;
+            } else if (type === 'tu_vi' || type === 'tu-vi' || type === 'ziwei') {
+                Model = ZiweiRecord;
+            } else if (type === 'marriage') {
+                Model = MarriageRecord;
+            } else {
+                return res.status(400).json({ error: 'Loại quẻ/lá số không hợp lệ.' });
+            }
+
+            const record = await findByIdFlex(Model, id);
+            if (!record) {
+                return res.status(404).json({ error: 'Không tìm thấy bản ghi.' });
+            }
+
+            if (record.userId !== userId && record.userId?.toString() !== userId) {
+                return res.status(403).json({ error: 'Bạn không có quyền ghim bản ghi này.' });
+            }
+
+            const currentPinnedStatus = !!record.isPinned;
+            
+            const updatedRecord = await updateByIdFlex(Model, id, { isPinned: !currentPinnedStatus });
+
+            // Clear cache
+            MemoryCacheService.clearUserHistoryCache(userId);
+
+            return res.json(updatedRecord);
+        } catch (error) {
+            console.error('pinCalculation error:', error);
+            return res.status(500).json({ error: 'Lỗi máy chủ khi ghim bản ghi.' });
         }
     }
 }

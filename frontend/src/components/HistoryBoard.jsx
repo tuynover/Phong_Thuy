@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { getIChingHistory, getBaziHistory, getZiweiHistory, getMarriageHistory, rateIChing, rateBazi, rateZiwei, rateMarriage, deleteCalculation, getIChingRecord, getBaziRecord, getZiweiRecord, getMarriageRecord } from '../services/api';
-import { Star, Clock, Calendar, Trash2, X, Info, Check, AlertTriangle, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { getIChingHistory, getBaziHistory, getZiweiHistory, getMarriageHistory, rateIChing, rateBazi, rateZiwei, rateMarriage, deleteCalculation, getIChingRecord, getBaziRecord, getZiweiRecord, getMarriageRecord, pinCalculation } from '../services/api';
+import { Star, Clock, Calendar, Trash2, X, Info, Check, AlertTriangle, Loader2, ChevronLeft, ChevronRight, Pin } from 'lucide-react';
 
 const LUNAR_HOURS_MAP = [
   "Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"
@@ -568,6 +568,33 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
         });
     };
 
+    const handleTogglePin = async (type, id) => {
+        try {
+            const res = await pinCalculation(type, id);
+            const isPinned = !!res.data.isPinned;
+            
+            const updateList = (list) => {
+                const updated = list.map(item => item._id === id ? { ...item, isPinned } : item);
+                return [...updated].sort((a, b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0) || new Date(b.dateCast || b.createdAt) - new Date(a.dateCast || a.createdAt));
+            };
+            
+            if (type === 'iching' || type === 'hexagrams') {
+                setHexagrams(updateList(hexagrams));
+            } else if (type === 'bazi') {
+                setBazis(updateList(bazis));
+            } else if (type === 'ziwei') {
+                setZiweis(updateList(ziweis));
+            } else if (type === 'marriage') {
+                setMarriages(updateList(marriages));
+            }
+            
+            if (onCacheInvalidate) onCacheInvalidate();
+        } catch (err) {
+            console.error("Lỗi khi ghim bản ghi:", err);
+            showAlert("Không thể ghim bản ghi này. Vui lòng thử lại sau.", "error");
+        }
+    };
+
     if (!user) return <div className="text-center p-10">Vui lòng đăng nhập để xem lịch sử.</div>;
     if (loading) {
         return (
@@ -750,15 +777,30 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                         onClick={() => handleViewHexagramDetail(record)} 
                         onMouseEnter={() => preloadRecord('iching', record._id)}
                         onTouchStart={() => preloadRecord('iching', record._id)}
-                        className="border border-amber-100 rounded-xl p-4 hover:shadow-md transition-shadow bg-amber-50/20 cursor-pointer"
+                        className={`border ${record.isPinned ? 'border-amber-300 bg-amber-50/45 shadow-sm' : 'border-amber-100 bg-amber-50/20'} rounded-xl p-4 hover:shadow-md transition-all cursor-pointer`}
                     >
                         <div className="flex justify-between items-start mb-2">
                             <div>
                                 <h3 className="font-bold text-lg text-amber-900">{record.primaryHexagram.name} {record.transformedHexagram?.name ? `-> ${record.transformedHexagram.name}` : ''}</h3>
                                 <p className="text-sm text-gray-600 italic">Hỏi: {record.question}</p>
-                                <p className="text-xs text-gray-400 flex items-center gap-1 mt-1"><Clock size={12}/> {new Date(record.dateCast).toLocaleString('vi-VN')}</p>
+                                <p className="text-xs text-gray-400 flex items-center gap-1.5 mt-1">
+                                    <Clock size={12}/> 
+                                    {new Date(record.dateCast).toLocaleString('vi-VN')}
+                                    {record.isPinned && (
+                                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200 ml-2">
+                                            Đã ghim
+                                        </span>
+                                    )}
+                                </p>
                             </div>
                             <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+                                <button 
+                                    onClick={() => handleTogglePin('iching', record._id)} 
+                                    className={`transition-colors p-1 ${record.isPinned ? 'text-amber-600' : 'text-gray-300 hover:text-amber-500'}`}
+                                    title={record.isPinned ? "Bỏ ghim" : "Ghim lên đầu"}
+                                >
+                                    <Pin size={16} className={record.isPinned ? 'fill-current' : ''} />
+                                </button>
                                 <button onClick={() => handleViewHexagramDetail(record)} className="text-amber-600 hover:underline text-sm font-medium">Xem chi tiết</button>
                                 <button 
                                     onClick={() => handleDelete('iching', record._id)} 
@@ -807,14 +849,29 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                           onClick={() => handleViewBaziDetail(record)} 
                           onMouseEnter={() => preloadRecord('bazi', record._id)}
                           onTouchStart={() => preloadRecord('bazi', record._id)}
-                          className="border border-blue-100 rounded-xl p-4 hover:shadow-md transition-shadow bg-blue-50/20 cursor-pointer"
+                          className={`border ${record.isPinned ? 'border-blue-300 bg-blue-50/45 shadow-sm' : 'border-blue-100 bg-blue-50/20'} rounded-xl p-4 hover:shadow-md transition-all cursor-pointer`}
                       >
                           <div className="flex justify-between items-start mb-2">
                               <div>
                                   <h3 className="font-bold text-lg text-blue-900">Lá số Bát Tự: {record.inputInfo.date} {record.inputInfo.time} ({record.inputInfo.gender === 1 ? 'Nam' : 'Nữ'})</h3>
-                                  <p className="text-xs text-gray-400 flex items-center gap-1 mt-1"><Calendar size={12}/> Tiết khí: {record.tietKhiTimeline}</p>
+                                  <p className="text-xs text-gray-400 flex items-center gap-1.5 mt-1">
+                                      <Calendar size={12}/> 
+                                      Tiết khí: {record.tietKhiTimeline}
+                                      {record.isPinned && (
+                                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200 ml-2">
+                                              Đã ghim
+                                          </span>
+                                      )}
+                                  </p>
                               </div>
                               <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+                                  <button 
+                                      onClick={() => handleTogglePin('bazi', record._id)} 
+                                      className={`transition-colors p-1 ${record.isPinned ? 'text-blue-600' : 'text-gray-300 hover:text-blue-500'}`}
+                                      title={record.isPinned ? "Bỏ ghim" : "Ghim lên đầu"}
+                                  >
+                                      <Pin size={16} className={record.isPinned ? 'fill-current' : ''} />
+                                  </button>
                                   <button onClick={() => handleViewBaziDetail(record)} className="text-blue-600 hover:underline text-sm font-medium">Xem chi tiết</button>
                                   <button 
                                       onClick={() => handleDelete('bazi', record._id)} 
@@ -863,16 +920,29 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                           onClick={() => onViewZiwei(record)} 
                           onMouseEnter={() => preloadRecord('ziwei', record._id)}
                           onTouchStart={() => preloadRecord('ziwei', record._id)}
-                          className="border border-purple-100 rounded-xl p-4 hover:shadow-md transition-shadow bg-purple-50/20 cursor-pointer"
+                          className={`border ${record.isPinned ? 'border-purple-300 bg-purple-50/45 shadow-sm' : 'border-purple-100 bg-purple-50/20'} rounded-xl p-4 hover:shadow-md transition-all cursor-pointer`}
                       >
                           <div className="flex justify-between items-start mb-2">
                               <div>
                                   <h3 className="font-bold text-lg text-purple-900">Lá số Tử Vi: {record.inputInfo?.date || ''} ({record.inputInfo?.gender || ''} Mệnh)</h3>
-                                  <p className="text-xs text-gray-400 flex items-center gap-1 mt-1">
-                                      <Clock size={12}/> Giờ sinh: {record.inputInfo?.hour !== undefined ? LUNAR_HOURS_MAP[record.inputInfo.hour] : ''}
+                                  <p className="text-xs text-gray-400 flex items-center gap-1.5 mt-1">
+                                      <Clock size={12}/> 
+                                      Giờ sinh: {record.inputInfo?.hour !== undefined ? LUNAR_HOURS_MAP[record.inputInfo.hour] : ''}
+                                      {record.isPinned && (
+                                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 border border-purple-200 ml-2">
+                                              Đã ghim
+                                          </span>
+                                      )}
                                   </p>
                               </div>
                               <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+                                  <button 
+                                      onClick={() => handleTogglePin('ziwei', record._id)} 
+                                      className={`transition-colors p-1 ${record.isPinned ? 'text-purple-600' : 'text-gray-300 hover:text-purple-500'}`}
+                                      title={record.isPinned ? "Bỏ ghim" : "Ghim lên đầu"}
+                                  >
+                                      <Pin size={16} className={record.isPinned ? 'fill-current' : ''} />
+                                  </button>
                                   <button onClick={() => onViewZiwei(record)} className="text-purple-600 hover:underline text-sm font-medium">Xem chi tiết</button>
                                   <button 
                                       onClick={() => handleDelete('ziwei', record._id)} 
@@ -921,14 +991,29 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                           onClick={() => handleViewMarriageDetail(record)} 
                           onMouseEnter={() => preloadRecord('marriage', record._id)}
                           onTouchStart={() => preloadRecord('marriage', record._id)}
-                          className="border border-rose-100 rounded-xl p-4 hover:shadow-md transition-shadow bg-rose-50/20 cursor-pointer"
+                          className={`border ${record.isPinned ? 'border-rose-300 bg-rose-50/45 shadow-sm' : 'border-rose-100 bg-rose-50/20'} rounded-xl p-4 hover:shadow-md transition-all cursor-pointer`}
                       >
                           <div className="flex justify-between items-start mb-2">
                               <div>
                                   <h3 className="font-bold text-lg text-rose-900">Hợp Hôn: Nam ({record.inputInfo?.male?.date || ''}) & Nữ ({record.inputInfo?.female?.date || ''})</h3>
-                                  <p className="text-xs text-gray-400 flex items-center gap-1 mt-1"><Clock size={12}/> {new Date(record.createdAt).toLocaleString('vi-VN')}</p>
+                                  <p className="text-xs text-gray-400 flex items-center gap-1.5 mt-1">
+                                      <Clock size={12}/> 
+                                      {new Date(record.createdAt).toLocaleString('vi-VN')}
+                                      {record.isPinned && (
+                                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-200 ml-2">
+                                              Đã ghim
+                                          </span>
+                                      )}
+                                  </p>
                               </div>
                               <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+                                  <button 
+                                      onClick={() => handleTogglePin('marriage', record._id)} 
+                                      className={`transition-colors p-1 ${record.isPinned ? 'text-rose-600' : 'text-gray-300 hover:text-rose-500'}`}
+                                      title={record.isPinned ? "Bỏ ghim" : "Ghim lên đầu"}
+                                  >
+                                      <Pin size={16} className={record.isPinned ? 'fill-current' : ''} />
+                                  </button>
                                   <button onClick={() => handleViewMarriageDetail(record)} className="text-rose-600 hover:underline text-sm font-medium">Xem chi tiết</button>
                                   <button 
                                       onClick={() => handleDelete('marriage', record._id)} 

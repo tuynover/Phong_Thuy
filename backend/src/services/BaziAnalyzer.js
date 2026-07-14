@@ -449,6 +449,7 @@ class BaziAnalyzer {
         // PHASE 1: Build Base Elements
         let elementScore = { Kim: 0, Moc: 0, Thuy: 0, Hoa: 0, Tho: 0 };
         const baseElementScore = { Kim: 0, Moc: 0, Thuy: 0, Hoa: 0, Tho: 0 };
+        const baseScore = { Kim: 0, Moc: 0, Thuy: 0, Hoa: 0, Tho: 0 };
         const pillars = ['year', 'month', 'day', 'hour'];
         const config = this.rules.scoreConfig;
 
@@ -500,7 +501,7 @@ class BaziAnalyzer {
             const gan = canChi[p].gan;
             const ganElem = this.rules.stemElement[gan];
             if (ganElem) {
-                elementScore[ganElem] += stemWeights[p];
+                baseScore[ganElem] += stemWeights[p];
                 baseElementScore[ganElem] += stemWeights[p];
             }
         });
@@ -514,13 +515,13 @@ class BaziAnalyzer {
                 if (!r.stem) return;
                 const hElem = this.rules.stemElement[r.stem];
                 if (hElem) {
-                    elementScore[hElem] += weight * r.ratio;
+                    baseScore[hElem] += weight * r.ratio;
                     baseElementScore[hElem] += weight * r.ratio;
                 }
             });
         });
 
-        // PHASE 2: Quyền Lực Trụ Tháng & Thấu Can toàn lá số
+        // PHASE 2: Nguyệt Lệnh & Thấu Can (Root Power) to Base Score
         const monthZhi = canChi.month.zhi;
         const monthStem = canChi.month.gan;
         const monthStemElem = this.rules.stemElement[monthStem];
@@ -533,41 +534,6 @@ class BaziAnalyzer {
             }
         });
 
-        // Step 2: Month Stem power adjustment
-        let monthStemBonus = 0;
-        const primaryHidden = monthRatios[0]?.stem || '';
-        const primaryHiddenElem = this.rules.stemElement[primaryHidden];
-
-        if (monthRootPowerMap[monthStem] !== undefined) {
-            // Level 1: Thấu Can
-            monthStemBonus += monthRootPowerMap[monthStem];
-        } else if (monthStemElem && monthStemElem === primaryHiddenElem) {
-            // Level 3: Đồng hành
-            monthStemBonus += (monthRootPowerMap[primaryHidden] || 0) * 0.7;
-        } else if (monthStemElem && primaryHiddenElem && this.rules.relation[primaryHiddenElem]?.[monthStemElem] === 'sinh') {
-            // Level 2: Đắc sinh
-            monthStemBonus += stemWeights.month * config.dacSinhBonusPercent; // 40% of Month Stem base
-        } else if (monthStemElem) {
-            // Level 4: Bị khắc
-            let hasAnyRoot = false;
-            pillars.forEach(p => {
-                const zhi = canChi[p].zhi;
-                const ratios = getBranchRatios(zhi);
-                if (ratios.some(r => r.stem && this.rules.stemElement[r.stem] === monthStemElem)) {
-                    hasAnyRoot = true;
-                }
-            });
-            if (hasAnyRoot) {
-                monthStemBonus += 1;
-            } else {
-                monthStemBonus -= stemWeights.month * config.biKhacPenaltyPercent; // -40% of Month Stem base
-            }
-        }
-        if (monthStemElem) {
-            elementScore[monthStemElem] += monthStemBonus;
-        }
-
-        // Step 3: Thấu can toàn lá số (based on distance to month branch, with Đa Thấu Phân Khí logic)
         const pillarIndices = { year: 0, month: 1, day: 2, hour: 3 };
         
         let exposedCount = 0;
@@ -579,6 +545,7 @@ class BaziAnalyzer {
         });
         const exposedDivisor = Math.max(1, exposedCount); // N >= 1
 
+        let rootPowerPoints = { Kim: 0, Moc: 0, Thuy: 0, Hoa: 0, Tho: 0 };
         pillars.forEach(p => {
             const gan = canChi[p].gan;
             if (monthRootPowerMap[gan] !== undefined) {
@@ -592,48 +559,128 @@ class BaziAnalyzer {
                 const ganElem = this.rules.stemElement[gan];
                 if (ganElem) {
                     const finalRootPower = monthRootPowerMap[gan] / exposedDivisor;
-                    elementScore[ganElem] += finalRootPower * multiplier;
+                    rootPowerPoints[ganElem] += finalRootPower * multiplier;
                 }
             }
         });
 
-        // PHASE 3: Can Có Gốc (Thông Căn Địa Chi)
+        // Add Root Power directly to Base Score (Tầng 1)
+        for (const el in baseScore) {
+            baseScore[el] += rootPowerPoints[el];
+        }
+
+        // TẦNG 2: Multipliers Accumulation
+        let elementMultipliers = { Kim: 1.0, Moc: 1.0, Thuy: 1.0, Hoa: 1.0, Tho: 1.0 };
+
+        // 1. Month Stem Power Adjustment (Nguyệt Lệnh Can Chi)
+        let monthStemBonusPercent = 0.0;
+        const primaryHidden = monthRatios[0]?.stem || '';
+        const primaryHiddenElem = this.rules.stemElement[primaryHidden];
+
+        if (monthRootPowerMap[monthStem] !== undefined) {
+            // Level 1: Thấu Can (Already in Base Score Root Power, no extra bonus)
+            monthStemBonusPercent = 0.0;
+        } else if (monthStemElem && monthStemElem === primaryHiddenElem) {
+            // Level 3: Đồng hành (+70% of Month Primary Hidden Root Power)
+            monthStemBonusPercent = ((monthRootPowerMap[primaryHidden] || 0) * 0.7) / stemWeights.month;
+        } else if (monthStemElem && primaryHiddenElem && this.rules.relation[primaryHiddenElem]?.[monthStemElem] === 'sinh') {
+            // Level 2: Đắc sinh (+40% of Month Stem base)
+            monthStemBonusPercent = config.dacSinhBonusPercent;
+        } else if (monthStemElem) {
+            // Level 4: Bị khắc
+            let hasAnyRoot = false;
+            pillars.forEach(p => {
+                const zhi = canChi[p].zhi;
+                const ratios = getBranchRatios(zhi);
+                if (ratios.some(r => r.stem && this.rules.stemElement[r.stem] === monthStemElem)) {
+                    hasAnyRoot = true;
+                }
+            });
+            if (hasAnyRoot) {
+                monthStemBonusPercent = 1.0 / stemWeights.month; // small boost
+            } else {
+                monthStemBonusPercent = -config.biKhacPenaltyPercent; // -40% penalty
+            }
+        }
+        if (monthStemElem) {
+            elementMultipliers[monthStemElem] += monthStemBonusPercent;
+        }
+
+        // 2. Thông Căn với Diminishing Returns & Trọng Số Gốc
+        const elementRoots = { Kim: [], Moc: [], Thuy: [], Hoa: [], Tho: [] };
+        const stemRootScores = { year: 0, month: 0, day: 0, hour: 0 };
+        const diminishingFactors = [1.0, 0.7, 0.4, 0.2];
+
         pillars.forEach(sp => {
             const stem = canChi[sp].gan;
             const stemElem = this.rules.stemElement[stem];
             if (!stemElem) return;
 
+            const roots = [];
             pillars.forEach(bp => {
                 const branch = canChi[bp].zhi;
                 const weight = branchWeights[bp];
                 const ratios = getBranchRatios(branch);
 
-                ratios.forEach(r => {
+                ratios.forEach((r, rIdx) => {
                     if (!r.stem) return;
                     const rElem = this.rules.stemElement[r.stem];
                     if (rElem === stemElem) {
                         const dist = Math.abs(pillarIndices[sp] - pillarIndices[bp]);
-                        let multiplier = 1.0;
-                        if (dist === 0) multiplier = config.distanceMultipliers.d0;
-                        else if (dist === 1) multiplier = config.distanceMultipliers.d1;
-                        else if (dist === 2) multiplier = config.distanceMultipliers.d2;
-                        else if (dist === 3) multiplier = config.distanceMultipliers.d3;
+                        let distMult = 1.0;
+                        if (dist === 0) distMult = config.distanceMultipliers.d0;
+                        else if (dist === 1) distMult = config.distanceMultipliers.d1;
+                        else if (dist === 2) distMult = config.distanceMultipliers.d2;
+                        else if (dist === 3) distMult = config.distanceMultipliers.d3;
 
-                        // Yin/Yang matching multiplier (đồng tính 1.0 vs lệch tính 0.7)
                         const stemPolarity = this.rules.yinYang[stem];
                         const rootPolarity = this.rules.yinYang[r.stem];
                         const polarityMult = (stemPolarity === rootPolarity) 
                             ? config.yinYangRootMultipliers.same 
                             : config.yinYangRootMultipliers.opposite;
 
+                        // Weighted Root (Proposal 5): Bản khí 100%, Trung khí 70%, Dư khí 40%
+                        let rootTypeWeight = 1.0;
+                        if (ratios.length === 2 && rIdx === 1) {
+                            rootTypeWeight = 0.7; // Ngọ/Hợi secondary
+                        } else if (ratios.length === 3) {
+                            if (rIdx === 1) rootTypeWeight = 0.7;
+                            else if (rIdx === 2) rootTypeWeight = 0.4;
+                        }
+
                         const rootPower = weight * r.ratio;
-                        elementScore[stemElem] += rootPower * multiplier * polarityMult;
+                        const rootScore = rootPower * distMult * polarityMult * rootTypeWeight;
+                        roots.push(rootScore);
                     }
                 });
             });
+
+            // Sort roots and apply diminishing factors to find the stem's root score
+            const sortedRoots = roots.sort((a, b) => b - a);
+            let totalRootScore = 0;
+            sortedRoots.forEach((val, idx) => {
+                const factor = diminishingFactors[idx] !== undefined ? diminishingFactors[idx] : 0.1;
+                totalRootScore += val * factor;
+            });
+            stemRootScores[sp] = totalRootScore;
+
+            // Add to element root scores
+            elementRoots[stemElem].push(totalRootScore);
         });
 
-        // PHASE 4: Chân Thần và Giả Thần
+        // Apply Diminishing Returns to element Multipliers
+        Object.keys(elementRoots).forEach(el => {
+            const roots = elementRoots[el].sort((a, b) => b - a);
+            let totalRootScore = 0;
+            roots.forEach((val, idx) => {
+                const factor = diminishingFactors[idx] !== undefined ? diminishingFactors[idx] : 0.1;
+                totalRootScore += val * factor;
+            });
+            const rootBonusPct = totalRootScore / 15.0; // scale against standard stem weight
+            elementMultipliers[el] += rootBonusPct;
+        });
+
+        // 3. Chân Thần và Giả Thần
         pillars.forEach(p => {
             const stem = canChi[p].gan;
             const stemElem = this.rules.stemElement[stem];
@@ -641,12 +688,11 @@ class BaziAnalyzer {
 
             const isChanThan = monthRatios.some(r => r.stem && this.rules.stemElement[r.stem] === stemElem);
             if (isChanThan) {
-                // Add 20% of the stem's base weight
-                elementScore[stemElem] += stemWeights[p] * config.chanThanBonusPercent;
+                elementMultipliers[stemElem] += config.chanThanBonusPercent; // +20%
             }
         });
 
-        // PHASE 5: seasonal states (Vượng - Tướng - Hưu - Tù - Tử)
+        // 4. Seasonal States (Vượng - Tướng - Hưu - Tù - Tử)
         let season = '';
         if (['Dần', 'Mão', 'Thìn'].includes(monthZhi)) season = 'Spring';
         else if (['Tỵ', 'Ngọ', 'Mùi'].includes(monthZhi)) season = 'Summer';
@@ -656,16 +702,16 @@ class BaziAnalyzer {
         const getSeasonalMultiplier = (el) => {
             let status = 'Huu';
             if (monthZhi === 'Thìn' || monthZhi === 'Sửu') {
-                if (el === 'Tho') return 1.5; // Thổ vượng
-                if (el === 'Kim') return 1.2; // Kim tướng
-                if (el === 'Hoa' || el === 'Thuy') return 0.9; // Hỏa, Thủy nửa hưu nửa tù
-                if (el === 'Moc') return 0.6; // Mộc tử
+                if (el === 'Tho') return 1.5;
+                if (el === 'Kim') return 1.2;
+                if (el === 'Hoa' || el === 'Thuy') return 0.9;
+                if (el === 'Moc') return 0.6;
             } else if (monthZhi === 'Mùi' || monthZhi === 'Tuất') {
-                if (el === 'Tho') return 1.5; // Thổ vượng
-                if (el === 'Kim') return 1.2; // Kim tướng
-                if (el === 'Hoa') return 1.0; // Hỏa nửa tướng nửa tù
-                if (el === 'Thuy') return 0.7; // Thủy nửa tù nửa tử
-                if (el === 'Moc') return 0.6; // Mộc tử
+                if (el === 'Tho') return 1.5;
+                if (el === 'Kim') return 1.2;
+                if (el === 'Hoa') return 1.0;
+                if (el === 'Thuy') return 0.7;
+                if (el === 'Moc') return 0.6;
             } else {
                 if (season === 'Spring') {
                     if (el === 'Moc') status = 'Vuong';
@@ -697,30 +743,10 @@ class BaziAnalyzer {
         };
 
         this.rules.elements.forEach(el => {
-            elementScore[el] *= getSeasonalMultiplier(el);
+            elementMultipliers[el] *= getSeasonalMultiplier(el);
         });
 
-        // PHASE 6: Proportional Dynamic Adjustments (Sinh - Khắc - Tiết - Hao giữa các Hành)
-        let preAdjustedTotal = Object.values(elementScore).reduce((a, b) => a + b, 0);
-        if (preAdjustedTotal > 0) {
-            let newScores = { ...elementScore };
-            this.rules.elements.forEach(el1 => {
-                if (elementScore[el1] > 0) {
-                    this.rules.elements.forEach(el2 => {
-                        if (el1 === el2) return;
-                        const rel = this.rules.relation[el1]?.[el2];
-                        if (rel && elementScore[el2] > 0) {
-                            const factor = config.relationScore[rel] || 0;
-                            const weightOfEl2 = elementScore[el2] / preAdjustedTotal;
-                            newScores[el1] += elementScore[el1] * factor * weightOfEl2;
-                        }
-                    });
-                }
-            });
-            elementScore = newScores;
-        }
-
-        // PHASE 7: Hội Cục Địa Chi (Tam Hội & Bán Tam Hội)
+        // 5. Cát Cục Hợp/Xung/Hóa Địa Chi (Percentage base)
         const branchList = pillars.map(p => canChi[p].zhi);
         const countSeasonalBranches = (seasonList) => {
             return branchList.filter(z => seasonList.includes(z)).length;
@@ -733,22 +759,65 @@ class BaziAnalyzer {
             Thuy: ['Hợi', 'Tý', 'Sửu']
         };
 
+        // If elements are khuyết (0 base) but participate in combinations, seed them
+        const ensureSeedBase = (el) => {
+            if (baseScore[el] === 0) {
+                baseScore[el] = 3.0; // 3.0 points seed for khuyết hành
+            }
+        };
+
+        // Branch combination distance multiplier helper
+        const getBranchCombinationDistance = (targetBranches) => {
+            const indices = [];
+            const used = new Set();
+            targetBranches.forEach(b => {
+                for (let i = 0; i < branchList.length; i++) {
+                    if (branchList[i] === b && !used.has(i)) {
+                        indices.push(i);
+                        used.add(i);
+                        break;
+                    }
+                }
+            });
+            if (indices.length < 2) return 1.0;
+            
+            if (targetBranches.length === 2) {
+                const dist = Math.abs(indices[0] - indices[1]);
+                if (dist === 1) return 1.0;
+                if (dist === 2) return 0.6;
+                if (dist === 3) return 0.3;
+                return 1.0;
+            } else if (targetBranches.length === 3) {
+                indices.sort((a, b) => a - b);
+                const diff1 = indices[1] - indices[0];
+                const diff2 = indices[2] - indices[1];
+                if (diff1 === 1 && diff2 === 1) return 1.0;
+                if ((diff1 === 1 && diff2 === 2) || (diff1 === 2 && diff2 === 1)) return 0.7;
+                return 0.5;
+            }
+            return 1.0;
+        };
+
         Object.keys(seasonalGroups).forEach(el => {
             const count = countSeasonalBranches(seasonalGroups[el]);
             if (count === 3) {
-                elementScore[el] += config.tamHoiScore; // +12 points
+                ensureSeedBase(el);
+                const w_chi = getBranchCombinationDistance(seasonalGroups[el]);
+                elementMultipliers[el] += 0.15 * w_chi; // +15% Tam Hội
                 analysis.relations.tamHop.push(seasonalGroups[el].join('-') + ' (Hội)');
             } else if (count === 2) {
-                elementScore[el] += config.banTamHoiScore; // +4 points
-                analysis.relations.tamHop.push(branchList.filter(z => seasonalGroups[el].includes(z)).join('-') + ' (Bán Hội)');
+                ensureSeedBase(el);
+                const matched = branchList.filter(z => seasonalGroups[el].includes(z));
+                const w_chi = getBranchCombinationDistance(matched);
+                elementMultipliers[el] += 0.05 * w_chi; // +5% Bán Hội
+                analysis.relations.tamHop.push(matched.join('-') + ' (Bán Hội)');
             }
         });
 
-        // PHASE 8: Combine Branch relationships (With directional preemption/priority logic)
         const hasSubset = (arr, subset) => subset.every(v => arr.includes(v));
         const occupiedBranches = new Set();
 
-        // High priority: Tam Hội & Tam Hợp
+        // High priority: Tam Hợp (20% bonus) & Bán Tam Hợp (5% bonus)
         const highPriorityRelations = ['tamHop', 'banTamHop'];
         highPriorityRelations.forEach(relType => {
             const groups = this.rules.branchRelations[relType];
@@ -760,16 +829,18 @@ class BaziAnalyzer {
                     analysis.relations[relType].push(targetBranches.join('-'));
                     targetBranches.forEach(z => occupiedBranches.add(z));
                     
-                    const points = config.special[relType];
-                    if (points) {
-                        const domElem = this.rules.branchElement[targetBranches[1]];
-                        elementScore[domElem] += points;
+                    const domElem = this.rules.branchElement[targetBranches[1]];
+                    if (domElem) {
+                        ensureSeedBase(domElem);
+                        const pctBonus = relType === 'tamHop' ? 0.20 : 0.05;
+                        const w_chi = getBranchCombinationDistance(targetBranches);
+                        elementMultipliers[domElem] += pctBonus * w_chi;
                     }
                 }
             });
         });
 
-        // Medium priority: Lục Hợp
+        // Medium priority: Lục Hợp (12% shared -> +6% each)
         const mediumPriorityRelations = ['lucHop'];
         mediumPriorityRelations.forEach(relType => {
             const groups = this.rules.branchRelations[relType];
@@ -781,25 +852,25 @@ class BaziAnalyzer {
                     analysis.relations[relType].push(targetBranches.join('-'));
                     
                     const hasOccupied = targetBranches.some(z => occupiedBranches.has(z));
-                    const scaleFactor = hasOccupied ? 0.2 : 1.0; // 80% reduction if occupied
+                    const scaleFactor = hasOccupied ? 0.2 : 1.0;
 
                     targetBranches.forEach(z => occupiedBranches.add(z));
                     
-                    const points = config.special[relType];
-                    if (points) {
-                        targetBranches.forEach(z => {
-                            const e = this.rules.branchElement[z];
-                            elementScore[e] += (points / 2) * scaleFactor;
-                        });
-                    }
+                    const w_chi = getBranchCombinationDistance(targetBranches);
+                    targetBranches.forEach(z => {
+                        const e = this.rules.branchElement[z];
+                        if (e) {
+                            ensureSeedBase(e);
+                            elementMultipliers[e] += 0.06 * scaleFactor * w_chi;
+                        }
+                    });
                 }
             });
         });
 
-        // Low priority: Lục Xung, Lục Hại, Lục Phá, Hình
+        // Low priority: Lục Xung (-12% -> -6% each), Lục Hại (-6% -> -3% each), Lục Phá (-5% -> -2.5% each), Hình (-12% -> -6% each)
         const lowPriorityRelations = ['lucXung', 'lucHai', 'lucPha', 'hinh'];
         lowPriorityRelations.forEach(relType => {
-            if (relType === 'tamHoi') return;
             const groups = this.rules.branchRelations[relType];
             if (!groups) return;
             groups.forEach(group => {
@@ -810,20 +881,24 @@ class BaziAnalyzer {
                     analysis.relations[relType].push(targetBranches.join('-'));
                     
                     const hasOccupied = targetBranches.some(z => occupiedBranches.has(z));
-                    const scaleFactor = hasOccupied ? 0.2 : 1.0; // 80% reduction if occupied
+                    const scaleFactor = hasOccupied ? 0.2 : 1.0;
 
-                    const points = config.special[relType];
-                    if (points) {
-                        targetBranches.forEach(z => {
-                            const e = this.rules.branchElement[z];
-                            elementScore[e] += (points / 2) * scaleFactor;
-                        });
-                    }
+                    let penaltyVal = -0.06; // default for xung, hinh
+                    if (relType === 'lucHai') penaltyVal = -0.03;
+                    else if (relType === 'lucPha') penaltyVal = -0.025;
+
+                    const w_chi = getBranchCombinationDistance(targetBranches);
+                    targetBranches.forEach(z => {
+                        const e = this.rules.branchElement[z];
+                        if (e) {
+                            elementMultipliers[e] += penaltyVal * scaleFactor * w_chi;
+                        }
+                    });
                 }
             });
         });
 
-        // PHASE 9: Hợp Hóa Thiên Can Nghiêm Ngặt
+        // 6. Hợp Hóa Thiên Can Nghiêm Ngặt (Percentage-based)
         const ganList = pillars.map(p => canChi[p].gan);
         const adjacentPairs = [[0, 1], [1, 2], [2, 3]];
         adjacentPairs.forEach(([idx1, idx2]) => {
@@ -847,20 +922,50 @@ class BaziAnalyzer {
                 });
 
                 if (hasHelper) {
+                    ensureSeedBase(transElem);
                     if (isRuling) {
-                        elementScore[transElem] += 12;
+                        elementMultipliers[transElem] += 0.12;
                     } else if (isSupported) {
-                        elementScore[transElem] += 8;
+                        elementMultipliers[transElem] += 0.08;
                     } else {
-                        elementScore[transElem] += 2;
+                        elementMultipliers[transElem] += 0.02;
                     }
                 } else {
-                    elementScore[transElem] += 2;
+                    ensureSeedBase(transElem);
+                    elementMultipliers[transElem] += 0.02;
                 }
             }
         });
 
-        // PHASE 10: Tương Tác Giữa Các Thiên Can Theo Khoảng Cách
+        // 7. Tương Tác Thiên Can Khoảng Cách & Cản Trở Cự Ly
+        const getBlockageFactor = (idx1, idx2) => {
+            let minBlock = 1.0;
+            for (let k = idx1 + 1; k < idx2; k++) {
+                const midPillar = pillars[k];
+                const midStem = canChi[midPillar].gan;
+                const midElem = this.rules.stemElement[midStem];
+                const midRootScore = stemRootScores[midPillar] || 0;
+                
+                // Gốc mạnh nếu tổng điểm thông căn >= 5.0
+                const hasStrongRoot = midRootScore >= 5.0;
+                
+                if (hasStrongRoot) {
+                    const stem1 = canChi[pillars[idx1]].gan;
+                    const stem2 = canChi[pillars[idx2]].gan;
+                    const el1 = this.rules.stemElement[stem1];
+                    const el2 = this.rules.stemElement[stem2];
+                    
+                    const isKhac1 = this.rules.relation[midElem]?.[el1] === 'khac' || this.rules.relation[el1]?.[midElem] === 'khac';
+                    const isKhac2 = this.rules.relation[midElem]?.[el2] === 'khac' || this.rules.relation[el2]?.[midElem] === 'khac';
+                    
+                    if (isKhac1 || isKhac2) {
+                        minBlock = Math.min(minBlock, 0.1); // giảm 90% tương tác
+                    }
+                }
+            }
+            return minBlock;
+        };
+
         for (let i = 0; i < ganList.length; i++) {
             for (let j = i + 1; j < ganList.length; j++) {
                 const g1 = ganList[i];
@@ -871,156 +976,287 @@ class BaziAnalyzer {
 
                 const distance = j - i;
                 let multiplier = 1.0;
-                if (distance === 1) multiplier = config.distanceMultipliers.d1; // 0.75
-                else if (distance === 2) multiplier = config.distanceMultipliers.d2; // 0.5
-                else if (distance === 3) multiplier = config.distanceMultipliers.d3; // 0.2
+                if (distance === 1) multiplier = config.distanceMultipliers.d1;
+                else if (distance === 2) multiplier = config.distanceMultipliers.d2;
+                else if (distance === 3) multiplier = config.distanceMultipliers.d3;
+
+                // Quy tắc Quá Tải Tương Tác (Saturation): gần nhất 1.0, nhì 0.5, xa nhất 0.2
+                let satMult = 1.0;
+                if (distance === 2) satMult = 0.5;
+                else if (distance === 3) satMult = 0.2;
+
+                // Quy tắc Can Trung Gian Cản Trở (Blockage)
+                const blockFactor = getBlockageFactor(i, j);
+
+                const finalCanMult = multiplier * satMult * blockFactor;
 
                 const rel1 = this.rules.relation[el1]?.[el2];
                 const rel2 = this.rules.relation[el2]?.[el1];
 
                 if (rel1) {
                     const baseChange = config.relationScore[rel1] || 0;
-                    elementScore[el1] += elementScore[el1] * baseChange * multiplier * 0.5;
+                    elementMultipliers[el1] += baseChange * finalCanMult * 0.5;
                 }
                 if (rel2) {
                     const baseChange = config.relationScore[rel2] || 0;
-                    elementScore[el2] += elementScore[el2] * baseChange * multiplier * 0.5;
+                    elementMultipliers[el2] += baseChange * finalCanMult * 0.5;
                 }
             }
         }
 
-        // PHASE 11: Quy Tắc Thổ Khô - Thổ Ướt
+        // 8. Thổ Khô & Thổ Ướt (Hòa khí 8%)
         let hasWet = branchList.some(z => this.rules.tho.wet.includes(z));
         let hasDry = branchList.some(z => this.rules.tho.dry.includes(z));
         if (hasWet) {
-            elementScore['Kim'] += 2;
-            elementScore['Hoa'] -= 2;
-            elementScore['Thuy'] += 2.4;
+            elementMultipliers['Kim'] += 0.08;
+            elementMultipliers['Hoa'] -= 0.20;
+            elementMultipliers['Thuy'] += 0.08;
         }
         if (hasDry) {
-            elementScore['Hoa'] += 4;
-            elementScore['Thuy'] -= 2.4;
+            elementMultipliers['Hoa'] += 0.08;
+            elementMultipliers['Thuy'] -= 0.24;
         }
 
-        // Thổ quá vượng
-        const currentThoScore = elementScore['Tho'];
-        const currentTotal = Object.values(elementScore).reduce((a, b) => a + b, 0);
-        if (currentTotal > 0 && (currentThoScore / currentTotal) > 0.35) {
-            elementScore['Moc'] *= (1 - config.thoVuongPenaltyPercent);
-            elementScore['Thuy'] *= (1 - config.thoVuongPenaltyPercent);
+        // Thổ quá vượng (>35% of intermediate scores)
+        let intermediateScores = {};
+        this.rules.elements.forEach(el => {
+            intermediateScores[el] = Math.max(0, baseScore[el] * elementMultipliers[el]);
+        });
+        const intermediateTotal = Object.values(intermediateScores).reduce((a, b) => a + b, 0);
+        if (intermediateTotal > 0 && (intermediateScores['Tho'] / intermediateTotal) > 0.35) {
+            elementMultipliers['Moc'] *= (1 - config.thoVuongPenaltyPercent);
+            elementMultipliers['Thuy'] *= (1 - config.thoVuongPenaltyPercent);
         }
 
-        // Ensure no negative scores before final adjustments
-        for (const k in elementScore) elementScore[k] = Math.max(0, elementScore[k]);
+        // Compute scores before phi tuyến sinh khắc
+        let currentScores = {};
+        this.rules.elements.forEach(el => {
+            currentScores[el] = Math.max(0, baseScore[el] * elementMultipliers[el]);
+        });
 
-        // PHASE 12: Phản Sinh & Phản Khắc
-        let preFinalTotal = Object.values(elementScore).reduce((a, b) => a + b, 0);
-        if (preFinalTotal > 0) {
+        // 9. Tương Sinh Khắc Phi Tuyến (Dynamic interaction)
+        let nonlinearScores = { ...currentScores };
+        this.rules.elements.forEach(el1 => {
+            if (currentScores[el1] > 0) {
+                this.rules.elements.forEach(el2 => {
+                    if (el1 === el2) return;
+                    const rel = this.rules.relation[el1]?.[el2];
+                    if (rel && currentScores[el2] > 0) {
+                        const factor = config.relationScore[rel] || 0;
+                        const proportion = currentScores[el2] / (currentScores[el1] + currentScores[el2]);
+                        nonlinearScores[el1] += currentScores[el1] * factor * proportion;
+                    }
+                });
+            }
+        });
+        currentScores = nonlinearScores;
+        for (const k in currentScores) currentScores[k] = Math.max(0, currentScores[k]);
+
+        // 10. Bão Hòa Năng Lượng & Bù Đắp Hành Yếu
+        const totalBeforeSat = Object.values(currentScores).reduce((a, b) => a + b, 0);
+        if (totalBeforeSat > 0) {
+            this.rules.elements.forEach(el => {
+                const pct = currentScores[el] / totalBeforeSat;
+                // Saturation
+                if (pct > 0.60) {
+                    currentScores[el] *= 0.20;
+                } else if (pct > 0.50) {
+                    currentScores[el] *= 0.50;
+                } else if (pct > 0.40) {
+                    currentScores[el] *= 0.70;
+                }
+                // Compensation
+                if (pct < 0.05 && pct > 0) {
+                    currentScores[el] *= 1.5;
+                } else if (pct < 0.08 && pct > 0) {
+                    currentScores[el] *= 1.3;
+                }
+            });
+        }
+
+        // 11. Phản Sinh / Phản Khắc & Con Vượng Mẹ Kiệt với Ngưỡng Mượt
+        const smoothStep = (edge0, edge1, x) => {
+            const t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
+            return t * t * (3 - 2 * t);
+        };
+
+        const totalAfterSat = Object.values(currentScores).reduce((a, b) => a + b, 0);
+        if (totalAfterSat > 0) {
+            // Phản sinh: Mẹ vượng hại con
             this.rules.elements.forEach(mother => {
                 const child = Object.keys(this.rules.relation[mother]).find(k => this.rules.relation[mother][k] === 'sinh');
                 if (child) {
-                    const motherPct = elementScore[mother] / preFinalTotal;
-                    if (motherPct >= 0.35) {
-                        const penalty = -0.5 * (elementScore[mother] - 35);
-                        elementScore[child] = Math.max(0, elementScore[child] + penalty);
+                    const motherPct = currentScores[mother] / totalAfterSat;
+                    const activation = smoothStep(0.30, 0.40, motherPct);
+                    if (activation > 0) {
+                        const maxPenalty = -0.5 * (currentScores[mother] - 35);
+                        const penalty = maxPenalty * activation;
+                        currentScores[child] = Math.max(0, currentScores[child] + penalty);
                     }
                 }
             });
 
+            // Phản khắc: Con quá vượng khắc ngược cha
             this.rules.elements.forEach(cha => {
                 const con = Object.keys(this.rules.relation[cha]).find(k => this.rules.relation[cha][k] === 'khac');
                 if (con) {
-                    const scoreCha = elementScore[cha];
-                    const scoreCon = elementScore[con];
-                    if (scoreCon > 2.5 * scoreCha && scoreCha > 0) {
-                        const penalty = -0.4 * (scoreCon - 2.5 * scoreCha);
-                        elementScore[cha] = Math.max(0, scoreCha + penalty);
+                    const scoreCha = currentScores[cha];
+                    const scoreCon = currentScores[con];
+                    if (scoreCon > 2.0 * scoreCha && scoreCha > 0) {
+                        const ratio = scoreCon / scoreCha;
+                        const activation = smoothStep(2.0, 3.0, ratio);
+                        const maxPenalty = -0.4 * (scoreCon - 2.5 * scoreCha);
+                        const penalty = maxPenalty * activation;
+                        currentScores[cha] = Math.max(0, scoreCha + penalty);
                     }
                 }
             });
-        }
 
-        // PHASE 12.1: Con Vượng Mẹ Kiệt (Tiết khí cực đoan) & Mẫu dĩ tử quý
-        const postFinalTotal = Object.values(elementScore).reduce((a, b) => a + b, 0);
-        if (postFinalTotal > 0) {
+            // Con Vượng Mẹ Kiệt & Mẫu dĩ tử quý
             this.rules.elements.forEach(mother => {
                 const child = Object.keys(this.rules.relation[mother]).find(k => this.rules.relation[mother][k] === 'sinh');
                 if (child) {
-                    const childPct = elementScore[child] / postFinalTotal;
-                    if (childPct > 0.35) {
-                        elementScore[mother] *= 0.7; // Con quá vượng làm kiệt quệ mẹ
-                    } else if (childPct >= 0.25 && childPct <= 0.35) {
-                        elementScore[mother] *= 1.1; // Con vượng che chở mẹ
+                    const childPct = currentScores[child] / totalAfterSat;
+                    const kietActivation = smoothStep(0.30, 0.40, childPct);
+                    if (kietActivation > 0) {
+                        const factor = 1.0 - (0.30 * kietActivation);
+                        currentScores[mother] *= factor;
+                    } else {
+                        const supportActivation = smoothStep(0.20, 0.30, childPct) * (1.0 - smoothStep(0.30, 0.40, childPct));
+                        if (supportActivation > 0) {
+                            const factor = 1.0 + (0.10 * supportActivation);
+                            currentScores[mother] *= factor;
+                        }
                     }
                 }
             });
         }
 
-        // PHASE 12.2: Tòng Cách Check (Bypass điểm sàn nếu có 1 hành cực thịnh > 65%)
+        // 12. Điểm Sàn Phân Cấp & Chuẩn Hóa
         let isTongCachChart = false;
-        const totalThoScore = Object.values(elementScore).reduce((a, b) => a + b, 0);
-        if (totalThoScore > 0) {
-            for (const el in elementScore) {
-                if ((elementScore[el] / totalThoScore) > 0.65) {
+        const totalBeforeFloor = Object.values(currentScores).reduce((a, b) => a + b, 0);
+        if (totalBeforeFloor > 0) {
+            for (const el in currentScores) {
+                if ((currentScores[el] / totalBeforeFloor) > 0.65) {
                     isTongCachChart = true;
                     break;
                 }
             }
         }
 
-        // PHASE 12.5: Minimum Floor Enforcement
         if (!isTongCachChart) {
             this.rules.elements.forEach(el => {
-                const baseVal = baseElementScore[el] || 0;
-                if (baseVal > 0) {
-                    const floorVal = baseVal * config.minFloorPercent; // 5% of base points
-                    if (elementScore[el] < floorVal) {
-                        elementScore[el] = floorVal;
+                const hasCanLo = pillars.some(p => this.rules.stemElement[canChi[p].gan] === el);
+                let maxBranchType = 0;
+                pillars.forEach(p => {
+                    const zhi = canChi[p].zhi;
+                    const ratios = getBranchRatios(zhi);
+                    ratios.forEach((r, rIdx) => {
+                        if (r.stem && this.rules.stemElement[r.stem] === el) {
+                            let type = 1;
+                            if (rIdx === 0) type = 3;
+                            else if (rIdx === 1) type = 2;
+                            maxBranchType = Math.max(maxBranchType, type);
+                        }
+                    });
+                });
+
+                let floorPercent = 0.0;
+                if (hasCanLo) floorPercent = 0.05;
+                else if (maxBranchType === 3) floorPercent = 0.04;
+                else if (maxBranchType === 2) floorPercent = 0.02;
+                else if (maxBranchType === 1) floorPercent = 0.01;
+
+                if (floorPercent > 0) {
+                    const baseVal = baseElementScore[el] || 0;
+                    const floorVal = baseVal * floorPercent;
+                    if (currentScores[el] < floorVal) {
+                        currentScores[el] = floorVal;
                     }
                 }
             });
         }
 
-        // PHASE 13: Normalization to 100 points
-        const finalTotal = Object.values(elementScore).reduce((a, b) => a + b, 0);
+        // Save raw scores before normalization
+        const rawScores = {};
+        for (const k in currentScores) {
+            rawScores[k] = parseFloat(currentScores[k].toFixed(2));
+        }
+
+        // Normalize to 100 points
+        let normalizedScores = { ...currentScores };
+        const finalTotal = Object.values(normalizedScores).reduce((a, b) => a + b, 0);
         if (finalTotal > 0) {
-            for (const k in elementScore) {
-                elementScore[k] = parseFloat(((elementScore[k] / finalTotal) * 100).toFixed(2));
+            for (const k in normalizedScores) {
+                normalizedScores[k] = parseFloat(((normalizedScores[k] / finalTotal) * 100).toFixed(2));
             }
-            const currentSum = Object.values(elementScore).reduce((a, b) => a + b, 0);
+            const currentSum = Object.values(normalizedScores).reduce((a, b) => a + b, 0);
             const diff = parseFloat((100 - currentSum).toFixed(2));
             if (diff !== 0) {
                 let maxKey = 'Kim';
                 let maxVal = -1;
-                for (const k in elementScore) {
-                    if (elementScore[k] > maxVal) {
-                        maxVal = elementScore[k];
+                for (const k in normalizedScores) {
+                    if (normalizedScores[k] > maxVal) {
+                        maxVal = normalizedScores[k];
                         maxKey = k;
                     }
                 }
-                elementScore[maxKey] = parseFloat((elementScore[maxKey] + diff).toFixed(2));
+                normalizedScores[maxKey] = parseFloat((normalizedScores[maxKey] + diff).toFixed(2));
             }
         } else {
-            elementScore = { Kim: 20, Moc: 20, Thuy: 20, Hoa: 20, Tho: 20 };
+            normalizedScores = { Kim: 20, Moc: 20, Thuy: 20, Hoa: 20, Tho: 20 };
         }
 
-        // Ensure no negative scores
-        for (const k in elementScore) elementScore[k] = Math.max(0, parseFloat(elementScore[k].toFixed(2)));
+        for (const k in normalizedScores) {
+            normalizedScores[k] = Math.max(0, parseFloat(normalizedScores[k].toFixed(2)));
+        }
+
+        // Entropy, Dominance & Confidence
+        let entropy = 0;
+        for (const el in normalizedScores) {
+            const p = normalizedScores[el] / 100.0;
+            if (p > 0) entropy += -p * Math.log(p);
+        }
+        entropy = parseFloat(entropy.toFixed(4));
+
+        let maxPct = 0;
+        for (const el in normalizedScores) {
+            maxPct = Math.max(maxPct, normalizedScores[el] / 100.0);
+        }
+        const dominanceIndex = parseFloat((maxPct - 0.20).toFixed(4));
+
+        let confidenceScore = 1.0;
+        confidenceScore += exposedCount * 0.1;
+        let primaryRootsCount = 0;
+        pillars.forEach(sp => {
+            const stem = canChi[sp].gan;
+            const stemElem = this.rules.stemElement[stem];
+            if (!stemElem) return;
+            pillars.forEach(bp => {
+                const branch = canChi[bp].zhi;
+                const ratios = getBranchRatios(branch);
+                if (ratios[0]?.stem && this.rules.stemElement[ratios[0].stem] === stemElem) {
+                    primaryRootsCount++;
+                }
+            });
+        });
+        confidenceScore += primaryRootsCount * 0.05;
+        confidenceScore = parseFloat(Math.min(2.0, confidenceScore).toFixed(2));
 
         // PHASE 3: Analysis
         const dmElem = this.rules.stemElement[dmGan];
-        const totalScore = Object.values(elementScore).reduce((a,b) => a+b, 0);
+        const totalScore = Object.values(normalizedScores).reduce((a,b) => a+b, 0);
 
         // Lực Nhật chủ (bao gồm chính nó và hành Sinh nó)
         let dongDang = 0;
         let khacTiet = 0;
         
-        Object.keys(elementScore).forEach(el => {
+        Object.keys(normalizedScores).forEach(el => {
             const relation = this.rules.relation[dmElem][el];
             if (relation === 'tro' || relation === 'duoc_sinh') {
-                dongDang += elementScore[el];
+                dongDang += normalizedScores[el];
             } else {
-                khacTiet += elementScore[el];
+                khacTiet += normalizedScores[el];
             }
         });
 
@@ -1029,7 +1265,7 @@ class BaziAnalyzer {
         let strongestElem = "";
         let maxVal = 0;
         
-        for (const [el, val] of Object.entries(elementScore)) {
+        for (const [el, val] of Object.entries(normalizedScores)) {
             if (val > maxVal) { maxVal = val; strongestElem = el; }
         }
 
@@ -1049,7 +1285,7 @@ class BaziAnalyzer {
         }
 
         // Determine structure (Cách cục) based on docx rules
-        analysis.cachCuc = this.determineCachCuc(dmGan, monthZhi, canChi, elementScore);
+        analysis.cachCuc = this.determineCachCuc(dmGan, monthZhi, canChi, normalizedScores);
 
         // PHASE 4: Dụng Thần & Hỷ Thần
         let dungThan = "";
@@ -1100,7 +1336,11 @@ class BaziAnalyzer {
             canChi,
             taiNguyen,
             cungMenh,
-            nguHanh: elementScore,
+            nguHanh: normalizedScores,
+            nguHanhRaw: rawScores,
+            entropy,
+            dominanceIndex,
+            confidenceScore,
             analysis,
             dungThan,
             hyThan,

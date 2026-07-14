@@ -86,19 +86,22 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
 2. **Hệ Thống An Sao Tử Vi (`ZiweiFormatter.js` & `ZiweiValidators.js`):**
    * Xây dựng đồ hình Tử Vi, xác định Cung Mệnh/Thân, Cục, sao chủ và an hệ thống phụ tinh phong phú (Bác Sĩ, Trường Sinh, Tuế Tiền, Tướng Tinh, Tuần, Triệt...).
    * Tệp tin: [ZiweiFormatter.js](file:///t:/Phongthuy/backend/src/services/ZiweiFormatter.js).
-3. **Hợp nhất Lược đồ Chat:**
+3. **Phân Tích Bát Tự Ngũ Hành (`BaziAnalyzer.js`):**
+   * Xử lý tính toán ngũ hành Bát Tự theo thuật toán 4.0 với các cơ chế điều chỉnh phần trăm tương đối, quy tắc hợp giải xung (ưu tiên tổ hợp địa chi), đa thấu phân khí, tiết khí cực đoan (con vượng mẹ kiệt) và cơ chế phá điểm sàn phục vụ nhận diện cách cục Tòng Cách chính xác.
+   * Tệp tin: [BaziAnalyzer.js](file:///t:/Phongthuy/backend/src/services/BaziAnalyzer.js).
+4. **Hợp nhất Lược đồ Chat:**
    * Thay thế các bảng chat riêng rẽ bằng cấu trúc dùng chung [Conversation.js](file:///t:/Phongthuy/backend/src/models/Conversation.js) (phân loại qua trường `system`: `'iching' | 'bazi' | 'ziwei' | 'marriage'`) và [Message.js](file:///t:/Phongthuy/backend/src/models/Message.js) để tối ưu lưu trữ.
-4. **Gộp Controller Core xử lý AI và Lịch sử:**
+5. **Gộp Controller Core xử lý AI và Lịch sử:**
    * [AiInterpretationController.js](file:///t:/Phongthuy/backend/src/controllers/AiInterpretationController.js): Xử lý stream SSE luận đoán ban đầu và trò chuyện follow-up cho toàn bộ các phân hệ.
    * [HistoryController.js](file:///t:/Phongthuy/backend/src/controllers/HistoryController.js): Xem lịch sử bản ghi, xếp hạng đánh giá (rate), liên kết dữ liệu guest vào tài khoản (link), xóa bản ghi.
-5. **Quản lý Prompt động:**
+6. **Quản lý Prompt động:**
    * Tách biệt các bộ prompt chuyên môn bằng tiếng Anh giúp nâng cao chất lượng phản hồi từ Gemini: [IChingPrompts.js](file:///t:/Phongthuy/backend/src/services/IChingPrompts.js), [BaziPrompts.js](file:///t:/Phongthuy/backend/src/services/BaziPrompts.js), [ZiweiPrompts.js](file:///t:/Phongthuy/backend/src/services/ZiweiPrompts.js), [MarriagePrompts.js](file:///t:/Phongthuy/backend/src/services/MarriagePrompts.js).
-6. **Hệ thống Nhật ký cao cấp (`LoggerService.js`):**
+7. **Hệ thống Nhật ký cao cấp (`LoggerService.js`):**
    * Hoạt động song song: In console có mã màu ANSI và ghi tệp log vật lý (`logs/app.log`, `logs/errors.log`). Tự động truy quét định danh JWT để ghi nhận IP, Email người dùng và ẩn mật khẩu bảo mật.
    * Tệp tin: [LoggerService.js](file:///t:/Phongthuy/backend/src/services/LoggerService.js).
-7. **Duy trì kết nối SSE Keepalive Ping:**
+8. **Duy trì kết nối SSE Keepalive Ping:**
    * Gửi gói tin heartbeat định kỳ mỗi 15 giây ngăn chặn lỗi ngắt kết nối rác do Idle Timeout khi phân phối qua Nginx, Render hoặc Vercel.
-8. **Cơ chế Cache tối ưu chi phí:**
+9. **Cơ chế Cache tối ưu chi phí:**
    * Tự động lưu snapshot luận giải (`analysisSnapshot`) và lưu trữ đệm qua [MemoryCacheService.js](file:///t:/Phongthuy/backend/src/services/MemoryCacheService.js) để tái sử dụng, giúp giảm thiểu đáng kể chi phí gọi Gemini API.
 
 ---

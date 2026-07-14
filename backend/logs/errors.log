@@ -951,3 +951,4 @@ Require stack:
 Stack: Error: getaddrinfo ENOTFOUND phong-thuy-backend-gz15.onrender.com
     at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26)
 [2026-07-13 20:57:10.818] [WARN] [User: anonymous] [Action: Luận Giải Kinh Dịch AI] [IP: ::1] [Duration: 73ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (403)
+[2026-07-14 20:03:02.443] [WARN] [User: cobatuoc@gmail.com (Tuyen)] [Action: Trò Chuyện Bát Tự AI] [IP: ::1] [Duration: 394ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (429)

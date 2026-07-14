@@ -66,14 +66,14 @@
 /* MARKDOWN FORMATTING STYLES FOR CHAT WINDOWS */
 .markdown-content ul {
   list-style-type: disc !important;
-  padding-left: 1.25rem !important;
+  padding-left: 0.9rem !important;
   margin-top: 0.5rem !important;
   margin-bottom: 0.5rem !important;
 }
 
 .markdown-content ol {
   list-style-type: decimal !important;
-  padding-left: 1.25rem !important;
+  padding-left: 0.9rem !important;
   margin-top: 0.5rem !important;
   margin-bottom: 0.5rem !important;
 }

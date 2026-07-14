@@ -66,5 +66,6 @@ router.post('/marriage/:id/chat', chatCreditCheck, checkRecordOwnership, aiLimit
 
 const auth = require('../middleware/auth');
 router.delete('/calculations/:type/:id', auth, HistoryController.deleteCalculation);
+router.put('/calculations/:type/:id/pin', auth, HistoryController.pinCalculation);
 
 module.exports = router;
