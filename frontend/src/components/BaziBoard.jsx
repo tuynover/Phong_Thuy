@@ -673,6 +673,12 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) 
                 
                 <div className="relative z-10 max-w-4xl">
                     <div className="grid grid-cols-1 sm:grid-cols-[160px_1fr] gap-x-6 gap-y-1 text-sm sm:text-base pl-2">
+                        {(data.name || data.inputInfo?.name) && (
+                            <>
+                                <div className="font-extrabold text-slate-800">Họ và tên:</div>
+                                <div className="font-bold text-blue-800">{data.name || data.inputInfo?.name}</div>
+                            </>
+                        )}
                         <div className="font-extrabold text-slate-800">Giới tính:</div>
                         <div className="font-bold text-slate-800">
                             {parseInt(data.gender) === 0 ? 'Nữ' : 'Nam'}

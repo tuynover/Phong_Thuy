@@ -853,8 +853,12 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                       >
                           <div className="flex justify-between items-start mb-2">
                               <div>
-                                  <h3 className="font-bold text-lg text-blue-900">Lá số Bát Tự: {record.inputInfo.date} {record.inputInfo.time} ({record.inputInfo.gender === 1 ? 'Nam' : 'Nữ'})</h3>
-                                  <p className="text-xs text-gray-400 flex items-center gap-1.5 mt-1">
+                                  <h3 className="font-bold text-lg text-blue-900">
+                                      {record.inputInfo?.name && !record.inputInfo.name.startsWith('Bát Tự -') && !record.inputInfo.name.startsWith('Tử Vi -') 
+                                          ? record.inputInfo.name 
+                                          : 'Lá số Bát Tự'} : {record.inputInfo.date} {record.inputInfo.time} ({record.inputInfo.gender === 1 ? 'Nam' : 'Nữ'})
+                                  </h3>
+                                  <p className="text-xs text-gray-400 flex flex-wrap items-center gap-1.5 mt-1">
                                       <Calendar size={12}/> 
                                       Tiết khí: {record.tietKhiTimeline}
                                       {record.isPinned && (
@@ -924,8 +928,12 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                       >
                           <div className="flex justify-between items-start mb-2">
                               <div>
-                                  <h3 className="font-bold text-lg text-purple-900">Lá số Tử Vi: {record.inputInfo?.date || ''} ({record.inputInfo?.gender || ''} Mệnh)</h3>
-                                  <p className="text-xs text-gray-400 flex items-center gap-1.5 mt-1">
+                                  <h3 className="font-bold text-lg text-purple-900">
+                                      {record.inputInfo?.name && !record.inputInfo.name.startsWith('Bát Tự -') && !record.inputInfo.name.startsWith('Tử Vi -') 
+                                          ? record.inputInfo.name 
+                                          : 'Lá số Tử Vi'} : {record.inputInfo?.date || ''} ({record.inputInfo?.gender || ''} Mệnh)
+                                  </h3>
+                                  <p className="text-xs text-gray-400 flex flex-wrap items-center gap-1.5 mt-1">
                                       <Clock size={12}/> 
                                       Giờ sinh: {record.inputInfo?.hour !== undefined ? LUNAR_HOURS_MAP[record.inputInfo.hour] : ''}
                                       {record.isPinned && (

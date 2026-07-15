@@ -233,11 +233,11 @@ export default function UserApp({ onSwitchToAdmin }) {
     }
   };
 
-  const handleBaziComplete = async (date, time, gender) => {
+  const handleBaziComplete = async (date, time, gender, name) => {
     setLoading(true);
     try {
       const userId = user ? (user.id || user._id) : 'guest';
-      const res = await analyzeBazi(date, time, gender, userId);
+      const res = await analyzeBazi(date, time, gender, userId, name);
       setBaziResult(res.data);
       invalidateHistoryCache();
       if (userId === 'guest' && res.data.recordId) {
@@ -262,7 +262,7 @@ export default function UserApp({ onSwitchToAdmin }) {
       const formattedDate = `${d}/${m}/${y}`;
       const formattedTime = `${h}:${min}`;
       const genderVal = gender === 'Nam' ? 1 : 0;
-      handleBaziComplete(formattedDate, formattedTime, genderVal);
+      handleBaziComplete(formattedDate, formattedTime, genderVal, user?.name);
       setAppMode('bazi');
     } else if (target === 'ziwei') {
       const dateStr = `${y}-${m}-${d}`;
@@ -1187,7 +1187,7 @@ export default function UserApp({ onSwitchToAdmin }) {
           const { day, month, year, hour, minute } = updatedUser.baziInfo;
           const formattedDate = `${String(day).padStart(2,'0')}/${String(month).padStart(2,'0')}/${year}`;
           const formattedTime = `${String(hour).padStart(2,'0')}:${String(minute).padStart(2,'0')}`;
-          handleBaziComplete(formattedDate, formattedTime, updatedUser.gender !== undefined ? updatedUser.gender : 1);
+           handleBaziComplete(formattedDate, formattedTime, updatedUser.gender !== undefined ? updatedUser.gender : 1, updatedUser.name);
         }} 
       />
 

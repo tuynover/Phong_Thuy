@@ -557,10 +557,10 @@ const ZiweiChart = ({ chartData }) => {
                       </div>
                       <div>
                         <h2 className="font-extrabold text-slate-800 text-[9px] md:text-xl tracking-tight leading-tight">
-                          Trung Cung
+                          {chartData.name || "Trung Cung"}
                         </h2>
                         <p className="text-[6.5px] md:text-[11px] text-purple-600 font-bold uppercase tracking-wider mt-0.5">
-                          TỬ VI BẮC PHÁI
+                          {chartData.name ? "TRUNG CUNG" : "TỬ VI BẮC PHÁI"}
                         </p>
                       </div>
                     </div>
@@ -638,6 +638,13 @@ const ZiweiChart = ({ chartData }) => {
                 {chartData.gender} Mệnh
               </span>
             </div>
+
+            {chartData.name && (
+              <div className="border-b border-purple-100/35 pb-2 mb-1 flex flex-col">
+                <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Họ và tên</span>
+                <span className="font-extrabold text-purple-950 text-sm">{chartData.name}</span>
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-2 text-xs bg-purple-50/20 p-3 rounded-xl border border-purple-100/20">
               <div className="flex flex-col">

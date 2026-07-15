@@ -76,6 +76,7 @@ const BaziInput = ({ onComplete }) => {
     const [hour, setHour] = useState('');
     const [minute, setMinute] = useState('');
     const [gender, setGender] = useState(1); // 1 = Nam, 0 = Nữ
+    const [name, setName] = useState('');
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -95,7 +96,7 @@ const BaziInput = ({ onComplete }) => {
         const formattedDate = `${d}/${m}/${y}`;
         const formattedTime = `${h}:${min}`;
         
-        onComplete(formattedDate, formattedTime, gender);
+        onComplete(formattedDate, formattedTime, gender, name);
     };
 
     // Arrays of options
@@ -112,6 +113,18 @@ const BaziInput = ({ onComplete }) => {
 
             <form onSubmit={handleSubmit} className="w-full space-y-6">
                 
+                {/* Họ và tên */}
+                <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-3">Họ và Tên (Không bắt buộc)</label>
+                    <input
+                        type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="Nhập họ và tên..."
+                        className="bg-gray-50 border border-gray-200 text-gray-905 text-base rounded-xl block w-full p-2.5 font-bold transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+                    />
+                </div>
+
                 {/* Giới tính */}
                 <div>
                     <label id="bazi-input-gender" className="block text-sm font-bold text-gray-700 mb-3">Giới Tính (Quyết định chiều Đại Vận)</label>

@@ -22,6 +22,7 @@ const ziweiRecordSchema = new mongoose.Schema({
     default: null
   },
   inputInfo: {
+    name: { type: String, default: "" },
     date: String,        // YYYY-MM-DD
     hour: Number,        // Hour index (0..11)
     gender: String,      // "Nam" | "Nữ"

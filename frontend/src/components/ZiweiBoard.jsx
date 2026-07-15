@@ -105,6 +105,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
   const [year, setYear] = useState('');
   const [hourIndex, setHourIndex] = useState(0);
   const [gender, setGender] = useState('Nam');
+  const [name, setName] = useState('');
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const [loading, setLoading] = useState(false);
@@ -178,7 +179,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
     return Math.floor((hour - 1) / 2) + 1;
   };
 
-  const handleZiweiComplete = async (dateStr, hourStr, genderStr) => {
+  const handleZiweiComplete = async (dateStr, hourStr, genderStr, nameStr) => {
     setError(null);
     setLoading(true);
     setResult(null);
@@ -193,7 +194,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
     try {
       setLoadingStep('Đang lập mệnh bàn Tử Vi...');
       setProgress(50);
-      const chartRes = await createZiweiChart(dateStr, hourIndexConverted, genderStr, uid);
+      const chartRes = await createZiweiChart(dateStr, hourIndexConverted, genderStr, uid, nameStr);
       const record = chartRes.data;
       setResult(record);
       setProgress(100);
@@ -208,7 +209,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
 
   useEffect(() => {
     if (autoSubmitInfo && autoSubmitInfo.dateStr) {
-      handleZiweiComplete(autoSubmitInfo.dateStr, autoSubmitInfo.hourStr, autoSubmitInfo.genderStr);
+      handleZiweiComplete(autoSubmitInfo.dateStr, autoSubmitInfo.hourStr, autoSubmitInfo.genderStr, autoSubmitInfo.nameStr || activeUser?.name);
       if (onClearAutoSubmit) onClearAutoSubmit();
     }
   }, [autoSubmitInfo]);
@@ -256,7 +257,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
     try {
       setLoadingStep('Đang lập mệnh bàn Tử Vi...');
       setProgress(50);
-      const chartRes = await createZiweiChart(formattedDate, hourIndexConverted, genderStr, uid);
+      const chartRes = await createZiweiChart(formattedDate, hourIndexConverted, genderStr, uid, activeUser.name);
       const record = chartRes.data;
       setResult(record);
       setProgress(100);
@@ -319,7 +320,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
     try {
       setLoadingStep('Đang lập mệnh bàn Tử Vi...');
       setProgress(50);
-      const chartRes = await createZiweiChart(formattedDate, hourIndex, gender, uid);
+      const chartRes = await createZiweiChart(formattedDate, hourIndex, gender, uid, name);
       const record = chartRes.data;
       setResult(record);
       setProgress(100);
@@ -508,6 +509,20 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Họ và tên */}
+            <div>
+              <label className="block text-xs font-black uppercase text-slate-500 tracking-wider mb-2.5 ml-1">
+                Họ và Tên (Không bắt buộc)
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Nhập họ và tên..."
+                className="w-full bg-slate-50 border border-slate-200 text-slate-905 text-sm rounded-2xl block p-3.5 font-bold transition-all focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 shadow-sm"
+              />
+            </div>
+
             {/* Giới Tính */}
             <div>
               <label id="ziwei-input-gender" className="block text-xs font-black uppercase text-slate-500 tracking-wider mb-2.5 ml-1">
@@ -744,9 +759,10 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
         <div className="space-y-12 animate-in fade-in duration-500">
           {/* Ép Vẽ lá số 12 cung truyền thống thông qua Registry ChartRenderer */}
           <ChartRenderer 
-            system={result.system || 'tu_vi'} 
+            system={result.system || 'ziwei'} 
             chartData={{
               ...result.chartData,
+              name: result.name || result.inputInfo?.name,
               solarDate: result.chartData?.solarDate || result.inputInfo?.date
             }} 
           />
@@ -978,7 +994,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
           const { day: d, month: m, year: y, hour: h } = updatedUser.baziInfo;
           const formattedDate = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
           const genderStr = updatedUser.gender === 0 ? 'Nữ' : 'Nam';
-          await handleZiweiComplete(formattedDate, String(h), genderStr);
+          await handleZiweiComplete(formattedDate, String(h), genderStr, updatedUser.name);
         }} 
       />
 

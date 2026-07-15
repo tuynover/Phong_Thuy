@@ -61,7 +61,7 @@ const calculateMenhQuai = (solarYear, gender) => {
 class BaziController {
     static async analyze(req, res) {
         try {
-            const { date, time, gender, userId, dayBoundaryMode } = req.body; // date: "dd/mm/yyyy" or "yyyy-mm-dd"
+            const { date, time, gender, userId, dayBoundaryMode, name } = req.body; // date: "dd/mm/yyyy" or "yyyy-mm-dd"
             if (!date || !time || gender === undefined) {
                 return res.status(400).json({ error: 'Missing date, time, or gender parameters' });
             }
@@ -99,6 +99,8 @@ class BaziController {
                         ...baziData, 
                         gender: dupRecord.inputInfo.gender,
                         recordId: dupRecord._id, 
+                        name: dupRecord.inputInfo.name,
+                        inputInfo: dupRecord.inputInfo,
                         aiInterpretation: dupRecord.aiInterpretation 
                     });
                 }
@@ -142,6 +144,8 @@ class BaziController {
                     ...baziData, 
                     gender: existingRecord.inputInfo.gender,
                     recordId: existingRecord._id, 
+                    name: existingRecord.inputInfo.name,
+                    inputInfo: existingRecord.inputInfo,
                     aiInterpretation: existingRecord.aiInterpretation 
                 });
             }
@@ -150,11 +154,13 @@ class BaziController {
             const yearVal = getYearFromDateStr(date);
             result.menhQuai = calculateMenhQuai(yearVal, parseInt(gender));
 
+            const formattedName = name?.trim() || `Bát Tự - ${parseInt(gender) === 1 ? 'Nam Mệnh' : 'Nữ Mệnh'}`;
+
             // Save to DB
             const record = new BaziRecord({
                 userId: uid,
                 idempotencyKey: idempotencyKey || `${uid}:${date}:${time}:${gender}:${dayBoundaryMode || 'midnight'}`,
-                inputInfo: { date, time, gender: parseInt(gender), dayBoundaryMode: dayBoundaryMode || 'midnight' },
+                inputInfo: { name: formattedName, date, time, gender: parseInt(gender), dayBoundaryMode: dayBoundaryMode || 'midnight' },
                 solarTimeline: result.solarTimeline,
                 tietKhiTimeline: result.tietKhiTimeline,
                 baziData: result,
@@ -179,6 +185,8 @@ class BaziController {
                 ...result, 
                 gender: parseInt(gender),
                 recordId: record._id, 
+                name: record.inputInfo.name,
+                inputInfo: record.inputInfo,
                 aiInterpretation: record.aiInterpretation 
             });
         } catch (error) {

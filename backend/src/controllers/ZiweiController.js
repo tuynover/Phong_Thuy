@@ -17,7 +17,7 @@ class ZiweiController {
         return res.status(400).json({ error: valResult.error });
       }
 
-      const { date, hour, gender, timezone, school, calendarType } = valResult.sanitized;
+      const { date, hour, gender, timezone, school, calendarType, name } = valResult.sanitized;
       const userId = req.body.userId || 'guest';
       const idempotencyKey = req.headers['idempotency-key'] || req.headers['Idempotency-Key'];
 
@@ -54,13 +54,15 @@ class ZiweiController {
       const metadata = { engine_version: "1.0.0", prompt_version: "tv_prompt_v1", knowledge_version: "tv_know_v1", calendar_type: calendarType, school, timezone };
       const formattedOutput = ZiweiFormatter.toStandardOutput(rawAstrolabe, recordId, metadata);
 
+      const formattedName = name?.trim() || `Tử Vi - ${gender} Mệnh`;
+
       // 5. Lưu bản ghi thô vào database
       const newRecord = await ZiweiRecord.create({
         _id: recordId,
         userId,
         system: 'ziwei',
         idempotencyKey: idempotencyKey || `${userId}:${chartHash}`,
-        inputInfo: { date, hour, gender, timezone, school, calendarType },
+        inputInfo: { name: formattedName, date, hour, gender, timezone, school, calendarType },
         chartHash,
         chartData: formattedOutput.chart_data,
         aiInterpretation: { summary: "", sections: [] }

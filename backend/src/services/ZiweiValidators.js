@@ -5,7 +5,7 @@ class ZiweiValidator {
    * @returns {Object} { isValid: boolean, error: string|null, sanitized: Object }
    */
   static validateBirthInfo(data) {
-    const { date, hour, gender, timezone = 7, school = 'bac_phai', calendarType = 'solar' } = data;
+    const { date, hour, gender, timezone = 7, school = 'bac_phai', calendarType = 'solar', name } = data;
 
     // 1. Validate Date (YYYY-MM-DD)
     if (!date || typeof date !== 'string') {
@@ -51,7 +51,8 @@ class ZiweiValidator {
         gender,
         timezone: tz,
         school,
-        calendarType
+        calendarType,
+        name: name ? String(name).trim() : ''
       }
     };
   }

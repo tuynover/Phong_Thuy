@@ -17,6 +17,7 @@ const baziRecordSchema = new mongoose.Schema({
     default: null
   },
   inputInfo: {
+    name: { type: String, default: "" },
     date: String, // e.g. "05/09/2004"
     time: String, // e.g. "14:30"
     gender: Number // 1 for Male, 0 for Female

@@ -4,6 +4,22 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
 
 ---
 
+## 📅 Phiên bản: Bổ sung trường Tên cho Lá số Bát Tự & Tử Vi (16/07/2026)
+
+### Database Schemas
+- **BaziRecord & ZiweiRecord Schemas**: Bổ sung trường `inputInfo.name` (mặc định chuỗi rỗng) để lưu trữ tên tùy chọn của lá số.
+
+### Backend
+- **ZiweiValidator**: Nhận diện và làm sạch trường `name` đầu vào.
+- **BaziController & ZiweiController**: Tự động sinh tên mặc định theo giới tính (`Bát Tự - Nam Mệnh`/`Nữ Mệnh` và `Tử Vi - Nam Mệnh`/`Nữ Mệnh`) nếu người dùng không nhập tên lá số. Lưu tên lá số vào cơ sở dữ liệu và trả về trong response.
+
+### Frontend
+- **BaziInput & ZiweiBoard**: Bổ sung ô nhập liệu "Họ và Tên (Không bắt buộc)" tương thích với phong cách thiết kế UI của hệ thống.
+- **BaziBoard & ZiweiChart**: Hiển thị tên lá số tại khu vực thông tin bản mệnh chính (chi tiết lá số và Trung Cung).
+- **HistoryBoard**: Hiển thị tên lá số trên tiêu đề các thẻ lịch sử của Bát Tự và Tử Vi.
+
+---
+
 ## 📅 Phiên bản: Thuật toán Bát tự Ngũ hành 5.1 - Nâng cấp Cự Ly & Tương Tác Cản Trở (14/07/2026)
 
 ### Backend (Tính toán học thuật Bát tự)
