@@ -40,9 +40,9 @@ app.use(express.json());
 app.use(auditLogger);
 
 // Health check route - extremely lightweight to keep the server awake and monitor uptime
-app.get('/health', (req, res) => {
-  res.status(200).send('ok');
-});
+//app.get('/health', (req, res) => {
+  //res.status(200).send('ok');
+//});
 
 // Swagger UI Documentation Route
 const swaggerUi = require('swagger-ui-express');
@@ -60,7 +60,7 @@ app.listen(PORT, () => {
   startScheduler();
 
   // Start self-pinging to keep server awake on Render or other hosting providers
-  const https = require('https');
+  /*const https = require('https');
   const http = require('http');
   const url = process.env.SERVER_URL || process.env.RENDER_EXTERNAL_URL;
   if (url) {
@@ -79,5 +79,5 @@ app.listen(PORT, () => {
     }, 180000); // 3 minutes
   } else {
     logger.info('[Self-Ping] Skipped: SERVER_URL or RENDER_EXTERNAL_URL env variable is not defined.');
-  }
+  }*/
 });
