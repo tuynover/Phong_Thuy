@@ -4,6 +4,24 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
 
 ---
 
+## 📅 Phiên bản: Thuật toán Bát tự Ngũ hành 5.2 - Lực Lượng Can Chi Cột (17/07/2026)
+
+### Backend (Tính toán học thuật Bát tự)
+- **Tích Hợp Lực Lượng Can Chi (Tải, Phúc, Song Thể, Che Đầu, Tiết Cước):** Tích hợp 60 tổ hợp tương tác nội tại Trụ (dọc) dựa trên 5 hình ảnh học thuật. Điều phối trực tiếp tỷ lệ gia tăng/giảm thiểu vào điểm nền thô (Base Weight) của Stems và Branches của từng Trụ trước khi tham gia các tương tác ngoại vi.
+- **Xác nhận Học thuật Cung Mệnh & Thai Nguyên:** Đánh giá toán học công thức tính Cung Mệnh và Thai Nguyên từ Trụ Tháng/Trụ Giờ. Công thức đệ trình hoàn toàn chính xác với logic của thư viện `lunar-javascript` đang sử dụng.
+
+### Tài liệu (Documentation)
+- **Cập nhật Tài liệu:** Tài liệu hóa chi tiết cơ cấu Bát tự 5.2 và công thức toán học Cung Mệnh/Thai Nguyên trong [BUSINESS_RULES.md](file:///t:/Phongthuy/docs/BUSINESS_RULES.md#L135-L150).
+
+---
+
+## 📅 Phiên bản: Sửa lỗi hiển thị sai Giới tính khi xem Lịch sử Bát Tự (16/07/2026)
+
+### Frontend
+- **UserApp.jsx (`handleViewHistoricalBazi`)**: Khắc phục lỗi hiển thị giới tính "Nam" khi xem chi tiết lá số Bát Tự từ lịch sử mặc dù bản ghi là "Nữ". Đã bổ sung việc truyền các trường `gender`, `name` và `inputInfo` từ `record.inputInfo` vào state `baziResult` khi nạp chi tiết từ lịch sử để đồng bộ với cấu trúc dữ liệu của API phân tích Bát Tự chính.
+
+---
+
 ## 📅 Phiên bản: Bổ sung trường Tên cho Lá số Bát Tự & Tử Vi (16/07/2026)
 
 ### Database Schemas
@@ -12,6 +30,11 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
 ### Backend
 - **ZiweiValidator**: Nhận diện và làm sạch trường `name` đầu vào.
 - **BaziController & ZiweiController**: Tự động sinh tên mặc định theo giới tính (`Bát Tự - Nam Mệnh`/`Nữ Mệnh` và `Tử Vi - Nam Mệnh`/`Nữ Mệnh`) nếu người dùng không nhập tên lá số. Lưu tên lá số vào cơ sở dữ liệu và trả về trong response.
+- **Sửa lỗi Địa Chi Bán Hội (seasonalGroups count bug)**: Sửa lỗi trong `BaziAnalyzer.js` đếm trùng các chi cùng loại (ví dụ: `Tuất - Tuất` trong lá số `Mùi - Tuất - Tuất - Dần`) thành mối quan hệ "Bán Hội" (Phương Tây Kim cục). Thuật toán hiện tại yêu cầu các chi phải là duy nhất (distinct) để tạo thành nhóm Phương hội.
+- **Nâng cấp thuật toán Tam Hợp / Bán Tam Hợp / Củng Hợp**: Tách biệt thành 2 trường hợp chính trong `BaziAnalyzer.js`:
+  - Có Đế Vượng (Bán Tam Hợp thực sự): cộng điểm hệ số nhân bình thường (`+5%`).
+  - Không có Đế Vượng (Củng Hợp, ví dụ `Dần - Tuất` khuyết `Ngọ`): cộng điểm ít hơn (`+2%`). Nếu Thiên can lộ hành dẫn hóa tương ứng (ví dụ `Bính`/`Đinh` cho Hỏa cục), điểm cộng được nâng lên bằng lúc có Đế Vượng (`+5%`).
+  - Tích hợp kiểm tra xung sát (Lục Xung): Nếu bất kỳ địa chi nào trong tổ hợp hợp cục bị xung khắc trực tiếp bởi chi khác trong bản mệnh (ví dụ `Thân` xung `Dần`), hợp lực bị giải tỏa và không cộng điểm (`+0%`).
 
 ### Frontend
 - **BaziInput & ZiweiBoard**: Bổ sung ô nhập liệu "Họ và Tên (Không bắt buộc)" tương thích với phong cách thiết kế UI của hệ thống.

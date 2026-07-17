@@ -134,6 +134,20 @@ Tác vụ chạy định kỳ lúc nửa đêm của `NotificationScheduler.js` 
     *   *Cặp chi (Xung, Hợp, Bán tam hợp):* Kề nhau ($\times 1.0$), Cách 1 trụ ($\times 0.6$), Cách 2 trụ ($\times 0.3$).
     *   *Bộ 3 chi (Tam Hợp, Tam Hội):* Liền kề ($\times 1.0$), Có 1 chi rời rạc ($\times 0.7$), Rời rạc hoàn toàn ($\times 0.5$).
 
+### 5.8 Lực Lượng Can Chi Nội Tại Trụ (Bazi 5.2 Upgrade)
+*   **Nguyên lý:** Can và Chi của từng Trụ có mối tương tác dọc nội tại, ảnh hưởng trực tiếp đến sức mạnh nền của chúng trước khi tham gia tương sinh/khắc ngoại vi.
+*   **Các nhóm tổ hợp:**
+    *   *Tải (Chi sinh Can - 12 Can Chi):* Đỡ Can lên $\rightarrow$ Can tăng $+20\%$ đến $+30\%$, Chi giảm $-20\%$ đến $-30\%$. Ngoại lệ Canh Thìn (魁罡) Can $+20\%$, Chi $+30\%$.
+    *   *Phúc (Can sinh Chi - 12 Can Chi):* Xả khí Can $\rightarrow$ Can giảm $-30\%$, Chi tăng $+30\%$.
+    *   *Song Thể (Đồng hành - 12 Can Chi):* Can Chi cộng hưởng hỗ trợ nhau $\rightarrow$ Can tăng $+50\%$, Chi tăng $+50\%$.
+    *   *Che Đầu (Chi khắc Can - 12 Can Chi):* Đè đầu Can xuống $\rightarrow$ Can giảm $-30\%$ (Giáp Thìn $-0\%$), Chi giảm từ $-50\%$ đến $-70\%$.
+    *   *Tiết Cước (Can khắc Chi - 12 Can Chi):* Can đè Chi xuống $\rightarrow$ Can giảm $-40\%$ hoặc $-50\%$, Chi giảm $-25\%$ hoặc $-30\%$.
+
+### 5.9 Công thức Cung Mệnh & Thai Nguyên chuẩn hóa
+*   **Địa chi Cung Mệnh:** $26 - (\text{Chi Tháng} + \text{Chi Giờ}) \pmod{12}$ (với Dần = 1).
+*   **Thiên can Cung Mệnh:** $\text{Can Cung Mệnh} = \text{Can Tháng} + (\text{Chi Cung Mệnh} - \text{Chi Tháng}) \pmod{10}$.
+*   **Thai Nguyên (Conception Palace):** $\text{Can Thai Nguyên} = \text{Can Tháng} + 1 \pmod{10}$ và $\text{Chi Thai Nguyên} = \text{Chi Tháng} + 3 \pmod{12}$.
+
 
 
 

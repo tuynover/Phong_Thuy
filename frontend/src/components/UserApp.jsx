@@ -310,6 +310,9 @@ export default function UserApp({ onSwitchToAdmin }) {
       ...record.baziData,
       _id: id,
       recordId: id,
+      gender: record.inputInfo?.gender,
+      name: record.inputInfo?.name,
+      inputInfo: record.inputInfo,
       aiInterpretation: record.aiInterpretation,
       rating: record.rating,
       feedback: record.feedback

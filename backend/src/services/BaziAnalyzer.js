@@ -469,6 +469,84 @@ class BaziAnalyzer {
             hour: config.chiWeight // 10
         };
 
+        // Bazi 5.2 - Lực Lượng Can Chi (Tải, Phúc, Song Thể, Che Đầu, Tiết Cước)
+        const canChiAdjustments = {
+            // 1. TẢI (Chi sinh Can)
+            'Giáp Tý': { can: 0.20, chi: -0.20 },
+            'Ất Hợi': { can: 0.30, chi: -0.30 },
+            'Bính Dần': { can: 0.30, chi: -0.30 },
+            'Đinh Mão': { can: 0.20, chi: -0.20 },
+            'Kỷ Tỵ': { can: 0.30, chi: -0.30 },
+            'Mậu Ngọ': { can: 0.30, chi: -0.30 },
+            'Canh Thìn': { can: 0.20, chi: 0.30 },
+            'Canh Tuất': { can: 0.30, chi: -0.30 },
+            'Tân Mùi': { can: 0.20, chi: -0.20 },
+            'Tân Sửu': { can: 0.30, chi: -0.30 },
+            'Nhâm Thân': { can: 0.30, chi: -0.30 },
+            'Quý Dậu': { can: 0.20, chi: -0.20 },
+            // 2. PHÚC (Can sinh Chi)
+            'Giáp Ngọ': { can: -0.30, chi: 0.30 },
+            'Ất Tỵ': { can: -0.30, chi: 0.30 },
+            'Bính Tuất': { can: -0.30, chi: 0.30 },
+            'Bính Thìn': { can: -0.30, chi: 0.30 },
+            'Đinh Mùi': { can: -0.30, chi: 0.30 },
+            'Đinh Sửu': { can: -0.30, chi: 0.30 },
+            'Mậu Thân': { can: -0.30, chi: 0.30 },
+            'Kỷ Dậu': { can: -0.30, chi: 0.30 },
+            'Canh Tý': { can: -0.30, chi: 0.30 },
+            'Tân Hợi': { can: -0.30, chi: 0.30 },
+            'Nhâm Dần': { can: -0.30, chi: 0.30 },
+            'Quý Mão': { can: -0.30, chi: 0.30 },
+            // 3. SONG THỂ (Đồng hành)
+            'Giáp Dần': { can: 0.50, chi: 0.50 },
+            'Ất Mão': { can: 0.50, chi: 0.50 },
+            'Bính Ngọ': { can: 0.50, chi: 0.50 },
+            'Đinh Tỵ': { can: 0.50, chi: 0.50 },
+            'Kỷ Mùi': { can: 0.50, chi: 0.50 },
+            'Kỷ Sửu': { can: 0.50, chi: 0.50 },
+            'Mậu Thìn': { can: 0.50, chi: 0.50 },
+            'Mậu Tuất': { can: 0.50, chi: 0.50 },
+            'Canh Thân': { can: 0.50, chi: 0.50 },
+            'Tân Dậu': { can: 0.50, chi: 0.50 },
+            'Nhâm Tý': { can: 0.50, chi: 0.50 },
+            'Quý Hợi': { can: 0.50, chi: 0.50 },
+            // 4. CHE ĐẦU (Chi khắc Can hoặc Can khắc Chi mạnh)
+            'Giáp Thìn': { can: 0.0, chi: -0.70 },
+            'Giáp Tuất': { can: -0.30, chi: -0.50 },
+            'Ất Sửu': { can: -0.30, chi: -0.50 },
+            'Ất Mùi': { can: -0.30, chi: -0.50 },
+            'Bính Thân': { can: -0.30, chi: -0.45 },
+            'Đinh Dậu': { can: -0.30, chi: -0.45 },
+            'Mậu Tý': { can: -0.30, chi: -0.45 },
+            'Kỷ Hợi': { can: -0.30, chi: -0.45 },
+            'Canh Dần': { can: -0.30, chi: -0.45 },
+            'Tân Mão': { can: -0.30, chi: -0.45 },
+            'Nhâm Ngọ': { can: -0.30, chi: -0.45 },
+            'Quý Tỵ': { can: -0.30, chi: -0.45 },
+            // 5. TIẾT CƯỚC (Can khắc Chi hoặc Chi khắc Can mạnh)
+            'Giáp Thân': { can: -0.50, chi: -0.25 },
+            'Ất Dậu': { can: -0.50, chi: -0.25 },
+            'Bính Tý': { can: -0.50, chi: -0.25 },
+            'Đinh Hợi': { can: -0.50, chi: -0.25 },
+            'Mậu Dần': { can: -0.50, chi: -0.25 },
+            'Kỷ Mão': { can: -0.50, chi: -0.25 },
+            'Canh Ngọ': { can: -0.50, chi: -0.25 },
+            'Tân Tỵ': { can: -0.50, chi: -0.25 },
+            'Nhâm Tuất': { can: -0.40, chi: -0.30 },
+            'Nhâm Thìn': { can: -0.50, chi: -0.25 },
+            'Quý Sửu': { can: -0.40, chi: -0.30 },
+            'Quý Mùi': { can: -0.50, chi: -0.25 }
+        };
+
+        pillars.forEach(p => {
+            const key = `${canChi[p].gan} ${canChi[p].zhi}`;
+            const adj = canChiAdjustments[key];
+            if (adj) {
+                stemWeights[p] *= (1 + adj.can);
+                branchWeights[p] *= (1 + adj.chi);
+            }
+        });
+
         // Ratios of hidden stems in a branch (1 Can = 100%, Ngọ/Hợi = 70/30, 3 Can = 60/30/10)
         const getBranchRatios = (zhi) => {
             if (['Tý', 'Mão', 'Dậu'].includes(zhi)) {
@@ -799,7 +877,8 @@ class BaziAnalyzer {
         };
 
         Object.keys(seasonalGroups).forEach(el => {
-            const count = countSeasonalBranches(seasonalGroups[el]);
+            const matchedUnique = [...new Set(branchList.filter(z => seasonalGroups[el].includes(z)))];
+            const count = matchedUnique.length;
             if (count === 3) {
                 ensureSeedBase(el);
                 const w_chi = getBranchCombinationDistance(seasonalGroups[el]);
@@ -807,37 +886,98 @@ class BaziAnalyzer {
                 analysis.relations.tamHop.push(seasonalGroups[el].join('-') + ' (Hội)');
             } else if (count === 2) {
                 ensureSeedBase(el);
-                const matched = branchList.filter(z => seasonalGroups[el].includes(z));
-                const w_chi = getBranchCombinationDistance(matched);
+                const w_chi = getBranchCombinationDistance(matchedUnique);
                 elementMultipliers[el] += 0.05 * w_chi; // +5% Bán Hội
-                analysis.relations.tamHop.push(matched.join('-') + ' (Bán Hội)');
+                analysis.relations.tamHop.push(matchedUnique.join('-') + ' (Bán Hội)');
             }
         });
 
         const hasSubset = (arr, subset) => subset.every(v => arr.includes(v));
         const occupiedBranches = new Set();
 
-        // High priority: Tam Hợp (20% bonus) & Bán Tam Hợp (5% bonus)
-        const highPriorityRelations = ['tamHop', 'banTamHop'];
-        highPriorityRelations.forEach(relType => {
-            const groups = this.rules.branchRelations[relType];
-            groups.forEach(group => {
-                const targetBranches = group.branches || group;
-                if (!Array.isArray(targetBranches)) return;
+        // Helper check clash into combination
+        const hasClashIntoCombination = (targetBranches) => {
+            const clashes = {
+                'Tý': 'Ngọ', 'Ngọ': 'Tý',
+                'Sửu': 'Mùi', 'Mùi': 'Sửu',
+                'Dần': 'Thân', 'Thân': 'Dần',
+                'Mão': 'Dậu', 'Dậu': 'Mão',
+                'Thìn': 'Tuất', 'Tuất': 'Thìn',
+                'Tỵ': 'Hợi', 'Hợi': 'Tỵ'
+            };
+            return targetBranches.some(tb => branchList.includes(clashes[tb]));
+        };
 
-                if (hasSubset(branchList, targetBranches)) {
-                    analysis.relations[relType].push(targetBranches.join('-'));
-                    targetBranches.forEach(z => occupiedBranches.add(z));
-                    
-                    const domElem = this.rules.branchElement[targetBranches[1]];
-                    if (domElem) {
-                        ensureSeedBase(domElem);
-                        const pctBonus = relType === 'tamHop' ? 0.20 : 0.05;
-                        const w_chi = getBranchCombinationDistance(targetBranches);
-                        elementMultipliers[domElem] += pctBonus * w_chi;
-                    }
+        // 1. Tam Hợp (20% bonus)
+        const tamHopGroups = this.rules.branchRelations.tamHop;
+        tamHopGroups.forEach(group => {
+            const targetBranches = group.branches || group;
+            if (!Array.isArray(targetBranches)) return;
+            if (hasSubset(branchList, targetBranches)) {
+                const isClashed = hasClashIntoCombination(targetBranches);
+                analysis.relations.tamHop.push(targetBranches.join('-') + (isClashed ? ' (Bị xung phá)' : ''));
+                targetBranches.forEach(z => occupiedBranches.add(z));
+
+                const domElem = group.element || this.rules.branchElement[group.leader];
+                if (domElem && !isClashed) {
+                    ensureSeedBase(domElem);
+                    const w_chi = getBranchCombinationDistance(targetBranches);
+                    elementMultipliers[domElem] += 0.20 * w_chi;
                 }
-            });
+            }
+        });
+
+        // 2. Bán Tam Hợp (Có Đế Vượng - 5% bonus)
+        const banTamHopGroups = this.rules.branchRelations.banTamHop;
+        banTamHopGroups.forEach(group => {
+            const targetBranches = group.branches || group;
+            if (!Array.isArray(targetBranches)) return;
+            if (hasSubset(branchList, targetBranches)) {
+                const matchedUnique = [...new Set(branchList.filter(z => targetBranches.includes(z)))];
+                if (matchedUnique.length < 2) return;
+
+                const isClashed = hasClashIntoCombination(targetBranches);
+                analysis.relations.banTamHop.push(targetBranches.join('-') + (isClashed ? ' (Bị xung phá)' : ''));
+                targetBranches.forEach(z => occupiedBranches.add(z));
+
+                const domElem = group.element;
+                if (domElem && !isClashed) {
+                    ensureSeedBase(domElem);
+                    const w_chi = getBranchCombinationDistance(targetBranches);
+                    elementMultipliers[domElem] += 0.05 * w_chi;
+                }
+            }
+        });
+
+        // 3. Củng Hợp (Bán Tam Hợp không có Đế Vượng)
+        const cungHopGroups = [
+            { branches: ["Thân", "Thìn"], element: "Thuy" },
+            { branches: ["Dần", "Tuất"], element: "Hoa" },
+            { branches: ["Hợi", "Mùi"], element: "Moc" },
+            { branches: ["Tỵ", "Sửu"], element: "Kim" }
+        ];
+        cungHopGroups.forEach(group => {
+            const targetBranches = group.branches;
+            if (hasSubset(branchList, targetBranches)) {
+                const matchedUnique = [...new Set(branchList.filter(z => targetBranches.includes(z)))];
+                if (matchedUnique.length < 2) return;
+
+                const isClashed = hasClashIntoCombination(targetBranches);
+                analysis.relations.banTamHop.push(targetBranches.join('-') + ' (Củng Hợp)' + (isClashed ? ' (Bị xung phá)' : ''));
+                targetBranches.forEach(z => occupiedBranches.add(z));
+
+                const domElem = group.element;
+                if (domElem && !isClashed) {
+                    ensureSeedBase(domElem);
+                    const w_chi = getBranchCombinationDistance(targetBranches);
+                    
+                    const stemList = pillars.map(p => canChi[p].gan);
+                    const hasCanLo = stemList.some(s => this.rules.stemElement[s] === domElem);
+                    
+                    const pctBonus = hasCanLo ? 0.05 : 0.02; // Thiên can dẫn hóa thì cộng 5%, ngược lại cộng 2%
+                    elementMultipliers[domElem] += pctBonus * w_chi;
+                }
+            }
         });
 
         // Medium priority: Lục Hợp (12% shared -> +6% each)
