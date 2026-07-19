@@ -29,6 +29,77 @@ const toVi = (hanStr) => {
     return result.trim();
 };
 
+const TU_LENH_RULES = {
+    'Dần': [
+        { limit: 5, stem: 'Mậu' },
+        { limit: 10, stem: 'Bính' },
+        { limit: Infinity, stem: 'Giáp' }
+    ],
+    'Mão': [
+        { limit: 7, stem: 'Giáp' },
+        { limit: Infinity, stem: 'Ất' }
+    ],
+    'Thìn': [
+        { limit: 7, stem: 'Ất' },
+        { limit: 12, stem: 'Quý' },
+        { limit: Infinity, stem: 'Mậu' }
+    ],
+    'Tỵ': [
+        { limit: 7, stem: 'Mậu' },
+        { limit: 12, stem: 'Canh' },
+        { limit: Infinity, stem: 'Bính' }
+    ],
+    'Ngọ': [
+        { limit: 7, stem: 'Bính' },
+        { limit: Infinity, stem: 'Đinh' }
+    ],
+    'Mùi': [
+        { limit: 7, stem: 'Đinh' },
+        { limit: 12, stem: 'Ất' },
+        { limit: Infinity, stem: 'Kỷ' }
+    ],
+    'Thân': [
+        { limit: 5, stem: 'Mậu' },
+        { limit: 10, stem: 'Nhâm' },
+        { limit: Infinity, stem: 'Canh' }
+    ],
+    'Dậu': [
+        { limit: 7, stem: 'Canh' },
+        { limit: Infinity, stem: 'Tân' }
+    ],
+    'Tuất': [
+        { limit: 7, stem: 'Tân' },
+        { limit: 12, stem: 'Đinh' }, // 5 ngày đinh
+        { limit: Infinity, stem: 'Mậu' }
+    ],
+    'Hợi': [
+        { limit: 5, stem: 'Mậu' },
+        { limit: 10, stem: 'Giáp' },
+        { limit: Infinity, stem: 'Nhâm' }
+    ],
+    'Tý': [
+        { limit: 7, stem: 'Nhâm' },
+        { limit: Infinity, stem: 'Quý' }
+    ],
+    'Sửu': [
+        { limit: 7, stem: 'Quý' },
+        { limit: 12, stem: 'Tân' }, // 5 ngày tân
+        { limit: Infinity, stem: 'Kỷ' }
+    ]
+};
+
+const getTuLenhCan = (monthZhiVi, days) => {
+    const rules = TU_LENH_RULES[monthZhiVi];
+    if (!rules) return '';
+    for (const rule of rules) {
+        if (days <= rule.limit) {
+            return rule.stem;
+        }
+    }
+    return '';
+};
+
+
 const THAP_THAN = {
     "比肩": "Tỷ Kiên", "劫财": "Kiếp Tài", "食神": "Thực Thần", "伤官": "Thương Quan",
     "偏财": "Thiên Tài", "正财": "Chính Tài", "七杀": "Thất Sát", "正官": "Chính Quan",
@@ -555,8 +626,42 @@ class BaziAnalyzer {
         const solarTimeline = `${String(day).padStart(2,'0')}/${String(month).padStart(2,'0')}/${year} ${String(hour).padStart(2,'0')}:${String(minute).padStart(2,'0')}`;
         const tietKhiTimeline = `${toVi(baziLocal.getTimeGan() + baziLocal.getTimeZhi())} - ${toVi(baziLocal.getDayGan() + baziLocal.getDayZhi())} - ${toVi(baziAdjusted.getMonthGan() + baziAdjusted.getMonthZhi())} - ${toVi(baziAdjusted.getYearGan() + baziAdjusted.getYearZhi())}`;
 
-        const prevJie = lunarLocal.getPrevJieQi();
+        const JIE_NAMES = ['立春', '惊蛰', '清明', '立夏', '芒种', '小暑', '立秋', '白露', '寒露', '立冬', '大雪', '小寒'];
+        let prevJie = lunarAdjusted.getPrevJieQi();
         const tietKhiName = prevJie ? (JIE_QI_VI[prevJie.getName()] || prevJie.getName()) : '';
+
+        // For Bazi month day-count, we must calculate elapsed days since the start of the Tiết (Jie) term, NOT the Trung khí (Qi) term.
+        let prevJieForDayCount = prevJie;
+        if (prevJieForDayCount && !JIE_NAMES.includes(prevJieForDayCount.getName())) {
+            const tempSolar = prevJieForDayCount.getSolar().nextDay(-2);
+            prevJieForDayCount = tempSolar.getLunar().getPrevJieQi();
+        }
+
+        // Calculate days elapsed since the start of the Bazi month (Tiết term)
+        let tuLenhCan = '';
+        if (prevJieForDayCount) {
+            const jieSolar = prevJieForDayCount.getSolar();
+            const birthDate = new Date(
+                solarAdjusted.getYear(),
+                solarAdjusted.getMonth() - 1,
+                solarAdjusted.getDay(),
+                solarAdjusted.getHour(),
+                solarAdjusted.getMinute(),
+                solarAdjusted.getSecond()
+            );
+            const jieDate = new Date(
+                jieSolar.getYear(),
+                jieSolar.getMonth() - 1,
+                jieSolar.getDay(),
+                jieSolar.getHour(),
+                jieSolar.getMinute(),
+                jieSolar.getSecond()
+            );
+            const msDiff = birthDate.getTime() - jieDate.getTime();
+            const daysElapsed = Math.max(1, Math.floor(msDiff / (24 * 60 * 60 * 1000)) + 1);
+            const monthZhiVi = toVi(baziAdjusted.getMonthZhi());
+            tuLenhCan = getTuLenhCan(monthZhiVi, daysElapsed);
+        }
 
         // Standard Lunar calendar birth info (Shifts strictly at Lunar New Year Mùng 1 Tết)
         const lunarDateStr = `ngày ${lunarLocal.getDay()} tháng ${lunarLocal.getMonth()} năm ${lunarLocal.getYear()} Âm lịch`;
@@ -1810,6 +1915,7 @@ class BaziAnalyzer {
             lunarDateStr,
             lunarYear,
             tietKhiName,
+            tuLenhCan,
             canChi,
             taiNguyen,
             cungMenh,

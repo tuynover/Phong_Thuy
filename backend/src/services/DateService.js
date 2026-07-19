@@ -247,7 +247,12 @@ class DateService {
         const userNaYin = userYearInfo.naYin;
         const userElement = getElementFromNayin(userNaYin);
 
-        const lunarMonth = lunar.getMonth();
+        // Adjust timezone (+1 hour for GMT+8 Beijing astronomical solar terms) for Year, Month, and related boundaries
+        const solar = lunar.getSolar();
+        const solarAdjusted = solar.nextHour(1);
+        const lunarAdjusted = solarAdjusted.getLunar();
+
+        const lunarMonth = lunarAdjusted.getMonth();
         const isSatChu = SAT_CHU_MAP[Math.abs(lunarMonth)] === dayZhi;
         const isThoTu = THO_TU_MAP[Math.abs(lunarMonth)] === dayZhi;
         const isVangVong = VANG_VONG_MAP[Math.abs(lunarMonth)] === dayZhi;
@@ -327,7 +332,7 @@ class DateService {
         }
 
         // 9. Thập Nhị Kiến Trừ (Trực)
-        const truc = TRUC_VI[lunar.getZhiXing()] || lunar.getZhiXing();
+        const truc = TRUC_VI[lunarAdjusted.getZhiXing()] || lunarAdjusted.getZhiXing();
         const actRules = mapActivityKeywords(activity);
         if (actRules) {
             if (actRules.goodTruc.includes(truc)) {
@@ -384,11 +389,11 @@ class DateService {
             positiveFactors,
             negativeFactors,
             lunarDateInfo: {
-                year: lunar.getYear(),
-                month: lunar.getMonth(),
+                year: lunarAdjusted.getYear(),
+                month: lunarAdjusted.getMonth(),
                 day: lunar.getDay(),
-                yearCanChi: toViCanChi(lunar.getYearInGanZhiExact()),
-                monthCanChi: toViCanChi(lunar.getMonthInGanZhiExact()),
+                yearCanChi: toViCanChi(lunarAdjusted.getYearInGanZhiExact()),
+                monthCanChi: toViCanChi(lunarAdjusted.getMonthInGanZhiExact()),
                 dayCanChi,
                 dayZhi,
                 truc,

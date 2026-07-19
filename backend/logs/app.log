@@ -29274,3 +29274,185 @@ Stack: Error: getaddrinfo ENOTFOUND phong-thuy-backend-gz15.onrender.com
 [2026-07-19 20:08:34.520] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 249ms] Hoàn thành: Phản hồi thành công (304)
 [2026-07-19 20:09:35.263] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
 [2026-07-19 20:09:35.484] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 222ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-19 20:10:11.087] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-19 20:10:36.264] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-19 20:10:36.638] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 375ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-19 20:11:37.271] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-19 20:11:37.514] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 245ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-19 20:11:58.218] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-19 20:11:58.425] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 208ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-19 20:12:00.300] [INFO] [SSE] User client [019e594f-5fb3-701e-916a-d6ce37d424bd] disconnected.
+[2026-07-19 20:20:11.098] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-19 20:30:11.115] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-19 20:40:11.119] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-19 20:50:11.139] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-19 21:00:11.144] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-19 21:10:11.148] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-19 21:20:11.153] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-19 21:30:11.158] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-19 21:40:11.157] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-19 21:50:11.171] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-19 22:00:11.172] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-19 22:10:11.182] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-19 22:20:11.188] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-19 22:30:11.202] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-19 22:40:11.206] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-19 22:50:11.211] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-19 23:00:11.222] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-19 23:10:11.225] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-19 23:20:11.234] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-19 23:30:11.235] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-19 23:40:11.236] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-19 23:50:11.236] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-20 00:00:11.243] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-20 00:02:18.264] [INFO] Backend is running on port 3001
+[2026-07-20 00:02:18.281] [INFO] [NotificationScheduler] Started successfully.
+[2026-07-20 00:02:19.166] [INFO] MongoDB Connected: ac-jk9y7ee-shard-00-00.a5rqrhx.mongodb.net
+[2026-07-20 00:02:23.293] [INFO] [NotificationScheduler] Running daily check...
+[2026-07-20 00:02:23.299] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-20 00:02:23.295] [INFO] [NotificationScheduler] Running daily credit increment...
+[2026-07-20 00:02:23.397] [INFO] [NotificationScheduler] Daily credit increment completed. Updated 15 users.
+[2026-07-20 00:02:23.398] [INFO] [NotificationScheduler] Purging soft-deleted users inactive for 30+ days...
+[2026-07-20 00:02:23.463] [INFO] [NotificationScheduler] Found 0 users to purge.
+[2026-07-20 00:02:23.918] [INFO] [NotificationScheduler] Created UI notification for user cobatuoc@gmail.com: Ứng kỳ còn 1 ngày
+[2026-07-20 00:02:24.517] [INFO] [SSE] Broadcasting event [user_updated] to all admins
+[2026-07-20 00:02:33.748] [INFO] [User: anonymous] [Action: GET /api/auth/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/auth/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZTU5NGYtNWZiMy03MDFlLTkxNmEtZDZjZTM3ZDQyNGJkIiwidG9rZW5WZXJzaW9uIjoxOX0sImlhdCI6MTc4Mzg2NjU4MSwiZXhwIjoxNzg0NDcxMzgxfQ.8q-TodzENIkz3rpI30iVwWjeMwBzn_g5UX7oRIFKNH8
+[2026-07-20 00:02:33.763] [WARN] [User: anonymous] [Action: GET /api/auth/events] [IP: ::1] [Duration: 13ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (401)
+[2026-07-20 00:02:33.772] [INFO] [User: anonymous] [Action: GET /api/auth/me] [IP: ::1] Yêu cầu bắt đầu: GET /api/auth/me
+[2026-07-20 00:02:33.779] [WARN] [User: anonymous] [Action: GET /api/auth/me] [IP: ::1] [Duration: 9ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (401)
+[2026-07-20 00:02:33.789] [WARN] [User: anonymous] [Action: GET /api/auth/me] [IP: ::1] [Duration: 5ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (401)
+[2026-07-20 00:02:33.785] [INFO] [User: anonymous] [Action: GET /api/auth/me] [IP: ::1] Yêu cầu bắt đầu: GET /api/auth/me
+[2026-07-20 00:02:34.127] [INFO] [User: anonymous] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 00:02:34.131] [WARN] [User: anonymous] [Action: GET /api/notifications] [IP: ::1] [Duration: 4ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (401)
+[2026-07-20 00:02:34.234] [INFO] [User: anonymous] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 00:02:34.237] [WARN] [User: anonymous] [Action: GET /api/notifications] [IP: ::1] [Duration: 4ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (401)
+[2026-07-20 00:02:51.418] [INFO] [User: guest] [Action: Lập Bản Đồ Bát Tự] [IP: ::1] Yêu cầu bắt đầu: POST /api/bazi/analyze | Params: {"date":"23/01/1970","time":"09:30","gender":1,"userId":"guest","name":""}
+[2026-07-20 00:02:51.858] [INFO] [SSE] Broadcasting event [new_calculation] to all admins
+[2026-07-20 00:02:51.870] [INFO] [User: guest] [Action: Lập Bản Đồ Bát Tự] [IP: ::1] [Duration: 451ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-20 00:05:56.903] [INFO] [User: guest] [Action: Lập Bản Đồ Bát Tự] [IP: ::1] Yêu cầu bắt đầu: POST /api/bazi/analyze | Params: {"date":"19/10/1984","time":"07:30","gender":1,"userId":"guest","name":""}
+[2026-07-20 00:05:57.194] [INFO] [SSE] Broadcasting event [new_calculation] to all admins
+[2026-07-20 00:05:57.200] [INFO] [User: guest] [Action: Lập Bản Đồ Bát Tự] [IP: ::1] [Duration: 297ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-20 00:12:18.294] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-20 00:17:11.824] [INFO] [User: cobatuoc@gmail.com] [Action: Đăng nhập] [IP: ::1] Yêu cầu bắt đầu: POST /api/auth/login | Params: {"email":"cobatuoc@gmail.com","password":"******"}
+[2026-07-20 00:17:11.993] [INFO] [User: cobatuoc@gmail.com] [Action: Đăng nhập] Đăng nhập thành công cho tài khoản [cobatuoc@gmail.com] (Tên: Tuyen).
+[2026-07-20 00:17:11.999] [INFO] [User: cobatuoc@gmail.com] [Action: Đăng nhập] [IP: ::1] [Duration: 174ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-20 00:17:12.066] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Liên kết Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: PUT /api/history/bazi/019f7b57-7578-774c-8b4f-a13eaf97b0a2/link | Params: {"userId":"019e594f-5fb3-701e-916a-d6ce37d424bd"}
+[2026-07-20 00:17:12.077] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 00:17:12.084] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/auth/me] [IP: ::1] Yêu cầu bắt đầu: GET /api/auth/me
+[2026-07-20 00:17:12.131] [INFO] [User: anonymous] [Action: GET /api/auth/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/auth/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZTU5NGYtNWZiMy03MDFlLTkxNmEtZDZjZTM3ZDQyNGJkIiwidG9rZW5WZXJzaW9uIjoxOX0sImlhdCI6MTc4NDQ4MTQzMSwiZXhwIjoxNzg1MDg2MjMxfQ.ovteEuRyHqhf_iwByuItML7lGXpsdnCyR5xX01zTZEM
+[2026-07-20 00:17:12.153] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/auth/me] [IP: ::1] [Duration: 71ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-20 00:17:12.199] [INFO] [SSE] User client [019e594f-5fb3-701e-916a-d6ce37d424bd] connected. Total sessions: 1
+[2026-07-20 00:17:12.273] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 196ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-20 00:17:12.277] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 00:17:12.421] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Liên kết Lịch Sử Bát Tự] [IP: ::1] [Duration: 416ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-20 00:17:12.471] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 194ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 00:17:13.073] [INFO] [SSE] Broadcasting event [user_updated] to all admins
+[2026-07-20 00:17:15.289] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/history/iching/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/iching/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-20 00:17:15.299] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/ziwei/history/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] Yêu cầu bắt đầu: GET /api/ziwei/history/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-20 00:17:15.304] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/history/marriage/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/marriage/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-20 00:17:15.294] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-20 00:17:15.433] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/ziwei/history/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] [Duration: 134ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 00:17:15.440] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/history/marriage/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] [Duration: 137ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 00:17:15.494] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 201ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-20 00:17:15.556] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/history/iching/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] [Duration: 270ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-20 00:17:23.107] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/history/iching/record/019f6559-44a7-77c0-bb18-84ce77434e7c] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/iching/record/019f6559-44a7-77c0-bb18-84ce77434e7c
+[2026-07-20 00:17:23.306] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/history/iching/record/019f6559-44a7-77c0-bb18-84ce77434e7c] [IP: ::1] [Duration: 200ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-20 00:17:32.189] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/history/iching/record/019f609b-6848-765e-b54d-770455530d2c] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/iching/record/019f609b-6848-765e-b54d-770455530d2c
+[2026-07-20 00:17:32.561] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/history/iching/record/019f609b-6848-765e-b54d-770455530d2c] [IP: ::1] [Duration: 373ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-20 00:17:33.729] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/record/019f7a57-c6c5-7ec3-993c-4ea70ba16253
+[2026-07-20 00:17:34.202] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/record/019f7a54-c9a5-75dc-8ea0-51ac37ba3e5a
+[2026-07-20 00:17:34.342] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 614ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-20 00:17:34.837] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 635ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-20 00:17:34.902] [INFO] [SSE] Broadcasting event [user_updated] to all admins
+[2026-07-20 00:17:35.401] [INFO] [SSE] Broadcasting event [user_updated] to all admins
+[2026-07-20 00:17:36.153] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/record/019f7b57-7578-774c-8b4f-a13eaf97b0a2
+[2026-07-20 00:17:36.640] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 489ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-20 00:17:40.255] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/record/019f65af-16c8-7737-bace-03c7d6c4f340
+[2026-07-20 00:17:40.831] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 577ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-20 00:17:40.979] [INFO] [SSE] Broadcasting event [user_updated] to all admins
+[2026-07-20 00:17:41.006] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/record/019f7a58-ba82-7163-a3ec-ebb338ad8441
+[2026-07-20 00:17:41.284] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/record/019f7a59-358f-72df-ac42-993f05cfbe40
+[2026-07-20 00:17:41.610] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 606ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-20 00:17:41.854] [INFO] [SSE] Broadcasting event [user_updated] to all admins
+[2026-07-20 00:17:42.018] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 737ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-20 00:17:42.168] [INFO] [SSE] Broadcasting event [user_updated] to all admins
+[2026-07-20 00:17:52.259] [INFO] [SSE] User client [019e594f-5fb3-701e-916a-d6ce37d424bd] disconnected.
+[2026-07-20 00:17:52.333] [INFO] [User: anonymous] [Action: GET /api/auth/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/auth/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZTU5NGYtNWZiMy03MDFlLTkxNmEtZDZjZTM3ZDQyNGJkIiwidG9rZW5WZXJzaW9uIjoxOX0sImlhdCI6MTc4NDQ4MTQzMSwiZXhwIjoxNzg1MDg2MjMxfQ.ovteEuRyHqhf_iwByuItML7lGXpsdnCyR5xX01zTZEM
+[2026-07-20 00:17:52.339] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/auth/me] [IP: ::1] Yêu cầu bắt đầu: GET /api/auth/me
+[2026-07-20 00:17:52.412] [INFO] [SSE] User client [019e594f-5fb3-701e-916a-d6ce37d424bd] connected. Total sessions: 1
+[2026-07-20 00:17:52.417] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/auth/me] [IP: ::1] [Duration: 79ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 00:17:52.422] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/auth/me] [IP: ::1] Yêu cầu bắt đầu: GET /api/auth/me
+[2026-07-20 00:17:52.499] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/auth/me] [IP: ::1] [Duration: 78ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 00:17:52.568] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 00:17:52.579] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/history/iching/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/iching/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-20 00:17:52.586] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-20 00:17:52.595] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/history/marriage/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/marriage/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-20 00:17:52.590] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/ziwei/history/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] Yêu cầu bắt đầu: GET /api/ziwei/history/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-20 00:17:52.655] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/ziwei/history/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] [Duration: 65ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 00:17:52.662] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/history/iching/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] [Duration: 83ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 00:17:52.666] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/ziwei/history/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] Yêu cầu bắt đầu: GET /api/ziwei/history/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-20 00:17:52.671] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 88ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 00:17:52.679] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/history/iching/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/iching/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-20 00:17:52.686] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-20 00:17:52.733] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/ziwei/history/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] [Duration: 68ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 00:17:52.742] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/history/marriage/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] [Duration: 148ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 00:17:52.748] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/history/marriage/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/marriage/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-20 00:17:52.754] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/history/iching/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] [Duration: 78ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 00:17:52.759] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 75ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 00:17:52.788] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 221ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 00:17:52.790] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 00:17:52.825] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/history/marriage/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] [Duration: 80ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 00:17:53.014] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 225ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 00:17:54.126] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/record/019f7a54-c9a5-75dc-8ea0-51ac37ba3e5a
+[2026-07-20 00:17:54.505] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 380ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 00:17:55.162] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/record/019f65af-16c8-7737-bace-03c7d6c4f340
+[2026-07-20 00:17:55.471] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 310ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-20 00:17:58.437] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/record/019f7a43-17ba-74f1-a4e3-626c06bc84c8
+[2026-07-20 00:17:59.067] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 632ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-20 00:17:59.215] [INFO] [SSE] Broadcasting event [user_updated] to all admins
+[2026-07-20 00:17:59.746] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/record/019f7b57-7578-774c-8b4f-a13eaf97b0a2
+[2026-07-20 00:18:00.029] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/record/019f7a57-c6c5-7ec3-993c-4ea70ba16253
+[2026-07-20 00:18:00.205] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 462ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 00:18:00.486] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 459ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 00:18:14.438] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/record/019f7a58-ba82-7163-a3ec-ebb338ad8441
+[2026-07-20 00:18:14.812] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 375ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 00:18:34.134] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Lập Bản Đồ Bát Tự] [IP: ::1] Yêu cầu bắt đầu: POST /api/bazi/analyze | Params: {"date":"23/01/1970","time":"10:05","gender":1,"userId":"019e594f-5fb3-701e-916a-d6ce37d424bd","name":""}
+[2026-07-20 00:18:34.433] [INFO] [SSE] Broadcasting event [new_calculation] to all admins
+[2026-07-20 00:18:34.439] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Lập Bản Đồ Bát Tự] [IP: ::1] [Duration: 306ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-20 00:18:34.881] [INFO] [SSE] Broadcasting event [user_updated] to all admins
+[2026-07-20 00:18:52.579] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 00:18:52.867] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 289ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 00:19:53.265] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 00:19:53.567] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 303ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 00:20:53.267] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 00:20:53.491] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 226ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 00:21:53.254] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 00:21:53.479] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 225ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 00:22:18.305] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-20 00:22:53.262] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 00:22:53.520] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 260ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 00:23:41.363] [INFO] [SSE] User client [019e594f-5fb3-701e-916a-d6ce37d424bd] disconnected.
+[2026-07-20 00:23:41.439] [INFO] [User: anonymous] [Action: GET /api/auth/events] [IP: ::1] Yêu cầu bắt đầu: GET /api/auth/events?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMDE5ZTU5NGYtNWZiMy03MDFlLTkxNmEtZDZjZTM3ZDQyNGJkIiwidG9rZW5WZXJzaW9uIjoxOX0sImlhdCI6MTc4NDQ4MTQzMSwiZXhwIjoxNzg1MDg2MjMxfQ.ovteEuRyHqhf_iwByuItML7lGXpsdnCyR5xX01zTZEM
+[2026-07-20 00:23:41.445] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/auth/me] [IP: ::1] Yêu cầu bắt đầu: GET /api/auth/me
+[2026-07-20 00:23:41.514] [INFO] [SSE] User client [019e594f-5fb3-701e-916a-d6ce37d424bd] connected. Total sessions: 1
+[2026-07-20 00:23:41.524] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/auth/me] [IP: ::1] [Duration: 79ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 00:23:41.528] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/auth/me] [IP: ::1] Yêu cầu bắt đầu: GET /api/auth/me
+[2026-07-20 00:23:41.606] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/auth/me] [IP: ::1] [Duration: 80ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 00:23:41.657] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 00:23:41.884] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 227ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 00:23:41.889] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 00:23:42.132] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 244ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 00:24:28.705] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/history/iching/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/iching/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-20 00:24:28.709] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/bazi/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-20 00:24:28.714] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/ziwei/history/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] Yêu cầu bắt đầu: GET /api/ziwei/history/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-20 00:24:28.717] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/history/marriage/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] Yêu cầu bắt đầu: GET /api/history/marriage/019e594f-5fb3-701e-916a-d6ce37d424bd
+[2026-07-20 00:24:28.863] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/ziwei/history/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] [Duration: 150ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 00:24:28.871] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/history/marriage/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] [Duration: 154ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 00:24:28.949] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 240ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-20 00:24:29.080] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/history/iching/019e594f-5fb3-701e-916a-d6ce37d424bd] [IP: ::1] [Duration: 376ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 00:24:41.677] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 00:24:41.899] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 223ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 00:25:41.669] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 00:25:41.889] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 221ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 00:26:42.261] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 00:26:42.843] [INFO] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 583ms] Hoàn thành: Phản hồi thành công (304)

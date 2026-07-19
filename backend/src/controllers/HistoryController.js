@@ -83,7 +83,7 @@ class HistoryController {
 
             let updated = false;
             // Migrate legacy cungMenh
-            if (!record.baziData || !record.baziData.cungMenh || !record.baziData.cungMenh.gan || !record.baziData.tietKhiName) {
+            if (!record.baziData || !record.baziData.cungMenh || !record.baziData.cungMenh.gan || !record.baziData.tietKhiName || !record.baziData.tuLenhCan) {
                 const dateStr = record.inputInfo.date;
                 const timeStr = record.inputInfo.time;
                 const genderVal = record.inputInfo.gender;

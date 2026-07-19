@@ -83,7 +83,7 @@ class BaziController {
                 const dupRecord = await BaziRecord.findOne({ idempotencyKey, isDeleted: { $ne: true } });
                 if (dupRecord) {
                     let updated = false;
-                    if (!dupRecord.baziData || !dupRecord.baziData.cungMenh || !dupRecord.baziData.cungMenh.gan || !dupRecord.baziData.tietKhiName || !hasNewSchema(dupRecord.baziData)) {
+                    if (!dupRecord.baziData || !dupRecord.baziData.cungMenh || !dupRecord.baziData.cungMenh.gan || !dupRecord.baziData.tietKhiName || !dupRecord.baziData.tuLenhCan || !hasNewSchema(dupRecord.baziData)) {
                         const freshResult = BaziAnalyzer.analyze(date, time, parseInt(gender), dayBoundaryMode || 'midnight');
                         dupRecord.baziData = freshResult;
                         dupRecord.solarTimeline = freshResult.solarTimeline;
@@ -128,7 +128,7 @@ class BaziController {
             if (existingRecord) {
                 let updated = false;
                 // Migrate legacy records dynamically if they don't have full cungMenh object calculated
-                if (!existingRecord.baziData || !existingRecord.baziData.cungMenh || !existingRecord.baziData.cungMenh.gan || !existingRecord.baziData.tietKhiName || !hasNewSchema(existingRecord.baziData)) {
+                if (!existingRecord.baziData || !existingRecord.baziData.cungMenh || !existingRecord.baziData.cungMenh.gan || !existingRecord.baziData.tietKhiName || !existingRecord.baziData.tuLenhCan || !hasNewSchema(existingRecord.baziData)) {
                     const freshResult = BaziAnalyzer.analyze(date, time, parseInt(gender), dayBoundaryMode || 'midnight');
                     existingRecord.baziData = freshResult;
                     existingRecord.solarTimeline = freshResult.solarTimeline;

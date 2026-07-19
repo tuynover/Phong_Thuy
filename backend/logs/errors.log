@@ -961,3 +961,8 @@ Stack: Error: getaddrinfo ENOTFOUND phong-thuy-backend-gz15.onrender.com
 [2026-07-19 18:43:00.664] [WARN] [User: cobatuoc@gmail.com (Tuyen)] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] [Duration: 6ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (404)
 [2026-07-19 19:25:58.563] [WARN] [User: cobatuoc@gmail.com (Tuyen)] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] [Duration: 4ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (404)
 [2026-07-19 19:25:58.648] [WARN] [User: cobatuoc@gmail.com (Tuyen)] [Action: Tra Cứu Học Thuật Phong Thủy] [IP: ::1] [Duration: 4ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (404)
+[2026-07-20 00:02:33.763] [WARN] [User: anonymous] [Action: GET /api/auth/events] [IP: ::1] [Duration: 13ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (401)
+[2026-07-20 00:02:33.779] [WARN] [User: anonymous] [Action: GET /api/auth/me] [IP: ::1] [Duration: 9ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (401)
+[2026-07-20 00:02:33.789] [WARN] [User: anonymous] [Action: GET /api/auth/me] [IP: ::1] [Duration: 5ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (401)
+[2026-07-20 00:02:34.131] [WARN] [User: anonymous] [Action: GET /api/notifications] [IP: ::1] [Duration: 4ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (401)
+[2026-07-20 00:02:34.237] [WARN] [User: anonymous] [Action: GET /api/notifications] [IP: ::1] [Duration: 4ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (401)

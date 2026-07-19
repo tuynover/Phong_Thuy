@@ -1833,5 +1833,149 @@ export const conceptDictionary = {
         category: 'Thần Sát Bát Tự',
         short_description: 'Cát thần phú quý thịnh vượng, gia đạo viên mãn.',
         full_detail: '▸ Loại tinh: Cát thần giàu sang.\n▸ Đặc trưng: Hiền lành, nho nhã, có lộc bất động sản.\n▸ Ý nghĩa: Tượng trưng cho xe vàng phú quý, kết hôn với người khá giả, cuộc sống an nhàn sung túc.'
+    },
+    'Lập Xuân': {
+        term: 'Lập Xuân',
+        category: 'Tiết Khí',
+        short_description: 'Tiết khí bắt đầu mùa xuân, đánh dấu khởi đầu một năm mới.',
+        full_detail: '▸ Ý nghĩa: Vạn vật bắt đầu sinh sôi, thời kỳ mưa xuân ẩm áp bắt đầu ấm dần.\n▸ Ngày bắt đầu: Khoảng ngày 4 hoặc 5 tháng 2 Dương lịch.'
+    },
+    'Vũ Thủy': {
+        term: 'Vũ Thủy',
+        category: 'Tiết Khí',
+        short_description: 'Tiết khí mưa ẩm ướt, băng tuyết bắt đầu tan.',
+        full_detail: '▸ Ý nghĩa: Báo hiệu mùa mưa bắt đầu, đất đai tơi xốp rất tốt cho trồng trọt.\n▸ Ngày bắt đầu: Khoảng ngày 19 hoặc 20 tháng 2 Dương lịch.'
+    },
+    'Kinh Trập': {
+        term: 'Kinh Trập',
+        category: 'Tiết Khí',
+        short_description: 'Sấm xuân xuất hiện báo hiệu sâu bọ thức giấc.',
+        full_detail: '▸ Ý nghĩa: Tiết khí vạn vật cựa mình, khí dương bốc lên mạnh mẽ.\n▸ Ngày bắt đầu: Khoảng ngày 5 hoặc 6 tháng 3 Dương lịch.'
+    },
+    'Xuân Phân': {
+        term: 'Xuân Phân',
+        category: 'Tiết Khí',
+        short_description: 'Thời điểm ngày và đêm dài bằng nhau giữa mùa xuân.',
+        full_detail: '▸ Ý nghĩa: Âm dương cân bằng, thời tiết ôn hòa ôn ấm thích hợp cho canh tác.\n▸ Ngày bắt đầu: Khoảng ngày 20 hoặc 21 tháng 3 Dương lịch.'
+    },
+    'Thanh Minh': {
+        term: 'Thanh Minh',
+        category: 'Tiết Khí',
+        short_description: 'Tiết khí trong sáng, thời gian tảo mộ tưởng nhớ tổ tiên.',
+        full_detail: '▸ Ý nghĩa: Thời tiết quang đãng, cây cối xanh tươi phát triển mạnh mẽ.\n▸ Ngày bắt đầu: Khoảng ngày 4 hoặc 5 tháng 4 Dương lịch.'
+    },
+    'Cốc Vũ': {
+        term: 'Cốc Vũ',
+        category: 'Tiết Khí',
+        short_description: 'Mưa rào nhiều giúp ngũ cốc sinh trưởng tốt.',
+        full_detail: '▸ Ý nghĩa: Đánh dấu đợt mưa lớn cuối cùng của mùa xuân chuyển giao sang mùa hè.\n▸ Ngày bắt đầu: Khoảng ngày 20 hoặc 21 tháng 4 Dương lịch.'
+    },
+    'Lập Hạ': {
+        term: 'Lập Hạ',
+        category: 'Tiết Khí',
+        short_description: 'Tiết khí bắt đầu mùa hè nắng ấm oi bức.',
+        full_detail: '▸ Ý nghĩa: Nhiệt độ tăng cao rõ rệt, cây cối phát triển vô cùng tươi tốt.\n▸ Ngày bắt đầu: Khoảng ngày 5 hoặc 6 tháng 5 Dương lịch.'
+    },
+    'Tiểu Mãn': {
+        term: 'Tiểu Mãn',
+        category: 'Tiết Khí',
+        short_description: 'Lúa ngô đầy hạt nhưng chưa chín hẳn.',
+        full_detail: '▸ Ý nghĩa: Nước sông hồ bắt đầu dâng đầy, ngũ cốc đạt độ căng mọng nhẹ.\n▸ Ngày bắt đầu: Khoảng ngày 20 hoặc 21 tháng 5 Dương lịch.'
+    },
+    'Mang Chủng': {
+        term: 'Mang Chủng',
+        category: 'Tiết Khí',
+        short_description: 'Thời điểm gieo cấy lúa mạ ngũ cốc có râu.',
+        full_detail: '▸ Ý nghĩa: Bận rộn việc đồng áng gieo trồng thu hoạch ngũ cốc mùa hè.\n▸ Ngày bắt đầu: Khoảng ngày 5 hoặc 6 tháng 6 Dương lịch.'
+    },
+    'Hạ Chí': {
+        term: 'Hạ Chí',
+        category: 'Tiết Khí',
+        short_description: 'Thời điểm ban ngày dài nhất trong năm.',
+        full_detail: '▸ Ý nghĩa: Khí dương đạt cực đỉnh bắt đầu chuyển dần sang khí âm.\n▸ Ngày bắt đầu: Khoảng ngày 21 hoặc 22 tháng 6 Dương lịch.'
+    },
+    'Tiểu Thử': {
+        term: 'Tiểu Thử',
+        category: 'Tiết Khí',
+        short_description: 'Thời tiết bắt đầu oi bức nắng nóng.',
+        full_detail: '▸ Ý nghĩa: Gió mùa hè hoạt động mạnh, bắt đầu thời kỳ nắng nóng diện rộng.\n▸ Ngày bắt đầu: Khoảng ngày 7 hoặc 8 tháng 7 Dương lịch.'
+    },
+    'Đại Thử': {
+        term: 'Đại Thử',
+        category: 'Tiết Khí',
+        short_description: 'Thời kỳ nắng nóng khắc nghiệt nhất trong năm.',
+        full_detail: '▸ Ý nghĩa: Nhiệt độ đạt đỉnh điểm, cần phòng tránh say nắng và mưa bão đột ngột.\n▸ Ngày bắt đầu: Khoảng ngày 22 hoặc 23 tháng 7 Dương lịch.'
+    },
+    'Lập Thu': {
+        term: 'Lập Thu',
+        category: 'Tiết Khí',
+        short_description: 'Thời điểm bắt đầu mùa thu mát mẻ.',
+        full_detail: '▸ Ý nghĩa: Thời tiết chuyển mát, lá bắt đầu rụng, báo hiệu mùa thu hoạch.\n▸ Ngày bắt đầu: Khoảng ngày 7 hoặc 8 tháng 8 Dương lịch.'
+    },
+    'Xử Thử': {
+        term: 'Xử Thử',
+        category: 'Tiết Khí',
+        short_description: 'Nắng nóng mùa hè bắt đầu dịu xuống hẳn.',
+        full_detail: '▸ Ý nghĩa: Nhiệt độ giảm rõ rệt, kết thúc hoàn toàn đợt nắng nóng cực đoan.\n▸ Ngày bắt đầu: Khoảng ngày 23 hoặc 24 tháng 8 Dương lịch.'
+    },
+    'Bạch Lộ': {
+        term: 'Bạch Lộ',
+        category: 'Tiết Khí',
+        short_description: 'Sương mù trắng xuất hiện vào sáng sớm.',
+        full_detail: '▸ Ý nghĩa: Nhiệt độ ngày và đêm chênh lệch lớn tạo nên những hạt sương trắng đọng trên lá.\n▸ Ngày bắt đầu: Khoảng ngày 7 hoặc 8 tháng 9 Dương lịch.'
+    },
+    'Thu Phân': {
+        term: 'Thu Phân',
+        category: 'Tiết Khí',
+        short_description: 'Thời điểm ngày và đêm dài bằng nhau giữa mùa thu.',
+        full_detail: '▸ Ý nghĩa: Khí hậu mát mẻ khô ráo dễ chịu nhất trong năm.\n▸ Ngày bắt đầu: Khoảng ngày 22 hoặc 23 tháng 9 Dương lịch.'
+    },
+    'Hàn Lộ': {
+        term: 'Hàn Lộ',
+        category: 'Tiết Khí',
+        short_description: 'Sương bắt đầu lạnh buốt và đọng nhiều hơn.',
+        full_detail: '▸ Ý nghĩa: Không khí lạnh tăng cường, nước sương đọng lại mang cảm giác buốt lạnh.\n▸ Ngày bắt đầu: Khoảng ngày 8 hoặc 9 tháng 10 Dương lịch.'
+    },
+    'Sương Giáng': {
+        term: 'Sương Giáng',
+        category: 'Tiết Khí',
+        short_description: 'Sương đọng thành hạt băng mỏng trên mặt đất.',
+        full_detail: '▸ Ý nghĩa: Thời tiết bắt đầu buốt lạnh đậm, chuẩn bị bước vào mùa đông.\n▸ Ngày bắt đầu: Khoảng ngày 23 hoặc 24 tháng 10 Dương lịch.'
+    },
+    'Lập Đông': {
+        term: 'Lập Đông',
+        category: 'Tiết Khí',
+        short_description: 'Tiết khí bắt đầu mùa đông giá lạnh.',
+        full_detail: '▸ Ý nghĩa: Thời tiết chuyển lạnh buốt rõ rệt, nước sông đóng băng nhẹ.\n▸ Ngày bắt đầu: Khoảng ngày 7 hoặc 8 tháng 11 Dương lịch.'
+    },
+    'Tiểu Tuyết': {
+        term: 'Tiểu Tuyết',
+        category: 'Tiết Khí',
+        short_description: 'Tuyết rơi nhẹ ở các vùng phía bắc.',
+        full_detail: '▸ Ý nghĩa: Không khí khô lạnh, tuyết rơi mỏng chưa bao phủ diện rộng.\n▸ Ngày bắt đầu: Khoảng ngày 22 hoặc 23 tháng 11 Dương lịch.'
+    },
+    'Đại Tuyết': {
+        term: 'Đại Tuyết',
+        category: 'Tiết Khí',
+        short_description: 'Tuyết rơi dày đặc trên diện rộng.',
+        full_detail: '▸ Ý nghĩa: Mặt đất bị tuyết bao phủ trắng xóa, nhiệt độ hạ rất thấp.\n▸ Ngày bắt đầu: Khoảng ngày 6 hoặc 7 tháng 12 Dương lịch.'
+    },
+    'Đông Chí': {
+        term: 'Đông Chí',
+        category: 'Tiết Khí',
+        short_description: 'Thời điểm ban đêm dài nhất trong năm.',
+        full_detail: '▸ Ý nghĩa: Khí âm đạt cực đỉnh bắt đầu suy yếu, dương khí bắt đầu nảy mầm.\n▸ Ngày bắt đầu: Khoảng ngày 21 hoặc 22 tháng 12 Dương lịch.'
+    },
+    'Tiểu Hàn': {
+        term: 'Tiểu Hàn',
+        category: 'Tiết Khí',
+        short_description: 'Thời tiết bắt đầu lạnh buốt cực độ.',
+        full_detail: '▸ Ý nghĩa: Không khí lạnh bao trùm toàn phần, độ ẩm thấp.\n▸ Ngày bắt đầu: Khoảng ngày 5 hoặc 6 tháng 1 Dương lịch.'
+    },
+    'Đại Hàn': {
+        term: 'Đại Hàn',
+        category: 'Tiết Khí',
+        short_description: 'Thời kỳ lạnh giá buốt xương nhất trong năm.',
+        full_detail: '▸ Ý nghĩa: Thời tiết buốt lạnh đạt tới đỉnh điểm của năm trước khi bước sang lập xuân.\n▸ Ngày bắt đầu: Khoảng ngày 20 hoặc 21 tháng 1 Dương lịch.'
     }
 };

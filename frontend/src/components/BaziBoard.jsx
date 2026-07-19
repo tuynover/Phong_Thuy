@@ -17,6 +17,21 @@ import {
     formatElement
 } from '../utils/astrologyHelpers';
 
+const getSeasonColorClass = (tietKhi) => {
+    if (!tietKhi) return 'text-amber-800';
+    const cleanName = tietKhi.replace('Tiết ', '').trim();
+    const spring = ['Lập Xuân', 'Vũ Thủy', 'Kinh Trập', 'Xuân Phân', 'Thanh Minh', 'Cốc Vũ'];
+    const summer = ['Lập Hạ', 'Tiểu Mãn', 'Mang Chủng', 'Hạ Chí', 'Tiểu Thử', 'Đại Thử'];
+    const autumn = ['Lập Thu', 'Xử Thử', 'Bạch Lộ', 'Thu Phân', 'Hàn Lộ', 'Sương Giáng'];
+    const winter = ['Lập Đông', 'Tiểu Tuyết', 'Đại Tuyết', 'Đông Chí', 'Tiểu Hàn', 'Đại Hàn'];
+
+    if (spring.includes(cleanName)) return 'text-emerald-600';
+    if (summer.includes(cleanName)) return 'text-rose-600';
+    if (autumn.includes(cleanName)) return 'text-amber-700';
+    if (winter.includes(cleanName)) return 'text-blue-600';
+    return 'text-amber-800';
+};
+
 const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) => {
     const { user, setUser, token } = useContext(AuthContext);
 
@@ -777,12 +792,24 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) 
                             <span className="text-blue-750 font-extrabold">{data.solarTimeline}</span>
                             <span className="text-slate-400 font-normal"> - </span>
                             <span className="text-emerald-700 font-extrabold">{cleanLunarDate(data.lunarDateStr)}</span>
+                        </div>
+                        
+                        <div className="font-extrabold text-slate-800">Tiết khí:</div>
+                        <div className="font-bold text-slate-800 flex flex-wrap items-center gap-1.5">
                             {data.tietKhiName && (
-                                <>
-                                    <span className="text-slate-400 font-normal"> - </span>
-                                    <span className="text-amber-800 font-extrabold">
+                                <Tooltip term={data.tietKhiName} unstyled={true}>
+                                    <span className={`font-extrabold hover:underline transition-all ${getSeasonColorClass(data.tietKhiName)}`}>
                                         {data.tietKhiName.startsWith('Tiết') ? data.tietKhiName : `Tiết ${data.tietKhiName}`}
                                     </span>
+                                </Tooltip>
+                            )}
+                            {data.tuLenhCan && (
+                                <>
+                                    <span className="text-slate-400 font-normal"> - Ngày </span>
+                                    <span className={`font-black ${getColorClass(stemElements[data.tuLenhCan])}`}>
+                                        {data.tuLenhCan}
+                                    </span>
+                                    <span className="text-slate-800 font-bold"> vượng</span>
                                 </>
                             )}
                         </div>

@@ -2,6 +2,34 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Tích hợp Thuật toán Ngũ hành Tư lệnh & Thiết kế lại Dòng Tiết khí (20/07/2026)
+
+### Backend (Tính toán học thuật Bát tự)
+- **BaziAnalyzer.js**:
+  - Triển khai thuật toán tính **Ngũ hành tư lệnh / Can quản sự** dựa trên bảng phân phối ngày của tác phẩm *Tam Mệnh Thông Hội* (nhóm Tứ sinh: 5-5-20, Tứ vượng: 7-23, Tứ mộ: 7-5-18).
+  - Tích hợp 2 hiệu chỉnh học thuật theo yêu cầu: Đổi 5 ngày Bính thành 5 ngày **Đinh** ở tháng Tuất; Đổi 5 ngày Canh thành 5 ngày **Tân** ở tháng Sửu.
+  - Sử dụng đối tượng `lunarAdjusted` để xác định chính xác số ngày thực tế trôi qua từ thời điểm bắt đầu Tiết khí (`prevJie`) theo múi giờ Việt Nam (UTC+7).
+  - Sửa lỗi tính toán ngày trôi qua cho Ngũ hành tư lệnh: Ép buộc dùng mốc bắt đầu của các **Tiết (Jie)** như Tiểu Hàn, Lập Xuân... thay vì các **Khí (Qi)** như Đại Hàn, Vũ Thủy... để tính chính xác số ngày trôi qua kể từ lúc bắt đầu của tháng Bát Tự (ví dụ: ngày 23/01/1970 là ngày thứ 18 tính từ Tiết Tiểu Hàn thuộc tháng Sửu, cho ra kết quả đúng là **Kỷ vượng** thay vì **Quý vượng** tính từ Đại Hàn).
+- **BaziController.js & HistoryController.js**: Tích hợp trường `tuLenhCan` vào cơ chế tự động nâng cấp cấu trúc lá số cho các bản ghi cũ khi người dùng xem lại.
+
+- **BaziBoard.jsx & concepts.js**:
+  - Xóa hiển thị Tiết khí trên dòng Dương / Âm lịch chính.
+  - Thêm một dòng mới chuyên biệt **"Tiết khí:"** hiển thị đầy đủ thông tin: `Tiết khí - Ngày [Can] vượng` (Ví dụ: `Tiết Thu Phân - Ngày Mậu vượng`).
+  - Tô màu Thiên Can của ngày vượng (`tuLenhCan`) tự động theo màu Ngũ hành tương ứng (ví dụ: Mộc màu xanh, Hỏa màu đỏ, Thổ màu nâu...) bằng cách áp dụng hàm `getColorClass(stemElements[data.tuLenhCan])`.
+  - Cập nhật màu sắc tên Tiết khí thay đổi động theo từng Mùa (Mùa xuân màu Xanh lá: `text-emerald-600`, Mùa hạ màu Đỏ: `text-rose-600`, Mùa thu màu Nâu đất: `text-amber-700`, Mùa đông màu Xanh dương: `text-blue-600`).
+  - Tích hợp Component `<Tooltip>` vào tên Tiết khí để hiển thị giải nghĩa chi tiết và thời điểm bắt đầu của 24 Tiết khí nông lịch khi hover hoặc chạm trên di động.
+  - Bổ sung định nghĩa đầy đủ học thuật cho toàn bộ 24 Tiết khí vào từ điển cấu trúc `concepts.js`.
+
+---
+
+## 📅 Phiên bản: Đồng bộ Múi giờ Tiết khí cho Dịch vụ Xem ngày tốt xấu (20/07/2026)
+
+### Backend (Quy đổi Âm Dương & Lịch Pháp)
+- **DateService.js (`evaluateDay`)**:
+  - Tích hợp cơ chế điều chỉnh múi giờ GMT+8 (cộng thêm 1 giờ thông qua `solar.nextHour(1)`) để tính toán chính xác ranh giới rẽ Tiết khí cho Trụ Năm, Trụ Tháng, và Kiến Trừ (Trực).
+  - Sử dụng đối tượng `lunarAdjusted` để lấy thông tin về năm, tháng và Trực (Kiến, Trừ, Mãn...), đảm bảo đồng bộ hoàn toàn với logic tính toán Tứ Trụ Bát Tự trong `BaziAnalyzer.js` và bảng Tiết khí múi giờ Việt Nam (UTC+7) trong tài liệu đối chiếu.
+  - Giữ nguyên ranh giới Ngày địa phương (UTC+7) cho Trụ Ngày, Thần trị ngày (Hoàng Đạo/Hắc Đạo) và Cát hung ngày (Yi/Ji) để tránh xê dịch ngày lịch pháp gốc.
+
 ---
 
 ## 📅 Phiên bản: Tích hợp Thần Sát Học Thuật & Giao Diện Lưu Niên Đối Chiếu 6 Cột Bát Tự (Cập nhật Không Vong & Định dạng) (19/07/2026)
