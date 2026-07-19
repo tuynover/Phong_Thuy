@@ -251,7 +251,7 @@ export default function UserApp({ onSwitchToAdmin }) {
   };
 
   const handleViewDestinyFromHome = (info) => {
-    const { day, month, year, hour, minute, gender, target } = info;
+    const { day, month, year, hour, minute, gender, name, target } = info;
     const d = String(day).padStart(2, '0');
     const m = String(month).padStart(2, '0');
     const y = String(year);
@@ -262,11 +262,11 @@ export default function UserApp({ onSwitchToAdmin }) {
       const formattedDate = `${d}/${m}/${y}`;
       const formattedTime = `${h}:${min}`;
       const genderVal = gender === 'Nam' ? 1 : 0;
-      handleBaziComplete(formattedDate, formattedTime, genderVal, user?.name);
+      handleBaziComplete(formattedDate, formattedTime, genderVal, name || user?.name);
       setAppMode('bazi');
     } else if (target === 'ziwei') {
       const dateStr = `${y}-${m}-${d}`;
-      setAutoSubmitZiwei({ dateStr, hourStr: h, genderStr: gender });
+      setAutoSubmitZiwei({ dateStr, hourStr: h, genderStr: gender, nameStr: name || user?.name });
       setHistoricalZiweiId(null);
       setAppMode('ziwei');
     }

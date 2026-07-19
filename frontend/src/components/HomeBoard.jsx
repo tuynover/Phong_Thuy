@@ -117,12 +117,20 @@ export default function HomeBoard({ onSelectModule, user, onRequireLogin, onView
 
   // Xem Vận Mệnh states
   const [isDestinyModalOpen, setIsDestinyModalOpen] = useState(false);
+  const [destinyName, setDestinyName] = useState('');
   const [destinyDay, setDestinyDay] = useState('');
   const [destinyMonth, setDestinyMonth] = useState('');
   const [destinyYear, setDestinyYear] = useState('');
   const [destinyHour, setDestinyHour] = useState('');
   const [destinyMinute, setDestinyMinute] = useState('');
   const [destinyGender, setDestinyGender] = useState('Nam');
+
+  // Pre-fill destinyName when user loads or updates
+  useEffect(() => {
+    if (user?.name) {
+      setDestinyName(user.name);
+    }
+  }, [user]);
 
   const daysOptions = Array.from({ length: 31 }, (_, i) => String(i + 1));
   const monthsOptions = Array.from({ length: 12 }, (_, i) => String(i + 1));
@@ -143,6 +151,7 @@ export default function HomeBoard({ onSelectModule, user, onRequireLogin, onView
         hour: destinyHour,
         minute: destinyMinute,
         gender: destinyGender,
+        name: destinyName,
         target
       });
       setIsDestinyModalOpen(false);
@@ -849,6 +858,18 @@ export default function HomeBoard({ onSelectModule, user, onRequireLogin, onView
               </div>
 
               <div className="space-y-4">
+                {/* Họ và Tên */}
+                <div>
+                  <span className="block text-[11px] font-black uppercase text-slate-400 tracking-wider mb-2 ml-1">Họ và Tên (Không bắt buộc)</span>
+                  <input
+                    type="text"
+                    value={destinyName}
+                    onChange={(e) => setDestinyName(e.target.value)}
+                    placeholder="Nhập họ và tên..."
+                    className="bg-gray-50 border border-gray-200 text-slate-800 text-sm font-bold rounded-xl block w-full p-3 transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                  />
+                </div>
+
                 {/* Giới Tính */}
                 <div>
                   <span className="block text-[11px] font-black uppercase text-slate-400 tracking-wider mb-2 ml-1">Giới Tính Mệnh Cách</span>

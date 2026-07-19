@@ -7,6 +7,15 @@ const formatCanChiSpacing = (str) => {
     return str.replace(/(Giáp|Ất|Bính|Đinh|Mậu|Kỷ|Canh|Tân|Nhâm|Quý)(?=[A-Z])/g, '$1 ');
 };
 
+const hasNewSchema = (baziData) => {
+    if (!baziData) return false;
+    if (baziData.daYun && baziData.daYun.length > 0) {
+        const firstYun = baziData.daYun[0];
+        if (!firstYun.tangCan || firstYun.tangCan.length === 0) return false;
+    }
+    return true;
+};
+
 const getYearFromDateStr = (dateStr) => {
     if (!dateStr) return null;
     if (dateStr.includes('/')) {
@@ -74,7 +83,7 @@ class BaziController {
                 const dupRecord = await BaziRecord.findOne({ idempotencyKey, isDeleted: { $ne: true } });
                 if (dupRecord) {
                     let updated = false;
-                    if (!dupRecord.baziData || !dupRecord.baziData.cungMenh || !dupRecord.baziData.cungMenh.gan || !dupRecord.baziData.tietKhiName) {
+                    if (!dupRecord.baziData || !dupRecord.baziData.cungMenh || !dupRecord.baziData.cungMenh.gan || !dupRecord.baziData.tietKhiName || !hasNewSchema(dupRecord.baziData)) {
                         const freshResult = BaziAnalyzer.analyze(date, time, parseInt(gender), dayBoundaryMode || 'midnight');
                         dupRecord.baziData = freshResult;
                         dupRecord.solarTimeline = freshResult.solarTimeline;
@@ -119,7 +128,7 @@ class BaziController {
             if (existingRecord) {
                 let updated = false;
                 // Migrate legacy records dynamically if they don't have full cungMenh object calculated
-                if (!existingRecord.baziData || !existingRecord.baziData.cungMenh || !existingRecord.baziData.cungMenh.gan || !existingRecord.baziData.tietKhiName) {
+                if (!existingRecord.baziData || !existingRecord.baziData.cungMenh || !existingRecord.baziData.cungMenh.gan || !existingRecord.baziData.tietKhiName || !hasNewSchema(existingRecord.baziData)) {
                     const freshResult = BaziAnalyzer.analyze(date, time, parseInt(gender), dayBoundaryMode || 'midnight');
                     existingRecord.baziData = freshResult;
                     existingRecord.solarTimeline = freshResult.solarTimeline;

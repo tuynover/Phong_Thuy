@@ -34,6 +34,35 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) 
     const [feedback, setFeedback] = useState('');
     const [justRated, setJustRated] = useState(false);
 
+    const [selectedYunIndex, setSelectedYunIndex] = useState(0);
+    const [selectedLuuNianYear, setSelectedLuuNianYear] = useState(null);
+
+    // Tự động chọn Đại Vận và Lưu Niên phù hợp với năm hiện tại (2026) khi dữ liệu Bát Tự thay đổi
+    useEffect(() => {
+        if (data?.daYun && data.daYun.length > 0) {
+            const currentYear = new Date().getFullYear();
+            const defaultYunIdx = data.daYun.findIndex(yun => currentYear >= yun.startYear && currentYear <= yun.startYear + 9);
+            const activeIdx = defaultYunIdx !== -1 ? defaultYunIdx : 0;
+            setSelectedYunIndex(activeIdx);
+            
+            const activeYun = data.daYun[activeIdx];
+            if (activeYun && activeYun.liuNian && activeYun.liuNian.length > 0) {
+                const hasCurrentYear = activeYun.liuNian.some(ln => ln.year === currentYear);
+                setSelectedLuuNianYear(hasCurrentYear ? currentYear : activeYun.liuNian[0].year);
+            }
+        }
+    }, [data?.daYun]);
+
+    const handleSelectYun = (idx) => {
+        setSelectedYunIndex(idx);
+        const activeYun = data?.daYun?.[idx];
+        if (activeYun && activeYun.liuNian && activeYun.liuNian.length > 0) {
+            const currentYear = new Date().getFullYear();
+            const hasCurrentYear = activeYun.liuNian.some(ln => ln.year === currentYear);
+            setSelectedLuuNianYear(hasCurrentYear ? currentYear : activeYun.liuNian[0].year);
+        }
+    };
+
     const prevIdRef = useRef(null);
 
     // Set initial interpretation and rating if cached in data
@@ -239,6 +268,31 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) 
         return map[trimmed] || trimmed;
     };
 
+    const SHEN_SHA_COLORS = {
+        'Thiên Ất': 'text-emerald-600',
+        'Thái Cực': 'text-emerald-600',
+        'Thiên Đức': 'text-emerald-600',
+        'Nguyệt Đức': 'text-emerald-600',
+        'Lộc Thần': 'text-emerald-600',
+        'Văn Xương': 'text-emerald-600',
+        'Tướng Tinh': 'text-emerald-600',
+        'Phúc Tinh': 'text-emerald-600',
+        'Quốc Ấn': 'text-emerald-600',
+        'Thiên Y': 'text-emerald-600',
+        'Hồng Loan': 'text-emerald-600',
+        'Thiên Hỷ': 'text-emerald-600',
+        'Kim Dư': 'text-emerald-600',
+        'Kình Dương': 'text-rose-600',
+        'Kiếp Sát': 'text-rose-600',
+        'Vong Thần': 'text-rose-600',
+        'Cô Thần': 'text-rose-600',
+        'Quả Tú': 'text-rose-600',
+        'Không Vong': 'text-rose-600',
+        'Dịch Mã': 'text-slate-800',
+        'Hoa Cái': 'text-slate-800',
+        'Đào Hoa': 'text-slate-800'
+    };
+
     const getBatCung = (zhi) => {
         if (!zhi) return '';
         const map = {
@@ -258,15 +312,17 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) 
         return map[zhi.trim()] || '';
     };
 
-    const Pillar = ({ title, pillarData, isDayMaster }) => {
+    const Pillar = ({ title, pillarData, isDayMaster, hideTruongSinh, hideNaYin, hideShenSha }) => {
         if (!pillarData || !pillarData.gan || !pillarData.zhi) return null;
-        const { gan, zhi, thapThanGan, tangCan = [], naYin, truongSinh } = pillarData;
+        const { gan, zhi, thapThanGan, tangCan = [], naYin, truongSinh, shenSha = [] } = pillarData;
         const ganElem = stemElements[gan];
         const zhiElem = branchElements[zhi];
+        const showTruongSinh = truongSinh && !hideTruongSinh;
+        const showNaYin = naYin && !hideNaYin;
 
         return (
-            <div className={`relative ${truongSinh ? 'pl-6 sm:pl-7 pr-1.5 sm:pr-3 md:pr-4' : 'px-1.5 sm:px-3 md:px-4'} flex flex-col items-center py-1.5 sm:py-3 md:py-4 rounded-xl shadow-sm border-2 ${isDayMaster ? 'border-amber-500 bg-amber-50/30 ring-4 ring-amber-100' : 'border-gray-200 bg-white'} flex-1 md:flex-initial md:min-w-[15%] md:max-w-[20%] md:flex-shrink-0`}>
-                {truongSinh && (
+            <div className={`relative ${showTruongSinh ? 'pl-6 sm:pl-7 pr-1.5 sm:pr-3 md:pr-4' : 'px-1.5 sm:px-3 md:px-4'} flex flex-col items-center py-1.5 sm:py-3 md:py-4 rounded-xl shadow-sm border-2 ${isDayMaster ? 'border-amber-500 bg-amber-50/30 ring-4 ring-amber-100' : 'border-gray-200 bg-white'} flex-1 md:flex-initial md:min-w-[15%] md:max-w-[20%] md:flex-shrink-0`}>
+                {showTruongSinh && (
                     <div 
                         className="absolute left-1 sm:left-2 top-1/2 -translate-y-1/2 flex flex-col items-center justify-center text-[9px] sm:text-[11px] font-black text-slate-800 [writing-mode:vertical-lr] rotate-180 select-none"
                         style={{ minWidth: '16px' }}
@@ -301,7 +357,7 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) 
                     <div className={`text-2xl sm:text-4xl font-black mb-1 sm:mb-2 hover:scale-110 transition-transform ${getColorClass(zhiElem)}`}>{zhi}</div>
                 </Tooltip>
                 
-                {naYin && (
+                {showNaYin && (
                     <Tooltip term={naYin} unstyled={true}>
                         <div className={`text-[8px] sm:text-xs font-semibold px-2 py-0.5 rounded-full border my-1 text-center max-w-full truncate hover:brightness-95 transition-all ${getNaYinColorClass(naYin)}`}>
                             {naYin}
@@ -311,18 +367,50 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) 
                 
                 <div className="w-full border-t border-dashed border-gray-200 mt-2.5 pt-2 flex flex-col items-center justify-center">
                     <div className="w-full max-w-[95px] sm:max-w-[115px] flex flex-col gap-1 mt-1">
-                        {tangCan.map((tc, idx) => (
-                            <div key={idx} className="flex justify-between items-center text-[10px] sm:text-[12.5px] leading-tight w-full">
-                                <Tooltip term={tc.gan} unstyled={true}>
-                                    <span className={`font-bold shrink-0 text-left hover:scale-110 transition-transform ${getColorClass(stemElements[tc.gan])}`}>{tc.gan}</span>
-                                </Tooltip>
-                                <Tooltip term={tc.thapThan} unstyled={true}>
-                                    <span className="text-slate-800 font-bold text-right truncate pl-1 hover:text-blue-700 transition-colors">{getAbbreviatedThapThan(tc.thapThan)}</span>
-                                </Tooltip>
-                            </div>
-                        ))}
+                        {(() => {
+                            const paddedTangCan = [...tangCan];
+                            while (paddedTangCan.length < 3) {
+                                paddedTangCan.push({ gan: '', thapThan: '' });
+                            }
+                            return paddedTangCan.map((tc, idx) => (
+                                <div key={idx} className="flex justify-between items-center text-[10px] sm:text-[12.5px] leading-tight w-full h-[15px] sm:h-[18px]">
+                                    {tc.gan ? (
+                                        <>
+                                            <Tooltip term={tc.gan} unstyled={true}>
+                                                <span className={`font-bold shrink-0 text-left hover:scale-110 transition-transform ${getColorClass(stemElements[tc.gan])}`}>{tc.gan}</span>
+                                            </Tooltip>
+                                            <Tooltip term={tc.thapThan} unstyled={true}>
+                                                <span className="text-slate-800 font-bold text-right truncate pl-1 hover:text-blue-700 transition-colors">{getAbbreviatedThapThan(tc.thapThan)}</span>
+                                            </Tooltip>
+                                        </>
+                                    ) : (
+                                        <span className="invisible">&nbsp;</span>
+                                    )}
+                                </div>
+                            ));
+                        })()}
                     </div>
                 </div>
+
+                {/* Thần Sát Bát Tự */}
+                {shenSha && shenSha.length > 0 && !hideShenSha && (
+                    <div className="w-full border-t border-dashed border-gray-200 mt-2 pt-2 flex flex-col items-center justify-center">
+                        <div className="w-full max-w-[95px] sm:max-w-[115px] flex flex-col gap-1 mt-1">
+                            {shenSha.map((ss, idx) => {
+                                const colorClass = SHEN_SHA_COLORS[ss] || 'text-slate-800';
+                                return (
+                                    <div key={idx} className="flex justify-center items-center text-[10px] sm:text-[12px] leading-tight w-full font-black h-[15px] sm:h-[18px]">
+                                        <Tooltip term={ss} unstyled={true}>
+                                            <span className={`${colorClass} hover:scale-105 transition-transform cursor-help`}>
+                                                {ss}
+                                            </span>
+                                        </Tooltip>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                )}
             </div>
         );
     };
@@ -775,37 +863,192 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) 
                             </span>
                         )}
                     </h3>
-                    <div className="flex flex-row-reverse justify-center gap-1.5 md:gap-4 lg:gap-6 w-full flex-wrap md:flex-nowrap">
-                        {data.cungMenh && <Pillar title="Cung Mệnh" pillarData={data.cungMenh} />}
-                        {data.taiNguyen && <Pillar title="Thai Nguyên" pillarData={data.taiNguyen} />}
+                    {/* Desktop layout: horizontal flex row */}
+                    <div className="hidden md:flex flex-row-reverse justify-center gap-4 lg:gap-6 w-full flex-nowrap">
+                        {data.cungMenh && <Pillar title="Cung Mệnh" pillarData={data.cungMenh} hideShenSha={true} />}
+                        {data.taiNguyen && <Pillar title="Thai Nguyên" pillarData={data.taiNguyen} hideShenSha={true} />}
                         <Pillar title="Giờ Sinh" pillarData={canChi.hour} />
                         <Pillar title="Nhật Chủ" pillarData={canChi.day} isDayMaster={true} />
                         <Pillar title="Nguyệt Lệnh" pillarData={canChi.month} />
                         <Pillar title="Năm Sinh" pillarData={canChi.year} />
                     </div>
+
+                    {/* Mobile layout: forced 3 columns */}
+                    <div className="grid grid-cols-3 gap-2 md:hidden w-full">
+                        {/* Column 1: Thai Nguyên & Cung Mệnh */}
+                        <div className="flex flex-col gap-2">
+                            {data.taiNguyen && <Pillar title="Thai Nguyên" pillarData={data.taiNguyen} hideShenSha={true} />}
+                            {data.cungMenh && <Pillar title="Cung Mệnh" pillarData={data.cungMenh} hideShenSha={true} />}
+                        </div>
+
+                        {/* Column 2: Trụ Ngày (Nhật Chủ) & Trụ Giờ (Giờ Sinh) */}
+                        <div className="flex flex-col gap-2">
+                            <Pillar title="Nhật Chủ" pillarData={canChi.day} isDayMaster={true} />
+                            <Pillar title="Giờ Sinh" pillarData={canChi.hour} />
+                        </div>
+
+                        {/* Column 3: Trụ Năm (Năm Sinh) & Trụ Tháng (Nguyệt Lệnh) */}
+                        <div className="flex flex-col gap-2">
+                            <Pillar title="Năm Sinh" pillarData={canChi.year} />
+                            <Pillar title="Nguyệt Lệnh" pillarData={canChi.month} />
+                        </div>
+                    </div>
                 </div>
 
-                {/* Nhịp Đại Vận */}
+                {/* Nhịp Đại Vận & Lưu Niên */}
                 {daYun && daYun.length > 0 && (
-                <div>
-                    <h3 className="text-xl font-bold text-gray-800 border-l-4 border-purple-500 pl-4 mb-6 uppercase">Hành Trình Đại Vận (10 Năm)</h3>
-                    <div className="flex overflow-x-auto pb-4 gap-3 hide-scrollbar">
-                        {daYun.map((yun, idx) => {
-                            const yunElem = stemElements[yun.gan];
-                            return (
-                                <div key={idx} className={`flex-shrink-0 flex flex-col items-center p-3.5 rounded-xl border-2 min-w-[95px] transition-all hover:scale-105 shadow-sm ${getBgColorClass(yunElem)}`}>
-                                    <div className="text-xs font-black text-slate-700/80 mb-1">{yun.startAge} Tuổi</div>
-                                    <Tooltip term={yun.gan} unstyled={true}>
-                                        <div className={`text-2xl font-black hover:scale-110 transition-transform ${getColorClass(yunElem)}`}>{yun.gan}</div>
-                                    </Tooltip>
-                                    <Tooltip term={yun.zhi} unstyled={true}>
-                                        <div className={`text-2xl font-black mb-1.5 hover:scale-110 transition-transform ${getColorClass(branchElements[yun.zhi])}`}>{yun.zhi}</div>
-                                    </Tooltip>
-                                    <div className="text-[10px] font-bold text-gray-400 mt-auto">{yun.startYear}</div>
-                                </div>
-                            )
-                        })}
+                <div className="space-y-6">
+                    <div>
+                        <h3 className="text-xl font-bold text-gray-800 border-l-4 border-purple-500 pl-4 mb-6 uppercase">Hành Trình Đại Vận (10 Năm)</h3>
+                        <div className="flex overflow-x-auto p-3 -m-3 gap-3 hide-scrollbar">
+                            {daYun.map((yun, idx) => {
+                                const yunElem = stemElements[yun.gan];
+                                const isSelected = selectedYunIndex === idx;
+                                return (
+                                    <div 
+                                        key={idx} 
+                                        onClick={() => handleSelectYun(idx)}
+                                        className={`flex-shrink-0 flex flex-col items-center p-3.5 rounded-xl border-2 min-w-[115px] transition-all hover:scale-105 shadow-sm cursor-pointer ${
+                                            isSelected 
+                                                ? 'border-purple-600 bg-purple-50/55 ring-4 ring-purple-100 scale-105' 
+                                                : `${getBgColorClass(yunElem)} border-gray-250 bg-white`
+                                        }`}
+                                    >
+                                        <div className="text-xs font-black text-slate-700/80 mb-0.5">{yun.startAge} Tuổi</div>
+                                        <div className="text-[9px] font-bold text-gray-400 mb-1">{yun.startYear}</div>
+                                        
+                                        {/* Horizontal dashed divider line */}
+                                        <div className="w-full border-t border-dashed border-gray-200 my-1"></div>
+                                        
+                                        {/* Thập Thần của Thiên Can */}
+                                        <div className="text-[9px] sm:text-xs font-bold text-gray-400 h-4 flex items-center justify-center">
+                                            <Tooltip term={yun.thapThanGan} unstyled={true}>
+                                                <span className="cursor-help hover:text-blue-700 transition-colors">{getAbbreviatedThapThan(yun.thapThanGan)}</span>
+                                            </Tooltip>
+                                        </div>
+                                        
+                                        {/* Thiên Can & Địa Chi */}
+                                        <Tooltip term={yun.gan} unstyled={true}>
+                                            <div className={`text-2xl font-black hover:scale-110 transition-transform ${getColorClass(yunElem)}`}>{yun.gan}</div>
+                                        </Tooltip>
+                                        <Tooltip term={yun.zhi} unstyled={true}>
+                                            <div className={`text-2xl font-black mb-1 hover:scale-110 transition-transform ${getColorClass(branchElements[yun.zhi])}`}>{yun.zhi}</div>
+                                        </Tooltip>
+
+                                        {/* Nạp Âm của Đại Vận */}
+                                        {yun.naYin && (
+                                            <Tooltip term={yun.naYin} unstyled={true}>
+                                                <div className={`text-[8px] sm:text-xs font-semibold px-2 py-0.5 rounded-full border my-1 text-center max-w-full truncate hover:brightness-95 transition-all ${getNaYinColorClass(yun.naYin)}`}>
+                                                    {yun.naYin}
+                                                </div>
+                                            </Tooltip>
+                                        )}
+                                        
+                                        {/* Tàng can & Thập thần */}
+                                        <div className="w-full border-t border-dashed border-gray-200 mt-1.5 pt-1.5 flex flex-col items-center justify-center">
+                                            <div className="w-full flex flex-col gap-0.5 mt-0.5">
+                                                {(() => {
+                                                    const paddedTangCan = [...(yun.tangCan || [])];
+                                                    while (paddedTangCan.length < 3) {
+                                                        paddedTangCan.push({ gan: '', thapThan: '' });
+                                                    }
+                                                    return paddedTangCan.map((tc, tcIdx) => (
+                                                        <div key={tcIdx} className="flex justify-between items-center text-[10px] leading-tight w-full gap-1 h-[14px]">
+                                                            {tc.gan ? (
+                                                                <>
+                                                                    <Tooltip term={tc.gan} unstyled={true}>
+                                                                        <span className={`font-bold shrink-0 text-left hover:scale-110 transition-transform ${getColorClass(stemElements[tc.gan])}`}>{tc.gan}</span>
+                                                                    </Tooltip>
+                                                                    <Tooltip term={tc.thapThan} unstyled={true}>
+                                                                        <span className="text-slate-800 font-bold text-right truncate pl-1 hover:text-blue-700 transition-colors text-[9px]">{getAbbreviatedThapThan(tc.thapThan)}</span>
+                                                                    </Tooltip>
+                                                                </>
+                                                            ) : (
+                                                                <span className="invisible">&nbsp;</span>
+                                                            )}
+                                                        </div>
+                                                    ));
+                                                })()}
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
                     </div>
+
+                    {/* Hàng chọn năm Lưu Niên */}
+                    {daYun[selectedYunIndex] && daYun[selectedYunIndex].liuNian && (
+                        <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200/60">
+                            <span className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-2 text-center sm:text-left">Chọn năm Lưu Niên để đối chiếu:</span>
+                            <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
+                                {daYun[selectedYunIndex].liuNian.map((ln) => {
+                                    const isYearSelected = selectedLuuNianYear === ln.year;
+                                    return (
+                                        <button
+                                            key={ln.year}
+                                            onClick={() => setSelectedLuuNianYear(ln.year)}
+                                            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                                                isYearSelected
+                                                    ? 'bg-purple-600 text-white shadow-sm scale-105'
+                                                    : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
+                                            }`}
+                                        >
+                                            {ln.year} ( {ln.age} tuổi )
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Biểu đồ đối chiếu 6 cột */}
+                    {(() => {
+                        const activeLuuNianPillar = daYun[selectedYunIndex]?.liuNian?.find(ln => ln.year === selectedLuuNianYear);
+                        if (!activeLuuNianPillar) return null;
+                        
+                        return (
+                            <div className="border border-purple-100 bg-purple-50/10 p-4 sm:p-6 rounded-[2rem] space-y-6">
+                                <h4 className="text-base font-extrabold text-slate-800 uppercase flex items-center justify-between flex-wrap gap-4 border-b border-purple-100/50 pb-3">
+                                    <span>Bảng Đối Chiếu Vận Hạn Năm {selectedLuuNianYear} ( {activeLuuNianPillar.gan} {activeLuuNianPillar.zhi} )</span>
+                                    <span className="text-xs font-semibold text-purple-700 bg-purple-50 px-3 py-1 rounded-full border border-purple-100 normal-case">
+                                        Đại Vận {daYun[selectedYunIndex].gan} {daYun[selectedYunIndex].zhi} ( {daYun[selectedYunIndex].startAge} - {daYun[selectedYunIndex].startAge + 9} Tuổi )
+                                    </span>
+                                </h4>
+                                
+                                {/* Layout Desktop: 6 cột xếp ngang */}
+                                <div className="hidden md:flex flex-row justify-center gap-2 lg:gap-4 w-full flex-nowrap">
+                                    <Pillar title="Đại Vận" pillarData={daYun[selectedYunIndex]} hideTruongSinh={true} hideNaYin={false} />
+                                    <Pillar title={`Lưu Niên ${selectedLuuNianYear}`} pillarData={activeLuuNianPillar} hideTruongSinh={true} hideNaYin={false} />
+                                    <Pillar title="Trụ Năm" pillarData={canChi.year} />
+                                    <Pillar title="Trụ Tháng" pillarData={canChi.month} />
+                                    <Pillar title="Trụ Ngày" pillarData={canChi.day} isDayMaster={true} />
+                                    <Pillar title="Trụ Giờ" pillarData={canChi.hour} />
+                                </div>
+
+                                {/* Layout Mobile: 3 cột xếp dọc 2x3 */}
+                                <div className="grid grid-cols-3 gap-2 md:hidden w-full">
+                                    {/* Cột 1: Đại Vận & Lưu Niên */}
+                                    <div className="flex flex-col gap-2">
+                                        <Pillar title="Đại Vận" pillarData={daYun[selectedYunIndex]} hideTruongSinh={true} hideNaYin={false} />
+                                        <Pillar title={`Lưu Niên ${selectedLuuNianYear}`} pillarData={activeLuuNianPillar} hideTruongSinh={true} hideNaYin={false} />
+                                    </div>
+
+                                    {/* Cột 2: Trụ Ngày & Trụ Giờ */}
+                                    <div className="flex flex-col gap-2">
+                                        <Pillar title="Trụ Ngày" pillarData={canChi.day} isDayMaster={true} />
+                                        <Pillar title="Trụ Giờ" pillarData={canChi.hour} />
+                                    </div>
+
+                                    {/* Cột 3: Trụ Năm & Trụ Tháng */}
+                                    <div className="flex flex-col gap-2">
+                                        <Pillar title="Trụ Năm" pillarData={canChi.year} />
+                                        <Pillar title="Trụ Tháng" pillarData={canChi.month} />
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })()}
                 </div>
                 )}
 

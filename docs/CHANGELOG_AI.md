@@ -4,6 +4,48 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
 
 ---
 
+## 📅 Phiên bản: Tích hợp Thần Sát Học Thuật & Giao Diện Lưu Niên Đối Chiếu 6 Cột Bát Tự (Cập nhật Không Vong & Định dạng) (19/07/2026)
+
+### Backend (Tính toán học thuật Bát tự & Prompt)
+- **BaziAnalyzer.js (`getShenSha`)**:
+  - Triển khai hàm tính toán 14 Thần Sát Bát Tự học thuật chuyên biệt (Thiên Ất, Thái Cực, Thiên Đức, Nguyệt Đức, Lộc Thần, Kình Dương, Dịch Mã, Hoa Cái, Đào Hoa, Tướng Tinh, Kiếp Sát, Vong Thần, Văn Xương, Cô Thần, Quả Tú). Được tách biệt hoàn toàn khỏi công thức Tử Vi.
+  - Tách biệt các điều kiện so sánh thành độc lập để tính đúng và đủ tất cả trường hợp khi 1 trụ có nhiều Thần Sát.
+  - Bổ sung thuật toán tính **Không Vong** dựa trên cả Nhật Trụ (Trụ Ngày) và Niên Trụ (Trụ Năm) gốc. Nếu địa chi trùng khớp, sẽ an thêm "Không Vong" vào danh sách Thần Sát của trụ đó.
+- **Tách biệt Thần Sát & Nạp Âm**:
+  - Bỏ tính toán Thần Sát cho các trụ phụ Đại Vận, Lưu Niên, Thai Nguyên và Mệnh Cung để giao diện được tối giản và rành mạch.
+  - Đảm bảo tính toán và lưu trữ Nạp Âm (`naYin`) đầy đủ cho các năm Lưu Niên trong mảng dữ liệu.
+- **BaziController.js**: Tích hợp hàm `hasNewSchema` kiểm tra cấu trúc dữ liệu của các bản ghi cũ. Nếu phát hiện bản ghi đã lưu từ trước thiếu trường tàng can (`tangCan`) của Đại Vận, server sẽ tự động tính toán lại dữ liệu mới nhất thông qua `BaziAnalyzer` để nâng cấp lên phiên bản đầy đủ nhất và ghi đè vào DB.
+- **BaziPrompts.js**: Truyền danh sách Thần Sát đã được tính sẵn trực tiếp vào Prompt của AI nhằm loại bỏ lỗi LLM tự tính toán sai lệch hay nhầm lẫn sang hệ sao của Tử Vi. Bổ sung chỉ dẫn học thuật nghiêm ngặt.
+
+### Frontend (Giao diện người dùng)
+- **HomeBoard.jsx & UserApp.jsx**: Bổ sung ô nhập liệu "Họ và Tên (Không bắt buộc)" trên modal xem vận mệnh ở trang chủ, tự động điền tên của tài khoản đang đăng nhập. Truyền tham số tên này qua API lập lá số Bát Tự & Tử Vi tương ứng.
+- **concepts.js**: Cập nhật từ điển khái niệm để bổ sung đầy đủ chi tiết đặc trưng, phân loại tốt/xấu, mô tả ý nghĩa và biểu trưng cho toàn bộ 22 sao Thần Sát Bát Tự. Người dùng giờ đây có thể di chuột/chạm vào các sao trên giao diện để xem giải nghĩa tức thời qua Tooltip.
+- **BaziBoard.jsx (`Pillar` Component & Bố cục)**:
+  - Sửa lỗi khuyết viền (border clipping) ở các thẻ Đại Vận khi được chọn (`scale-105`) hoặc di chuột bằng cách thêm vùng đệm `p-3` và lề âm `-m-3` cho thanh cuộn ngang Đại Vận.
+  - Hiển thị đầy đủ hai cột phụ **Thai Nguyên** và **Cung Mệnh** trên bảng Tứ Trụ, nhưng ẩn (không tính toán) Thần Sát của chúng để đảm bảo sự tối giản và tập trung vào các trụ chính.
+  - Cố định phần Tàng Can hiển thị **đúng 3 dòng** cho mọi địa chi để đảm bảo căn lề ngang thẳng tắp trên giao diện.
+  - Thiết kế lại Thần Sát hiển thị dạng các dòng văn bản đơn giản căn giữa, không có chữ tiêu đề "THẦN SÁT", không có màu nền.
+  - Phân loại màu chữ Thần Sát thành 3 nhóm (chỉ dùng màu chữ): Cát Thần tốt (màu xanh lá: `text-emerald-600`), Hung Thần xấu (màu đỏ: `text-rose-600`, bao gồm cả Không Vong), Cát Hung trung tính (màu đen: `text-slate-800`).
+  - Hỗ trợ cấu hình thuộc tính `hideTruongSinh` và `hideNaYin` để tái sử dụng Pillar linh hoạt.
+- **Định dạng Khoảng Cách & Tiêu Đề**:
+  - Nút bấm chọn năm Lưu Niên đổi định dạng cách dấu ngoặc: `2026 ( 19 tuổi )`.
+  - Tên Can Chi tiêu đề bảng đối chiếu đổi thành: ` 2026 ( Bính Ngọ )` (cách rời Can Chi).
+  - Tên Can Chi tiêu đề Đại Vận đổi thành: `Đại Vận Canh Thân ( 39 - 48 Tuổi )`.
+  - Bảng đối chiếu Bát Tự hiển thị đầy đủ Nạp Âm cho Đại Vận và Lưu Niên (bằng cách bỏ ẩn Nạp Âm `hideNaYin={false}`).
+
+---
+
+## 📅 Phiên bản: Giao diện Bát Tự Mobile 3 Cột (17/07/2026)
+
+### Frontend
+- **BaziBoard.jsx**: Thiết kế riêng và áp cứng bố cục mobile cho phần hiển thị các trụ Bát Tự. Khi chiều rộng màn hình nhỏ hơn `md` (768px), các trụ sẽ được chia cố định thành 3 cột đều đặn:
+  - **Cột 1**: Thai Nguyên & Cung Mệnh (nếu có dữ liệu)
+  - **Cột 2**: Trụ Ngày (Nhật Chủ) & Trụ Giờ (Giờ Sinh)
+  - **Cột 3**: Trụ Năm (Năm Sinh) & Trụ Tháng (Nguyệt Lệnh)
+- **Tương thích Responsive**: Trên màn hình máy tính (tablet/desktop từ `md` trở lên), giữ nguyên bố cục nằm ngang linh hoạt sử dụng `flex-row-reverse` truyền thống.
+
+---
+
 ## 📅 Phiên bản: Thuật toán Bát tự Ngũ hành 5.2 - Lực Lượng Can Chi Cột (17/07/2026)
 
 ### Backend (Tính toán học thuật Bát tự)

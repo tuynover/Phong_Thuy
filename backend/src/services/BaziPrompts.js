@@ -35,14 +35,14 @@ QUY TẮC LUẬN GIẢI HỌC THUẬT & AN TOÀN:
 - Tiết khí Can Chi: ${baziRecord.tietKhiTimeline}
 
 --- CHI TIẾT TỨ TRỤ ---
-1. Trụ Năm (Căn cơ, Tổ nghiệp): Can ${canChi.year.gan} - Chi ${canChi.year.zhi} (Thập thần Can: ${canChi.year.thapThanGan}, Tàng can chi: ${canChi.year.tangCan.map(t => `${t.gan} (${t.thapThan})`).join(', ')}, Nạp Âm: ${canChi.year.naYin}, Trường Sinh của Nhật Chủ: ${canChi.year.truongSinh})
-2. Trụ Tháng (Anh em, Lệnh tháng): Can ${canChi.month.gan} - Chi ${canChi.month.zhi} (Thập thần Can: ${canChi.month.thapThanGan}, Tàng can chi: ${canChi.month.tangCan.map(t => `${t.gan} (${t.thapThan})`).join(', ')}, Nạp Âm: ${canChi.month.naYin}, Trường Sinh của Nhật Chủ: ${canChi.month.truongSinh})
-3. Trụ Ngày (Bản thân, Nhật Chủ): Can ${canChi.day.gan} (Nhật Chủ) - Chi ${canChi.day.zhi} (Cung Thê/Phu, Tàng can chi: ${canChi.day.tangCan.map(t => `${t.gan} (${t.thapThan})`).join(', ')}, Nạp Âm: ${canChi.day.naYin}, Trường Sinh của Nhật Chủ: ${canChi.day.truongSinh})
-4. Trụ Giờ (Con cái, Hậu vận): Can ${canChi.hour.gan} - Chi ${canChi.hour.zhi} (Thập thần Can: ${canChi.hour.thapThanGan}, Tàng can chi: ${canChi.hour.tangCan.map(t => `${t.gan} (${t.thapThan})`).join(', ')}, Nạp Âm: ${canChi.hour.naYin}, Trường Sinh của Nhật Chủ: ${canChi.hour.truongSinh})
+1. Trụ Năm (Căn cơ, Tổ nghiệp): Can ${canChi.year.gan} - Chi ${canChi.year.zhi} (Thập thần Can: ${canChi.year.thapThanGan}, Tàng can chi: ${canChi.year.tangCan.map(t => `${t.gan} (${t.thapThan})`).join(', ')}, Nạp Âm: ${canChi.year.naYin}, Trường Sinh: ${canChi.year.truongSinh || 'Không'}, Thần Sát Bát Tự: ${canChi.year.shenSha?.join(', ') || 'Không'})
+2. Trụ Tháng (Anh em, Lệnh tháng): Can ${canChi.month.gan} - Chi ${canChi.month.zhi} (Thập thần Can: ${canChi.month.thapThanGan}, Tàng can chi: ${canChi.month.tangCan.map(t => `${t.gan} (${t.thapThan})`).join(', ')}, Nạp Âm: ${canChi.month.naYin}, Trường Sinh: ${canChi.month.truongSinh || 'Không'}, Thần Sát Bát Tự: ${canChi.month.shenSha?.join(', ') || 'Không'})
+3. Trụ Ngày (Bản thân, Nhật Chủ): Can ${canChi.day.gan} (Nhật Chủ) - Chi ${canChi.day.zhi} (Cung Thê/Phu, Tàng can chi: ${canChi.day.tangCan.map(t => `${t.gan} (${t.thapThan})`).join(', ')}, Nạp Âm: ${canChi.day.naYin}, Trường Sinh: ${canChi.day.truongSinh || 'Không'}, Thần Sát Bát Tự: ${canChi.day.shenSha?.join(', ') || 'Không'})
+4. Trụ Giờ (Con cái, Hậu vận): Can ${canChi.hour.gan} - Chi ${canChi.hour.zhi} (Thập thần Can: ${canChi.hour.thapThanGan}, Tàng can chi: ${canChi.hour.tangCan.map(t => `${t.gan} (${t.thapThan})`).join(', ')}, Nạp Âm: ${canChi.hour.naYin}, Trường Sinh: ${canChi.hour.truongSinh || 'Không'}, Thần Sát Bát Tự: ${canChi.hour.shenSha?.join(', ') || 'Không'})
 
 --- CHI TIẾT PHỤ TRỤ ---
-- Thai Nguyên: Can Chi ${baziData.taiNguyen.canChi} | Nạp Âm: ${baziData.taiNguyen.naYin}
-- Cung Mệnh: Can Chi ${baziData.cungMenh.canChi} | Nạp Âm: ${baziData.cungMenh.naYin}
+- Thai Nguyên: Can Chi ${baziData.taiNguyen.canChi} | Nạp Âm: ${baziData.taiNguyen.naYin} | Thần Sát Bát Tự: ${baziData.taiNguyen.shenSha?.join(', ') || 'Không'}
+- Cung Mệnh: Can Chi ${baziData.cungMenh.canChi} | Nạp Âm: ${baziData.cungMenh.naYin} | Thần Sát Bát Tự: ${baziData.cungMenh.shenSha?.join(', ') || 'Không'}
 
 --- TƯƠNG QUAN ĐỊA CHI (HÌNH XUNG HỢP HẠI) ---
 ${formatRelationText(baziData.analysis.relations)}
@@ -80,7 +80,8 @@ Hãy phân tích chi tiết đời người qua 4 khía cạnh bằng việc chi
 **Phân Tích Sức Khỏe & Tật Ách**: Dự báo nguy cơ bệnh tật tiềm ẩn theo sự mất cân bằng của ngũ hành (gan, tim, phổi, thận, tỳ vị) và đưa ra chế độ dinh dưỡng, tập luyện phù hợp. Khống chế từ 200 - 250 từ.
 
 ## BƯỚC 4: GIẢI MÃ THẦN SÁT : GIA VỊ CỦA LÁ SỐ
-- Tra cứu và giải mã ảnh hưởng của các Thần Sát cát hung (Thiên Ất Quý Nhân, Văn Xương, Hoa Cái, Đào Hoa, Kình Dương, Cô Quả, Kiếp Sát...) đóng ở các Trụ của đương số. Đưa ra lập luận rõ ràng về tác động thực tế của chúng.
+- Chỉ tra cứu và giải mã ảnh hưởng của các Thần Sát của hệ thống Tử Bình (Bát Tự) đã được tính toán sẵn cho từng Trụ ở trên (bao gồm: Thiên Ất Quý Nhân, Thái Cực Quý Nhân, Thiên Đức Quý Nhân, Nguyệt Đức Quý Nhân, Lộc Thần, Kình Dương, Dịch Mã, Hoa Cái, Đào Hoa, Tướng Tinh, Kiếp Sát, Vong Thần, Văn Xương Quý Nhân, Cô Thần, Quả Tú, Không Vong, Phúc Tinh Quý Nhân, Quốc Ấn Quý Nhân, Thiên Y Quý Nhân, Hồng Loan, Thiên Hỷ, Kim Dư Quý Nhân). 
+- Tuyệt đối không tự ý an các sao hay các tính toán thuộc hệ thống Tử Vi (như Cô Thần/Quả Tú tính theo cách Tử Vi). Hãy làm rõ tác động thực tế cát/hung của chúng đối với đương số.
 - Khống chế độ dài phần này từ 150 - 200 từ.
 
 ## BƯỚC 5: LUẬN ĐẠI VẬN & LƯU NIÊN : DÒNG CHẢY THỜI GIAN
