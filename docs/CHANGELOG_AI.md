@@ -11,6 +11,8 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
   - Sử dụng đối tượng `lunarAdjusted` để xác định chính xác số ngày thực tế trôi qua từ thời điểm bắt đầu Tiết khí (`prevJie`) theo múi giờ Việt Nam (UTC+7).
   - Sửa lỗi tính toán ngày trôi qua cho Ngũ hành tư lệnh: Ép buộc dùng mốc bắt đầu của các **Tiết (Jie)** như Tiểu Hàn, Lập Xuân... thay vì các **Khí (Qi)** như Đại Hàn, Vũ Thủy... để tính chính xác số ngày trôi qua kể từ lúc bắt đầu của tháng Bát Tự (ví dụ: ngày 23/01/1970 là ngày thứ 18 tính từ Tiết Tiểu Hàn thuộc tháng Sửu, cho ra kết quả đúng là **Kỷ vượng** thay vì **Quý vượng** tính từ Đại Hàn).
 - **BaziController.js & HistoryController.js**: Tích hợp trường `tuLenhCan` vào cơ chế tự động nâng cấp cấu trúc lá số cho các bản ghi cũ khi người dùng xem lại.
+- **NotificationScheduler.js**: Khắc phục lỗi cộng dồn nhiều lượt sử dụng (credit) khi khởi động lại server. Đã tích hợp kiểm tra `SystemLog` theo múi giờ Việt Nam (UTC+7) để đảm bảo hành động cộng credit `DAILY_CREDIT_INCREMENT` chỉ được thực hiện duy nhất 1 lần mỗi ngày, tránh lỗ hổng người dùng nhận thêm credit khi restart/crash server.
+
 
 - **BaziBoard.jsx & concepts.js**:
   - Xóa hiển thị Tiết khí trên dòng Dương / Âm lịch chính.

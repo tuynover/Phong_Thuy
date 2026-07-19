@@ -56,14 +56,37 @@ async function purgeSoftDeletedUsers() {
 async function checkAndSendNotifications() {
     console.log('[NotificationScheduler] Running daily check...');
     
-    // 1. Daily Credit Increment (+1 for user/vip)
+    // 1. Daily Credit Increment (+1 for user/vip) - Only run once per day
     try {
-        console.log('[NotificationScheduler] Running daily credit increment...');
-        const creditRes = await User.updateMany(
-            { role: { $in: ['user', 'vip'] }, status: 'active', isDeleted: false },
-            { $inc: { credits: 1 } }
-        );
-        console.log(`[NotificationScheduler] Daily credit increment completed. Updated ${creditRes.modifiedCount || 0} users.`);
+        const startOfVnDay = new Date(new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }) + 'T00:00:00+07:00');
+        const alreadyRun = await SystemLog.findOne({
+            action: 'DAILY_CREDIT_INCREMENT',
+            timestamp: { $gte: startOfVnDay }
+        });
+
+        if (alreadyRun) {
+            console.log('[NotificationScheduler] Daily credit increment already executed today. Skipping.');
+        } else {
+            console.log('[NotificationScheduler] Running daily credit increment...');
+            const creditRes = await User.updateMany(
+                { role: { $in: ['user', 'vip'] }, status: 'active', isDeleted: false },
+                { $inc: { credits: 1 } }
+            );
+            console.log(`[NotificationScheduler] Daily credit increment completed. Updated ${creditRes.modifiedCount || 0} users.`);
+
+            // Log the run to prevent duplicate executions on restart
+            await SystemLog.create({
+                userId: 'system',
+                email: 'system@phongthuy.com',
+                name: 'System Cron',
+                ip: '127.0.0.1',
+                action: 'DAILY_CREDIT_INCREMENT',
+                method: 'CRON',
+                path: '/cron/daily-credits',
+                statusCode: 200,
+                duration: 0
+            });
+        }
     } catch (err) {
         console.error('[NotificationScheduler] Error during daily credit increment:', err);
     }

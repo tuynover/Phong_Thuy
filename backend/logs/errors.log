@@ -966,3 +966,5 @@ Stack: Error: getaddrinfo ENOTFOUND phong-thuy-backend-gz15.onrender.com
 [2026-07-20 00:02:33.789] [WARN] [User: anonymous] [Action: GET /api/auth/me] [IP: ::1] [Duration: 5ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (401)
 [2026-07-20 00:02:34.131] [WARN] [User: anonymous] [Action: GET /api/notifications] [IP: ::1] [Duration: 4ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (401)
 [2026-07-20 00:02:34.237] [WARN] [User: anonymous] [Action: GET /api/notifications] [IP: ::1] [Duration: 4ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (401)
+[2026-07-20 00:27:41.917] [WARN] [User: cobatuoc@gmail.com (Tuyen)] [Action: GET /api/notifications] [IP: ::1] [Duration: 250ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (401)
+[2026-07-20 00:27:44.082] [WARN] [User: cobatuoc@gmail.com (Tuyen)] [Action: Xem Lịch Sử Bát Tự] [IP: ::1] [Duration: 11241ms] Cảnh báo: Yêu cầu không hợp lệ hoặc bị từ chối (401)
