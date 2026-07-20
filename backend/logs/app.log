@@ -32000,3 +32000,4 @@ Stack: Error: getaddrinfo ENOTFOUND phong-thuy-backend-gz15.onrender.com
 [2026-07-20 17:02:29.485] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/admin/notifications
 [2026-07-20 17:02:29.590] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/analytics] [IP: ::1] [Duration: 300ms] Hoàn thành: Phản hồi thành công (200)
 [2026-07-20 17:02:29.665] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/admin/notifications] [IP: ::1] [Duration: 181ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 17:06:22.036] [INFO] [NotificationScheduler] Scanning for request and token spikes...

@@ -30,11 +30,11 @@ import HistoryBoard from './HistoryBoard';
 import HomeBoard from './HomeBoard';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const BaziBoard = React.lazy(() => import('./BaziBoard'));
-const ZiweiBoard = React.lazy(() => import('./ZiweiBoard'));
-const MarriageBoard = React.lazy(() => import('./MarriageBoard'));
-const DateSelectionBoard = React.lazy(() => import('./DateSelectionBoard'));
-const BlogBoard = React.lazy(() => import('./BlogBoard'));
+import BaziBoard from './BaziBoard';
+import ZiweiBoard from './ZiweiBoard';
+import MarriageBoard from './MarriageBoard';
+import DateSelectionBoard from './DateSelectionBoard';
+import BlogBoard from './BlogBoard';
 
 export default function UserApp({ onSwitchToAdmin }) {
   // Parse URL query parameter for deep-linking blog posts
@@ -1234,14 +1234,7 @@ export default function UserApp({ onSwitchToAdmin }) {
 
           {baziResult && !loading && (
             <div className="space-y-12 animate-in fade-in zoom-in-95 duration-700 pb-20 font-sans">
-              <React.Suspense fallback={
-                <div className="text-center py-20 animate-in fade-in">
-                  <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
-                  <p className="text-blue-900 font-extrabold text-sm tracking-wider uppercase animate-pulse">Đang nạp dữ liệu Bát Tự...</p>
-                </div>
-              }>
-                <BaziBoard data={baziResult} onUpdateData={setBaziResult} onRequireLogin={() => setIsAuthModalOpen(true)} onInvalidateHistory={invalidateHistoryCache} />
-              </React.Suspense>
+              <BaziBoard data={baziResult} onUpdateData={setBaziResult} onRequireLogin={() => setIsAuthModalOpen(true)} onInvalidateHistory={invalidateHistoryCache} />
               <div className="text-center">
                 <button 
                   onClick={() => {
@@ -1266,23 +1259,16 @@ export default function UserApp({ onSwitchToAdmin }) {
 
         {/* SYSTEM 3: TỬ VI */}
         <div className={`${appMode === 'ziwei' ? 'block' : 'hidden'}`}>
-          <React.Suspense fallback={
-            <div className="text-center py-20 animate-in fade-in">
-              <div className="w-12 h-12 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-purple-900 font-extrabold text-sm tracking-wider uppercase">Đang nạp dữ liệu Tử Vi...</p>
-            </div>
-          }>
-            <ZiweiBoard 
-              user={user} 
-              onRequireLogin={() => setIsAuthModalOpen(true)} 
-              historicalRecordId={historicalZiweiId} 
-              onCalculationComplete={invalidateHistoryCache}
-              onResultChange={setIsZiweiResultLoaded}
-              autoSubmitInfo={autoSubmitZiwei}
-              onClearAutoSubmit={() => setAutoSubmitZiwei(null)}
-              onInvalidateHistory={invalidateHistoryCache}
-            />
-          </React.Suspense>
+          <ZiweiBoard 
+            user={user} 
+            onRequireLogin={() => setIsAuthModalOpen(true)} 
+            historicalRecordId={historicalZiweiId} 
+            onCalculationComplete={invalidateHistoryCache}
+            onResultChange={setIsZiweiResultLoaded}
+            autoSubmitInfo={autoSubmitZiwei}
+            onClearAutoSubmit={() => setAutoSubmitZiwei(null)}
+            onInvalidateHistory={invalidateHistoryCache}
+          />
         </div>
 
         {/* SYSTEM 5: HÔN NHÂN */}
@@ -1302,14 +1288,7 @@ export default function UserApp({ onSwitchToAdmin }) {
 
           {marriageResult && !loading && (
             <div className="space-y-12 animate-in fade-in zoom-in-95 duration-700 pb-20 font-sans">
-              <React.Suspense fallback={
-                <div className="text-center py-20 animate-in fade-in">
-                  <div className="w-12 h-12 border-4 border-rose-200 border-t-rose-600 rounded-full animate-spin mx-auto mb-4"></div>
-                  <p className="text-rose-955 font-extrabold text-sm tracking-wider uppercase">Đang nạp dữ liệu Hợp Hôn...</p>
-                </div>
-              }>
-                <MarriageBoard data={marriageResult} onUpdateData={setMarriageResult} onRequireLogin={() => setIsAuthModalOpen(true)} onInvalidateHistory={invalidateHistoryCache} />
-              </React.Suspense>
+              <MarriageBoard data={marriageResult} onUpdateData={setMarriageResult} onRequireLogin={() => setIsAuthModalOpen(true)} onInvalidateHistory={invalidateHistoryCache} />
               <div className="text-center">
                 <button 
                   onClick={() => {
@@ -1334,30 +1313,16 @@ export default function UserApp({ onSwitchToAdmin }) {
         
         {/* SYSTEM 6: DATE SELECTION */}
         <div className={`${appMode === 'xemngay' ? 'block' : 'hidden'}`}>
-          <React.Suspense fallback={
-            <div className="text-center py-20 animate-in fade-in">
-              <div className="w-12 h-12 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-emerald-955 font-extrabold text-sm tracking-wider uppercase animate-pulse">Đang nạp dữ liệu Trạch Cát...</p>
-            </div>
-          }>
-            <DateSelectionBoard user={user} />
-          </React.Suspense>
+          <DateSelectionBoard user={user} />
         </div>
 
         {/* SYSTEM 7: BLOG */}
         <div className={`${appMode === 'blog' ? 'block' : 'hidden'}`}>
-          <React.Suspense fallback={
-            <div className="text-center py-20 animate-in fade-in">
-              <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-650 rounded-full animate-spin mx-auto mb-4"></div>
-              <p className="text-indigo-955 font-extrabold text-sm tracking-wider uppercase animate-pulse">Đang nạp dữ liệu Blog...</p>
-            </div>
-          }>
-            <BlogBoard 
-              onSelectModule={handleSelectModule} 
-              initialSlug={blogSlug} 
-              onClearSlug={handleClearBlogSlug} 
-            />
-          </React.Suspense>
+          <BlogBoard 
+            onSelectModule={handleSelectModule} 
+            initialSlug={blogSlug} 
+            onClearSlug={handleClearBlogSlug} 
+          />
         </div>
 
         {/* SYSTEM 4: HISTORY */}
