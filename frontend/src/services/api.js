@@ -87,17 +87,40 @@ export const getAdminUserStats = (id) => axios.get(`${API_URL}/admin/users/${id}
 export const deleteCalculation = (type, id) => axios.delete(`${API_URL}/history/calculations/${type}/${id}`);
 export const pinCalculation = (type, id) => axios.put(`${API_URL}/history/calculations/${type}/${id}/pin`);
 
-// Backward compatibility legacy aliases
-export const getHexagramHistory = getIChingHistory;
-export const getHexagramRecord = getIChingRecord;
-export const getHexagramChatMessages = getIChingChatMessages;
-export const rateHexagram = rateIChing;
-export const linkHexagram = linkIChing;
-export const interpretHexagram = interpretIChing;
+// Blog API Endpoints
+export const getBlogPosts = (params) => axios.get(`${API_URL}/blog`, { params });
+export const getBlogPost = (slug) => axios.get(`${API_URL}/blog/${slug}`);
+export const createBlogPost = (postData) => axios.post(`${API_URL}/blog`, postData);
+export const updateBlogPost = (id, postData) => axios.put(`${API_URL}/blog/${id}`, postData);
+export const deleteBlogPost = (id) => axios.delete(`${API_URL}/blog/${id}`);
+export const restoreBlogPost = (id) => axios.post(`${API_URL}/blog/${id}/restore`);
 
-export const createTuViChart = createZiweiChart;
-export const interpretTuVi = interpretZiwei;
-export const getTuViHistory = getZiweiHistory;
-export const getTuViRecord = getZiweiRecord;
-export const rateTuVi = rateZiwei;
-export const getTuViChatMessages = getZiweiChatMessages;
+// Backward compatibility legacy aliases
+const getHexagramHistory = getIChingHistory;
+const getHexagramRecord = getIChingRecord;
+const getHexagramChatMessages = getIChingChatMessages;
+const rateHexagram = rateIChing;
+const linkHexagram = linkIChing;
+const interpretHexagram = interpretIChing;
+
+const createTuViChart = createZiweiChart;
+const interpretTuVi = interpretZiwei;
+const getTuViHistory = getZiweiHistory;
+const getTuViRecord = getZiweiRecord;
+const rateTuVi = rateZiwei;
+const getTuViChatMessages = getZiweiChatMessages;
+
+export {
+  getHexagramHistory,
+  getHexagramRecord,
+  getHexagramChatMessages,
+  rateHexagram,
+  linkHexagram,
+  interpretHexagram,
+  createTuViChart,
+  interpretTuVi,
+  getTuViHistory,
+  getTuViRecord,
+  rateTuVi,
+  getTuViChatMessages
+};

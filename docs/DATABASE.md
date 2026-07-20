@@ -276,6 +276,33 @@ Thông báo nhắc nhở sự kiện Ứng Kỳ gửi tới người dùng cuố
 - **Chỉ mục phụ:**
   - `{"status": 1, "createdAt": -1}`
 
+#### e. Bảng Bài viết Tin tức & Học thuật (`blogposts`)
+Lưu trữ các bài viết kiến thức phong thủy và học thuật chuyên sâu.
+- **Model:** [BlogPost.js](file:///t:/Phongthuy/backend/src/models/BlogPost.js)
+- **Cấu trúc Schema:**
+  ```javascript
+  {
+    _id: { type: String, default: uuidv7 },
+    title: { type: String, required: true },
+    slug: { type: String, required: true, unique: true },
+    summary: { type: String, required: true },
+    content: { type: String, required: true },
+    category: { type: String, enum: ['iching', 'bazi', 'ziwei', 'marriage', 'fengshui', 'general'], default: 'general' },
+    tags: { type: [String], default: [] },
+    thumbnailUrl: { type: String, default: '' },
+    isPublished: { type: Boolean, default: true },
+    isDeleted: { type: Boolean, default: false },
+    views: { type: Number, default: 0 },
+    author: { type: String, default: 'Ban Quản Trị' },
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now }
+  }
+  ```
+- **Chỉ mục phụ:**
+  - `{"slug": 1}`
+  - `{"category": 1, "isPublished": 1, "isDeleted": 1}`
+  - `{"createdAt": -1}`
+
 ---
 
 ## 🔄 3. Cơ chế Trigger / Hooks cơ sở dữ liệu

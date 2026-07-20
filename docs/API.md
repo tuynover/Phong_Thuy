@@ -442,3 +442,134 @@ Chức năng chạy in-memory, phục vụ xem ngày cát hung và tư vấn kho
   }
   ```
 
+---
+
+## ✍️ 8. Tin tức & Kiến thức Học thuật (`/api/blog`)
+
+### 8.1 Lấy danh sách bài viết
+- **Endpoint:** `GET /api/blog`
+- **Query Params:**
+  - `category` (tùy chọn): Lọc theo danh mục (`iching`, `bazi`, `ziwei`, `marriage`, `fengshui`, `general`). Mặc định `all` hoặc bỏ trống để lấy tất cả.
+  - `search` (tùy chọn): Từ khóa tìm kiếm theo tiêu đề hoặc tóm tắt.
+  - `page` (tùy chọn): Số trang hiển thị (mặc định: 1).
+  - `limit` (tùy chọn): Số lượng bài viết mỗi trang (mặc định: 9).
+  - `showAll` (tùy chọn, chỉ dành cho Admin): Gửi `true` để lấy toàn bộ bao gồm bản nháp và bài viết đã xóa mềm.
+- **Phản hồi (200):**
+  ```json
+  {
+    "success": true,
+    "posts": [
+      {
+        "_id": "0190cfba-4321-7000-8000-000000000001",
+        "title": "Ý nghĩa sao Thái Tuế năm Bính Ngọ 2026",
+        "slug": "y-nghia-sao-thai-tue-nam-binh-ngo-2026",
+        "summary": "Phân tích chi tiết sự ảnh hưởng của sao Thái Tuế đối với 12 con giáp...",
+        "category": "ziwei",
+        "author": "Ban Quản Trị",
+        "views": 42,
+        "isPublished": true,
+        "isDeleted": false,
+        "createdAt": "2026-07-20T08:00:00.000Z",
+        "thumbnailUrl": "https://example.com/images/thai-tue.jpg"
+      }
+    ],
+    "total": 1,
+    "page": 1,
+    "pages": 1
+  }
+  ```
+
+### 8.2 Xem chi tiết bài viết (bằng Slug)
+Tải chi tiết nội dung Markdown của bài viết và tự động tăng số lượt xem lên 1. Đồng thời trả về 3 bài viết liên quan cùng danh mục.
+- **Endpoint:** `GET /api/blog/:slug`
+- **Phản hồi (200):**
+  ```json
+  {
+    "success": true,
+    "post": {
+      "_id": "0190cfba-4321-7000-8000-000000000001",
+      "title": "Ý nghĩa sao Thái Tuế năm Bính Ngọ 2026",
+      "slug": "y-nghia-sao-thai-tue-nam-binh-ngo-2026",
+      "summary": "Phân tích chi tiết...",
+      "content": "# Ý nghĩa sao Thái Tuế năm Bính Ngọ 2026\n\nNăm 2026 Bính Ngọ chi phối...",
+      "category": "ziwei",
+      "author": "Ban Quản Trị",
+      "views": 43,
+      "tags": ["Tử Vi", "Bính Ngọ", "Thái Tuế"],
+      "isPublished": true,
+      "isDeleted": false,
+      "createdAt": "2026-07-20T08:00:00.000Z"
+    },
+    "related": [
+      {
+        "_id": "0190cfba-4321-7000-8000-000000000002",
+        "title": "Cơ Bản Về Mệnh Số Tử Vi",
+        "slug": "co-ban-ve-menh-so-tu-vi",
+        "summary": "Tìm hiểu cách lập và luận đoán...",
+        "category": "ziwei",
+        "createdAt": "2026-07-15T09:00:00.000Z"
+      }
+    ]
+  }
+  ```
+
+### 8.3 Tạo bài viết mới
+Yêu cầu quyền Admin/Co-Admin.
+- **Endpoint:** `POST /api/blog`
+- **Headers:** `Authorization: Bearer <token>`
+- **Body:**
+  ```json
+  {
+    "title": "Cách hóa giải hạn Tam Tai năm 2026",
+    "summary": "Tóm tắt các phương pháp khoa học dân gian...",
+    "content": "# Hướng dẫn hóa giải Tam Tai...\n\nCác tuổi Thân, Tý, Thìn...",
+    "category": "fengshui",
+    "tags": "tam tai, phong thuy, 2026",
+    "thumbnailUrl": "https://example.com/images/tam-tai.jpg",
+    "isPublished": true
+  }
+  ```
+- **Phản hồi (210):**
+  ```json
+  {
+    "success": true,
+    "post": {
+      "_id": "0190cfba-abcd-7000-8000-000000000099",
+      "title": "Cách hóa giải hạn Tam Tai năm 2026",
+      "slug": "cach-hoa-giai-han-tam-tai-nam-2026",
+      ...
+    }
+  }
+  ```
+
+### 8.4 Cập nhật bài viết
+Yêu cầu quyền Admin/Co-Admin.
+- **Endpoint:** `PUT /api/blog/:id`
+- **Headers:** `Authorization: Bearer <token>`
+- **Body:** Tương tự tạo bài viết (các trường không truyền sẽ giữ nguyên).
+- **Phản hồi (200):** Trả về `success: true` và thông tin bài viết đã cập nhật.
+
+### 8.5 Xóa mềm bài viết
+Yêu cầu quyền Admin/Co-Admin. Bài viết sẽ ẩn khỏi danh sách của người dùng thường nhưng không mất vĩnh viễn trong DB.
+- **Endpoint:** `DELETE /api/blog/:id`
+- **Headers:** `Authorization: Bearer <token>`
+- **Phản hồi (200):**
+  ```json
+  {
+    "success": true,
+    "message": "Đã xóa bài viết thành công (xóa mềm)."
+  }
+  ```
+
+### 8.6 Khôi phục bài viết đã xóa mềm
+Yêu cầu quyền Admin/Co-Admin.
+- **Endpoint:** `POST /api/blog/:id/restore`
+- **Headers:** `Authorization: Bearer <token>`
+- **Phản hồi (200):**
+  ```json
+  {
+    "success": true,
+    "message": "Đã khôi phục bài viết thành công."
+  }
+  ```
+

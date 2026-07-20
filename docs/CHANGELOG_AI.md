@@ -2,6 +2,52 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Cải tiến Giao diện Di động, Tối ưu hóa Logo Thương hiệu & Đồng bộ Bài viết Trang chủ (20/07/2026)
+
+### Frontend (Giao diện di động, Rebranding & Trang chủ)
+- **Tích hợp Logo Thương hiệu**: Di chuyển tệp tin ảnh logo thực tế `T:\LOGO\2a61a9fd-0512-46c4-ab69-e48464b61a8c.png` vào thư mục public của ứng dụng Client (`/logo.png`). Thay thế hoàn toàn biểu tượng văn bản "PT" thô sơ ở Header và Footer bằng thẻ ảnh thương hiệu để tăng tính chuyên nghiệp.
+- **Tái cấu trúc Điều Hướng Desktop**: Di chuyển tab "Blog" lên ngay cạnh "Trang Chủ" ở thanh Header trung tâm và đổi tên hiển thị thành "Kiến thức" để thuận tiện truy cập.
+  - Bổ sung nút Trang Chủ (`Home`) và nút Kiến Thức (`BookOpen`) nằm ở phía bên trái nút Chức năng `(🧭 >)` trên thanh Header di động, cùng cấp với nút Lịch sử (`History`) để người dùng điều hướng nhanh chóng.
+  - Đưa Chuông thông báo (`NotificationBell`) và Số dư Xu (credits) lên trực tiếp thanh Header trên di động.
+  - Phân hệ 4 chức năng chính (Kinh Dịch, Bát Tự, Tử Vi, Hôn Nhân) trong Mobile Menu Drawer được khôi phục dạng lưới độc lập đầy đủ.
+  - Căn giữa khối Hồ Sơ Cá Nhân trong Mobile Menu Drawer (Avatar tròn lớn, tên, số dư Xu và các nút hành động được căn lề giữa tinh tế).
+  - Tích hợp cơ chế tự động thu gọn thanh phân hệ con khi người dùng cuộn (scroll) màn hình để tối ưu trải nghiệm.
+- **Tính năng Chia sẻ Bài viết & URL Trực Tiếp (Deep-Linking Share Bar)**:
+  - Bổ sung thanh công cụ chia sẻ ở cả đầu và cuối màn hình xem chi tiết bài viết (`BlogBoard.jsx`).
+  - Hỗ trợ nút **Sao chép link** (kèm hiệu ứng tích xanh "Đã sao chép!"), nút **Chia sẻ lên Facebook** (mở cửa sổ Facebook Sharer chính thức), và nút **Ứng dụng khác** (kích hoạt Web Share Sheet của thiết bị di động để chia sẻ qua Zalo, Messenger, Telegram, v.v.).
+  - Tự động đồng bộ đường dẫn Deep-Linking dạng `https://tuynover.ddns.net/?post={slug}` lên thanh địa chỉ khi xem bài viết. Khi người dùng bấm sao chép hoặc chia sẻ, đường dẫn được tạo ra sẽ trỏ trực tiếp đến bài viết đó thay vì chỉ trỏ về trang chủ. Khi người khác mở link này, hệ thống tự động nhận diện tham số `?post` và mở đúng bài viết đó ngay lập tức.
+- **Kết nối Bài Viết Nổi Bật vào Trang Chủ**:
+  - Bổ sung gọi API bất đồng bộ tải 3 bài viết học thuật mới nhất tại `HomeBoard.jsx`.
+  - Thiết kế phần "Kiến thức & Chiêm nghiệm" hiển thị 3 bài viết nổi bật tuyệt đẹp dạng lưới (Grid 3 cột) nằm ngay trên chân trang. Tích hợp liên kết trực tiếp, khi click sẽ đưa người dùng vào xem nội dung bài viết.
+- **Tinh chỉnh giao diện Lịch Sử Mobile (HistoryBoard.jsx)**:
+  - Tái thiết kế toàn bộ card lịch sử ở cả 4 phân hệ cho giao diện di động.
+  - Rút gọn nút "Xem chi tiết" thành icon `Eye` gọn gàng trên thiết bị di động để chặn triệt để tình trạng vỡ layout hoặc tràn chữ.
+- **Tối ưu hóa SEO Toàn Diện**:
+  - Nâng cấp [index.html](file:///t:/Phongthuy/frontend/index.html) thiết lập ngôn ngữ chuẩn `lang="vi"`, đồng bộ tên miền chính thức `https://tuynover.ddns.net/` cho các thẻ Canonical Link, OpenGraph URL, Twitter URL, ảnh xem trước và cấu trúc dữ liệu chuẩn Schema.org JSON-LD.
+  - Tích hợp cơ chế đổi tiêu đề trang động (`document.title`) theo từng phân hệ (Kinh Dịch, Bát Tự, Tử Vi, Hôn Nhân, Xem Ngày, Blog, Lịch Sử, Hồ Sơ) trong `UserApp.jsx` và cập nhật tiêu đề theo bài viết trong `BlogBoard.jsx`.
+  - Sửa lỗi thiếu import: Bổ sung icon `Eye` vào danh sách import từ `lucide-react` để khắc phục lỗi runtime ReferenceError gây trắng màn hình khi người dùng mở trang Lịch sử.
+  - Nâng cấp bo góc của các ô input ghi chú ứng kỳ lên `rounded-xl`, đồng thời cải thiện nút "Lưu" với hiệu ứng nhấn nhả `active:scale-95`.
+
+---
+
+## 📅 Phiên bản: Tích hợp Mô-đun Tin tức & Kiến thức Phong Thủy (Blog) (20/07/2026)
+
+### Backend (Mô hình dữ liệu, Seeding & API Endpoints)
+- **BlogPost.js [NEW]**: Tạo mới Mongoose model `BlogPost` lưu trữ các bài viết phong thủy chuyên nghiệp sử dụng UUIDv7 cho `_id`. Tích hợp các chỉ mục phụ (`slug`, `category`, `isPublished`, `isDeleted`, `createdAt`) và các trường thông tin cơ bản.
+- **BlogSeedService.js [NEW]**: Xây dựng service tự động chèn 4 bài viết mẫu học thuật sâu sắc về Kinh Dịch Lục Hào, Tứ Trụ Bát Tự, Tử Vi Đẩu Số và Trạch Cát khi cơ sở dữ liệu rỗng.
+- **db.js [MODIFY]**: Kích hoạt tự động chạy `seedBlogPosts()` của `BlogSeedService` ngay sau khi kết nối MongoDB thành công.
+- **BlogController.js [NEW]**: Viết mới các hàm xử lý công khai (`getPosts`, `getPostBySlug` tự động tăng lượt xem và trả về các bài viết liên quan) cùng các nghiệp vụ kiểm soát của Admin (`createPost` tự sinh slug tiếng Việt, `updatePost`, `deletePost` xóa mềm và `restorePost`).
+- **blog.js [NEW] & index.js [MODIFY]**: Tạo router `blog.js` sử dụng `optionalAuth` cho các route công khai (để Admin có thể xem được bản nháp) và `adminAuth` làm hàng rào bảo mật cho các thao tác ghi của Admin. Mount router vào hệ thống API chính tại `/api/blog`.
+
+### Frontend (Giao diện Người dùng & Bảng Điều khiển Quản trị)
+- **api.js [MODIFY]**: Tích hợp các hàm gọi API Blog (`getBlogPosts`, `getBlogPost`, `createBlogPost`, `updateBlogPost`, `deleteBlogPost`, `restoreBlogPost`).
+- **BlogBoard.jsx [NEW]**: Tạo mới component bảng tin tức phong thủy với giao diện sang trọng. Hỗ trợ tìm kiếm từ khóa, lọc theo tabs danh mục học thuật, phân trang, và hiển thị nội dung chi tiết bài viết dưới dạng Markdown. Tích hợp thanh CTA hấp dẫn điều hướng người dùng tới các dịch vụ Bát Tự, Tử Vi, Kinh Dịch tương ứng.
+- **UserApp.jsx [MODIFY]**: Tích hợp tab "Blog" lên đầu trang (Desktop Header) và trình đơn di động (Mobile Menu - hiển thị 2 cột cân xứng), thiết lập lazy load cho `<BlogBoard />`, và cập nhật bộ nút cuộn trang hỗ trợ khi xem blog.
+- **HomeBoard.jsx [MODIFY]**: Thêm nút liên kết "Kiến thức Phong Thủy (Blog)" vào danh mục footer để người dùng dễ dàng truy cập từ trang chủ.
+- **AdminApp.jsx [MODIFY]**: Thêm tab "Quản Lý Blog" vào thanh điều hướng Admin, tích hợp danh sách bài viết dưới dạng bảng (hỗ trợ tìm kiếm, lọc danh mục, sửa bài viết, xóa mềm và khôi phục). Thiết kế form modal nhập liệu sang trọng hỗ trợ soạn thảo nội dung Markdown, tags, ảnh bìa và đặt trạng thái công khai/nháp, đồng bộ với chủ đề tối của giao diện Admin.
+
+---
+
 ## 📅 Phiên bản: Tích hợp Thuật toán Ngũ hành Tư lệnh & Thiết kế lại Dòng Tiết khí (20/07/2026)
 
 ### Backend (Tính toán học thuật Bát tự)

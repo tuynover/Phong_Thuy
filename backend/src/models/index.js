@@ -8,6 +8,7 @@ const Notification = require('./Notification');
 const SystemLog = require('./SystemLog');
 const BanAppeal = require('./BanAppeal');
 const AdminNotification = require('./AdminNotification');
+const BlogPost = require('./BlogPost');
 
 module.exports = {
     BaziRecord,
@@ -19,5 +20,6 @@ module.exports = {
     Notification,
     SystemLog,
     BanAppeal,
-    AdminNotification
+    AdminNotification,
+    BlogPost
 };

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { getIChingHistory, getBaziHistory, getZiweiHistory, getMarriageHistory, rateIChing, rateBazi, rateZiwei, rateMarriage, deleteCalculation, getIChingRecord, getBaziRecord, getZiweiRecord, getMarriageRecord, pinCalculation } from '../services/api';
-import { Star, Clock, Calendar, Trash2, X, Info, Check, AlertTriangle, Loader2, ChevronLeft, ChevronRight, Pin } from 'lucide-react';
+import { Star, Clock, Calendar, Trash2, X, Info, Check, AlertTriangle, Loader2, ChevronLeft, ChevronRight, Pin, Eye } from 'lucide-react';
 
 const LUNAR_HOURS_MAP = [
   "Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"
@@ -777,53 +777,61 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                         onClick={() => handleViewHexagramDetail(record)} 
                         onMouseEnter={() => preloadRecord('iching', record._id)}
                         onTouchStart={() => preloadRecord('iching', record._id)}
-                        className={`border ${record.isPinned ? 'border-amber-300 bg-amber-50/45 shadow-sm' : 'border-amber-100 bg-amber-50/20'} rounded-xl p-4 hover:shadow-md transition-all cursor-pointer`}
+                        className={`border ${record.isPinned ? 'border-amber-300 bg-amber-50/45 shadow-sm' : 'border-amber-100 bg-amber-50/20'} rounded-2xl p-4 sm:p-5 hover:shadow-md transition-all cursor-pointer`}
                     >
-                        <div className="flex justify-between items-start mb-2">
-                            <div>
-                                <h3 className="font-bold text-lg text-amber-900">{record.primaryHexagram.name} {record.transformedHexagram?.name ? `-> ${record.transformedHexagram.name}` : ''}</h3>
-                                <p className="text-sm text-gray-600 italic">Hỏi: {record.question}</p>
-                                <p className="text-xs text-gray-400 flex items-center gap-1.5 mt-1">
-                                    <Clock size={12}/> 
-                                    {new Date(record.dateCast).toLocaleString('vi-VN')}
+                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-3">
+                            <div className="space-y-1.5 flex-1 min-w-0">
+                                <h3 className="font-bold text-base sm:text-lg text-amber-900 break-words">{record.primaryHexagram.name} {record.transformedHexagram?.name ? `→ ${record.transformedHexagram.name}` : ''}</h3>
+                                <p className="text-xs sm:text-sm text-slate-650 italic break-words">Hỏi: {record.question}</p>
+                                <div className="flex flex-wrap items-center gap-2 mt-1">
+                                    <span className="text-[10px] sm:text-xs text-slate-400 flex items-center gap-1.5">
+                                        <Clock size={12}/> 
+                                        {new Date(record.dateCast).toLocaleString('vi-VN')}
+                                    </span>
                                     {record.isPinned && (
-                                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200 ml-2">
+                                        <span className="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
                                             Đã ghim
                                         </span>
                                     )}
-                                </p>
+                                </div>
                             </div>
-                            <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+                            <div className="flex items-center gap-2 self-end sm:self-start shrink-0" onClick={(e) => e.stopPropagation()}>
                                 <button 
                                     onClick={() => handleTogglePin('iching', record._id)} 
-                                    className={`transition-colors p-1 ${record.isPinned ? 'text-amber-600' : 'text-gray-300 hover:text-amber-500'}`}
+                                    className={`p-1.5 rounded-xl transition-colors hover:bg-amber-50 ${record.isPinned ? 'text-amber-600' : 'text-slate-350 hover:text-amber-500'}`}
                                     title={record.isPinned ? "Bỏ ghim" : "Ghim lên đầu"}
                                 >
-                                    <Pin size={16} className={record.isPinned ? 'fill-current' : ''} />
+                                    <Pin size={15} className={record.isPinned ? 'fill-current' : ''} />
                                 </button>
-                                <button onClick={() => handleViewHexagramDetail(record)} className="text-amber-600 hover:underline text-sm font-medium">Xem chi tiết</button>
+                                <button 
+                                    onClick={() => handleViewHexagramDetail(record)} 
+                                    className="flex items-center gap-1 px-3 py-1 bg-amber-50 text-amber-850 border border-amber-200/50 rounded-xl hover:bg-amber-100 transition-all text-xs font-bold shadow-sm"
+                                >
+                                    <Eye size={13} />
+                                    <span className="hidden sm:inline">Xem chi tiết</span>
+                                </button>
                                 <button 
                                     onClick={() => handleDelete('iching', record._id)} 
-                                    className="text-red-500 hover:text-red-750 transition-colors p-1"
+                                    className="p-1.5 rounded-xl hover:bg-red-50 text-red-500 hover:text-red-750 transition-colors"
                                     title="Xóa vĩnh viễn"
                                 >
-                                    <Trash2 size={16} />
+                                    <Trash2 size={15} />
                                 </button>
                             </div>
                         </div>
                         
                         {/* Rating Section */}
-                        <div onClick={(e) => e.stopPropagation()} className="mt-4 pt-4 border-t border-amber-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-default">
-                            <div className="flex items-center gap-2">
-                                <span className="text-sm font-medium text-gray-700">Độ chính xác:</span>
+                        <div onClick={(e) => e.stopPropagation()} className="mt-4 pt-4 border-t border-amber-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-default">
+                            <div className="flex items-center gap-2 shrink-0">
+                                <span className="text-xs sm:text-sm font-bold text-slate-700">Độ chính xác:</span>
                                 {renderStars(record.rating, (rating) => handleRate('iching', record._id, rating, document.getElementById(`feedback-hex-${record._id}`)?.value || record.feedback))}
                             </div>
-                            <div className="flex-1 flex gap-2">
+                            <div className="w-full sm:flex-1 flex items-center gap-2">
                                 <input 
                                     type="text" 
                                     id={`feedback-hex-${record._id}`}
                                     placeholder="Ghi chú ứng kỳ..." 
-                                    className="flex-1 text-sm px-3 py-1 border border-gray-200 rounded focus:border-amber-400 focus:outline-none"
+                                    className="flex-1 text-xs px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-amber-400 focus:outline-none transition-all"
                                     defaultValue={record.feedback}
                                   />
                                   <button 
@@ -833,7 +841,7 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                                               handleRate('iching', record._id, record.rating, val);
                                           }
                                       }}
-                                      className="px-4 py-1 bg-amber-600 text-white text-sm font-medium rounded shadow hover:bg-amber-700 transition-colors"
+                                      className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all active:scale-95 shrink-0"
                                   >
                                       Lưu
                                   </button>
@@ -849,56 +857,64 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                           onClick={() => handleViewBaziDetail(record)} 
                           onMouseEnter={() => preloadRecord('bazi', record._id)}
                           onTouchStart={() => preloadRecord('bazi', record._id)}
-                          className={`border ${record.isPinned ? 'border-blue-300 bg-blue-50/45 shadow-sm' : 'border-blue-100 bg-blue-50/20'} rounded-xl p-4 hover:shadow-md transition-all cursor-pointer`}
+                          className={`border ${record.isPinned ? 'border-blue-300 bg-blue-50/45 shadow-sm' : 'border-blue-100 bg-blue-50/20'} rounded-2xl p-4 sm:p-5 hover:shadow-md transition-all cursor-pointer`}
                       >
-                          <div className="flex justify-between items-start mb-2">
-                              <div>
-                                  <h3 className="font-bold text-lg text-blue-900">
+                          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-3">
+                              <div className="space-y-1.5 flex-1 min-w-0">
+                                  <h3 className="font-bold text-base sm:text-lg text-blue-905 break-words">
                                       {record.inputInfo?.name && !record.inputInfo.name.startsWith('Bát Tự -') && !record.inputInfo.name.startsWith('Tử Vi -') 
                                           ? record.inputInfo.name 
                                           : 'Lá số Bát Tự'} : {record.inputInfo.date} {record.inputInfo.time} ({record.inputInfo.gender === 1 ? 'Nam' : 'Nữ'})
                                   </h3>
-                                  <p className="text-xs text-gray-400 flex flex-wrap items-center gap-1.5 mt-1">
-                                      <Calendar size={12}/> 
-                                      Tiết khí: {record.tietKhiTimeline}
+                                  <div className="flex flex-wrap items-center gap-2 mt-1">
+                                      <span className="text-[10px] sm:text-xs text-slate-400 flex items-center gap-1">
+                                          <Calendar size={12}/> 
+                                          Tiết khí: {record.tietKhiTimeline}
+                                      </span>
                                       {record.isPinned && (
-                                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200 ml-2">
+                                          <span className="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200">
                                               Đã ghim
                                           </span>
                                       )}
-                                  </p>
+                                  </div>
                               </div>
-                              <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+                              <div className="flex items-center gap-2 self-end sm:self-start shrink-0" onClick={(e) => e.stopPropagation()}>
                                   <button 
                                       onClick={() => handleTogglePin('bazi', record._id)} 
-                                      className={`transition-colors p-1 ${record.isPinned ? 'text-blue-600' : 'text-gray-300 hover:text-blue-500'}`}
+                                      className={`p-1.5 rounded-xl transition-colors hover:bg-blue-50 ${record.isPinned ? 'text-blue-600' : 'text-slate-350 hover:text-blue-500'}`}
                                       title={record.isPinned ? "Bỏ ghim" : "Ghim lên đầu"}
                                   >
-                                      <Pin size={16} className={record.isPinned ? 'fill-current' : ''} />
+                                      <Pin size={15} className={record.isPinned ? 'fill-current' : ''} />
                                   </button>
-                                  <button onClick={() => handleViewBaziDetail(record)} className="text-blue-600 hover:underline text-sm font-medium">Xem chi tiết</button>
+                                  <button 
+                                      onClick={() => handleViewBaziDetail(record)} 
+                                      className="flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-850 border border-blue-200/50 rounded-xl hover:bg-blue-100 transition-all text-xs font-bold shadow-sm"
+                                  >
+                                      <Eye size={13} />
+                                      <span className="hidden sm:inline">Xem chi tiết</span>
+                                  </button>
                                   <button 
                                       onClick={() => handleDelete('bazi', record._id)} 
-                                      className="text-red-500 hover:text-red-755 transition-colors p-1"
+                                      className="p-1.5 rounded-xl hover:bg-red-50 text-red-500 hover:text-red-750 transition-colors"
                                       title="Xóa vĩnh viễn"
                                   >
-                                      <Trash2 size={16} />
+                                      <Trash2 size={15} />
                                   </button>
                               </div>
                           </div>
                           
                           {/* Rating Section */}
-                          <div onClick={(e) => e.stopPropagation()} className="mt-4 pt-4 border-t border-blue-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-default">
-                              <div className="flex items-center gap-2">
-                                  <span className="text-sm font-medium text-gray-700">Đánh giá:</span>
+                          <div onClick={(e) => e.stopPropagation()} className="mt-4 pt-4 border-t border-blue-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-default">
+                              <div className="flex items-center gap-2 shrink-0">
+                                  <span className="text-xs sm:text-sm font-bold text-slate-700">Đánh giá:</span>
                                   {renderStars(record.rating, (rating) => handleRate('bazi', record._id, rating, document.getElementById(`feedback-bazi-${record._id}`)?.value || record.feedback))}
                               </div>
-                              <div className="flex-1 flex gap-2">
+                              <div className="w-full sm:flex-1 flex items-center gap-2">
                                   <input 
                                       type="text" 
                                       id={`feedback-bazi-${record._id}`}
                                       placeholder="Nhận xét..." 
-                                      className="flex-1 text-sm px-3 py-1 border border-gray-200 rounded focus:border-blue-400 focus:outline-none"
+                                      className="flex-1 text-xs px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-blue-400 focus:outline-none transition-all"
                                       defaultValue={record.feedback}
                                   />
                                   <button 
@@ -908,7 +924,7 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                                               handleRate('bazi', record._id, record.rating, val);
                                           }
                                       }}
-                                      className="px-4 py-1 bg-blue-600 text-white text-sm font-medium rounded shadow hover:bg-blue-700 transition-colors"
+                                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all active:scale-95 shrink-0"
                                   >
                                       Lưu
                                   </button>
@@ -924,56 +940,64 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                           onClick={() => onViewZiwei(record)} 
                           onMouseEnter={() => preloadRecord('ziwei', record._id)}
                           onTouchStart={() => preloadRecord('ziwei', record._id)}
-                          className={`border ${record.isPinned ? 'border-purple-300 bg-purple-50/45 shadow-sm' : 'border-purple-100 bg-purple-50/20'} rounded-xl p-4 hover:shadow-md transition-all cursor-pointer`}
+                          className={`border ${record.isPinned ? 'border-purple-300 bg-purple-50/45 shadow-sm' : 'border-purple-100 bg-purple-50/20'} rounded-2xl p-4 sm:p-5 hover:shadow-md transition-all cursor-pointer`}
                       >
-                          <div className="flex justify-between items-start mb-2">
-                              <div>
-                                  <h3 className="font-bold text-lg text-purple-900">
+                          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-3">
+                              <div className="space-y-1.5 flex-1 min-w-0">
+                                  <h3 className="font-bold text-base sm:text-lg text-purple-900 break-words">
                                       {record.inputInfo?.name && !record.inputInfo.name.startsWith('Bát Tự -') && !record.inputInfo.name.startsWith('Tử Vi -') 
                                           ? record.inputInfo.name 
                                           : 'Lá số Tử Vi'} : {record.inputInfo?.date || ''} ({record.inputInfo?.gender || ''} Mệnh)
                                   </h3>
-                                  <p className="text-xs text-gray-400 flex flex-wrap items-center gap-1.5 mt-1">
-                                      <Clock size={12}/> 
-                                      Giờ sinh: {record.inputInfo?.hour !== undefined ? LUNAR_HOURS_MAP[record.inputInfo.hour] : ''}
+                                  <div className="flex flex-wrap items-center gap-2 mt-1">
+                                      <span className="text-[10px] sm:text-xs text-slate-400 flex items-center gap-1">
+                                          <Clock size={12}/> 
+                                          Giờ sinh: {record.inputInfo?.hour !== undefined ? LUNAR_HOURS_MAP[record.inputInfo.hour] : ''}
+                                      </span>
                                       {record.isPinned && (
-                                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 border border-purple-200 ml-2">
+                                          <span className="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 border border-purple-200">
                                               Đã ghim
                                           </span>
                                       )}
-                                  </p>
+                                  </div>
                               </div>
-                              <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+                              <div className="flex items-center gap-2 self-end sm:self-start shrink-0" onClick={(e) => e.stopPropagation()}>
                                   <button 
                                       onClick={() => handleTogglePin('ziwei', record._id)} 
-                                      className={`transition-colors p-1 ${record.isPinned ? 'text-purple-600' : 'text-gray-300 hover:text-purple-500'}`}
+                                      className={`p-1.5 rounded-xl transition-colors hover:bg-purple-50 ${record.isPinned ? 'text-purple-600' : 'text-slate-350 hover:text-purple-500'}`}
                                       title={record.isPinned ? "Bỏ ghim" : "Ghim lên đầu"}
                                   >
-                                      <Pin size={16} className={record.isPinned ? 'fill-current' : ''} />
+                                      <Pin size={15} className={record.isPinned ? 'fill-current' : ''} />
                                   </button>
-                                  <button onClick={() => onViewZiwei(record)} className="text-purple-600 hover:underline text-sm font-medium">Xem chi tiết</button>
+                                  <button 
+                                      onClick={() => onViewZiwei(record)} 
+                                      className="flex items-center gap-1 px-3 py-1 bg-purple-50 text-purple-855 border border-purple-200/50 rounded-xl hover:bg-purple-100 transition-all text-xs font-bold shadow-sm"
+                                  >
+                                      <Eye size={13} />
+                                      <span className="hidden sm:inline">Xem chi tiết</span>
+                                  </button>
                                   <button 
                                       onClick={() => handleDelete('ziwei', record._id)} 
-                                      className="text-red-500 hover:text-red-755 transition-colors p-1"
+                                      className="p-1.5 rounded-xl hover:bg-red-50 text-red-500 hover:text-red-755 transition-colors"
                                       title="Xóa vĩnh viễn"
                                   >
-                                      <Trash2 size={16} />
+                                      <Trash2 size={15} />
                                   </button>
                               </div>
                           </div>
                           
                           {/* Rating Section */}
-                          <div onClick={(e) => e.stopPropagation()} className="mt-4 pt-4 border-t border-purple-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-default">
-                              <div className="flex items-center gap-2">
-                                  <span className="text-sm font-medium text-gray-700">Đánh giá:</span>
+                          <div onClick={(e) => e.stopPropagation()} className="mt-4 pt-4 border-t border-purple-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-default">
+                              <div className="flex items-center gap-2 shrink-0">
+                                  <span className="text-xs sm:text-sm font-bold text-slate-700">Đánh giá:</span>
                                   {renderStars(record.rating, (rating) => handleRate('ziwei', record._id, rating, document.getElementById(`feedback-ziwei-${record._id}`)?.value || record.feedback))}
                               </div>
-                              <div className="flex-1 flex gap-2">
+                              <div className="w-full sm:flex-1 flex items-center gap-2">
                                   <input 
                                       type="text" 
                                       id={`feedback-ziwei-${record._id}`}
                                       placeholder="Nhận xét..." 
-                                      className="flex-1 text-sm px-3 py-1 border border-gray-200 rounded focus:border-purple-400 focus:outline-none"
+                                      className="flex-1 text-xs px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-purple-400 focus:outline-none transition-all"
                                       defaultValue={record.feedback}
                                   />
                                   <button 
@@ -983,7 +1007,7 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                                               handleRate('ziwei', record._id, record.rating, val);
                                           }
                                       }}
-                                      className="px-4 py-1 bg-purple-600 text-white text-sm font-medium rounded shadow hover:bg-purple-700 transition-colors"
+                                      className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all active:scale-95 shrink-0"
                                   >
                                       Lưu
                                   </button>
@@ -991,7 +1015,7 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                           </div>
                       </div>
                   ))}
-  
+
                   {activeTab === 'marriage' && marriages.length === 0 && <p className="text-center text-gray-500">Chưa có bản ghi hợp hôn nào.</p>}
                   {activeTab === 'marriage' && paginatedList.map((record) => (
                       <div 
@@ -999,52 +1023,60 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                           onClick={() => handleViewMarriageDetail(record)} 
                           onMouseEnter={() => preloadRecord('marriage', record._id)}
                           onTouchStart={() => preloadRecord('marriage', record._id)}
-                          className={`border ${record.isPinned ? 'border-rose-300 bg-rose-50/45 shadow-sm' : 'border-rose-100 bg-rose-50/20'} rounded-xl p-4 hover:shadow-md transition-all cursor-pointer`}
+                          className={`border ${record.isPinned ? 'border-rose-300 bg-rose-50/45 shadow-sm' : 'border-rose-100 bg-rose-50/20'} rounded-2xl p-4 sm:p-5 hover:shadow-md transition-all cursor-pointer`}
                       >
-                          <div className="flex justify-between items-start mb-2">
-                              <div>
-                                  <h3 className="font-bold text-lg text-rose-900">Hợp Hôn: Nam ({record.inputInfo?.male?.date || ''}) & Nữ ({record.inputInfo?.female?.date || ''})</h3>
-                                  <p className="text-xs text-gray-400 flex items-center gap-1.5 mt-1">
-                                      <Clock size={12}/> 
-                                      {new Date(record.createdAt).toLocaleString('vi-VN')}
+                          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-3">
+                              <div className="space-y-1.5 flex-1 min-w-0">
+                                  <h3 className="font-bold text-base sm:text-lg text-rose-900 break-words">Hợp Hôn: Nam ({record.inputInfo?.male?.date || ''}) & Nữ ({record.inputInfo?.female?.date || ''})</h3>
+                                  <div className="flex flex-wrap items-center gap-2 mt-1">
+                                      <span className="text-[10px] sm:text-xs text-slate-400 flex items-center gap-1.5">
+                                          <Clock size={12}/> 
+                                          {new Date(record.createdAt).toLocaleString('vi-VN')}
+                                      </span>
                                       {record.isPinned && (
-                                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-200 ml-2">
+                                          <span className="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-200">
                                               Đã ghim
                                           </span>
                                       )}
-                                  </p>
+                                  </div>
                               </div>
-                              <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+                              <div className="flex items-center gap-2 self-end sm:self-start shrink-0" onClick={(e) => e.stopPropagation()}>
                                   <button 
                                       onClick={() => handleTogglePin('marriage', record._id)} 
-                                      className={`transition-colors p-1 ${record.isPinned ? 'text-rose-600' : 'text-gray-300 hover:text-rose-500'}`}
+                                      className={`p-1.5 rounded-xl transition-colors hover:bg-rose-50 ${record.isPinned ? 'text-rose-600' : 'text-slate-350 hover:text-rose-500'}`}
                                       title={record.isPinned ? "Bỏ ghim" : "Ghim lên đầu"}
                                   >
-                                      <Pin size={16} className={record.isPinned ? 'fill-current' : ''} />
+                                      <Pin size={15} className={record.isPinned ? 'fill-current' : ''} />
                                   </button>
-                                  <button onClick={() => handleViewMarriageDetail(record)} className="text-rose-600 hover:underline text-sm font-medium">Xem chi tiết</button>
+                                  <button 
+                                      onClick={() => handleViewMarriageDetail(record)} 
+                                      className="flex items-center gap-1 px-3 py-1 bg-rose-50 text-rose-850 border border-rose-200/50 rounded-xl hover:bg-rose-100 transition-all text-xs font-bold shadow-sm"
+                                  >
+                                      <Eye size={13} />
+                                      <span className="hidden sm:inline">Xem chi tiết</span>
+                                  </button>
                                   <button 
                                       onClick={() => handleDelete('marriage', record._id)} 
-                                      className="text-red-500 hover:text-red-755 transition-colors p-1"
+                                      className="p-1.5 rounded-xl hover:bg-red-50 text-red-500 hover:text-red-755 transition-colors"
                                       title="Xóa vĩnh viễn"
                                   >
-                                      <Trash2 size={16} />
+                                      <Trash2 size={15} />
                                   </button>
                               </div>
                           </div>
                           
                           {/* Rating Section */}
-                          <div onClick={(e) => e.stopPropagation()} className="mt-4 pt-4 border-t border-rose-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-default">
-                              <div className="flex items-center gap-2">
-                                  <span className="text-sm font-medium text-gray-700">Đánh giá:</span>
+                          <div onClick={(e) => e.stopPropagation()} className="mt-4 pt-4 border-t border-rose-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-default">
+                              <div className="flex items-center gap-2 shrink-0">
+                                  <span className="text-xs sm:text-sm font-bold text-slate-700">Đánh giá:</span>
                                   {renderStars(record.rating, (rating) => handleRate('marriage', record._id, rating, document.getElementById(`feedback-marr-${record._id}`)?.value || record.feedback))}
                               </div>
-                              <div className="flex-1 flex gap-2">
+                              <div className="w-full sm:flex-1 flex items-center gap-2">
                                   <input 
                                       type="text" 
                                       id={`feedback-marr-${record._id}`}
                                       placeholder="Nhận xét..." 
-                                      className="flex-1 text-sm px-3 py-1 border border-gray-200 rounded focus:border-rose-450 focus:outline-none"
+                                      className="flex-1 text-xs px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-rose-400 focus:outline-none transition-all"
                                       defaultValue={record.feedback}
                                   />
                                   <button 
@@ -1054,7 +1086,7 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                                               handleRate('marriage', record._id, record.rating, val);
                                           }
                                       }}
-                                      className="px-4 py-1 bg-rose-600 text-white text-sm font-medium rounded shadow hover:bg-rose-700 transition-colors"
+                                      className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all active:scale-95 shrink-0"
                                   >
                                       Lưu
                                   </button>

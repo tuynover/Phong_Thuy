@@ -23,7 +23,7 @@ import {
   getBaziRecord,
   updateBaziInfo
 } from '../services/api';
-import { UserCircle, LogOut, CalendarDays, Shield, Menu, X, History, Compass, Activity, BarChart3, Heart, Calendar, HelpCircle, ArrowUp, ArrowDown } from 'lucide-react';
+import { UserCircle, LogOut, CalendarDays, Shield, Menu, X, History, Compass, Activity, BarChart3, Heart, Calendar, HelpCircle, ArrowUp, ArrowDown, BookOpen, Home, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Lunar } from 'lunar-javascript';
 import MarriageInput from './MarriageInput';
 import HistoryBoard from './HistoryBoard';
@@ -34,14 +34,47 @@ const BaziBoard = React.lazy(() => import('./BaziBoard'));
 const ZiweiBoard = React.lazy(() => import('./ZiweiBoard'));
 const MarriageBoard = React.lazy(() => import('./MarriageBoard'));
 const DateSelectionBoard = React.lazy(() => import('./DateSelectionBoard'));
+const BlogBoard = React.lazy(() => import('./BlogBoard'));
 
 export default function UserApp({ onSwitchToAdmin }) {
+  // Parse URL query parameter for deep-linking blog posts
+  const getInitialBlogSlug = () => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('post') || params.get('blogSlug') || null;
+    }
+    return null;
+  };
+
+  const initialUrlSlug = getInitialBlogSlug();
+
   const [appMode, setAppMode] = useState(() => {
+    if (initialUrlSlug) return 'blog';
     const saved = localStorage.getItem('appMode');
     return saved === 'tuvi' ? 'ziwei' : (saved || 'home');
-  }); // 'home' | 'iching' | 'bazi' | 'ziwei' | 'marriage' | 'xemngay' | 'history' | 'profile'
+  }); // 'home' | 'iching' | 'bazi' | 'ziwei' | 'marriage' | 'xemngay' | 'history' | 'profile' | 'blog'
+  
+  const [blogSlug, setBlogSlug] = useState(initialUrlSlug);
+  
+  const handleSelectModule = (mode, slug = null) => {
+    setAppMode(mode);
+    setBlogSlug(slug);
+    if (mode === 'blog' && slug) {
+      const newUrl = `${window.location.pathname}?post=${encodeURIComponent(slug)}`;
+      window.history.replaceState({ path: newUrl }, '', newUrl);
+    } else if (slug === null && mode !== 'blog') {
+      window.history.replaceState({ path: window.location.pathname }, '', window.location.pathname);
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleClearBlogSlug = () => {
+    setBlogSlug(null);
+    window.history.replaceState({ path: window.location.pathname }, '', window.location.pathname);
+  };
   
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileModulesExpanded, setIsMobileModulesExpanded] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
 
   const triggerToast = (msg) => {
@@ -102,6 +135,31 @@ export default function UserApp({ onSwitchToAdmin }) {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (!isMobileModulesExpanded) return;
+    const handleScroll = () => {
+      setIsMobileModulesExpanded(false);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isMobileModulesExpanded]);
+
+  // Dynamic SEO Page Title Update
+  useEffect(() => {
+    const pageTitles = {
+      home: 'Phong Thủy Luận Giải - Gieo Quẻ Kinh Dịch, Bát Tự, Tử Vi AI',
+      iching: 'Gieo Quẻ Kinh Dịch Lục Hào - Phong Thủy Luận Giải AI',
+      bazi: 'Lập Lá Số Tứ Trụ Bát Tự - Phong Thủy Luận Giải AI',
+      ziwei: 'Lập Lá Số Tử Vi Đẩu Số - Phong Thủy Luận Giải AI',
+      marriage: 'Xem Tuổi Hợp Hôn Gia Đạo - Phong Thủy Luận Giải AI',
+      xemngay: 'Xem Ngày Tốt Hoàng Đạo - Phong Thủy Luận Giải AI',
+      blog: 'Kiến Thức Phong Thủy & Chiêm Nghiệm - Bài Viết Học Thuật',
+      history: 'Lịch Sử Tra Cứu - Phong Thủy Luận Giải',
+      profile: 'Hồ Sơ Cá Nhân - Phong Thủy Luận Giải'
+    };
+    document.title = pageTitles[appMode] || 'Phong Thủy Luận Giải';
+  }, [appMode]);
 
   // Ziwei State
   const [historicalZiweiId, setHistoricalZiweiId] = useState(null);
@@ -408,6 +466,7 @@ export default function UserApp({ onSwitchToAdmin }) {
   const shouldShowScrollButtons = 
     appMode === 'home' ||
     appMode === 'history' ||
+    appMode === 'blog' ||
     (appMode === 'iching' && !result) ||
     (appMode === 'bazi' && !baziResult) ||
     (appMode === 'marriage' && !marriageResult) ||
@@ -441,12 +500,10 @@ export default function UserApp({ onSwitchToAdmin }) {
           
           {/* Logo on the left */}
           <div 
-            onClick={() => setAppMode('home')} 
-            className="flex items-center gap-2.5 cursor-pointer select-none shrink-0"
+            onClick={() => handleSelectModule('home')} 
+            className="flex items-center gap-2 cursor-pointer select-none shrink-0"
           >
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center shadow-md">
-              <span className="text-white font-serif font-extrabold text-sm">PT</span>
-            </div>
+            <img src="/logo.png" alt="Logo" className="w-8 h-8 rounded-xl object-cover shadow-sm" />
             <span className="font-extrabold text-slate-800 tracking-wider text-xs sm:text-sm font-[Montserrat] hidden min-[380px]:inline">
               PHONG THỦY
             </span>
@@ -455,19 +512,25 @@ export default function UserApp({ onSwitchToAdmin }) {
           {/* Desktop Center Navigation Tabs */}
           <div className="hidden md:flex items-center bg-white/70 p-1 gap-0.5 sm:gap-1 rounded-full border border-slate-200/50 shadow-sm backdrop-blur-sm">
             <button 
-              onClick={() => setAppMode('home')} 
+              onClick={() => handleSelectModule('home')} 
               className={`px-4 py-1.5 rounded-full font-bold text-xs tracking-wider font-[Montserrat] uppercase ${appMode === 'home' ? 'bg-slate-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/50'}`}
             >
               Trang Chủ
             </button>
             <button 
-              onClick={() => setAppMode('iching')} 
+              onClick={() => handleSelectModule('blog')} 
+              className={`px-4 py-1.5 rounded-full font-bold text-xs tracking-wider font-[Montserrat] uppercase ${appMode === 'blog' ? 'bg-indigo-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/50'}`}
+            >
+              Kiến thức
+            </button>
+            <button 
+              onClick={() => handleSelectModule('iching')} 
               className={`px-4 py-1.5 rounded-full font-bold text-xs tracking-wider font-[Montserrat] uppercase ${appMode === 'iching' ? 'bg-amber-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/50'}`}
             >
               Kinh Dịch
             </button>
             <button 
-              onClick={() => setAppMode('bazi')} 
+              onClick={() => handleSelectModule('bazi')} 
               className={`px-4 py-1.5 rounded-full font-bold text-xs tracking-wider font-[Montserrat] uppercase ${appMode === 'bazi' ? 'bg-blue-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/50'}`}
             >
               Bát Tự
@@ -475,27 +538,27 @@ export default function UserApp({ onSwitchToAdmin }) {
             <button 
               onClick={() => {
                 setHistoricalZiweiId(null);
-                setAppMode('ziwei');
+                handleSelectModule('ziwei');
               }} 
               className={`px-4 py-1.5 rounded-full font-bold text-xs tracking-wider font-[Montserrat] uppercase ${appMode === 'ziwei' ? 'bg-purple-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/50'}`}
             >
               Tử Vi
             </button>
             <button 
-              onClick={() => setAppMode('marriage')} 
+              onClick={() => handleSelectModule('marriage')} 
               className={`px-4 py-1.5 rounded-full font-bold text-xs tracking-wider font-[Montserrat] uppercase ${appMode === 'marriage' ? 'bg-rose-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/50'}`}
             >
               Hôn Nhân
             </button>
             <button 
-              onClick={() => setAppMode('xemngay')} 
+              onClick={() => handleSelectModule('xemngay')} 
               className={`px-4 py-1.5 rounded-full font-bold text-xs tracking-wider font-[Montserrat] uppercase ${appMode === 'xemngay' ? 'bg-emerald-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/50'}`}
             >
               Xem Ngày
             </button>
             {user && (
               <button 
-                onClick={() => setAppMode('history')} 
+                onClick={() => handleSelectModule('history')} 
                 onMouseEnter={preloadHistoryLists}
                 onTouchStart={preloadHistoryLists}
                 className={`px-4 py-1.5 rounded-full font-bold text-xs tracking-wider font-[Montserrat] uppercase ${appMode === 'history' ? 'bg-slate-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/50'}`}
@@ -532,7 +595,7 @@ export default function UserApp({ onSwitchToAdmin }) {
             )}
 
             {/* AUTH MENU */}
-            <div className="relative" ref={userMenuRef}>
+            <div className="hidden md:block relative" ref={userMenuRef}>
               {user ? (
                 <div className="flex items-center gap-1.5 bg-white px-2 py-1 rounded-full shadow-sm border border-gray-200/50 text-xs sm:text-sm relative">
                   <NotificationBell onNotificationClick={handleNotificationClick} />
@@ -604,33 +667,78 @@ export default function UserApp({ onSwitchToAdmin }) {
               )}
             </div>
 
-            {/* Mobile Layout Menu Button & Always Visible History Button */}
-            <div className="flex md:hidden items-center gap-1.5">
+            {/* Mobile Layout Header Controls */}
+            <div className="flex md:hidden items-center gap-1 sm:gap-1.5">
+              {/* Nút Home (bên tay trái phần kiến thức) */}
+              <button 
+                onClick={() => handleSelectModule('home')}
+                className={`p-1.5 sm:p-2 rounded-full transition-colors cursor-pointer ${appMode === 'home' ? 'bg-slate-800 text-white shadow-sm' : 'hover:bg-slate-100 text-slate-500 hover:text-slate-800'}`}
+                title="Trang Chủ"
+              >
+                <Home size={17} />
+              </button>
+
+              {/* Nút Kiến Thức (bên tay trái phần chức năng) */}
+              <button 
+                onClick={() => handleSelectModule('blog')}
+                className={`p-1.5 sm:p-2 rounded-full transition-colors cursor-pointer ${appMode === 'blog' ? 'bg-indigo-800 text-white shadow-sm' : 'hover:bg-slate-100 text-slate-500 hover:text-slate-800'}`}
+                title="Kiến Thức Phong Thủy"
+              >
+                <BookOpen size={17} />
+              </button>
+
+              {/* Nút Chức Năng (🧭 >) */}
+              <button 
+                onClick={() => setIsMobileModulesExpanded(!isMobileModulesExpanded)}
+                className={`px-2 py-1.5 rounded-full transition-all border flex items-center gap-0.5 shadow-xs cursor-pointer ${
+                  isMobileModulesExpanded 
+                    ? 'bg-indigo-50 border-indigo-200 text-indigo-700' 
+                    : 'bg-slate-50 hover:bg-slate-100 border-slate-200/80 text-slate-600'
+                }`}
+                title="Luận giải mệnh lý"
+              >
+                <Compass size={16} />
+                {isMobileModulesExpanded ? <ChevronLeft size={13} /> : <ChevronRight size={13} />}
+              </button>
+
+              {/* Notification Bell */}
+              <NotificationBell onNotificationClick={handleNotificationClick} />
+
+              {/* Credits Display */}
+              {user && (
+                <div className="flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 bg-indigo-50 text-indigo-850 rounded-full border border-indigo-200/50 text-[10px] sm:text-xs font-extrabold font-[Montserrat] shrink-0 select-none shadow-xs">
+                  <span>{user.credits !== undefined ? user.credits : 0} 🪙</span>
+                </div>
+              )}
+
+              {/* History Button */}
               <button 
                 onClick={() => {
                   if (user) {
-                    setAppMode('history');
+                    handleSelectModule('history');
                   } else {
                     setIsAuthModalOpen(true);
                   }
                 }}
                 onMouseEnter={preloadHistoryLists}
                 onTouchStart={preloadHistoryLists}
-                className={`p-2 rounded-full transition-colors ${appMode === 'history' ? 'bg-slate-800 text-white' : 'hover:bg-slate-100 text-slate-500 hover:text-slate-800'}`}
+                className={`p-1.5 sm:p-2 rounded-full transition-colors cursor-pointer ${appMode === 'history' ? 'bg-slate-800 text-white shadow-sm' : 'hover:bg-slate-100 text-slate-500 hover:text-slate-800'}`}
                 title="Lịch sử phân tích"
               >
                 <History size={17} />
               </button>
               
+              {/* Menu Button */}
               <button 
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="p-2 rounded-full hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors"
+                className="p-1.5 sm:p-2 rounded-full hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
               >
                 <Menu size={20} />
               </button>
             </div>
           </div>
 
+          {/* Mobile Menu Drawer */}
           <AnimatePresence>
             {isMobileMenuOpen && (
               <motion.div 
@@ -639,52 +747,180 @@ export default function UserApp({ onSwitchToAdmin }) {
                 exit={{ opacity: 0, y: -20 }}
                 className="absolute top-full left-0 w-full bg-white border-b border-slate-100 shadow-xl p-4 grid grid-cols-2 gap-3 md:hidden z-40"
               >
-                <div className="col-span-2 flex justify-between items-center mb-2 px-1">
-                  <span className="font-bold text-slate-400 text-xs uppercase tracking-wider">Danh mục</span>
-                  <button onClick={() => setIsMobileMenuOpen(false)}><X size={16} className="text-slate-400"/></button>
-                </div>
                 <div className="grid grid-cols-2 gap-3 col-span-2">
+                  {/* TRANG CHỦ */}
                   <button 
-                    onClick={() => { setAppMode('iching'); setIsMobileMenuOpen(false); }}
-                    className="p-3.5 rounded-2xl bg-amber-50/50 hover:bg-amber-50 border border-amber-100 flex flex-col gap-2 items-start text-left transition-all"
+                    onClick={() => { handleSelectModule('home'); setIsMobileMenuOpen(false); }}
+                    className="col-span-2 p-3.5 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200/60 flex gap-3 items-center text-left transition-all cursor-pointer"
                   >
-                    <Compass className="text-indigo-600" size={18} />
+                    <Home className="text-slate-600" size={18} />
+                    <span className="font-extrabold text-xs text-slate-800">Trang Chủ</span>
+                  </button>
+
+                  {/* KINH DỊCH */}
+                  <button 
+                    onClick={() => { handleSelectModule('iching'); setIsMobileMenuOpen(false); }}
+                    className="p-3.5 rounded-2xl bg-amber-50/50 hover:bg-amber-50 border border-amber-100 flex flex-col gap-2 items-start text-left transition-all cursor-pointer"
+                  >
+                    <Compass className="text-amber-700" size={18} />
                     <span className="font-extrabold text-xs text-slate-800">Kinh Dịch</span>
                   </button>
+
+                  {/* BÁT TỰ */}
                   <button 
-                    onClick={() => { setAppMode('bazi'); setIsMobileMenuOpen(false); }}
-                    className="p-3.5 rounded-2xl bg-blue-50/50 hover:bg-blue-50 border border-blue-100 flex flex-col gap-2 items-start text-left transition-all"
+                    onClick={() => { handleSelectModule('bazi'); setIsMobileMenuOpen(false); }}
+                    className="p-3.5 rounded-2xl bg-blue-50/50 hover:bg-blue-50 border border-blue-100 flex flex-col gap-2 items-start text-left transition-all cursor-pointer"
                   >
                     <Activity className="text-blue-600" size={18} />
                     <span className="font-extrabold text-xs text-slate-800">Bát Tự</span>
                   </button>
+
+                  {/* TỬ VI */}
                   <button 
-                    onClick={() => { setAppMode('ziwei'); setIsMobileMenuOpen(false); }}
-                    className="p-3.5 rounded-2xl bg-purple-50/50 hover:bg-purple-50 border border-purple-100 flex flex-col gap-2 items-start text-left transition-all"
+                    onClick={() => {
+                      setHistoricalZiweiId(null);
+                      handleSelectModule('ziwei');
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="p-3.5 rounded-2xl bg-purple-50/50 hover:bg-purple-50 border border-purple-100 flex flex-col gap-2 items-start text-left transition-all cursor-pointer"
                   >
-                    <BarChart3 className="text-purple-600" size={18} />
+                    <BarChart3 className="text-purple-650" size={18} />
                     <span className="font-extrabold text-xs text-slate-800">Tử Vi</span>
                   </button>
+
+                  {/* HÔN NHÂN */}
                   <button 
-                    onClick={() => { setAppMode('marriage'); setIsMobileMenuOpen(false); }}
-                    className="p-3.5 rounded-2xl bg-rose-50/50 hover:bg-rose-50 border border-rose-100 flex flex-col gap-2 items-start text-left transition-all"
+                    onClick={() => { handleSelectModule('marriage'); setIsMobileMenuOpen(false); }}
+                    className="p-3.5 rounded-2xl bg-rose-50/50 hover:bg-rose-50 border border-rose-100 flex flex-col gap-2 items-start text-left transition-all cursor-pointer"
                   >
                     <Heart className="text-rose-600" size={18} />
                     <span className="font-extrabold text-xs text-slate-800">Hôn Nhân</span>
                   </button>
+
+                  {/* XEM NGÀY */}
                   <button 
-                    onClick={() => { setAppMode('xemngay'); setIsMobileMenuOpen(false); }}
-                    className="col-span-2 p-3.5 rounded-2xl bg-emerald-50/50 hover:bg-emerald-50 border border-emerald-100 flex gap-3 items-center text-left transition-all"
+                    onClick={() => { handleSelectModule('xemngay'); setIsMobileMenuOpen(false); }}
+                    className="col-span-2 p-3.5 rounded-2xl bg-emerald-50/50 hover:bg-emerald-50 border border-emerald-100 flex gap-3 items-center text-left transition-all cursor-pointer"
                   >
                     <Calendar className="text-emerald-600" size={18} />
                     <span className="font-extrabold text-xs text-slate-800">Xem Ngày Đẹp Hoàng Đạo</span>
                   </button>
+
+                  {/* KIẾN THỨC (BLOG) */}
+                  <button 
+                    onClick={() => { handleSelectModule('blog'); setIsMobileMenuOpen(false); }}
+                    className="col-span-2 p-3.5 rounded-2xl bg-indigo-50/50 hover:bg-indigo-50 border border-indigo-100 flex gap-3 items-center text-left transition-all cursor-pointer"
+                  >
+                    <BookOpen className="text-indigo-650" size={18} />
+                    <span className="font-extrabold text-xs text-slate-800">Kiến Thức Phong Thủy</span>
+                  </button>
+
+                  {/* AUTH PROFILE / LOGIN BUTTON FOR MOBILE (CENTERED) */}
+                  <div className="col-span-2 border-t border-slate-100 pt-4 mt-2 flex flex-col items-center text-center">
+                    {user ? (
+                      <div className="w-full space-y-4">
+                        {/* Centered User Info */}
+                        <div className="flex flex-col items-center gap-2">
+                          <div className="w-12 h-12 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 shadow-sm">
+                            <UserCircle size={28} />
+                          </div>
+                          <div className="space-y-1">
+                            <span className="block font-extrabold text-sm text-slate-850">{user.name}</span>
+                            <div className="inline-flex items-center gap-1 px-3 py-1 bg-indigo-50 text-indigo-850 rounded-full border border-indigo-200/50 text-[10px] font-extrabold">
+                              <span>Xu phong thủy: {user.credits !== undefined ? user.credits : 0} 🪙</span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Centered Actions */}
+                        <div className="flex flex-col gap-2 max-w-[240px] mx-auto w-full">
+                          <button 
+                            onClick={() => { handleSelectModule('profile'); setIsMobileMenuOpen(false); }}
+                            className="w-full py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-center font-bold text-xs text-slate-750 transition-colors cursor-pointer"
+                          >
+                            Hồ sơ cá nhân
+                          </button>
+                          {(user?.role === 'admin' || user?.role === 'co-admin') && (
+                            <button 
+                              onClick={() => { onSwitchToAdmin(); setIsMobileMenuOpen(false); }}
+                              className="w-full py-2.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-750 text-center font-bold text-xs transition-colors cursor-pointer"
+                            >
+                              Trang quản trị
+                            </button>
+                          )}
+                          <button 
+                            onClick={() => { logout(); setIsMobileMenuOpen(false); handleSelectModule('home'); }}
+                            className="w-full py-2.5 rounded-xl bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 text-center font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                          >
+                            <LogOut size={13} />
+                            Đăng xuất
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button 
+                        onClick={() => { setIsAuthModalOpen(true); setIsMobileMenuOpen(false); }}
+                        className="w-full max-w-[240px] py-3 bg-indigo-650 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-colors cursor-pointer"
+                        style={{ backgroundColor: '#4f46e5' }}
+                      >
+                        <UserCircle size={16} />
+                        <span>Đăng Nhập</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
 
         </div>
+
+        {/* Mobile Sub-Header for Modules (🧭 >) */}
+        <AnimatePresence>
+          {isMobileModulesExpanded && (
+            <motion.div 
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="md:hidden border-t border-slate-200/60 overflow-hidden bg-white/95"
+            >
+              <div className="flex items-center justify-around py-2.5 px-2 max-w-md mx-auto">
+                <button 
+                  onClick={() => { handleSelectModule('iching'); setIsMobileModulesExpanded(false); }}
+                  className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${appMode === 'iching' ? 'bg-amber-800 text-white shadow-sm' : 'text-amber-850 bg-amber-50/50 border border-amber-100/50 hover:bg-amber-100/50'}`}
+                >
+                  <Compass size={13} />
+                  <span>Kinh Dịch</span>
+                </button>
+                <button 
+                  onClick={() => { handleSelectModule('bazi'); setIsMobileModulesExpanded(false); }}
+                  className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${appMode === 'bazi' ? 'bg-blue-800 text-white shadow-sm' : 'text-blue-855 bg-blue-50/50 border border-blue-100/50 hover:bg-blue-100/50'}`}
+                >
+                  <Activity size={13} />
+                  <span>Bát Tự</span>
+                </button>
+                <button 
+                  onClick={() => {
+                    setHistoricalZiweiId(null);
+                    handleSelectModule('ziwei');
+                    setIsMobileModulesExpanded(false);
+                  }}
+                  className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${appMode === 'ziwei' ? 'bg-purple-800 text-white shadow-sm' : 'text-purple-855 bg-purple-50/50 border border-purple-100/50 hover:bg-purple-100/50'}`}
+                >
+                  <BarChart3 size={13} />
+                  <span>Tử Vi</span>
+                </button>
+                <button 
+                  onClick={() => { handleSelectModule('marriage'); setIsMobileModulesExpanded(false); }}
+                  className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${appMode === 'marriage' ? 'bg-rose-800 text-white shadow-sm' : 'text-rose-855 bg-rose-50/50 border border-rose-100/50 hover:bg-rose-100/50'}`}
+                >
+                  <Heart size={13} />
+                  <span>Hôn Nhân</span>
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.header>
 
       {/* MAIN CONTAINER */}
@@ -756,15 +992,15 @@ export default function UserApp({ onSwitchToAdmin }) {
         {appMode === 'home' && (
           <div>
             <HomeBoard 
-              onSelectModule={(module) => {
+              onSelectModule={(module, extra) => {
                 if (module === 'history') {
                   if (user) {
-                    setAppMode('history');
+                    handleSelectModule('history');
                   } else {
                     setIsAuthModalOpen(true);
                   }
                 } else {
-                  setAppMode(module);
+                  handleSelectModule(module, extra);
                 }
               }}
               user={user}
@@ -1105,6 +1341,22 @@ export default function UserApp({ onSwitchToAdmin }) {
             </div>
           }>
             <DateSelectionBoard user={user} />
+          </React.Suspense>
+        </div>
+
+        {/* SYSTEM 7: BLOG */}
+        <div className={`${appMode === 'blog' ? 'block' : 'hidden'}`}>
+          <React.Suspense fallback={
+            <div className="text-center py-20 animate-in fade-in">
+              <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-650 rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-indigo-955 font-extrabold text-sm tracking-wider uppercase animate-pulse">Đang nạp dữ liệu Blog...</p>
+            </div>
+          }>
+            <BlogBoard 
+              onSelectModule={handleSelectModule} 
+              initialSlug={blogSlug} 
+              onClearSlug={handleClearBlogSlug} 
+            />
           </React.Suspense>
         </div>
 

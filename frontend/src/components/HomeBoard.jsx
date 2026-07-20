@@ -19,8 +19,19 @@ import {
   Play,
   X,
   ChevronDown,
-  User
+  User,
+  BookOpen,
+  Eye
 } from 'lucide-react';
+
+const categoryLabels = {
+  iching: 'Kinh Dịch',
+  bazi: 'Bát Tự',
+  ziwei: 'Tử Vi',
+  marriage: 'Hôn Nhân',
+  fengshui: 'Phong Thủy',
+  general: 'Chung'
+};
 
 // Custom clean animations for subtle modern rendering
 const cardsContainerVariants = {
@@ -114,6 +125,24 @@ function CustomSelect({ value, onChange, options, placeholder }) {
 
 export default function HomeBoard({ onSelectModule, user, onRequireLogin, onViewDestiny }) {
   const [hoveredCard, setHoveredCard] = useState(null);
+  const [latestPosts, setLatestPosts] = useState([]);
+  
+  useEffect(() => {
+    let active = true;
+    const loadPosts = async () => {
+      try {
+        const { getBlogPosts } = await import('../services/api');
+        const res = await getBlogPosts({ limit: 3 });
+        if (active && res.data && res.data.success) {
+          setLatestPosts(res.data.posts || []);
+        }
+      } catch (err) {
+        console.error('Error loading latest posts for home:', err);
+      }
+    };
+    loadPosts();
+    return () => { active = false; };
+  }, []);
 
   // Xem Vận Mệnh states
   const [isDestinyModalOpen, setIsDestinyModalOpen] = useState(false);
@@ -767,16 +796,97 @@ export default function HomeBoard({ onSelectModule, user, onRequireLogin, onView
         </div>
       </motion.section>
 
-      {/* 5. KIẾN THỨC PHONG THỦY CỔ HỌC ĐÃ ĐƯỢC CHUYỂN LÊN ĐẦU */}
+      {/* 6. BÀI VIẾT & KIẾN THỨC MỚI NHẤT */}
+      {latestPosts.length > 0 && (
+        <motion.section 
+          initial={{ opacity: 0, y: 8 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          className="max-w-6xl mx-auto px-4 py-16 md:py-24 relative z-10 border-t border-slate-200/50"
+        >
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 md:mb-16 gap-4">
+            <div className="space-y-4">
+              <span className="text-xs font-extrabold text-indigo-650 uppercase tracking-widest font-[Montserrat]">Góc Học Thuật</span>
+              <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-900 font-[Montserrat]">Kiến Thức & Chiêm Nghiệm</h2>
+              <p className="text-slate-500 font-medium text-sm sm:text-base max-w-2xl leading-relaxed">Cập nhật những bài viết chuyên sâu về phong thủy lý thuyết và ứng dụng thực tiễn cải mệnh sinh cơ.</p>
+            </div>
+            <button 
+              onClick={() => onSelectModule('blog')}
+              className="flex items-center gap-1 text-xs font-extrabold text-indigo-650 hover:text-indigo-855 transition-colors tracking-wider uppercase font-[Montserrat] shrink-0 cursor-pointer"
+            >
+              <span>Tất cả bài viết</span>
+              <ArrowRight size={14} />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {latestPosts.map((post) => (
+              <div 
+                key={post._id} 
+                onClick={() => onSelectModule('blog', post.slug)}
+                className="group flex flex-col bg-white border border-slate-200/70 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer hover:-translate-y-1"
+              >
+                {/* Thumbnail */}
+                <div className="aspect-[16/10] w-full bg-slate-105 overflow-hidden relative border-b border-slate-100">
+                  {post.thumbnail ? (
+                    <img 
+                      src={post.thumbnail} 
+                      alt={post.title} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-tr from-indigo-50/50 to-purple-50/50 flex items-center justify-center">
+                      <BookOpen size={32} className="text-indigo-400" />
+                    </div>
+                  )}
+                  <div className="absolute top-4 left-4">
+                    <span className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm border ${
+                      post.category === 'iching' ? 'bg-amber-50 text-amber-800 border-amber-200/50' :
+                      post.category === 'bazi' ? 'bg-blue-50 text-blue-800 border-blue-200/50' :
+                      post.category === 'ziwei' ? 'bg-purple-50 text-purple-800 border-purple-200/50' :
+                      post.category === 'marriage' ? 'bg-rose-50 text-rose-800 border-rose-200/50' :
+                      'bg-teal-50 text-teal-800 border-teal-200/50'
+                    }`}>
+                      {categoryLabels[post.category] || post.category}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="p-6 flex-1 flex flex-col justify-between">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-4 text-[10px] text-slate-400 font-bold">
+                      <span className="flex items-center gap-1"><Calendar size={11} /> {new Date(post.createdAt || post.publishedAt).toLocaleDateString('vi-VN')}</span>
+                      <span className="flex items-center gap-1"><Eye size={11} /> {post.views || 0} lượt xem</span>
+                    </div>
+                    <h3 className="font-extrabold text-slate-900 text-lg group-hover:text-indigo-650 transition-colors font-[Lora] line-clamp-2 leading-snug">
+                      {post.title}
+                    </h3>
+                    <p className="text-xs text-slate-500 font-medium leading-relaxed line-clamp-3">
+                      {post.summary}
+                    </p>
+                  </div>
+                  
+                  <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-405">
+                    <span className="text-[10px]">Tác giả: {post.author || 'Chuyên gia'}</span>
+                    <span className="text-indigo-650 group-hover:text-indigo-800 transition-colors flex items-center gap-1">
+                      Chi tiết <ChevronRight size={14} />
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </motion.section>
+      )}
 
       {/* 7. MINIMAL ELEGANT FOOTER */}
       <footer className="w-full max-w-6xl mx-auto px-4 border-t border-slate-200/80 pt-12 mt-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center shadow-md">
-                <span className="text-white font-serif font-extrabold text-sm">PT</span>
-              </div>
+              <img src="/logo.png" alt="Logo" className="w-8 h-8 rounded-xl object-cover shadow-sm" />
               <span className="font-extrabold text-slate-900 tracking-wider text-sm font-[Montserrat]">PHONG THỦY</span>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed max-w-xs font-medium">
@@ -792,6 +902,7 @@ export default function HomeBoard({ onSelectModule, user, onRequireLogin, onView
               <li><button onClick={() => onSelectModule('ziwei')} className="hover:text-indigo-600 transition-colors">Mệnh Số Tử Vi</button></li>
               <li><button onClick={() => onSelectModule('marriage')} className="hover:text-indigo-600 transition-colors">Bát Tự Hợp Hôn</button></li>
               <li><button onClick={() => onSelectModule('xemngay')} className="hover:text-indigo-600 transition-colors">Chọn Ngày Hoàng Đạo</button></li>
+              <li><button onClick={() => onSelectModule('blog')} className="hover:text-indigo-600 transition-colors">Kiến Thức Phong Thủy</button></li>
             </ul>
           </div>
 
