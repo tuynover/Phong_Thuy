@@ -7,3 +7,4 @@ backups/*
 .env
 .env.production
 config/rclone/rclone.conf
+frontend/.next/

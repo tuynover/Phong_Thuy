@@ -20,7 +20,7 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
 - **Styling:** Tailwind CSS (v3), PostCSS.
 - **Icons:** Lucide React.
 - **HTTP Client:** Axios.
-- **Markdown Renderer:** React Markdown (hiển thị kết quả luận giải định dạng đẹp từ AI).
+- **Markdown Renderer:** React Markdown & remark-gfm (hiển thị kết quả luận giải và bài viết phong thủy định dạng Markdown/GFM đẹp mắt, hỗ trợ bảng tự động và chèn ảnh minh họa).
 - **Linter:** ESLint.
 
 ### 🌟 Chức năng chính theo từng Phân hệ
@@ -42,7 +42,7 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
 * **Mệnh bàn 4x4 truyền thống:** Đồ hình 12 cung sắp xếp vòng quanh Trung Cung theo tọa độ Địa Chi chuẩn cổ học phương Đông.
 * **Phân tích Tinh Tú:** Hiển thị Chính tinh kèm độ sáng (Miếu, Vượng, Đắc, Bình, Hãm), Lục cát tinh, Lục sát tinh và tạp tinh được chia thành các cột Cát/Sát rõ ràng, phân biệt màu sắc ngũ hành từng sao.
 * **Vòng Trường Sinh & Hạn:** Hiển thị Đại Hạn, Tiểu Hạn, Nguyệt Hạn tương ứng trên các cung vị.
-* **Mobile List View:** Tự động tối ưu hóa và thu gọn bố cục thành danh sách dọc mượt mà trên thiết bị di động.
+* **Mobile List View:** Tự động tối ưu hóa và thu gọn bố cục thành danh sách rút gọn mượt mà trên thiết bị di động.
 * **Thầy Tử Vi AI:** Gửi yêu cầu giải đoán trực tiếp. Hệ thống hiển thị dòng văn bản luận giải trực quan qua luồng SSE Stream thời gian thực tương tự như Kinh Dịch và Bát Tự.
 * Tệp tin liên quan: [ZiweiBoard.jsx](file:///t:/Phongthuy/frontend/src/components/ZiweiBoard.jsx), [ZiweiChart.jsx](file:///t:/Phongthuy/frontend/src/components/ZiweiChart.jsx).
 
@@ -52,9 +52,17 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
 * AI hỗ trợ giải đoán chi tiết về hôn nhân gia đạo, ưu nhược điểm của cặp đôi và giải pháp hóa giải xung khắc.
 * Tệp tin liên quan: [MarriageBoard.jsx](file:///t:/Phongthuy/frontend/src/components/MarriageBoard.jsx), [MarriageInput.jsx](file:///t:/Phongthuy/frontend/src/components/MarriageInput.jsx).
 
-#### E. Trang Quản Trị (Admin App)
+#### E. Kiến Thức Phong Thủy & Chia Sẻ (Blog Board)
+* Trang tin tức và bài viết chiêm nghiệm học thuật công khai với 6 danh mục phong thủy chính.
+* Đồng bộ đường dẫn tĩnh Deep-Linking dạng `https://tuynover.ddns.net/?post={slug}` cho từng bài viết.
+* Tích hợp thanh chia sẻ đa nền tảng (Sao chép link, Facebook Sharer, Web Share API di động).
+* Trình diễn bài viết với `ReactMarkdown` & `remark-gfm`, tự động định dạng bảng GFM (`Vertical Pipe Normalizer`) và chèn ảnh minh họa sắc nét.
+* Tệp tin liên quan: [BlogBoard.jsx](file:///t:/Phongthuy/frontend/src/components/BlogBoard.jsx).
+
+#### F. Trang Quản Trị (Admin App)
 * Dashboard chuyên sâu dành cho Quản trị viên và Đồng quản trị viên (Admin / Co-Admin).
 * Quản lý người dùng, khóa/mở tài khoản, cấp phát Credits/Coins.
+* **Quản lý bài viết Blog:** Viết bài mới với bộ chuyển đổi **Soạn Thảo Markdown** vs **Xem Trước (Preview)**, tự động sinh slug thời gian thực, lưu bản nháp/công khai.
 * Kiểm tra lịch sử tính toán, khóa/mở hoặc xóa các bản ghi phong thủy vi phạm.
 * Quản lý khiếu nại (Ban Appeals) và xem nhật ký hệ thống thời gian thực qua Server-Sent Events (SSE).
 * Tệp tin liên quan: [AdminApp.jsx](file:///t:/Phongthuy/frontend/src/components/AdminApp.jsx).

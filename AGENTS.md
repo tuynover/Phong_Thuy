@@ -34,6 +34,7 @@ AI Agent có vai trò:
 - **Trải nghiệm Luồng Quên Mật Khẩu (OTP UI/UX):**
   - Khi người dùng nhấn nút gửi mã OTP khôi phục mật khẩu, bắt buộc phải kích hoạt chuyển sang bước 2 (nhập OTP và mật khẩu mới) ngay lập tức để tạo cảm giác mượt mà, không được bắt người dùng đợi phản hồi từ API gửi thư. Nếu API gửi ngầm thất bại, giao diện sẽ rollback lại bước 1 kèm theo banner thông báo lỗi.
   - Khi khôi phục mật khẩu thành công (happy path), toàn bộ input và form nhập liệu phải được ẩn đi hoàn toàn, chỉ hiển thị thông báo thành công nguyên màn hình modal kèm hiệu ứng nhún (bounce) và tự động chuyển hướng về form đăng nhập chính sau 1.2 giây.
+- **Quy tắc Trình diễn Markdown & Bảng GFM:** Bắt buộc sử dụng `ReactMarkdown` tích hợp plugin `remark-gfm` cho các nội dung luận giải AI và tệp tin bài viết. Mọi nội dung bài viết bắt buộc phải đi qua hàm tiền xử lý chuẩn hóa ngắt dòng (`normalizeMarkdownContent`) để ngăn chặn việc vỡ giao diện bảng hoặc hiển thị sai thẻ in đậm trên các thiết bị di động.
 
 ---
 

@@ -148,6 +148,24 @@ Tác vụ chạy định kỳ lúc nửa đêm của `NotificationScheduler.js` 
 *   **Thiên can Cung Mệnh:** $\text{Can Cung Mệnh} = \text{Can Tháng} + (\text{Chi Cung Mệnh} - \text{Chi Tháng}) \pmod{10}$.
 *   **Thai Nguyên (Conception Palace):** $\text{Can Thai Nguyên} = \text{Can Tháng} + 1 \pmod{10}$ và $\text{Chi Thai Nguyên} = \text{Chi Tháng} + 3 \pmod{12}$.
 
+---
+
+## 📚 6. Quy tắc Nghiệp vụ Quản lý Blog, Deep-Linking & Định dạng Markdown
+
+### 6.1 Deep-Linking & Chia sẻ Bài viết
+- **URL Đồng Bộ:** Khi xem bài viết chi tiết, địa chỉ trình duyệt tự động cập nhật tham số `?post={slug}` mà không cần reload trang.
+- **Deep Linking Auto-Load:** Khi mở trực tiếp đường dẫn chứa tham số `?post={slug}`, hệ thống tự động nhận diện `slug`, nạp bài viết và hiển thị ngay màn hình chi tiết.
+- **Tạo Link Chia sẻ:** Nút sao chép và nút chia sẻ (Facebook, Web Share Sheet) sử dụng hàm `getArticleShareUrl()` ghép chuẩn đường dẫn tuyệt đối `https://tuynover.ddns.net/?post={slug}` đảm bảo người nhận mở đúng bài viết.
+
+### 6.2 Chuẩn Hóa & Biên Dịch Markdown GFM
+- **Biên dịch GFM:** Sử dụng `react-markdown` kết hợp plugin `remark-gfm` hỗ trợ đầy đủ cú pháp bảng, gạch ngang, danh sách và trích dẫn.
+- **Tự động ngắt dòng bảng đứng (Vertical Pipe Normalizer):**
+  - Tự động chuyển đổi chuỗi dính liền `| |` thành `|\n|`.
+  - Tự động nhận diện và gộp các bảng ngắt dòng đứng (`|\n Ngũ Hành \n|\n Thiên Can \n|`) và thẻ in đậm bị rách dòng (`**\nDương Kim\n**`) về dạng bảng GFM nằm ngang hoàn hảo.
+- **Chèn Ảnh Minh Họa (Custom Image Renderer):**
+  - Cú pháp `![Mô tả ảnh](URL)`.
+  - Tự động hiển thị khung ảnh bo tròn `rounded-2xl`, giới hạn chiều cao `max-h-[480px]`, căn giữa kèm chú thích ảnh nghiêng `figcaption` bên dưới.
+
 
 
 

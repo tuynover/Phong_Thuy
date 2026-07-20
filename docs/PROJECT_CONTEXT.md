@@ -18,10 +18,12 @@ Hệ thống được chia làm hai phân hệ lớn:
    - **Bát Tự (Bazi):** Lập lá số Bát Tự và tính toán phân bổ ngũ hành theo thuật toán 4.0 với các cơ chế điều chỉnh điểm tương đối, ưu tiên tổ hợp địa chi, đa thấu phân khí nguyệt lệnh, tiết khí cực đoan (con vượng mẹ kiệt) và phá điểm sàn đối với cách cục Tòng Cách chính xác. Hoàn toàn hiển thị màu sắc tương sinh tương khắc Ngũ Hành trực quan.
    - **Tử Vi (Ziwei):** Lập mệnh bàn 12 cung dạng lưới 4x4 truyền thống hoặc danh sách rút gọn trên di động, hiển thị các sao và đại/tiểu hạn.
    - **Hợp Hôn (Marriage):** Đối chiếu độ hòa hợp Bát Tự, Cung Phi, Mệnh Quái của cặp đôi Nam - Nữ và đưa ra lời khuyên gia đạo từ AI.
+   - **Kiến Thức Phong Thủy (BlogBoard):** Trang chia sẻ và tra cứu bài viết học thuật phong thủy công khai. Tích hợp thanh chia sẻ đa nền tảng (Facebook, sao chép link, Web Share API di động), đồng bộ URL Deep-linking `?post={slug}` cho từng bài viết, trình diễn bài viết với `ReactMarkdown` & `remark-gfm` hỗ trợ tự động chuẩn hóa bảng GFM và chèn ảnh minh họa có chú thích.
    - **Hộp thoại Chat (AiChatWidget):** Cửa sổ chat thông minh trượt lên hiển thị stream SSE từ AI kèm các chỉ số Ứng Kỳ, Độ Tin Cậy và Rủi Ro.
    - **Lịch sử & Đánh giá:** Lưu trữ các quẻ và lá số đã xem qua `localStorage` (đối với khách truy cập) và lưu vào Database (đối với tài khoản đã đăng nhập).
 2. **Phân hệ Quản trị (Admin Dashboard):**
    - **Quản lý người dùng:** Theo dõi danh sách, phân quyền (Admin, Co-Admin, User, VIP), nạp/trừ credit sử dụng AI, khóa/mở khóa tài khoản.
+   - **Quản lý bài viết Blog:** Soạn thảo bài viết học thuật với bộ chuyển đổi tab **Soạn Thảo Markdown** vs **Xem Trước (Preview)**, tự động sinh slug thời gian thực, quản lý bài viết nháp/công khai/xóa mềm.
    - **Giám sát tính toán:** Kiểm tra toàn bộ lịch sử lập lá số/gieo quẻ trong hệ thống, khóa các bản ghi vi phạm chính sách hoặc spam.
    - **Báo cáo phân tích (Analytics):** Thống kê số lượng người dùng, tổng lượt chạy API, chi phí token AI.
    - **Xử lý khiếu nại (Ban Appeals):** Tiếp nhận và phê duyệt/từ chối đơn xin mở khóa tài khoản từ người dùng bị khóa.
@@ -32,7 +34,7 @@ Hệ thống được chia làm hai phân hệ lớn:
 
 ### Backend
 - **Node.js & Express.js (v5):** Nền tảng server chính.
-- **MongoDB & Mongoose (v9):** Lưu trữ dữ liệu dạng tài liệu JSON-like.
+- **MongoDB & Mongoose (v9):** Lưu trữ dữ liệu dạng tài liệu JSON-like (tất cả primary key `_id` theo chuẩn UUIDv7).
 - **lunar-javascript:** Thư viện tính toán âm lịch, Can Chi, ngũ hành nạp âm.
 - **iztro:** Thư viện tính toán tọa độ sao và lập mệnh bàn Tử Vi Bắc Phái.
 - **@google/generative-ai:** SDK kết nối và tương tác với Gemini API.
@@ -41,7 +43,7 @@ Hệ thống được chia làm hai phân hệ lớn:
 - **React (v19) & Vite:** Thư viện phát triển UI và công cụ build tối ưu.
 - **Tailwind CSS (v3):** Framework thiết kế giao diện theo tiện ích.
 - **Recharts:** Thư viện biểu đồ phục vụ cho Dashboard Admin.
-- **React Markdown:** Render văn bản định dạng markdown trả về từ AI.
+- **React Markdown & remark-gfm:** Biên dịch văn bản định dạng Markdown/GFM từ AI và bài viết blog, tự động xử lý bảng và ảnh minh họa.
 
 ---
 

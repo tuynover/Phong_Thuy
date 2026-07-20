@@ -33,6 +33,7 @@ Dưới đây là danh mục toàn bộ các thư viện bên thứ ba (Dependen
 | `tailwindcss` | `^3.4.19` | MIT | Framework CSS dạng tiện ích giúp thiết kế giao diện nhanh chóng, tương thích responsive. |
 | `axios` | `^1.15.0` | MIT | Thư viện HTTP Client để gửi request lên Backend và đính kèm JWT token. |
 | `react-markdown` | `^10.1.0` | MIT | Biên dịch chuỗi văn bản Markdown trả về từ AI thành định dạng HTML sạch đẹp. |
+| `remark-gfm` | `^4.0.1` | MIT | Plugin mở rộng GFM cho `react-markdown` hỗ trợ định dạng bảng, gạch ngang và danh sách kiểm tra. |
 | `recharts` | `^3.8.1` | MIT | Vẽ các biểu đồ thống kê (API usage, active users...) trên Trang quản trị Admin. |
 | `lucide-react` | `^1.7.0` | ISC | Bộ sưu tập biểu tượng (icons) hiện đại, nhẹ nhàng dùng cho giao diện. |
 | `lunar-javascript` | `1.7.7` | MIT | An lịch âm dương trực tiếp trên giao diện để hỗ trợ chọn lịch chọn giờ. |

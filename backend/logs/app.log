@@ -31812,3 +31812,143 @@ Stack: Error: getaddrinfo ENOTFOUND phong-thuy-backend-gz15.onrender.com
 [2026-07-20 16:17:40.052] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/blog] [IP: ::1] [Duration: 257ms] Hoàn thành: Phản hồi thành công (304)
 [2026-07-20 16:17:40.361] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/blog/bi-mat-ngu-hanh-kim-trong-bat-tu-tu-tru-tinh-cach-van-han-phuong-phap-can-bang] [IP: ::1] Yêu cầu bắt đầu: GET /api/blog/bi-mat-ngu-hanh-kim-trong-bat-tu-tu-tru-tinh-cach-van-han-phuong-phap-can-bang
 [2026-07-20 16:17:40.564] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/blog/bi-mat-ngu-hanh-kim-trong-bat-tu-tu-tru-tinh-cach-van-han-phuong-phap-can-bang] [IP: ::1] [Duration: 204ms] Hoàn thành: Phản hồi thành công (200)
+[2026-07-20 16:18:39.259] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:18:39.385] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 127ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:18:39.389] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:18:39.524] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 137ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:19:39.258] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:19:39.405] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:19:39.402] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 145ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:19:39.531] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 127ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:20:39.267] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:20:39.399] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 134ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:20:39.402] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:20:39.546] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 145ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:21:39.271] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:21:39.413] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 142ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:21:39.417] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:21:39.546] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 131ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:22:39.264] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:22:39.397] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:22:39.394] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 131ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:22:39.544] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 148ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:23:39.257] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:23:39.418] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 162ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:23:39.423] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:23:39.552] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 130ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:25:03.267] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:25:03.398] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 131ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:25:03.403] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:25:03.542] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 141ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:26:03.268] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:26:03.404] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 136ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:26:03.408] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:26:03.551] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 144ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:26:21.998] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-20 16:27:03.271] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:27:03.402] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 132ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:27:03.408] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:27:03.550] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 143ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:28:03.263] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:28:03.399] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 136ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:28:03.403] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:28:03.534] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 132ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:29:03.268] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:29:03.396] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 129ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:29:03.401] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:29:03.545] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 145ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:30:03.274] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:30:03.413] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 141ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:30:03.417] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:30:03.548] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 132ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:31:03.261] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:31:03.402] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 141ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:31:03.407] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:31:03.545] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 139ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:32:03.269] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:32:03.404] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 136ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:32:03.409] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:32:03.537] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 130ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:33:03.266] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:33:03.396] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 131ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:33:03.402] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:33:03.540] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 139ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:34:03.269] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:34:03.405] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 136ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:34:03.409] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:34:03.540] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 131ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:35:03.263] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:35:03.403] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:35:03.397] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 133ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:35:03.541] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 139ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:36:03.281] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:36:03.421] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 141ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:36:03.425] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:36:03.553] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 130ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:36:22.007] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-20 16:37:03.265] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:37:03.400] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 136ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:37:03.404] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:37:03.549] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 145ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:38:03.273] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:38:03.411] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 139ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:38:03.417] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:38:03.549] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 134ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:39:03.272] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:39:03.404] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 132ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:39:03.408] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:39:03.546] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 140ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:40:03.270] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:40:03.404] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 134ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:40:03.409] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:40:03.548] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 140ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:41:03.267] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:41:03.398] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 132ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:41:03.403] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:41:03.541] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 140ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:42:03.271] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:42:03.413] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 142ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:42:03.419] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:42:03.553] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 135ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:43:03.266] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:43:03.407] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 143ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:43:03.413] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:43:03.550] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 138ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:44:03.260] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:44:03.406] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:44:03.400] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 139ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:44:03.534] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 129ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:45:03.259] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:45:03.395] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 138ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:45:03.400] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:45:03.540] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 141ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:46:03.264] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:46:03.401] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 138ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:46:03.406] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:46:03.535] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 131ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:46:22.013] [INFO] [NotificationScheduler] Scanning for request and token spikes...
+[2026-07-20 16:47:03.273] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:47:03.404] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 133ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:47:03.408] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:47:03.543] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 137ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:48:03.306] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:48:03.446] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 140ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:48:03.452] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:48:03.583] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 132ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:49:03.260] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:49:03.391] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 131ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:49:03.395] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:49:03.530] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 136ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:50:03.275] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:50:03.418] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 144ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:50:03.423] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:50:03.554] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 132ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:51:03.265] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:51:03.396] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 132ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:51:03.400] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:51:03.535] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 136ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:52:03.263] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:52:03.398] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 135ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:52:03.403] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
+[2026-07-20 16:52:03.528] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] [Duration: 127ms] Hoàn thành: Phản hồi thành công (304)
+[2026-07-20 16:53:03.268] [INFO] [User: admin@admin.com (admin)] [Action: GET /api/notifications] [IP: ::1] Yêu cầu bắt đầu: GET /api/notifications
