@@ -136,6 +136,10 @@ Hệ thống Express.js sử dụng chuỗi Middleware để bảo vệ tài ngu
    - Bỏ qua kiểm tra đối với các tài khoản Admin / Co-Admin.
 4. **`rateLimiter.js` (Rate Limiting):**
    - Giới hạn tần suất gọi API (ví dụ: tối đa 30 lần lập lá số trong 15 phút, 20 lần gọi AI trong 15 phút) để tránh tấn công DDOS hoặc spam API tốn phí.
+   - Tích hợp kiến trúc **Hybrid Rate Limiter**: Ưu tiên đếm nguyên tử trên **Redis** (`INCR` + `EXPIRE`), tự động fallback về bộ nhớ RAM JavaScript `Map` nếu Redis ngắt kết nối.
+5. **`MemoryCacheService.js` & `redis.js` (Hybrid Caching):**
+   - Bộ nhớ đệm 2 tầng (L1 RAM JS `Map` + L2 **Redis**). Lưu trữ cache lá số, bài luận và lịch sử gieo quẻ với thời gian hết hạn TTL tự động.
+   - Tích hợp cơ chế Graceful Fallback đảm bảo không crash ứng dụng khi Redis offline.
 5. **`checkRecordOwnership.js` (Record Privacy Protection):**
    - Tự động xác định loại bản ghi (Kinh Dịch, Bát Tự, Tử Vi, Hợp Hôn) dựa trên URL API và thực hiện truy vấn cơ sở dữ liệu để bảo vệ quyền riêng tư.
    - Chỉ cho phép chủ sở hữu của bản ghi hoặc quản trị viên (Admin/Co-Admin) xem chi tiết, yêu cầu giải đoán AI, hoặc chat AI liên quan đến bản ghi đó. Chặn đứng các hành vi dùng ID để xem lén dữ liệu của người khác.
@@ -143,7 +147,9 @@ Hệ thống Express.js sử dụng chuỗi Middleware để bảo vệ tài ngu
 6. **`checkHistoryOwnership.js` (History Access Protection):**
    - Ngăn chặn người dùng xem trộm lịch sử của tài khoản khác bằng cách đối chiếu ID người dùng trong token JWT với `:userId` trên endpoint API.
 7. **`optionalAuth.js` (Optional Authentication):**
-   - Thực hiện giải mã thông tin token và gán vào `req.user` nếu có, nhưng không chặn request nếu người dùng chưa đăng nhập (cho phép khách tiếp tục sử dụng các chức năng không bắt buộc tài khoản).
+   - Thực hiện giải mã thông tin token từ Redis User Profile Cache và gán vào `req.user` & `req.dbUser` (chuẩn hóa đầy đủ `id` và `_id`).
+   - Nếu token bị hết hạn hoặc không hợp lệ, middleware sẽ âm thầm bỏ qua (`next()`) thay vì ném lỗi HTTP 401, đảm bảo không ngắt luồng hiển thị lịch sử của khách hoặc người dùng vừa đổi phiên.
+
 
 ---
 
@@ -153,6 +159,16 @@ Hệ thống triển khai dịch vụ [SseService.js](file:///t:/Phongthuy/backe
 - **Admin Channel (`/api/admin/events`):** Đăng ký các kết nối của Admin để cập nhật live hoạt động của người dùng, lượt chạy API, khiếu nại tài khoản.
 - **User Channel (`/api/auth/events`):** Lắng nghe các thay đổi về quyền hạn (Role), số dư credit hoặc lệnh khóa tài khoản từ admin. Nếu tài khoản bị khóa hoặc xóa từ Admin Panel, Client sẽ nhận được sự kiện qua SSE và tự động thực hiện đăng xuất (F5/Clear localStorage) ngay lập tức.
 - **SSE Keepalive Ping:** Mọi kết nối SSE đều được đăng ký vào vòng lặp heartbeat gửi gói tin trống `:\n\n` định kỳ 15 giây nhằm duy trì kết nối luôn sống qua các cổng reverse proxy.
+
+---
+
+## 5. Hạ tầng Bảo mật & Resilience (Security & Resilience Infrastructure)
+
+- **Helmet Security Headers:** Tích hợp `helmet` bảo vệ các HTTP response headers (`X-Frame-Options`, `X-Content-Type-Options: nosniff`, `Strict-Transport-Security`, `X-DNS-Prefetch-Control`).
+- **Global Error Handling Middleware:** Tập trung xử lý toàn bộ uncaught errors trong Express.js v5 qua middleware 4 tham số, ghi nhận log lỗi chi tiết và trả về JSON tiêu chuẩn cho Client.
+- **Graceful Shutdown & Process Lifecycle:** Tự động lắng nghe `uncaughtException`, `unhandledRejection`, `SIGTERM`, `SIGINT` để ngắt nhận request mới (`server.close()`), đóng kết nối MongoDB an toàn trước khi gọi `process.exit(1)` kích hoạt cơ chế tự phục hồi (Self-Healing Container) trên AWS ECS / Docker.
+- **Log Rotation (Daily Rotate):** Tích hợp `winston-daily-rotate-file` chia nhỏ tệp log theo ngày (`app-%DATE%.log` và `errors-%DATE%.log`), giới hạn 10MB/tệp, tự động nén `.gz` và dọn dẹp log quá 14 ngày.
+- **Automated Unit Testing (Jest):** Tích hợp khung thử nghiệm `jest` tự động xác minh kết quả an sao Bát Tự Ngũ Hành 4.0, Tử Vi 12 Cung và Quẻ Kinh Dịch.
 
 ---
 

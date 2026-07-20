@@ -1,12 +1,21 @@
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const logger = require('../services/LoggerService');
 const { OAuth2Client } = require('google-auth-library');
 const BanAppeal = require('../models/BanAppeal');
 const AdminNotification = require('../models/AdminNotification');
-const sseService = require('../services/SseService');
 const EmailService = require('../services/EmailService');
+const RedisQueueService = require('../services/RedisQueueService');
+const sseService = require('../services/SseService');
+const { 
+  setOtpRedis, 
+  getOtpRedis, 
+  deleteOtpRedis, 
+  clearUserProfileCache, 
+  setUserProfileCache 
+} = require('../config/redis');
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -61,11 +70,11 @@ const register = async (req, res) => {
 
         return jwt.sign(
           payload,
-          process.env.JWT_SECRET || 'secret',
+          process.env.JWT_SECRET,
           { expiresIn: '7d' },
           (err, token) => {
             if (err) throw err;
-            return res.json({ token, user: { id: user.id, email: user.email, name: user.name, baziInfo: user.baziInfo, gender: user.gender, phone: user.phone || "", role: user.role, credits: user.credits, status: user.status } });
+            return res.json({ token, user: { id: user.id || user._id, _id: user._id || user.id, email: user.email, name: user.name, baziInfo: user.baziInfo, gender: user.gender, phone: user.phone || "", role: user.role, credits: user.credits, status: user.status } });
           }
         );
       }
@@ -109,11 +118,11 @@ const register = async (req, res) => {
 
     jwt.sign(
       payload,
-      process.env.JWT_SECRET || 'secret',
+      process.env.JWT_SECRET,
       { expiresIn: '7d' },
       (err, token) => {
         if (err) throw err;
-        res.json({ token, user: { id: user.id, email: user.email, name: user.name, baziInfo: user.baziInfo, gender: user.gender, phone: user.phone || "", role: user.role, credits: user.credits, status: user.status } });
+        res.json({ token, user: { id: user.id || user._id, _id: user._id || user.id, email: user.email, name: user.name, baziInfo: user.baziInfo, gender: user.gender, phone: user.phone || "", role: user.role, credits: user.credits, status: user.status } });
       }
     );
   } catch (err) {
@@ -177,11 +186,11 @@ const login = async (req, res) => {
 
     jwt.sign(
       payload,
-      process.env.JWT_SECRET || 'secret',
+      process.env.JWT_SECRET,
       { expiresIn: '7d' },
       (err, token) => {
         if (err) throw err;
-        res.json({ token, user: { id: user.id, email: user.email, name: user.name, baziInfo: user.baziInfo, gender: user.gender, phone: user.phone || "", role: user.role, credits: user.credits, status: user.status } });
+        res.json({ token, user: { id: user.id || user._id, _id: user._id || user.id, email: user.email, name: user.name, baziInfo: user.baziInfo, gender: user.gender, phone: user.phone || "", role: user.role, credits: user.credits, status: user.status } });
       }
     );
   } catch (err) {
@@ -223,7 +232,7 @@ const updateBaziInfo = async (req, res) => {
     
     logger.info(`Cập nhật Giờ Sinh thành công cho tài khoản [${user.email}] (Giờ sinh mới: ${hour}:${minute} ngày ${day}/${month}/${year}).`, { user: user.email, action: 'Cập nhật Giờ Sinh Bát Tự' });
 
-    res.json({ user: { id: user.id, email: user.email, name: user.name, baziInfo: user.baziInfo, gender: user.gender, phone: user.phone || "", role: user.role, credits: user.credits, status: user.status } });
+    res.json({ user: { id: user.id || user._id, _id: user._id || user.id, email: user.email, name: user.name, baziInfo: user.baziInfo, gender: user.gender, phone: user.phone || "", role: user.role, credits: user.credits, status: user.status } });
   } catch (err) {
     logger.error(`Cập nhật Giờ Sinh gặp lỗi hệ thống cho tài khoản ID [${userId}].`, err, { user: `id:${userId}`, action: 'Cập nhật Giờ Sinh Bát Tự' });
     res.status(500).send('Server error');
@@ -298,7 +307,7 @@ const googleLogin = async (req, res) => {
 
     jwt.sign(
       tokenPayload,
-      process.env.JWT_SECRET || 'secret',
+      process.env.JWT_SECRET,
       { expiresIn: '7d' },
       (err, token) => {
         if (err) throw err;
@@ -358,6 +367,9 @@ const updateProfile = async (req, res) => {
 
     await user.save();
     
+    // Đồng bộ Redis Profile Cache
+    setUserProfileCache(user.id, user);
+
     logger.info(`Cập nhật Hồ Sơ thành công cho tài khoản [${user.email}].`, { user: user.email, action: 'Cập nhật Hồ Sơ' });
 
     res.json({ user: { id: user.id, email: user.email, name: user.name, baziInfo: user.baziInfo, gender: user.gender, phone: user.phone || "", role: user.role, credits: user.credits, status: user.status, isEmailVerified: user.isEmailVerified || false } });
@@ -439,7 +451,11 @@ const changePassword = async (req, res) => {
     const hashedPassword = await bcrypt.hash(newPassword, salt);
 
     user.password = hashedPassword;
+    user.tokenVersion = (user.tokenVersion || 0) + 1;
     await user.save();
+
+    // Clear Redis profile cache
+    clearUserProfileCache(userId);
 
     logger.info(`Đổi mật khẩu thành công cho tài khoản [${user.email}].`, { user: user.email, action: 'Đổi mật khẩu' });
     res.json({ message: 'Đổi mật khẩu thành công.' });
@@ -456,7 +472,8 @@ const logout = async (req, res) => {
     if (user) {
       user.tokenVersion = (user.tokenVersion || 0) + 1;
       await user.save();
-      logger.info(`Đăng xuất thành công cho tài khoản [${user.email}] (Vô hiệu hóa token).`, { user: user.email, action: 'Đăng xuất' });
+      clearUserProfileCache(userId);
+      logger.info(`Đăng xuất thành công cho tài khoản [${user.email}] (Vô hiệu hóa token & xóa cache).`, { user: user.email, action: 'Đăng xuất' });
     }
     res.json({ message: 'Đăng xuất thành công.' });
   } catch (err) {
@@ -472,14 +489,12 @@ const sendVerificationEmail = async (req, res) => {
       return res.status(400).json({ message: 'Email đã được xác thực trước đó.' });
     }
 
-    // Sinh mã OTP 6 chữ số
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    user.emailOtp = otp;
-    user.emailOtpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 phút hiệu lực
-    await user.save();
+    // Sinh mã OTP 6 chữ số ngẫu nhiên cấp mã hóa (CSPRNG) và lưu vào Redis (TTL 600 giây = 10 phút)
+    const otp = crypto.randomInt(100000, 1000000).toString();
+    await setOtpRedis(`verify_email:${user.id}`, otp, 600);
 
-    // Gửi email
-    const emailResult = await EmailService.sendEmail({
+    // Đẩy task gửi email vào Redis Queue để phản hồi API lập tức (~10ms)
+    await RedisQueueService.enqueueEmail({
       to: user.email,
       subject: '[Phong Thủy Luận Giải] Mã xác thực email của bạn',
       html: `
@@ -497,10 +512,6 @@ const sendVerificationEmail = async (req, res) => {
       `
     });
 
-    if (!emailResult.success) {
-      return res.status(500).json({ message: 'Không thể gửi email xác thực. Vui lòng thử lại sau.' });
-    }
-
     res.json({ message: 'Mã xác thực OTP đã được gửi đến email của bạn.' });
   } catch (err) {
     logger.error('Gửi email xác thực gặp lỗi:', err);
@@ -515,22 +526,30 @@ const verifyEmail = async (req, res) => {
   }
 
   try {
-    const user = req.dbUser;
+    const user = await User.findById(req.dbUser.id || req.dbUser._id);
+    if (!user || user.isDeleted) {
+      return res.status(404).json({ message: 'Tài khoản không tồn tại.' });
+    }
+
     if (user.isEmailVerified) {
       return res.status(400).json({ message: 'Email đã được xác thực trước đó.' });
     }
 
-    if (!user.emailOtp || user.emailOtp !== otp || !user.emailOtpExpires || new Date(user.emailOtpExpires) < new Date()) {
+    // Đọc OTP từ Redis
+    const cachedOtp = await getOtpRedis(`verify_email:${user.id}`);
+    if (!cachedOtp || cachedOtp !== otp) {
       return res.status(400).json({ message: 'Mã OTP không chính xác hoặc đã hết hạn.' });
     }
 
     // Xác thực thành công
     user.isEmailVerified = true;
-    user.emailOtp = null;
-    user.emailOtpExpires = null;
     user.credits = (user.credits || 0) + 2;
 
     await user.save();
+    
+    // Xóa OTP khỏi Redis & cập nhật Profile Cache
+    await deleteOtpRedis(`verify_email:${user.id}`);
+    setUserProfileCache(user.id, user);
 
     logger.info(`Tài khoản [${user.email}] xác thực email thành công và được cộng 2 credits.`, { user: user.email, action: 'Xác thực Email' });
 
@@ -572,12 +591,12 @@ const forgotPassword = async (req, res) => {
       return res.status(403).json({ message: 'Tài khoản này hiện đang bị khóa.' });
     }
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    user.emailOtp = otp;
-    user.emailOtpExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 phút
-    await user.save();
+    // Sinh mã OTP 6 chữ số ngẫu nhiên cấp mã hóa (CSPRNG) và lưu vào Redis (TTL 900 giây = 15 phút)
+    const otp = crypto.randomInt(100000, 1000000).toString();
+    await setOtpRedis(`reset_password:${user.email.toLowerCase()}`, otp, 900);
 
-    await EmailService.sendEmail({
+    // Đẩy task gửi mail vào Redis Queue
+    await RedisQueueService.enqueueEmail({
       to: user.email,
       subject: 'Mã OTP khôi phục mật khẩu - Phong Thủy',
       html: `<div style="font-family: sans-serif; padding: 20px; color: #333; max-width: 500px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
@@ -618,20 +637,20 @@ const resetPassword = async (req, res) => {
       return res.status(404).json({ message: 'Không tìm thấy tài khoản.' });
     }
 
-    if (!user.emailOtp || !user.emailOtpExpires || user.emailOtpExpires < new Date()) {
-      return res.status(400).json({ message: 'Mã OTP đã hết hạn hoặc không tồn tại. Vui lòng bấm gửi lại mã.' });
-    }
-
-    if (user.emailOtp !== otp) {
-      return res.status(400).json({ message: 'Mã OTP không chính xác.' });
+    // Đọc mã OTP từ Redis
+    const cachedOtp = await getOtpRedis(`reset_password:${email.toLowerCase()}`);
+    if (!cachedOtp || cachedOtp !== otp) {
+      return res.status(400).json({ message: 'Mã OTP không chính xác hoặc đã hết hạn. Vui lòng bấm gửi lại mã.' });
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedPassword;
-    user.emailOtp = null;
-    user.emailOtpExpires = null;
     user.tokenVersion = (user.tokenVersion || 0) + 1; // Hủy các phiên đăng nhập cũ
     await user.save();
+
+    // Xóa OTP khỏi Redis & vô hiệu hóa Profile Cache
+    await deleteOtpRedis(`reset_password:${email.toLowerCase()}`);
+    clearUserProfileCache(user.id);
 
     logger.info(`Khôi phục mật khẩu thành công cho tài khoản [${user.email}].`, { user: user.email, action: 'Khôi phục mật khẩu' });
     res.json({ message: 'Khôi phục mật khẩu thành công! Vui lòng đăng nhập lại với mật khẩu mới.' });
@@ -655,3 +674,4 @@ module.exports = {
   forgotPassword,
   resetPassword,
 };
+

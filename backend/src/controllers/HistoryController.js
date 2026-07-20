@@ -9,6 +9,7 @@ const Message = require('../models/Message');
 const mongoose = require('mongoose');
 const BaziAnalyzer = require('../services/BaziAnalyzer');
 const User = require('../models/User');
+const { runInTransaction } = require('../utils/transactionHelper');
 
 const findByIdFlex = async (Model, id) => {
     let record = await Model.findById(id);
@@ -81,78 +82,8 @@ class HistoryController {
                 return res.status(404).json({ error: 'Không tìm thấy bản ghi Bát Tự.' });
             }
 
-            let updated = false;
-            // Migrate legacy cungMenh
-            if (!record.baziData || !record.baziData.cungMenh || !record.baziData.cungMenh.gan || !record.baziData.tietKhiName || !record.baziData.tuLenhCan) {
-                const dateStr = record.inputInfo.date;
-                const timeStr = record.inputInfo.time;
-                const genderVal = record.inputInfo.gender;
-                const boundary = record.inputInfo.dayBoundaryMode || 'midnight';
-                const freshResult = BaziAnalyzer.analyze(dateStr, timeStr, genderVal, boundary);
-                record.baziData = freshResult;
-                record.solarTimeline = freshResult.solarTimeline;
-                record.tietKhiTimeline = freshResult.tietKhiTimeline;
-                updated = true;
-            }
-
-            // Migrate legacy menhQuai
-            if (record.baziData && !record.baziData.menhQuai) {
-                const dateStr = record.inputInfo.date;
-                let yearVal = null;
-                if (dateStr.includes('/')) {
-                    yearVal = parseInt(dateStr.split('/')[2]);
-                } else if (dateStr.includes('-')) {
-                    yearVal = parseInt(dateStr.split('-')[0]);
-                }
-
-                const GUA_MAP = {
-                    1: { cung: 'Khảm', element: 'Thủy', group: 'Đông tứ mệnh' },
-                    2: { cung: 'Khôn', element: 'Thổ', group: 'Tây tứ mệnh' },
-                    3: { cung: 'Chấn', element: 'Mộc', group: 'Đông tứ mệnh' },
-                    4: { cung: 'Tốn', element: 'Mộc', group: 'Đông tứ mệnh' },
-                    5: { 
-                        male: { cung: 'Khôn', element: 'Thổ', group: 'Tây tứ mệnh' },
-                        female: { cung: 'Cấn', element: 'Thổ', group: 'Tây tứ mệnh' }
-                    },
-                    6: { cung: 'Càn', element: 'Kim', group: 'Tây tứ mệnh' },
-                    7: { cung: 'Đoài', element: 'Kim', group: 'Tây tứ mệnh' },
-                    8: { cung: 'Cấn', element: 'Thổ', group: 'Tây tứ mệnh' },
-                    9: { cung: 'Ly', element: 'Hỏa', group: 'Đông tứ mệnh' }
-                };
-
-                const calculateMenhQuai = (solarYear, gender) => {
-                    let tempYear = parseInt(solarYear);
-                    if (isNaN(tempYear)) return null;
-                    let sum = tempYear;
-                    while (sum >= 10) {
-                        sum = String(sum).split('').reduce((acc, digit) => acc + parseInt(digit), 0);
-                    }
-                    let guaNum;
-                    const genderVal = parseInt(gender) === 0 ? 0 : 1;
-                    if (genderVal === 1) {
-                        guaNum = 11 - sum;
-                        if (guaNum <= 0) guaNum += 9;
-                    } else {
-                        guaNum = 4 + sum;
-                        while (guaNum > 9) guaNum -= 9;
-                    }
-                    const gua = GUA_MAP[guaNum];
-                    if (guaNum === 5) {
-                        return genderVal === 1 ? gua.male : gua.female;
-                    }
-                    return gua;
-                };
-
-                record.baziData.menhQuai = calculateMenhQuai(yearVal, record.inputInfo.gender);
-                record.markModified('baziData');
-                updated = true;
-            }
-
-            if (updated) {
-                await record.save();
-            }
-
             const recordObj = record.toObject();
+
             if (recordObj.tietKhiTimeline) {
                 recordObj.tietKhiTimeline = formatCanChiSpacing(recordObj.tietKhiTimeline);
             }
@@ -655,22 +586,30 @@ class HistoryController {
             if (record.userId !== userId && record.userId?.toString() !== userId) {
                 return res.status(403).json({ error: 'Bạn không có quyền xóa bản ghi này.' });
             }
-            // Soft delete the record from database
-            await Model.updateOne({ _id: record._id }, { $set: { isDeleted: true } });
+            // Soft delete the record and clear linked own record IDs inside an ACID transaction
+            await runInTransaction(async (session) => {
+                const opts = session ? { session } : {};
+                await Model.updateOne({ _id: record._id }, { $set: { isDeleted: true } }, opts);
 
-            // Clear linked own record IDs from user profile if this was their "own" chart
-            const recordIdStr = record._id?.toString() || record._id;
-            if (type === 'bazi' || type === 'bat_tu') {
-                await User.updateOne(
-                    { _id: userId, 'baziInfo.ownBaziRecordId': recordIdStr },
-                    { $set: { 'baziInfo.ownBaziRecordId': null } }
-                );
-            } else if (type === 'tu_vi' || type === 'tu-vi' || type === 'ziwei') {
-                await User.updateOne(
-                    { _id: userId, 'baziInfo.ownZiweiRecordId': recordIdStr },
-                    { $set: { 'baziInfo.ownZiweiRecordId': null } }
-                );
-            }
+                const recordIdStr = record._id?.toString() || record._id;
+                if (type === 'bazi' || type === 'bat_tu') {
+                    await User.updateOne(
+                        { _id: userId, 'baziInfo.ownBaziRecordId': recordIdStr },
+                        { $set: { 'baziInfo.ownBaziRecordId': null } },
+                        opts
+                    );
+                } else if (type === 'tu_vi' || type === 'tu-vi' || type === 'ziwei') {
+                    await User.updateOne(
+                        { _id: userId, 'baziInfo.ownZiweiRecordId': recordIdStr },
+                        { $set: { 'baziInfo.ownZiweiRecordId': null } },
+                        opts
+                    );
+                }
+            });
+
+            // Decrement user record count O(1)
+            const UserStatsService = require('../services/UserStatsService');
+            UserStatsService.incrementRecordCount(userId, type, -1);
 
             // Clear cache
             MemoryCacheService.clearUserHistoryCache(userId);

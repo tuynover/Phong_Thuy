@@ -1,4 +1,5 @@
 const BlogPost = require('../models/BlogPost');
+const escapeRegExp = require('../utils/escapeRegExp');
 
 // Helper to convert Vietnamese titles into URL-friendly slugs
 function generateSlug(text) {
@@ -41,9 +42,10 @@ class BlogController {
 
       // Search by keyword in Title or Summary
       if (search) {
+        const safeSearch = escapeRegExp(search.trim());
         query.$or = [
-          { title: { $regex: search, $options: 'i' } },
-          { summary: { $regex: search, $options: 'i' } }
+          { title: { $regex: safeSearch, $options: 'i' } },
+          { summary: { $regex: safeSearch, $options: 'i' } }
         ];
       }
 

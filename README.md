@@ -81,10 +81,11 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
 
 ### 🛠️ Công nghệ sử dụng
 - **Core:** Node.js, Express.js (v5).
-- **Database:** MongoDB, Mongoose (v9).
-- **Security:** JWT, bcryptjs, CORS, creditCheck Middleware.
+- **Database & Cache:** MongoDB (Mongoose v9), Redis (`ioredis`, Redis Alpine).
+- **Security:** JWT, bcryptjs, CORS, creditCheck Middleware, antiSpamLock Middleware (Distributed Mutex Lock).
 - **AI Engine:** Google Gemini API (`@google/generative-ai` model `gemini-1.5-pro`).
 - **Phong thủy Logic:** `lunar-javascript` (Lịch pháp âm dương, Can Chi, Bát Tự).
+
 
 ### 🌟 Kiến trúc lõi & Các dịch vụ xử lý chuyên sâu
 
@@ -205,6 +206,10 @@ Hệ thống API Backend sử dụng tiền tố `/api` và phân chia thành c�
 4. Khởi chạy máy chủ:
    ```bash
    npm run dev
+   ```
+5. Khởi chạy Unit Test Suite (Jest):
+   ```bash
+   npm test
    ```
 
 ### Bước 3: Cài đặt và cấu hình Frontend

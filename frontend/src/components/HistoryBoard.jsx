@@ -390,7 +390,8 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
 
     const fetchMarriageOnly = async () => {
         try {
-            const userId = user.id || user._id;
+            const userId = user?.id || user?._id;
+            if (!userId || userId === 'undefined') return;
             const res = await getMarriageHistory(userId);
             setMarriages(res.data);
             if (onSaveCache && preloadedData) {
@@ -407,10 +408,15 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
     const fetchData = async (filters = {}) => {
         setLoading(true);
         try {
-            const userId = user.id || user._id;
+            const userId = user?.id || user?._id;
+            if (!userId || userId === 'undefined') {
+                setLoading(false);
+                return;
+            }
             const params = {};
             if (filters.startDate) params.startDate = filters.startDate;
             if (filters.endDate) params.endDate = filters.endDate;
+
 
             const [hexRes, baziRes, ziweiRes, marriageRes] = await Promise.all([
                 getIChingHistory(userId, params),

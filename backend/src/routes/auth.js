@@ -28,9 +28,12 @@ router.post('/reset-password', authLimiter, AuthController.resetPassword);
 const sseService = require('../services/SseService');
 
 router.get('/me', auth, (req, res) => {
+  const userId = req.dbUser.id || req.dbUser._id;
   res.json({
-    id: req.dbUser.id,
+    id: userId,
+    _id: userId,
     email: req.dbUser.email,
+
     name: req.dbUser.name,
     baziInfo: req.dbUser.baziInfo,
     gender: req.dbUser.gender,

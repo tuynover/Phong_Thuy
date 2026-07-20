@@ -1,16 +1,41 @@
 const fs = require('fs');
 const path = require('path');
+const winston = require('winston');
+require('winston-daily-rotate-file');
 
 class LoggerService {
     constructor() {
         this.logDir = path.join(__dirname, '../../logs');
-        this.appLogPath = path.join(this.logDir, 'app.log');
-        this.errorsLogPath = path.join(this.logDir, 'errors.log');
         
         // Ensure log directory exists
         if (!fs.existsSync(this.logDir)) {
             fs.mkdirSync(this.logDir, { recursive: true });
         }
+
+        // Daily Rotate Transport for all logs (app-YYYY-MM-DD.log)
+        const appRotateTransport = new winston.transports.DailyRotateFile({
+            filename: path.join(this.logDir, 'app-%DATE%.log'),
+            datePattern: 'YYYY-MM-DD',
+            zippedArchive: true,
+            maxSize: '10m',
+            maxFiles: '14d',
+            level: 'info'
+        });
+
+        // Daily Rotate Transport for Warnings and Errors (errors-YYYY-MM-DD.log)
+        const errorRotateTransport = new winston.transports.DailyRotateFile({
+            filename: path.join(this.logDir, 'errors-%DATE%.log'),
+            datePattern: 'YYYY-MM-DD',
+            zippedArchive: true,
+            maxSize: '10m',
+            maxFiles: '14d',
+            level: 'warn'
+        });
+
+        this.winstonLogger = winston.createLogger({
+            format: winston.format.printf(({ message }) => message),
+            transports: [appRotateTransport, errorRotateTransport]
+        });
     }
 
     // Color helpers using standard ANSI escape codes
@@ -26,19 +51,10 @@ class LoggerService {
     };
 
     getTimestamp() {
-        // Shift time by +7 hours to guarantee Vietnam Local Time (GMT+7) on any hosting provider
         const now = new Date();
-        const vnTime = new Date(now.getTime() + (7 * 60 * 60 * 1000));
-        
-        const year = vnTime.getUTCFullYear();
-        const month = String(vnTime.getUTCMonth() + 1).padStart(2, '0');
-        const day = String(vnTime.getUTCDate()).padStart(2, '0');
-        const hours = String(vnTime.getUTCHours()).padStart(2, '0');
-        const minutes = String(vnTime.getUTCMinutes()).padStart(2, '0');
-        const seconds = String(vnTime.getUTCSeconds()).padStart(2, '0');
-        const ms = String(vnTime.getUTCMilliseconds()).padStart(3, '0');
-        
-        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${ms}`;
+        const svTime = now.toLocaleString('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' });
+        const ms = String(now.getMilliseconds()).padStart(3, '0');
+        return `${svTime}.${ms}`;
     }
 
     formatContext(context) {
@@ -64,19 +80,8 @@ class LoggerService {
     }
 
     writeToFiles(level, formattedMsg) {
-        const fileLine = `${formattedMsg}\n`;
-        
-        // Write to all-purpose app.log
-        fs.appendFile(this.appLogPath, fileLine, (err) => {
-            if (err) console.error("Failed to write to app.log:", err.message);
-        });
-
-        // Write to errors.log if it is a warning or error
-        if (level === 'ERROR' || level === 'WARN') {
-            fs.appendFile(this.errorsLogPath, fileLine, (err) => {
-                if (err) console.error("Failed to write to errors.log:", err.message);
-            });
-        }
+        const winstonLevel = (level === 'ERROR' || level === 'WARN') ? level.toLowerCase() : 'info';
+        this.winstonLogger.log({ level: winstonLevel, message: formattedMsg });
     }
 
     info(message, context = null) {
@@ -113,6 +118,18 @@ class LoggerService {
 
         console.error(coloredLog);
         this.writeToFiles('ERROR', plainLog);
+    }
+
+    debug(message, context = null) {
+        if (process.env.NODE_ENV !== 'production') {
+            const timestamp = this.getTimestamp();
+            const contextStr = this.formatContext(context);
+            const plainLog = `[${timestamp}] [DEBUG]${contextStr} ${message}`;
+            const coloredLog = `${this.colors.dim}[${timestamp}]${this.colors.reset} ${this.colors.magenta}[DEBUG]${this.colors.reset}${this.colors.cyan}${contextStr}${this.colors.reset} ${message}`;
+
+            console.log(coloredLog);
+            this.writeToFiles('DEBUG', plainLog);
+        }
     }
 }
 

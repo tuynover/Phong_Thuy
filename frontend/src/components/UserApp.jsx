@@ -28,6 +28,7 @@ import { Lunar } from 'lunar-javascript';
 import MarriageInput from './MarriageInput';
 import HistoryBoard from './HistoryBoard';
 import HomeBoard from './HomeBoard';
+// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
 
 import BaziBoard from './BaziBoard';
@@ -75,12 +76,6 @@ export default function UserApp({ onSwitchToAdmin }) {
   
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileModulesExpanded, setIsMobileModulesExpanded] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
-
-  const triggerToast = (msg) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(''), 3000);
-  };
   
   // Auth
   const { user, setUser, logout } = useContext(AuthContext);
@@ -93,7 +88,9 @@ export default function UserApp({ onSwitchToAdmin }) {
   const preloadHistoryLists = () => {
     if (!user || preloadedHistory) return;
     const userId = user.id || user._id;
+    if (!userId || userId === 'undefined') return;
     const promise = Promise.all([
+
       getIChingHistory(userId),
       getBaziHistory(userId),
       getZiweiHistory(userId),
@@ -202,6 +199,15 @@ export default function UserApp({ onSwitchToAdmin }) {
   const [guestBaziId, setGuestBaziId] = useState(null);
   const [isUpdateBaziOpen, setIsUpdateBaziOpen] = useState(false);
   const [isZiweiResultLoaded, setIsZiweiResultLoaded] = useState(false);
+  const [toastMessage, setToastMessage] = useState(null);
+
+  const showToast = (msg, duration = 3000) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage(null);
+    }, duration);
+  };
+
 
   // Persist State across Refreshes
   useEffect(() => {
@@ -267,6 +273,7 @@ export default function UserApp({ onSwitchToAdmin }) {
   const handleLoginSuccess = (loggedInUser) => {
     const activeUser = loggedInUser || user;
     if (!activeUser) return;
+    showToast(`Xin chào ${activeUser.name || 'bạn'}, đăng nhập thành công!`);
     const uid = activeUser.id || activeUser._id;
     if (!uid) return;
 
@@ -290,6 +297,7 @@ export default function UserApp({ onSwitchToAdmin }) {
       Promise.all(promises);
     }
   };
+
 
   const handleBaziComplete = async (date, time, gender, name) => {
     setLoading(true);

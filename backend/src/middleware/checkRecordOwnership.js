@@ -2,16 +2,6 @@ const IChingRecord = require('../models/IChingRecord');
 const BaziRecord = require('../models/BaziRecord');
 const ZiweiRecord = require('../models/ZiweiRecord');
 const MarriageRecord = require('../models/MarriageRecord');
-const mongoose = require('mongoose');
-
-const findByIdFlex = async (Model, id) => {
-    let record = await Model.findById(id);
-    if (!record && mongoose.isValidObjectId(id)) {
-        const rawObj = await Model.collection.findOne({ _id: new mongoose.Types.ObjectId(id) });
-        if (rawObj) record = Model.hydrate(rawObj);
-    }
-    return record;
-};
 
 module.exports = async (req, res, next) => {
   const { id } = req.params;
@@ -38,7 +28,7 @@ module.exports = async (req, res, next) => {
   }
 
   try {
-    const record = await findByIdFlex(Model, id);
+    const record = await Model.findById(id);
     if (!record) {
       // Let the controller handle 404
       return next();
@@ -55,8 +45,8 @@ module.exports = async (req, res, next) => {
       return res.status(403).json({ error: 'Bạn không có quyền truy cập bản ghi này.' });
     }
 
-    const currentUserId = req.dbUser.id || req.dbUser._id.toString();
-    const isOwner = record.userId === currentUserId || record.userId?.toString() === currentUserId;
+    const currentUserId = String(req.dbUser.id || req.dbUser._id);
+    const isOwner = String(record.userId) === currentUserId;
     const isAdmin = req.dbUser.role === 'admin' || req.dbUser.role === 'co-admin';
 
     if (!isOwner && !isAdmin) {

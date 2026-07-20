@@ -7,8 +7,6 @@ module.exports = async (req, res, next) => {
     const authHeader = req.header('Authorization');
     if (authHeader) {
       token = authHeader.replace('Bearer ', '');
-    } else if (req.query.token) {
-      token = req.query.token;
     }
 
     if (!token) {
@@ -19,7 +17,7 @@ module.exports = async (req, res, next) => {
 
     let decoded;
     try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
     } catch (err) {
       return res.status(401).json({ error: 'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.' });
     }

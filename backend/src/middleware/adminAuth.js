@@ -1,26 +1,36 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { getUserProfileCache, setUserProfileCache } = require('../config/redis');
 
 const adminAuth = async (req, res, next) => {
   try {
     let token = null;
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
       token = req.headers.authorization.split(' ')[1];
-    } else if (req.query.token) {
-      token = req.query.token;
     }
 
     if (!token) {
       return res.status(401).json({ error: 'Quyền truy cập bị từ chối. Không tìm thấy token.' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decoded.user?.id || decoded.id;
     if (!userId) {
       return res.status(401).json({ error: 'Token không hợp lệ.' });
     }
 
-    const user = await User.findById(userId);
+    // 1. Try Redis cache first
+    let user = await getUserProfileCache(userId);
+
+    // 2. Fallback to MongoDB if miss
+    if (!user) {
+      const mongoUser = await User.findById(userId);
+      if (mongoUser) {
+        user = mongoUser.toObject ? mongoUser.toObject() : mongoUser;
+        setUserProfileCache(userId, user);
+      }
+    }
+
     if (!user || user.isDeleted) {
       return res.status(401).json({ error: 'Người dùng không tồn tại.' });
     }
@@ -34,11 +44,13 @@ const adminAuth = async (req, res, next) => {
     }
 
     // Attach user and authority checker helper
+    user.id = user.id || user._id;
+    user._id = user._id || user.id;
     req.user = user;
+
     req.hasAuthorityOver = (targetUser) => {
       if (user.role === 'admin') return true;
       if (user.role === 'co-admin') {
-        // co-admin can only manage 'user' and 'vip' roles
         return targetUser.role === 'user' || targetUser.role === 'vip';
       }
       return false;

@@ -70,6 +70,10 @@ class ZiweiController {
 
       // 5. Thiết lập cache và trả về
       ZiweiCache.setChart(chartHash, newRecord);
+
+      // Increment user ziwei record count O(1)
+      const UserStatsService = require('../services/UserStatsService');
+      UserStatsService.incrementRecordCount(userId, 'ziwei', 1);
       
       // Hủy cache lịch sử cũ của người dùng này để tải danh sách mới
       MemoryCacheService.clearUserHistoryCache(userId);

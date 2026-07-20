@@ -1,13 +1,12 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { getUserProfileCache, setUserProfileCache } = require('../config/redis');
 
 module.exports = async (req, res, next) => {
   let token = null;
   const authHeader = req.header('Authorization');
   if (authHeader) {
     token = authHeader.replace('Bearer ', '');
-  } else if (req.query.token) {
-    token = req.query.token;
   }
 
   if (!token) {
@@ -15,7 +14,7 @@ module.exports = async (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decoded.user?.id || decoded.user?._id || decoded.id;
     const tokenVersion = decoded.user?.tokenVersion;
     
@@ -23,7 +22,19 @@ module.exports = async (req, res, next) => {
       return res.status(401).json({ message: 'Token is not valid' });
     }
 
-    const dbUser = await User.findById(userId);
+    // 1. Check Redis cache first to bypass MongoDB query
+    let dbUser = await getUserProfileCache(userId);
+    
+    // 2. Fallback to MongoDB if Redis cache miss or offline
+    if (!dbUser) {
+      const mongoUser = await User.findById(userId);
+      if (mongoUser) {
+        dbUser = mongoUser.toObject ? mongoUser.toObject() : mongoUser;
+        // Populate Redis cache for subsequent requests
+        setUserProfileCache(userId, dbUser);
+      }
+    }
+
     if (!dbUser || dbUser.isDeleted || dbUser.status === 'locked') {
       return res.status(401).json({ message: 'Tài khoản của bạn đã bị khóa hoặc bị xóa.' });
     }
@@ -35,9 +46,12 @@ module.exports = async (req, res, next) => {
       return res.status(401).json({ message: 'Phiên đăng nhập đã hết hạn hoặc đã đăng xuất.' });
     }
 
+    dbUser.id = dbUser.id || dbUser._id;
+    dbUser._id = dbUser._id || dbUser.id;
     req.user = decoded.user;
     req.dbUser = dbUser;
     next();
+
   } catch (err) {
     res.status(401).json({ message: 'Token is not valid' });
   }

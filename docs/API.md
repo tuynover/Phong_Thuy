@@ -1,6 +1,6 @@
 # 📡 API.md - Đặc tả API Endpoints (RESTful & SSE)
 
-Tất cả các API Endpoints đều có tiền tố `/api`. Các endpoint yêu cầu xác thực phải gửi JWT token trong Header `Authorization: Bearer <token>` hoặc tham số query `?token=<token>`.
+Tất cả các API Endpoints đều có tiền tố `/api`. Các endpoint yêu cầu xác thực phải gửi JWT token trong Header `Authorization: Bearer <token>`.
 
 ---
 
@@ -45,9 +45,10 @@ Tệp đặc tả Postman Collection được đặt tại:
   ```json
   {
     "token": "eyJhbGciOi...",
-    "user": { "id": "uuid-v7...", "email": "user@example.com", "name": "Nguyen Van A", "credits": 1 }
+    "user": { "id": "uuid-v7...", "_id": "uuid-v7...", "email": "user@example.com", "name": "Nguyen Van A", "credits": 1 }
   }
   ```
+
 
 ### 1.2 Đăng nhập
 - **Endpoint:** `POST /api/auth/login`

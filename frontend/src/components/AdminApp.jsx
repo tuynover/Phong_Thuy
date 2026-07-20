@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { EventSourcePolyfill } from 'event-source-polyfill';
 import { AuthContext } from '../context/AuthContext';
 import {
   getAdminUsers,
@@ -267,8 +268,12 @@ export default function AdminApp({ onSwitchToUser }) {
     if (!token) return;
 
     const baseApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
-    const sseUrl = `${baseApiUrl}/admin/events?token=${encodeURIComponent(token)}`;
-    const eventSource = new EventSource(sseUrl);
+    const sseUrl = `${baseApiUrl}/admin/events`;
+    const eventSource = new EventSourcePolyfill(sseUrl, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
 
     eventSource.onmessage = (event) => {
       try {

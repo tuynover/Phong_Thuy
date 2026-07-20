@@ -32,27 +32,20 @@ const GEMINI_INPUT_RATE = 0.075 / 1000000;
 const GEMINI_OUTPUT_RATE = 0.30 / 1000000;
 
 const findByIdFlex = async (Model, id) => {
-    let record = await Model.findById(id);
-    if (!record && mongoose.isValidObjectId(id)) {
-        const rawObj = await Model.collection.findOne({ _id: new mongoose.Types.ObjectId(id) });
-        if (rawObj) record = Model.hydrate(rawObj);
-    }
-    return record;
+    return await Model.findById(id);
 };
 
 const updateByIdFlex = async (Model, id, update) => {
-    let record = await Model.findByIdAndUpdate(id, update, { new: true });
-    if (!record && mongoose.isValidObjectId(id)) {
-        const rawObj = await Model.collection.findOneAndUpdate(
-            { _id: new mongoose.Types.ObjectId(id) },
-            { $set: { ...update, updatedAt: new Date() } },
-            { returnDocument: 'after' }
-        );
-        if (rawObj) record = Model.hydrate(rawObj);
-    }
+    const record = await Model.findByIdAndUpdate(id, update, { new: true });
     if (record && record.userId && record.userId !== 'guest') {
         const UserStatsService = require('../services/UserStatsService');
-        UserStatsService.updateUserStatsBackground(record.userId);
+        if (update && update.aiInterpretation && update.aiInterpretation.tokensUsed > 0) {
+            let system = 'iching';
+            if (Model === BaziRecord) system = 'bazi';
+            else if (Model === ZiweiRecord) system = 'ziwei';
+            else if (Model === MarriageRecord) system = 'marriage';
+            UserStatsService.incrementInterpretTokens(record.userId, system, update.aiInterpretation.tokensUsed);
+        }
     }
     return record;
 };
@@ -63,7 +56,7 @@ class AiInterpretationController {
         let record = null;
 
         try {
-            record = await findByIdFlex(IChingRecord, id);
+            record = req.record || await findByIdFlex(IChingRecord, id);
             if (!record) {
                 return res.status(404).json({ error: 'Không tìm thấy bản ghi quẻ dịch.' });
             }
@@ -86,8 +79,11 @@ class AiInterpretationController {
             res.setHeader('Content-Encoding', 'none');
 
             let isConnectionOpen = true;
+            let pingInterval = null;
+
             req.on('close', () => {
                 isConnectionOpen = false;
+                if (pingInterval) clearInterval(pingInterval);
             });
 
             const sendSSE = (data) => {
@@ -95,6 +91,12 @@ class AiInterpretationController {
                     res.write(`data: ${JSON.stringify(data)}\n\n`);
                 }
             };
+
+            pingInterval = setInterval(() => {
+                if (isConnectionOpen && !res.writableEnded) {
+                    res.write(":\n\n");
+                }
+            }, 15000);
 
             // Invalidate Cache check
             const hasValidCache = 
@@ -104,6 +106,7 @@ class AiInterpretationController {
                 record.aiInterpretation.model === ACTIVE_MODEL;
 
             if (hasValidCache) {
+                if (req.refundCredit) await req.refundCredit();
                 // Stream from cache immediately
                 const cachedText = record.aiInterpretation.content;
                 sendSSE({ chunk: cachedText });
@@ -149,12 +152,14 @@ class AiInterpretationController {
             // 3. Call AI Service and stream chunks
             const resultStream = await AiService.generateInterpretationStream(prompt, { model: ACTIVE_MODEL });
             let accumulatedText = "";
+            let usageMetadata = null;
 
             for await (const chunk of resultStream.stream) {
                 if (!isConnectionOpen) {
                     console.log(`[SSE] Client closed connection, stopping IChing stream.`);
                     break;
                 }
+                if (chunk.usageMetadata) usageMetadata = chunk.usageMetadata;
                 const chunkText = chunk.text();
                 accumulatedText += chunkText;
                 sendSSE({ chunk: chunkText });
@@ -169,9 +174,9 @@ class AiInterpretationController {
             const { cleanedText: textWithoutUngKyTags, ungKyList } = parseUngKyBlock(accumulatedText, record.dateCast || new Date());
             
             const cleanedContent = AiService.cleanMarkdown(textWithoutUngKyTags);
-            const promptTokens = await AiService.countTokens(prompt, { model: ACTIVE_MODEL });
-            const completionTokens = await AiService.countTokens(cleanedContent, { model: ACTIVE_MODEL });
-            const tokensUsed = promptTokens + completionTokens;
+            const promptTokens = usageMetadata?.promptTokenCount || Math.ceil((prompt || '').length / 4);
+            const completionTokens = usageMetadata?.candidatesTokenCount || Math.ceil((cleanedContent || '').length / 4);
+            const tokensUsed = usageMetadata?.totalTokenCount || (promptTokens + completionTokens);
 
             // 5. Update Database Record
             await updateByIdFlex(IChingRecord, id, {
@@ -196,6 +201,7 @@ class AiInterpretationController {
             res.write(`data: ${JSON.stringify({ error: error.message || 'Lỗi xảy ra trong quá trình sinh luận giải AI.' })}\n\n`);
             res.end();
         } finally {
+            if (pingInterval) clearInterval(pingInterval);
             if (record) {
                 await updateByIdFlex(IChingRecord, id, { isGeneratingInterpretation: false });
             }
@@ -207,7 +213,7 @@ class AiInterpretationController {
         let record = null;
 
         try {
-            record = await findByIdFlex(BaziRecord, id);
+            record = req.record || await findByIdFlex(BaziRecord, id);
             if (!record) {
                 return res.status(404).json({ error: 'Không tìm thấy bản ghi Bát Tự.' });
             }
@@ -230,8 +236,11 @@ class AiInterpretationController {
             res.setHeader('Content-Encoding', 'none');
 
             let isConnectionOpen = true;
+            let pingInterval = null;
+
             req.on('close', () => {
                 isConnectionOpen = false;
+                if (pingInterval) clearInterval(pingInterval);
             });
 
             const sendSSE = (data) => {
@@ -239,6 +248,12 @@ class AiInterpretationController {
                     res.write(`data: ${JSON.stringify(data)}\n\n`);
                 }
             };
+
+            pingInterval = setInterval(() => {
+                if (isConnectionOpen && !res.writableEnded) {
+                    res.write(":\n\n");
+                }
+            }, 15000);
 
             // Invalidate Cache check
             const hasValidCache = 
@@ -248,6 +263,7 @@ class AiInterpretationController {
                 record.aiInterpretation.model === ACTIVE_MODEL;
 
             if (hasValidCache) {
+                if (req.refundCredit) await req.refundCredit();
                 // Stream from cache immediately
                 const cachedText = record.aiInterpretation.content;
                 sendSSE({ chunk: cachedText });
@@ -265,12 +281,14 @@ class AiInterpretationController {
             // 2. Call AI Service and stream chunks
             const resultStream = await AiService.generateInterpretationStream(prompt, { model: ACTIVE_MODEL });
             let accumulatedText = "";
+            let usageMetadata = null;
 
             for await (const chunk of resultStream.stream) {
                 if (!isConnectionOpen) {
                     console.log(`[SSE] Client closed connection, stopping Bazi stream.`);
                     break;
                 }
+                if (chunk.usageMetadata) usageMetadata = chunk.usageMetadata;
                 const chunkText = chunk.text();
                 accumulatedText += chunkText;
                 sendSSE({ chunk: chunkText });
@@ -282,9 +300,9 @@ class AiInterpretationController {
 
             // 3. Clean Markdown & Estimate tokens
             const cleanedContent = AiService.cleanMarkdown(accumulatedText);
-            const promptTokens = await AiService.countTokens(prompt, { model: ACTIVE_MODEL });
-            const completionTokens = await AiService.countTokens(cleanedContent, { model: ACTIVE_MODEL });
-            const tokensUsed = promptTokens + completionTokens;
+            const promptTokens = usageMetadata?.promptTokenCount || Math.ceil((prompt || '').length / 4);
+            const completionTokens = usageMetadata?.candidatesTokenCount || Math.ceil((cleanedContent || '').length / 4);
+            const tokensUsed = usageMetadata?.totalTokenCount || (promptTokens + completionTokens);
 
             // 4. Update Database Record
             await updateByIdFlex(BaziRecord, id, {
@@ -308,6 +326,7 @@ class AiInterpretationController {
             res.write(`data: ${JSON.stringify({ error: error.message || 'Lỗi xảy ra trong quá trình sinh luận giải AI cho Bát Tự.' })}\n\n`);
             res.end();
         } finally {
+            if (pingInterval) clearInterval(pingInterval);
             if (record) {
                 await updateByIdFlex(BaziRecord, id, { isGeneratingInterpretation: false });
             }
@@ -319,7 +338,7 @@ class AiInterpretationController {
         let record = null;
 
         try {
-            record = await findByIdFlex(MarriageRecord, id);
+            record = req.record || await findByIdFlex(MarriageRecord, id);
             if (!record) {
                 return res.status(404).json({ error: 'Không tìm thấy bản ghi hôn nhân.' });
             }
@@ -342,8 +361,11 @@ class AiInterpretationController {
             res.setHeader('Content-Encoding', 'none');
 
             let isConnectionOpen = true;
+            let pingInterval = null;
+
             req.on('close', () => {
                 isConnectionOpen = false;
+                if (pingInterval) clearInterval(pingInterval);
             });
 
             const sendSSE = (data) => {
@@ -351,6 +373,12 @@ class AiInterpretationController {
                     res.write(`data: ${JSON.stringify(data)}\n\n`);
                 }
             };
+
+            pingInterval = setInterval(() => {
+                if (isConnectionOpen && !res.writableEnded) {
+                    res.write(":\n\n");
+                }
+            }, 15000);
 
             // Invalidate Cache check
             const hasValidCache = 
@@ -360,6 +388,7 @@ class AiInterpretationController {
                 record.aiInterpretation.model === ACTIVE_MODEL;
 
             if (hasValidCache) {
+                if (req.refundCredit) await req.refundCredit();
                 // Stream from cache immediately
                 const cachedText = record.aiInterpretation.content;
                 sendSSE({ chunk: cachedText });
@@ -377,12 +406,14 @@ class AiInterpretationController {
             // 2. Call AI Service and stream chunks
             const resultStream = await AiService.generateInterpretationStream(prompt, { model: ACTIVE_MODEL });
             let accumulatedText = "";
+            let usageMetadata = null;
 
             for await (const chunk of resultStream.stream) {
                 if (!isConnectionOpen) {
                     console.log(`[SSE] Client closed connection, stopping Marriage stream.`);
                     break;
                 }
+                if (chunk.usageMetadata) usageMetadata = chunk.usageMetadata;
                 const chunkText = chunk.text();
                 accumulatedText += chunkText;
                 sendSSE({ chunk: chunkText });
@@ -394,9 +425,9 @@ class AiInterpretationController {
 
             // 3. Clean Markdown & Estimate tokens
             const cleanedContent = AiService.cleanMarkdown(accumulatedText);
-            const promptTokens = await AiService.countTokens(prompt, { model: ACTIVE_MODEL });
-            const completionTokens = await AiService.countTokens(cleanedContent, { model: ACTIVE_MODEL });
-            const tokensUsed = promptTokens + completionTokens;
+            const promptTokens = usageMetadata?.promptTokenCount || Math.ceil((prompt || '').length / 4);
+            const completionTokens = usageMetadata?.candidatesTokenCount || Math.ceil((cleanedContent || '').length / 4);
+            const tokensUsed = usageMetadata?.totalTokenCount || (promptTokens + completionTokens);
 
             // 4. Update Database Record
             await updateByIdFlex(MarriageRecord, id, {
@@ -420,6 +451,7 @@ class AiInterpretationController {
             res.write(`data: ${JSON.stringify({ error: error.message || 'Lỗi xảy ra trong quá trình sinh luận giải AI cho Hợp Hôn.' })}\n\n`);
             res.end();
         } finally {
+            if (pingInterval) clearInterval(pingInterval);
             if (record) {
                 await updateByIdFlex(MarriageRecord, id, { isGeneratingInterpretation: false });
             }
@@ -431,7 +463,7 @@ class AiInterpretationController {
         let record = null;
 
         try {
-            record = await ZiweiRecord.findById(id);
+            record = req.record || await ZiweiRecord.findById(id);
             if (!record) {
                 return res.status(404).json({ error: 'Không tìm thấy bản ghi lá số Tử Vi.' });
             }
@@ -455,8 +487,11 @@ class AiInterpretationController {
             res.setHeader('Content-Encoding', 'none');
 
             let isConnectionOpen = true;
+            let pingInterval = null;
+
             req.on('close', () => {
                 isConnectionOpen = false;
+                if (pingInterval) clearInterval(pingInterval);
             });
 
             const sendSSE = (data) => {
@@ -464,6 +499,12 @@ class AiInterpretationController {
                     res.write(`data: ${JSON.stringify(data)}\n\n`);
                 }
             };
+
+            pingInterval = setInterval(() => {
+                if (isConnectionOpen && !res.writableEnded) {
+                    res.write(":\n\n");
+                }
+            }, 15000);
 
             const ZIWEI_PROMPT_VERSION = "v3_14_palaces";
             const ZIWEI_KNOWLEDGE_VERSION = "tv_know_v2";
@@ -476,6 +517,7 @@ class AiInterpretationController {
                 record.aiInterpretation.model === ACTIVE_MODEL;
 
             if (hasValidCache) {
+                if (req.refundCredit) await req.refundCredit();
                 // Stream from cache immediately
                 const cachedText = record.aiInterpretation.content;
                 sendSSE({ chunk: cachedText });
@@ -499,12 +541,14 @@ class AiInterpretationController {
             // 4. Call AI Service and stream chunks
             const resultStream = await AiService.generateInterpretationStream(prompt, { model: ACTIVE_MODEL });
             let accumulatedText = "";
+            let usageMetadata = null;
 
             for await (const chunk of resultStream.stream) {
                 if (!isConnectionOpen) {
                     console.log(`[SSE] Client closed connection, stopping Ziwei stream.`);
                     break;
                 }
+                if (chunk.usageMetadata) usageMetadata = chunk.usageMetadata;
                 const chunkText = chunk.text();
                 accumulatedText += chunkText;
                 sendSSE({ chunk: chunkText });
@@ -516,9 +560,9 @@ class AiInterpretationController {
 
             // 5. Clean Markdown formatting & Estimate tokens
             const cleanedContent = AiService.cleanMarkdown(accumulatedText);
-            const promptTokens = await AiService.countTokens(prompt, { model: ACTIVE_MODEL });
-            const completionTokens = await AiService.countTokens(cleanedContent, { model: ACTIVE_MODEL });
-            const tokensUsed = promptTokens + completionTokens;
+            const promptTokens = usageMetadata?.promptTokenCount || Math.ceil((prompt || '').length / 4);
+            const completionTokens = usageMetadata?.candidatesTokenCount || Math.ceil((cleanedContent || '').length / 4);
+            const tokensUsed = usageMetadata?.totalTokenCount || (promptTokens + completionTokens);
             const cost = (promptTokens * GEMINI_INPUT_RATE) + (completionTokens * GEMINI_OUTPUT_RATE);
 
             // 6. Update Database Record with rich metadata
@@ -550,6 +594,7 @@ class AiInterpretationController {
                 res.end();
             }
         } finally {
+            if (pingInterval) clearInterval(pingInterval);
             if (record) {
                 try {
                     await updateByIdFlex(ZiweiRecord, id, { isGeneratingInterpretation: false });
@@ -581,7 +626,7 @@ class AiInterpretationController {
         let pingInterval = null;
 
         try {
-            record = await findByIdFlex(IChingRecord, id);
+            record = req.record || await findByIdFlex(IChingRecord, id);
             if (!record) {
                 return res.status(404).json({ error: 'Không tìm thấy bản ghi quẻ dịch.' });
             }
@@ -622,8 +667,11 @@ class AiInterpretationController {
             res.setHeader('Content-Encoding', 'none');
 
             let isConnectionOpen = true;
+            let pingInterval = null;
+
             req.on('close', () => {
                 isConnectionOpen = false;
+                if (pingInterval) clearInterval(pingInterval);
             });
 
             const sendSSE = (data) => {
@@ -634,7 +682,7 @@ class AiInterpretationController {
 
             pingInterval = setInterval(() => {
                 if (isConnectionOpen && !res.writableEnded) {
-                    res.write("event: ping\ndata: keepalive\n\n");
+                    res.write(":\n\n");
                 }
             }, 15000);
 
@@ -689,7 +737,7 @@ class AiInterpretationController {
             const prompt = IChingPrompts.getFollowUpPrompt(fullRecord, analyzedData, context, question);
 
             // Lưu tin nhắn của User vào Database
-            const userTokens = await AiService.countTokens(question, { model: ACTIVE_MODEL });
+            const userTokens = Math.ceil((question || '').length / 4);
             await Message.create({
                 conversationId: conversation._id,
                 role: 'user',
@@ -701,12 +749,14 @@ class AiInterpretationController {
             // 8. Stream dữ liệu từ AI
             const resultStream = await AiService.generateInterpretationStream(prompt, { model: ACTIVE_MODEL });
             let accumulatedText = "";
+            let usageMetadata = null;
 
             for await (const chunk of resultStream.stream) {
                 if (!isConnectionOpen) {
                     console.log(`[SSE] Client closed connection, stopping IChing chat stream.`);
                     break;
                 }
+                if (chunk.usageMetadata) usageMetadata = chunk.usageMetadata;
                 const chunkText = chunk.text();
                 accumulatedText += chunkText;
                 sendSSE({ chunk: chunkText });
@@ -755,9 +805,9 @@ class AiInterpretationController {
             }
 
             // Tính toán token AI
-            const promptTokens = await AiService.countTokens(prompt, { model: ACTIVE_MODEL });
-            const completionTokens = await AiService.countTokens(cleanedContent, { model: ACTIVE_MODEL });
-            const totalTurnTokens = promptTokens + completionTokens;
+            const promptTokens = usageMetadata?.promptTokenCount || Math.ceil((prompt || '').length / 4);
+            const completionTokens = usageMetadata?.candidatesTokenCount || Math.ceil((cleanedContent || '').length / 4);
+            const totalTurnTokens = usageMetadata?.totalTokenCount || (promptTokens + completionTokens);
 
             // Lưu tin nhắn AI vào Database
             await Message.create({
@@ -784,7 +834,7 @@ class AiInterpretationController {
 
             if (conversation.userId && conversation.userId !== 'guest') {
                 const UserStatsService = require('../services/UserStatsService');
-                UserStatsService.updateUserStatsBackground(conversation.userId);
+                UserStatsService.incrementChatTokens(conversation.userId, 'iching', userTokens + totalTurnTokens);
             }
 
             // Cập nhật tóm tắt hội thoại bất đồng bộ
@@ -825,7 +875,7 @@ class AiInterpretationController {
         let pingInterval = null;
 
         try {
-            record = await findByIdFlex(BaziRecord, id);
+            record = req.record || await findByIdFlex(BaziRecord, id);
             if (!record) {
                 return res.status(404).json({ error: 'Không tìm thấy bản ghi Bát Tự.' });
             }
@@ -866,8 +916,11 @@ class AiInterpretationController {
             res.setHeader('Content-Encoding', 'none');
 
             let isConnectionOpen = true;
+            let pingInterval = null;
+
             req.on('close', () => {
                 isConnectionOpen = false;
+                if (pingInterval) clearInterval(pingInterval);
             });
 
             const sendSSE = (data) => {
@@ -878,7 +931,7 @@ class AiInterpretationController {
 
             pingInterval = setInterval(() => {
                 if (isConnectionOpen && !res.writableEnded) {
-                    res.write("event: ping\ndata: keepalive\n\n");
+                    res.write(":\n\n");
                 }
             }, 15000);
 
@@ -896,7 +949,7 @@ class AiInterpretationController {
             const prompt = BaziPrompts.getFollowUpPrompt(record.toObject(), context, question);
 
             // Lưu tin nhắn User vào DB
-            const userTokens = await AiService.countTokens(question, { model: ACTIVE_MODEL });
+            const userTokens = Math.ceil((question || '').length / 4);
             await Message.create({
                 conversationId: conversation._id,
                 role: 'user',
@@ -908,12 +961,14 @@ class AiInterpretationController {
             // 8. Stream AI
             const resultStream = await AiService.generateInterpretationStream(prompt, { model: ACTIVE_MODEL });
             let accumulatedText = "";
+            let usageMetadata = null;
 
             for await (const chunk of resultStream.stream) {
                 if (!isConnectionOpen) {
                     console.log(`[SSE] Client closed connection, stopping Bazi chat stream.`);
                     break;
                 }
+                if (chunk.usageMetadata) usageMetadata = chunk.usageMetadata;
                 const chunkText = chunk.text();
                 accumulatedText += chunkText;
                 sendSSE({ chunk: chunkText });
@@ -962,9 +1017,9 @@ class AiInterpretationController {
             }
 
             // Tính toán token AI
-            const promptTokens = await AiService.countTokens(prompt, { model: ACTIVE_MODEL });
-            const completionTokens = await AiService.countTokens(cleanedContent, { model: ACTIVE_MODEL });
-            const totalTurnTokens = promptTokens + completionTokens;
+            const promptTokens = usageMetadata?.promptTokenCount || Math.ceil((prompt || '').length / 4);
+            const completionTokens = usageMetadata?.candidatesTokenCount || Math.ceil((cleanedContent || '').length / 4);
+            const totalTurnTokens = usageMetadata?.totalTokenCount || (promptTokens + completionTokens);
 
             await Message.create({
                 conversationId: conversation._id,
@@ -990,7 +1045,7 @@ class AiInterpretationController {
 
             if (conversation.userId && conversation.userId !== 'guest') {
                 const UserStatsService = require('../services/UserStatsService');
-                UserStatsService.updateUserStatsBackground(conversation.userId);
+                UserStatsService.incrementChatTokens(conversation.userId, 'bazi', userTokens + totalTurnTokens);
             }
 
             // Cập nhật tóm tắt
@@ -1031,7 +1086,7 @@ class AiInterpretationController {
         let pingInterval = null;
 
         try {
-            record = await findByIdFlex(MarriageRecord, id);
+            record = req.record || await findByIdFlex(MarriageRecord, id);
             if (!record) {
                 return res.status(404).json({ error: 'Không tìm thấy bản ghi Hợp Hôn.' });
             }
@@ -1072,8 +1127,11 @@ class AiInterpretationController {
             res.setHeader('Content-Encoding', 'none');
 
             let isConnectionOpen = true;
+            let pingInterval = null;
+
             req.on('close', () => {
                 isConnectionOpen = false;
+                if (pingInterval) clearInterval(pingInterval);
             });
 
             const sendSSE = (data) => {
@@ -1084,7 +1142,7 @@ class AiInterpretationController {
 
             pingInterval = setInterval(() => {
                 if (isConnectionOpen && !res.writableEnded) {
-                    res.write("event: ping\ndata: keepalive\n\n");
+                    res.write(":\n\n");
                 }
             }, 15000);
 
@@ -1095,7 +1153,7 @@ class AiInterpretationController {
             const prompt = MarriagePrompts.getFollowUpPrompt(record.toObject(), context, question);
 
             // Lưu tin nhắn User vào DB
-            const userTokens = await AiService.countTokens(question, { model: ACTIVE_MODEL });
+            const userTokens = Math.ceil((question || '').length / 4);
             await Message.create({
                 conversationId: conversation._id,
                 role: 'user',
@@ -1107,12 +1165,14 @@ class AiInterpretationController {
             // 7. Stream AI
             const resultStream = await AiService.generateInterpretationStream(prompt, { model: ACTIVE_MODEL });
             let accumulatedText = "";
+            let usageMetadata = null;
 
             for await (const chunk of resultStream.stream) {
                 if (!isConnectionOpen) {
                     console.log(`[SSE] Client closed connection, stopping Marriage chat stream.`);
                     break;
                 }
+                if (chunk.usageMetadata) usageMetadata = chunk.usageMetadata;
                 const chunkText = chunk.text();
                 accumulatedText += chunkText;
                 sendSSE({ chunk: chunkText });
@@ -1161,9 +1221,9 @@ class AiInterpretationController {
             }
 
             // Tính toán token AI
-            const promptTokens = await AiService.countTokens(prompt, { model: ACTIVE_MODEL });
-            const completionTokens = await AiService.countTokens(cleanedContent, { model: ACTIVE_MODEL });
-            const totalTurnTokens = promptTokens + completionTokens;
+            const promptTokens = usageMetadata?.promptTokenCount || Math.ceil((prompt || '').length / 4);
+            const completionTokens = usageMetadata?.candidatesTokenCount || Math.ceil((cleanedContent || '').length / 4);
+            const totalTurnTokens = usageMetadata?.totalTokenCount || (promptTokens + completionTokens);
 
             await Message.create({
                 conversationId: conversation._id,
@@ -1189,7 +1249,7 @@ class AiInterpretationController {
 
             if (conversation.userId && conversation.userId !== 'guest') {
                 const UserStatsService = require('../services/UserStatsService');
-                UserStatsService.updateUserStatsBackground(conversation.userId);
+                UserStatsService.incrementChatTokens(conversation.userId, 'marriage', userTokens + totalTurnTokens);
             }
 
             // Cập nhật tóm tắt
@@ -1228,7 +1288,7 @@ class AiInterpretationController {
                 });
             }
 
-            const record = await ZiweiRecord.findById(id);
+            const record = req.record || await ZiweiRecord.findById(id);
             if (!record) {
                 return res.status(404).json({ error: 'Không tìm thấy bản ghi lá số Tử Vi.' });
             }
@@ -1286,7 +1346,7 @@ class AiInterpretationController {
 
             const prompt = ZiweiPrompts.buildFollowUpPrompt(compressedChart, symbolicAnalysis, memoryContext, historyPrompt, question);
 
-            const userTokens = await AiService.countTokens(question, { model: ACTIVE_MODEL });
+            const userTokens = Math.ceil((question || '').length / 4);
             
             // Lưu tin nhắn của User vào DB
             await Message.create({
@@ -1298,8 +1358,11 @@ class AiInterpretationController {
             });
 
             let isConnectionOpen = true;
+            let pingInterval = null;
+
             req.on('close', () => {
                 isConnectionOpen = false;
+                if (pingInterval) clearInterval(pingInterval);
             });
 
             // 4. Stream dữ liệu từ AI
@@ -1316,18 +1379,20 @@ class AiInterpretationController {
 
             pingInterval = setInterval(() => {
                 if (isConnectionOpen && !res.writableEnded) {
-                    res.write("event: ping\ndata: keepalive\n\n");
+                    res.write(":\n\n");
                 }
             }, 15000);
 
             const resultStream = await AiService.generateInterpretationStream(prompt, { model: ACTIVE_MODEL });
             let accumulatedText = "";
+            let usageMetadata = null;
 
             for await (const chunk of resultStream.stream) {
                 if (!isConnectionOpen) {
                     console.log(`[SSE] Client closed connection, stopping Ziwei chat stream.`);
                     break;
                 }
+                if (chunk.usageMetadata) usageMetadata = chunk.usageMetadata;
                 const chunkText = chunk.text();
                 accumulatedText += chunkText;
                 sendSSE({ chunk: chunkText });
@@ -1368,9 +1433,9 @@ class AiInterpretationController {
                 }
             }
 
-            const promptTokens = await AiService.countTokens(prompt, { model: ACTIVE_MODEL });
-            const completionTokens = await AiService.countTokens(cleanedContent, { model: ACTIVE_MODEL });
-            const tokensUsed = promptTokens + completionTokens;
+            const promptTokens = usageMetadata?.promptTokenCount || Math.ceil((prompt || '').length / 4);
+            const completionTokens = usageMetadata?.candidatesTokenCount || Math.ceil((cleanedContent || '').length / 4);
+            const tokensUsed = usageMetadata?.totalTokenCount || (promptTokens + completionTokens);
 
             // Lưu tin nhắn AI vào DB
             await Message.create({
@@ -1397,7 +1462,7 @@ class AiInterpretationController {
 
             if (conversation.userId && conversation.userId !== 'guest') {
                 const UserStatsService = require('../services/UserStatsService');
-                UserStatsService.updateUserStatsBackground(conversation.userId);
+                UserStatsService.incrementChatTokens(conversation.userId, 'ziwei', userTokens + tokensUsed);
             }
 
             // Cập nhật tóm tắt

@@ -29,15 +29,6 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
-  emailOtp: {
-    type: String,
-    default: null
-  },
-  emailOtpExpires: {
-    type: Date,
-    default: null
-  },
-
   gender: {
     type: Number,
     default: 1 // 1 for Male, 0 for Female

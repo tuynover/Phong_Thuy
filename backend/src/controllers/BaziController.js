@@ -183,6 +183,10 @@ class BaziController {
             });
             await record.save();
 
+            // Increment user bazi record count O(1)
+            const UserStatsService = require('../services/UserStatsService');
+            UserStatsService.incrementRecordCount(uid, 'bazi', 1);
+
             // Invalidate user history cache
             MemoryCacheService.clearUserHistoryCache(uid);
 

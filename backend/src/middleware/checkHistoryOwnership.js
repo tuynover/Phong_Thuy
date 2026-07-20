@@ -14,12 +14,13 @@ module.exports = async (req, res, next) => {
     return res.status(403).json({ error: 'Bạn không có quyền truy cập thông tin này.' });
   }
 
-  const currentUserId = req.dbUser.id || req.dbUser._id.toString();
+  const currentUserId = String(req.dbUser.id || req.dbUser._id);
   const isAdmin = req.dbUser.role === 'admin' || req.dbUser.role === 'co-admin';
 
-  if (currentUserId !== userId && !isAdmin) {
+  if (currentUserId !== String(userId) && !isAdmin) {
     return res.status(403).json({ error: 'Bạn không có quyền truy cập thông tin này.' });
   }
+
 
   next();
 };

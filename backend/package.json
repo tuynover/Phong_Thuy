@@ -6,7 +6,12 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "node src/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
+  },
+  "jest": {
+    "moduleNameMapper": {
+      "^uuid$": "<rootDir>/tests/mocks/uuidMock.js"
+    }
   },
   "keywords": [],
   "author": "",
@@ -20,6 +25,8 @@
     "express": "^5.2.1",
     "firebase-admin": "^14.1.0",
     "google-auth-library": "^10.7.0",
+    "helmet": "^8.3.0",
+    "ioredis": "^5.4.2",
     "iztro": "2.5.8",
     "jsonwebtoken": "^9.0.3",
     "lunar-javascript": "1.7.7",
@@ -27,6 +34,11 @@
     "mongoose-sequence": "^6.0.1",
     "nodemailer": "^9.0.0",
     "swagger-ui-express": "^5.0.1",
-    "uuid": "^14.0.0"
+    "uuid": "^14.0.0",
+    "winston": "^3.19.0",
+    "winston-daily-rotate-file": "^5.0.0"
+  },
+  "devDependencies": {
+    "jest": "^30.4.2"
   }
 }

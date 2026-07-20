@@ -316,7 +316,16 @@ export default function DateSelectionBoard({ user }) {
   // Filter & Pagination States
   const [ratingFilter, setRatingFilter] = useState('all'); // 'all' | 'Rất tốt' | 'Nên' | 'Bình hòa' | 'Không nên' | 'Không được'
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 20;
+  const itemsPerPage = 5;
+  const resultsTopRef = useRef(null);
+
+  const scrollToResults = () => {
+    setTimeout(() => {
+      if (resultsTopRef.current) {
+        resultsTopRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 50);
+  };
 
   // Help/Accordion state
   const [isHelpOpen, setIsHelpOpen] = useState(false);
@@ -815,7 +824,7 @@ export default function DateSelectionBoard({ user }) {
           </div>
 
           {/* Consultation Output List */}
-          <div className="space-y-6">
+          <div className="space-y-6" ref={resultsTopRef}>
             {consultResult ? (
               <div className="space-y-6 animate-in fade-in duration-500">
                 
@@ -957,7 +966,7 @@ export default function DateSelectionBoard({ user }) {
                     {totalPages > 1 && (
                       <div className="flex items-center justify-between border-t border-gray-200 pt-4 max-w-md mx-auto">
                         <button
-                          onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                          onClick={() => { setCurrentPage(prev => Math.max(prev - 1, 1)); scrollToResults(); }}
                           disabled={currentPage === 1}
                           className="px-4 py-2 bg-white border border-gray-300 rounded-xl font-bold text-xs sm:text-sm hover:bg-slate-50 transition-colors disabled:opacity-50"
                         >
@@ -965,7 +974,7 @@ export default function DateSelectionBoard({ user }) {
                         </button>
                         <span className="text-xs sm:text-sm font-bold text-neutral-600">Trang {currentPage} / {totalPages}</span>
                         <button
-                          onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                          onClick={() => { setCurrentPage(prev => Math.min(prev + 1, totalPages)); scrollToResults(); }}
                           disabled={currentPage === totalPages}
                           className="px-4 py-2 bg-white border border-gray-300 rounded-xl font-bold text-xs sm:text-sm hover:bg-slate-50 transition-colors disabled:opacity-50"
                         >

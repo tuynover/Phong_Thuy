@@ -6,7 +6,123 @@ const MarriageRecord = require('../models/MarriageRecord');
 const Conversation = require('../models/Conversation');
 const SseService = require('./SseService');
 
-async function updateUserStats(userId) {
+/**
+ * Atomic Increment O(1) for Record Creation/Deletion
+ * @param {string} userId - User ID
+ * @param {string} system - System ('iching', 'bazi', 'ziwei', 'marriage')
+ * @param {number} delta - Delta count (+1 for create, -1 for soft delete)
+ */
+async function incrementRecordCount(userId, system, delta = 1) {
+  if (!userId || userId === 'guest') return;
+  try {
+    const userIdStr = userId.toString();
+    const systemMap = {
+      iching: 'stats.ichingCount',
+      hexagrams: 'stats.ichingCount',
+      bazi: 'stats.baziCount',
+      bat_tu: 'stats.baziCount',
+      ziwei: 'stats.ziweiCount',
+      tu_vi: 'stats.ziweiCount',
+      marriage: 'stats.marriageCount'
+    };
+
+    const countField = systemMap[system];
+    if (!countField) return;
+
+    await User.updateOne(
+      { _id: userIdStr },
+      { 
+        $inc: { [countField]: delta },
+        $set: { 'stats.lastUpdated': new Date() }
+      }
+    );
+  } catch (error) {
+    console.error(`[UserStatsService.incrementRecordCount] Error for user ${userId}:`, error);
+  }
+}
+
+/**
+ * Atomic Increment O(1) for AI Interpretation Tokens
+ * @param {string} userId - User ID
+ * @param {string} system - System ('iching', 'bazi', 'ziwei', 'marriage')
+ * @param {number} tokensUsed - Tokens used by LLM
+ */
+async function incrementInterpretTokens(userId, system, tokensUsed = 0) {
+  if (!userId || userId === 'guest' || !tokensUsed || tokensUsed <= 0) return;
+  try {
+    const userIdStr = userId.toString();
+    const systemMap = {
+      iching: 'stats.ichingTokens',
+      hexagrams: 'stats.ichingTokens',
+      bazi: 'stats.baziTokens',
+      bat_tu: 'stats.baziTokens',
+      ziwei: 'stats.ziweiTokens',
+      tu_vi: 'stats.ziweiTokens',
+      marriage: 'stats.marriageTokens'
+    };
+
+    const tokenField = systemMap[system];
+    if (!tokenField) return;
+
+    await User.updateOne(
+      { _id: userIdStr },
+      { 
+        $inc: { 
+          [tokenField]: tokensUsed,
+          'stats.totalInterpretTokens': tokensUsed,
+          'stats.totalTokens': tokensUsed
+        },
+        $set: { 'stats.lastUpdated': new Date() }
+      }
+    );
+  } catch (error) {
+    console.error(`[UserStatsService.incrementInterpretTokens] Error for user ${userId}:`, error);
+  }
+}
+
+/**
+ * Atomic Increment O(1) for Follow-up Chat Tokens
+ * @param {string} userId - User ID
+ * @param {string} system - System ('iching', 'bazi', 'ziwei', 'marriage')
+ * @param {number} tokensUsed - Tokens used by LLM chat
+ */
+async function incrementChatTokens(userId, system, tokensUsed = 0) {
+  if (!userId || userId === 'guest' || !tokensUsed || tokensUsed <= 0) return;
+  try {
+    const userIdStr = userId.toString();
+    const systemMap = {
+      iching: 'stats.ichingChatTokens',
+      hexagrams: 'stats.ichingChatTokens',
+      bazi: 'stats.baziChatTokens',
+      bat_tu: 'stats.baziChatTokens',
+      ziwei: 'stats.ziweiChatTokens',
+      tu_vi: 'stats.ziweiChatTokens',
+      marriage: 'stats.marriageChatTokens'
+    };
+
+    const tokenField = systemMap[system];
+    if (!tokenField) return;
+
+    await User.updateOne(
+      { _id: userIdStr },
+      { 
+        $inc: { 
+          [tokenField]: tokensUsed,
+          'stats.totalChatTokens': tokensUsed,
+          'stats.totalTokens': tokensUsed
+        },
+        $set: { 'stats.lastUpdated': new Date() }
+      }
+    );
+  } catch (error) {
+    console.error(`[UserStatsService.incrementChatTokens] Error for user ${userId}:`, error);
+  }
+}
+
+/**
+ * Full Recalculation (Full Sync for Cron Jobs or Manual Sync)
+ */
+async function recalculateUserStats(userId) {
   if (!userId || userId === 'guest') return null;
   try {
     const userIdStr = userId.toString();
@@ -105,20 +221,23 @@ async function updateUserStats(userId) {
     }
     return stats;
   } catch (error) {
-    console.error(`[UserStatsService.updateUserStats] Error updating stats for user ${userId}:`, error);
+    console.error(`[UserStatsService.recalculateUserStats] Error updating stats for user ${userId}:`, error);
     throw error;
   }
 }
 
 function updateUserStatsBackground(userId) {
   if (!userId || userId === 'guest') return;
-  // Trigger immediately in the background without delay
-  updateUserStats(userId).catch(err => {
+  recalculateUserStats(userId).catch(err => {
     console.error(`[UserStatsService] Background stats update failed for user ${userId}:`, err);
   });
 }
 
 module.exports = {
-  updateUserStats,
+  incrementRecordCount,
+  incrementInterpretTokens,
+  incrementChatTokens,
+  recalculateUserStats,
+  updateUserStats: recalculateUserStats,
   updateUserStatsBackground
 };

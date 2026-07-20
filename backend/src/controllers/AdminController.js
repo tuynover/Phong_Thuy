@@ -9,6 +9,10 @@ const BanAppeal = require('../models/BanAppeal');
 const AdminNotification = require('../models/AdminNotification');
 const MemoryCacheService = require('../services/MemoryCacheService');
 const sseService = require('../services/SseService');
+const { clearUserProfileCache } = require('../config/redis');
+const escapeRegExp = require('../utils/escapeRegExp');
+const { runInTransaction } = require('../utils/transactionHelper');
+
 
 class AdminController {
   // ==========================================
@@ -21,9 +25,10 @@ class AdminController {
       const query = {};
 
       if (search) {
+        const safeSearch = escapeRegExp(search.trim());
         query.$or = [
-          { name: { $regex: search, $options: 'i' } },
-          { email: { $regex: search, $options: 'i' } }
+          { name: { $regex: safeSearch, $options: 'i' } },
+          { email: { $regex: safeSearch, $options: 'i' } }
         ];
       }
 
@@ -111,6 +116,7 @@ class AdminController {
       
       // Invalidate cache
       MemoryCacheService.clearUserHistoryCache(targetUser.id);
+      clearUserProfileCache(targetUser.id);
 
       sseService.sendToUser(id, 'account_updated', { role: targetUser.role, credits: targetUser.credits });
       sseService.sendToAdmins('user_updated', { userId: id, action: 'role' });
@@ -146,6 +152,8 @@ class AdminController {
       }
 
       await targetUser.save();
+      clearUserProfileCache(targetUser.id);
+
 
       sseService.sendToUser(id, 'account_updated', { role: targetUser.role, credits: targetUser.credits });
       sseService.sendToAdmins('user_updated', { userId: id, action: 'credits' });
@@ -178,6 +186,7 @@ class AdminController {
       targetUser.status = 'locked';
       targetUser.lockReason = reason;
       await targetUser.save();
+      clearUserProfileCache(targetUser.id);
 
       sseService.sendToUser(id, 'account_locked', { reason: targetUser.lockReason });
       sseService.sendToAdmins('user_updated', { userId: id, action: 'lock' });
@@ -207,6 +216,8 @@ class AdminController {
       targetUser.status = 'active';
       targetUser.lockReason = '';
       await targetUser.save();
+      clearUserProfileCache(targetUser.id);
+
 
       // Automatically resolve appeals for this user
       await BanAppeal.updateMany({ userId: id }, { status: 'resolved' });
@@ -275,14 +286,15 @@ class AdminController {
       };
       
       if (search) {
+        const safeSearch = escapeRegExp(search.trim());
         const searchConditions = [
-          { userId: { $regex: search, $options: 'i' } }
+          { userId: { $regex: safeSearch, $options: 'i' } }
         ];
         if (normType === 'iching') {
-          searchConditions.push({ question: { $regex: search, $options: 'i' } });
+          searchConditions.push({ question: { $regex: safeSearch, $options: 'i' } });
         } else if (normType === 'marriage') {
-          searchConditions.push({ 'inputInfo.male.name': { $regex: search, $options: 'i' } });
-          searchConditions.push({ 'inputInfo.female.name': { $regex: search, $options: 'i' } });
+          searchConditions.push({ 'inputInfo.male.name': { $regex: safeSearch, $options: 'i' } });
+          searchConditions.push({ 'inputInfo.female.name': { $regex: safeSearch, $options: 'i' } });
         }
         query.$or = searchConditions;
       }
@@ -861,23 +873,33 @@ class AdminController {
       const appeal = await BanAppeal.findById(id);
       if (!appeal) return res.status(404).json({ error: 'Không tìm thấy khiếu nại.' });
 
-      if (action === 'approve') {
-        const targetUser = await User.findById(appeal.userId);
-        if (targetUser) {
-          targetUser.status = 'active';
-          targetUser.lockReason = '';
-          await targetUser.save();
-          sseService.sendToUser(targetUser.id || targetUser._id.toString(), 'account_unlocked', {});
+      await runInTransaction(async (session) => {
+        const opts = session ? { session } : {};
+        if (action === 'approve') {
+          const targetUser = await User.findById(appeal.userId);
+          if (targetUser) {
+            if (req.hasAuthorityOver && !req.hasAuthorityOver(targetUser)) {
+              const err = new Error('Bạn không có quyền mở khóa cho tài khoản Quản trị viên này.');
+              err.statusCode = 403;
+              throw err;
+            }
+            targetUser.status = 'active';
+            targetUser.lockReason = '';
+            await targetUser.save(opts);
+            sseService.sendToUser(targetUser.id || targetUser._id.toString(), 'account_unlocked', {});
+          }
         }
-      }
-
-      appeal.status = 'resolved';
-      await appeal.save();
+        appeal.status = 'resolved';
+        await appeal.save(opts);
+      });
 
       sseService.sendToAdmins('user_updated', { userId: appeal.userId, action: 'resolve_appeal' });
 
       return res.json({ message: 'Giải quyết khiếu nại thành công.', appeal });
     } catch (error) {
+      if (error.statusCode === 403) {
+        return res.status(403).json({ error: error.message });
+      }
       console.error('[AdminController.resolveAppeal] Error:', error);
       return res.status(500).json({ error: 'Lỗi xử lý khiếu nại.' });
     }

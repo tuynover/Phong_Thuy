@@ -20,7 +20,7 @@ async function resolveUser(req) {
     // 1. Try decoding JWT token
     if (token) {
         try {
-            const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
             const uid = decoded.user?.id || decoded.id;
             if (uid) {
                 userId = uid;

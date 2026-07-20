@@ -13,6 +13,7 @@
     "autoprefixer": "^10.4.27",
     "axios": "^1.15.0",
     "clsx": "^2.1.1",
+    "event-source-polyfill": "^1.0.31",
     "firebase": "^12.16.0",
     "framer-motion": "^12.42.2",
     "lucide-react": "^1.7.0",

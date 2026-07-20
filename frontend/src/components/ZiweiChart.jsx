@@ -60,8 +60,9 @@ const STAR_ELEMENTS = {
   "Tuần Không": "Hỏa", "Triệt Lộ": "Kim", "Triệt": "Kim", "Tuần": "Hỏa", "Bệnh Phù": "Thổ",
   "Tang Môn": "Mộc", "Bạch Hổ": "Kim", "Điếu Khách": "Hỏa", "Quan Phù": "Hỏa",
   "Giải Thần": "Mộc", "Phượng Các": "Thổ", "Phượng các": "Thổ", "Long Trì": "Thủy",
-  "Bát tòa": "Thổ", "Thiên trù": "Thổ", "Thiên Trù": "Thổ", "Bát Tọa": "Thổ",
-  "Kiếp Sát": "Hỏa", "Thương Y": "Thủy", "Thiên Không": "Hỏa", "Thiên Quý": "Thổ",
+  "Bát tòa": "Thổ", "Thiên trù": "Thổ", "Thiên Trù": "Thổ",
+  "Kiếp Sát": "Hỏa", "Thương Y": "Thủy", "Thiên Không": "Hỏa",
+
   "Tướng tinh": "Mộc", "Lưu Niên": "Thổ", "Bệnh": "Thủy", "Tử": "Thủy", "Mộ": "Thổ",
   "Tuyệt": "Thủy", "Thai": "Thổ", "Dưỡng": "Mộc", "Trường Sinh": "Thủy",
   "Mộc Dục": "Thủy", "Mục Dục": "Thủy", "Quan Đới": "Kim", "Lâm Quan": "Kim",

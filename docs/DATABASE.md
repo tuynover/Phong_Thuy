@@ -25,8 +25,7 @@ Lưu trữ thông tin tài khoản, hồ sơ Bát Tự mặc định, số dư c
     name: { type: String, default: 'User' },
     phone: { type: String, default: '' },
     isEmailVerified: { type: Boolean, default: false },
-    emailOtp: { type: String, default: null },
-    emailOtpExpires: { type: Date, default: null },
+    /* Mã OTP được lưu trữ & tự động hết hạn hoàn toàn trên Redis (otp:verify_email & otp:reset_password), không lưu rác trong MongoDB */
     gender: { type: Number, default: 1 }, // 1: Nam, 0: Nữ
     role: { type: String, enum: ['admin', 'co-admin', 'vip', 'user'], default: 'user' },
     credits: { type: Number, default: 1 },

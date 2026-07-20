@@ -76,10 +76,10 @@ Trước đây, mỗi phân hệ có các bảng hội thoại và tin nhắn ri
 - **Tích hợp Quên mật khẩu qua Email OTP:** Viết mới luồng gửi mã xác thực OTP 6 số qua email (sử dụng mẫu email HTML sang trọng) và cho phép đặt lại mật khẩu mới. Áp dụng cơ chế tăng `tokenVersion` khi đổi mật khẩu để thu hồi token cũ trên mọi thiết bị.
 - **Tối ưu hóa UI/UX AuthModal:** Nâng cấp form Quên mật khẩu 2 bước, tự động chuyển sang trang nhập OTP ngay lập tức khi bấm gửi mã để tăng trải nghiệm người dùng, ẩn các nút mạng xã hội gây nhiễu, và hiển thị thông báo thành công nguyên màn hình kèm hiệu ứng nhún (bounce) sinh động khi hoàn tất thành công.
 
-### 4.6 Tích hợp Mô-đun Tin tức & Kiến thức Học thuật (Blog) (07/2026)
-Để bổ sung giá trị nội dung học thuật cho người dùng và nâng cao điểm SEO cho dự án:
-- **Database Schema & Automatic Seeding:** Tạo bảng dữ liệu `BlogPost` (sử dụng UUIDv7) lưu trữ các bài viết phong thủy được biên soạn kỹ lưỡng. Viết hàm tự động seed 4 bài viết mẫu chuyên sâu về Bát Tự, Tử Vi, Kinh Dịch và Trạch Cát khi cơ sở dữ liệu trống.
-- **Client State Routing Integration:** Tích hợp chế độ hiển thị `'blog'` vào `appMode` của `UserApp.jsx`. Bổ sung tab "Blog" lên đầu trang và dưới chân trang để chuyển mạch mượt mà mà không ảnh hưởng tới kết cấu cũ của Landing page.
-- **Markdown & Related Posts Rendering:** Hiển thị bài viết bằng React Markdown với bộ quy chuẩn thẩm mỹ Premium (bo tròn góc, font chữ Montserrat và Lora, trích dẫn nổi bật). Trả về 3 bài viết liên quan cùng danh mục bên dưới trang chi tiết cùng với các nút CTA chuyển đổi nhanh tới mô-đun Bát Tự, Tử Vi, Kinh Dịch tương ứng.
-- **Admin Management Portal:** Xây dựng tab quản lý bài viết đầy đủ trong `AdminApp.jsx` cho phép tìm kiếm, lọc danh mục, sửa, xóa mềm (soft-delete), và khôi phục bài viết. Tích hợp form modal soạn thảo tiêu đề, tóm tắt, nội dung Markdown, tags và ảnh bìa trực quan, thống nhất giao diện tối sang trọng của Admin App.
+### 4.7 Tích hợp Redis Engine Tối Ưu Hóa & Loại Bỏ On-the-Fly Migration Bát Tự (07/2026)
+Để đáp ứng lưu lượng truy cập lớn và nâng cao tốc độ phản hồi API:
+- **Hệ thống Redis Hybrid Engine:** Đưa container `redis:alpine` vào `docker-compose.yml`. Tích hợp bộ đệm Profile Cache đọc thông tin User dưới 1ms, di chuyển OTP Email từ MongoDB sang Redis TTL `SETEX`, chạy hàng đợi gửi Email ngầm không nghẽn luồng request, đệm đĩa 2 tầng (L1 RAM JS Map + L2 Redis) cho lá số/lịch sử, và khóa chống click trùng (Distributed Mutex Lock).
+- **Loại bỏ On-the-fly Migration Bát Tự:** Triệt tiêu hoàn toàn đoạn code ghi đè `record.save()` tự động khi đọc chi tiết Bát Tự trong `HistoryController.js`, loại bỏ triệt để thao tác ghi đĩa thừa và giúp API trả kết quả lá số ngay lập tức.
+- **Dọn dẹp Cơ sở dữ liệu:** Thực thi script `cleanOldCalculations.js` dọn dẹp triệt để 138 lá số cũ (trước ngày 10/07/2026) để tối ưu hóa không gian lưu trữ và chỉ giữ lại các lá số chuẩn hóa mới.
+
 

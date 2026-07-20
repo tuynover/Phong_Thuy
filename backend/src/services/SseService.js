@@ -18,10 +18,10 @@ class SseService {
     // Send initial connection event
     res.write(`data: ${JSON.stringify({ type: 'connected', message: 'SSE Admin connection established' })}\n\n`);
 
-    // Ping every 30 seconds to keep connection alive
+    // Ping every 15 seconds to keep connection alive (AGENTS.md Rule 2.1)
     const keepAlive = setInterval(() => {
       res.write(': ping\n\n');
-    }, 30000);
+    }, 15000);
 
     req.on('close', () => {
       clearInterval(keepAlive);
@@ -46,7 +46,7 @@ class SseService {
 
     const keepAlive = setInterval(() => {
       res.write(': ping\n\n');
-    }, 30000);
+    }, 15000);
 
     req.on('close', () => {
       clearInterval(keepAlive);

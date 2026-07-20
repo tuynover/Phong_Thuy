@@ -47,6 +47,10 @@ class IChingController {
             });
             await record.save();
 
+            // Increment user iching record count O(1)
+            const UserStatsService = require('../services/UserStatsService');
+            UserStatsService.incrementRecordCount(userId, 'iching', 1);
+
             // Invalidate user history cache
             MemoryCacheService.clearUserHistoryCache(userId);
 

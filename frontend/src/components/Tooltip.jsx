@@ -102,9 +102,11 @@ const Tooltip = ({ term, children, className, placement = 'top', unstyled = fals
                 try {
                     const res = await getConcept(trimmedTerm);
                     setInfo(res.data);
-                } catch (err) {
+                } catch {
                     setInfo({ short_description: 'Chưa có thông tin.' });
                 }
+
+
                 setLoading(false);
             }
         }

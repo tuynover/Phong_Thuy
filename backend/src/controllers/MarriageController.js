@@ -129,6 +129,10 @@ class MarriageController {
 
             await record.save();
 
+            // Increment user marriage record count O(1)
+            const UserStatsService = require('../services/UserStatsService');
+            UserStatsService.incrementRecordCount(uid, 'marriage', 1);
+
             // Clear User cache
             MemoryCacheService.clearUserHistoryCache(uid);
 

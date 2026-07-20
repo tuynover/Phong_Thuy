@@ -1,6 +1,9 @@
+const { redisClient, isRedisConnected } = require('../config/redis');
+const logger = require('../services/LoggerService');
+
 const rateLimitCache = new Map();
 
-// Tự động dọn dẹp bộ nhớ đệm mỗi 15 phút để tránh rò rỉ bộ nhớ
+// Tự động dọn dẹp bộ nhớ đệm RAM mỗi 15 phút để tránh rò rỉ bộ nhớ
 setInterval(() => {
     const now = Date.now();
     for (const [key, value] of rateLimitCache.entries()) {
@@ -11,46 +14,87 @@ setInterval(() => {
 }, 15 * 60 * 1000);
 
 /**
- * Middleware Rate Limiter nhẹ nhàng dùng bộ nhớ RAM
+ * Fallback rate limiter sử dụng bộ nhớ đệm RAM (JavaScript Map)
+ */
+const fallbackMemoryRateLimiter = (req, res, next, key, windowMs, max, message) => {
+    const now = Date.now();
+    const record = rateLimitCache.get(key) || { count: 0, resetTime: now + windowMs };
+    
+    if (now > record.resetTime) {
+        record.count = 1;
+        record.resetTime = now + windowMs;
+    } else {
+        record.count += 1;
+    }
+    
+    rateLimitCache.set(key, record);
+    
+    res.setHeader('X-RateLimit-Limit', max);
+    res.setHeader('X-RateLimit-Remaining', Math.max(0, max - record.count));
+    res.setHeader('X-RateLimit-Reset', Math.ceil(record.resetTime / 1000));
+    
+    if (record.count > max) {
+        res.setHeader('Retry-After', Math.ceil((record.resetTime - now) / 1000));
+        return res.status(429).json({
+            error: message || 'Bạn đã gửi quá nhiều yêu cầu lên hệ thống. Vui lòng thử lại sau.'
+        });
+    }
+    
+    next();
+};
+
+/**
+ * Middleware Rate Limiter nhẹ nhàng (Hybrid: Ưu tiên Redis -> Fallback RAM)
  * @param {Object} options
  * @param {number} options.windowMs - Khoảng thời gian giới hạn (ms)
  * @param {number} options.max - Số lượng yêu cầu tối đa trong khoảng thời gian
  * @param {string} options.message - Thông báo trả về khi vượt quá giới hạn
  */
 const rateLimiter = ({ windowMs = 15 * 60 * 1000, max = 100, message } = {}) => {
-    return (req, res, next) => {
+    return async (req, res, next) => {
         if (process.env.NODE_ENV === 'test') {
             return next();
         }
+
         const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
-        // Kết hợp IP và đường dẫn route cụ thể để giới hạn riêng biệt từng endpoint
-        const key = `${req.baseUrl || ''}${req.path}_${ip}`;
-        
-        const now = Date.now();
-        const record = rateLimitCache.get(key) || { count: 0, resetTime: now + windowMs };
-        
-        if (now > record.resetTime) {
-            record.count = 1;
-            record.resetTime = now + windowMs;
+        const keyRaw = `${req.baseUrl || ''}${req.path}_${ip}`;
+        const redisKey = `ratelimit:${keyRaw}`;
+
+        if (isRedisConnected()) {
+            try {
+                // Tăng đếm nguyên tử trên Redis
+                const count = await redisClient.incr(redisKey);
+                
+                if (count === 1) {
+                    // Đặt TTL cho key khi mới tạo
+                    await redisClient.pexpire(redisKey, windowMs);
+                }
+
+                let ttlMs = await redisClient.pttl(redisKey);
+                if (ttlMs < 0) ttlMs = windowMs;
+
+                const resetTimeSec = Math.ceil((Date.now() + ttlMs) / 1000);
+                const retryAfterSec = Math.ceil(ttlMs / 1000);
+
+                res.setHeader('X-RateLimit-Limit', max);
+                res.setHeader('X-RateLimit-Remaining', Math.max(0, max - count));
+                res.setHeader('X-RateLimit-Reset', resetTimeSec);
+
+                if (count > max) {
+                    res.setHeader('Retry-After', retryAfterSec);
+                    return res.status(429).json({
+                        error: message || 'Bạn đã gửi quá nhiều yêu cầu lên hệ thống. Vui lòng thử lại sau.'
+                    });
+                }
+
+                return next();
+            } catch (err) {
+                logger.warn(`[rateLimiter] Redis error: ${err.message}. Falling back to memory rate limiter.`);
+                return fallbackMemoryRateLimiter(req, res, next, keyRaw, windowMs, max, message);
+            }
         } else {
-            record.count += 1;
+            return fallbackMemoryRateLimiter(req, res, next, keyRaw, windowMs, max, message);
         }
-        
-        rateLimitCache.set(key, record);
-        
-        // Thiết lập header giới hạn (Standard RateLimit headers)
-        res.setHeader('X-RateLimit-Limit', max);
-        res.setHeader('X-RateLimit-Remaining', Math.max(0, max - record.count));
-        res.setHeader('X-RateLimit-Reset', Math.ceil(record.resetTime / 1000));
-        
-        if (record.count > max) {
-            res.setHeader('Retry-After', Math.ceil((record.resetTime - now) / 1000));
-            return res.status(429).json({
-                error: message || 'Bạn đã gửi quá nhiều yêu cầu lên hệ thống. Vui lòng thử lại sau.'
-            });
-        }
-        
-        next();
     };
 };
 

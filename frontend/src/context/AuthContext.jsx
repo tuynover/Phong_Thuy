@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import { EventSourcePolyfill } from 'event-source-polyfill';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
@@ -73,8 +74,12 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     if (!token) return;
 
-    const sseUrl = `${API_URL}/auth/events?token=${encodeURIComponent(token)}`;
-    const eventSource = new EventSource(sseUrl);
+    const sseUrl = `${API_URL}/auth/events`;
+    const eventSource = new EventSourcePolyfill(sseUrl, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
 
     eventSource.onmessage = (event) => {
       try {

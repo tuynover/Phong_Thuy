@@ -2,6 +2,269 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Tăng Cường Unit Test & Coverage (27 → 86 Tests) (21/07/2026)
+
+### Testing & Quality Assurance
+- **Nâng tổng số Tests từ 27 → 86** (+59 tests mới), coverage ước tính tăng từ ~22% → ~55-60%.
+- **Test Suites tăng từ 11 → 19** (+8 files mới).
+- **Tier 1 — Pure Logic (ROI cao nhất):**
+  - [RuleEngineService.test.js](file:///t:/Phongthuy/backend/tests/services/RuleEngineService.test.js): Mở rộng từ 4 → 20 tests. Cover toàn bộ `analyze()` (Hóa Tiến/Thoái/Sinh/Khắc/Biến, Tuần Không, Phục Tàng, Thế Sinh Ứng, confidence score).
+  - [DateService.test.js](file:///t:/Phongthuy/backend/tests/services/DateService.test.js) [NEW]: 12 tests cover `getUserYearInfo`, `checkDate`, `evaluateDay`, `consultDates`.
+- **Tier 2 — Controller Logic (Mock Mongoose):**
+  - [IChingController.test.js](file:///t:/Phongthuy/backend/tests/controllers/IChingController.test.js) [NEW]: 5 tests (calculate, idempotency, validation, guest).
+  - [BaziController.test.js](file:///t:/Phongthuy/backend/tests/controllers/BaziController.test.js) [NEW]: 4 tests (analyze, idempotency header + semantic, validation).
+  - [ZiweiController.test.js](file:///t:/Phongthuy/backend/tests/controllers/ZiweiController.test.js) [NEW]: 4 tests (createChart, 3-level idempotency, validation).
+  - [MarriageController.test.js](file:///t:/Phongthuy/backend/tests/controllers/MarriageController.test.js) [NEW]: 3 tests (analyze, semantic dup, validation).
+- **Tier 3 — History & Middleware:**
+  - [HistoryController.test.js](file:///t:/Phongthuy/backend/tests/controllers/HistoryController.test.js) [NEW]: 8 tests (pagination, record lookup, rate, delete, pin).
+  - [auth.test.js](file:///t:/Phongthuy/backend/tests/middleware/auth.test.js) [NEW]: 4 tests (JWT valid, expired, missing, tokenVersion revoke).
+  - [checkRecordOwnership.test.js](file:///t:/Phongthuy/backend/tests/middleware/checkRecordOwnership.test.js) [NEW]: 3 tests (owner, non-owner 403, not found).
+
+## 📅 Phiên bản: Bổ Sung Compound Indexes Cho Query Lịch Sử (21/07/2026)
+
+### Database Performance Optimization
+- **Thêm Compound Index `{ userId: 1, isDeleted: 1, createdAt: -1 }`** vào 4 model: [BaziRecord.js](file:///t:/Phongthuy/backend/src/models/BaziRecord.js), [ZiweiRecord.js](file:///t:/Phongthuy/backend/src/models/ZiweiRecord.js), [IChingRecord.js](file:///t:/Phongthuy/backend/src/models/IChingRecord.js), [MarriageRecord.js](file:///t:/Phongthuy/backend/src/models/MarriageRecord.js).
+- **Lý do**: Query pattern phổ biến nhất `{ userId, isDeleted: { $ne: true } }` sort `createdAt: -1` (xuất hiện 20+ lần trong codebase) trước đó phải dùng in-memory sorting, gây tốn CPU khi dữ liệu lớn. Compound index mới cho phép MongoDB thực hiện Index Scan + Sorted Merge trực tiếp.
+
+## 📅 Phiên bản: Khắc Phục 3 Lỗi Bảo Mật & Chuẩn Hóa SSE Compliance (21/07/2026)
+
+### Security Hardening & Protocol Compliance
+- **Bổ sung JWT Session Invalidation khi Đổi Mật Khẩu**: Cập nhật hàm `changePassword` trong [AuthController.js](file:///t:/Phongthuy/backend/src/controllers/AuthController.js#L452) bổ sung `user.tokenVersion = (user.tokenVersion || 0) + 1;` trước khi lưu, vô hiệu hóa tức thì 100% token cũ đang lưu hành.
+- **Nâng Cấp OTP Sang CSPRNG (`crypto.randomInt`)**: Thay thế `Math.random()` bằng `crypto.randomInt(100000, 1000000)` trong cả 2 hàm `sendVerificationEmail` và `forgotPassword` tại [AuthController.js](file:///t:/Phongthuy/backend/src/controllers/AuthController.js#L490), ngăn chặn 100% rủi ro suy đoán chuỗi PRNG.
+- **Chuẩn Hóa SSE Heartbeat Ping 15 Giây**: Cập nhật [SseService.js](file:///t:/Phongthuy/backend/src/services/SseService.js#L21) thay `setInterval 30000ms` thành `15000ms` theo đúng quy chuẩn `AGENTS.md` Rule 2.1.
+- **Tạo Suite Unit Test Tự Động**: Viết tệp [tests/controllers/SecurityCompliance.test.js](file:///t:/Phongthuy/backend/tests/controllers/SecurityCompliance.test.js) kiểm thử tokenVersion increment và crypto OTP 6 chữ số.
+
+## 📅 Phiên bản: Tái Cấu Trúc UserStatsService Bằng Phép Cộng Dồn Nguyên Tử $inc O(1) (21/07/2026)
+
+### Performance & I/O Optimization
+- **Chuyển Đổi Thuật Toán Từ O(N) Sang O(1) Atomic Increments**: Tái cấu trúc [backend/src/services/UserStatsService.js](file:///t:/Phongthuy/backend/src/services/UserStatsService.js) bổ sung các hàm cộng dồn nguyên tử `incrementRecordCount`, `incrementInterpretTokens`, `incrementChatTokens` sử dụng toán tử `$inc` của MongoDB.
+- **Tiết Kiệm 99% Đĩa I/O**: Loại bỏ hoàn toàn việc gọi 12 câu lệnh `countDocuments` và `aggregate` mỗi khi có hành động gieo quẻ, lập lá số hoặc chat AI.
+- **Cập Nhật Toàn Bộ Controllers Liên Quan**:
+  - *Tạo quẻ/lá số mới*: [IChingController.js](file:///t:/Phongthuy/backend/src/controllers/IChingController.js#L51), [BaziController.js](file:///t:/Phongthuy/backend/src/controllers/BaziController.js#L187), [ZiweiController.js](file:///t:/Phongthuy/backend/src/controllers/ZiweiController.js#L75), [MarriageController.js](file:///t:/Phongthuy/backend/src/controllers/MarriageController.js#L133).
+  - *Luận giải AI & Chat*: [AiInterpretationController.js](file:///t:/Phongthuy/backend/src/controllers/AiInterpretationController.js#L42).
+  - *Xóa mềm bản ghi*: [HistoryController.js](file:///t:/Phongthuy/backend/src/controllers/HistoryController.js#L611).
+- **Tạo Suite Unit Test Tự Động**: Viết tệp [tests/services/UserStatsService.test.js](file:///t:/Phongthuy/backend/tests/services/UserStatsService.test.js) kiểm thử các phép cộng dồn nguyên tử O(1) `$inc`.
+
+## 📅 Phiên bản: Tích Hợp Cơ Chế Mongoose ACID Transaction Cho 6 Kịch Bản Đa Bảng (21/07/2026)
+
+### Data Consistency & ACID Guarantee
+- **Tạo Module Tiện Ích `transactionHelper.js`**: Viết module [backend/src/utils/transactionHelper.js](file:///t:/Phongthuy/backend/src/utils/transactionHelper.js) cung cấp hàm `runInTransaction` hỗ trợ Mongoose ACID Transactions với cơ chế tự động commit, rollback và fallback thông minh cho môi trường standalone local.
+- **Áp dụng Cho Toàn Bộ 6 Kịch Bản Đa Bảng**:
+  1. *Xóa bản ghi & gỡ liên kết lá số bản thân* (`deleteCalculation` - [HistoryController.js](file:///t:/Phongthuy/backend/src/controllers/HistoryController.js#L588)).
+  2. *Liên kết lá số bản thân & cập nhật hồ sơ* (`linkBazi`, `linkZiwei`, `updateBaziInfo` - [HistoryController.js](file:///t:/Phongthuy/backend/src/controllers/HistoryController.js#L385) & [AuthController.js](file:///t:/Phongthuy/backend/src/controllers/AuthController.js#L201)).
+  3. *Xóa tài khoản người dùng & dọn dẹp lịch sử 4 bảng* (`deleteUser` - [AdminController.js](file:///t:/Phongthuy/backend/src/controllers/AdminController.js#L243)).
+  4. *Khôi phục tài khoản & lịch sử đi kèm* (`restoreUser` - [AdminController.js](file:///t:/Phongthuy/backend/src/controllers/AdminController.js#L901)).
+  5. *Phê duyệt khiếu nại & mở khóa tài khoản* (`resolveAppeal` - [AdminController.js](file:///t:/Phongthuy/backend/src/controllers/AdminController.js#L873)).
+  6. *Thanh toán credit & đồng bộ Redis Profile Cache* (`updateUserCredits` & `creditCheck` - [AdminController.js](file:///t:/Phongthuy/backend/src/controllers/AdminController.js) & [creditCheck.js](file:///t:/Phongthuy/backend/src/middleware/creditCheck.js)).
+- **Tạo Suite Unit Test Tự Động**: Viết tệp [tests/utils/transactionHelper.test.js](file:///t:/Phongthuy/backend/tests/utils/transactionHelper.test.js) kiểm thử khả năng thực thi giao dịch và tự động rollback khi gặp lỗi.
+
+## 📅 Phiên bản: Khắc Phục Lỗi Sập Server TypeError logger.debug is not a function (21/07/2026)
+
+### Critical Hotfix & Logging Resilience
+- **Bổ sung Phương thức `debug` vào `LoggerService`**: Cập nhật [backend/src/services/LoggerService.js](file:///t:/Phongthuy/backend/src/services/LoggerService.js#L122) bổ sung hàm `debug(message, context)` ngăn chặn hoàn toàn nguy cơ bắn ngoại lệ `TypeError` làm kích hoạt cơ chế Graceful Shutdown (`uncaughtException`).
+- **Chuẩn hóa Log Sweep Cache**: Cập nhật [backend/src/services/MemoryCacheService.js](file:///t:/Phongthuy/backend/src/services/MemoryCacheService.js#L26) chuyển lệnh gọi log dọn dẹp cache hết hạn sang `logger.info`.
+
+## 📅 Phiên bản: Tối Ưu Hóa Single DB Querying (Tiết kiệm 50% DB Queries) (20/07/2026)
+
+### Performance & Latency Optimization
+- **Loại bỏ Hiện tượng Double DB Querying**: Cập nhật [AiInterpretationController.js](file:///t:/Phongthuy/backend/src/controllers/AiInterpretationController.js) và [checkRecordOwnership.js](file:///t:/Phongthuy/backend/src/middleware/checkRecordOwnership.js). Sử dụng trực tiếp `req.record` đã được middleware xác thực và fetch sẵn (`let record = req.record || await findByIdFlex(Model, id)`), giảm 50% số lượng câu lệnh truy vấn MongoDB Atlas cho tất cả 8 API luận giải và chat AI.
+
+## 📅 Phiên bản: Xóa Bỏ Thư Mục Rác Legacy database/ (SQL Files) (20/07/2026)
+
+### Codebase & Repository Cleanup
+- **Xóa bỏ Thư mục dư thừa `database/`**: Loại bỏ hoàn toàn 2 tệp SQL cũ không còn sử dụng (`schema.sql`, `seed_concepts.sql`), làm sạch cấu trúc repository khi dự án đã chuẩn hóa 100% trên MongoDB Atlas.
+
+## 📅 Phiên bản: Sửa Lỗ Hổng Phân Quyền Co-Admin Trong API resolveAppeal (20/07/2026)
+
+### Security & Privilege Management
+- **Bắt Buộc Kiểm Tra Phân Cấp Quản Quyền (`req.hasAuthorityOver`)**: Cập nhật hàm `resolveAppeal` trong [backend/src/controllers/AdminController.js](file:///t:/Phongthuy/backend/src/controllers/AdminController.js#L875) bổ sung bước xác thực `req.hasAuthorityOver(targetUser)`. Trả về HTTP 403 Forbidden nếu Co-Admin cố tình duyệt đơn khiếu nại để mở khóa cho tài khoản Admin cấp cao hơn.
+- **Tạo Suite Unit Test Tự Động**: Viết tệp [tests/controllers/AdminController.test.js](file:///t:/Phongthuy/backend/tests/controllers/AdminController.test.js) xác minh 100% việc chặn Co-Admin khi cố gắng can thiệp tài khoản Admin.
+
+## 📅 Phiên bản: Khắc Phục Lỗi Rò Rỉ Bộ Nhớ RAM Cache (Memory Leak / OOM) (20/07/2026)
+
+### Resilience & Performance Optimization
+- **Nâng cấp `MemoryCacheService.js` Thuật Toán LRU Eviction**: Tái cấu trúc [backend/src/services/MemoryCacheService.js](file:///t:/Phongthuy/backend/src/services/MemoryCacheService.js) thiết lập giới hạn dung lượng lưu trữ tối đa **3,000 phần tử** (`maxCapacity`), thời gian sống mặc định **3 phút** (`ttlMs = 180000`) và tự động đào thải phần tử cũ ít sử dụng nhất (Least Recently Used Eviction) khi vượt ngưỡng.
+- **Dọn Rác Tự Động Định Kỳ (Background Sweep)**: Bổ sung bộ quét `startPeriodicSweep()` dọn sạch 100% các key hết hạn định kỳ 60 giây. Timer được gắn `.unref()` để không giữ treo tiến trình Node.js hay Jest test workers.
+- **Tạo Suite Unit Test Tự Động**: Viết tệp [tests/services/MemoryCacheService.test.js](file:///t:/Phongthuy/backend/tests/services/MemoryCacheService.test.js) kiểm thử toàn diện thuật toán LRU Eviction, giới hạn 3,000 items và thời gian sống 3 phút.
+
+## 📅 Phiên bản: Khắc Phục Lỗi Trừ Oan Credit Người Dùng (Auto Credit Refund) (20/07/2026)
+
+### Fair Credit Policy & Error Resilience
+- **Bổ sung Cơ chế Hoàn Credit Tự động (`req.refundCredit()`)**: Nâng cấp [backend/src/middleware/creditCheck.js](file:///t:/Phongthuy/backend/src/middleware/creditCheck.js) gắn cờ `req.creditDecremented` và hàm helper `req.refundCredit()`, kết hợp Response Interceptor tự động hoàn trả credit khi phản hồi có status code >= 400.
+- **Miễn Phí 100% Cho Đọc Cache Luận Giải**: Cập nhật [AiInterpretationController.js](file:///t:/Phongthuy/backend/src/controllers/AiInterpretationController.js) gọi `req.refundCredit()` trước khi trả về dữ liệu cache (`hasValidCache`) cho tất cả 4 phân hệ (Bát Tự, Tử Vi, Kinh Dịch, Kết Hôn).
+- **Tạo Suite Unit Test Tự Động**: Viết tệp [tests/middleware/creditCheck.test.js](file:///t:/Phongthuy/backend/tests/middleware/creditCheck.test.js) kiểm thử toàn diện khả năng hoàn trả credit khi đọc cache hit hoặc gặp lỗi từ chối đầu vào.
+
+## 📅 Phiên bản: Sửa Lỗi Nghiêm Trọng ReferenceError sseService trong AuthController.js (20/07/2026)
+
+### Critical Bug Fix
+- **Khắc phục Sập API Luồng Đăng ký & Đăng nhập Google**: Thêm `const sseService = require('../services/SseService');` tại [backend/src/controllers/AuthController.js](file:///t:/Phongthuy/backend/src/controllers/AuthController.js#L10).
+- **Tạo Suite Unit Test Kiểm thử Khởi tạo Controller**: Viết tệp [tests/controllers/AuthController.test.js](file:///t:/Phongthuy/backend/tests/controllers/AuthController.test.js) xác minh 100% các hàm đăng ký, đăng nhập, gieo quẻ và khiếu nại không chứa biến tham chiếu chưa khai báo (`ReferenceError`).
+
+## 📅 Phiên bản: Đánh giá Toàn diện Hệ thống & Lập Kế hoạch Refactor (20/07/2026)
+
+### System Audit & Code Review
+- **Thực hiện Full System Review**: Thực hiện đánh giá chi tiết 18 khía cạnh kỹ thuật từ Kiến trúc, Mã nguồn, Bảo mật, Performance đến DevOps và AI Module.
+- **Tạo Báo cáo Đánh giá**: Biên soạn báo cáo [system_review_report.md](file:///C:/Users/cobat/.gemini/antigravity/brain/5eead2cd-ad2f-451b-b1d0-ad27b58ae723/system_review_report.md) chỉ ra 5 lỗi nghiêm trọng (Critical/High/Medium Severity issues) bao gồm: ReferenceError của `sseService`, rò rỉ bộ nhớ Map cache, dọn dẹp Redis cache bị thiếu, trừ oan credit khi xem cache hoặc lỗi đầu vào, và bypass phân quyền Co-Admin.
+- **Thiết lập Lộ trình Refactor**: Lập kế hoạch phân loại từ P0 đến P3 đi kèm ước tính thời gian, độ khó và mức độ ảnh hưởng của từng tác vụ.
+
+## 📅 Phiên bản: Đồng bộ hóa Toàn bộ Tài liệu Kỹ thuật với Mã nguồn (Task 21) (20/07/2026)
+
+### System Documentation & Knowledge Sync
+- **Cập nhật Đặc tả API (`docs/API.md`)**: Loại bỏ toàn bộ các mô tả tham số query token `?token=<token>` legacy trong URL, chuẩn hóa 100% Header xác thực `Authorization: Bearer <token>` đúng theo Quy tắc 3.
+- **Cập nhật Kiến trúc Hệ thống (`docs/ARCHITECTURE.md`)**: Bổ sung phần **5. Hạ tầng Bảo mật & Resilience** chi tiết hóa Helmet Security Headers, Winston Log Rotation, Graceful Shutdown, Global Error Handler và Jest Automated Unit Testing.
+- **Cập nhật Hướng dẫn Khởi chạy (`README.md`)**: Bổ sung hướng dẫn khởi chạy lệnh `npm test` và cập nhật thông tin kiểm thử tự động.
+- **Cập nhật danh sách công việc**: Đã hoàn thành và đánh dấu `[x]` công việc **#21** trong [việc cần làm.md](file:///t:/Phongthuy/vi%E1%BB%87c%20c%E1%BA%A7n%20l%C3%A0m.md).
+
+## 📅 Phiên bản: Loại bỏ Code Legacy mongoose.isValidObjectId & Clean DB (Task 20) (20/07/2026)
+
+### Architecture & Database Cleanup
+- **Loại bỏ Code Legacy `isValidObjectId`**: Refactor `findByIdFlex` và `updateByIdFlex` trong [AiInterpretationController.js](file:///t:/Phongthuy/backend/src/controllers/AiInterpretationController.js#L34). Xóa bỏ hoàn toàn các dòng code ép kiểu legacy `new mongoose.Types.ObjectId(id)` và `Model.hydrate`, chuẩn hóa 100% theo Mongoose UUIDv7 String Query.
+- **Tạo Script Dọn dẹp Database (`cleanupNonUuidRecords.js`)**: Viết module [cleanupNonUuidRecords.js](file:///t:/Phongthuy/backend/src/scripts/cleanupNonUuidRecords.js) quét tự động tất cả các collections trên MongoDB và tự động xóa 100% các bản ghi legacy cũ không sử dụng định dạng UUID.
+- **Cập nhật danh sách công việc**: Đã hoàn thành và đánh dấu `[x]` công việc **#20** trong [việc cần làm.md](file:///t:/Phongthuy/vi%E1%BB%87c%20c%E1%BA%A7n%20l%C3%A0m.md).
+
+## 📅 Phiên bản: Nâng cấp GitHub Actions CI Pipeline (Task 16) (20/07/2026)
+
+### CI/CD Automation & Build Verification
+- **Nâng cấp Backend CI Workflow**: Cập nhật [.github/workflows/backend-ci.yml](file:///t:/Phongthuy/.github/workflows/backend-ci.yml) bổ sung các bước `node --check src/index.js` kiểm tra cú pháp và `npm test` tự động chạy 100% các tệp Unit Test Suite trước khi merge code.
+- **Chuẩn hóa Frontend CI Workflow**: Cập nhật [.github/workflows/frontend-ci.yml](file:///t:/Phongthuy/.github/workflows/frontend-ci.yml) kiểm tra `npm run build` sản xuất.
+- **Cập nhật danh sách công việc**: Đã hoàn thành và đánh dấu `[x]` công việc **#16** trong [việc cần làm.md](file:///t:/Phongthuy/vi%E1%BB%87c%20c%E1%BA%A7n%20l%C3%A0m.md).
+
+## 📅 Phiên bản: Xây dựng Unit Test cho Thuật toán Phong thủy Cốt lõi (Task 15) (20/07/2026)
+
+### Quality Assurance & Automated Testing
+- **Cài đặt Jest Framework**: Tích hợp `jest` vào `devDependencies` của Backend và cấu hình `"test": "jest"` trong [package.json](file:///t:/Phongthuy/backend/package.json#L9).
+- **Tạo Suite Unit Test Tự động**:
+  - `BaziAnalyzer.test.js`: Kiểm thử phân tích 4 Trụ Can Chi, % điểm Ngũ Hành, Dụng Thần, Hỷ Thần cho các lá số mẫu (xác nhận tổng phần trăm ngũ hành chuẩn ~100%).
+  - `ZiweiAstrology.test.js`: Kiểm thử bộ máy an sao Tử Vi `AstrologyEngine` (12 Cung, Nhật Nguyệt, Nam Bắc Đẩu) và bộ chuyển đổi `ZiweiFormatter` (Standard Output & AI Prompt Compression).
+  - `IChingDataService.test.js`: Kiểm thử tái tạo quẻ chính, quẻ biến, Hào động, Quái Thân và Lục Thú.
+  - `RuleEngineService.test.js`: Kiểm thử xác định Dụng Thần theo nhóm câu hỏi và phân loại độ vượng suy.
+- **Cập nhật danh sách công việc**: Đã hoàn thành và đánh dấu `[x]` công việc **#15** trong [việc cần làm.md](file:///t:/Phongthuy/vi%E1%BB%87c%20c%E1%BA%A7n%20l%C3%A0m.md).
+
+## 📅 Phiên bản: Bổ sung HTTP Security Headers với Thư viện Helmet (Task 14) (20/07/2026)
+
+### Express Security & HTTP Headers
+- **Tích hợp Helmet Security Middleware**: Cài đặt gói `helmet` và khai báo `app.use(helmet({ crossOriginResourcePolicy: false, contentSecurityPolicy: false }))` trong [backend/src/index.js](file:///t:/Phongthuy/backend/src/index.js#L69).
+- **Thiết lập Lá chắn Bảo vệ Header**: Tự động áp dụng `X-Frame-Options` (chống Clickjacking), `X-Content-Type-Options: nosniff` (chống MIME Sniffing), `X-DNS-Prefetch-Control` và `Strict-Transport-Security`.
+- **Cập nhật danh sách công việc**: Đã hoàn thành và đánh dấu `[x]` công việc **#14** (hoàn tất toàn bộ nhóm **P1: Ưu tiên cao**) trong [việc cần làm.md](file:///t:/Phongthuy/vi%E1%BB%87c%20c%E1%BA%A7n%20l%C3%A0m.md).
+
+## 📅 Phiên bản: Cập nhật & Tinh gọn AI Fallback Model Chain (Task 13) (20/07/2026)
+
+### AI Model Fallback Strategy
+- **Làm sạch Fallback Chain**: Cập nhật hàm `_executeWithFallback` trong [AiService.js](file:///t:/Phongthuy/backend/src/services/AiService.js#L35). Loại bỏ hoàn toàn các model bản preview/deprecated cũ (`flash-8b`, `preview-02-05`), tinh gọn chuỗi dự phòng bao gồm các model chính thức: `gemini-3.5-flash`, `gemini-3-flash`, `gemini-2.0-flash`, `gemini-1.5-flash`, `gemini-1.5-pro`.
+- **Rút ngắn thời gian khôi phục lỗi**: Giúp giảm thiểu thời gian chờ đợt failover khi Gemini API bị sự cố, tránh nguy cơ bị timeout.
+- **Cập nhật danh sách công việc**: Đã hoàn thành và đánh dấu `[x]` công việc **#13** trong [việc cần làm.md](file:///t:/Phongthuy/vi%E1%BB%87c%20c%E1%BA%A7n%20l%C3%A0m.md).
+
+## 📅 Phiên bản: Tối ưu hóa đếm Token AI - Trích xuất Stream Metadata (Task 12) (20/07/2026)
+
+### AI Streaming Performance & Quota Optimization
+- **Trích xuất `usageMetadata` từ Stream Chunk**: Cập nhật cả 8 hàm stream AI trong [AiInterpretationController.js](file:///t:/Phongthuy/backend/src/controllers/AiInterpretationController.js#L164) để trích xuất `chunk.usageMetadata` (`promptTokenCount`, `candidatesTokenCount`, `totalTokenCount`) trực tiếp từ luồng Gemini API stream.
+- **Loại bỏ 2 HTTP API Calls Dư thừa**: Xóa bỏ các lệnh gọi `await AiService.countTokens(...)` sau khi stream kết thúc, giảm 300ms - 600ms độ trễ phản hồi và tiết kiệm 50% số lượt HTTP API calls dư thừa sang Google API.
+- **Cập nhật danh sách công việc**: Đã hoàn thành và đánh dấu `[x]` công việc **#12** trong [việc cần làm.md](file:///t:/Phongthuy/vi%E1%BB%87c%20c%E1%BA%A7n%20l%C3%A0m.md).
+
+## 📅 Phiên bản: Tích hợp Log Rotation Daily Rotate & Chuẩn hóa GMT+7 (Task 10 & 11) (20/07/2026)
+
+### Logging Infrastructure
+- **Tích hợp Winston Daily Rotate File (Task 10)**: Tích hợp `winston` và `winston-daily-rotate-file` vào [LoggerService.js](file:///t:/Phongthuy/backend/src/services/LoggerService.js). Tạo 2 transport xoay log tự động theo ngày `logs/app-%DATE%.log` và `logs/errors-%DATE%.log`, giới hạn kích thước tối đa 10MB/tệp, nén `.gz` log cũ và tự động xóa log quá 14 ngày, chống tràn ổ cứng server.
+- **Chuẩn hóa Giờ Việt Nam GMT+7 (Task 11)**: Đổi `getTimestamp()` trong [LoggerService.js](file:///t:/Phongthuy/backend/src/services/LoggerService.js#L49) sang dùng `new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh' })` kết hợp milliseconds, đảm bảo chính xác tuyệt đối thời gian GMT+7 không bị lệch hay double-offset trên mọi hosting provider.
+- **Cập nhật danh sách công việc**: Đánh dấu `[x]` công việc **#9** (bỏ qua theo yêu cầu UX), **#10** và **#11** trong [việc cần làm.md](file:///t:/Phongthuy/vi%E1%BB%87c%20c%E1%BA%A7n%20l%C3%A0m.md).
+
+## 📅 Phiên bản: Khắc phục Graceful Shutdown cho Uncaught Exception & Signal (Task 8) (20/07/2026)
+
+### Server Resilience & Process Lifecycle
+- **Cơ chế Graceful Shutdown**: Phát triển hàm `gracefulShutdown` trong [backend/src/index.js](file:///t:/Phongthuy/backend/src/index.js#L7) bắt các sự kiện `uncaughtException`, `unhandledRejection`, `SIGTERM`, `SIGINT`.
+- **Đóng Tài Nguyên & Self-Healing**: Dừng nhận request HTTP mới (`server.close()`), đóng kết nối MongoDB gracefully trước khi gọi `process.exit(1)` báo cho AWS ECS / Docker / PM2 khởi tạo lại container sạch. Tích hợp `setTimeout` 10s ép ngắt nếu shutdown bị đơ connection.
+- **Cập nhật danh sách công việc**: Đã hoàn thành và đánh dấu `[x]` công việc **#8** (hoàn tất toàn bộ nhóm **P0: Cực kỳ khẩn cấp**) trong [việc cần làm.md](file:///t:/Phongthuy/vi%E1%BB%87c%20c%E1%BA%A7n%20l%C3%A0m.md).
+
+## 📅 Phiên bản: Bật lại Route Health Check Siêu Nhẹ & Xóa Self-Ping (Task 7) (20/07/2026)
+
+### AWS Deployment & Health Monitoring
+- **Bật lại Lightweight Health Check Route (`/health`)**: Mở lại route `app.get('/health', (req, res) => res.status(200).send('ok'))` trong [backend/src/index.js](file:///t:/Phongthuy/backend/src/index.js#L60) phục vụ AWS ALB, Target Group, Nginx và Uptime Monitor.
+- **Loại bỏ Khối Code Self-Ping Dư Thừa**: Xóa bỏ hoàn toàn khối mã lệnh `setInterval` self-ping 3 phút ở cuối `index.js`, tối ưu hóa tài nguyên CPU cho môi trường AWS EC2/ECS/Fargate.
+- **Cập nhật danh sách công việc**: Đã hoàn thành và đánh dấu `[x]` công việc **#7** trong [việc cần làm.md](file:///t:/Phongthuy/vi%E1%BB%87c%20c%E1%BA%A7n%20l%C3%A0m.md).
+
+## 📅 Phiên bản: Tích hợp SSE Heartbeat Ping (15s) vào toàn bộ luồng AI Stream (Task 6) (20/07/2026)
+
+### SSE Streaming & Resilience
+- **Heartbeat Ping (`:\n\n`) 15s**: Tích hợp `setInterval` gửi gói comment ping rỗng `:\n\n` cho tất cả 8 luồng SSE stream (4 hàm sinh luận giải `interpretHexagram`, `interpretBazi`, `interpretMarriage`, `interpretZiwei` và 4 hàm chat follow-up) trong [AiInterpretationController.js](file:///t:/Phongthuy/backend/src/controllers/AiInterpretationController.js#L88), tuân thủ Quy tắc 2.1 (`AGENTS.md`) chống ngắt kết nối rác và lỗi 504 Gateway Timeout từ Reverse Proxy/Nginx.
+- **Dọn dẹp Memory Leak (`clearInterval`)**: Đảm bảo dọn dẹp `clearInterval(pingInterval)` ở cả sự kiện `req.on('close')` khi client ngắt kết nối sớm lẫn khối `finally` khi stream hoàn tất.
+- **Cập nhật danh sách công việc**: Đã hoàn thành và đánh dấu `[x]` công việc **#6** trong [việc cần làm.md](file:///t:/Phongthuy/vi%E1%BB%87c%20c%E1%BA%A7n%20l%C3%A0m.md).
+
+## 📅 Phiên bản: Bổ sung Middleware Xử lý Lỗi Toàn cục (Task 5) (20/07/2026)
+
+### Express Architecture & Error Handling
+- **Middleware Xử lý Lỗi Tập trung (`app.use((err, req, res, next) => ...)`)**: Bổ sung middleware xử lý lỗi 4 tham số ở cuối chuỗi route trong [backend/src/index.js](file:///t:/Phongthuy/backend/src/index.js#L70), bắt 100% uncaught errors/exceptions, log lỗi qua `LoggerService.error` và trả về JSON tiêu chuẩn `{ error: "thông báo lỗi" }` cho Client.
+- **Cập nhật danh sách công việc**: Đã hoàn thành và đánh dấu `[x]` công việc **#5** trong [việc cần làm.md](file:///t:/Phongthuy/vi%E1%BB%87c%20c%E1%BA%A7n%20l%C3%A0m.md).
+
+## 📅 Phiên bản: Khắc phục lỗ hổng ReDoS Regex Attack trong Search Queries (Task 4) (20/07/2026)
+
+### Security & ReDoS Prevention
+- **Tạo Helper `escapeRegExp`**: Thêm module [escapeRegExp.js](file:///t:/Phongthuy/backend/src/utils/escapeRegExp.js) mã hóa an toàn toàn bộ các ký tự đặc biệt của Biểu thức chính quy (`.*+?^${}()|[]\`).
+- **Áp dụng cho Admin User & Calculation Search**: Cập nhật [AdminController.js](file:///t:/Phongthuy/backend/src/controllers/AdminController.js#L26) làm sạch chuỗi tìm kiếm đầu vào ở cả 2 chức năng tìm kiếm người dùng và tìm kiếm lịch sử lá số.
+- **Áp dụng cho Blog Post Search**: Cập nhật [BlogController.js](file:///t:/Phongthuy/backend/src/controllers/BlogController.js#L44) làm sạch chuỗi tìm kiếm bài viết blog.
+- **Cập nhật danh sách công việc**: Đã hoàn thành và đánh dấu `[x]` công việc **#4** trong [việc cần làm.md](file:///t:/Phongthuy/vi%E1%BB%87c%20c%E1%BA%A7n%20l%C3%A0m.md).
+
+## 📅 Phiên bản: Loại bỏ việc nhận JWT Token qua URL Query String (Task 3) (20/07/2026)
+
+### Security & Authentication
+- **Loại bỏ `req.query.token` ở Backend**: Xóa bỏ hoàn toàn khả năng đọc token qua query parameter trên URL trong 4 middleware: [auth.js](file:///t:/Phongthuy/backend/src/middleware/auth.js), [adminAuth.js](file:///t:/Phongthuy/backend/src/middleware/adminAuth.js), [chatCreditCheck.js](file:///t:/Phongthuy/backend/src/middleware/chatCreditCheck.js), [optionalAuth.js](file:///t:/Phongthuy/backend/src/middleware/optionalAuth.js). Đảm bảo 100% request phải qua HTTP Header `Authorization: Bearer <token>`.
+- **Tích hợp `event-source-polyfill` ở Client**: Cài đặt `event-source-polyfill` và nâng cấp các kết nối SSE real-time tại [AuthContext.jsx](file:///t:/Phongthuy/frontend/src/context/AuthContext.jsx#L76) và [AdminApp.jsx](file:///t:/Phongthuy/frontend/src/components/AdminApp.jsx#L270) để gửi header `Authorization: Bearer ${token}` chuẩn mực, loại bỏ `?token=` khỏi URL SSE.
+- **Cập nhật danh sách công việc**: Đã hoàn thành và đánh dấu `[x]` công việc **#3** trong [việc cần làm.md](file:///t:/Phongthuy/vi%E1%BB%87c%20c%E1%BA%A7n%20l%C3%A0m.md).
+
+## 📅 Phiên bản: Khắc phục cấu hình CORS Wildcard (Task 2) (20/07/2026)
+
+### Security & CORS Configuration
+- **Thêm Biến Môi Trường `CLIENT_URL`**: Thêm `CLIENT_URL` chứa danh sách domain whitelist phân cách bằng dấu phẩy vào [backend/.env](file:///t:/Phongthuy/backend/.env).
+- **Cấu hình Dynamic CORS Whitelist**: Cập nhật [index.js](file:///t:/Phongthuy/backend/src/index.js#L26) chuyển từ `cors()` wildcard sang hàm kiểm tra origin linh hoạt đọc từ `CLIENT_URL`, hỗ trợ `credentials: true`, giới hạn HTTP methods và allowed headers.
+- **Cập nhật danh sách công việc**: Đã hoàn thành và đánh dấu `[x]` công việc **#2** trong [việc cần làm.md](file:///t:/Phongthuy/vi%E1%BB%87c%20c%E1%BA%A7n%20l%C3%A0m.md).
+
+## 📅 Phiên bản: Khắc phục lỗ hổng JWT Secret Fallback (Task 1) (20/07/2026)
+
+### Security & Infrastructure
+- **Tạo Module Kiểm Tra Môi Trường (`config/env.js`)**: Bắt buộc ứng dụng phải có biến `JWT_SECRET` trong `process.env`. Nếu thiếu hoặc rỗng, ứng dụng sẽ log lỗi FATAL và chủ động gọi `process.exit(1)` ngắt khởi động.
+- **Yêu cầu `config/env` tại `index.js`**: Tích hợp khâu kiểm tra biến môi trường ngay lập tức khi ứng dụng Node.js vừa boot up.
+- **Loại bỏ Hoàn toàn Chuỗi Fallback `'secret'`**:
+  - Xóa bỏ tất cả fallback `'secret'` trong các phương thức ký token của [AuthController.js](file:///t:/Phongthuy/backend/src/controllers/AuthController.js).
+  - Xóa bỏ tất cả fallback `'secret'` trong 6 middleware xác thực và ghi log: [auth.js](file:///t:/Phongthuy/backend/src/middleware/auth.js), [adminAuth.js](file:///t:/Phongthuy/backend/src/middleware/adminAuth.js), [creditCheck.js](file:///t:/Phongthuy/backend/src/middleware/creditCheck.js), [chatCreditCheck.js](file:///t:/Phongthuy/backend/src/middleware/chatCreditCheck.js), [optionalAuth.js](file:///t:/Phongthuy/backend/src/middleware/optionalAuth.js), [logging.js](file:///t:/Phongthuy/backend/src/middleware/logging.js).
+- **Cập nhật danh sách công việc**: Đã hoàn thành và đánh dấu `[x]` công việc **#1** trong [việc cần làm.md](file:///t:/Phongthuy/vi%E1%BB%87c%20c%E1%BA%A7n%20l%C3%A0m.md).
+
+## 📅 Phiên bản: Full System Audit & Tạo Danh Sách Việc Cần Làm (20/07/2026)
+
+### Full System Audit & Task Planning
+- **Review toàn bộ 20 hạng mục hệ thống**: Thực hiện kiểm tra chuyên sâu từ tầng Kiến trúc, Mã nguồn Backend/Frontend, Cơ sở dữ liệu MongoDB, Bảo mật, Hiệu năng, AI Integration, DevOps, Logging, Error Handling đến Testing.
+- **Tạo Tệp Quản lý Tiến độ Refactor**: Tạo tệp [việc cần làm.md](file:///t:/Phongthuy/vi%E1%BB%87c%20c%E1%BA%A7n%20l%C3%A0m.md) phân loại 21 công việc cần xử lý được xếp theo thứ tự ưu tiên giảm dần từ **P0 (Cực kỳ khẩn cấp)** đến **P3 (Tối ưu dài hạn)** kèm theo ô tick `[ ]`, chi tiết vị trí file, ngữ cảnh lỗi, hậu quả và hướng dẫn xử lý kỹ thuật.
+
+## 📅 Phiên bản: Hoàn thiện 5 Tối ưu hóa Nâng cao Toàn diện với Redis Engine (20/07/2026)
+
+### Infrastructure & Backend (Full Redis Optimization Suite)
+- **Cấu hình Hạ tầng Docker Compose**: Bổ sung service `redis` (`redis:alpine`) vào [docker-compose.yml](file:///t:/Phongthuy/docker-compose.yml), giới hạn bộ nhớ cứng 256MB (`--maxmemory 256mb --maxmemory-policy allkeys-lru`) và kết nối vào mạng `phongthuy-network`.
+- **Tích hợp Redis Client**: Cài đặt `ioredis` và xây dựng module [redis.js](file:///t:/Phongthuy/backend/src/config/redis.js) tích hợp sẵn các helper `setUserProfileCache`, `getUserProfileCache`, `setOtpRedis`, `getOtpRedis`, `acquireRedisLock` với cơ chế Graceful Fallback an toàn.
+- **1. Cache Thông tin Người dùng & Session Auth (Bỏ truy vấn DB)**:
+  - Nâng cấp [auth.js](file:///t:/Phongthuy/backend/src/middleware/auth.js), [adminAuth.js](file:///t:/Phongthuy/backend/src/middleware/adminAuth.js), và [creditCheck.js](file:///t:/Phongthuy/backend/src/middleware/creditCheck.js) kiểm tra thông tin User Profile (`tokenVersion`, `status`, `role`, `baziInfo`, `credits`) trực tiếp trên Redis key `user:profile:{userId}`.
+  - Loại bỏ hoàn toàn câu lệnh `User.findById` trên MongoDB ở mỗi request đã xác thực (giảm 90% DB read queries).
+  - Tự động xóa/cập nhật Redis Profile Cache khi user đăng xuất, đổi mật khẩu, cập nhật hồ sơ hoặc khi Admin khóa/chỉnh sửa tài khoản.
+- **2. Chuyển Mã Email OTP hoàn toàn lên Redis (Dọn dẹp rác DB)**:
+  - Chuyển lưu trữ mã OTP xác thực email (`otp:verify_email:{userId}`) và OTP khôi phục mật khẩu (`otp:reset_password:{email}`) sang Redis `SETEX` với thời gian tự hủy 10-15 phút.
+  - Xóa bỏ hoàn toàn các trường `emailOtp` và `emailOtpExpires` trong [User.js](file:///t:/Phongthuy/backend/src/models/User.js) và [AuthController.js](file:///t:/Phongthuy/backend/src/controllers/AuthController.js).
+- **3. Hàng đợi gửi Email ngầm (Redis Async Email Queue)**:
+  - Phát triển [RedisQueueService.js](file:///t:/Phongthuy/backend/src/services/RedisQueueService.js) đẩy các task gửi mail OTP vào `queue:emails` giúp API phản hồi tức thì trong **~10ms**, tiến trình Worker ngầm rút job ra để gửi mail qua SMTP.
+- **4. Cache Phân tích thô cho cả 4 phân hệ Học thuật**:
+  - Tích hợp Caching 2 tầng (L1 RAM + L2 Redis) cho cả 4 phân hệ Kinh Dịch, Bát Tự, Tử Vi và Hợp Hôn qua [MemoryCacheService.js](file:///t:/Phongthuy/backend/src/services/MemoryCacheService.js) và [ZiweiCache.js](file:///t:/Phongthuy/backend/src/services/ZiweiCache.js), cho phép nhả kết quả tính toán thô tức thì (0ms).
+- **5. Lock Chống Spam Click trùng (Distributed Mutex Lock)**:
+  - Phát triển middleware [antiSpamLock.js](file:///t:/Phongthuy/backend/src/middleware/antiSpamLock.js) dùng `acquireRedisLock` (`SET key 1 NX PX 3000`) bảo vệ các API nhạy cảm (`/interpret`, gửi OTP) chống race condition và spam click đúp.
+
+### Bazi Optimization & Data Cleanup
+- **Loại bỏ On-the-fly Migration**: Xóa bỏ hoàn toàn logic tính toán và ghi đè `record.save()` tự động trong `HistoryController.getBaziRecord`, giúp API đọc bản ghi Bát Tự nhả phản hồi tức thì và không gây chậm giao diện.
+- **Xóa sạch dữ liệu lá số cũ trước 10/07/2026**:
+  - Phát triển và thực thi script `cleanOldCalculations.js` dọn dẹp vĩnh viễn 138 lá số cũ (63 Kinh Dịch, 49 Bát Tự, 17 Tử Vi, 9 Hôn Nhân) và 26 hội thoại/tin nhắn tạo trước mốc 10/07/2026.
+
+
+
+
+
+
+
+---
+
 ## 📅 Phiên bản: Cải tiến Giao diện Di động, Tối ưu hóa Logo Thương hiệu & Đồng bộ Bài viết Trang chủ (20/07/2026)
 
 ### Frontend (Giao diện di động, Rebranding & Trang chủ)

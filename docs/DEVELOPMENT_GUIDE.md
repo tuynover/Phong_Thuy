@@ -20,9 +20,6 @@ PORT=3001
 MONGODB_URI=mongodb://localhost:27017/phongthuy
 JWT_SECRET=your_jwt_secret_key_here
 GEMINI_API_KEY=your_gemini_api_key_here
-
-# (Tùy chọn) Bật tự động ping để giữ server luôn hoạt động (ví dụ trên Render)
-# SERVER_URL=https://phongthuy-backend.onrender.com
 # GEMINI_MODEL=gemini-3.1-flash-lite
 ```
 
