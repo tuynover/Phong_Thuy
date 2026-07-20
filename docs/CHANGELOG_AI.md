@@ -12,6 +12,7 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
   - Phân hệ 4 chức năng chính (Kinh Dịch, Bát Tự, Tử Vi, Hôn Nhân) trong Mobile Menu Drawer được khôi phục dạng lưới độc lập đầy đủ.
   - Căn giữa khối Hồ Sơ Cá Nhân trong Mobile Menu Drawer (Avatar tròn lớn, tên, số dư Xu và các nút hành động được căn lề giữa tinh tế).
   - Khắc phục triệt để lỗi trắng màn hình (Runtime ReferenceError) trên di động & desktop do biểu tượng `Sparkles` bị thiếu trong danh sách import `lucide-react` tại `UserApp.jsx`.
+  - Loại bỏ hoàn toàn màn hình chờ quay tròn ("Đang tải ứng dụng...", "Đang tải phân hệ...") khi người dùng mở trang chủ lần đầu. Nhúng trực tiếp `UserApp` vào bundle chính và khởi tạo vai trò đồng bộ từ `localStorage`, giúp trang chủ hiển thị ngay lập tức tức thì (Instant Zero-Wait Load).
   - Tích hợp cơ chế tự động thu gọn thanh phân hệ con khi người dùng cuộn (scroll) màn hình để tối ưu trải nghiệm.
 - **Tính năng Chia sẻ Bài viết & URL Trực Tiếp (Deep-Linking Share Bar)**:
   - Bổ sung thanh công cụ chia sẻ ở cả đầu và cuối màn hình xem chi tiết bài viết (`BlogBoard.jsx`).
