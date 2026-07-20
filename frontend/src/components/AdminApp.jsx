@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { AuthContext } from '../context/AuthContext';
 import {
   getAdminUsers,
@@ -49,7 +51,8 @@ import {
   UserCircle,
   Heart,
   Plus,
-  Edit
+  Pencil,
+  BookOpen
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -181,6 +184,7 @@ export default function AdminApp({ onSwitchToUser }) {
   const [blogPosts, setBlogPosts] = useState([]);
   const [blogTotal, setBlogTotal] = useState(0);
   const [blogPage, setBlogPage] = useState(1);
+  const [blogPages, setBlogPages] = useState(1);
   const [blogLimit] = useState(15);
   const [blogSearch, setBlogSearch] = useState('');
   const [blogCategory, setBlogCategory] = useState('all');
@@ -197,6 +201,20 @@ export default function AdminApp({ onSwitchToUser }) {
   const [blogFormTags, setBlogFormTags] = useState('');
   const [blogFormThumbnail, setBlogFormThumbnail] = useState('');
   const [blogFormPublished, setBlogFormPublished] = useState(true);
+  const [blogContentTab, setBlogContentTab] = useState('write'); // 'write' | 'preview'
+
+  const generateSlug = (str) => {
+    if (!str) return '';
+    return str
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[đĐ]/g, 'd')
+      .replace(/[^a-z0-9 -]/g, '')
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-');
+  };
 
   // Dynamic state refs for SSE stability
   const activeTabRef = useRef(activeTab);
@@ -485,6 +503,7 @@ export default function AdminApp({ onSwitchToUser }) {
   }
 
   const handleOpenBlogModal = (post = null) => {
+    setBlogContentTab('write');
     if (post) {
       setEditingPost(post);
       setBlogFormTitle(post.title || '');
@@ -1286,7 +1305,7 @@ export default function AdminApp({ onSwitchToUser }) {
                   {/* Visits & Interpretation Chart */}
                   <div className="h-72 w-full">
                     <span className="text-xs text-slate-400 font-bold block mb-2">1. Lượt truy cập (Visit Logs) & Lượt dịch lý (AI Interpretations)</span>
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                       <AreaChart data={chartData}>
                         <defs>
                           <linearGradient id="colorVisits" x1="0" y1="0" x2="0" y2="1">
@@ -1329,7 +1348,7 @@ export default function AdminApp({ onSwitchToUser }) {
                         </select>
                       </div>
                     </div>
-                    <ResponsiveContainer width="100%" height="90%">
+                    <ResponsiveContainer width="100%" height="90%" minWidth={0} minHeight={0}>
                       {tokenChartMetric === 'ratio' ? (
                         <AreaChart data={chartData}>
                           <defs>
@@ -2790,7 +2809,7 @@ export default function AdminApp({ onSwitchToUser }) {
                           className="p-1.5 bg-slate-850 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-amber-500 rounded-lg transition-colors cursor-pointer"
                           title="Chỉnh sửa bài viết"
                         >
-                          <Edit size={12} />
+                          <Pencil size={12} />
                         </button>
                         {post.isDeleted ? (
                           <button
@@ -2877,7 +2896,13 @@ export default function AdminApp({ onSwitchToUser }) {
                   <input
                     type="text"
                     value={blogFormTitle}
-                    onChange={(e) => setBlogFormTitle(e.target.value)}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setBlogFormTitle(val);
+                      if (!editingPost) {
+                        setBlogFormSlug(generateSlug(val));
+                      }
+                    }}
                     placeholder="Nhập tiêu đề bài viết..."
                     className="bg-slate-950 border border-slate-800 text-slate-100 font-bold rounded-xl block w-full p-2.5 transition-all focus:outline-none focus:border-amber-500 shadow-sm text-xs"
                     required
@@ -2886,13 +2911,13 @@ export default function AdminApp({ onSwitchToUser }) {
 
                 {/* Slug */}
                 <div>
-                  <span className="block text-[10px] font-bold uppercase text-slate-400 tracking-wider mb-2 ml-1">Đường dẫn tĩnh (Slug) - tự sinh nếu bỏ trống</span>
+                  <span className="block text-[10px] font-bold uppercase text-slate-400 tracking-wider mb-2 ml-1">Đường dẫn tĩnh (Slug)</span>
                   <input
                     type="text"
                     value={blogFormSlug}
                     onChange={(e) => setBlogFormSlug(e.target.value)}
                     placeholder="vi-du-tieu-de-viet-bai"
-                    className="bg-slate-950 border border-slate-800 text-slate-100 font-bold rounded-xl block w-full p-2.5 transition-all focus:outline-none focus:border-amber-500 shadow-sm text-xs"
+                    className="bg-slate-950 border border-slate-800 text-slate-100 font-bold rounded-xl block w-full p-2.5 transition-all focus:outline-none focus:border-amber-500 shadow-sm text-xs font-mono"
                   />
                 </div>
 
@@ -2950,17 +2975,119 @@ export default function AdminApp({ onSwitchToUser }) {
                   />
                 </div>
 
-                {/* Markdown Content */}
-                <div className="col-span-1 md:col-span-2">
-                  <span className="block text-[10px] font-bold uppercase text-slate-400 tracking-wider mb-2 ml-1">Nội dung bài viết (Hỗ trợ Markdown)</span>
-                  <textarea
-                    value={blogFormContent}
-                    onChange={(e) => setBlogFormContent(e.target.value)}
-                    placeholder="# Ý nghĩa sao Thái Tuế...&#10;&#10;Sao Thái tuế là tinh tú đại diện cho sao Mộc..."
-                    rows="8"
-                    className="bg-slate-950 border border-slate-800 text-slate-100 font-medium rounded-xl block w-full p-3 transition-all focus:outline-none focus:border-amber-500 shadow-sm text-xs font-mono"
-                    required
-                  />
+                {/* Markdown Content with Write / Preview Tabs */}
+                <div className="col-span-1 md:col-span-2 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="block text-[10px] font-bold uppercase text-slate-400 tracking-wider ml-1">
+                      Nội dung bài viết (Hỗ trợ Markdown)
+                    </span>
+                    <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800">
+                      <button
+                        type="button"
+                        onClick={() => setBlogContentTab('write')}
+                        className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all cursor-pointer ${
+                          blogContentTab === 'write' ? 'bg-amber-800 text-white shadow-xs' : 'text-slate-400 hover:text-slate-200'
+                        }`}
+                      >
+                        Soạn Thảo Markdown
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setBlogContentTab('preview')}
+                        className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all cursor-pointer ${
+                          blogContentTab === 'preview' ? 'bg-amber-800 text-white shadow-xs' : 'text-slate-400 hover:text-slate-200'
+                        }`}
+                      >
+                        Xem Trước (Preview)
+                      </button>
+                    </div>
+                  </div>
+
+                  {blogContentTab === 'write' ? (
+                    <textarea
+                      value={blogFormContent}
+                      onChange={(e) => setBlogFormContent(e.target.value)}
+                      placeholder="# Ý nghĩa sao Thái Tuế...&#10;&#10;Sao Thái tuế là tinh tú đại diện cho sao Mộc..."
+                      rows="8"
+                      className="bg-slate-950 border border-slate-800 text-slate-100 font-medium rounded-xl block w-full p-3 transition-all focus:outline-none focus:border-amber-500 shadow-sm text-xs font-mono"
+                      required
+                    />
+                  ) : (
+                    <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 min-h-[180px] max-h-[300px] overflow-y-auto text-slate-200 text-xs leading-relaxed prose prose-invert max-w-none">
+                      {blogFormContent.trim() ? (
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm]}
+                          components={{
+                            table: ({ children }) => (
+                              <div className="overflow-x-auto my-4 rounded-xl border border-slate-800 shadow-xs">
+                                <table className="min-w-full divide-y divide-slate-800 text-left text-xs">
+                                  {children}
+                                </table>
+                              </div>
+                            ),
+                            thead: ({ children }) => <thead className="bg-slate-900 font-bold text-amber-500 font-serif">{children}</thead>,
+                            tbody: ({ children }) => <tbody className="divide-y divide-slate-800/80 bg-slate-950/50">{children}</tbody>,
+                            tr: ({ children }) => <tr className="hover:bg-slate-900/40 transition-colors">{children}</tr>,
+                            th: ({ children }) => <th className="px-3 py-2 font-bold uppercase text-[10px] tracking-wider text-slate-300">{children}</th>,
+                            td: ({ children }) => <td className="px-3 py-2 text-slate-300 font-sans">{children}</td>,
+                            img: ({ src, alt }) => (
+                              <figure className="my-4 space-y-1 text-center">
+                                <img
+                                  src={src}
+                                  alt={alt || 'Hình ảnh minh họa'}
+                                  className="rounded-xl max-h-[300px] w-full object-cover shadow-md border border-slate-800 mx-auto"
+                                  loading="lazy"
+                                />
+                                {alt && (
+                                  <figcaption className="text-[10px] text-slate-400 italic">
+                                    📷 {alt}
+                                  </figcaption>
+                                )}
+                              </figure>
+                            )
+                          }}
+                        >
+                          {(() => {
+                            if (!blogFormContent) return '';
+                            let text = blogFormContent
+                              .replace(/\*\*\s*\r?\n\s*/g, '**')
+                              .replace(/\s*\r?\n\s*\*\*/g, '**')
+                              .replace(/__\s*\r?\n\s*/g, '__')
+                              .replace(/\s*\r?\n\s*__/g, '__');
+                            const lines = text.split(/\r?\n/);
+                            const resultLines = [];
+                            let currentTableRow = [];
+                            let inTableMode = false;
+                            for (let i = 0; i < lines.length; i++) {
+                              const line = lines[i].trim();
+                              const isPipeToken = line === '|' || line.startsWith('|') || line.endsWith('|') || /^:?-+:?$/.test(line);
+                              if (isPipeToken) {
+                                inTableMode = true;
+                                if (line) currentTableRow.push(line);
+                              } else if (inTableMode && line !== '' && !line.startsWith('#') && !line.startsWith('*') && !line.startsWith('-') && !line.startsWith('>')) {
+                                currentTableRow.push(line);
+                              } else {
+                                if (currentTableRow.length > 0) {
+                                  const tableStr = currentTableRow.join(' ').replace(/\|\s*\|/g, '|\n|');
+                                  resultLines.push(tableStr);
+                                  currentTableRow = [];
+                                }
+                                inTableMode = false;
+                                resultLines.push(lines[i]);
+                              }
+                            }
+                            if (currentTableRow.length > 0) {
+                              const tableStr = currentTableRow.join(' ').replace(/\|\s*\|/g, '|\n|');
+                              resultLines.push(tableStr);
+                            }
+                            return resultLines.join('\n').replace(/\|\s*\|/g, '|\n|');
+                          })()}
+                        </ReactMarkdown>
+                      ) : (
+                        <span className="text-slate-500 italic">Chưa có nội dung. Vui lòng nhập ở tab Soạn Thảo.</span>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* Status isPublished */}

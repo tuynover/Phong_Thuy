@@ -11,11 +11,25 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
   - Đưa Chuông thông báo (`NotificationBell`) và Số dư Xu (credits) lên trực tiếp thanh Header trên di động.
   - Phân hệ 4 chức năng chính (Kinh Dịch, Bát Tự, Tử Vi, Hôn Nhân) trong Mobile Menu Drawer được khôi phục dạng lưới độc lập đầy đủ.
   - Căn giữa khối Hồ Sơ Cá Nhân trong Mobile Menu Drawer (Avatar tròn lớn, tên, số dư Xu và các nút hành động được căn lề giữa tinh tế).
+  - Khắc phục triệt để lỗi trắng màn hình (Runtime ReferenceError) trên di động & desktop do biểu tượng `Sparkles` bị thiếu trong danh sách import `lucide-react` tại `UserApp.jsx`.
   - Tích hợp cơ chế tự động thu gọn thanh phân hệ con khi người dùng cuộn (scroll) màn hình để tối ưu trải nghiệm.
 - **Tính năng Chia sẻ Bài viết & URL Trực Tiếp (Deep-Linking Share Bar)**:
   - Bổ sung thanh công cụ chia sẻ ở cả đầu và cuối màn hình xem chi tiết bài viết (`BlogBoard.jsx`).
   - Hỗ trợ nút **Sao chép link** (kèm hiệu ứng tích xanh "Đã sao chép!"), nút **Chia sẻ lên Facebook** (mở cửa sổ Facebook Sharer chính thức), và nút **Ứng dụng khác** (kích hoạt Web Share Sheet của thiết bị di động để chia sẻ qua Zalo, Messenger, Telegram, v.v.).
   - Tự động đồng bộ đường dẫn Deep-Linking dạng `https://tuynover.ddns.net/?post={slug}` lên thanh địa chỉ khi xem bài viết. Khi người dùng bấm sao chép hoặc chia sẻ, đường dẫn được tạo ra sẽ trỏ trực tiếp đến bài viết đó thay vì chỉ trỏ về trang chủ. Khi người khác mở link này, hệ thống tự động nhận diện tham số `?post` và mở đúng bài viết đó ngay lập tức.
+- **Hỗ Trợ Bảng & Chèn Ảnh Markdown Nâng Cao (remark-gfm & Custom Image Renderer)**:
+  - Cài đặt và tích hợp thư viện `remark-gfm` vào `ReactMarkdown` ở cả tệp `BlogBoard.jsx` và `AdminApp.jsx`.
+  - Hỗ trợ chèn hình ảnh trực tiếp ở bất kỳ vị trí nào trong bài viết bằng cú pháp `![Mô tả ảnh](https://duong-dan-anh.jpg)`. Ảnh hiển thị bo góc mềm mại `rounded-2xl`, có chú thích ảnh nghiêng (`figcaption`) căn giữa tinh tế.
+  - Tích hợp bộ tiền xử lý tự động ngắt dòng `text.replace(/\|\s*\|/g, '|\n|')`, hỗ trợ hiển thị bảng đẹp mắt ngay cả khi người dùng dán toàn bộ đoạn bảng Markdown trên 1 dòng duy nhất.
+  - Xây dựng Thuật toán tự động chuẩn hóa bảng ngắt dòng đứng (Vertical Pipe Normalizer): Tự động phát hiện và nối các dòng bảng bị dán ngắt hàng đứng (ví dụ `|\n Ngũ Hành \n|\n Thiên Can \n|`) và thẻ bold bị vỡ (`**\nDương Kim\n**`) trở lại thành bảng GFM nằm ngang hoàn hảo.
+  - Thiết kế thành phần hiển thị bảng (`table`, `thead`, `tbody`, `tr`, `th`, `td`) dạng Responsive với khung bo tròn mềm mại (`rounded-2xl`), viền sáng và hiệu ứng hover nhẹ nhàng.
+- **Nâng Cấp Quản Lý & Tạo Bài Viết Blog Cho Admin (AdminApp.jsx)**:
+  - Sửa lỗi triệt để `Uncaught ReferenceError: blogPages is not defined` tại dòng 2838 trong `AdminApp.jsx` bằng việc khai báo state `const [blogPages, setBlogPages] = useState(1);`.
+  - Khắc phục lỗi thiếu import biểu tượng `BookOpen` từ `lucide-react` và thay thế biểu tượng `Edit` thành `Pencil`.
+  - Cấu hình `minWidth={0} minHeight={0}` cho `ResponsiveContainer` để triệt tiêu hoàn toàn các cảnh báo kích thước âm trong Console.
+  - Tích hợp tính năng tự động sinh đường dẫn tĩnh (Slugify) theo thời gian thực khi Admin nhập tiêu đề bài viết mới.
+  - Bổ sung bộ chuyển đổi tab **Soạn Thảo Markdown** vs **Xem Trước (Preview)** ngay trong Modal viết/sửa bài viết. Sử dụng `ReactMarkdown` cho phép Admin xem trước chính xác hình thức hiển thị của bài viết trước khi bấm lưu/bản nháp.
+  - Hỗ trợ đầy đủ bộ công cụ quản trị: Đăng bài mới, Sửa bài, Xóa mềm, Khôi phục bài viết, Tìm kiếm và Phân loại theo 6 danh mục phong thủy.
 - **Kết nối Bài Viết Nổi Bật vào Trang Chủ**:
   - Bổ sung gọi API bất đồng bộ tải 3 bài viết học thuật mới nhất tại `HomeBoard.jsx`.
   - Thiết kế phần "Kiến thức & Chiêm nghiệm" hiển thị 3 bài viết nổi bật tuyệt đẹp dạng lưới (Grid 3 cột) nằm ngay trên chân trang. Tích hợp liên kết trực tiếp, khi click sẽ đưa người dùng vào xem nội dung bài viết.

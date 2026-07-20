@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { 
   getBlogPosts, 
   getBlogPost 
@@ -451,6 +452,7 @@ export default function BlogBoard({ onSelectModule, initialSlug, onClearSlug }) 
               {/* Content body rendered with Markdown */}
               <article className="prose max-w-none text-slate-700 leading-relaxed text-sm md:text-base font-sans pb-10 border-b border-slate-100">
                 <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
                   components={{
                     p: ({ children }) => <p className="mb-6 last:mb-0 leading-relaxed font-sans">{children}</p>,
                     h1: ({ children }) => <h1 className="text-xl md:text-2xl font-extrabold font-[Montserrat] text-slate-900 mt-10 mb-4">{children}</h1>,
@@ -461,10 +463,71 @@ export default function BlogBoard({ onSelectModule, initialSlug, onClearSlug }) 
                     li: ({ children }) => <li className="leading-relaxed font-sans">{children}</li>,
                     hr: () => <hr className="my-8 border-t border-slate-200" />,
                     blockquote: ({ children }) => <blockquote className="pl-4 border-l-4 border-indigo-500 italic text-slate-650 bg-slate-50/50 p-4 rounded-r-2xl my-6">{children}</blockquote>,
-                    strong: ({ children }) => <strong className="font-extrabold text-slate-900">{children}</strong>
+                    strong: ({ children }) => <strong className="font-extrabold text-slate-900">{children}</strong>,
+                    table: ({ children }) => (
+                      <div className="overflow-x-auto my-6 rounded-2xl border border-slate-200 shadow-xs">
+                        <table className="min-w-full divide-y divide-slate-200 text-left text-xs md:text-sm">
+                          {children}
+                        </table>
+                      </div>
+                    ),
+                    thead: ({ children }) => <thead className="bg-slate-100/90 font-bold text-slate-900 font-[Montserrat]">{children}</thead>,
+                    tbody: ({ children }) => <tbody className="divide-y divide-slate-100 bg-white">{children}</tbody>,
+                    tr: ({ children }) => <tr className="hover:bg-slate-50/80 transition-colors">{children}</tr>,
+                    th: ({ children }) => <th className="px-4 py-3 font-extrabold uppercase tracking-wider text-[11px] text-slate-700">{children}</th>,
+                    td: ({ children }) => <td className="px-4 py-3 text-slate-700 font-sans">{children}</td>,
+                    img: ({ src, alt }) => (
+                      <figure className="my-6 space-y-2 text-center">
+                        <img
+                          src={src}
+                          alt={alt || 'Hình ảnh minh họa'}
+                          className="rounded-2xl max-h-[480px] w-full object-cover shadow-md border border-slate-200/80 mx-auto"
+                          loading="lazy"
+                        />
+                        {alt && (
+                          <figcaption className="text-xs text-slate-500 font-medium italic">
+                            📷 {alt}
+                          </figcaption>
+                        )}
+                      </figure>
+                    )
                   }}
                 >
-                  {selectedPost.content}
+                  {(() => {
+                    if (!selectedPost.content) return '';
+                    let text = selectedPost.content
+                      .replace(/\*\*\s*\r?\n\s*/g, '**')
+                      .replace(/\s*\r?\n\s*\*\*/g, '**')
+                      .replace(/__\s*\r?\n\s*/g, '__')
+                      .replace(/\s*\r?\n\s*__/g, '__');
+                    const lines = text.split(/\r?\n/);
+                    const resultLines = [];
+                    let currentTableRow = [];
+                    let inTableMode = false;
+                    for (let i = 0; i < lines.length; i++) {
+                      const line = lines[i].trim();
+                      const isPipeToken = line === '|' || line.startsWith('|') || line.endsWith('|') || /^:?-+:?$/.test(line);
+                      if (isPipeToken) {
+                        inTableMode = true;
+                        if (line) currentTableRow.push(line);
+                      } else if (inTableMode && line !== '' && !line.startsWith('#') && !line.startsWith('*') && !line.startsWith('-') && !line.startsWith('>')) {
+                        currentTableRow.push(line);
+                      } else {
+                        if (currentTableRow.length > 0) {
+                          const tableStr = currentTableRow.join(' ').replace(/\|\s*\|/g, '|\n|');
+                          resultLines.push(tableStr);
+                          currentTableRow = [];
+                        }
+                        inTableMode = false;
+                        resultLines.push(lines[i]);
+                      }
+                    }
+                    if (currentTableRow.length > 0) {
+                      const tableStr = currentTableRow.join(' ').replace(/\|\s*\|/g, '|\n|');
+                      resultLines.push(tableStr);
+                    }
+                    return resultLines.join('\n').replace(/\|\s*\|/g, '|\n|');
+                  })()}
                 </ReactMarkdown>
               </article>
 

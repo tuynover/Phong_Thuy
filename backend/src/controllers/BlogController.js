@@ -35,7 +35,7 @@ class BlogController {
       }
 
       // Filter by Category
-      if (category && category !== 'all' && category !== 'general') {
+      if (category && category !== 'all') {
         query.category = category;
       }
 

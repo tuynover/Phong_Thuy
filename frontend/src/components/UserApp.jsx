@@ -23,7 +23,7 @@ import {
   getBaziRecord,
   updateBaziInfo
 } from '../services/api';
-import { UserCircle, LogOut, CalendarDays, Shield, Menu, X, History, Compass, Activity, BarChart3, Heart, Calendar, HelpCircle, ArrowUp, ArrowDown, BookOpen, Home, ChevronLeft, ChevronRight } from 'lucide-react';
+import { UserCircle, LogOut, CalendarDays, Shield, Menu, X, History, Compass, Activity, BarChart3, Heart, Calendar, HelpCircle, ArrowUp, ArrowDown, BookOpen, Home, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { Lunar } from 'lunar-javascript';
 import MarriageInput from './MarriageInput';
 import HistoryBoard from './HistoryBoard';
