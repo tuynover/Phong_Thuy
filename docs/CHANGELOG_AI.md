@@ -2,6 +2,25 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Chuẩn Hóa Kiểm Tra Dữ Liệu Đầu Vào 2 Bước Cho Cả 4 Phân Hệ (Kinh Dịch, Bát Tự, Tử Vi, Hôn Nhân) (21/07/2026)
+
+### Input Validation & Viewport-Pinned Toast Notification
+- **Bổ Sung Validation Phân Hệ Kinh Dịch (`IChing`)**:
+  - **Backend (`InputValidator.js` & `IChingController.js`)**: Tạo hàm `validateIChingInput` kiểm tra mảng 6 hào (`lines`), đảm bảo tính hợp lệ của thuộc tính `type` (0 hoặc 1), `moving` (boolean), và giới hạn độ dài câu hỏi gieo quẻ ($\le 500$ ký tự).
+  - **Frontend Mai Hoa Dịch Số (`MaiHoaInput.jsx`)**: Thay thế các ô nhập số thô (`input[type="number"]`) bằng component chọn tùy chỉnh (`CustomSelect` combobox dropdown) đồng bộ phong cách với 3 phân hệ còn lại. Tích hợp kiểm tra thời gian thực đối với chế độ **Giờ Động Tâm** (sử dụng `validateInputDate`) và chế độ **Seri Tiền / Dãy số ngẫu nhiên** (bắt buộc đúng 8 chữ số, không chứa chữ hay ký tự đặc biệt). Vô hiệu hóa nút *"Lập Quẻ Mai Hoa"* khi dữ liệu lỗi hoặc trống.
+- **Modal Thông Báo Nổi Đỉnh Màn Hình (`FloatingErrorToast.jsx`)**:
+  - Tạo component [FloatingErrorToast.jsx](file:///t:/Phongthuy/frontend/src/components/FloatingErrorToast.jsx) cố định ở đỉnh màn hình (`fixed top-4 left-1/2 -translate-x-1/2 z-[9999]`). Đảm bảo dù người dùng đang cuộn trang xuống sâu ở bất kỳ đâu trên thiết bị di động hay máy tính, thông báo lỗi luôn hiển thị **100% rõ ràng ngay trước mắt**.
+  - Cấu hình lại giao diện Toast: Nền trắng sạch (`bg-white`), chữ đen sang trọng (`text-slate-900`), icon dấu chấm cảm màu đỏ nổi bật (`AlertCircle text-red-600`), tự động biến mất (Auto-dismiss) sau 3 giây (`setTimeout 3000ms`).
+- **Khắc Phục Hoàn Toàn Form Tử Vi (`ZiweiBoard.jsx`)**:
+  - Tích hợp kiểm tra tính hợp lệ dữ liệu ngay trong `handleSubmit` của [ZiweiBoard.jsx](file:///t:/Phongthuy/frontend/src/components/ZiweiBoard.jsx#L321). Chặn không cho phép gửi request nếu chưa chọn đủ ngày/tháng/năm hoặc dữ liệu sai.
+  - Vô hiệu hóa nút nhấn (`disabled={!day || !month || !year || !!error}`) kèm hiệu ứng làm mờ `disabled:opacity-50 disabled:cursor-not-allowed` khi chưa chọn đủ dữ liệu hoặc có lỗi.
+- **Tự Động Chuẩn Hóa Ngày/Tháng/Năm & Triệt Tiêu Chữ Dư Rác (Auto-Clamp & Digit Stripping)**:
+  - **Tự động ép về số ngày tối đa (Day Auto-Clamp)**: Khi người dùng chọn Ngày 29/02 và đổi sang Năm không nhuận (như năm 2023), hệ thống tự động đẩy ngày về `28`. Nếu chọn Ngày 31 và đổi sang Tháng 30 ngày (Tháng 4, 6, 9, 11), hệ thống tự động đẩy về `30`.
+  - **Tự động ép ngưỡng khi gõ tay (Smart Range Clamping)**: Gõ ngày $>31$ (vd gõ 100) $\rightarrow$ Tự động đẩy về `31`. Gõ tháng $>12$ $\rightarrow$ Tự động đẩy về `12`. Gõ năm $>2100$ $\rightarrow$ Tự động đẩy về `2100`.
+  - **Triệt tiêu chữ & ký tự đặc biệt (Strict Digit Stripping)**: Tự động loại bỏ toàn bộ chữ cái (A-Z) và ký tự đặc biệt ngay khi gõ vào ô `CustomSelect` hoặc ô `Seri Tiền 8 số` của Mai Hoa Dịch Số (`val.replace(/\D/g, '')`), đảm bảo chữ không bao giờ chui qua hay gây lỗi hệ thống.
+  - **Sửa lỗi `ReferenceError: getMaxDaysInMonth is not defined`**: Bổ sung khai báo import [getMaxDaysInMonth](file:///t:/Phongthuy/frontend/src/utils/dateValidator.js#L10) bị thiếu tại [MaiHoaInput.jsx](file:///t:/Phongthuy/frontend/src/components/MaiHoaInput.jsx#L4), giúp hệ thống tự động ép ngày hợp lệ trôi chảy không gây crash màn hình.
+  - Áp dụng đồng nhất trên cả 4 phân hệ: **Bát Tự ([BaziInput.jsx](file:///t:/Phongthuy/frontend/src/components/BaziInput.jsx#L5)), Tử Vi ([ZiweiBoard.jsx](file:///t:/Phongthuy/frontend/src/components/ZiweiBoard.jsx#L28)), Hôn Nhân ([MarriageInput.jsx](file:///t:/Phongthuy/frontend/src/components/MarriageInput.jsx#L5)), và Mai Hoa Dịch Số ([MaiHoaInput.jsx](file:///t:/Phongthuy/frontend/src/components/MaiHoaInput.jsx#L54))**. Verify build thành công $100\%$ qua Vite (`vite build` -> 3016 modules transformed, 0 errors).
+
 ## 📅 Phiên bản: Tinh Chỉnh Thuật Toán Bát Tự (Tư Lệnh Can, Đắc Địa, Phá Tổ Hợp Xung/Hình/Hại & Phân Cấp Thân) (21/07/2026)
 
 ### Bazi Algorithm & Academic Matrix Refinement

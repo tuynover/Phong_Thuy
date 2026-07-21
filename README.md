@@ -110,8 +110,8 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
    * Tệp tin: [LoggerService.js](file:///t:/Phongthuy/backend/src/services/LoggerService.js).
 8. **Duy trì kết nối SSE Keepalive Ping:**
    * Gửi gói tin heartbeat định kỳ mỗi 15 giây ngăn chặn lỗi ngắt kết nối rác do Idle Timeout khi phân phối qua Nginx, Render hoặc Vercel.
-9. **Cơ chế Cache tối ưu chi phí:**
-   * Tự động lưu snapshot luận giải (`analysisSnapshot`) và lưu trữ đệm qua [MemoryCacheService.js](file:///t:/Phongthuy/backend/src/services/MemoryCacheService.js) để tái sử dụng, giúp giảm thiểu đáng kể chi phí gọi Gemini API.
+9. **Cơ chế Cache Tối ưu & Redis Hybrid (L1 RAM + L2 Redis):**
+   * Đệm thông tin Profile User trong bộ nhớ RAM L1 (`userProfileRamCache`) giúp phản hồi auth dưới 1ms, gộp các lệnh RateLimiter trong 1 Redis Pipeline duy nhất, bọc Fast Fail Timeout (`withTimeout` max 300ms-500ms) và kích hoạt `family: 4` chống trễ DNS AAAA trên AWS EC2. Tự động lưu snapshot luận giải (`analysisSnapshot`) và lưu trữ đệm qua [MemoryCacheService.js](file:///t:/Phongthuy/backend/src/services/MemoryCacheService.js) để tái sử dụng, giúp giảm thiểu tối đa chi phí gọi Gemini API.
 
 ---
 
@@ -207,7 +207,7 @@ Hệ thống API Backend sử dụng tiền tố `/api` và phân chia thành c�
    ```bash
    npm run dev
    ```
-5. Khởi chạy Unit Test Suite (Jest):
+5. Khởi chạy Unit Test Suite (Jest - 19 Test Suites, 86/86 Tests PASSED):
    ```bash
    npm test
    ```

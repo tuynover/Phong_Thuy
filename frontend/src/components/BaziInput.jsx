@@ -22,10 +22,26 @@ function CustomSelect({ value, onChange, options, placeholder }) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [value]);
 
-  const filteredOptions = options.filter(opt => opt.includes(search));
+  const filteredOptions = options.filter(opt => String(opt).includes(String(search)));
 
   const handleInputChange = (e) => {
-    const val = e.target.value;
+    let val = e.target.value.replace(/\D/g, '');
+    const num = parseInt(val, 10);
+    if (!isNaN(num)) {
+      if (placeholder === 'DD' || placeholder === 'Ngày') {
+        if (num > 31) val = '31';
+        if (num === 0) val = '1';
+      } else if (placeholder === 'MM' || placeholder === 'Tháng') {
+        if (num > 12) val = '12';
+        if (num === 0) val = '1';
+      } else if (placeholder === 'YYYY' || placeholder === 'Năm') {
+        if (val.length >= 4 && num > 2100) val = '2100';
+      } else if (placeholder === 'HH' || placeholder === 'Giờ') {
+        if (num > 23) val = '23';
+      } else if (placeholder === 'MM' || placeholder === 'Phút') {
+        if (num > 59) val = '59';
+      }
+    }
     setSearch(val);
     onChange(val);
     setIsOpen(true);
@@ -69,6 +85,10 @@ function CustomSelect({ value, onChange, options, placeholder }) {
   );
 }
 
+import { validateInputDate, getMaxDaysInMonth } from '../utils/dateValidator';
+
+import FloatingErrorToast from './FloatingErrorToast';
+
 const BaziInput = ({ onComplete }) => {
     const [day, setDay] = useState('');
     const [month, setMonth] = useState('');
@@ -78,11 +98,71 @@ const BaziInput = ({ onComplete }) => {
     const [gender, setGender] = useState(1); // 1 = Nam, 0 = Nữ
     const [name, setName] = useState('');
 
+    const [errorMsg, setErrorMsg] = useState('');
+
+    // Auto-clamp Day when Month or Year changes (e.g. 29/02/2023 -> automatically pushes to 28)
+    useEffect(() => {
+        if (day && month && year) {
+            const maxDays = getMaxDaysInMonth(month, year);
+            const dNum = parseInt(day, 10);
+            if (!isNaN(dNum) && dNum > maxDays) {
+                setDay(String(maxDays));
+            }
+        }
+    }, [month, year, day]);
+
+    // Real-time dynamic validation
+    useEffect(() => {
+        if (day || month || year || hour || minute) {
+            const val = validateInputDate(day, month, year, hour, minute);
+            if (!val.isValid) {
+                setErrorMsg(val.message);
+            } else {
+                setErrorMsg('');
+            }
+        } else {
+            setErrorMsg('');
+        }
+    }, [day, month, year, hour, minute]);
+
     const handleSubmit = (e) => {
         e.preventDefault();
+        setErrorMsg('');
         
         if (!day || !month || !year || !hour || !minute) {
-            alert('Vui lòng điền đầy đủ ngày giờ sinh.');
+            setErrorMsg('Vui lòng chọn đầy đủ ngày, tháng, năm, giờ và phút sinh.');
+            return;
+        }
+
+        const dNum = parseInt(day, 10);
+        const mNum = parseInt(month, 10);
+        const yNum = parseInt(year, 10);
+        const hNum = parseInt(hour, 10);
+        const minNum = parseInt(minute, 10);
+
+        if (isNaN(dNum) || isNaN(mNum) || isNaN(yNum) || isNaN(hNum) || isNaN(minNum)) {
+            setErrorMsg('Vui lòng nhập ngày giờ sinh hợp lệ.');
+            return;
+        }
+
+        if (yNum < 1900 || yNum > 2100) {
+            setErrorMsg('Năm sinh phải nằm trong khoảng từ 1900 đến 2100.');
+            return;
+        }
+
+        const testDate = new Date(Date.UTC(yNum, mNum - 1, dNum));
+        if (testDate.getUTCFullYear() !== yNum || (testDate.getUTCMonth() + 1) !== mNum || testDate.getUTCDate() !== dNum) {
+            setErrorMsg(`Ngày sinh ${dNum}/${mNum}/${yNum} không tồn tại trên thực tế.`);
+            return;
+        }
+
+        if (testDate.getTime() > Date.now()) {
+            setErrorMsg('Ngày sinh không thể nằm ở tương lai.');
+            return;
+        }
+
+        if (hNum < 0 || hNum > 23 || minNum < 0 || minNum > 59) {
+            setErrorMsg('Giờ sinh (0-23h) hoặc phút sinh (0-59m) không hợp lệ.');
             return;
         }
 
@@ -107,11 +187,13 @@ const BaziInput = ({ onComplete }) => {
     const minutes = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
 
     return (
-        <div className="flex flex-col items-center bg-white p-5 md:p-8 rounded-2xl md:rounded-[2rem] shadow-xl border border-gray-100 max-w-3xl mx-auto font-sans">
-            <h3 id="bazi-input-header" className="text-2xl font-bold text-slate-800 mb-6 uppercase tracking-wide">Nhập Thông Tin Bát Tự</h3>
-            <p className="text-gray-500 mb-8 text-center text-[15px]">Hệ thống phân tích Tứ Trụ Tử Bình sẽ tự động quy đổi Âm/Dương lịch và Tiết khí để lập lá số chính xác nhất.</p>
+        <>
+            <FloatingErrorToast message={errorMsg} onClose={() => setErrorMsg('')} />
+            <div className="flex flex-col items-center bg-white p-5 md:p-8 rounded-2xl md:rounded-[2rem] shadow-xl border border-gray-100 max-w-3xl mx-auto font-sans">
+                <h3 id="bazi-input-header" className="text-2xl font-bold text-slate-800 mb-6 uppercase tracking-wide">Nhập Thông Tin Bát Tự</h3>
+                <p className="text-gray-500 mb-8 text-center text-[15px]">Hệ thống phân tích Tứ Trụ Tử Bình sẽ tự động quy đổi Âm/Dương lịch và Tiết khí để lập lá số chính xác nhất.</p>
 
-            <form onSubmit={handleSubmit} className="w-full space-y-6">
+                <form onSubmit={handleSubmit} className="w-full space-y-6">
                 
                 {/* Họ và tên */}
                 <div>
@@ -207,7 +289,8 @@ const BaziInput = ({ onComplete }) => {
                 <div className="pt-6">
                     <button 
                         type="submit"
-                        className="w-full flex justify-center items-center py-4 px-6 border border-transparent rounded-xl shadow-md text-lg font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none transition-transform hover:-translate-y-1"
+                        disabled={!day || !month || !year || !hour || !minute || !!errorMsg}
+                        className="w-full flex justify-center items-center py-4 px-6 border border-transparent rounded-xl shadow-md text-lg font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none transition-all hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
                     >
                         Lập Lá Số & Phân Tích
                     </button>
@@ -318,7 +401,8 @@ const BaziInput = ({ onComplete }) => {
                 </div>
               </div>
             </div>
-        </div>
+          </div>
+        </>
     );
 };
 

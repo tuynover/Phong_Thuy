@@ -26,6 +26,14 @@ AI Agent có vai trò:
   - Khi kiểm tra trùng lặp bản ghi (Idempotency) trong các controller (`BaziController`, `ZiweiController`, `IChingController`, `MarriageController`), bắt buộc loại trừ các bản ghi đã xóa mềm bằng điều kiện `isDeleted: { $ne: true }`.
   - Khi thực hiện xóa lịch sử trong `HistoryController.deleteCalculation`, nếu bản ghi bị xóa trùng với lá số bản thân đã liên kết, bắt buộc phải cập nhật hủy liên kết (`ownBaziRecordId` hoặc `ownZiweiRecordId` đặt về `null`).
 - **SSE Keepalive:** Tất cả các luồng SSE stream (luận giải và chat) phải được tích hợp Heartbeat Ping gửi gói tin rỗng mỗi 15 giây để chống ngắt kết nối rác.
+- **Quy tắc Hiệu năng Redis & Caching (Hybrid L1 RAM + L2 Redis & Pipeline):**
+  - **L1 RAM + L2 Redis Hybrid:** Profile User phải được lưu vết ở bộ nhớ RAM Local L1 (`userProfileRamCache`) kết hợp L2 Redis. Phải đọc RAM Local trước để đạt tốc độ phản hồi sub-millisecond (< 1ms), chỉ gọi Redis L2 khi RAM miss.
+  - **IPv4 Forcing & Fast Fail Timeout:** Cấu hình `ioredis` bắt buộc có `family: 4` để triệt tiêu độ trễ 3000ms do DNS IPv6 AAAA trên AWS EC2. Toàn bộ câu lệnh Redis phải được bọc `withTimeout(promise, 300ms-500ms)` để Instant Fallback về RAM/Mongo nếu Redis phản hồi chậm.
+  - **Redis Pipeline:** Các middleware như `rateLimiter.js` bắt buộc gộp các lệnh Redis (`INCR` + `PTTL`) trong 1 gói tin TCP (Redis Pipeline) duy nhất.
+  - **Worker Non-blocking:** Không dùng các câu lệnh block socket lâu (như `BLPOP 5s`) làm đụng độ `commandTimeout` của ioredis. Sử dụng `LPOP` non-blocking có khoảng nghỉ linh hoạt.
+- **Cập nhật Thống kê Tài nguyên Nguyên tử O(1):**
+  - Mọi thao tác ghi nhận thống kê lượt tạo/xóa lá số phải sử dụng hàm cập nhật nguyên tử O(1) `$inc` (`UserStatsService.incrementRecordCount()`) trực tiếp tại Controller.
+  - TUYỆT ĐỐI KHÔNG viết các Mongoose `post('save')` hooks lặp lại 12 câu lệnh Mongo Aggregation (`$group`, `countDocuments`) vì gây nghẽn đĩa I/O nghiêm trọng khi triển khai trên server.
 
 ### 2.2 Frontend (React 19 & Vite)
 - **State Persistence:** Trạng thái phân hệ hiện tại, lá số đang mở, quẻ đang xem và bối cảnh chat phải được đồng bộ vào `localStorage` của trình duyệt.

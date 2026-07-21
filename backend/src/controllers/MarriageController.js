@@ -66,13 +66,18 @@ const formatBaziData = (baziData) => {
     return data;
 };
 
+const InputValidator = require('../services/InputValidator');
+
 class MarriageController {
     static async analyze(req, res) {
         try {
-            const { male, female, userId, dayBoundaryMode } = req.body;
-            if (!male || !male.date || !male.time || !female || !female.date || !female.time) {
-                return res.status(400).json({ error: 'Thiếu thông tin ngày giờ sinh của Nam hoặc Nữ.' });
+            const valResult = InputValidator.validateMarriageInput(req.body);
+            if (!valResult.isValid) {
+                return res.status(400).json({ error: valResult.error });
             }
+
+            const { male, female } = valResult.sanitized;
+            const { userId, dayBoundaryMode } = req.body;
 
             const uid = userId || 'guest';
             const dayMode = dayBoundaryMode || 'midnight';

@@ -1,9 +1,8 @@
 const ZiweiRecord = require('../models/ZiweiRecord');
-const ZiweiValidator = require('../services/ZiweiValidators');
 const ZiweiFormatter = require('../services/ZiweiFormatter');
 const ZiweiCache = require('../services/ZiweiCache');
 const AstrologyEngine = require('../shared/engines/AstrologyEngine');
-const MemoryCacheService = require('../services/MemoryCacheService');
+const InputValidator = require('../services/InputValidator');
 const mongoose = require('mongoose');
 
 class ZiweiController {
@@ -12,7 +11,7 @@ class ZiweiController {
    */
   static async createChart(req, res) {
     try {
-      const valResult = ZiweiValidator.validateBirthInfo(req.body);
+      const valResult = InputValidator.validateZiweiInput(req.body);
       if (!valResult.isValid) {
         return res.status(400).json({ error: valResult.error });
       }

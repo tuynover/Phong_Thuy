@@ -22,10 +22,26 @@ function CustomSelect({ value, onChange, options, placeholder, borderClass, focu
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [value]);
 
-  const filteredOptions = options.filter(opt => opt.includes(search));
+  const filteredOptions = options.filter(opt => String(opt).includes(String(search)));
 
   const handleInputChange = (e) => {
-    const val = e.target.value;
+    let val = e.target.value.replace(/\D/g, '');
+    const num = parseInt(val, 10);
+    if (!isNaN(num)) {
+      if (placeholder === 'DD' || placeholder === 'Ngày') {
+        if (num > 31) val = '31';
+        if (num === 0) val = '1';
+      } else if (placeholder === 'MM' || placeholder === 'Tháng') {
+        if (num > 12) val = '12';
+        if (num === 0) val = '1';
+      } else if (placeholder === 'YYYY' || placeholder === 'Năm') {
+        if (val.length >= 4 && num > 2100) val = '2100';
+      } else if (placeholder === 'HH' || placeholder === 'Giờ') {
+        if (num > 23) val = '23';
+      } else if (placeholder === 'MM' || placeholder === 'Phút') {
+        if (num > 59) val = '59';
+      }
+    }
     setSearch(val);
     onChange(val);
     setIsOpen(true);
@@ -69,6 +85,10 @@ function CustomSelect({ value, onChange, options, placeholder, borderClass, focu
   );
 }
 
+import { validateInputDate, getMaxDaysInMonth } from '../utils/dateValidator';
+
+import FloatingErrorToast from './FloatingErrorToast';
+
 const MarriageInput = ({ onComplete }) => {
     // Male state
     const [mDay, setMDay] = useState('');
@@ -84,11 +104,67 @@ const MarriageInput = ({ onComplete }) => {
     const [fHour, setFHour] = useState('');
     const [fMinute, setFMinute] = useState('');
 
+    const [errorMsg, setErrorMsg] = useState('');
+
+    // Auto-clamp Male Day when Month or Year changes
+    useEffect(() => {
+        if (mDay && mMonth && mYear) {
+            const maxDays = getMaxDaysInMonth(mMonth, mYear);
+            const dNum = parseInt(mDay, 10);
+            if (!isNaN(dNum) && dNum > maxDays) {
+                setMDay(String(maxDays));
+            }
+        }
+    }, [mMonth, mYear, mDay]);
+
+    // Auto-clamp Female Day when Month or Year changes
+    useEffect(() => {
+        if (fDay && fMonth && fYear) {
+            const maxDays = getMaxDaysInMonth(fMonth, fYear);
+            const dNum = parseInt(fDay, 10);
+            if (!isNaN(dNum) && dNum > maxDays) {
+                setFDay(String(maxDays));
+            }
+        }
+    }, [fMonth, fYear, fDay]);
+
+    // Real-time dynamic validation for Male & Female
+    useEffect(() => {
+        if (mDay || mMonth || mYear || mHour || mMinute) {
+            const valM = validateInputDate(mDay, mMonth, mYear, mHour, mMinute);
+            if (!valM.isValid) {
+                setErrorMsg(`Thông tin Nam: ${valM.message}`);
+                return;
+            }
+        }
+        if (fDay || fMonth || fYear || fHour || fMinute) {
+            const valF = validateInputDate(fDay, fMonth, fYear, fHour, fMinute);
+            if (!valF.isValid) {
+                setErrorMsg(`Thông tin Nữ: ${valF.message}`);
+                return;
+            }
+        }
+        setErrorMsg('');
+    }, [mDay, mMonth, mYear, mHour, mMinute, fDay, fMonth, fYear, fHour, fMinute]);
+
     const handleSubmit = (e) => {
         e.preventDefault();
+        setErrorMsg('');
         
         if (!mDay || !mMonth || !mYear || !mHour || !mMinute || !fDay || !fMonth || !fYear || !fHour || !fMinute) {
-            alert('Vui lòng chọn đầy đủ thông tin ngày giờ sinh cho cả Nam và Nữ.');
+            setErrorMsg('Vui lòng chọn đầy đủ thông tin ngày giờ sinh cho cả Nam và Nữ.');
+            return;
+        }
+
+        const valM = validateInputDate(mDay, mMonth, mYear, mHour, mMinute);
+        if (!valM.isValid) {
+            setErrorMsg(`Thông tin Nam: ${valM.message}`);
+            return;
+        }
+
+        const valF = validateInputDate(fDay, fMonth, fYear, fHour, fMinute);
+        if (!valF.isValid) {
+            setErrorMsg(`Thông tin Nữ: ${valF.message}`);
             return;
         }
 
@@ -126,11 +202,13 @@ const MarriageInput = ({ onComplete }) => {
     const minutes = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
 
     return (
-        <div className="flex flex-col items-center bg-white p-5 md:p-8 rounded-2xl md:rounded-[2rem] shadow-xl border border-gray-100 max-w-4xl mx-auto font-sans">
-            <h3 id="marriage-input-header" className="text-2xl font-bold text-slate-800 mb-6 uppercase tracking-wide text-center">Lập Lá Số Hợp Hôn (Bát Tự Hợp Hôn)</h3>
-            <p className="text-gray-500 mb-8 text-center text-[15px] max-w-2xl">Nhập đầy đủ thông tin ngày giờ sinh Dương lịch của Nam và Nữ để hệ thống quy đổi tiết khí và đối chiếu tương sinh hợp khắc.</p>
+        <>
+            <FloatingErrorToast message={errorMsg} onClose={() => setErrorMsg('')} />
+            <div className="flex flex-col items-center bg-white p-5 md:p-8 rounded-2xl md:rounded-[2rem] shadow-xl border border-gray-100 max-w-4xl mx-auto font-sans">
+                <h3 id="marriage-input-header" className="text-2xl font-bold text-slate-800 mb-6 uppercase tracking-wide text-center">Lập Lá Số Hợp Hôn (Bát Tự Hợp Hôn)</h3>
+                <p className="text-gray-500 mb-8 text-center text-[15px] max-w-2xl">Nhập đầy đủ thông tin ngày giờ sinh Dương lịch của Nam và Nữ để hệ thống quy đổi tiết khí và đối chiếu tương sinh hợp khắc.</p>
 
-            <form onSubmit={handleSubmit} className="w-full space-y-8">
+                <form onSubmit={handleSubmit} className="w-full space-y-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     
                     {/* MALE BLOCK */}
@@ -295,7 +373,8 @@ const MarriageInput = ({ onComplete }) => {
                 <div className="pt-4 max-w-sm mx-auto">
                     <button 
                         type="submit"
-                        className="w-full flex justify-center items-center py-4 px-6 border border-transparent rounded-xl shadow-md text-lg font-bold text-white bg-gradient-to-r from-blue-700 to-rose-700 hover:from-blue-800 hover:to-rose-800 focus:outline-none transition-transform hover:-translate-y-1"
+                        disabled={!mDay || !mMonth || !mYear || !mHour || !mMinute || !fDay || !fMonth || !fYear || !fHour || !fMinute || !!errorMsg}
+                        className="w-full flex justify-center items-center py-4 px-6 border border-transparent rounded-xl shadow-md text-lg font-bold text-white bg-gradient-to-r from-blue-700 to-rose-700 hover:from-blue-800 hover:to-rose-800 focus:outline-none transition-all hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
                     >
                         Lập Lá Số Hợp Hôn
                     </button>
@@ -406,7 +485,8 @@ const MarriageInput = ({ onComplete }) => {
                 </div>
               </div>
             </div>
-        </div>
+          </div>
+        </>
     );
 };
 

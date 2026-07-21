@@ -7,6 +7,8 @@ import AiChatWidget from './AiChatWidget';
 import UpdateBaziModal from './UpdateBaziModal';
 import { AuthContext } from '../context/AuthContext';
 import { parseMarkdownSections } from '../utils/markdownParser';
+import { validateInputDate, getMaxDaysInMonth } from '../utils/dateValidator';
+import FloatingErrorToast from './FloatingErrorToast';
 
 // 12 Can Chi Giờ Sinh trong Tử Vi
 const LUNAR_HOURS = [
@@ -45,10 +47,26 @@ function CustomSelect({ value, onChange, options, placeholder }) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [value]);
 
-  const filteredOptions = options.filter(opt => opt.includes(search));
+  const filteredOptions = options.filter(opt => String(opt).includes(String(search)));
 
   const handleInputChange = (e) => {
-    const val = e.target.value;
+    let val = e.target.value.replace(/\D/g, '');
+    const num = parseInt(val, 10);
+    if (!isNaN(num)) {
+      if (placeholder === 'DD' || placeholder === 'Ngày') {
+        if (num > 31) val = '31';
+        if (num === 0) val = '1';
+      } else if (placeholder === 'MM' || placeholder === 'Tháng') {
+        if (num > 12) val = '12';
+        if (num === 0) val = '1';
+      } else if (placeholder === 'YYYY' || placeholder === 'Năm') {
+        if (val.length >= 4 && num > 2100) val = '2100';
+      } else if (placeholder === 'HH' || placeholder === 'Giờ') {
+        if (num > 23) val = '23';
+      } else if (placeholder === 'MM' || placeholder === 'Phút') {
+        if (num > 59) val = '59';
+      }
+    }
     setSearch(val);
     onChange(val);
     setIsOpen(true);
@@ -125,9 +143,33 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
   const [interpretation, setInterpretation] = useState('');
   const [isInterpreting, setIsInterpreting] = useState(false);
   const [abortController, setAbortController] = useState(null);
-
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [error, setError] = useState('');
+
+  // Auto-clamp Day when Month or Year changes (e.g. 29/02/2023 -> automatically pushes to 28)
+  useEffect(() => {
+    if (day && month && year) {
+      const maxDays = getMaxDaysInMonth(month, year);
+      const dNum = parseInt(day, 10);
+      if (!isNaN(dNum) && dNum > maxDays) {
+        setDay(String(maxDays));
+      }
+    }
+  }, [month, year, day]);
+
+  // Real-time dynamic validation for ZiweiBoard
+  useEffect(() => {
+    if (day || month || year) {
+      const val = validateInputDate(day, month, year);
+      if (!val.isValid) {
+        setError(val.message);
+      } else {
+        setError('');
+      }
+    } else {
+      setError('');
+    }
+  }, [day, month, year]);
 
   // Đánh giá sao
   const [rating, setRating] = useState(0);
@@ -306,9 +348,21 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+
+    if (!day || !month || !year) {
+      setError('Vui lòng chọn đầy đủ ngày, tháng và năm sinh.');
+      return;
+    }
+
+    const val = validateInputDate(day, month, year);
+    if (!val.isValid) {
+      setError(val.message);
+      return;
+    }
+
     setLoading(true);
     setProgress(0);
-    setError('');
     setResult(null);
     setJustRated(false);
     setRating(0);
@@ -473,7 +527,9 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-4 pb-24 font-sans">
+    <>
+      <FloatingErrorToast message={error} onClose={() => setError('')} />
+      <div className="w-full max-w-5xl mx-auto px-4 pb-24 font-sans">
       
       {/* Xem lá số của bản thân */}
       {activeUser && !result && !loading && (
@@ -606,7 +662,8 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
             <div className="pt-4">
               <button
                 type="submit"
-                className="w-full flex justify-center items-center py-4 px-6 rounded-2xl shadow-lg text-base font-extrabold text-white bg-gradient-to-r from-purple-600 to-indigo-700 hover:from-purple-700 hover:to-indigo-800 focus:outline-none transition-transform hover:-translate-y-0.5 active:translate-y-0"
+                disabled={!day || !month || !year || !!error}
+                className="w-full flex justify-center items-center py-4 px-6 rounded-2xl shadow-lg text-base font-extrabold text-white bg-gradient-to-r from-purple-600 to-indigo-700 hover:from-purple-700 hover:to-indigo-800 focus:outline-none transition-all hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
               >
                 Lập Lá Số & Xem Giải Đoán
               </button>
@@ -1000,6 +1057,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
 
 
     </div>
+    </>
   );
 };
 

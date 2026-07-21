@@ -67,13 +67,18 @@ const calculateMenhQuai = (solarYear, gender) => {
     return gua;
 };
 
+const InputValidator = require('../services/InputValidator');
+
 class BaziController {
     static async analyze(req, res) {
         try {
-            const { date, time, gender, userId, dayBoundaryMode, name } = req.body; // date: "dd/mm/yyyy" or "yyyy-mm-dd"
-            if (!date || !time || gender === undefined) {
-                return res.status(400).json({ error: 'Missing date, time, or gender parameters' });
+            const valResult = InputValidator.validateBaziInput(req.body);
+            if (!valResult.isValid) {
+                return res.status(400).json({ error: valResult.error });
             }
+
+            const { date, time, gender, name } = valResult.sanitized;
+            const { userId, dayBoundaryMode } = req.body;
 
             const uid = userId || 'guest';
             const idempotencyKey = req.headers['idempotency-key'] || req.headers['Idempotency-Key'];

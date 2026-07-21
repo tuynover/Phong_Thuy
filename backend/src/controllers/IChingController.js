@@ -1,17 +1,19 @@
 const IChingRecord = require('../models/IChingRecord');
 const IChingDataService = require('../services/IChingDataService');
 const MemoryCacheService = require('../services/MemoryCacheService');
+const InputValidator = require('../services/InputValidator');
 
 class IChingController {
     static async calculate(req, res) {
         try {
+            const validation = InputValidator.validateIChingInput(req.body);
+            if (!validation.isValid) {
+                return res.status(400).json({ error: validation.error });
+            }
+
             const lines = req.body.lines; 
             const userId = req.body.userId || 'guest';
             const question = req.body.question || 'xem sức khỏe và công việc sắp tới có thuận lợi hay không';
-
-            if (!lines || lines.length !== 6) {
-                return res.status(400).json({ error: 'Require exactly 6 lines.' });
-            }
 
             // Delegate core Dịch lý calculations to IChingDataService
             const now = req.body.now ? new Date(req.body.now) : new Date();

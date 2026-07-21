@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Lunar, Solar } from 'lunar-javascript';
 import { CalendarDays, Clock, Settings2, Sparkles, HelpCircle, ChevronDown } from 'lucide-react';
+import { validateInputDate, getMaxDaysInMonth } from '../utils/dateValidator';
+import FloatingErrorToast from './FloatingErrorToast';
 
 const BRANCH_VI = {
     '子': 'Tý', '丑': 'Sửu', '寅': 'Dần', '卯': 'Mão', '辰': 'Thìn', '巳': 'Tị',
@@ -49,12 +51,111 @@ const LUNAR_HOURS = [
     { index: 11, name: "Hợi (21:00 - 22:59)", hour: 21 }
 ];
 
+// UNIFIED COMBOBOX SELECTOR (AMBER THEME FOR MAI HOA DỊCH SỐ)
+function CustomSelect({ value, onChange, options, placeholder }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [search, setSearch] = useState(value || '');
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    setSearch(value || '');
+  }, [value]);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setIsOpen(false);
+        setSearch(value || '');
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [value]);
+
+  const filteredOptions = options.filter(opt => opt.includes(String(search)));
+
+  const handleInputChange = (e) => {
+    let val = e.target.value.replace(/\D/g, '');
+    const num = parseInt(val, 10);
+    if (!isNaN(num)) {
+      if (placeholder === 'DD' || placeholder === 'Ngày') {
+        if (num > 31) val = '31';
+        if (num === 0) val = '1';
+      } else if (placeholder === 'MM' || placeholder === 'Tháng') {
+        if (num > 12) val = '12';
+        if (num === 0) val = '1';
+      } else if (placeholder === 'YYYY' || placeholder === 'Năm') {
+        if (val.length >= 4 && num > 2100) val = '2100';
+      } else if (placeholder === 'HH' || placeholder === 'Giờ') {
+        if (num > 23) val = '23';
+      } else if (placeholder === 'MM' || placeholder === 'Phút') {
+        if (num > 59) val = '59';
+      }
+    }
+    setSearch(val);
+    onChange(val);
+    setIsOpen(true);
+  };
+
+  return (
+    <div ref={containerRef} className="relative flex-1">
+      <div className="relative">
+        <input
+          type="text"
+          value={search}
+          onChange={handleInputChange}
+          onFocus={() => setIsOpen(true)}
+          placeholder={placeholder}
+          className={`bg-slate-50/80 border border-slate-200 text-center text-slate-800 text-base rounded-xl block w-full p-2.5 font-bold transition-all focus:outline-none pr-7 shadow-sm ${isOpen ? 'ring-2 ring-amber-500 border-amber-500' : ''}`}
+        />
+        <ChevronDown
+          size={14}
+          className="absolute right-2 top-3.5 text-amber-600 cursor-pointer shrink-0"
+          onClick={() => setIsOpen(!isOpen)}
+        />
+      </div>
+      {isOpen && filteredOptions.length > 0 && (
+        <ul className="absolute z-50 w-full mt-1 bg-white border border-amber-100 rounded-xl shadow-lg py-1.5 max-h-48 overflow-y-auto text-center font-bold">
+          {filteredOptions.map(opt => (
+            <li
+              key={opt}
+              onClick={() => {
+                onChange(opt);
+                setSearch(opt);
+                setIsOpen(false);
+              }}
+              className={`px-3 py-1.5 text-sm cursor-pointer transition-colors hover:bg-amber-50 hover:text-amber-900 ${String(value) === String(opt) ? 'bg-amber-50 text-amber-800 font-extrabold' : 'text-gray-700'}`}
+            >
+              {opt}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 const MaiHoaInput = ({ onComplete }) => {
+    const days = Array.from({ length: 31 }, (_, i) => String(i + 1));
+    const months = Array.from({ length: 12 }, (_, i) => String(i + 1));
+    const years = Array.from({ length: 97 }, (_, i) => String(2026 - i));
+
     const now = new Date();
     const [subMethod, setSubMethod] = useState('datetime'); // 'datetime' | 'serial'
-    const [year, setYear] = useState(() => now.getFullYear());
-    const [month, setMonth] = useState(() => now.getMonth() + 1);
-    const [day, setDay] = useState(() => now.getDate());
+    const [year, setYear] = useState(() => String(now.getFullYear()));
+    const [month, setMonth] = useState(() => String(now.getMonth() + 1));
+    const [day, setDay] = useState(() => String(now.getDate()));
+
+    // Auto-clamp Day when Month or Year changes (e.g. 29/02/2023 -> automatically pushes to 28)
+    useEffect(() => {
+        if (day && month && year) {
+            const maxDays = getMaxDaysInMonth(month, year);
+            const dNum = parseInt(day, 10);
+            if (!isNaN(dNum) && dNum > maxDays) {
+                setDay(String(maxDays));
+            }
+        }
+    }, [month, year, day]);
 
     const getInitialHourIndex = (hr) => {
         if (hr >= 23 || hr < 1) return 0;
@@ -68,6 +169,39 @@ const MaiHoaInput = ({ onComplete }) => {
     const [serialStr, setSerialStr] = useState('');
     const [serialDetail, setSerialDetail] = useState(null);
     const [serialError, setSerialError] = useState('');
+
+    const [errorMsg, setErrorMsg] = useState('');
+
+    // Dynamic real-time date validation for MaiHoaInput datetime
+    useEffect(() => {
+        if (subMethod === 'datetime') {
+            if (day || month || year) {
+                const val = validateInputDate(day, month, year);
+                if (!val.isValid) {
+                    setErrorMsg(val.message);
+                } else {
+                    setErrorMsg('');
+                }
+            } else {
+                setErrorMsg('');
+            }
+        }
+    }, [day, month, year, subMethod]);
+
+    // Dynamic real-time serial validation for MaiHoaInput serial
+    useEffect(() => {
+        if (subMethod === 'serial' && serialStr) {
+            if (isNaN(Number(serialStr))) {
+                setErrorMsg('Dãy số seri chỉ được nhập chữ số, không chứa chữ hoặc ký tự đặc biệt.');
+            } else if (serialStr.trim().length !== 8) {
+                setErrorMsg('Dãy số seri tiền/sim phải có đúng 8 chữ số (ví dụ: 12345678).');
+            } else {
+                setErrorMsg('');
+            }
+        } else if (subMethod === 'serial' && !serialStr) {
+            setErrorMsg('');
+        }
+    }, [serialStr, subMethod]);
 
     const getDaysInMonth = (m, y) => {
         const parsedM = parseInt(m);
@@ -232,8 +366,10 @@ const MaiHoaInput = ({ onComplete }) => {
     };
 
     return (
-        <div className="flex flex-col items-center w-full max-w-xl mx-auto">
-            <h3 className="text-2xl font-bold text-amber-900 mb-4 font-serif">Gieo Quẻ Mai Hoa Dịch Số</h3>
+        <>
+            <FloatingErrorToast message={errorMsg} onClose={() => setErrorMsg('')} />
+            <div className="flex flex-col items-center w-full max-w-xl mx-auto">
+                <h3 className="text-2xl font-bold text-amber-900 mb-4 font-serif">Gieo Quẻ Mai Hoa Dịch Số</h3>
             
             {/* Hướng dẫn ngắn */}
             <div className="bg-amber-50/50 p-4 rounded-xl border border-amber-100 text-xs text-amber-955/80 mb-6 leading-relaxed flex items-start gap-2.5 shadow-sm w-full">
@@ -281,58 +417,37 @@ const MaiHoaInput = ({ onComplete }) => {
                                 Thời Điểm Động Tâm (Dương Lịch)
                             </label>
                             
-                            <div className="grid grid-cols-3 gap-3">
+                            <div className="flex gap-3">
                                 {/* Ngày */}
-                                <div>
+                                <div className="flex-1">
                                     <span className="block text-[10px] text-slate-400 font-bold mb-1 text-center">NGÀY</span>
-                                    <input
-                                        type="number"
-                                        required
-                                        min="1"
-                                        max={daysInMonth}
+                                    <CustomSelect
+                                        value={String(day)}
+                                        onChange={setDay}
+                                        options={days}
                                         placeholder="DD"
-                                        value={day || ''}
-                                        onChange={(e) => {
-                                            const val = parseInt(e.target.value);
-                                            setDay(isNaN(val) ? '' : val);
-                                        }}
-                                        className="bg-slate-50/80 border border-slate-200 text-center text-slate-800 text-base rounded-xl focus:ring-2 focus:ring-amber-400 focus:border-amber-400 block w-full py-2.5 font-bold transition-all placeholder:text-slate-300"
                                     />
                                 </div>
 
                                 {/* Tháng */}
-                                <div>
+                                <div className="flex-1">
                                     <span className="block text-[10px] text-slate-400 font-bold mb-1 text-center">THÁNG</span>
-                                    <input
-                                        type="number"
-                                        required
-                                        min="1"
-                                        max="12"
+                                    <CustomSelect
+                                        value={String(month)}
+                                        onChange={setMonth}
+                                        options={months}
                                         placeholder="MM"
-                                        value={month || ''}
-                                        onChange={(e) => {
-                                            const val = parseInt(e.target.value);
-                                            setMonth(isNaN(val) ? '' : val);
-                                        }}
-                                        className="bg-slate-50/80 border border-slate-200 text-center text-slate-800 text-base rounded-xl focus:ring-2 focus:ring-amber-400 focus:border-amber-400 block w-full py-2.5 font-bold transition-all placeholder:text-slate-300"
                                     />
                                 </div>
 
                                 {/* Năm */}
-                                <div>
+                                <div className="flex-1">
                                     <span className="block text-[10px] text-slate-400 font-bold mb-1 text-center">NĂM</span>
-                                    <input
-                                        type="number"
-                                        required
-                                        min="1900"
-                                        max="2100"
+                                    <CustomSelect
+                                        value={String(year)}
+                                        onChange={setYear}
+                                        options={years}
                                         placeholder="YYYY"
-                                        value={year || ''}
-                                        onChange={(e) => {
-                                            const val = parseInt(e.target.value);
-                                            setYear(isNaN(val) ? '' : val);
-                                        }}
-                                        className="bg-slate-50/80 border border-slate-200 text-center text-slate-800 text-base rounded-xl focus:ring-2 focus:ring-amber-400 focus:border-amber-400 block w-full py-2.5 font-bold transition-all placeholder:text-slate-300"
                                     />
                                 </div>
                             </div>
@@ -476,13 +591,14 @@ const MaiHoaInput = ({ onComplete }) => {
 
             <button 
                 onClick={handleSubmit} 
-                disabled={subMethod === 'datetime' ? !lunarDetail : !serialDetail}
+                disabled={(subMethod === 'datetime' ? !lunarDetail : !serialDetail) || !!errorMsg}
                 className="w-full flex justify-center items-center gap-3 bg-gradient-to-r from-amber-700 to-amber-900 hover:from-amber-800 hover:to-amber-955 text-white px-8 py-4 rounded-xl shadow-xl font-bold text-lg transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
             >
                 <Settings2 />
                 Lập Quẻ Mai Hoa
             </button>
         </div>
+        </>
     );
 };
 
