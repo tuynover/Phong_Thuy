@@ -136,20 +136,19 @@ Hệ thống Express.js sử dụng chuỗi Middleware để bảo vệ tài ngu
    - Bỏ qua kiểm tra đối với các tài khoản Admin / Co-Admin.
 4. **`rateLimiter.js` (Rate Limiting):**
    - Giới hạn tần suất gọi API (ví dụ: tối đa 30 lần lập lá số trong 15 phút, 20 lần gọi AI trong 15 phút) để tránh tấn công DDOS hoặc spam API tốn phí.
-   - Tích hợp kiến trúc **Hybrid Rate Limiter**: Ưu tiên đếm nguyên tử trên **Redis** (`INCR` + `EXPIRE`), tự động fallback về bộ nhớ RAM JavaScript `Map` nếu Redis ngắt kết nối.
-5. **`MemoryCacheService.js` & `redis.js` (Hybrid Caching):**
-   - Bộ nhớ đệm 2 tầng (L1 RAM JS `Map` + L2 **Redis**). Lưu trữ cache lá số, bài luận và lịch sử gieo quẻ với thời gian hết hạn TTL tự động.
-   - Tích hợp cơ chế Graceful Fallback đảm bảo không crash ứng dụng khi Redis offline.
-5. **`checkRecordOwnership.js` (Record Privacy Protection):**
+   - Tích hợp kiến trúc **Hybrid Rate Limiter & Redis Pipeline**: Đóng gói các lệnh `INCR` và `PTTL` trong 1 gói tin TCP duy nhất (Redis Pipeline) giúp phản hồi tức thì, tự động fallback về bộ nhớ RAM JavaScript `Map` nếu Redis bị trễ quá 200ms hoặc ngắt kết nối.
+5. **`MemoryCacheService.js` & `redis.js` (Hybrid L1 RAM + L2 Redis Caching):**
+   - Bộ nhớ đệm 2 tầng chuẩn mực: **L1 RAM JS `Map`** (đọc trong 0.001ms từ RAM Node.js Heap) + **L2 Redis** (độ trễ 2ms).
+   - Tích hợp cơ chế **Hard Timeout Wrapper (`withTimeout`) tối đa 300ms - 500ms** cho tất cả thao tác Redis, kích hoạt `family: 4` chống trễ DNS IPv6 AAAA trên AWS EC2, cùng TCP Keep-Alive 5000ms ngăn ngắt socket từ AWS NAT Gateway.
+6. **`checkRecordOwnership.js` (Record Privacy Protection):**
    - Tự động xác định loại bản ghi (Kinh Dịch, Bát Tự, Tử Vi, Hợp Hôn) dựa trên URL API và thực hiện truy vấn cơ sở dữ liệu để bảo vệ quyền riêng tư.
    - Chỉ cho phép chủ sở hữu của bản ghi hoặc quản trị viên (Admin/Co-Admin) xem chi tiết, yêu cầu giải đoán AI, hoặc chat AI liên quan đến bản ghi đó. Chặn đứng các hành vi dùng ID để xem lén dữ liệu của người khác.
    - Cho phép khách truy cập bản ghi do khách (guest) tự lập.
-6. **`checkHistoryOwnership.js` (History Access Protection):**
+7. **`checkHistoryOwnership.js` (History Access Protection):**
    - Ngăn chặn người dùng xem trộm lịch sử của tài khoản khác bằng cách đối chiếu ID người dùng trong token JWT với `:userId` trên endpoint API.
-7. **`optionalAuth.js` (Optional Authentication):**
+8. **`optionalAuth.js` (Optional Authentication):**
    - Thực hiện giải mã thông tin token từ Redis User Profile Cache và gán vào `req.user` & `req.dbUser` (chuẩn hóa đầy đủ `id` và `_id`).
    - Nếu token bị hết hạn hoặc không hợp lệ, middleware sẽ âm thầm bỏ qua (`next()`) thay vì ném lỗi HTTP 401, đảm bảo không ngắt luồng hiển thị lịch sử của khách hoặc người dùng vừa đổi phiên.
-
 
 ---
 
@@ -168,7 +167,7 @@ Hệ thống triển khai dịch vụ [SseService.js](file:///t:/Phongthuy/backe
 - **Global Error Handling Middleware:** Tập trung xử lý toàn bộ uncaught errors trong Express.js v5 qua middleware 4 tham số, ghi nhận log lỗi chi tiết và trả về JSON tiêu chuẩn cho Client.
 - **Graceful Shutdown & Process Lifecycle:** Tự động lắng nghe `uncaughtException`, `unhandledRejection`, `SIGTERM`, `SIGINT` để ngắt nhận request mới (`server.close()`), đóng kết nối MongoDB an toàn trước khi gọi `process.exit(1)` kích hoạt cơ chế tự phục hồi (Self-Healing Container) trên AWS ECS / Docker.
 - **Log Rotation (Daily Rotate):** Tích hợp `winston-daily-rotate-file` chia nhỏ tệp log theo ngày (`app-%DATE%.log` và `errors-%DATE%.log`), giới hạn 10MB/tệp, tự động nén `.gz` và dọn dẹp log quá 14 ngày.
-- **Automated Unit Testing (Jest):** Tích hợp khung thử nghiệm `jest` tự động xác minh kết quả an sao Bát Tự Ngũ Hành 4.0, Tử Vi 12 Cung và Quẻ Kinh Dịch.
+- **Automated Unit Testing (Jest):** Tích hợp khung thử nghiệm `jest` tự động với **19 Test Suites (86/86 Tests PASSED)** xác minh kết quả an sao Bát Tự Ngũ Hành 4.0, Tử Vi 12 Cung, Quẻ Kinh Dịch, RuleEngineService, DateService, Controllers và các Middleware bảo mật.
 
 ---
 

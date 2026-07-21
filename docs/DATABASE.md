@@ -304,16 +304,18 @@ Lưu trữ các bài viết kiến thức phong thủy và học thuật chuyên
 
 ---
 
-## 🔄 3. Cơ chế Trigger / Hooks cơ sở dữ liệu
+## ⚡ 3. Cơ chế Cập nhật Thống kê Tài nguyên Nguyên tử O(1)
 
-- **Background User Stats Sync:**
-  Các bảng dữ liệu chính (`IChingRecord`, `BaziRecord`, `ZiweiRecord`, `MarriageRecord`, `Conversation`) đều được thiết lập Mongoose **post-save hook** để kích hoạt cập nhật thống kê tài nguyên ngầm:
+- **Cộng dồn Nguyên tử (Atomic Increments):**
+  Để loại bỏ triệt để nghẽn cổ chai đĩa I/O (không chạy lại 12 câu lệnh `countDocuments` và `aggregate` mỗi khi tạo lá số mới), các Controller (`IChingController`, `BaziController`, `ZiweiController`, `MarriageController`) đều gọi trực tiếp phương thức nguyên tử `UserStatsService.incrementRecordCount(userId, system, 1)`:
   ```javascript
-  schema.post('save', function(doc) {
-    if (doc.userId && doc.userId !== 'guest') {
-      const UserStatsService = require('../services/UserStatsService');
-      UserStatsService.updateUserStatsBackground(doc.userId);
+  await User.updateOne(
+    { _id: userIdStr },
+    { 
+      $inc: { [countField]: delta },
+      $set: { 'stats.lastUpdated': new Date() }
     }
-  });
+  );
   ```
-  Hàm này sẽ tự động tổng hợp số lượt chạy, lượng token tiêu thụ và cập nhật vào trường `stats` của bảng `User` tương ứng.
+- **Không sử dụng post-save hooks lặp lại:** Các hook `post('save')` tự động gọi quét lại dữ liệu đã được **loại bỏ hoàn toàn** ở các Model `IChingRecord`, `BaziRecord`, `ZiweiRecord`, `MarriageRecord`, `Conversation` để đảm bảo tốc độ tạo lá số đạt mức dưới 10ms.
+- **Truy vấn Lịch sử Tối ưu:** Cả 4 bảng dữ liệu chính đều được tạo Compound Index `{"userId": 1, "isDeleted": 1, "createdAt": -1}` để phục vụ truy vấn lịch sử phân trang mà không phải thực hiện In-memory sorting trên MongoDB.

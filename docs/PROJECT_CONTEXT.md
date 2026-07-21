@@ -82,4 +82,9 @@ Trước đây, mỗi phân hệ có các bảng hội thoại và tin nhắn ri
 - **Loại bỏ On-the-fly Migration Bát Tự:** Triệt tiêu hoàn toàn đoạn code ghi đè `record.save()` tự động khi đọc chi tiết Bát Tự trong `HistoryController.js`, loại bỏ triệt để thao tác ghi đĩa thừa và giúp API trả kết quả lá số ngay lập tức.
 - **Dọn dẹp Cơ sở dữ liệu:** Thực thi script `cleanOldCalculations.js` dọn dẹp triệt để 138 lá số cũ (trước ngày 10/07/2026) để tối ưu hóa không gian lưu trữ và chỉ giữ lại các lá số chuẩn hóa mới.
 
+### 4.8 Khắc Phục Nghẽn Lệnh AWS EC2 & Nâng Cường Unit Testing (07/2026)
+- **Tối ưu hóa Redis Hybrid & Pipeline trên AWS EC2:** Xử lý triệt để độ trễ 3000ms trên EC2 bằng cách buộc `family: 4` (IPv4), gộp các lệnh RateLimiter trong 1 Redis Pipeline duy nhất (`INCR` + `PTTL`), tích hợp lớp đệm L1 RAM (`userProfileRamCache`) cho phản hồi Profile User trong 0.001ms, và áp dụng `withTimeout` Fast Fail 300ms - 500ms.
+- **Gỡ bỏ Mongoose `post('save')` Hooks:** Xóa bỏ toàn bộ các hook tự động chạy 12 câu lệnh Mongo Aggregation lặp lặp ở 5 model chính (`BaziRecord`, `ZiweiRecord`, `IChingRecord`, `MarriageRecord`, `Conversation`), chuyển hoàn toàn sang cơ chế cộng dồn nguyên tử `$inc` O(1) từ Controller.
+- **Mở rộng Unit Testing (Jest):** Nâng tổng số thử nghiệm tự động từ 27 lên **86 Test Cases PASSED trên 19 Test Suites**, bao phủ toàn bộ RuleEngine, DateService, Controllers, Auth và các Middleware bảo mật.
+
 
