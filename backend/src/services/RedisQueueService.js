@@ -37,21 +37,24 @@ class RedisQueueService {
     }
 
     /**
-     * Tiến trình Worker chạy ngầm liên tục rút job từ Redis Queue để gửi mail
+     * Tiến trình Worker chạy ngầm liên tục rút job từ Redis Queue để gửi mail (Non-blocking LPOP)
      */
     async startWorker() {
         if (this.isProcessing) return;
         this.isProcessing = true;
 
         const processNextJob = async () => {
+            let nextDelayMs = 3000; // Mặc định nghỉ 3 giây khi queue rỗng
+
             if (isRedisConnected()) {
                 try {
-                    // Pop job from queue with 5 second timeout
-                    const result = await redisClient.blpop(this.queueName, 5);
-                    if (result && result[1]) {
-                        const emailOptions = JSON.parse(result[1]);
+                    // Non-blocking LPOP để tránh xung đột với ioredis commandTimeout
+                    const result = await redisClient.lpop(this.queueName);
+                    if (result) {
+                        const emailOptions = JSON.parse(result);
                         logger.info(`[RedisQueue Worker] Processing email job for [${emailOptions.to}]`);
                         await EmailService.sendEmail(emailOptions);
+                        nextDelayMs = 100; // Nếu vừa xử lý xong 1 job, kiểm tra tiếp ngay sau 100ms
                     }
                 } catch (err) {
                     if (err.message && !err.message.includes('Connection is closed')) {
@@ -60,8 +63,7 @@ class RedisQueueService {
                 }
             }
 
-            // Loop forever with a small delay
-            setTimeout(processNextJob, 1000);
+            setTimeout(processNextJob, nextDelayMs);
         };
 
         processNextJob();

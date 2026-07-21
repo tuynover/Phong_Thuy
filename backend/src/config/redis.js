@@ -93,11 +93,21 @@ const withTimeout = (promise, ms = 500, fallbackValue = null) => {
     ]);
 };
 
-// --- Helper 1: User Profile Cache (Auth & Session Optimization) ---
+// --- Local L1 RAM Cache for User Profiles (Sub-millisecond access) ---
+const userProfileRamCache = new Map();
+
+setInterval(() => {
+    const now = Date.now();
+    for (const [k, v] of userProfileRamCache.entries()) {
+        if (now > v.expiresAt) userProfileRamCache.delete(k);
+    }
+}, 5 * 60 * 1000);
+
+// --- Helper 1: User Profile Cache (Auth & Session Optimization - Hybrid L1 RAM + L2 Redis) ---
 const setUserProfileCache = async (userId, userObj, ttlSec = 86400) => {
-    if (!isRedisConnected() || !userId || !userObj) return;
+    if (!userId || !userObj) return;
     try {
-        const payload = JSON.stringify({
+        const profile = {
             id: userObj.id || userObj._id?.toString(),
             _id: userObj._id?.toString() || userObj.id,
             email: userObj.email,
@@ -112,31 +122,62 @@ const setUserProfileCache = async (userId, userObj, ttlSec = 86400) => {
             isEmailVerified: !!userObj.isEmailVerified,
             tokenVersion: userObj.tokenVersion || 0,
             baziInfo: userObj.baziInfo || null
+        };
+
+        // 1. Write to L1 RAM Cache (0.001ms)
+        userProfileRamCache.set(`user:profile:${userId}`, {
+            value: profile,
+            expiresAt: Date.now() + (ttlSec * 1000)
         });
-        await withTimeout(redisClient.setex(`user:profile:${userId}`, ttlSec, payload), 500, null);
+
+        // 2. Write to L2 Redis Cache (async non-blocking)
+        if (isRedisConnected()) {
+            const payload = JSON.stringify(profile);
+            withTimeout(redisClient.setex(`user:profile:${userId}`, ttlSec, payload), 500, null).catch(() => {});
+        }
     } catch (err) {
         logger.warn(`[Redis] Failed to cache user profile for [${userId}]: ${err.message}`);
     }
 };
 
 const getUserProfileCache = async (userId) => {
-    if (!isRedisConnected() || !userId) return null;
-    try {
-        const raw = await withTimeout(redisClient.get(`user:profile:${userId}`), 500, null);
-        if (!raw) return null;
-        return JSON.parse(raw);
-    } catch (err) {
-        logger.warn(`[Redis] Failed to read user profile cache for [${userId}]: ${err.message}`);
-        return null;
+    if (!userId) return null;
+    const key = `user:profile:${userId}`;
+
+    // 1. Try L1 RAM Cache first (0.001ms - Ultra fast)
+    const ramItem = userProfileRamCache.get(key);
+    if (ramItem && Date.now() < ramItem.expiresAt) {
+        return ramItem.value;
     }
+
+    // 2. Try L2 Redis Cache if L1 RAM missed
+    if (isRedisConnected()) {
+        try {
+            const raw = await withTimeout(redisClient.get(key), 500, null);
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                // Populate L1 RAM for subsequent fast reads (5 minutes TTL in RAM)
+                userProfileRamCache.set(key, { value: parsed, expiresAt: Date.now() + 300000 });
+                return parsed;
+            }
+        } catch (err) {
+            logger.warn(`[Redis] Failed to read user profile cache for [${userId}]: ${err.message}`);
+        }
+    }
+
+    return null;
 };
 
 const clearUserProfileCache = async (userId) => {
-    if (!isRedisConnected() || !userId) return;
-    try {
-        await withTimeout(redisClient.del(`user:profile:${userId}`), 500, null);
-    } catch (err) {
-        logger.warn(`[Redis] Failed to delete user profile cache for [${userId}]: ${err.message}`);
+    if (!userId) return;
+    const key = `user:profile:${userId}`;
+    userProfileRamCache.delete(key);
+    if (isRedisConnected()) {
+        try {
+            withTimeout(redisClient.del(key), 500, null).catch(() => {});
+        } catch (err) {
+            logger.warn(`[Redis] Failed to delete user profile cache for [${userId}]: ${err.message}`);
+        }
     }
 };
 
