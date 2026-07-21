@@ -148,6 +148,15 @@ Tác vụ chạy định kỳ lúc nửa đêm của `NotificationScheduler.js` 
 *   **Thiên can Cung Mệnh:** $\text{Can Cung Mệnh} = \text{Can Tháng} + (\text{Chi Cung Mệnh} - \text{Chi Tháng}) \pmod{10}$.
 *   **Thai Nguyên (Conception Palace):** $\text{Can Thai Nguyên} = \text{Can Tháng} + 1 \pmod{10}$ và $\text{Chi Thai Nguyên} = \text{Chi Tháng} + 3 \pmod{12}$.
 
+### 5.10 Ma Trận Cờ Học Thuật (Academic Flag Matrix) & Phân Cấp Thân Vượng/Nhược (Bazi 5.3 Upgrade - Refined)
+*   **Được Tư Lệnh (`ducTuLenh`):** Bỏ bảng Nguyệt Lệnh tĩnh, sử dụng **Nhân Khí Tư Lệnh (`tuLenhCan`)** theo số ngày sau Tiết Khí. Nếu Can nắm quyền (Tư Lệnh) cùng ngũ hành với Nhật Chủ hoặc tương sinh cho Nhật Chủ $\rightarrow$ Tính là Được Tư Lệnh.
+*   **Đắc Địa (`dacDia`):** Can ngày có Căn rễ (Bản khí, Trung khí, Dư khí) ở Địa chi của các trụ.
+*   **Tổ Hợp Bị Xung/Hình/Hại Phá (`hasDisruptionIntoCombination`):** Tất cả các tổ hợp Tam Hợp, Bán Tam Hợp, Củng Hợp, Lục Hợp nếu bị tác động bởi Lục Xung, Tương Hình hoặc Lục Hại thì bị coi là **bị xung/hình/hại phá và KHÔNG HỢP ĐƯỢC**.
+*   **Quy Đổi Điểm Số Nhật Chủ (`dmElem` Score):** Ngoại trừ 4 hành khác tính điểm thông căn thông thường, riêng điểm ngũ hành của Nhật Chủ được quy đổi trực tiếp từ các quy tắc học thuật vừa xác định (Đắc Địa, Được Tư Lệnh, Được Sinh, Được Trợ Giúp, Tam Hợp/Tam Hội không bị phá).
+*   **Ma Trận Phân Cấp Thân (`thanDegree`):**
+    *   *Có Được Tư Lệnh:* $\ge 3/3$ điều $\rightarrow$ **Cực Vượng**, $2/3$ điều $\rightarrow$ **Rất Vượng**, $<2/3$ điều $\rightarrow$ **Vượng**.
+    *   *Không Được Tư Lệnh:* $\ge 2/3$ điều $\rightarrow$ **Rất Vượng/Vượng**, $1/3$ điều + Tam Hợp/Tam Hội cục (Ấn/Tỷ, không bị phá) $\rightarrow$ **Vượng**, 1/3 điều $\rightarrow$ **Cân Bằng**, 0/3 điều $\rightarrow$ **Nhược / Rất Nhược** (hoặc **Tòng Cách** nếu Khắc/Tiết/Hao $>70\%$).
+
 ---
 
 ## 📚 6. Quy tắc Nghiệp vụ Quản lý Blog, Deep-Linking & Định dạng Markdown

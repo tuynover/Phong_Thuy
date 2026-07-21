@@ -47,6 +47,13 @@ QUY TẮC LUẬN GIẢI HỌC THUẬT & AN TOÀN:
 --- TƯƠNG QUAN ĐỊA CHI (HÌNH XUNG HỢP HẠI) ---
 ${formatRelationText(baziData.analysis.relations)}
 
+--- TÌNH TRẠNG HỌC THUẬT BÁT TỰ (TƯ LỆNH / ĐẮC ĐỊA / ĐƯỢC SINH / ĐƯỢC TRỢ GIÚP) ---
+- Được Tư Lệnh (Nhân Khí Tư Lệnh ${baziData.tuLenhCan || ''}): ${baziData.analysis.academicFlags?.ducTuLenh ? `ĐÃ ĐẠT (Tư Lệnh Can ${baziData.tuLenhCan} nắm quyền trợ lực)` : `KHÔNG ĐẠT (Tư Lệnh Can ${baziData.tuLenhCan} nắm quyền khắc/tiết)`}
+- Đắc Địa (Căn rễ tại Địa chi Tứ trụ): ${baziData.analysis.academicFlags?.dacDia ? 'ĐÃ ĐẠT (Có Căn rễ tàng can cùng ngũ hành tại Địa chi)' : 'KHÔNG ĐẠT (Thiếu căn rễ tại Địa chi)'}
+- Được Sinh (Ấn tinh tương sinh): ${baziData.analysis.academicFlags?.duocSinh ? 'ĐÃ ĐẠT (Có Chính Ấn / Thiên Ấn hỗ trợ)' : 'KHÔNG ĐẠT'}
+- Được Trợ Giúp (Tỷ Kiếp ngang vai): ${baziData.analysis.academicFlags?.duocTroGiup ? 'ĐÃ ĐẠT (Có Tỷ Kiên / Kiếp Tài trợ giúp)' : 'KHÔNG ĐẠT'}
+- Trạng thái Thân phân cấp học thuật: ${baziData.analysis.thanDegree || baziData.analysis.than}
+
 --- HÀNH TRÌNH ĐẠI VẬN CUỘC ĐỜI (10 NĂM) ---
 ${daYunText}
 

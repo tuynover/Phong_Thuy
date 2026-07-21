@@ -62,21 +62,27 @@ const rateLimiter = ({ windowMs = 15 * 60 * 1000, max = 100, message } = {}) => 
 
         if (isRedisConnected()) {
             try {
-                // Tăng đếm nguyên tử trên Redis với timeout 300ms
-                const count = await withTimeout(redisClient.incr(redisKey), 300, null);
+                const pipeline = redisClient.pipeline();
+                pipeline.incr(redisKey);
+                pipeline.pttl(redisKey);
+
+                const results = await withTimeout(pipeline.exec(), 200, null);
                 
-                if (count === null) {
-                    // Redis timed out, fallback to memory
+                if (!results || !results[0] || results[0][0]) {
+                    // Redis timed out or threw error, fallback to RAM
                     return fallbackMemoryRateLimiter(req, res, next, keyRaw, windowMs, max, message);
                 }
 
-                if (count === 1) {
-                    // Đặt TTL cho key khi mới tạo
-                    withTimeout(redisClient.pexpire(redisKey, windowMs), 300, null).catch(() => {});
-                }
+                const count = results[0][1];
+                let ttlMs = results[1] ? results[1][1] : -1;
 
-                let ttlMs = await withTimeout(redisClient.pttl(redisKey), 300, windowMs);
-                if (!ttlMs || ttlMs < 0) ttlMs = windowMs;
+                if (count === 1) {
+                    // Đặt TTL cho key khi mới tạo (non-blocking async)
+                    withTimeout(redisClient.pexpire(redisKey, windowMs), 200, null).catch(() => {});
+                    ttlMs = windowMs;
+                } else if (!ttlMs || ttlMs < 0) {
+                    ttlMs = windowMs;
+                }
 
                 const resetTimeSec = Math.ceil((Date.now() + ttlMs) / 1000);
                 const retryAfterSec = Math.ceil(ttlMs / 1000);

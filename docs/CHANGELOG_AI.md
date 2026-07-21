@@ -2,6 +2,15 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Tinh Chỉnh Thuật Toán Bát Tự (Tư Lệnh Can, Đắc Địa, Phá Tổ Hợp Xung/Hình/Hại & Phân Cấp Thân) (21/07/2026)
+
+### Bazi Algorithm & Academic Matrix Refinement
+- **Chuyển đổi Được Lệnh $\rightarrow$ Được Tư Lệnh (`ducTuLenh`)**: Loại bỏ bảng Nguyệt Lệnh tĩnh, sử dụng **Nhân Khí Tư Lệnh (`tuLenhCan`)** tính theo khoảng thời gian sau Tiết Khí. Nếu Can Tư Lệnh cùng ngũ hành với Nhật Chủ hoặc sinh cho Nhật Chủ $\rightarrow$ Tính là Được Tư Lệnh.
+- **Tính Đắc Địa (`dacDia`)**: Kiểm tra Can ngày có Căn rễ (Bản khí, Trung khí, Dư khí) ở Địa chi các Trụ.
+- **Vô Hiệu Hóa Hợp Cục Khi Bị Xung/Hình/Hại (`hasDisruptionIntoCombination`)**: Nâng cấp bộ kiểm tra Tam Hợp, Bán Tam Hợp, Củng Hợp, Lục Hợp. Nếu bất kỳ địa chi nào trong tổ hợp bị dính Lục Xung, Tương Hình hoặc Lục Hại thì bị đánh dấu `(Bị xung/hình/hại phá)` và **không thể hợp thành công** (không được cộng điểm/trợ lực).
+- **Tính Điểm Ngũ Hành Chuẩn Hóa Cho Nhật Chủ**: Điểm ngũ hành của Nhật Chủ được tính toán dựa trên các quy tắc học thuật (Đắc Địa, Được Tư Lệnh, Được Sinh, Được Trợ Giúp, Tam Hợp/Tam Hội không bị phá) thay vì tính thông căn đại trà như 4 ngũ hành còn lại.
+- **Đồng bộ AI Prompt**: Cập nhật [BaziPrompts.js](file:///t:/Phongthuy/backend/src/services/BaziPrompts.js#L50) truyền dữ liệu Tư Lệnh Can và Đắc Địa vào prompt cho LLM.
+
 ## 📅 Phiên bản: Khắc Phục Triệt Để Nghẽn Lệnh & Trễ Redis/Mongo 3000ms Trên AWS EC2 (21/07/2026)
 
 ### AWS EC2 Infrastructure & Latency Optimization
