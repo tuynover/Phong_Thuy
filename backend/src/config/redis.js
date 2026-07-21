@@ -6,27 +6,45 @@ let isConnected = false;
 const redisHost = process.env.REDIS_HOST || 'redis';
 const redisPort = parseInt(process.env.REDIS_PORT || '6379', 10);
 const redisPassword = process.env.REDIS_PASSWORD || undefined;
+const redisTls = process.env.REDIS_TLS === 'true' || (process.env.REDIS_URL && process.env.REDIS_URL.startsWith('rediss://'));
 
-const redisClient = new Redis({
+const redisOptions = {
     host: redisHost,
     port: redisPort,
     password: redisPassword,
+    family: 4,                  // Force IPv4 to prevent 3000ms IPv6 AAAA DNS lookup delay on AWS EC2
+    connectTimeout: 2000,      // Fast fail (2s max connection timeout instead of 10s default)
+    commandTimeout: 1500,      // Max command timeout
     enableOfflineQueue: false, // Fail fast if offline so app can fallback to memory cache immediately
     lazyConnect: false,
+    keepAlive: 5000,           // Heartbeat keep-alive to prevent AWS VPC NAT Gateway from killing idle socket after 350s
     retryStrategy(times) {
-        const delay = Math.min(times * 1000, 30000);
+        const delay = Math.min(times * 500, 5000);
         return delay;
     },
     maxRetriesPerRequest: 1
-});
+};
+
+if (redisTls) {
+    redisOptions.tls = {
+        rejectUnauthorized: false
+    };
+}
+
+let redisClient;
+if (process.env.REDIS_URL) {
+    redisClient = new Redis(process.env.REDIS_URL, redisOptions);
+} else {
+    redisClient = new Redis(redisOptions);
+}
 
 redisClient.on('connect', () => {
-    isConnected = true;
-    logger.info(`[Redis] Successfully connected to Redis at ${redisHost}:${redisPort}`);
+    logger.info(`[Redis] TCP connected to Redis at ${redisHost}:${redisPort}`);
 });
 
 redisClient.on('ready', () => {
     isConnected = true;
+    logger.info(`[Redis] Successfully ready at ${redisHost}:${redisPort}`);
 });
 
 redisClient.on('error', (err) => {
@@ -43,10 +61,37 @@ redisClient.on('close', () => {
 });
 
 redisClient.on('reconnecting', () => {
+    isConnected = false;
     logger.info('[Redis] Reconnecting to Redis...');
 });
 
-const isRedisConnected = () => isConnected;
+/**
+ * Returns true ONLY when Redis client status is 'ready'.
+ */
+const isRedisConnected = () => {
+    return isConnected && redisClient && redisClient.status === 'ready';
+};
+
+/**
+ * Hard timeout wrapper to ensure Redis ops never block the Node.js event loop for more than `ms` milliseconds.
+ * If Redis hangs or is slow on AWS, returns `fallbackValue` immediately.
+ */
+const withTimeout = (promise, ms = 500, fallbackValue = null) => {
+    let timer = null;
+    const timeoutPromise = new Promise(resolve => {
+        timer = setTimeout(() => resolve(fallbackValue), ms);
+    });
+    return Promise.race([
+        promise.then(res => {
+            if (timer) clearTimeout(timer);
+            return res;
+        }).catch(err => {
+            if (timer) clearTimeout(timer);
+            return fallbackValue;
+        }),
+        timeoutPromise
+    ]);
+};
 
 // --- Helper 1: User Profile Cache (Auth & Session Optimization) ---
 const setUserProfileCache = async (userId, userObj, ttlSec = 86400) => {
@@ -68,7 +113,7 @@ const setUserProfileCache = async (userId, userObj, ttlSec = 86400) => {
             tokenVersion: userObj.tokenVersion || 0,
             baziInfo: userObj.baziInfo || null
         });
-        await redisClient.setex(`user:profile:${userId}`, ttlSec, payload);
+        await withTimeout(redisClient.setex(`user:profile:${userId}`, ttlSec, payload), 500, null);
     } catch (err) {
         logger.warn(`[Redis] Failed to cache user profile for [${userId}]: ${err.message}`);
     }
@@ -77,7 +122,7 @@ const setUserProfileCache = async (userId, userObj, ttlSec = 86400) => {
 const getUserProfileCache = async (userId) => {
     if (!isRedisConnected() || !userId) return null;
     try {
-        const raw = await redisClient.get(`user:profile:${userId}`);
+        const raw = await withTimeout(redisClient.get(`user:profile:${userId}`), 500, null);
         if (!raw) return null;
         return JSON.parse(raw);
     } catch (err) {
@@ -89,7 +134,7 @@ const getUserProfileCache = async (userId) => {
 const clearUserProfileCache = async (userId) => {
     if (!isRedisConnected() || !userId) return;
     try {
-        await redisClient.del(`user:profile:${userId}`);
+        await withTimeout(redisClient.del(`user:profile:${userId}`), 500, null);
     } catch (err) {
         logger.warn(`[Redis] Failed to delete user profile cache for [${userId}]: ${err.message}`);
     }
@@ -99,8 +144,8 @@ const clearUserProfileCache = async (userId) => {
 const setOtpRedis = async (otpKey, otpCode, ttlSec = 900) => {
     if (!isRedisConnected()) return false;
     try {
-        await redisClient.setex(`otp:${otpKey}`, ttlSec, otpCode);
-        return true;
+        const res = await withTimeout(redisClient.setex(`otp:${otpKey}`, ttlSec, otpCode), 500, null);
+        return res !== null;
     } catch (err) {
         logger.warn(`[Redis] Failed to set OTP for key [${otpKey}]: ${err.message}`);
         return false;
@@ -110,7 +155,7 @@ const setOtpRedis = async (otpKey, otpCode, ttlSec = 900) => {
 const getOtpRedis = async (otpKey) => {
     if (!isRedisConnected()) return null;
     try {
-        return await redisClient.get(`otp:${otpKey}`);
+        return await withTimeout(redisClient.get(`otp:${otpKey}`), 500, null);
     } catch (err) {
         logger.warn(`[Redis] Failed to get OTP for key [${otpKey}]: ${err.message}`);
         return null;
@@ -120,7 +165,7 @@ const getOtpRedis = async (otpKey) => {
 const deleteOtpRedis = async (otpKey) => {
     if (!isRedisConnected()) return;
     try {
-        await redisClient.del(`otp:${otpKey}`);
+        await withTimeout(redisClient.del(`otp:${otpKey}`), 500, null);
     } catch (err) {
         logger.warn(`[Redis] Failed to delete OTP for key [${otpKey}]: ${err.message}`);
     }
@@ -130,7 +175,7 @@ const deleteOtpRedis = async (otpKey) => {
 const acquireRedisLock = async (lockKey, ttlMs = 3000) => {
     if (!isRedisConnected()) return true; // Fallback allow if Redis offline
     try {
-        const result = await redisClient.set(`lock:${lockKey}`, '1', 'PX', ttlMs, 'NX');
+        const result = await withTimeout(redisClient.set(`lock:${lockKey}`, '1', 'PX', ttlMs, 'NX'), 500, 'OK');
         return result === 'OK';
     } catch (err) {
         logger.warn(`[Redis] Failed to acquire lock [${lockKey}]: ${err.message}`);
@@ -141,7 +186,7 @@ const acquireRedisLock = async (lockKey, ttlMs = 3000) => {
 const releaseRedisLock = async (lockKey) => {
     if (!isRedisConnected()) return;
     try {
-        await redisClient.del(`lock:${lockKey}`);
+        await withTimeout(redisClient.del(`lock:${lockKey}`), 500, null);
     } catch (err) {
         logger.warn(`[Redis] Failed to release lock [${lockKey}]: ${err.message}`);
     }
@@ -150,6 +195,7 @@ const releaseRedisLock = async (lockKey) => {
 module.exports = {
     redisClient,
     isRedisConnected,
+    withTimeout,
     setUserProfileCache,
     getUserProfileCache,
     clearUserProfileCache,

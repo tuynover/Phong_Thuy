@@ -1,4 +1,4 @@
-const { redisClient, isRedisConnected } = require('../config/redis');
+const { redisClient, isRedisConnected, withTimeout } = require('../config/redis');
 const logger = require('../services/LoggerService');
 
 const rateLimitCache = new Map();
@@ -62,16 +62,21 @@ const rateLimiter = ({ windowMs = 15 * 60 * 1000, max = 100, message } = {}) => 
 
         if (isRedisConnected()) {
             try {
-                // Tăng đếm nguyên tử trên Redis
-                const count = await redisClient.incr(redisKey);
+                // Tăng đếm nguyên tử trên Redis với timeout 300ms
+                const count = await withTimeout(redisClient.incr(redisKey), 300, null);
                 
-                if (count === 1) {
-                    // Đặt TTL cho key khi mới tạo
-                    await redisClient.pexpire(redisKey, windowMs);
+                if (count === null) {
+                    // Redis timed out, fallback to memory
+                    return fallbackMemoryRateLimiter(req, res, next, keyRaw, windowMs, max, message);
                 }
 
-                let ttlMs = await redisClient.pttl(redisKey);
-                if (ttlMs < 0) ttlMs = windowMs;
+                if (count === 1) {
+                    // Đặt TTL cho key khi mới tạo
+                    withTimeout(redisClient.pexpire(redisKey, windowMs), 300, null).catch(() => {});
+                }
+
+                let ttlMs = await withTimeout(redisClient.pttl(redisKey), 300, windowMs);
+                if (!ttlMs || ttlMs < 0) ttlMs = windowMs;
 
                 const resetTimeSec = Math.ceil((Date.now() + ttlMs) / 1000);
                 const retryAfterSec = Math.ceil(ttlMs / 1000);

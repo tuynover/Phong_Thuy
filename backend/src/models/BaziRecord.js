@@ -85,11 +85,4 @@ baziRecordSchema.index({ createdAt: 1 });
 baziRecordSchema.index({ isDeleted: 1, status: 1, userId: 1, _id: -1 });
 baziRecordSchema.index({ isDeleted: 1, status: 1, _id: -1 });
 
-baziRecordSchema.post('save', function(doc) {
-  if (doc.userId && doc.userId !== 'guest') {
-    const UserStatsService = require('../services/UserStatsService');
-    UserStatsService.updateUserStatsBackground(doc.userId);
-  }
-});
-
 module.exports = mongoose.model('BaziRecord', baziRecordSchema);

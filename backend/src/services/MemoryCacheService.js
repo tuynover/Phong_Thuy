@@ -1,4 +1,4 @@
-const { redisClient, isRedisConnected } = require('../config/redis');
+const { redisClient, isRedisConnected, withTimeout } = require('../config/redis');
 const logger = require('./LoggerService');
 
 class MemoryCacheService {
@@ -60,7 +60,7 @@ class MemoryCacheService {
             const ttlSeconds = Math.max(1, Math.ceil(ttlMs / 1000));
             try {
                 const serialized = JSON.stringify(value);
-                redisClient.setex(key, ttlSeconds, serialized).catch(err => {
+                withTimeout(redisClient.setex(key, ttlSeconds, serialized), 500, null).catch(err => {
                     logger.warn(`[MemoryCacheService] Redis setex failed for key ${key}: ${err.message}`);
                 });
             } catch (err) {
@@ -102,10 +102,10 @@ class MemoryCacheService {
             return localValue;
         }
 
-        // 2. If L1 missed and Redis is connected, try L2 Redis
+        // 2. If L1 missed and Redis is connected, try L2 Redis with timeout
         if (isRedisConnected()) {
             try {
-                const data = await redisClient.get(key);
+                const data = await withTimeout(redisClient.get(key), 500, null);
                 if (data) {
                     const parsed = JSON.parse(data);
                     // Populate L1 cache for subsequent fast reads (default 3 mins)
@@ -130,7 +130,7 @@ class MemoryCacheService {
 
         // L2: Delete Redis
         if (isRedisConnected()) {
-            redisClient.del(key).catch(err => {
+            withTimeout(redisClient.del(key), 500, null).catch(err => {
                 logger.warn(`[MemoryCacheService] Redis del failed for key ${key}: ${err.message}`);
             });
         }
@@ -150,24 +150,28 @@ class MemoryCacheService {
 
         // L2: Delete matching Redis keys via SCAN
         if (isRedisConnected()) {
-            const stream = redisClient.scanStream({
-                match: `${prefix}*`,
-                count: 100
-            });
+            try {
+                const stream = redisClient.scanStream({
+                    match: `${prefix}*`,
+                    count: 100
+                });
 
-            stream.on('data', (keys) => {
-                if (keys.length > 0) {
-                    const pipeline = redisClient.pipeline();
-                    keys.forEach(k => pipeline.del(k));
-                    pipeline.exec().catch(err => {
-                        logger.warn(`[MemoryCacheService] Redis deleteByPrefix pipeline failed: ${err.message}`);
-                    });
-                }
-            });
+                stream.on('data', (keys) => {
+                    if (keys && keys.length > 0) {
+                        const pipeline = redisClient.pipeline();
+                        keys.forEach(k => pipeline.del(k));
+                        withTimeout(pipeline.exec(), 1000, null).catch(err => {
+                            logger.warn(`[MemoryCacheService] Redis deleteByPrefix pipeline failed: ${err.message}`);
+                        });
+                    }
+                });
 
-            stream.on('error', (err) => {
-                logger.warn(`[MemoryCacheService] Redis deleteByPrefix scan failed for prefix ${prefix}: ${err.message}`);
-            });
+                stream.on('error', (err) => {
+                    logger.warn(`[MemoryCacheService] Redis deleteByPrefix scan failed for prefix ${prefix}: ${err.message}`);
+                });
+            } catch (err) {
+                logger.warn(`[MemoryCacheService] Redis deleteByPrefix exception: ${err.message}`);
+            }
         }
     }
 

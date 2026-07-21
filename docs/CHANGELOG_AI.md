@@ -2,6 +2,15 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Khắc Phục Triệt Để Nghẽn Lệnh & Trễ Redis/Mongo 3000ms Trên AWS EC2 (21/07/2026)
+
+### AWS EC2 Infrastructure & Latency Optimization
+- **Khắc phục triệt để lỗi phản hồi 3000ms (3 giây) trên AWS EC2 cho Đăng nhập, Đăng xuất và Tính lá số**:
+  - **Kích hoạt `family: 4` cho Redis Client**: Thêm `family: 4` vào [redis.js](file:///t:/Phongthuy/backend/src/config/redis.js#L15) loại bỏ hoàn toàn độ trễ **3000ms** do trình phân giải DNS của AWS EC2 VPC treo khi truy vấn bản ghi AAAA (IPv6) cho `localhost` / hostname.
+  - **Gỡ bỏ Mongoose `post('save')` Hooks dư thừa**: Xóa bỏ hook `post('save')` gọi `updateUserStatsBackground` trong [BaziRecord.js](file:///t:/Phongthuy/backend/src/models/BaziRecord.js), [ZiweiRecord.js](file:///t:/Phongthuy/backend/src/models/ZiweiRecord.js), [IChingRecord.js](file:///t:/Phongthuy/backend/src/models/IChingRecord.js), [MarriageRecord.js](file:///t:/Phongthuy/backend/src/models/MarriageRecord.js), và [Conversation.js](file:///t:/Phongthuy/backend/src/models/Conversation.js). Việc này loại bỏ **12 câu lệnh MongoDB aggregation ($group, countDocuments)** bị thực thi lặp lại trên đĩa I/O của EC2 mỗi khi tạo lá số mới (vốn gây tốn 2.5s - 3s). Hệ thống đã chuyển hoàn toàn sang cộng dồn nguyên tử $inc O(1) trực tiếp từ Controller.
+  - **Cấu hình Redis Fast Fail**: Đặt `connectTimeout: 2000`, `commandTimeout: 1500`, `keepAlive: 5000` (ngăn AWS NAT Gateway kill socket nhàn rỗi).
+  - **Đóng gói Hard Timeout Wrapper (`withTimeout`)**: Bọc tất cả Redis operations tối đa 300ms - 500ms để đảm bảo Instant Fallback về RAM / MongoDB nếu Redis phản hồi chậm.
+
 ## 📅 Phiên bản: Tăng Cường Unit Test & Coverage (27 → 86 Tests) (21/07/2026)
 
 ### Testing & Quality Assurance

@@ -94,11 +94,4 @@ ziweiRecordSchema.index({ createdAt: 1 });
 ziweiRecordSchema.index({ isDeleted: 1, status: 1, userId: 1, _id: -1 });
 ziweiRecordSchema.index({ isDeleted: 1, status: 1, _id: -1 });
 
-ziweiRecordSchema.post('save', function(doc) {
-  if (doc.userId && doc.userId !== 'guest') {
-    const UserStatsService = require('../services/UserStatsService');
-    UserStatsService.updateUserStatsBackground(doc.userId);
-  }
-});
-
 module.exports = mongoose.model('ZiweiRecord', ziweiRecordSchema);

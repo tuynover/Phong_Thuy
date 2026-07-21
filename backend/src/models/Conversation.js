@@ -40,11 +40,4 @@ const conversationSchema = new mongoose.Schema({
 conversationSchema.index({ userId: 1, totalTokens: 1 });
 conversationSchema.index({ createdAt: 1 });
 
-conversationSchema.post('save', function(doc) {
-  if (doc.userId && doc.userId !== 'guest') {
-    const UserStatsService = require('../services/UserStatsService');
-    UserStatsService.updateUserStatsBackground(doc.userId);
-  }
-});
-
 module.exports = mongoose.model('Conversation', conversationSchema);

@@ -79,11 +79,4 @@ marriageRecordSchema.index({ userId: 1, createdAt: -1 });
 marriageRecordSchema.index({ createdAt: 1 });
 marriageRecordSchema.index({ isDeleted: 1, status: 1, userId: 1, _id: -1 });
 
-marriageRecordSchema.post('save', function(doc) {
-  if (doc.userId && doc.userId !== 'guest') {
-    const UserStatsService = require('../services/UserStatsService');
-    UserStatsService.updateUserStatsBackground(doc.userId);
-  }
-});
-
 module.exports = mongoose.model('MarriageRecord', marriageRecordSchema);
