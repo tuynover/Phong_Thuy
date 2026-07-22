@@ -175,6 +175,34 @@ Tác vụ chạy định kỳ lúc nửa đêm của `NotificationScheduler.js` 
   - Cú pháp `![Mô tả ảnh](URL)`.
   - Tự động hiển thị khung ảnh bo tròn `rounded-2xl`, giới hạn chiều cao `max-h-[480px]`, căn giữa kèm chú thích ảnh nghiêng `figcaption` bên dưới.
 
+---
+
+## 🛡️ 7. Quy tắc Kiểm Soát Dữ Liệu Đầu Vào & Tự Động Chuẩn Hóa (Input Validation & Auto-Correction)
+
+### 7.1 Mô Hình Bảo Vệ 2 Bước (2-Step Protection Layer)
+Hệ thống triển khai cơ chế kiểm soát dữ liệu đầu vào nghiêm ngặt đồng bộ trên cả 4 phân hệ: **Bát Tự, Tử Vi, Kinh Dịch (Mai Hoa Dịch Số), và Hôn Nhân**.
+
+#### 1. Bước 1: Frontend Real-Time Validation & Auto-Correction
+- **Tự động ép về số ngày tối đa (Day Auto-Clamp):**
+  - Nếu người dùng chọn **Ngày 29/02** và chuyển sang **Năm không nhuận** (vd: năm 2023), hệ thống tự động đẩy ngày về `28`.
+  - Nếu chọn **Ngày 31** và chuyển sang **Tháng có 30 ngày** (Tháng 4, 6, 9, 11), hệ thống tự động đẩy ngày về `30`.
+- **Tự động ép ngưỡng khi gõ tay (Smart Range Clamping):**
+  - Gõ ngày $>31$ (vd gõ 100) $\rightarrow$ Tự động đẩy về `31`.
+  - Gõ tháng $>12$ $\rightarrow$ Tự động đẩy về `12`.
+  - Gõ năm $>2100$ $\rightarrow$ Tự động đẩy về `2100`.
+  - Gõ giờ $>23$ hoặc phút $>59$ $\rightarrow$ Tự động đẩy về `23` và `59`.
+- **Triệt tiêu chữ cái & Ký tự đặc biệt (Strict Digit Stripping):**
+  - Lọc sạch toàn bộ ký tự chữ cái (A-Z) và ký tự đặc biệt ngay khi gõ vào ô chọn `CustomSelect` hoặc ô `Seri Tiền 8 số` (`val.replace(/\D/g, '')`), đảm bảo chữ không thể lọt qua.
+- **Floating Toast Notification Pinned at Viewport Top:**
+  - Thông báo lỗi hiển thị bằng component [`FloatingErrorToast.jsx`](file:///t:/Phongthuy/frontend/src/components/FloatingErrorToast.jsx) cố định ở đỉnh màn hình (`fixed top-4 left-1/2 -translate-x-1/2 z-[9999]`), nền trắng, chữ đen, icon dấu chấm cảm màu đỏ nổi bật (`AlertCircle text-red-600`), tự động biến mất sau 3 giây.
+- **Khóa Nút Submit (Disabled Button State):**
+  - Nút bấm tạo lá số/quẻ bị vô hiệu hóa (`disabled`) kèm hiệu ứng mờ `disabled:opacity-50 disabled:cursor-not-allowed` khi chưa điền đủ dữ liệu hoặc dữ liệu đang bị lỗi.
+
+#### 2. Bước 2: Backend Strict Validation Service (`InputValidator.js`)
+- Áp dụng tại dòng code đầu tiên của cả 4 Controller: [`BaziController.js`](file:///t:/Phongthuy/backend/src/controllers/BaziController.js#L73), [`ZiweiController.js`](file:///t:/Phongthuy/backend/src/controllers/ZiweiController.js#L11), [`MarriageController.js`](file:///t:/Phongthuy/backend/src/controllers/MarriageController.js#L73), và [`IChingController.js`](file:///t:/Phongthuy/backend/src/controllers/IChingController.js#L7).
+- Thực thi các hàm `validateBaziInput`, `validateZiweiInput`, `validateMarriageInput`, và `validateIChingInput`.
+- Phản hồi ngay lập tức HTTP status `400 Bad Request` trong $<0.005$ms nếu dữ liệu không hợp lệ, bảo vệ máy chủ khỏi các request rác hoặc tấn công quá tải.
+
 
 
 

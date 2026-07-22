@@ -86,6 +86,7 @@ export const restoreAdminUser = (id) => axios.post(`${API_URL}/admin/users/${id}
 export const getAdminUserStats = (id) => axios.get(`${API_URL}/admin/users/${id}/stats`);
 export const deleteCalculation = (type, id) => axios.delete(`${API_URL}/history/calculations/${type}/${id}`);
 export const pinCalculation = (type, id) => axios.put(`${API_URL}/history/calculations/${type}/${id}/pin`);
+export const togglePublicCalculation = (type, id, isPublic) => axios.put(`${API_URL}/history/calculations/${type}/${id}/public`, { isPublic });
 
 // Blog API Endpoints
 export const getBlogPosts = (params) => axios.get(`${API_URL}/blog`, { params });

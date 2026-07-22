@@ -24,6 +24,7 @@ graph TD
         ZiweiB --> ZiweiCh[ZiweiChart.jsx]
         
         IChingB & BaziB & ZiweiB & MarriageB --> ChatW[AiChatWidget.jsx]
+        IChingB & BaziB & ZiweiB & MarriageB --> FloatT[FloatingErrorToast.jsx]
         IChingB & BaziB & ZiweiB & MarriageB --> Tooltip[Tooltip.jsx]
         ChatW --> SecR[SectionRenderer.jsx]
         
@@ -63,6 +64,7 @@ graph TD
         Services --> ConvCtxS[ConversationContextService.js]
         Services --> EmailS[EmailService.js]
         Services --> IChingDataS[IChingDataService.js]
+        Services --> InputVal[InputValidator.js]
         Services --> LoggerS[LoggerService.js]
         Services --> MemCacheS[MemoryCacheService.js]
         Services --> UserStatsS[UserStatsService.js]

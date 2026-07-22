@@ -2,6 +2,7 @@ const IChingRecord = require('../models/IChingRecord');
 const BaziRecord = require('../models/BaziRecord');
 const ZiweiRecord = require('../models/ZiweiRecord');
 const MarriageRecord = require('../models/MarriageRecord');
+const GoogleIndexingService = require('../services/GoogleIndexingService');
 const IChingDataService = require('../services/IChingDataService');
 const MemoryCacheService = require('../services/MemoryCacheService');
 const Conversation = require('../models/Conversation');
@@ -663,6 +664,64 @@ class HistoryController {
         } catch (error) {
             console.error('pinCalculation error:', error);
             return res.status(500).json({ error: 'Lỗi máy chủ khi ghim bản ghi.' });
+        }
+    }
+
+    static async togglePublicCalculation(req, res) {
+        try {
+            const { type, id } = req.params;
+            const { isPublic } = req.body;
+            const userId = req.user.id || req.user._id?.toString();
+
+            if (!userId) {
+                return res.status(401).json({ error: 'Người dùng chưa xác thực.' });
+            }
+
+            let Model;
+            let typePath = '';
+            if (type === 'hexagrams' || type === 'iching') {
+                Model = IChingRecord;
+                typePath = 'iching';
+            } else if (type === 'bazi' || type === 'bat_tu') {
+                Model = BaziRecord;
+                typePath = 'bazi';
+            } else if (type === 'tu_vi' || type === 'tu-vi' || type === 'ziwei') {
+                Model = ZiweiRecord;
+                typePath = 'ziwei';
+            } else if (type === 'marriage') {
+                Model = MarriageRecord;
+                typePath = 'marriage';
+            } else {
+                return res.status(400).json({ error: 'Loại quẻ/lá số không hợp lệ.' });
+            }
+
+            const record = await findByIdFlex(Model, id);
+            if (!record) {
+                return res.status(404).json({ error: 'Không tìm thấy bản ghi.' });
+            }
+
+            if (record.userId !== userId && record.userId?.toString() !== userId) {
+                return res.status(403).json({ error: 'Bạn không có quyền thay đổi trạng thái bản ghi này.' });
+            }
+
+            const publicStatus = isPublic === undefined ? !record.isPublic : Boolean(isPublic);
+            
+            const updatedRecord = await updateByIdFlex(Model, id, { isPublic: publicStatus });
+
+            // Clear cache lịch sử
+            MemoryCacheService.clearUserHistoryCache(userId);
+
+            // Gửi thông báo Google Indexing API không đồng bộ
+            const targetUrl = `https://tuynover.ddns.net/${typePath}/record/${record._id}`;
+            const action = publicStatus ? 'URL_UPDATED' : 'URL_DELETED';
+            GoogleIndexingService.publishUrl(targetUrl, action).catch(err => {
+                console.error(`[HistoryController.togglePublicCalculation] Lỗi ping Google Indexing cho ${targetUrl}:`, err);
+            });
+
+            return res.json(updatedRecord);
+        } catch (error) {
+            console.error('togglePublicCalculation error:', error);
+            return res.status(500).json({ error: 'Lỗi máy chủ khi thay đổi chế độ chia sẻ bản ghi.' });
         }
     }
 }

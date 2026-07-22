@@ -82,6 +82,10 @@ const ziweiRecordSchema = new mongoose.Schema({
   isDeleted: {
     type: Boolean,
     default: false
+  },
+  isPublic: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true

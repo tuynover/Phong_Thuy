@@ -2,6 +2,30 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Triển Khai Giải Pháp SEO Tự Chủ Siêu Nhẹ & Tích Hợp Các Trang Pháp Lý Frontend (22/07/2026)
+
+### SEO, Sitemap & Google Indexing API Integration
+- **Cấu hình Gateway Nginx ([default.conf](file:///t:/Phongthuy/nginx/default.conf))**:
+  - Định tuyến các URL SEO và chia sẻ lá số công khai (`/bazi/record/:id`, `/ziwei/record/:id`, `/iching/record/:id`, `/marriage/record/:id`, `/blog/:slug`, `/sitemap.xml`) hướng thẳng sang container Backend Express (`http://backend:3001`).
+- **Thay đổi Database Schemas**:
+  - Bổ sung trường `isPublic` (boolean, mặc định `false`) cho `BaziRecord`, `ZiweiRecord`, `IChingRecord`, `MarriageRecord` để đảm bảo quyền riêng tư mặc định của khách hàng. Chỉ những lá số được chia sẻ công khai mới xuất hiện trên Sitemap và Google Index.
+- **Xây dựng SEO Router & Dynamic Sitemap (`backend/src/routes/seo.js` & `backend/src/index.js`)**:
+  - Viết bộ xử lý render tĩnh HTML, tiêm meta tags động (Open Graph) hỗ trợ hiển thị ảnh và tiêu đề chuẩn phong thủy khi chia sẻ link lên Facebook, Zalo, Telegram.
+  - Sử dụng API `fetch` có thiết lập abort timeout để lấy và cache tệp `index.html` từ container frontend một cách an toàn, tránh lỗi thiếu thư viện `axios` ở backend.
+  - Xây dựng endpoint `/sitemap.xml` tự động cập nhật danh sách bài viết Blog và lá số công khai.
+- **Tích hợp Google Indexing API (`backend/src/services/GoogleIndexingService.js` & Controllers)**:
+  - Viết dịch vụ sử dụng `google-auth-library` để tự động ping Google Indexing API (`URL_UPDATED`, `URL_DELETED`) khi có bài viết blog mới được đăng/sửa/xóa hoặc khi người dùng bật/tắt công khai lá số.
+  - Tích hợp triggers trong `BlogController.js` và hàm `togglePublicCalculation` trong `HistoryController.js`.
+  
+### Frontend Premium UI & Legal Pages
+- **Các trang thông tin tĩnh ([InfoBoards.jsx](file:///t:/Phongthuy/frontend/src/components/InfoBoards.jsx))**:
+  - Thiết kế 3 trang tĩnh mang phong cách học thuật trang nhã: **Giới thiệu** (sự giao thoa AI và Cổ học), **Chính sách bảo mật** (cam kết không bán dữ liệu ngày sinh), **Điều khoản sử dụng & Miễn trừ trách nhiệm** (tuyên bố từ chối trách nhiệm pháp lý).
+- **Component Footer ([Footer.jsx](file:///t:/Phongthuy/frontend/src/components/Footer.jsx))**:
+  - Thiết kế lại chân trang Premium với tông màu trắng nhã nhặn, cấu trúc 4 cột đồng bộ từ Homepage và kích hoạt các liên kết thông tin pháp lý hoạt động thực tế. Dùng chung cho cả `HomeBoard.jsx` và các phân hệ khác thông qua `UserApp.jsx`.
+- **Tích hợp Chia sẻ Lá số ([UserApp.jsx](file:///t:/Phongthuy/frontend/src/components/UserApp.jsx) & Boards)**:
+  - Bổ sung nút Toggle bật/tắt trạng thái chia sẻ công khai và nút sao chép liên kết trực tiếp trên giao diện kết quả của `BaziBoard.jsx`, `ZiweiBoard.jsx`, `IChingBoard.jsx`, `MarriageBoard.jsx`.
+  - Cập nhật định tuyến `UserApp.jsx` để nhớ phân hệ trước đó nhằm tối ưu nút "Quay lại" tại các trang thông tin pháp lý.
+
 ## 📅 Phiên bản: Chuẩn Hóa Kiểm Tra Dữ Liệu Đầu Vào 2 Bước Cho Cả 4 Phân Hệ (Kinh Dịch, Bát Tự, Tử Vi, Hôn Nhân) (21/07/2026)
 
 ### Input Validation & Viewport-Pinned Toast Notification

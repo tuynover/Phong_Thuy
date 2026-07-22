@@ -63,6 +63,7 @@ const helmet = require('helmet');
 const compression = require('compression');
 const connectDB = require('./config/db');
 const routes = require('./routes');
+const seoRouter = require('./routes/seo');
 
 const auditLogger = require('./middleware/logging');
 
@@ -120,6 +121,7 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./config/swagger.json');
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
+app.use('/', seoRouter);
 app.use('/api', routes);
 
 // Global Error Handling Middleware

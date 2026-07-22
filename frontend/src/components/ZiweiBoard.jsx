@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { Calendar, Clock, User, Sparkles, MessageCircle, RefreshCw, Star, ShieldAlert, ScrollText, ArrowUp, ArrowDown, ChevronDown, HelpCircle } from 'lucide-react';
-import { createZiweiChart, getZiweiRecord, rateZiwei, getInterpretationStreamUrl, updateBaziInfo } from '../services/api';
+import { createZiweiChart, getZiweiRecord, rateZiwei, getInterpretationStreamUrl, updateBaziInfo, togglePublicCalculation } from '../services/api';
 import ChartRenderer from './ChartRenderer';
 import SectionRenderer from './SectionRenderer';
 import AiChatWidget from './AiChatWidget';
@@ -212,6 +212,27 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
       }
     };
   }, [abortController]);
+
+  const [isPublicState, setIsPublicState] = useState(false);
+
+  useEffect(() => {
+    setIsPublicState(result?.isPublic || false);
+  }, [result]);
+
+  const handleTogglePublic = async () => {
+    const resolvedId = result?._id || result?.id;
+    if (!resolvedId) return;
+    try {
+      const newStatus = !isPublicState;
+      await togglePublicCalculation('ziwei', resolvedId, newStatus);
+      setIsPublicState(newStatus);
+      if (onInvalidateHistory) onInvalidateHistory();
+      setResult(prev => prev ? { ...prev, isPublic: newStatus } : null);
+    } catch (err) {
+      console.error('Lỗi khi đổi trạng thái công khai Ziwei:', err);
+      alert('Không thể thay đổi trạng thái chia sẻ. Vui lòng thử lại sau.');
+    }
+  };
 
   // Xem lá số của bản thân
   const [isUpdateBaziOpen, setIsUpdateBaziOpen] = useState(false);
@@ -814,6 +835,40 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
       {/* 3. COMPLETED RESULT BOARD PANEL */}
       {result && !loading && (
         <div className="space-y-12 animate-in fade-in duration-500">
+          {/* Công tắc chia sẻ công khai lá số Tử Vi */}
+          {activeUser && (result.userId === activeUser.id || result.userId === activeUser._id) && (
+            <div className="max-w-4xl mx-auto p-5 bg-purple-50/40 border border-purple-100 rounded-3xl flex flex-wrap items-center justify-between gap-4 shadow-sm mb-6">
+              <div className="flex flex-col">
+                <span className="text-sm font-extrabold text-slate-800">Chia sẻ công khai lá số Tử Vi</span>
+                <span className="text-[11px] text-gray-500 font-medium">Bật công khai để cho phép người khác truy cập xem bản đồ mệnh bàn này</span>
+              </div>
+              <div className="flex items-center gap-3">
+                {isPublicState && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const shareUrl = `${window.location.origin}/ziwei/record/${result._id || result.id}`;
+                      navigator.clipboard.writeText(shareUrl);
+                      alert('Đã sao chép liên kết chia sẻ công khai lá số Tử Vi!');
+                    }}
+                    className="px-3 py-1 bg-purple-100 text-purple-800 border border-purple-200 hover:bg-purple-200 rounded-full text-xs font-bold transition-all active:scale-95 cursor-pointer"
+                  >
+                    Sao chép liên kết
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={handleTogglePublic}
+                  className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${isPublicState ? 'bg-purple-700' : 'bg-gray-300'}`}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${isPublicState ? 'translate-x-5' : 'translate-x-0'}`}
+                  />
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Ép Vẽ lá số 12 cung truyền thống thông qua Registry ChartRenderer */}
           <ChartRenderer 
             system={result.system || 'ziwei'} 

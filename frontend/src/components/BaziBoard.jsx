@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { AuthContext } from '../context/AuthContext';
-import { getInterpretationStreamUrl, rateBazi } from '../services/api';
+import { getInterpretationStreamUrl, rateBazi, togglePublicCalculation } from '../services/api';
 import { AlertCircle, BookOpen, ScrollText, MessageCircle, ArrowDown, ArrowUp, Star } from 'lucide-react';
 import AiChatWidget from './AiChatWidget';
 import { parseMarkdownSections } from '../utils/markdownParser';
@@ -95,6 +95,32 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) 
         setRating(data?.rating || 0);
         setFeedback(data?.feedback || '');
     }, [data]);
+
+    const [isPublicState, setIsPublicState] = useState(false);
+
+    useEffect(() => {
+        setIsPublicState(data?.isPublic || false);
+    }, [data]);
+
+    const handleTogglePublic = async () => {
+        const resolvedId = data?.recordId || data?._id;
+        if (!resolvedId) return;
+        try {
+            const newStatus = !isPublicState;
+            await togglePublicCalculation('bazi', resolvedId, newStatus);
+            setIsPublicState(newStatus);
+            if (onInvalidateHistory) onInvalidateHistory();
+            if (onUpdateData) {
+                onUpdateData({
+                    ...data,
+                    isPublic: newStatus
+                });
+            }
+        } catch (err) {
+            console.error('Lỗi khi đổi trạng thái công khai Bazi:', err);
+            alert('Không thể thay đổi trạng thái chia sẻ. Vui lòng thử lại sau.');
+        }
+    };
 
     // Loading texts
     const loadingTexts = [
@@ -875,6 +901,40 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) 
                             </>
                         )}
                     </div>
+
+                    {/* Công tắc chia sẻ công khai */}
+                    {user && (data.userId === user.id || data.userId === user._id) && (
+                        <div className="mt-4 pt-4 border-t border-slate-200/60 flex flex-wrap items-center justify-between gap-4 pl-2 max-w-2xl">
+                            <div className="flex flex-col">
+                                <span className="text-sm font-extrabold text-slate-800">Chia sẻ công khai lá số</span>
+                                <span className="text-[11px] text-gray-500 font-medium">Bật để cho phép người khác truy cập xem lá số này qua liên kết công khai</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                {isPublicState && (
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const shareUrl = `${window.location.origin}/bazi/record/${data.recordId || data._id}`;
+                                            navigator.clipboard.writeText(shareUrl);
+                                            alert('Đã sao chép liên kết chia sẻ công khai!');
+                                        }}
+                                        className="px-3 py-1 bg-blue-50 text-blue-800 border border-blue-200 hover:bg-blue-100 rounded-full text-xs font-bold transition-all active:scale-95 cursor-pointer"
+                                    >
+                                        Sao chép liên kết
+                                    </button>
+                                )}
+                                <button
+                                    type="button"
+                                    onClick={handleTogglePublic}
+                                    className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${isPublicState ? 'bg-blue-800' : 'bg-gray-300'}`}
+                                >
+                                    <span
+                                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${isPublicState ? 'translate-x-5' : 'translate-x-0'}`}
+                                    />
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
 

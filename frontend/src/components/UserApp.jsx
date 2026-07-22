@@ -36,6 +36,8 @@ import ZiweiBoard from './ZiweiBoard';
 import MarriageBoard from './MarriageBoard';
 import DateSelectionBoard from './DateSelectionBoard';
 import BlogBoard from './BlogBoard';
+import Footer from './Footer';
+import { AboutUs, PrivacyPolicy, TermsOfService } from './InfoBoards';
 
 export default function UserApp({ onSwitchToAdmin }) {
   // Parse URL query parameter for deep-linking blog posts
@@ -56,14 +58,19 @@ export default function UserApp({ onSwitchToAdmin }) {
   }); // 'home' | 'iching' | 'bazi' | 'ziwei' | 'marriage' | 'xemngay' | 'history' | 'profile' | 'blog'
   
   const [blogSlug, setBlogSlug] = useState(initialUrlSlug);
+  const [previousMode, setPreviousMode] = useState('home');
   
   const handleSelectModule = (mode, slug = null) => {
+    // Không ghi đè previousMode bằng các trang thông tin phụ
+    if (appMode !== 'about' && appMode !== 'privacy' && appMode !== 'terms') {
+      setPreviousMode(appMode);
+    }
     setAppMode(mode);
     setBlogSlug(slug);
     if (mode === 'blog' && slug) {
       const newUrl = `${window.location.pathname}?post=${encodeURIComponent(slug)}`;
       window.history.replaceState({ path: newUrl }, '', newUrl);
-    } else if (slug === null && mode !== 'blog') {
+    } else if (slug === null && mode !== 'blog' && mode !== 'about' && mode !== 'privacy' && mode !== 'terms') {
       window.history.replaceState({ path: window.location.pathname }, '', window.location.pathname);
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1356,56 +1363,21 @@ export default function UserApp({ onSwitchToAdmin }) {
           </div>
         )}
 
+        {/* SYSTEM 6: INFO PAGES */}
+        {appMode === 'about' && (
+          <AboutUs onBack={() => handleSelectModule(previousMode)} />
+        )}
+        {appMode === 'privacy' && (
+          <PrivacyPolicy onBack={() => handleSelectModule(previousMode)} />
+        )}
+        {appMode === 'terms' && (
+          <TermsOfService onBack={() => handleSelectModule(previousMode)} />
+        )}
+
       </div>
 
       {/* GLOBAL FOOTER */}
-      {appMode !== 'home' && (
-        <footer className="w-full bg-[#faf6f0] border-t border-amber-100/70 py-6 mt-auto">
-          <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
-            {/* Logo & Slogan */}
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-full bg-amber-800 flex items-center justify-center shadow-md">
-                <span className="text-white font-serif font-extrabold text-base">PT</span>
-              </div>
-              <div>
-                <h4 className="font-serif font-extrabold text-sm text-amber-955 tracking-wide">PHONG THỦY & KINH DỊCH</h4>
-                <p className="text-[10px] text-gray-500 font-medium">Bản quyền học thuật cổ phương Đông © 2026</p>
-              </div>
-            </div>
-
-            {/* Contact Info */}
-            <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 text-xs text-neutral-600 font-bold">
-              <a 
-                href="mailto:trinhtuyen270804@gmail.com" 
-                className="flex items-center gap-1.5 hover:text-amber-800 transition-colors"
-              >
-                <span className="text-amber-800">Email:</span>
-                <span className="font-medium">trinhtuyen270804@gmail.com</span>
-              </a>
-              <a 
-                href="https://zalo.me/0868960506" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="flex items-center gap-1.5 hover:text-amber-800 transition-colors"
-              >
-                <span className="text-amber-800">Zalo:</span>
-                <span className="font-medium">0868960506</span>
-              </a>
-            </div>
-
-            {/* Additional decorative links */}
-            <div className="text-[11px] text-neutral-400 font-medium flex items-center gap-3">
-              <span>Kinh Dịch</span>
-              <span className="text-amber-200">•</span>
-              <span>Bát Tự</span>
-              <span className="text-amber-200">•</span>
-              <span>Tử Vi</span>
-              <span className="text-amber-200">•</span>
-              <span>Hôn Nhân</span>
-            </div>
-          </div>
-        </footer>
-      )}
+      <Footer onSelectModule={handleSelectModule} />
 
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} onLoginSuccess={handleLoginSuccess} />
       <UpdateBaziModal 
