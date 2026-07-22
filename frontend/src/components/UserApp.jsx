@@ -61,6 +61,9 @@ export default function UserApp({ onSwitchToAdmin }) {
       if (path.startsWith('/ziwei/record/')) return 'ziwei';
       if (path.startsWith('/iching/record/')) return 'iching';
       if (path.startsWith('/marriage/record/')) return 'marriage';
+      if (path === '/about') return 'about';
+      if (path === '/privacy') return 'privacy';
+      if (path === '/terms') return 'terms';
     }
     if (initialUrlSlug) return 'blog';
     const saved = localStorage.getItem('appMode');
@@ -147,10 +150,13 @@ export default function UserApp({ onSwitchToAdmin }) {
     setAppMode(mode);
     setBlogSlug(slug);
     if (mode === 'blog' && slug) {
-      const newUrl = `${window.location.pathname}?post=${encodeURIComponent(slug)}`;
+      const newUrl = `${window.location.origin}?post=${encodeURIComponent(slug)}`;
       window.history.replaceState({ path: newUrl }, '', newUrl);
-    } else if (slug === null && mode !== 'blog' && mode !== 'about' && mode !== 'privacy' && mode !== 'terms') {
-      window.history.replaceState({ path: window.location.pathname }, '', window.location.pathname);
+    } else if (mode === 'about' || mode === 'privacy' || mode === 'terms') {
+      const newUrl = `/${mode}`;
+      window.history.pushState({ path: newUrl }, '', newUrl);
+    } else if (slug === null && mode !== 'blog') {
+      window.history.pushState({ path: '/' }, '', '/');
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };

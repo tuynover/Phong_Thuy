@@ -242,7 +242,10 @@ router.get('/sitemap.xml', async (req, res) => {
             '/bazi',
             '/ziwei',
             '/marriage',
-            '/xemngay'
+            '/xemngay',
+            '/about',
+            '/privacy',
+            '/terms'
         ];
 
         // B. Lấy các bài viết Blog đã xuất bản

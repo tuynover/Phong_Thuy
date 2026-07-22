@@ -33,6 +33,8 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
   - Bổ sung trường `isPublic` (boolean, mặc định `false`) cho `BaziRecord`, `ZiweiRecord`, `IChingRecord`, `MarriageRecord` để đảm bảo quyền riêng tư mặc định của khách hàng. Chỉ những lá số được chia sẻ công khai mới xuất hiện trên Sitemap và Google Index.
 - **Xây dựng SEO Router & Dynamic Sitemap (`backend/src/routes/seo.js` & `backend/src/index.js`)**:
   - Viết bộ xử lý render tĩnh HTML, tiêm meta tags động (Open Graph) hỗ trợ hiển thị ảnh và tiêu đề chuẩn phong thủy khi chia sẻ link lên Facebook, Zalo, Telegram.
+  - Bổ sung các trang static phụ (`/about` - Giới thiệu, `/privacy` - Chính sách bảo mật, `/terms` - Điều khoản dịch vụ) vào sơ đồ `sitemap.xml` để phục vụ tối ưu hóa SEO.
+  - Đồng bộ router phía Client ([UserApp.jsx](file:///t:/Phongthuy/frontend/src/components/UserApp.jsx)) để tự động nạp trang About, Privacy, Terms trực tiếp khi người dùng hoặc bot truy cập qua các deep links tĩnh này và tự động cập nhật URL trình duyệt khi click chuyển đổi.
   - Sử dụng API `fetch` có thiết lập abort timeout để lấy và cache tệp `index.html` từ container frontend một cách an toàn, tránh lỗi thiếu thư viện `axios` ở backend.
   - Xây dựng endpoint `/sitemap.xml` tự động cập nhật danh sách bài viết Blog và lá số công khai.
 - **Tích hợp Google Indexing API (`backend/src/services/GoogleIndexingService.js` & Controllers)**:
