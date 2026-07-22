@@ -21,6 +21,7 @@ import {
   analyzeMarriage,
   getMarriageHistory,
   getBaziRecord,
+  getMarriageRecord,
   updateBaziInfo
 } from '../services/api';
 import { UserCircle, LogOut, CalendarDays, Shield, Menu, X, History, Compass, Activity, BarChart3, Heart, Calendar, HelpCircle, ArrowUp, ArrowDown, BookOpen, Home, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
@@ -50,8 +51,17 @@ export default function UserApp({ onSwitchToAdmin }) {
   };
 
   const initialUrlSlug = getInitialBlogSlug();
+  const [loadingShared, setLoadingShared] = useState(false);
+  const [sharedError, setSharedError] = useState(null);
 
   const [appMode, setAppMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname;
+      if (path.startsWith('/bazi/record/')) return 'bazi';
+      if (path.startsWith('/ziwei/record/')) return 'ziwei';
+      if (path.startsWith('/iching/record/')) return 'iching';
+      if (path.startsWith('/marriage/record/')) return 'marriage';
+    }
     if (initialUrlSlug) return 'blog';
     const saved = localStorage.getItem('appMode');
     return saved === 'tuvi' ? 'ziwei' : (saved || 'home');
@@ -59,6 +69,75 @@ export default function UserApp({ onSwitchToAdmin }) {
   
   const [blogSlug, setBlogSlug] = useState(initialUrlSlug);
   const [previousMode, setPreviousMode] = useState('home');
+
+  // Tự động nạp dữ liệu lá số/quẻ dịch công khai khi truy cập trực tiếp bằng liên kết chia sẻ
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const path = window.location.pathname;
+
+    const fetchSharedData = async () => {
+      // 1. Tứ Trụ Bát Tự
+      const baziMatch = path.match(/^\/bazi\/record\/([a-zA-Z0-9-]+)/);
+      if (baziMatch) {
+        const id = baziMatch[1];
+        setLoadingShared(true);
+        try {
+          const res = await getBaziRecord(id);
+          setBaziResult(res.data);
+        } catch (err) {
+          console.error("Lỗi nạp lá số Bát Tự chia sẻ:", err);
+          setSharedError("Không thể tải lá số Bát Tự chia sẻ hoặc đã bị tắt chế độ công khai.");
+        } finally {
+          setLoadingShared(false);
+        }
+        return;
+      }
+
+      // 2. Mệnh Số Tử Vi
+      const ziweiMatch = path.match(/^\/ziwei\/record\/([a-zA-Z0-9-]+)/);
+      if (ziweiMatch) {
+        const id = ziweiMatch[1];
+        setHistoricalZiweiId(id);
+        return;
+      }
+
+      // 3. Kinh Dịch Lục Hào
+      const ichingMatch = path.match(/^\/iching\/record\/([a-zA-Z0-9-]+)/);
+      if (ichingMatch) {
+        const id = ichingMatch[1];
+        setLoadingShared(true);
+        try {
+          const res = await getIChingRecord(id);
+          setResult(res.data);
+        } catch (err) {
+          console.error("Lỗi nạp quẻ Kinh Dịch chia sẻ:", err);
+          setSharedError("Không thể tải quẻ dịch chia sẻ hoặc đã bị tắt chế độ công khai.");
+        } finally {
+          setLoadingShared(false);
+        }
+        return;
+      }
+
+      // 4. Bát Tự Hợp Hôn
+      const marriageMatch = path.match(/^\/marriage\/record\/([a-zA-Z0-9-]+)/);
+      if (marriageMatch) {
+        const id = marriageMatch[1];
+        setLoadingShared(true);
+        try {
+          const res = await getMarriageRecord(id);
+          setMarriageResult(res.data);
+        } catch (err) {
+          console.error("Lỗi nạp kết quả Hợp Hôn chia sẻ:", err);
+          setSharedError("Không thể tải kết quả hợp hôn chia sẻ hoặc đã bị tắt chế độ công khai.");
+        } finally {
+          setLoadingShared(false);
+        }
+        return;
+      }
+    };
+
+    fetchSharedData();
+  }, []);
   
   const handleSelectModule = (mode, slug = null) => {
     // Không ghi đè previousMode bằng các trang thông tin phụ
@@ -941,8 +1020,36 @@ export default function UserApp({ onSwitchToAdmin }) {
       {/* MAIN CONTAINER */}
       <div className={appMode === 'home' ? "flex-1 w-full" : "flex-1 w-full max-w-6xl mx-auto py-6 md:py-10 px-4 space-y-8"}>
 
-        {/* HEADER */}
-        {appMode === 'iching' && !result ? (
+        {/* Loading / Error cho lá số được chia sẻ */}
+        {loadingShared && (
+          <div className="min-h-[50vh] flex flex-col items-center justify-center font-sans text-center">
+            <div className="w-12 h-12 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin mb-4"></div>
+            <p className="text-slate-500 font-extrabold text-sm tracking-wider uppercase animate-pulse">Đang nạp dữ liệu lá số chia sẻ...</p>
+          </div>
+        )}
+
+        {sharedError && !loadingShared && (
+          <div className="min-h-[50vh] flex flex-col items-center justify-center font-sans max-w-md mx-auto px-4 text-center">
+            <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mb-4 text-rose-600 border border-rose-100">
+              <span className="text-2xl font-bold">!</span>
+            </div>
+            <h3 className="font-extrabold text-slate-800 text-lg mb-2">Không thể xem lá số</h3>
+            <p className="text-slate-500 text-sm font-medium leading-relaxed mb-6">{sharedError}</p>
+            <button
+              onClick={() => {
+                setSharedError(null);
+                handleSelectModule('home');
+              }}
+              className="px-6 py-2.5 bg-gray-900 hover:bg-black text-white font-extrabold rounded-2xl shadow transition-colors active:scale-95 cursor-pointer text-sm"
+            >
+              Quay lại trang chủ
+            </button>
+          </div>
+        )}
+
+        {!loadingShared && !sharedError && (
+          <>
+            {appMode === 'iching' && !result ? (
           <header className="text-center mb-12 pt-2 animate-in fade-in duration-300 font-sans">
             <div className="inline-block p-4 rounded-full bg-amber-100 border border-amber-200 mb-6">
               <div className="w-16 h-16 rounded-full border-4 border-amber-800 flex items-center justify-center">
@@ -1374,6 +1481,8 @@ export default function UserApp({ onSwitchToAdmin }) {
           <TermsOfService onBack={() => handleSelectModule(previousMode)} />
         )}
 
+          </>
+        )}
       </div>
 
       {/* GLOBAL FOOTER */}

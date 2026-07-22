@@ -2,6 +2,28 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Sửa Lỗi Deep Linking, Đưa Phần Chia Sẻ Sang Cột Phải & Tích Hợp FloatingNotificationToast Cao Cấp (22/07/2026)
+
+### Bug Fix & Router Deep Linking
+- **Sửa Lỗi Middleware Quyền Sở Hữu ([checkRecordOwnership.js](file:///t:/Phongthuy/backend/src/middleware/checkRecordOwnership.js#L37-L41))**:
+  - Bổ sung kiểm tra `record.isPublic === true` để cho phép bất kỳ ai (kể cả khách vãng lai chưa đăng nhập) truy cập xem chi tiết bản ghi qua API nếu bản ghi đó được bật công khai. Khắc phục triệt để lỗi báo 403 Forbidden và bị chuyển hướng về trang chủ khi truy cập link chia sẻ.
+- **Deep Linking Ở Frontend ([UserApp.jsx](file:///t:/Phongthuy/frontend/src/components/UserApp.jsx#L59-L135))**:
+  - Viết bộ parse URL `window.location.pathname` ngay tại thời điểm khởi chạy React. Tự động nhận diện các URL dạng `/:type/record/:id` để chuyển `appMode` tương ứng và gọi API lấy dữ liệu kết quả hiển thị lên màn hình. Tích hợp màn hình LoadingShared và báo lỗi SharedError mượt mà.
+
+### UI/UX Aesthetics & Layout Grid
+- **Bố Cục Cột Phải Cho Bát Tự & Kinh Dịch**:
+  - **Bát Tự ([BaziBoard.jsx](file:///t:/Phongthuy/frontend/src/components/BaziBoard.jsx#L805-L938))**: Thiết kế lại lưới thông tin cơ bản thành 2 cột (`grid-cols-1 md:grid-cols-[1.8fr_1.2fr]`). Đưa phần Bật/Tắt công khai và Sao chép liên kết vào cột bên phải còn trống để bố cục gọn gàng, cân đối.
+  - **Kinh Dịch ([IChingBoard.jsx](file:///t:/Phongthuy/frontend/src/components/IChingBoard.jsx#L475-L535))**: Tương tự, chuyển thông tin thời gian lập quẻ và nút chia sẻ sang bố cục 2 cột.
+- **Ẩn Thanh Chia Sẻ Khi Xem Chéo**:
+  - Cập nhật điều kiện hiển thị thanh chia sẻ ở cả 4 phân hệ (`BaziBoard`, `ZiweiBoard`, `IChingBoard`, `MarriageBoard`) để **chỉ hiển thị cho chính chủ sở hữu lá số/quẻ dịch**. Loại bỏ hoàn toàn điều kiện localhost giúp việc kiểm thử trạng thái ẩn thanh chia sẻ khi xem link của người khác hoạt động chính xác.
+- **Tích Hợp Quản Lý Chia Sẻ Vào Lịch Sử ([HistoryBoard.jsx](file:///t:/Phongthuy/frontend/src/components/HistoryBoard.jsx))**:
+  - Bổ sung nút Toggle bật/tắt chia sẻ công khai (`isPublic`) siêu nhỏ và icon sao chép liên kết (`Share2`) trực tiếp trên mỗi dòng kết quả trong danh sách Lịch Sử của cả 4 phân hệ.
+  - Sửa lỗi đồng bộ cache `preloadedData` (map sai key `iching` -> `hexagrams`, `ziwei` -> `tuvis`) khiến danh sách lịch sử tự động render realtime các thay đổi của switch bật tắt mà không cần tải lại trang.
+- **Thông Báo Premium Toast ([FloatingNotificationToast.jsx](file:///t:/Phongthuy/frontend/src/components/FloatingNotificationToast.jsx))**:
+  - Tạo mới component Toast thông báo nổi đỉnh màn hình, thiết kế sang trọng với **nền trắng viền xám mờ tinh tế (Light Mode)** thay thế cho nền tối cũ.
+  - Rút ngắn thời gian hiển thị thông báo xuống còn **1.5 giây** (tự động ẩn nhanh gọn) để tăng tính phản hồi nhanh và mượt mà cho giao diện.
+  - Áp dụng đồng bộ cho cả 4 phân hệ và danh sách Lịch sử khi người dùng sao chép liên kết hoặc thay đổi trạng thái chia sẻ công khai.
+
 ## 📅 Phiên bản: Triển Khai Giải Pháp SEO Tự Chủ Siêu Nhẹ & Tích Hợp Các Trang Pháp Lý Frontend (22/07/2026)
 
 ### SEO, Sitemap & Google Indexing API Integration

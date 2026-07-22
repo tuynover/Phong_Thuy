@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import Tooltip from './Tooltip';
+import FloatingNotificationToast from './FloatingNotificationToast';
 import { hexagramDictionary } from '../data/hexagrams';
 import ReactMarkdown from 'react-markdown';
 import { getInterpretationStreamUrl, rateIChing, togglePublicCalculation } from '../services/api';
@@ -267,6 +268,7 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
     }, [abortController]);
 
     const [isPublicState, setIsPublicState] = useState(false);
+    const [toastMsg, setToastMsg] = useState('');
 
     useEffect(() => {
         setIsPublicState(result?.isPublic || false);
@@ -279,6 +281,7 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
             const newStatus = !isPublicState;
             await togglePublicCalculation('iching', resolvedId, newStatus);
             setIsPublicState(newStatus);
+            setToastMsg(`Đã ${newStatus ? 'bật' : 'tắt'} chia sẻ công khai quẻ dịch!`);
             if (onInvalidateHistory) onInvalidateHistory();
             if (onUpdateResult) {
                 onUpdateResult({
@@ -288,7 +291,7 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
             }
         } catch (err) {
             console.error('Lỗi khi đổi trạng thái công khai IChing:', err);
-            alert('Không thể thay đổi trạng thái chia sẻ. Vui lòng thử lại sau.');
+            setToastMsg('Không thể thay đổi trạng thái chia sẻ. Vui lòng thử lại sau.');
         }
     };
 
@@ -471,63 +474,66 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
             <h1 className="text-3xl font-black mb-6 tracking-wide text-gray-800 uppercase">TRANG DỊCH QUÁI</h1>
             
             {dateInfo && (
-                <div className="space-y-3.5 text-[15px] font-medium text-gray-800">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-                        <span className="w-40 sm:shrink-0 text-gray-500 font-bold sm:font-normal">Thời gian lập quẻ:</span>
-                        <span>{dateInfo.time} - {dateInfo.solarDate} ({dateInfo.lunarDateStr})</span>
-                    </div>
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-                        <span className="w-40 sm:shrink-0 text-gray-500 font-bold sm:font-normal">Can Chi:</span>
-                        <span>Giờ <strong className="text-red-700">{dateInfo.hourCanChi}</strong>, ngày <strong className="text-red-700">{dateInfo.dayCanChi}</strong>, tháng <strong className="text-amber-700">{dateInfo.monthCanChi}</strong>, năm <strong className="text-amber-700">{dateInfo.yearCanChi}</strong></span>
-                    </div>
-                    <div className="flex flex-wrap gap-x-12 gap-y-3">
-                        <div className="flex gap-2">
-                            <span className="text-gray-500 font-bold sm:font-normal">Nhật thần:</span>
-                            <span className="font-bold text-red-800">{dateInfo.nhatThan}</span>
+                <div className="grid grid-cols-1 md:grid-cols-[1.8fr_1.2fr] gap-6 text-[15px] font-medium text-gray-800">
+                    {/* Cột trái: Thông tin thời gian lập quẻ */}
+                    <div className="space-y-3.5">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                            <span className="w-40 sm:shrink-0 text-gray-500 font-bold sm:font-normal">Thời gian lập quẻ:</span>
+                            <span>{dateInfo.time} - {dateInfo.solarDate} ({dateInfo.lunarDateStr})</span>
                         </div>
-                        <div className="flex gap-2">
-                            <span className="text-gray-500 font-bold sm:font-normal">Nguyệt lệnh:</span>
-                            <span className="font-bold text-amber-800">{dateInfo.nguyetLenh}</span>
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                            <span className="w-40 sm:shrink-0 text-gray-500 font-bold sm:font-normal">Can Chi:</span>
+                            <span>Giờ <strong className="text-red-700">{dateInfo.hourCanChi}</strong>, ngày <strong className="text-red-700">{dateInfo.dayCanChi}</strong>, tháng <strong className="text-amber-700">{dateInfo.monthCanChi}</strong>, năm <strong className="text-amber-700">{dateInfo.yearCanChi}</strong></span>
+                        </div>
+                        <div className="flex flex-wrap gap-x-12 gap-y-3">
+                            <div className="flex gap-2">
+                                <span className="text-gray-500 font-bold sm:font-normal">Nhật thần:</span>
+                                <span className="font-bold text-red-800">{dateInfo.nhatThan}</span>
+                            </div>
+                            <div className="flex gap-2">
+                                <span className="text-gray-500 font-bold sm:font-normal">Nguyệt lệnh:</span>
+                                <span className="font-bold text-amber-800">{dateInfo.nguyetLenh}</span>
+                            </div>
+                        </div>
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 pt-2">
+                            <span className="w-40 sm:shrink-0 text-gray-500 font-bold sm:font-normal">Phương pháp gieo:</span>
+                            <span className="font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded inline-block w-fit">Lục Hào Truyền Thống</span>
                         </div>
                     </div>
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 pt-2">
-                        <span className="w-40 sm:shrink-0 text-gray-500 font-bold sm:font-normal">Phương pháp gieo:</span>
-                        <span className="font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded inline-block w-fit">Lục Hào Truyền Thống</span>
-                    </div>
-                </div>
-            )}
 
-            {/* Công tắc chia sẻ công khai quẻ Kinh Dịch */}
-            {activeUser && (result.userId === activeUser.id || result.userId === activeUser._id) && (
-                <div className="mt-6 p-5 bg-amber-50/40 border border-amber-100 rounded-3xl flex flex-wrap items-center justify-between gap-4 shadow-sm max-w-2xl">
-                    <div className="flex flex-col">
-                        <span className="text-sm font-extrabold text-slate-800">Chia sẻ công khai quẻ dịch này</span>
-                        <span className="text-[11px] text-gray-500 font-medium">Bật để cho phép người khác xem chi tiết quẻ này qua liên kết công khai</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        {isPublicState && (
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    const shareUrl = `${window.location.origin}/iching/record/${result._id || result.recordId}`;
-                                    navigator.clipboard.writeText(shareUrl);
-                                    alert('Đã sao chép liên kết chia sẻ công khai quẻ dịch!');
-                                }}
-                                className="px-3 py-1 bg-amber-100 text-amber-800 border border-amber-200 hover:bg-amber-200 rounded-full text-xs font-bold transition-all active:scale-95 cursor-pointer"
-                            >
-                                Sao chép liên kết
-                            </button>
-                        )}
-                        <button
-                            type="button"
-                            onClick={handleTogglePublic}
-                            className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${isPublicState ? 'bg-amber-800' : 'bg-gray-300'}`}
-                        >
-                            <span
-                                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${isPublicState ? 'translate-x-5' : 'translate-x-0'}`}
-                            />
-                        </button>
-                    </div>
+                    {/* Cột phải: Toggle Share */}
+                    {(!window.location.pathname.includes('/record/') || (activeUser && (result?.userId === activeUser.id || result?.userId === activeUser._id))) && (
+                        <div className="flex flex-col justify-start md:border-l md:border-amber-200/50 md:pl-6 space-y-3 pt-4 md:pt-0">
+                            <div className="flex flex-col">
+                                <span className="text-sm font-extrabold text-slate-800">Chia sẻ công khai quẻ dịch này</span>
+                                <span className="text-[11px] text-gray-500 font-medium leading-relaxed">Bật để cho phép người khác xem chi tiết quẻ này qua liên kết công khai</span>
+                            </div>
+                            <div className="flex items-center gap-3 pt-1">
+                                <button
+                                    type="button"
+                                    onClick={handleTogglePublic}
+                                    className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${isPublicState ? 'bg-amber-800' : 'bg-gray-300'}`}
+                                >
+                                    <span
+                                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${isPublicState ? 'translate-x-5' : 'translate-x-0'}`}
+                                    />
+                                </button>
+                                {isPublicState && (
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const shareUrl = `${window.location.origin}/iching/record/${result._id || result.recordId}`;
+                                            navigator.clipboard.writeText(shareUrl);
+                                            setToastMsg('Đã sao chép liên kết chia sẻ công khai quẻ dịch!');
+                                        }}
+                                        className="px-3 py-1 bg-amber-100 text-amber-800 border border-amber-200 hover:bg-amber-200 rounded-full text-xs font-bold transition-all active:scale-95 cursor-pointer"
+                                    >
+                                        Sao chép liên kết
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
 
@@ -1043,6 +1049,7 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
                     <ArrowDown size={24} />
                 </button>
             </div>
+            {toastMsg && <FloatingNotificationToast message={toastMsg} onClose={() => setToastMsg('')} />}
 
             <style jsx="true">{`
                 @media (max-width: 1024px) {

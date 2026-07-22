@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { getIChingHistory, getBaziHistory, getZiweiHistory, getMarriageHistory, rateIChing, rateBazi, rateZiwei, rateMarriage, deleteCalculation, getIChingRecord, getBaziRecord, getZiweiRecord, getMarriageRecord, pinCalculation } from '../services/api';
-import { Star, Clock, Calendar, Trash2, X, Info, Check, AlertTriangle, Loader2, ChevronLeft, ChevronRight, Pin, Eye } from 'lucide-react';
+import { getIChingHistory, getBaziHistory, getZiweiHistory, getMarriageHistory, rateIChing, rateBazi, rateZiwei, rateMarriage, deleteCalculation, getIChingRecord, getBaziRecord, getZiweiRecord, getMarriageRecord, pinCalculation, togglePublicCalculation } from '../services/api';
+import { Star, Clock, Calendar, Trash2, X, Info, Check, AlertTriangle, Loader2, ChevronLeft, ChevronRight, Pin, Eye, Share2 } from 'lucide-react';
+import FloatingNotificationToast from './FloatingNotificationToast';
 
 const LUNAR_HOURS_MAP = [
   "Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"
@@ -245,6 +246,7 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
     const [bazis, setBazis] = useState([]);
     const [ziweis, setZiweis] = useState([]);
     const [marriages, setMarriages] = useState([]);
+    const [toastMsg, setToastMsg] = useState('');
     const [loading, setLoading] = useState(() => {
         if (preloadedData && preloadedData.hexagrams) {
             return false;
@@ -601,6 +603,53 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
         }
     };
 
+    const handleTogglePublic = async (type, id, currentStatus) => {
+        try {
+            const newStatus = !currentStatus;
+            await togglePublicCalculation(type === 'hexagrams' ? 'iching' : type, id, newStatus);
+            
+            const updatePublicInList = (list) => {
+                return list.map(item => item._id === id ? { ...item, isPublic: newStatus } : item);
+            };
+
+            if (type === 'iching' || type === 'hexagrams') {
+                setHexagrams(prev => updatePublicInList(prev));
+            } else if (type === 'bazi') {
+                setBazis(prev => updatePublicInList(prev));
+            } else if (type === 'ziwei') {
+                setZiweis(prev => updatePublicInList(prev));
+            } else if (type === 'marriage') {
+                setMarriages(prev => updatePublicInList(prev));
+            }
+
+            if (preloadedData) {
+                const updatedPreloaded = { ...preloadedData };
+                let key = '';
+                if (type === 'iching' || type === 'hexagrams') key = 'hexagrams';
+                else if (type === 'bazi') key = 'bazis';
+                else if (type === 'ziwei') key = 'tuvis';
+                else if (type === 'marriage') key = 'marriages';
+
+                if (key && updatedPreloaded[key]) {
+                    updatedPreloaded[key] = updatePublicInList(updatedPreloaded[key]);
+                }
+                if (onSaveCache) onSaveCache(updatedPreloaded);
+            }
+            
+            setToastMsg(`Đã ${newStatus ? 'bật' : 'tắt'} chia sẻ công khai thành công.`);
+        } catch (err) {
+            console.error("Lỗi khi đổi trạng thái công khai:", err);
+            setToastMsg("Không thể thay đổi trạng thái chia sẻ. Vui lòng thử lại sau.");
+        }
+    };
+
+    const handleCopyLink = (type, id) => {
+        const resolvedType = type === 'hexagrams' ? 'iching' : type;
+        const shareUrl = `${window.location.origin}/${resolvedType}/record/${id}`;
+        navigator.clipboard.writeText(shareUrl);
+        setToastMsg("Đã sao chép liên kết chia sẻ công khai!");
+    };
+
     if (!user) return <div className="text-center p-10">Vui lòng đăng nhập để xem lịch sử.</div>;
     if (loading) {
         return (
@@ -802,6 +851,28 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                                 </div>
                             </div>
                             <div className="flex items-center gap-2 self-end sm:self-start shrink-0" onClick={(e) => e.stopPropagation()}>
+                                <div className="flex items-center gap-1.5 mr-1">
+                                    <span className="text-[10px] font-bold text-slate-500 hidden md:inline">Chia sẻ:</span>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleTogglePublic('iching', record._id, record.isPublic)}
+                                        className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${record.isPublic ? 'bg-amber-600' : 'bg-gray-300'}`}
+                                        title={record.isPublic ? "Đang chia sẻ công khai - Nhấp để tắt" : "Đã tắt chia sẻ - Nhấp để bật"}
+                                    >
+                                        <span
+                                            className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${record.isPublic ? 'translate-x-4' : 'translate-x-0'}`}
+                                        />
+                                    </button>
+                                </div>
+                                {record.isPublic && (
+                                    <button 
+                                        onClick={() => handleCopyLink('iching', record._id)} 
+                                        className="p-1.5 rounded-xl hover:bg-amber-50 text-amber-700 hover:text-amber-850 transition-colors cursor-pointer"
+                                        title="Sao chép liên kết chia sẻ công khai"
+                                    >
+                                        <Share2 size={15} />
+                                    </button>
+                                )}
                                 <button 
                                     onClick={() => handleTogglePin('iching', record._id)} 
                                     className={`p-1.5 rounded-xl transition-colors hover:bg-amber-50 ${record.isPinned ? 'text-amber-600' : 'text-slate-350 hover:text-amber-500'}`}
@@ -885,6 +956,28 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                                   </div>
                               </div>
                               <div className="flex items-center gap-2 self-end sm:self-start shrink-0" onClick={(e) => e.stopPropagation()}>
+                                  <div className="flex items-center gap-1.5 mr-1">
+                                      <span className="text-[10px] font-bold text-slate-500 hidden md:inline">Chia sẻ:</span>
+                                      <button
+                                          type="button"
+                                          onClick={() => handleTogglePublic('bazi', record._id, record.isPublic)}
+                                          className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${record.isPublic ? 'bg-emerald-600' : 'bg-gray-300'}`}
+                                          title={record.isPublic ? "Đang chia sẻ công khai - Nhấp để tắt" : "Đã tắt chia sẻ - Nhấp để bật"}
+                                      >
+                                          <span
+                                              className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${record.isPublic ? 'translate-x-4' : 'translate-x-0'}`}
+                                          />
+                                      </button>
+                                  </div>
+                                  {record.isPublic && (
+                                      <button 
+                                          onClick={() => handleCopyLink('bazi', record._id)} 
+                                          className="p-1.5 rounded-xl hover:bg-blue-50 text-blue-800 hover:text-blue-900 transition-colors cursor-pointer"
+                                          title="Sao chép liên kết chia sẻ công khai"
+                                      >
+                                          <Share2 size={15} />
+                                      </button>
+                                  )}
                                   <button 
                                       onClick={() => handleTogglePin('bazi', record._id)} 
                                       className={`p-1.5 rounded-xl transition-colors hover:bg-blue-50 ${record.isPinned ? 'text-blue-600' : 'text-slate-350 hover:text-blue-500'}`}
@@ -968,6 +1061,28 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                                   </div>
                               </div>
                               <div className="flex items-center gap-2 self-end sm:self-start shrink-0" onClick={(e) => e.stopPropagation()}>
+                                  <div className="flex items-center gap-1.5 mr-1">
+                                      <span className="text-[10px] font-bold text-slate-500 hidden md:inline">Chia sẻ:</span>
+                                      <button
+                                          type="button"
+                                          onClick={() => handleTogglePublic('ziwei', record._id, record.isPublic)}
+                                          className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${record.isPublic ? 'bg-purple-600' : 'bg-gray-300'}`}
+                                          title={record.isPublic ? "Đang chia sẻ công khai - Nhấp để tắt" : "Đã tắt chia sẻ - Nhấp để bật"}
+                                      >
+                                          <span
+                                              className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${record.isPublic ? 'translate-x-4' : 'translate-x-0'}`}
+                                          />
+                                      </button>
+                                  </div>
+                                  {record.isPublic && (
+                                      <button 
+                                          onClick={() => handleCopyLink('ziwei', record._id)} 
+                                          className="p-1.5 rounded-xl hover:bg-purple-50 text-purple-800 hover:text-purple-900 transition-colors cursor-pointer"
+                                          title="Sao chép liên kết chia sẻ công khai"
+                                      >
+                                          <Share2 size={15} />
+                                      </button>
+                                  )}
                                   <button 
                                       onClick={() => handleTogglePin('ziwei', record._id)} 
                                       className={`p-1.5 rounded-xl transition-colors hover:bg-purple-50 ${record.isPinned ? 'text-purple-600' : 'text-slate-350 hover:text-purple-500'}`}
@@ -1047,6 +1162,28 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                                   </div>
                               </div>
                               <div className="flex items-center gap-2 self-end sm:self-start shrink-0" onClick={(e) => e.stopPropagation()}>
+                                  <div className="flex items-center gap-1.5 mr-1">
+                                      <span className="text-[10px] font-bold text-slate-500 hidden md:inline">Chia sẻ:</span>
+                                      <button
+                                          type="button"
+                                          onClick={() => handleTogglePublic('marriage', record._id, record.isPublic)}
+                                          className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${record.isPublic ? 'bg-rose-600' : 'bg-gray-300'}`}
+                                          title={record.isPublic ? "Đang chia sẻ công khai - Nhấp để tắt" : "Đã tắt chia sẻ - Nhấp để bật"}
+                                      >
+                                          <span
+                                              className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${record.isPublic ? 'translate-x-4' : 'translate-x-0'}`}
+                                          />
+                                      </button>
+                                  </div>
+                                  {record.isPublic && (
+                                      <button 
+                                          onClick={() => handleCopyLink('marriage', record._id)} 
+                                          className="p-1.5 rounded-xl hover:bg-rose-50 text-rose-800 hover:text-rose-900 transition-colors cursor-pointer"
+                                          title="Sao chép liên kết chia sẻ công khai"
+                                      >
+                                          <Share2 size={15} />
+                                      </button>
+                                  )}
                                   <button 
                                       onClick={() => handleTogglePin('marriage', record._id)} 
                                       className={`p-1.5 rounded-xl transition-colors hover:bg-rose-50 ${record.isPinned ? 'text-rose-600' : 'text-slate-350 hover:text-rose-500'}`}
@@ -1226,6 +1363,7 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                     </div>
                 </div>
             )}
+            {toastMsg && <FloatingNotificationToast message={toastMsg} onClose={() => setToastMsg('')} />}
         </div>
     );
 };

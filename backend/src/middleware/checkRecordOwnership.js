@@ -34,8 +34,8 @@ module.exports = async (req, res, next) => {
       return next();
     }
 
-    // Guest records are public/accessible by anyone (both guest and signed-in users)
-    if (record.userId === 'guest') {
+    // Guest records and public records are accessible by anyone (both guest and signed-in users)
+    if (record.userId === 'guest' || record.isPublic === true) {
       req.record = record;
       return next();
     }

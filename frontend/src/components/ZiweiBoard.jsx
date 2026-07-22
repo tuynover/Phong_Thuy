@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext, useRef } from 'react';
 import { Calendar, Clock, User, Sparkles, MessageCircle, RefreshCw, Star, ShieldAlert, ScrollText, ArrowUp, ArrowDown, ChevronDown, HelpCircle } from 'lucide-react';
 import { createZiweiChart, getZiweiRecord, rateZiwei, getInterpretationStreamUrl, updateBaziInfo, togglePublicCalculation } from '../services/api';
 import ChartRenderer from './ChartRenderer';
+import FloatingNotificationToast from './FloatingNotificationToast';
 import SectionRenderer from './SectionRenderer';
 import AiChatWidget from './AiChatWidget';
 import UpdateBaziModal from './UpdateBaziModal';
@@ -214,6 +215,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
   }, [abortController]);
 
   const [isPublicState, setIsPublicState] = useState(false);
+  const [toastMsg, setToastMsg] = useState('');
 
   useEffect(() => {
     setIsPublicState(result?.isPublic || false);
@@ -226,11 +228,12 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
       const newStatus = !isPublicState;
       await togglePublicCalculation('ziwei', resolvedId, newStatus);
       setIsPublicState(newStatus);
+      setToastMsg(`Đã ${newStatus ? 'bật' : 'tắt'} chia sẻ công khai lá số Tử Vi!`);
       if (onInvalidateHistory) onInvalidateHistory();
       setResult(prev => prev ? { ...prev, isPublic: newStatus } : null);
     } catch (err) {
       console.error('Lỗi khi đổi trạng thái công khai Ziwei:', err);
-      alert('Không thể thay đổi trạng thái chia sẻ. Vui lòng thử lại sau.');
+      setToastMsg('Không thể thay đổi trạng thái chia sẻ. Vui lòng thử lại sau.');
     }
   };
 
@@ -831,12 +834,11 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
           </div>
         </div>
       )}
-
       {/* 3. COMPLETED RESULT BOARD PANEL */}
       {result && !loading && (
         <div className="space-y-12 animate-in fade-in duration-500">
           {/* Công tắc chia sẻ công khai lá số Tử Vi */}
-          {activeUser && (result.userId === activeUser.id || result.userId === activeUser._id) && (
+          {(!window.location.pathname.includes('/record/') || (activeUser && (result?.userId === activeUser.id || result?.userId === activeUser._id))) && (
             <div className="max-w-4xl mx-auto p-5 bg-purple-50/40 border border-purple-100 rounded-3xl flex flex-wrap items-center justify-between gap-4 shadow-sm mb-6">
               <div className="flex flex-col">
                 <span className="text-sm font-extrabold text-slate-800">Chia sẻ công khai lá số Tử Vi</span>
@@ -849,7 +851,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
                     onClick={() => {
                       const shareUrl = `${window.location.origin}/ziwei/record/${result._id || result.id}`;
                       navigator.clipboard.writeText(shareUrl);
-                      alert('Đã sao chép liên kết chia sẻ công khai lá số Tử Vi!');
+                      setToastMsg('Đã sao chép liên kết chia sẻ công khai lá số Tử Vi!');
                     }}
                     className="px-3 py-1 bg-purple-100 text-purple-800 border border-purple-200 hover:bg-purple-200 rounded-full text-xs font-bold transition-all active:scale-95 cursor-pointer"
                   >
@@ -1110,7 +1112,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
         }} 
       />
 
-
+      {toastMsg && <FloatingNotificationToast message={toastMsg} onClose={() => setToastMsg('')} />}
     </div>
     </>
   );

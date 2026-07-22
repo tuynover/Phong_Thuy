@@ -30,7 +30,19 @@ class GoogleIndexingService {
                 }
             }
 
-            // 2. Nếu không có credentials, log cảnh báo và trả về null
+            // 2. Nếu không có, thử đọc từ các biến môi trường riêng lẻ
+            if (!credentials) {
+                const clientEmail = process.env.GOOGLE_CLIENT_EMAIL || process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
+                const privateKey = process.env.GOOGLE_PRIVATE_KEY;
+                if (clientEmail && privateKey) {
+                    credentials = {
+                        client_email: clientEmail,
+                        private_key: privateKey
+                    };
+                }
+            }
+
+            // 3. Nếu không có credentials hợp lệ, log cảnh báo và trả về null
             if (!credentials || !credentials.client_email || !credentials.private_key) {
                 console.warn('[GoogleIndexingService] Chưa cấu hình Google Service Account credentials. Bỏ qua gọi Indexing API.');
                 return null;

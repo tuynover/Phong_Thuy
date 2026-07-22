@@ -7,6 +7,7 @@ import Tooltip from './Tooltip';
 import SectionRenderer from './SectionRenderer';
 import { parseMarkdownSections } from '../utils/markdownParser';
 import AiChatWidget from './AiChatWidget';
+import FloatingNotificationToast from './FloatingNotificationToast';
 
 import {
     stemElements,
@@ -77,20 +78,28 @@ const MarriageBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory
         };
     }, [abortController]);
 
+    const [result, setResult] = useState(data);
     const [isPublicState, setIsPublicState] = useState(false);
+    const [toastMsg, setToastMsg] = useState('');
 
     useEffect(() => {
-        setIsPublicState(data?.isPublic || false);
+        setResult(data);
     }, [data]);
 
+    useEffect(() => {
+        setIsPublicState(result?.isPublic || false);
+    }, [result]);
+
     const handleTogglePublic = async () => {
-        const resolvedId = data?.recordId || data?._id;
+        const resolvedId = result?.recordId || result?._id;
         if (!resolvedId) return;
         try {
             const newStatus = !isPublicState;
             await togglePublicCalculation('marriage', resolvedId, newStatus);
             setIsPublicState(newStatus);
+            setToastMsg(`Đã ${newStatus ? 'bật' : 'tắt'} chia sẻ công khai kết quả Hợp Hôn!`);
             if (onInvalidateHistory) onInvalidateHistory();
+            setResult(prev => prev ? { ...prev, isPublic: newStatus } : null);
             if (onUpdateData) {
                 onUpdateData(prev => ({
                     ...prev,
@@ -99,7 +108,7 @@ const MarriageBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory
             }
         } catch (err) {
             console.error('Lỗi khi đổi trạng thái công khai Marriage:', err);
-            alert('Không thể thay đổi trạng thái chia sẻ. Vui lòng thử lại sau.');
+            setToastMsg('Không thể thay đổi trạng thái chia sẻ. Vui lòng thử lại sau.');
         }
     };
 
@@ -534,7 +543,7 @@ const MarriageBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory
         <div className="space-y-6 md:space-y-8 pb-20 font-sans relative">
 
             {/* Công tắc chia sẻ công khai kết quả Hợp Hôn */}
-            {user && (data.userId === user.id || data.userId === user._id) && (
+            {(!window.location.pathname.includes('/record/') || (user && (result?.userId === user.id || result?.userId === user._id))) && (
                 <div className="p-5 bg-rose-50/40 border border-rose-100 rounded-3xl flex flex-wrap items-center justify-between gap-4 shadow-sm">
                     <div className="flex flex-col">
                         <span className="text-sm font-extrabold text-slate-800">Chia sẻ công khai kết quả hợp hôn</span>
@@ -547,7 +556,7 @@ const MarriageBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory
                                 onClick={() => {
                                     const shareUrl = `${window.location.origin}/marriage/record/${data._id || data.recordId}`;
                                     navigator.clipboard.writeText(shareUrl);
-                                    alert('Đã sao chép liên kết chia sẻ công khai!');
+                                    setToastMsg('Đã sao chép liên kết chia sẻ công khai Hợp Hôn!');
                                 }}
                                 className="px-3 py-1 bg-rose-100 text-rose-800 border border-rose-200 hover:bg-rose-200 rounded-full text-xs font-bold transition-all active:scale-95 cursor-pointer"
                             >
@@ -869,7 +878,7 @@ const MarriageBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory
                     <ArrowDown size={24} />
                 </button>
             </div>
-
+            {toastMsg && <FloatingNotificationToast message={toastMsg} onClose={() => setToastMsg('')} />}
         </div>
     );
 };
