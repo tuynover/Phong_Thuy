@@ -265,7 +265,9 @@ router.get('/sitemap.xml', async (req, res) => {
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`;
 
         // 1. Ghi sitemap trang tĩnh
-        const todayStr = new Date().toISOString().split('T')[0];
+        const todayStr = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "Asia/Ho_Chi_Minh"
+}).format(new Date());
         staticPages.forEach(page => {
             xml += `
   <url>

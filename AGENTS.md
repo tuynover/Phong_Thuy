@@ -59,7 +59,13 @@ AI Agent có vai trò:
 - **Phân quyền Admin/Co-Admin:** Admin có toàn quyền. Co-Admin chỉ có quyền thao tác trên các bản ghi và người dùng có role là `user` hoặc `vip` (được xác thực qua hàm hỗ trợ `req.hasAuthorityOver(targetUser)`).
 - **Lọc Intent (isDivinationRelated):** Bất kỳ câu hỏi chat follow-up nào gửi lên từ phía người dùng đều phải được kiểm tra tính liên quan thông qua `ConversationContextService.js` để tránh việc lạm dụng LLM hỏi các chủ đề lạc đề.
 - **Kiểm tra quyền sở hữu dữ liệu (Data Privacy Boundary):** Tất cả các API xem chi tiết bản ghi, trò chuyện AI hoặc lịch sử chat đều bắt buộc đi qua middleware kiểm tra quyền sở hữu (`checkRecordOwnership` hoặc `checkHistoryOwnership`) để chặn xem chéo thông tin trái phép của người dùng khác.
-- **Hủy phiên tức thời khi Đăng xuất (Token Revocation):** Khi đăng xuất, bắt buộc phải gọi request `POST /api/auth/logout` lên Backend trước khi xóa thông tin lưu trữ cục bộ, mục đích là tăng `tokenVersion` của người dùng trong cơ sở dữ liệu lên 1 để vô hiệu hóa token này vĩnh viễn trên máy chủ.
+- **Chia sẻ công khai lá số & Quyền riêng tư (isPublic):**
+  - Mặc định toàn bộ bản ghi gieo quẻ, lá số, hợp hôn của người dùng đều là riêng tư (`isPublic: false`). Chỉ cho phép chia sẻ khi người dùng chủ động bật công khai (`isPublic: true`).
+  - Khi xem lá số qua liên kết chia sẻ `/record/:id`: Chỉ hiển thị thanh cấu hình chia sẻ và nút sao chép link đối với chính chủ sở hữu lá số (so khớp ID người dùng). Ẩn hoàn toàn thanh chia sẻ đối với khách vãng lai để bảo mật tính năng quản trị của chủ sở hữu.
+  - Khi bật/tắt chia sẻ ở trang chi tiết, bắt buộc phải sử dụng local state `result` nội bộ của phân hệ thay vì prop của cha để nút Switch gạt đổi màu realtime lập tức và kích hoạt Toast thông báo 1.5 giây nền trắng (Light Mode) nổi đỉnh trang.
+- **Tự động Ping Google Indexing API:**
+  - Bất kỳ thao tác tạo bài viết Blog mới hoặc bật/tắt công khai lá số (`isPublic` thay đổi) đều phải kích hoạt gọi service `GoogleIndexingService.js` để gửi lệnh ping `URL_UPDATED` (khi bật/tạo mới) hoặc `URL_DELETED` (khi tắt/xóa mềm) lên Googlebot để đẩy nhanh tốc độ lập chỉ mục của Google Tìm kiếm.
+- **Hủy phiên tức thời khi Đăng xuất (Token Revocation):** Khi đăng xuất, bắt buộc phải gọi request `POST /api/auth/logout` lên Backend trước khi xóa thông tin lưu trữ cục bộ, mục đích là tăng `tokenVersion` của người dùng trong cơ sở dữ liệu lên 1 để vô hiệu hóa token này vễn viễn trên máy chủ.
 - **Hủy phiên đăng nhập cũ khi thay đổi/khôi phục mật khẩu:** Khi thực hiện đổi mật khẩu hoặc khôi phục mật khẩu thành công, máy chủ bắt buộc phải tăng `tokenVersion` lên 1 để vô hiệu hóa tất cả các JWT token cũ đang lưu hành.
 - **Quản lý mã Email OTP:** Mã OTP khôi phục mật khẩu gồm 6 chữ số ngẫu nhiên gửi qua email có thời hạn hết hạn nghiêm ngặt là 15 phút. Nội dung email gửi đi bắt buộc phải ở định dạng HTML có CSS inline đồng bộ phong cách học thuật.
 

@@ -92,6 +92,7 @@ Lưu trữ thông tin câu hỏi, quẻ chính/quẻ biến được gieo, snaps
     }],
     analysisSnapshot: { type: Object, default: null },
     status: { type: String, enum: ['active', 'locked'], default: 'active' },
+    isPublic: { type: Boolean, default: false },
     isDeleted: { type: Boolean, default: false }
   }
   ```
@@ -112,6 +113,7 @@ Lưu trữ thông tin lá số Tứ Trụ học thuật và các bài phân tíc
     aiInterpretation: { content: String, generatedAt: Date, tokensUsed: Number },
     analysisSnapshot: { type: Object, default: null },
     status: { type: String, enum: ['active', 'locked'], default: 'active' },
+    isPublic: { type: Boolean, default: false },
     isDeleted: { type: Boolean, default: false }
   }
   ```
@@ -136,6 +138,7 @@ Lưu trữ thông số bản mệnh Tử Vi thô lập từ thư viện iztro v�
     },
     analysisSnapshot: { type: Object, default: null },
     status: { type: String, enum: ['active', 'locked'], default: 'active' },
+    isPublic: { type: Boolean, default: false },
     isDeleted: { type: Boolean, default: false }
   }
   ```
@@ -157,6 +160,7 @@ Lưu trữ kết quả so sánh Bát Tự và độ hòa hợp của hai đối 
     rating: { type: Number, default: null },
     aiInterpretation: { content: String, generatedAt: Date },
     status: { type: String, enum: ['active', 'locked'], default: 'active' },
+    isPublic: { type: Boolean, default: false },
     isDeleted: { type: Boolean, default: false }
   }
   ```

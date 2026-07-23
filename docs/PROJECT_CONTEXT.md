@@ -87,4 +87,13 @@ Trước đây, mỗi phân hệ có các bảng hội thoại và tin nhắn ri
 - **Gỡ bỏ Mongoose `post('save')` Hooks:** Xóa bỏ toàn bộ các hook tự động chạy 12 câu lệnh Mongo Aggregation lặp lặp ở 5 model chính (`BaziRecord`, `ZiweiRecord`, `IChingRecord`, `MarriageRecord`, `Conversation`), chuyển hoàn toàn sang cơ chế cộng dồn nguyên tử `$inc` O(1) từ Controller.
 - **Mở rộng Unit Testing (Jest):** Nâng tổng số thử nghiệm tự động từ 27 lên **86 Test Cases PASSED trên 19 Test Suites**, bao phủ toàn bộ RuleEngine, DateService, Controllers, Auth và các Middleware bảo mật.
 
+### 4.9 Triển Khai Giải Pháp SEO Tự Chủ, Dynamic Sitemap & Thông Báo Premium Toast (07/2026)
+Để tối ưu hóa tìm kiếm tự nhiên (Google Search) và hoàn thiện giao diện cao cấp:
+- **SEO Render Tĩnh & Open Graph:** Viết bộ xử lý render tĩnh HTML ở Backend (`backend/src/routes/seo.js`), tự động lấy và cache index.html từ container frontend và tiêm meta tags Open Graph động (ảnh đại diện, tiêu đề, mô tả) khi chia sẻ các đường dẫn lá số/quẻ dịch công khai, giúp hiển thị đẹp mắt trên Facebook/Zalo.
+- **Dynamic XML Sitemap:** Xây dựng endpoint `/sitemap.xml` tự động gom các liên kết tĩnh chính, bài viết Blog và toàn bộ các lá số/quẻ dịch đã được người dùng bật chế độ chia sẻ công khai (`isPublic: true`) để Googlebot dễ dàng lập chỉ mục.
+- **Google Indexing API:** Tích hợp `GoogleIndexingService.js` tự động ping thông báo URL mới (`URL_UPDATED`) hoặc gỡ bỏ lập chỉ mục (`URL_DELETED`) lên Googlebot mỗi khi bài viết Blog được tạo/sửa hoặc lá số được bật/tắt chia sẻ.
+- **Đồng bộ Router Static Pages:** Đồng bộ router client (`UserApp.jsx`) cho các trang tĩnh phụ (`/about` - Giới thiệu, `/privacy` - Chính sách bảo mật, `/terms` - Điều khoản dịch vụ) để hỗ trợ Googlebot và người dùng truy cập trực tiếp bằng liên kết tĩnh, tự động đổi URL trình duyệt qua `pushState`.
+- **Premium Toast & State nội bộ:** Thay thế hoàn toàn alert thô cứng bằng component `FloatingNotificationToast` nền trắng viền xám mờ tinh tế (Light Mode) tự đóng sau 1.5 giây. Đồng thời, chuyển đổi `BaziBoard` và `MarriageBoard` sang dùng state `result` nội bộ (tương tự `ZiweiBoard`) và cập nhật cache Lịch sử đúng các key số nhiều (`bazis`, `marriages`) để switch bật/tắt chia sẻ gạt đổi màu realtime lập tức.
+
+
 

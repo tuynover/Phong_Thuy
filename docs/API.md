@@ -315,6 +315,12 @@ Lấy thông tin chi tiết (Lục Thân, Lục Thú, Hào Thế/Ứng) để hi
   `DELETE /api/history/calculations/:type/:id` (Với `:type` là `iching`, `bazi`, `ziwei`, `marriage`).
   - Hệ thống thực hiện xóa mềm (Soft Delete) bằng cách đặt cờ `isDeleted` thành `true` để ẩn khỏi danh sách lịch sử của người dùng nhưng vẫn giữ nguyên dữ liệu gốc ở phía máy chủ.
   - Nếu bản ghi Bát Tự hoặc Tử Vi bị xóa trùng với lá số bản thân đã liên kết của người dùng, hệ thống sẽ tự động hủy liên kết (`ownBaziRecordId` hoặc `ownZiweiRecordId` đặt về `null`).
+- **Bật/Tắt chia sẻ công khai bản ghi:**
+  `PUT /api/history/calculations/:type/:id/public` (Với `:type` là `iching`, `bazi`, `ziwei`, `marriage`).
+  - **Headers:** `Authorization: Bearer <token>`
+  - **Body:** `{ "isPublic": true }` (hoặc `false`)
+  - **Phản hồi (200):** `{ "success": true, "message": "Cập nhật trạng thái chia sẻ công khai thành công.", "isPublic": true }`
+  - Tự động gọi Google Indexing API để gửi yêu cầu ping thu thập dữ liệu (khi bật) hoặc gỡ bỏ lập chỉ mục (khi tắt).
 
 ---
 
@@ -573,4 +579,10 @@ Yêu cầu quyền Admin/Co-Admin.
     "message": "Đã khôi phục bài viết thành công."
   }
   ```
+
+### 8.7 Dynamic XML Sitemap (SEO)
+Lấy sơ đồ trang web động phục vụ Googlebot lập chỉ mục.
+- **Endpoint:** `GET /sitemap.xml` (ở root level của website)
+- **Phản hồi (200):** Nội dung XML sitemap chuẩn UTF-8 (`Content-Type: application/xml; charset=utf-8`). Tự động gom các URL tĩnh chính, các bài viết Blog đã phát hành, và toàn bộ quẻ dịch/lá số đã được người dùng bật chế độ chia sẻ công khai (`isPublic: true`).
+
 

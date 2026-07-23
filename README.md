@@ -113,6 +113,10 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
    * Gửi gói tin heartbeat định kỳ mỗi 15 giây ngăn chặn lỗi ngắt kết nối rác do Idle Timeout khi phân phối qua Nginx, Render hoặc Vercel.
 9. **Cơ chế Cache Tối ưu & Redis Hybrid (L1 RAM + L2 Redis):**
    * Đệm thông tin Profile User trong bộ nhớ RAM L1 (`userProfileRamCache`) giúp phản hồi auth dưới 1ms, gộp các lệnh RateLimiter trong 1 Redis Pipeline duy nhất, bọc Fast Fail Timeout (`withTimeout` max 300ms-500ms) và kích hoạt `family: 4` chống trễ DNS AAAA trên AWS EC2. Tự động lưu snapshot luận giải (`analysisSnapshot`) và lưu trữ đệm qua [MemoryCacheService.js](file:///t:/Phongthuy/backend/src/services/MemoryCacheService.js) để tái sử dụng, giúp giảm thiểu tối đa chi phí gọi Gemini API.
+10. **Hệ thống SEO Tự Chủ, Dynamic Sitemap & Google Indexing API:**
+    * **SEO & Meta Tags:** Viết bộ xử lý render tĩnh HTML (`backend/src/routes/seo.js`), tự động nạp index.html của frontend và tiêm (inject) các thẻ meta tags Open Graph động phục vụ hiển thị ảnh đại diện và mô tả khi chia sẻ link Bát tự/Tử vi/Kinh dịch công khai lên các mạng xã hội.
+    * **Dynamic XML Sitemap:** Endpoint `/sitemap.xml` tự động tổng hợp danh sách các trang chính tĩnh, bài viết Blog đã xuất bản, và các liên kết lá số công khai (`isPublic: true`) của người dùng để dẫn đường cho bot tìm kiếm thu thập dữ liệu.
+    * **Google Indexing API:** Tự động gửi các sự kiện ping thông báo (`URL_UPDATED` khi tạo bài viết/bật chia sẻ, hoặc `URL_DELETED` khi xóa mềm/tắt chia sẻ) lên API Google Indexing để đẩy nhanh tốc độ lập chỉ mục nội dung.
 
 ---
 
