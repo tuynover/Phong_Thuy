@@ -539,15 +539,17 @@ class BaziAnalyzer {
         // 7. Tòng Sát, Tòng Tài, Tòng Nhi
         const totalScore = Object.values(elementScore).reduce((a,b) => a+b, 0);
         const dmScore = elementScore[dmElem] || 0;
-        const isVeryWeak = (dmScore / totalScore) < 0.15;
         
-        if (isVeryWeak) {
-            let strongest = '';
-            let maxVal = 0;
-            for (const [el, val] of Object.entries(elementScore)) {
-                if (val > maxVal) { maxVal = val; strongest = el; }
-            }
-            
+        let strongest = '';
+        let maxVal = 0;
+        for (const [el, val] of Object.entries(elementScore)) {
+            if (val > maxVal) { maxVal = val; strongest = el; }
+        }
+        
+        const isVeryWeak = (dmScore / totalScore) < 0.15;
+        const isStrongestDominant = (maxVal / totalScore) >= 0.45; // Hành tòng theo phải thực sự mạnh áp đảo (>= 45%)
+        
+        if (isVeryWeak && isStrongestDominant) {
             const elemToStem = { 'Moc': 'Giáp', 'Hoa': 'Bính', 'Tho': 'Mậu', 'Kim': 'Canh', 'Thuy': 'Nhâm' };
             const dummyStem = elemToStem[strongest];
             const rel = getRelation(dayGan, dummyStem);
@@ -1901,11 +1903,55 @@ class BaziAnalyzer {
         const tuLenhElem = this.rules.stemElement[tuLenhCan];
         const isDucTuLenh = tuLenhElem === dmElem || (tuLenhElem && this.rules.relation[tuLenhElem]?.[dmElem] === 'duoc_sinh');
 
-        // 2. Check Đắc Địa: Can ngày có Căn rễ (bản khí, trung khí, dư khí) ở các Địa chi
+        // Clashes, hinh, hai maps for disruption check
+        const clashes = {
+            'Tý': 'Ngọ', 'Ngọ': 'Tý',
+            'Sửu': 'Mùi', 'Mùi': 'Sửu',
+            'Dần': 'Thân', 'Thân': 'Dần',
+            'Mão': 'Dậu', 'Dậu': 'Mão',
+            'Thìn': 'Tuất', 'Tuất': 'Thìn',
+            'Tỵ': 'Hợi', 'Hợi': 'Tỵ'
+        };
+        const haiMap = {
+            'Tý': 'Mùi', 'Mùi': 'Tý',
+            'Sửu': 'Ngọ', 'Ngọ': 'Sửu',
+            'Dần': 'Tỵ', 'Tỵ': 'Dần',
+            'Mão': 'Thìn', 'Thìn': 'Mão',
+            'Thân': 'Hợi', 'Hợi': 'Thân',
+            'Dậu': 'Tuất', 'Tuất': 'Dậu'
+        };
+        const hinhMap = {
+            'Tý': ['Mão'], 'Mão': ['Tý'],
+            'Dần': ['Tỵ', 'Thân'], 'Tỵ': ['Dần', 'Thân'], 'Thân': ['Dần', 'Tỵ'],
+            'Sửu': ['Tuất', 'Mùi'], 'Tuất': ['Sửu', 'Mùi'], 'Mùi': ['Sửu', 'Tuất'],
+            'Thìn': ['Thìn'], 'Ngọ': ['Ngọ'], 'Dậu': ['Dậu'], 'Hợi': ['Hợi']
+        };
+
+        const isBranchDisrupted = (branch, index, allBranches) => {
+            for (let i = 0; i < allBranches.length; i++) {
+                if (i === index) continue;
+                const otherBranch = allBranches[i];
+                if (clashes[branch] === otherBranch) return true;
+                if (haiMap[branch] === otherBranch) return true;
+                if (hinhMap[branch]) {
+                    if (hinhMap[branch].includes(otherBranch)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        };
+
+        // 2. Check Đắc Địa: Can ngày có Căn rễ chính khí và không bị xung/hình/hại phá hủy
         const allBranches = pillars.map(p => canChi[p].zhi);
-        const isDacDia = allBranches.some(b => {
+        const isDacDia = allBranches.some((b, idx) => {
             const ratios = getBranchRatios(b);
-            return ratios.some(r => r.stem && this.rules.stemElement[r.stem] === dmElem);
+            if (!ratios[0] || !ratios[0].stem) return false;
+            const primaryElem = this.rules.stemElement[ratios[0].stem];
+            if (primaryElem !== dmElem) return false;
+            
+            const isDisrupted = isBranchDisrupted(b, idx, allBranches);
+            return !isDisrupted;
         });
 
         // 3. Check Được Sinh: Has Ấn (Chính Ấn / Thiên Ấn) in stems or branches
@@ -1919,20 +1965,43 @@ class BaziAnalyzer {
         });
         const isDuocSinh = hasAnInStems || hasAnInBranches;
 
-        // 4. Check Được Trợ Giúp: Has Tỷ Kiếp (Same element) in other stems or branches
+        // 4. Check Được Trợ Giúp: Has Tỷ Kiếp (Same element) in other stems (Gốc rễ ở Địa chi đã tính ở Đắc Địa, tránh tính trùng lặp)
         const hasPeerInStems = otherStems.some(s => this.rules.stemElement[s] === dmElem);
-        const nonDayBranches = [canChi.year.zhi, canChi.month.zhi, canChi.hour.zhi];
-        const hasPeerInBranches = nonDayBranches.some(b => {
-            const ratios = getBranchRatios(b);
-            return ratios.some(r => r.stem && this.rules.stemElement[r.stem] === dmElem);
-        });
-        const isDuocTroGiup = hasPeerInStems || hasPeerInBranches;
+        const isDuocTroGiup = hasPeerInStems;
 
-        // 5. Check Tam Hợp / Tam Hội (Không bị xung/hình/hại phá)
+        const getCombinationElement = (relStr) => {
+            const cleanStr = relStr.split(' ')[0]; // Lấy phần 'Thân-Dậu'
+            const branches = cleanStr.split('-');
+            if (branches.some(b => ['Tý'].includes(b)) || 
+                (branches.includes('Hợi') && branches.includes('Sửu')) ||
+                (branches.includes('Thân') && branches.includes('Thìn'))) {
+                return 'Thuy';
+            }
+            if (branches.some(b => ['Ngọ'].includes(b)) ||
+                (branches.includes('Tỵ') && branches.includes('Mùi')) ||
+                (branches.includes('Dần') && branches.includes('Tuất'))) {
+                return 'Hoa';
+            }
+            if (branches.some(b => ['Dậu'].includes(b)) ||
+                (branches.includes('Tỵ') && branches.includes('Sửu')) ||
+                (branches.includes('Thân') && branches.includes('Tuất'))) {
+                return 'Kim';
+            }
+            if (branches.some(b => ['Mão'].includes(b)) ||
+                (branches.includes('Hợi') && branches.includes('Mùi')) ||
+                (branches.includes('Dần') && branches.includes('Thìn'))) {
+                return 'Moc';
+            }
+            return null;
+        };
+
+        // 5. Check Tam Hợp / Tam Hội (Không bị xung/hình/hại phá) và phải hóa thành ngũ hành đồng đảng (Trợ/Ấn)
         const hasSelfTamHopHoi = (analysis.relations.tamHop || []).concat(analysis.relations.banTamHop || []).some(relStr => {
             const isDisrupted = relStr.includes('phá');
             if (isDisrupted) return false; // Không hợp được khi bị xung/hình/hại
-            return relStr.includes('Hội') || relStr.includes('Tam Hợp');
+            
+            const comboElem = getCombinationElement(relStr);
+            return comboElem && (comboElem === dmElem || comboElem === motherElem);
         });
 
         // Determine Graded Thân Degree based on Academic Matrix
@@ -1944,12 +2013,27 @@ class BaziAnalyzer {
         } else if (isDucTuLenh) {
             if (count3 >= 3) thanDegree = "cuc_vuong";
             else if (count3 === 2) thanDegree = "rat_vuong";
-            else thanDegree = "vuong";
+            else if (count3 === 1) thanDegree = "vuong";
+            else {
+                // Đắc lệnh nhưng thất địa thất thế
+                thanDegree = (dongDang >= khacTiet) ? "can_bang" : "nhuoc";
+            }
         } else {
-            if (count3 >= 2) thanDegree = "rat_vuong";
-            else if (count3 === 1 && hasSelfTamHopHoi) thanDegree = "vuong";
-            else if (count3 === 1) thanDegree = "can_bang";
-            else thanDegree = "nhuoc";
+            if (count3 === 3) thanDegree = "rat_vuong";
+            else if (count3 === 2) thanDegree = "vuong";
+            else if (count3 === 1) {
+                if (hasSelfTamHopHoi) thanDegree = "vuong";
+                else {
+                    thanDegree = (dongDang >= khacTiet) ? "can_bang" : "nhuoc";
+                }
+            } else {
+                // Thất lệnh, thất địa, thất thế
+                if (dongDang / totalScore < 0.10 || khacTiet > dongDang * 3) {
+                    thanDegree = "suy_kiet";
+                } else {
+                    thanDegree = "rat_nhuoc";
+                }
+            }
         }
 
         analysis.academicFlags = {
@@ -1962,10 +2046,17 @@ class BaziAnalyzer {
         };
         analysis.thanDegree = thanDegree;
 
-        // Sync main analysis.than if matrix provides high confidence flag
-        if (!isTongCach) {
-            if ((isDucTuLenh || isDacDia) && count3 >= 1) analysis.than = "vuong";
-            else if (!isDucTuLenh && !isDacDia && count3 === 0 && !hasSelfTamHopHoi) analysis.than = "nhuoc";
+        // Sync main analysis.than directly with thanDegree
+        if (isTongCach) {
+            analysis.than = "tong_cach";
+        } else {
+            if (["cuc_vuong", "rat_vuong", "vuong"].includes(thanDegree)) {
+                analysis.than = "vuong";
+            } else if (thanDegree === "can_bang") {
+                analysis.than = "can_bang";
+            } else {
+                analysis.than = "nhuoc";
+            }
         }
 
         // Determine structure (Cách cục) based on docx rules

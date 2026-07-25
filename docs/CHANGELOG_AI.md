@@ -2,6 +2,29 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+
+## 📅 Phiên bản: Hiệu Chỉnh Ma Trận Cờ Học Thuật Bát Tự - Tránh Luôn Thân Vượng & Sửa Logic Cách Cục (24/07/2026)
+
+### Bazi Algorithm & Day Master Strength Evaluation
+- **Phân Mức Nhật Chủ Chi Tiết ([BaziAnalyzer.js](file:///t:/Phongthuy/backend/src/services/BaziAnalyzer.js#L2007-L2039))**:
+  - Mở rộng cờ `thanDegree` để phân chia độ vượng suy của Nhật chủ thành nhiều mức độ chi tiết và cụ thể hơn bao gồm: **Cực Vượng** (`cuc_vuong`), **Rất Vượng** (`rat_vuong`), **Vượng** (`vuong`), **Cân Bằng** (`can_bang`), **Nhược** (`nhuoc`), **Rất Nhược** (`rat_nhuoc`), **Suy Kiệt** (`suy_kiet`), và **Tòng Cách** (`tong_cach`).
+  - Đồng bộ hóa hoàn toàn logic giữa `thanDegree` (phân cấp định tính) và `analysis.than` (kết luận định lượng chung) để triệt tiêu các mâu thuẫn hiển thị trước đây (ví dụ: `than: 'nhuoc'` đi kèm `thanDegree: 'vuong'`).
+- **Sửa Lỗi Nhập Phút Trong Phân Hệ Bát Tự ([BaziInput.jsx](file:///t:/Phongthuy/frontend/src/components/BaziInput.jsx#L38-L44))**:
+  - Khắc phục lỗi đụng độ placeholder khi cả ô Tháng và ô Phút đều dùng `placeholder="MM"`. Do logic của component `CustomSelect` gộp chung kiểm tra `placeholder === 'MM'`, khi người dùng nhập phút $>12$ (ví dụ 42), giá trị lập tức bị giới hạn cưỡng bức về 12 (giới hạn của tháng).
+  - Thay đổi placeholder của ô nhập Phút sang `"Min"` và cập nhật logic kiểm tra điều kiện tương ứng của `CustomSelect` để phân biệt hoàn toàn với Tháng.
+- **Hiệu Chỉnh Logic Đắc Địa ([BaziAnalyzer.js](file:///t:/Phongthuy/backend/src/services/BaziAnalyzer.js#L1904-L1940))**:
+  - Giới hạn cờ Đắc Địa (`dacDia`) chỉ tính khi Can ngày có gốc **chính khí** (bản khí) ở Địa chi của các trụ, loại bỏ việc tính các căn rễ phụ (trung khí, dư khí chiếm tỷ lệ nhỏ).
+  - Tích hợp kiểm tra xung/hình/hại: Nếu Địa chi đắc địa bị dính các mối quan hệ Lục Xung, Tương Hình, hoặc Lục Hại với bất kỳ chi nào khác trong 4 trụ thì gốc rễ đó bị coi là bị phá hủy và **không được tính là đắc địa**.
+- **Giải Quyết Trùng Lặp Gốc và Căn (`isDuocTroGiup`)**:
+  - Thay đổi cờ Được Trợ Giúp (`isDuocTroGiup`) chỉ kiểm tra Tỷ Kiếp ở các **Thiên can** khác (`hasPeerInStems`). Loại bỏ việc kiểm tra ở Địa chi (`hasPeerInBranches`) vì đã được gom vào cờ Đắc Địa, tránh việc một chi vừa tính đắc địa vừa tính trợ giúp làm tăng điểm `count3` vô lý.
+- **Sửa Lỗi Lọc Tam Hợp / Tam Hội Hỗ Trợ**:
+  - Tối ưu hóa `hasSelfTamHopHoi` chỉ chấp nhận các tổ hợp Tam hợp / Tam hội hóa ra **ngũ hành đồng đảng** (Tỷ Kiếp hoặc Ấn tinh) sinh trợ cho Nhật chủ mới được tính là có lực lượng hỗ trợ làm tăng cấp độ vượng suy (`thanDegree`). Loại bỏ các hóa cục Thực Thương, Tài, Sát vốn làm hao tiết thêm Nhật chủ.
+- **Sửa Logic Xác Định Tòng Cách ([BaziAnalyzer.js](file:///t:/Phongthuy/backend/src/services/BaziAnalyzer.js#L540-L558))**:
+  - Thắt chặt điều kiện định Cách cục đặc biệt: Một lá số chỉ được phân loại vào **Tòng cách** (Tòng Sát, Tòng Tài, Tòng Nhi) khi Nhật chủ cực nhược (<15%) đồng thời ngũ hành mạnh nhất phải thực sự áp đảo toàn cục (chiếm $\ge 45\%$ tổng lượng ngũ hành). 
+  - Nếu ngũ hành mạnh nhất không đạt ngưỡng 45% (lực lượng phân tán cát khí), hệ thống sẽ bỏ qua Tòng cách và tự động phân vào Thường cách (Bát Cách) định theo Nguyệt lệnh thấu can, giải quyết triệt để sự mâu thuẫn giữa phân loại Vượng Suy và Cách Cục.
+- **Đồng Bộ Tài Liệu Quy Tắc Nghiệp Vụ ([BUSINESS_RULES.md](file:///t:/Phongthuy/docs/BUSINESS_RULES.md#L151-L159))**:
+  - Cập nhật định nghĩa học thuật của cờ Đắc Địa (`dacDia`) và cờ Được Trợ Giúp (`isDuocTroGiup`) để đồng bộ tuyệt đối giữa tài liệu nghiệp vụ và mã nguồn thực tế.
+
 ## 📅 Phiên bản: Sửa Lỗi Deep Linking, Đưa Phần Chia Sẻ Sang Cột Phải & Tích Hợp FloatingNotificationToast Cao Cấp (22/07/2026)
 
 ### Bug Fix & Router Deep Linking

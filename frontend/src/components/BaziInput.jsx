@@ -38,7 +38,7 @@ function CustomSelect({ value, onChange, options, placeholder }) {
         if (val.length >= 4 && num > 2100) val = '2100';
       } else if (placeholder === 'HH' || placeholder === 'Giờ') {
         if (num > 23) val = '23';
-      } else if (placeholder === 'MM' || placeholder === 'Phút') {
+      } else if (placeholder === 'Min' || placeholder === 'Phút') {
         if (num > 59) val = '59';
       }
     }
@@ -280,7 +280,7 @@ const BaziInput = ({ onComplete }) => {
                               value={minute}
                               onChange={setMinute}
                               options={minutes}
-                              placeholder="MM"
+                              placeholder="Min"
                             />
                         </div>
                     </div>
