@@ -62,6 +62,7 @@ function injectMetaTags(html, { title, description, url, image }) {
   <meta property="og:type" content="website" />
   <meta property="og:url" content="${canonicalUrl}" />
   <meta property="og:title" content="${title}" />
+  <meta property="og:site_name" content="Phong Thủy Luận Giải" />
   <meta property="og:description" content="${description}" />
   <meta property="og:image" content="${ogImage}" />
 
@@ -226,6 +227,101 @@ router.get('/blog/:slug', async (req, res) => {
         return res.send(ogHtml);
     } catch (error) {
         logger.error('[SEO Router] Lỗi xử lý SEO Blog:', error);
+        return res.status(500).send('Lỗi máy chủ nội bộ');
+    }
+});
+
+// 5.1 SEO tĩnh cho Phân hệ Tứ Trụ Bát Tự
+router.get('/bazi', async (req, res) => {
+    try {
+        const html = await getHtmlTemplate();
+        if (!html) return res.status(500).send('Lỗi máy chủ nội bộ');
+
+        const title = 'Lập Lá Số Tứ Trụ Bát Tự Online - Phân Tích Ngũ Hành Vượng Suy & Dụng Thần AI';
+        const description = 'Lập lá số Tứ Trụ Bát Tự online miễn phí theo ngày giờ sinh. Phân tích ngũ hành vượng suy, định Dụng Thần cát hung, thập thần và luận giải vận hạn chi tiết cùng AI.';
+        const url = 'https://tuynover.ddns.net/bazi';
+
+        const ogHtml = injectMetaTags(html, { title, description, url });
+        res.setHeader('Content-Type', 'text/html');
+        return res.send(ogHtml);
+    } catch (error) {
+        logger.error('[SEO Router] Lỗi xử lý SEO Bazi Static:', error);
+        return res.status(500).send('Lỗi máy chủ nội bộ');
+    }
+});
+
+// 5.2 SEO tĩnh cho Phân hệ Tử Vi Đẩu Số
+router.get('/ziwei', async (req, res) => {
+    try {
+        const html = await getHtmlTemplate();
+        if (!html) return res.status(500).send('Lỗi máy chủ nội bộ');
+
+        const title = 'Tra Cứu Tử Vi Online - Lập Lá Số Tử Vi Đẩu Số 12 Cung, Luận Giải AI';
+        const description = 'Tra cứu Tử Vi online miễn phí theo ngày giờ sinh: lập lá số Tử Vi Đẩu Số 12 cung chuẩn cổ học phương Đông, an sao Miếu Vượng Đắc Hãm và luận giải chi tiết cùng AI.';
+        const url = 'https://tuynover.ddns.net/ziwei';
+
+        const ogHtml = injectMetaTags(html, { title, description, url });
+        res.setHeader('Content-Type', 'text/html');
+        return res.send(ogHtml);
+    } catch (error) {
+        logger.error('[SEO Router] Lỗi xử lý SEO Ziwei Static:', error);
+        return res.status(500).send('Lỗi máy chủ nội bộ');
+    }
+});
+
+// 5.3 SEO tĩnh cho Phân hệ Kinh Dịch
+router.get('/iching', async (req, res) => {
+    try {
+        const html = await getHtmlTemplate();
+        if (!html) return res.status(500).send('Lỗi máy chủ nội bộ');
+
+        const title = 'Gieo Quẻ Kinh Dịch Lục Hào & Mai Hoa Dịch Số Online - Luận Giải AI';
+        const description = 'Gieo quẻ Kinh Dịch online miễn phí: gieo quẻ Lục Hào bằng đồng xu ảo, lập quẻ Mai Hoa Dịch Số theo giờ động tâm hoặc seri tiền, phân tích quẻ chủ, quẻ biến và luận đoán hung cát AI.';
+        const url = 'https://tuynover.ddns.net/iching';
+
+        const ogHtml = injectMetaTags(html, { title, description, url });
+        res.setHeader('Content-Type', 'text/html');
+        return res.send(ogHtml);
+    } catch (error) {
+        logger.error('[SEO Router] Lỗi xử lý SEO IChing Static:', error);
+        return res.status(500).send('Lỗi máy chủ nội bộ');
+    }
+});
+
+// 5.4 SEO tĩnh cho Phân hệ Hợp Hôn
+router.get('/marriage', async (req, res) => {
+    try {
+        const html = await getHtmlTemplate();
+        if (!html) return res.status(500).send('Lỗi máy chủ nội bộ');
+
+        const title = 'Xem Tuổi Kết Hôn & Xem Hợp Hôn Gia Đạo Online - Phong Thủy AI';
+        const description = 'Xem tuổi kết hôn hợp hôn Nam Nữ online miễn phí. Phân tích xung hợp Bát Tự, Mệnh Quái, Cung Phi Bát Trạch, ngũ hành tương sinh tương khắc và tư vấn gia đạo cùng AI.';
+        const url = 'https://tuynover.ddns.net/marriage';
+
+        const ogHtml = injectMetaTags(html, { title, description, url });
+        res.setHeader('Content-Type', 'text/html');
+        return res.send(ogHtml);
+    } catch (error) {
+        logger.error('[SEO Router] Lỗi xử lý SEO Marriage Static:', error);
+        return res.status(500).send('Lỗi máy chủ nội bộ');
+    }
+});
+
+// 5.5 SEO tĩnh cho Phân hệ Xem Ngày Hoàng Đạo
+router.get('/xemngay', async (req, res) => {
+    try {
+        const html = await getHtmlTemplate();
+        if (!html) return res.status(500).send('Lỗi máy chủ nội bộ');
+
+        const title = 'Xem Ngày Tốt Hoàng Đạo & Tra Cứu Cát Hung Trạch Cát Online';
+        const description = 'Xem ngày tốt hoàng đạo online theo tuổi: tra cứu ngày giờ hoàng đạo, hắc đạo, trực, nhị thập bát tú phù hợp cho khởi công, đại sự, cưới hỏi và nhập trạch.';
+        const url = 'https://tuynover.ddns.net/xemngay';
+
+        const ogHtml = injectMetaTags(html, { title, description, url });
+        res.setHeader('Content-Type', 'text/html');
+        return res.send(ogHtml);
+    } catch (error) {
+        logger.error('[SEO Router] Lỗi xử lý SEO XemNgay Static:', error);
         return res.status(500).send('Lỗi máy chủ nội bộ');
     }
 });

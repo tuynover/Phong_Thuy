@@ -61,6 +61,11 @@ export default function UserApp({ onSwitchToAdmin }) {
       if (path.startsWith('/ziwei/record/')) return 'ziwei';
       if (path.startsWith('/iching/record/')) return 'iching';
       if (path.startsWith('/marriage/record/')) return 'marriage';
+      if (path === '/bazi') return 'bazi';
+      if (path === '/iching') return 'iching';
+      if (path === '/ziwei') return 'ziwei';
+      if (path === '/marriage') return 'marriage';
+      if (path === '/xemngay') return 'xemngay';
       if (path === '/about') return 'about';
       if (path === '/privacy') return 'privacy';
       if (path === '/terms') return 'terms';
@@ -141,6 +146,40 @@ export default function UserApp({ onSwitchToAdmin }) {
 
     fetchSharedData();
   }, []);
+
+  // Cập nhật canonical link & title động theo phân hệ để tối ưu SEO
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    // 1. Cập nhật Canonical Link
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
+    }
+    const currentUrl = window.location.origin + window.location.pathname;
+    canonical.setAttribute('href', currentUrl);
+
+    // 2. Cập nhật Title động
+    const titleMap = {
+      home: "Phong Thủy Luận Giải - Kinh Dịch, Bát Tự, Tử Vi & Hôn Nhân AI",
+      iching: "Gieo Quẻ Kinh Dịch Lục Hào & Mai Hoa Dịch Số - Phong Thủy AI",
+      bazi: "Lập Lá Số Tứ Trụ Bát Tự & Phân Tích Ngũ Hành - Phong Thủy AI",
+      ziwei: "Lập Mệnh Bàn Tử Vi Đẩu Số 12 Cung - Phong Thủy AI",
+      marriage: "Xem Tuổi Kết Hôn & Hợp Hôn Gia Đạo - Phong Thủy AI",
+      xemngay: "Xem Ngày Tốt Hoàng Đạo & Cát Hung Trạch Cát - Phong Thủy AI",
+      about: "Giới Thiệu - Phong Thủy Luận Giải AI",
+      privacy: "Chính Sách Bảo Mật - Phong Thủy Luận Giải AI",
+      terms: "Điều Khoản Sử Dụng - Phong Thủy Luận Giải AI",
+      blog: "Kiến Thức Phong Thủy & Chiêm Nghiệm Học Thuật",
+      history: "Lịch Sử Luận Giải Phong Thủy & Quẻ Dịch - Phong Thủy AI",
+      profile: "Thông Tin Cá Nhân & Hồ Sơ Bát Tự - Phong Thủy AI"
+    };
+    if (titleMap[appMode]) {
+      document.title = titleMap[appMode];
+    }
+  }, [appMode]);
   
   const handleSelectModule = (mode, slug = null) => {
     // Không ghi đè previousMode bằng các trang thông tin phụ
@@ -155,6 +194,11 @@ export default function UserApp({ onSwitchToAdmin }) {
     } else if (mode === 'about' || mode === 'privacy' || mode === 'terms') {
       const newUrl = `/${mode}`;
       window.history.pushState({ path: newUrl }, '', newUrl);
+    } else if (['iching', 'bazi', 'ziwei', 'marriage', 'xemngay'].includes(mode) && slug === null) {
+      const newUrl = `/${mode}`;
+      window.history.pushState({ path: newUrl }, '', newUrl);
+    } else if (mode === 'home') {
+      window.history.pushState({ path: '/' }, '', '/');
     } else if (slug === null && mode !== 'blog') {
       window.history.pushState({ path: '/' }, '', '/');
     }

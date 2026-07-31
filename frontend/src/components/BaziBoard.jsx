@@ -362,27 +362,17 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) 
         return map[zhi.trim()] || '';
     };
 
-    const Pillar = ({ title, pillarData, isDayMaster, hideTruongSinh, hideNaYin, hideShenSha }) => {
+    const Pillar = ({ title, pillarData, isDayMaster, hideTruongSinh, hideNaYin, hideShenSha, isMainBazi }) => {
         if (!pillarData || !pillarData.gan || !pillarData.zhi) return null;
         const { gan, zhi, thapThanGan, tangCan = [], naYin, truongSinh, shenSha = [] } = pillarData;
         const ganElem = stemElements[gan];
         const zhiElem = branchElements[zhi];
         const showTruongSinh = truongSinh && !hideTruongSinh;
         const showNaYin = naYin && !hideNaYin;
+        const isMainBaziPillar = isMainBazi;
 
         return (
-            <div className={`relative ${showTruongSinh ? 'pl-6 sm:pl-7 pr-1.5 sm:pr-3 md:pr-4' : 'px-1.5 sm:px-3 md:px-4'} flex flex-col items-center py-1.5 sm:py-3 md:py-4 rounded-xl shadow-sm border-2 ${isDayMaster ? 'border-amber-500 bg-amber-50/30 ring-4 ring-amber-100' : 'border-gray-200 bg-white'} flex-1 md:flex-initial md:min-w-[15%] md:max-w-[20%] md:flex-shrink-0`}>
-                {showTruongSinh && (
-                    <div 
-                        className="absolute left-1 sm:left-2 top-1/2 -translate-y-1/2 flex flex-col items-center justify-center text-[9px] sm:text-[11px] font-black text-slate-800 [writing-mode:vertical-lr] rotate-180 select-none"
-                        style={{ minWidth: '16px' }}
-                    >
-                        <Tooltip term={truongSinh} unstyled={true}>
-                            <span className="cursor-help hover:text-blue-700 transition-colors">{getAbbreviatedTruongSinh(truongSinh)}</span>
-                        </Tooltip>
-                    </div>
-                )}
-
+            <div className={`relative flex flex-col items-center py-2.5 sm:py-4 md:py-5.5 rounded-xl shadow-sm border-2 ${isDayMaster ? 'border-amber-500 bg-amber-50/30 ring-4 ring-amber-100' : 'border-gray-200 bg-white'} flex-1 md:flex-initial ${isMainBaziPillar ? 'md:min-w-[170px] md:max-w-[200px] px-3 sm:px-5 md:px-6 mx-1 sm:mx-1.5' : 'md:min-w-[15%] md:max-w-[20%] px-1.5 sm:px-3 md:px-4'} md:flex-shrink-0`}>
                 <Tooltip term={title} unstyled={true}>
                     <div className={`text-[9px] sm:text-xs font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full ${isDayMaster ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-500'}`}>
                         {title}
@@ -403,9 +393,22 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) 
                 <Tooltip term={gan} unstyled={true}>
                     <div className={`text-2xl sm:text-4xl font-black mt-1 mb-1 sm:mb-2 hover:scale-110 transition-transform ${getColorClass(ganElem)}`}>{gan}</div>
                 </Tooltip>
-                <Tooltip term={zhi} unstyled={true}>
-                    <div className={`text-2xl sm:text-4xl font-black mb-1 sm:mb-2 hover:scale-110 transition-transform ${getColorClass(zhiElem)}`}>{zhi}</div>
-                </Tooltip>
+                
+                {/* Địa chi và Vòng Trường sinh hiển thị ngang hàng (Trường sinh xoay 90 độ ngược kim đồng hồ absolute bên trái Địa chi) */}
+                <div className="flex items-center justify-center relative w-full select-none">
+                    {showTruongSinh && (
+                        <div className={`absolute ${isMainBaziPillar ? '-left-3 sm:-left-4 md:-left-5' : '-left-1 sm:-left-2.5 md:-left-3.5'} top-1/2 -translate-y-1/2 flex items-center justify-center w-4 h-8 select-none`}>
+                            <Tooltip term={truongSinh} unstyled={true}>
+                                <span className="text-[10px] sm:text-[11.5px] font-black text-slate-700 cursor-help hover:text-blue-750 transition-colors transform -rotate-90 origin-center inline-block whitespace-nowrap leading-none tracking-tighter">
+                                    {getAbbreviatedTruongSinh(truongSinh)}
+                                </span>
+                            </Tooltip>
+                        </div>
+                    )}
+                    <Tooltip term={zhi} unstyled={true}>
+                        <div className={`text-2xl sm:text-4xl font-black mb-1 sm:mb-2 hover:scale-110 transition-transform ${getColorClass(zhiElem)}`}>{zhi}</div>
+                    </Tooltip>
+                </div>
                 
                 {showNaYin && (
                     <Tooltip term={naYin} unstyled={true}>
@@ -853,12 +856,15 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) 
 
                             {data.taiNguyen && (
                                 <>
-                                    <div className="font-extrabold text-slate-800">
+                                    <div className="text-sm sm:text-[15px] font-extrabold text-slate-800">
                                         <Tooltip term="Thai Nguyên">Thai Nguyên:</Tooltip>
                                     </div>
-                                    <div className="font-bold text-slate-800 flex flex-wrap items-center gap-3">
+                                    <div className="text-sm sm:text-[15px] font-bold text-slate-800 flex flex-wrap items-center gap-1.5">
+                                        <span className={`font-black ${getColorClass(stemElements[data.taiNguyen.gan])}`}>{data.taiNguyen.gan}</span>
+                                        <span className={`font-black ${getColorClass(branchElements[data.taiNguyen.zhi])}`}>{data.taiNguyen.zhi}</span>
+                                        <span className="text-slate-400 font-normal">-</span>
                                         <Tooltip term={data.taiNguyen.naYin} unstyled={true}>
-                                            <span className={`text-[13px] font-bold cursor-help hover:text-blue-750 transition-colors ${getNaYinTextColorClass(data.taiNguyen.naYin)}`}>{data.taiNguyen.naYin}</span>
+                                            <span className={`font-bold cursor-help hover:text-blue-750 transition-colors ${getNaYinTextColorClass(data.taiNguyen.naYin)}`}>{data.taiNguyen.naYin}</span>
                                         </Tooltip>
                                     </div>
                                 </>
@@ -866,12 +872,15 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) 
 
                             {data.cungMenh && (
                                 <>
-                                    <div className="font-extrabold text-slate-800">
+                                    <div className="text-sm sm:text-[15px] font-extrabold text-slate-800">
                                         <Tooltip term="Cung Mệnh">Cung Mệnh:</Tooltip>
                                     </div>
-                                    <div className="font-bold text-slate-800 flex flex-wrap items-center gap-3">
+                                    <div className="text-sm sm:text-[15px] font-bold text-slate-800 flex flex-wrap items-center gap-1.5">
+                                        <span className={`font-black ${getColorClass(stemElements[data.cungMenh.gan])}`}>{data.cungMenh.gan}</span>
+                                        <span className={`font-black ${getColorClass(branchElements[data.cungMenh.zhi])}`}>{data.cungMenh.zhi}</span>
+                                        <span className="text-slate-400 font-normal">-</span>
                                         <Tooltip term={data.cungMenh.naYin} unstyled={true}>
-                                            <span className={`text-[13px] font-bold cursor-help hover:text-blue-750 transition-colors ${getNaYinTextColorClass(data.cungMenh.naYin)}`}>{data.cungMenh.naYin}</span>
+                                            <span className={`font-bold cursor-help hover:text-blue-750 transition-colors ${getNaYinTextColorClass(data.cungMenh.naYin)}`}>{data.cungMenh.naYin}</span>
                                         </Tooltip>
                                     </div>
                                 </>
@@ -962,35 +971,20 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) 
                             </span>
                         )}
                     </h3>
-                    {/* Desktop layout: horizontal flex row */}
-                    <div className="hidden md:flex flex-row-reverse justify-center gap-4 lg:gap-6 w-full flex-nowrap">
-                        {data.cungMenh && <Pillar title="Cung Mệnh" pillarData={data.cungMenh} hideShenSha={true} />}
-                        {data.taiNguyen && <Pillar title="Thai Nguyên" pillarData={data.taiNguyen} hideShenSha={true} />}
-                        <Pillar title="Giờ Sinh" pillarData={canChi.hour} />
-                        <Pillar title="Nhật Chủ" pillarData={canChi.day} isDayMaster={true} />
-                        <Pillar title="Nguyệt Lệnh" pillarData={canChi.month} />
-                        <Pillar title="Năm Sinh" pillarData={canChi.year} />
+                    {/* Desktop layout: horizontal flex row (4 pillars, wide gap) */}
+                    <div className="hidden md:flex flex-row-reverse justify-center gap-6 lg:gap-8 w-full flex-nowrap">
+                        <Pillar title="Giờ Sinh" pillarData={canChi.hour} isMainBazi={true} />
+                        <Pillar title="Nhật Chủ" pillarData={canChi.day} isDayMaster={true} isMainBazi={true} />
+                        <Pillar title="Nguyệt Lệnh" pillarData={canChi.month} isMainBazi={true} />
+                        <Pillar title="Năm Sinh" pillarData={canChi.year} isMainBazi={true} />
                     </div>
 
-                    {/* Mobile layout: forced 3 columns */}
-                    <div className="grid grid-cols-3 gap-2 md:hidden w-full">
-                        {/* Column 1: Thai Nguyên & Cung Mệnh */}
-                        <div className="flex flex-col gap-2">
-                            {data.taiNguyen && <Pillar title="Thai Nguyên" pillarData={data.taiNguyen} hideShenSha={true} />}
-                            {data.cungMenh && <Pillar title="Cung Mệnh" pillarData={data.cungMenh} hideShenSha={true} />}
-                        </div>
-
-                        {/* Column 2: Trụ Ngày (Nhật Chủ) & Trụ Giờ (Giờ Sinh) */}
-                        <div className="flex flex-col gap-2">
-                            <Pillar title="Nhật Chủ" pillarData={canChi.day} isDayMaster={true} />
-                            <Pillar title="Giờ Sinh" pillarData={canChi.hour} />
-                        </div>
-
-                        {/* Column 3: Trụ Năm (Năm Sinh) & Trụ Tháng (Nguyệt Lệnh) */}
-                        <div className="flex flex-col gap-2">
-                            <Pillar title="Năm Sinh" pillarData={canChi.year} />
-                            <Pillar title="Nguyệt Lệnh" pillarData={canChi.month} />
-                        </div>
+                    {/* Mobile layout: forced 4 columns (4 pillars, spacious layout) */}
+                    <div className="grid grid-cols-4 gap-2.5 md:hidden w-full">
+                        <Pillar title="Giờ Sinh" pillarData={canChi.hour} isMainBazi={true} />
+                        <Pillar title="Nhật Chủ" pillarData={canChi.day} isDayMaster={true} isMainBazi={true} />
+                        <Pillar title="Nguyệt Lệnh" pillarData={canChi.month} isMainBazi={true} />
+                        <Pillar title="Năm Sinh" pillarData={canChi.year} isMainBazi={true} />
                     </div>
                 </div>
 
@@ -1117,8 +1111,8 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) 
                                 
                                 {/* Layout Desktop: 6 cột xếp ngang */}
                                 <div className="hidden md:flex flex-row justify-center gap-2 lg:gap-4 w-full flex-nowrap">
-                                    <Pillar title="Đại Vận" pillarData={daYun[selectedYunIndex]} hideTruongSinh={true} hideNaYin={false} />
-                                    <Pillar title={`Lưu Niên ${selectedLuuNianYear}`} pillarData={activeLuuNianPillar} hideTruongSinh={true} hideNaYin={false} />
+                                    <Pillar title="Đại Vận" pillarData={daYun[selectedYunIndex]} hideTruongSinh={false} hideNaYin={false} />
+                                    <Pillar title={`Lưu Niên ${selectedLuuNianYear}`} pillarData={activeLuuNianPillar} hideTruongSinh={false} hideNaYin={false} />
                                     <Pillar title="Trụ Năm" pillarData={canChi.year} />
                                     <Pillar title="Trụ Tháng" pillarData={canChi.month} />
                                     <Pillar title="Trụ Ngày" pillarData={canChi.day} isDayMaster={true} />
@@ -1129,8 +1123,8 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) 
                                 <div className="grid grid-cols-3 gap-2 md:hidden w-full">
                                     {/* Cột 1: Đại Vận & Lưu Niên */}
                                     <div className="flex flex-col gap-2">
-                                        <Pillar title="Đại Vận" pillarData={daYun[selectedYunIndex]} hideTruongSinh={true} hideNaYin={false} />
-                                        <Pillar title={`Lưu Niên ${selectedLuuNianYear}`} pillarData={activeLuuNianPillar} hideTruongSinh={true} hideNaYin={false} />
+                                        <Pillar title="Đại Vận" pillarData={daYun[selectedYunIndex]} hideTruongSinh={false} hideNaYin={false} />
+                                        <Pillar title={`Lưu Niên ${selectedLuuNianYear}`} pillarData={activeLuuNianPillar} hideTruongSinh={false} hideNaYin={false} />
                                     </div>
 
                                     {/* Cột 2: Trụ Ngày & Trụ Giờ */}

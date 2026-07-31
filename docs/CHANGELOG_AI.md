@@ -3,6 +3,113 @@
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
 
+## 📅 Phiên bản: Áp Dụng Thần Sát & Khóa Độ Cao Đồng Đều Các Trụ Bên Hôn Nhân (31/07/2026)
+
+### UI/UX Design & Marriage Customization ([MarriageBoard.jsx](file:///t:/Phongthuy/frontend/src/components/MarriageBoard.jsx))
+- **Áp Dụng & Hiển Thị Thần Sát Hợp Hôn**:
+  - Truyền dữ liệu `shenSha` của cả Nam và Nữ từ Backend cho component `PillarCard` của trang Hợp Hôn.
+  - Tích hợp hiển thị danh sách Thần Sát Bát Tự (ví dụ: Thiên Ất, Đào Hoa, Vong Thần...) dưới chân mỗi trụ của Nam và Nữ tương tự bên Bát Tự cá nhân.
+  - Sử dụng chung hằng số màu sắc `SHEN_SHA_COLORS` để đồng bộ màu sắc học thuật (xanh lá cho cát thần, đỏ cho hung thần, xám cho thần sát trung tính).
+- **Khóa Độ Cao Cố Định Cho Các Trụ Đồng Đều**:
+  - *Pad Tàng Can lên 3 dòng:* Tự động bổ sung các dòng trống `invisible` đối với các trụ có ít hơn 3 tàng can, đảm bảo chiều cao khối tàng can luôn là 3 dòng.
+  - *Pad Thần Sát lên 4 dòng:* Tự động bổ sung các dòng trống `invisible` đối với các trụ có ít hơn 4 thần sát, đảm bảo chiều cao khối thần sát luôn là 4 dòng.
+  - Đặt thuộc tính chiều cao tối thiểu (`min-h-[385px] sm:min-h-[415px] md:min-h-[455px]`) thống nhất cho các trụ.
+  - Nhờ cơ chế padding số dòng này, 8 trụ Bát Tự (4 của Nam, 4 của Nữ) luôn có **độ cao bằng nhau phẳng lỳ tăm tắp**, triệt tiêu hoàn toàn lỗi trồi sụt méo mó giao diện do chênh lệch lượng chữ.
+- **Đồng Bộ Hóa Vòng Trường Sinh Địa Chi**:
+  - Áp dụng cấu trúc xoay dọc `-rotate-90` lùi sát mép viền ngoài cùng bên trái cho Vòng Trường Sinh của Địa chi trong Hôn nhân giống hệt bên Bát Tự cá nhân, tạo sự đồng bộ thiết kế 100%.
+
+---
+
+## 📅 Phiên bản: Tối Ưu Bố Cục Tứ Trụ Bát Tự & Định Dạng Thai Nguyên - Cung Mệnh (31/07/2026)
+
+### UI/UX Design & Layout Optimization ([BaziBoard.jsx](file:///t:/Phongthuy/frontend/src/components/BaziBoard.jsx))
+- **Định Dạng Can Chi Cho Thai Nguyên & Cung Mệnh**:
+  - Di chuyển hoàn toàn 2 trụ Thai Nguyên và Cung Mệnh ra khỏi bảng Cấu trúc Tứ Trụ 6 cột trước đây.
+  - Chuyển hiển thị lên khu vực thông tin cơ bản với cấu trúc kết hợp Can Chi có màu ngũ hành nạp âm đầy đủ, định dạng dạng: `Can Chi - Nạp Âm` (ví dụ: `Kỷ Tỵ - Tích Lịch Hỏa`).
+  - Đồng nhất kích thước chữ (`text-sm sm:text-[15px]`) của nhãn tiêu đề và giá trị cho cả Thai Nguyên và Cung Mệnh.
+- **Tối Ưu 4 Trụ Cấu Trúc Bát Tự**:
+  - Thiết kế lại phần cấu trúc Tứ Trụ còn lại với 4 cột chính (Giờ Sinh, Nhật Chủ, Nguyệt Lệnh, Năm Sinh) trên cả giao diện Desktop và Mobile.
+  - Tự động nới rộng chiều rộng tối thiểu (`md:min-w-[170px] md:max-w-[200px]`) và bổ sung padding đối xứng để các trụ thoáng đãng, cân đối và sang trọng hơn.
+  - Chỉ áp dụng giãn rộng đối với cấu trúc Tứ Trụ chính, bảo toàn tuyệt đối kích thước cũ đối với các trụ của Đại Vận và Lưu Niên.
+- **Tái Định Vị Vòng Trường Sinh Địa Chi**:
+  - Chuyển Vòng Trường Sinh (ví dụ: Mộ, Trường Sinh...) sang vị trí **xoay 90 độ ngược chiều kim đồng hồ (`-rotate-90`) bám sát đường viền trái của Pillar** bằng thuộc tính toạ độ âm `absolute -left-3 sm:-left-4 md:-left-5` và cố định khung bao `w-4 h-8`.
+  - Thiết kế này kéo Trường Sinh ra ngoài padding của Pillar, định vị sát rạt mép viền xám ngoài cùng bên trái (đúng chỗ được đánh dấu), vừa thẩm mỹ vừa hoàn toàn không chiếm dụng không gian hay làm đẩy lệch vị trí căn giữa của Địa Chi chính.
+  - Tăng cỡ chữ lên +1 size (`text-[10px] sm:text-[11.5px]`) và đổi màu chữ đậm rõ nét hơn (`text-slate-700`).
+- **Mở Hiển Thị Trường Sinh Cho Vận Hạn**:
+  - Gỡ bỏ thuộc tính `hideTruongSinh={true}` của cột **Đại Vận** và **Lưu Niên** trong bảng đối chiếu Vận hạn để Vòng Trường Sinh của Đại Vận/Lưu Niên được hiển thị đồng bộ lên giao diện.
+
+---
+
+### Calculation Engine Optimization ([BaziAnalyzer.js](file:///t:/Phongthuy/backend/src/services/BaziAnalyzer.js))
+- **Vùng Đệm Chuyển Tiếp Mềm Ngũ Hợp ($15.0 \rightarrow 20.0$ điểm)**:
+  - Loại bỏ ranh giới số cứng $20.0$ điểm. Thiết lập tỷ lệ chuyển dịch mềm `transRatio`: điểm $\ge 20.0$ hóa 100%; điểm $[15.0-20.0]$ hóa theo tỷ lệ tuyến tính `(totalStrength - 15.0) / 5.0`; điểm $< 15.0$ Hợp bạn.
+- **Kiểm Tra Định Tính Hỗ Trợ Cho Tòng Cách ($65\% \rightarrow 70\%$)**:
+  - Với điểm Khắc/Tiết/Hao nằm ở vùng đệm $[65\%-70\%]$, bổ sung cờ **No-Root Anchor Check**: Nếu Nhật Chủ hoàn toàn không có Thiên Can Ấn/Tỷ Kiên lộ diện và không đắc địa $\rightarrow$ Công nhận Tòng Cách.
+- **Bảo Toàn Hệ Thống Cách Cục**:
+  - Tuyệt đối không bổ sung bất kỳ Cách cục mới nào, giữ nguyên toàn bộ cấu trúc và danh sách Cách cục hiện tại.
+
+---
+
+## 📅 Phiên bản: Nâng Cấp Quy Tắc Bát Tự Nâng Cao (Bazi VIP Upgrade) - Trường Sinh, Tam Hội & Thắt Chặt Ngũ Hợp (31/07/2026)
+
+### Academic Engine & Calculation Optimization ([BaziAnalyzer.js](file:///t:/Phongthuy/backend/src/services/BaziAnalyzer.js))
+- **Vòng Trường Sinh Cho Vận Hạn (Đại Vận & Lưu Niên)**:
+  - Bổ sung trường `truongSinh` cho từng nấc Đại Vận và từng năm Lưu Niên trong đối tượng kết quả phân tích Bát Tự.
+  - Cho phép giao diện hiển thị 12 vị trí Vòng Trường Sinh đối với Nhật Chủ (Trường Sinh, Mộc Dục, Quan Đới... Mộ, Tuyệt).
+- **Thắt Chặt Thiên Can Ngũ Hợp & Động Hóa Giáp-Kỷ**:
+  - *Nhật Chủ Tĩnh Không Hóa:* Bổ sung điều kiện nếu một trong hai can hợp là Nhật Chủ (Can ngày) $\rightarrow$ Từ chối hóa khí, chuyển sang trạng thái **Hợp Bạn (Trói buộc/tê liệt)** kèm lý do `"Nhật chủ tĩnh không hóa"`.
+  - *Ngưỡng Lực Lượng Tối Thiểu ($\ge 20.0$ điểm):* Thiên can hợp hóa phải thỏa mãn tổng điểm can chi gốc của 2 ngũ hành $\ge 20.0$ điểm mới đủ lực hóa khí.
+  - *Động Hợp Hóa Giáp-Kỷ:* Tự động chọn hướng hóa **Thổ** (tháng sinh Thổ/Hỏa) hoặc **Mộc** (tháng sinh Mộc/Thủy) dựa trên sự so sánh sức mạnh gốc giữa Thổ và Mộc trong lá số.
+- **Tam Hội Hóa Khí & Triệt Tiêu Tàng Can**:
+  - *Gỡ bỏ Bán Tam Hội:* Loại bỏ khái niệm Bán Tam Hội theo quy định học thuật slide (`Không có khái niệm bán tam hội`).
+  - *Biến mất tàng can:* Khi Tam Hợp hoặc Tam Hội hóa thành công (đủ 3 chi, lộ can dẫn hóa, Nguyệt lệnh tương sinh/đồng hành, không bị xung phá), 100% tàng can cũ của cả 3 chi bị triệt tiêu hoàn toàn và biến thành tàng can đại diện của hóa thần.
+
+---
+
+## 📅 Phiên bản: Sửa Lỗi Hiển Thị Tên Trang Web (Site Name), Bổ Sung Meta og:site_name & Tối Ưu Định Tuyến SEO Module (31/07/2026)
+
+### SEO & Web Site Name Optimization
+- **Bổ Sung Thẻ Meta og:site_name Ở Frontend ([index.html](file:///t:/Phongthuy/frontend/index.html#L23-L24))**:
+  - Khai báo rõ ràng `<meta property="og:site_name" content="Phong Thủy Luận Giải" />` trong file HTML tĩnh gốc.
+  - Cung cấp tín hiệu nhận diện thương hiệu rõ ràng cho Googlebot và các bot mạng xã hội, giải quyết triệt để lỗi Google tự động lấy tên nhà cung cấp DNS "No-IP" để hiển thị cho trang web.
+- **Tích Hợp og:site_name & Route SEO Tĩnh Phân Hệ Ở Backend ([seo.js](file:///t:/Phongthuy/backend/src/routes/seo.js#L235-L315))**:
+  - Cập nhật hàm `injectMetaTags` tiêm động thẻ `<meta property="og:site_name" content="Phong Thủy Luận Giải" />` cho tất cả các trang.
+  - Xây dựng mới 5 route SEO tĩnh dành riêng cho 5 phân hệ chính (`/bazi`, `/ziwei`, `/iching`, `/marriage`, `/xemngay`). Mỗi phân hệ được tiêm Tiêu đề (Title) và Đoạn mô tả (Meta Description) hấp dẫn, độc lập.
+  - Cập nhật Nginx Gateway (`default.conf`) định tuyến trực tiếp các URL tĩnh phân hệ sang Backend Express để phục vụ HTML có tiêm Meta Tags riêng biệt cho Googlebot ngay từ lần cào đầu tiên.
+
+### Frontend Routing & Dynamic SEO Canonical/Title
+- **Gỡ Bỏ Canonical Link Tĩnh ([index.html](file:///t:/Phongthuy/frontend/index.html#L7-L10))**:
+  - Xóa bỏ dòng `<link rel="canonical" href="https://tuynover.ddns.net/" />` được cấu hình cứng trỏ về trang chủ.
+  - Loại bỏ hoàn toàn nguyên nhân Googlebot gộp tất cả các trang con `/bazi`, `/iching` về trang chủ do trùng lặp thẻ Canonical.
+- **Đồng Bộ Định Tuyến Phân Hệ Tĩnh ([UserApp.jsx](file:///t:/Phongthuy/frontend/src/components/UserApp.jsx#L61-L68))**:
+  - Bổ sung ánh xạ router khi khởi chạy đối với các path tĩnh: `/bazi`, `/iching`, `/ziwei`, `/marriage`, `/xemngay`. Cho phép người dùng và bot truy cập trực tiếp các trang này mà không bị redirect về trang chủ.
+  - Cập nhật hàm `handleSelectModule` thực hiện đẩy URL phân hệ thực tế (`/${mode}`) lên thanh địa chỉ trình duyệt thông qua `pushState` thay vì reset cưỡng bức về `/`.
+- **Cập Nhật Canonical & Title Động ([UserApp.jsx](file:///t:/Phongthuy/frontend/src/components/UserApp.jsx#L143-L177))**:
+  - Thêm `useEffect` tự động cập nhật thẻ canonical link động và thay đổi tiêu đề `<title>` trang phù hợp với phân hệ hiện tại của người dùng.
+- **Biên Dịch (Rebuild) Frontend**:
+  - Khởi chạy thành công lệnh build client để cập nhật tệp tin `dist/index.html` của môi trường production chứa đầy đủ thay đổi định tuyến mới.
+
+## 📅 Phiên bản: Vá Lỗ Hổng Bảo Mật Đăng Nhập Bằng Google (27/07/2026)
+
+### Security Patches & Backend Authentication
+- **Kiểm Tra Trạng Thái Xác Minh Email ([AuthController.js](file:///t:/Phongthuy/backend/src/controllers/AuthController.js#L242-L260))**:
+  - Trích xuất thêm trường `email_verified` từ payload của Google ID Token sau khi giải mã qua `googleClient.verifyIdToken`.
+  - Thực hiện kiểm tra nếu `email_verified` không phải là `true` thì chặn ngay từ đầu và trả về mã lỗi `400` cùng cảnh báo log bảo mật.
+  - Ngăn chặn triệt để lỗ hổng chiếm đoạt tài khoản (Account Takeover) trong trường hợp người dùng tạo tài khoản Google giả mạo bằng email của nạn nhân nhưng chưa xác thực chủ sở hữu thực sự.
+
+
+## 📅 Phiên bản: Nâng Cấp Hệ Thống Hợp Hóa Thiên Can & Lục Hợp Địa Chi Đồng Bộ (27/07/2026)
+
+### Bazi Algorithm & Day Master Strength Evaluation
+- **Đồng Bộ Hóa Hợp Hóa Thiên Can ([BaziAnalyzer.js](file:///t:/Phongthuy/backend/src/services/BaziAnalyzer.js#L461-L602))**:
+  - Tách biệt logic phân tích Ngũ hợp Thiên can kề sát thành hàm helper `evaluateStemCombinations`.
+  - Hỗ trợ đầy đủ các quy tắc Tranh hợp (Đố hợp), Can kề bên khắc phá, Nguyệt lệnh dẫn hóa và địa chi trợ giúp (chính khí / trung khí).
+  - Tích hợp thay đổi điểm số định lượng: chuyển dịch 100% năng lượng khi Hợp hóa thành công (Hóa cách); giảm 50% điểm số gốc của cả 2 can khi bị trói buộc (Hợp bạn / Tê liệt).
+- **Hệ Thống Lục Hợp Địa Chi Hóa Khí ([BaziAnalyzer.js](file:///t:/Phongthuy/backend/src/services/BaziAnalyzer.js#L611-L733))**:
+  - Xây dựng helper `evaluateBranchCombinations` phân tích Lục Hợp Địa chi kề sát, phân định rõ hai nhóm Hợp Sinh và Hợp Khắc.
+  - Áp dụng các điều kiện nghiêm ngặt: Thiên can bắt buộc dẫn hóa (không lộ can thì không hóa), Nguyệt lệnh tương sinh hoặc đồng hành, và cấm xung khắc bên ngoài phá vỡ đối với nhóm Hợp Khắc.
+  - Quy đổi điểm số thực tế: chuyển đổi 100% tàng can sang ngũ hành mới khi Hóa khí thành công; giảm 50% trọng lượng điểm gốc khi bị trói buộc.
+
 ## 📅 Phiên bản: Hiệu Chỉnh Ma Trận Cờ Học Thuật Bát Tự - Tránh Luôn Thân Vượng & Sửa Logic Cách Cục (24/07/2026)
 
 ### Bazi Algorithm & Day Master Strength Evaluation

@@ -451,14 +451,40 @@ const MarriageBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory
         }
     };
 
+    const SHEN_SHA_COLORS = {
+        'Thiên Ất': 'text-emerald-605',
+        'Thái Cực': 'text-emerald-605',
+        'Thiên Đức': 'text-emerald-605',
+        'Nguyệt Đức': 'text-emerald-605',
+        'Lộc Thần': 'text-emerald-605',
+        'Văn Xương': 'text-emerald-605',
+        'Tướng Tinh': 'text-emerald-605',
+        'Phúc Tinh': 'text-emerald-605',
+        'Quốc Ấn': 'text-emerald-605',
+        'Thiên Y': 'text-emerald-605',
+        'Hồng Loan': 'text-emerald-605',
+        'Thiên Hỷ': 'text-emerald-605',
+        'Kim Dư': 'text-emerald-605',
+        'Kình Dương': 'text-rose-600',
+        'Kiếp Sát': 'text-rose-600',
+        'Vong Thần': 'text-rose-600',
+        'Cô Thần': 'text-rose-600',
+        'Quả Tú': 'text-rose-600',
+        'Không Vong': 'text-rose-600',
+        'Dịch Mã': 'text-slate-700',
+        'Hoa Cái': 'text-slate-700',
+        'Đào Hoa': 'text-slate-700'
+    };
+
     const getAbbreviatedThapThan = (name) => {
         if (!name) return '';
         return name.trim();
     };
 
-    const PillarCard = ({ title, gan, zhi, thapThanGan, tangCan = [], naYin, truongSinh, isFemale, isDayMaster }) => {
+    const PillarCard = ({ title, gan, zhi, thapThanGan, tangCan = [], naYin, truongSinh, shenSha = [], isFemale, isDayMaster }) => {
         const ganElem = stemElements[gan];
         const zhiElem = branchElements[zhi];
+        const showTruongSinh = truongSinh;
 
         const isHighlighted = isDayMaster;
         const themeBorder = isFemale
@@ -466,18 +492,7 @@ const MarriageBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory
             : (isHighlighted ? 'border-blue-500 bg-blue-50/20 ring-4 ring-blue-100' : 'border-blue-100 bg-white hover:border-blue-300');
 
         return (
-            <div className={`relative ${truongSinh ? 'pl-6 sm:pl-7 pr-1.5 sm:pr-3 md:pr-4' : 'px-1.5 sm:px-3 md:px-4'} flex flex-col items-center py-4 sm:py-6 rounded-2xl shadow-sm border-2 transition-all hover:scale-[1.02] flex-1 min-h-[265px] md:min-h-[295px] ${themeBorder}`}>
-                {truongSinh && (
-                    <div 
-                        className="absolute left-1 sm:left-2 top-1/2 -translate-y-1/2 flex flex-col items-center justify-center text-[9px] sm:text-[11px] font-black text-slate-800 [writing-mode:vertical-lr] rotate-180 select-none"
-                        style={{ minWidth: '16px' }}
-                    >
-                        <Tooltip term={truongSinh} unstyled={true}>
-                            <span className="cursor-help hover:text-rose-700 transition-colors">{getAbbreviatedTruongSinh(truongSinh)}</span>
-                        </Tooltip>
-                    </div>
-                )}
-
+            <div className={`relative flex flex-col items-center py-4 sm:py-6 rounded-2xl shadow-sm border-2 transition-all hover:scale-[1.02] flex-1 min-h-[385px] sm:min-h-[415px] md:min-h-[455px] px-3 sm:px-5 md:px-6 mx-0.5 sm:mx-1 ${themeBorder}`}>
                 <Tooltip term={title} unstyled={true}>
                     <div className={`text-[9px] sm:text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${isDayMaster ? (isFemale ? 'bg-rose-100 text-rose-800' : 'bg-blue-100 text-blue-800') : 'bg-gray-100 text-gray-505'}`}>
                         {title}
@@ -498,9 +513,22 @@ const MarriageBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory
                 <Tooltip term={gan} unstyled={true}>
                     <div className={`text-2xl sm:text-4xl font-black mt-1 mb-1 sm:mb-2 hover:scale-110 transition-transform ${getColorClass(ganElem)}`}>{gan}</div>
                 </Tooltip>
-                <Tooltip term={zhi} unstyled={true}>
-                    <div className={`text-2xl sm:text-4xl font-black mb-1 sm:mb-2 hover:scale-110 transition-transform ${getColorClass(zhiElem)}`}>{zhi}</div>
-                </Tooltip>
+                
+                {/* Địa chi và Trường sinh ngang hàng (xoay dọc sát mép trái giống bên Bát Tự) */}
+                <div className="flex items-center justify-center relative w-full select-none">
+                    {showTruongSinh && (
+                        <div className="absolute -left-3 sm:-left-4 md:-left-5 top-1/2 -translate-y-1/2 flex items-center justify-center w-4 h-8 select-none">
+                            <Tooltip term={truongSinh} unstyled={true}>
+                                <span className={`text-[10px] sm:text-[11.5px] font-black cursor-help transition-colors transform -rotate-90 origin-center inline-block whitespace-nowrap leading-none tracking-tighter ${isFemale ? 'text-rose-650 hover:text-rose-850' : 'text-blue-650 hover:text-blue-850'}`}>
+                                    {getAbbreviatedTruongSinh(truongSinh)}
+                                </span>
+                            </Tooltip>
+                        </div>
+                    )}
+                    <Tooltip term={zhi} unstyled={true}>
+                        <div className={`text-2xl sm:text-4xl font-black mb-1 sm:mb-2 hover:scale-110 transition-transform ${getColorClass(zhiElem)}`}>{zhi}</div>
+                    </Tooltip>
+                </div>
                 
                 {naYin && (
                     <Tooltip term={naYin} unstyled={true}>
@@ -510,18 +538,59 @@ const MarriageBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory
                     </Tooltip>
                 )}
                 
+                {/* Tàng can: pad lên đủ 3 dòng cố định chiều cao */}
                 <div className="w-full border-t border-dashed border-gray-200 mt-2.5 pt-2 flex flex-col items-center justify-center">
                     <div className="w-full max-w-[125px] sm:max-w-[145px] flex flex-col gap-1 mt-1">
-                        {tangCan && tangCan.map((tc, idx) => (
-                            <div key={idx} className="flex justify-between items-center text-[10px] sm:text-[12.5px] leading-tight w-full font-sans">
-                                <Tooltip term={tc.gan} unstyled={true}>
-                                    <span className={`font-bold shrink-0 text-left hover:scale-110 transition-transform ${getColorClass(stemElements[tc.gan])}`}>{tc.gan}</span>
-                                </Tooltip>
-                                <Tooltip term={tc.thapThan} unstyled={true}>
-                                    <span className="text-slate-800 font-bold text-right truncate pl-1 hover:text-rose-700 transition-colors">{getAbbreviatedThapThan(tc.thapThan)}</span>
-                                </Tooltip>
-                            </div>
-                        ))}
+                        {(() => {
+                            const paddedTangCan = [...tangCan];
+                            while (paddedTangCan.length < 3) {
+                                paddedTangCan.push({ gan: '', thapThan: '' });
+                            }
+                            return paddedTangCan.map((tc, idx) => (
+                                <div key={idx} className="flex justify-between items-center text-[10px] sm:text-[12.5px] leading-tight w-full font-sans h-[15px] sm:h-[18px]">
+                                    {tc.gan ? (
+                                        <>
+                                            <Tooltip term={tc.gan} unstyled={true}>
+                                                <span className={`font-bold shrink-0 text-left hover:scale-110 transition-transform ${getColorClass(stemElements[tc.gan])}`}>{tc.gan}</span>
+                                            </Tooltip>
+                                            <Tooltip term={tc.thapThan} unstyled={true}>
+                                                <span className={`font-bold text-right truncate pl-1 hover:underline transition-all ${isFemale ? 'text-rose-800 hover:text-rose-950' : 'text-blue-800 hover:text-blue-950'}`}>{getAbbreviatedThapThan(tc.thapThan)}</span>
+                                            </Tooltip>
+                                        </>
+                                    ) : (
+                                        <span className="invisible">&nbsp;</span>
+                                    )}
+                                </div>
+                            ));
+                        })()}
+                    </div>
+                </div>
+
+                {/* Thần Sát Bát Tự: pad lên đủ 4 dòng cố định chiều cao */}
+                <div className="w-full border-t border-dashed border-gray-200 mt-2.5 pt-2 flex flex-col items-center justify-center">
+                    <div className="w-full max-w-[125px] sm:max-w-[145px] flex flex-col gap-1 mt-1">
+                        {(() => {
+                            const paddedShenSha = [...shenSha];
+                            while (paddedShenSha.length < 4) {
+                                paddedShenSha.push('');
+                            }
+                            return paddedShenSha.map((ss, idx) => {
+                                const colorClass = SHEN_SHA_COLORS[ss] || (isFemale ? 'text-rose-700' : 'text-blue-700');
+                                return (
+                                    <div key={idx} className="flex justify-center items-center text-[10px] sm:text-[12px] leading-tight w-full font-black h-[15px] sm:h-[18px]">
+                                        {ss ? (
+                                            <Tooltip term={ss} unstyled={true}>
+                                                <span className={`${colorClass} hover:scale-105 transition-transform cursor-help`}>
+                                                    {ss}
+                                                </span>
+                                            </Tooltip>
+                                        ) : (
+                                            <span className="invisible">&nbsp;</span>
+                                        )}
+                                    </div>
+                                );
+                            });
+                        })()}
                     </div>
                 </div>
             </div>
@@ -531,10 +600,10 @@ const MarriageBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory
     const BaziPillarsSection = ({ canChi, isFemale }) => {
         return (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 justify-center w-full pb-2">
-                <PillarCard title="Năm Sinh" gan={canChi.year.gan} zhi={canChi.year.zhi} thapThanGan={canChi.year.thapThanGan} tangCan={canChi.year.tangCan} naYin={canChi.year.naYin} truongSinh={canChi.year.truongSinh} isFemale={isFemale} isDayMaster={false} />
-                <PillarCard title="Nguyệt Lệnh" gan={canChi.month.gan} zhi={canChi.month.zhi} thapThanGan={canChi.month.thapThanGan} tangCan={canChi.month.tangCan} naYin={canChi.month.naYin} truongSinh={canChi.month.truongSinh} isFemale={isFemale} isDayMaster={false} />
-                <PillarCard title="Nhật Chủ" gan={canChi.day.gan} zhi={canChi.day.zhi} thapThanGan="Nhật Chủ" tangCan={canChi.day.tangCan} naYin={canChi.day.naYin} truongSinh={canChi.day.truongSinh} isFemale={isFemale} isDayMaster={true} />
-                <PillarCard title="Giờ Sinh" gan={canChi.hour.gan} zhi={canChi.hour.zhi} thapThanGan={canChi.hour.thapThanGan} tangCan={canChi.hour.tangCan} naYin={canChi.hour.naYin} truongSinh={canChi.hour.truongSinh} isFemale={isFemale} isDayMaster={false} />
+                <PillarCard title="Năm Sinh" gan={canChi.year.gan} zhi={canChi.year.zhi} thapThanGan={canChi.year.thapThanGan} tangCan={canChi.year.tangCan} naYin={canChi.year.naYin} truongSinh={canChi.year.truongSinh} shenSha={canChi.year.shenSha} isFemale={isFemale} isDayMaster={false} />
+                <PillarCard title="Nguyệt Lệnh" gan={canChi.month.gan} zhi={canChi.month.zhi} thapThanGan={canChi.month.thapThanGan} tangCan={canChi.month.tangCan} naYin={canChi.month.naYin} truongSinh={canChi.month.truongSinh} shenSha={canChi.month.shenSha} isFemale={isFemale} isDayMaster={false} />
+                <PillarCard title="Nhật Chủ" gan={canChi.day.gan} zhi={canChi.day.zhi} thapThanGan="Nhật Chủ" tangCan={canChi.day.tangCan} naYin={canChi.day.naYin} truongSinh={canChi.day.truongSinh} shenSha={canChi.day.shenSha} isFemale={isFemale} isDayMaster={true} />
+                <PillarCard title="Giờ Sinh" gan={canChi.hour.gan} zhi={canChi.hour.zhi} thapThanGan={canChi.hour.thapThanGan} tangCan={canChi.hour.tangCan} naYin={canChi.hour.naYin} truongSinh={canChi.hour.truongSinh} shenSha={canChi.hour.shenSha} isFemale={isFemale} isDayMaster={false} />
             </div>
         );
     };

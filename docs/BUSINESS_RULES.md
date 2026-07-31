@@ -170,6 +170,30 @@ Tác vụ chạy định kỳ lúc nửa đêm của `NotificationScheduler.js` 
             *   Trường hợp còn lại $\rightarrow$ **Rất Nhược (`rat_nhuoc`)**
         *   *(Nếu bị Khắc/Tiết/Hao $> 70\%$ đồng thời hành tòng chiếm $\ge 45\%$ tổng lượng ngũ hành $\rightarrow$ **Tòng Cách (`tong_cach`)**)*
 
+### 5.11 Quy Tắc Hợp Hóa Thiên Can & Địa Chi Lục Hợp (Bazi 6.0 Upgrade)
+*   **Thiên Can Ngũ Hợp:**
+    *   *Hợp mà Hóa (Hóa khí):* Xảy ra khi kề sát, không bị tranh hợp, không bị can kề sát khắc phá, đắc lệnh Nguyệt lệnh dẫn hóa và đắc địa địa chi. Lực lượng hai can sử dụng **Vùng đệm chuyển tiếp mềm $[15.0 \rightarrow 20.0]$ điểm** (điểm $\ge 20.0$ chuyển dịch 100%; điểm $[15.0-20.0]$ chuyển dịch theo tỷ lệ tuyến tính mềm).
+    *   *Nhật Chủ Tĩnh Không Hóa:* Nếu một trong hai can hợp là Nhật Chủ (Can ngày), cuộc hợp hóa **không bao giờ hóa thành công** mà chỉ tính là Hợp Bạn (trói buộc/tê liệt).
+    *   *Động Hợp Hóa Giáp-Kỷ:* Cặp Giáp-Kỷ tự động đánh giá lực lượng giữa Thổ và Mộc trong lá số để chọn hướng hóa Thổ (tháng sinh Thổ/Hỏa) hoặc Mộc (tháng sinh Mộc/Thủy).
+    *   *Hợp mà không Hóa (Trói buộc/Tê liệt):* Do thiếu điều kiện hóa. Điểm số gốc của cả 2 can **giảm 50%** do trói buộc, tê liệt lẫn nhau.
+*   **Địa Chi Lục Hợp:**
+    *   *Các cặp Lục hợp:* Tý-Sửu (Thổ/Thủy), Dần-Hợi (Mộc), Mão-Tuất (Hỏa), Thìn-Dậu (Kim), Tỵ-Thân (Thủy), Ngọ-Mùi (Thổ/Hỏa).
+    *   *Điều kiện Hóa khí thành công:*
+        1.  **Vị trí liền kề:** 2 địa chi phải kề nhau.
+        2.  **Thiên can dẫn hóa (Bắt buộc):** Trên Thiên can bắt buộc phải lộ ra hành của hóa thần mới. Nếu không lộ can dẫn hóa thì **không hóa luôn** (rơi vào trạng thái Hợp bạn).
+        3.  **Nguyệt lệnh dẫn hóa:** Chi tháng phải mang cùng ngũ hành với hóa thần hoặc tương sinh cho hóa thần.
+        4.  **Xung ngoài cản trở (Cho nhóm Hợp Khắc Tý-Sửu, Mão-Tuất, Tỵ-Thân):** Không được có chi khác trong lá số xung trực tiếp với 2 chi đang hợp.
+    *   *Quy đổi điểm số:*
+        *   *Hợp mà Hóa thành công:* Biến đổi 100% điểm gốc của 2 chi sang ngũ hành mới (100% tàng can đại diện của ngũ hành đó). Ngũ hành cũ của 2 chi bị loại bỏ hoàn toàn.
+        *   *Hợp bạn (Trói buộc):* Điểm số gốc của 2 chi **giảm 50%** do kiềm chế lẫn nhau.
+
+### 5.12 Quy Tắc Tam Hội Hóa Khí & Vòng Trường Sinh Vận Hạn (Bazi VIP Upgrade)
+*   **Tam Hội Hóa Khí:**
+    *   Không có khái niệm Bán Tam Hội.
+    *   Khi Tam Hợp hoặc Tam Hội hóa thành công (đủ 3 chi, lộ can dẫn hóa, Nguyệt lệnh tương sinh/đồng hành, không bị xung phá), tàng can cũ của cả 3 chi **biến mất 100%** và chuyển đổi hoàn toàn sang ngũ hành hóa thần đại diện.
+*   **Vòng Trường Sinh Đại Vận & Lưu Niên:**
+    *   Mỗi bước Đại Vận và năm Lưu Niên được tự động tra cứu vị trí Vòng Trường Sinh (Trường Sinh, Mộc Dục, Quan Đới, Lâm Quan, Đế Vượng, Suy, Bệnh, Tử, Mộ, Tuyệt, Thai, Dưỡng) đối với Nhật Chủ để hỗ trợ luận giải vận hạn.
+
 ---
 
 ## 📚 6. Quy tắc Nghiệp vụ Quản lý Blog, Deep-Linking & Định dạng Markdown

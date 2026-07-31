@@ -247,7 +247,12 @@ const googleLogin = async (req, res) => {
         audience: process.env.GOOGLE_CLIENT_ID,
     });
     const payload = ticket.getPayload();
-    const { email, name } = payload;
+    const { email, name, email_verified } = payload;
+
+    if (!email_verified) {
+      logger.warn(`Đăng nhập Google thất bại: Email [${email}] chưa được xác minh phía Google.`, { user: email, action: 'Đăng nhập Google' });
+      return res.status(400).json({ message: 'Tài khoản Google này chưa xác minh địa chỉ email.' });
+    }
 
     let user = await User.findOne({ email });
     if (!user) {
