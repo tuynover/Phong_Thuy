@@ -326,6 +326,25 @@ router.get('/xemngay', async (req, res) => {
     }
 });
 
+// 5.6 SEO tĩnh cho Phân hệ Blog (Trang danh sách bài viết)
+router.get('/blog', async (req, res) => {
+    try {
+        const html = await getHtmlTemplate();
+        if (!html) return res.status(500).send('Lỗi máy chủ nội bộ');
+
+        const title = 'Kiến Thức Phong Thủy & Chiêm Nghiệm Học Thuật - Phong Thủy AI';
+        const description = 'Chuyên mục chia sẻ kiến thức phong thủy học thuật phương Đông, luận giải Tử Vi Đẩu Số, Bát Tự Tứ Trụ, Kinh Dịch và hướng dẫn chiêm nghiệm đời sống khoa học.';
+        const url = 'https://tuynover.ddns.net/blog';
+
+        const ogHtml = injectMetaTags(html, { title, description, url });
+        res.setHeader('Content-Type', 'text/html');
+        return res.send(ogHtml);
+    } catch (error) {
+        logger.error('[SEO Router] Lỗi xử lý SEO Blog Static:', error);
+        return res.status(500).send('Lỗi máy chủ nội bộ');
+    }
+});
+
 // 6. Dynamic Sitemap XML
 router.get('/sitemap.xml', async (req, res) => {
     try {

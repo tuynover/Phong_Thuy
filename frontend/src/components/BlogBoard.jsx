@@ -55,7 +55,7 @@ const categoryColors = {
   general: 'text-slate-800 bg-slate-50 border-slate-200/50'
 };
 
-export default function BlogBoard({ onSelectModule, initialSlug, onClearSlug }) {
+export default function BlogBoard({ onSelectModule, initialSlug, onClearSlug, onSelectPost }) {
   const [posts, setPosts] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -163,6 +163,12 @@ export default function BlogBoard({ onSelectModule, initialSlug, onClearSlug }) 
       if (res.data && res.data.success) {
         setSelectedPost(res.data.post);
         setRelatedPosts(res.data.related || []);
+        if (onSelectPost) {
+          onSelectPost(slug);
+        } else {
+          const newUrl = `${window.location.origin}${window.location.pathname}?post=${encodeURIComponent(slug)}`;
+          window.history.replaceState({ path: newUrl }, '', newUrl);
+        }
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     } catch (err) {
@@ -170,7 +176,7 @@ export default function BlogBoard({ onSelectModule, initialSlug, onClearSlug }) 
       alert('Không thể mở chi tiết bài viết này.');
     }
     setLoading(false);
-  }, []);
+  }, [onSelectPost]);
 
   useEffect(() => {
     if (initialSlug) {

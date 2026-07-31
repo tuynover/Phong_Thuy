@@ -44,6 +44,10 @@ export default function UserApp({ onSwitchToAdmin }) {
   // Parse URL query parameter for deep-linking blog posts
   const getInitialBlogSlug = () => {
     if (typeof window !== 'undefined') {
+      const path = window.location.pathname;
+      if (path.startsWith('/blog/')) {
+        return path.substring(6); // Lấy phần sau '/blog/'
+      }
       const params = new URLSearchParams(window.location.search);
       return params.get('post') || params.get('blogSlug') || null;
     }
@@ -66,6 +70,8 @@ export default function UserApp({ onSwitchToAdmin }) {
       if (path === '/ziwei') return 'ziwei';
       if (path === '/marriage') return 'marriage';
       if (path === '/xemngay') return 'xemngay';
+      if (path === '/blog') return 'blog';
+      if (path.startsWith('/blog/')) return 'blog';
       if (path === '/about') return 'about';
       if (path === '/privacy') return 'privacy';
       if (path === '/terms') return 'terms';
@@ -189,8 +195,11 @@ export default function UserApp({ onSwitchToAdmin }) {
     setAppMode(mode);
     setBlogSlug(slug);
     if (mode === 'blog' && slug) {
-      const newUrl = `${window.location.origin}?post=${encodeURIComponent(slug)}`;
-      window.history.replaceState({ path: newUrl }, '', newUrl);
+      const newUrl = `/blog/${slug}`;
+      window.history.pushState({ path: newUrl }, '', newUrl);
+    } else if (mode === 'blog' && slug === null) {
+      const newUrl = `/blog`;
+      window.history.pushState({ path: newUrl }, '', newUrl);
     } else if (mode === 'about' || mode === 'privacy' || mode === 'terms') {
       const newUrl = `/${mode}`;
       window.history.pushState({ path: newUrl }, '', newUrl);
@@ -207,7 +216,8 @@ export default function UserApp({ onSwitchToAdmin }) {
 
   const handleClearBlogSlug = () => {
     setBlogSlug(null);
-    window.history.replaceState({ path: window.location.pathname }, '', window.location.pathname);
+    const newUrl = `/blog`;
+    window.history.pushState({ path: newUrl }, '', newUrl);
   };
   
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -1494,6 +1504,7 @@ export default function UserApp({ onSwitchToAdmin }) {
             onSelectModule={handleSelectModule} 
             initialSlug={blogSlug} 
             onClearSlug={handleClearBlogSlug} 
+            onSelectPost={(slug) => handleSelectModule('blog', slug)}
           />
         </div>
 

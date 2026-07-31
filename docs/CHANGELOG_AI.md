@@ -18,6 +18,15 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
 - **Đồng Bộ Hóa Vòng Trường Sinh Địa Chi**:
   - Áp dụng cấu trúc xoay dọc `-rotate-90` lùi sát mép viền ngoài cùng bên trái cho Vòng Trường Sinh của Địa chi trong Hôn nhân giống hệt bên Bát Tự cá nhân, tạo sự đồng bộ thiết kế 100%.
 
+### Frontend Deep-Linking & Routing Optimization ([BlogBoard.jsx](file:///t:/Phongthuy/frontend/src/components/BlogBoard.jsx) & [UserApp.jsx](file:///t:/Phongthuy/frontend/src/components/UserApp.jsx))
+- **Đồng Bộ URL Khi Mở Chi Tiết Bài Viết Blog**:
+  - Khai báo prop callback `onSelectPost` từ `UserApp.jsx` truyền xuống `BlogBoard.jsx`.
+  - Khi người dùng click chọn đọc một bài viết Blog trong danh sách, `BlogBoard` sẽ kích hoạt gọi callback này để báo cho `UserApp` đồng bộ hóa `blogSlug` và cập nhật đường dẫn trình duyệt sang dạng thân thiện chuẩn SEO: **/blog/slug-bai-viet** thay vì dùng query parameter `?post=slug` loằng ngoằng như trước.
+  - Khắc phục triệt để lỗi khi click vào bài viết Blog nhưng thanh địa chỉ trình duyệt không thay đổi, đồng thời hỗ trợ nạp đúng chi tiết bài viết ngay từ đầu khi người dùng truy cập trực tiếp bằng đường dẫn tĩnh `/blog/:slug` từ các công cụ tìm kiếm hoặc liên kết chia sẻ.
+- **Tối Ưu SEO Trang Danh Sách Blog ở Backend & Nginx Gateway ([seo.js](file:///t:/Phongthuy/backend/src/routes/seo.js) & [default.conf](file:///t:/Phongthuy/nginx/default.conf))**:
+  - Xây dựng mới route SEO tĩnh `/blog` ở Backend để tiêm sẵn Tiêu đề và Mô tả SEO hấp dẫn khi cào vào trang danh sách tin tức.
+  - Cấu hình lại Regex định tuyến Nginx Gateway từ `^/blog/...` thành `^/blog($|/|/...)` để bao phủ toàn bộ các đường dẫn danh sách, trang chính, và chi tiết bài viết Blog, ép chuyển tiếp sang Backend tiêm Meta Tags trước khi tải SPA.
+
 ---
 
 ## 📅 Phiên bản: Tối Ưu Bố Cục Tứ Trụ Bát Tự & Định Dạng Thai Nguyên - Cung Mệnh (31/07/2026)
