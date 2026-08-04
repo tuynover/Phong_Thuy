@@ -21,11 +21,20 @@ const ZHI_VI = {
     '午': 'Ngọ', '未': 'Mùi', '申': 'Thân', '酉': 'Dậu', '戌': 'Tuất', '亥': 'Hợi'
 };
 
+const HANZIZ_MAP = { ...GAN_VI, ...ZHI_VI };
 const toVi = (hanStr) => {
     if (!hanStr) return '';
-    let result = hanStr;
-    for (const [han, vi] of Object.entries(GAN_VI)) result = result.replace(han, vi + ' ');
-    for (const [han, vi] of Object.entries(ZHI_VI)) result = result.replace(han, vi);
+    let result = '';
+    for (let i = 0; i < hanStr.length; i++) {
+        const char = hanStr[i];
+        if (GAN_VI[char]) {
+            result += GAN_VI[char] + ' ';
+        } else if (ZHI_VI[char]) {
+            result += ZHI_VI[char];
+        } else {
+            result += char;
+        }
+    }
     return result.trim();
 };
 
@@ -164,50 +173,45 @@ const getTuanKhong = (g, z) => {
     return [zhis[(startBranchIdx + 10) % 12], zhis[(startBranchIdx + 11) % 12]];
 };
 
-const getShenSha = (gan, zhi, { dmGan, yearZhi, dayZhi, monthZhi, yearGan }) => {
+const getShenSha = (gan, zhi, { dmGan, yearZhi, dayZhi, monthZhi, yearGan, monthGan, hourGan, pillarType }) => {
     const list = [];
     
-    // 1. Thiên Ất Quý Nhân
-    const thienAtStems = [];
-    if (dmGan) thienAtStems.push(dmGan);
-    if (yearGan && yearGan !== dmGan) thienAtStems.push(yearGan);
+    // 1. Thiên Ất Quý Nhân (Tra theo Can Ngày dmGan & Can Năm yearGan)
+    const checkThienAtByGan = (targetGan, targetZhi) => {
+        if (!targetGan || !targetZhi) return false;
+        if (targetGan === 'Giáp' || targetGan === 'Mậu') return targetZhi === 'Sửu' || targetZhi === 'Mùi';
+        if (targetGan === 'Ất' || targetGan === 'Kỷ') return targetZhi === 'Tý' || targetZhi === 'Thân';
+        if (targetGan === 'Bính' || targetGan === 'Đinh') return targetZhi === 'Hợi' || targetZhi === 'Dậu';
+        if (targetGan === 'Canh' || targetGan === 'Tân') return targetZhi === 'Dần' || targetZhi === 'Ngọ';
+        if (targetGan === 'Nhâm' || targetGan === 'Quý') return targetZhi === 'Tỵ' || targetZhi === 'Mão';
+        return false;
+    };
 
-    let hasThienAt = false;
-    for (const stem of thienAtStems) {
-        if (stem === 'Giáp' || stem === 'Mậu') {
-            if (zhi === 'Sửu' || zhi === 'Mùi') hasThienAt = true;
-        } else if (stem === 'Ất' || stem === 'Kỷ') {
-            if (zhi === 'Tý' || zhi === 'Thân') hasThienAt = true;
-        } else if (stem === 'Bính' || stem === 'Đinh') {
-            if (zhi === 'Hợi' || zhi === 'Dậu') hasThienAt = true;
-        } else if (stem === 'Canh' || stem === 'Tân') {
-            if (zhi === 'Dần' || zhi === 'Ngọ') hasThienAt = true;
-        } else if (stem === 'Nhâm' || stem === 'Quý') {
-            if (zhi === 'Tỵ' || zhi === 'Mão') hasThienAt = true;
-        }
+    const isDayThienAt = checkThienAtByGan(dmGan, zhi);
+    const isYearThienAt = checkThienAtByGan(yearGan, zhi);
+
+    if (isDayThienAt && isYearThienAt) {
+        list.push('Thiên Ất');
+    } else if (isYearThienAt) {
+        list.push('Thiên Ất ( năm )');
+    } else if (isDayThienAt) {
+        list.push('Thiên Ất ( ngày )');
     }
-    if (hasThienAt) list.push('Thiên Ất');
     
-    // 2. Thái Cực Quý Nhân
-    const thaiCucStems = [];
-    if (dmGan) thaiCucStems.push(dmGan);
-    if (yearGan && yearGan !== dmGan) thaiCucStems.push(yearGan);
-
-    let hasThaiCuc = false;
-    for (const stem of thaiCucStems) {
-        if (stem === 'Giáp' || stem === 'Ất') {
-            if (zhi === 'Tý' || zhi === 'Ngọ') hasThaiCuc = true;
-        } else if (stem === 'Bính' || stem === 'Đinh') {
-            if (zhi === 'Hợi' || zhi === 'Dậu') hasThaiCuc = true;
-        } else if (stem === 'Mậu' || stem === 'Kỷ') {
-            if (zhi === 'Thìn' || zhi === 'Tuất' || zhi === 'Sửu' || zhi === 'Mùi') hasThaiCuc = true;
-        } else if (stem === 'Canh' || stem === 'Tân') {
-            if (zhi === 'Dần' || zhi === 'Mão') hasThaiCuc = true;
-        } else if (stem === 'Nhâm' || stem === 'Quý') {
-            if (zhi === 'Tỵ' || zhi === 'Thân') hasThaiCuc = true;
+    // 2. Thái Cực Quý Nhân (Chỉ tra theo Nhật Chủ dmGan)
+    if (dmGan) {
+        if (dmGan === 'Giáp' || dmGan === 'Ất') {
+            if (zhi === 'Tý' || zhi === 'Ngọ') list.push('Thái Cực');
+        } else if (dmGan === 'Bính' || dmGan === 'Đinh') {
+            if (zhi === 'Hợi' || zhi === 'Dậu') list.push('Thái Cực');
+        } else if (dmGan === 'Mậu' || dmGan === 'Kỷ') {
+            if (zhi === 'Thìn' || zhi === 'Tuất' || zhi === 'Sửu' || zhi === 'Mùi') list.push('Thái Cực');
+        } else if (dmGan === 'Canh' || dmGan === 'Tân') {
+            if (zhi === 'Dần' || zhi === 'Mão') list.push('Thái Cực');
+        } else if (dmGan === 'Nhâm' || dmGan === 'Quý') {
+            if (zhi === 'Tỵ' || zhi === 'Thân') list.push('Thái Cực');
         }
     }
-    if (hasThaiCuc) list.push('Thái Cực');
     
     // 3. Thiên Đức Quý Nhân
     if (monthZhi === 'Tý' && zhi === 'Tỵ') list.push('Thiên Đức');
@@ -229,19 +233,28 @@ const getShenSha = (gan, zhi, { dmGan, yearZhi, dayZhi, monthZhi, yearGan }) => 
     else if (['Tỵ', 'Dậu', 'Sửu'].includes(monthZhi) && gan === 'Canh') list.push('Nguyệt Đức');
     else if (['Hợi', 'Mão', 'Mùi'].includes(monthZhi) && gan === 'Giáp') list.push('Nguyệt Đức');
 
-    // 5. Lộc Thần
-    if (dmGan === 'Giáp' && zhi === 'Dần') list.push('Lộc Thần');
-    else if (dmGan === 'Ất' && zhi === 'Mão') list.push('Lộc Thần');
-    else if (dmGan === 'Bính' && zhi === 'Tỵ') list.push('Lộc Thần');
-    else if (dmGan === 'Đinh' && zhi === 'Ngọ') list.push('Lộc Thần');
-    else if (dmGan === 'Mậu' && zhi === 'Tỵ') list.push('Lộc Thần');
-    else if (dmGan === 'Kỷ' && zhi === 'Ngọ') list.push('Lộc Thần');
-    else if (dmGan === 'Canh' && zhi === 'Thân') list.push('Lộc Thần');
-    else if (dmGan === 'Tân' && zhi === 'Dậu') list.push('Lộc Thần');
-    else if (dmGan === 'Nhâm' && zhi === 'Hợi') list.push('Lộc Thần');
-    else if (dmGan === 'Quý' && zhi === 'Tý') list.push('Lộc Thần');
+    // 5. Lộc Thần (Chỉ tra theo Nhật Chủ dmGan - Phân tách thành Tuế Lộc, Kiến Lộc, Chuyên Lộc, Quy Lộc)
+    let isLocThan = false;
+    if (dmGan === 'Giáp' && zhi === 'Dần') isLocThan = true;
+    else if (dmGan === 'Ất' && zhi === 'Mão') isLocThan = true;
+    else if (dmGan === 'Bính' && zhi === 'Tỵ') isLocThan = true;
+    else if (dmGan === 'Đinh' && zhi === 'Ngọ') isLocThan = true;
+    else if (dmGan === 'Mậu' && zhi === 'Tỵ') isLocThan = true;
+    else if (dmGan === 'Kỷ' && zhi === 'Ngọ') isLocThan = true;
+    else if (dmGan === 'Canh' && zhi === 'Thân') isLocThan = true;
+    else if (dmGan === 'Tân' && zhi === 'Dậu') isLocThan = true;
+    else if (dmGan === 'Nhâm' && zhi === 'Hợi') isLocThan = true;
+    else if (dmGan === 'Quý' && zhi === 'Tý') isLocThan = true;
 
-    // 6. Kình Dương
+    if (isLocThan) {
+        if (pillarType === 'year') list.push('Tuế Lộc');
+        else if (pillarType === 'month') list.push('Kiến Lộc');
+        else if (pillarType === 'day') list.push('Chuyên Lộc');
+        else if (pillarType === 'hour') list.push('Quy Lộc');
+        else list.push('Lộc Thần');
+    }
+
+    // 6. Kình Dương (Chỉ tra theo Nhật Chủ dmGan)
     if (dmGan === 'Giáp' && zhi === 'Mão') list.push('Kình Dương');
     else if (dmGan === 'Ất' && zhi === 'Thìn') list.push('Kình Dương');
     else if (dmGan === 'Bính' && zhi === 'Ngọ') list.push('Kình Dương');
@@ -267,11 +280,26 @@ const getShenSha = (gan, zhi, { dmGan, yearZhi, dayZhi, monthZhi, yearGan }) => 
     else if (zhi === 'Hợi' && checkYearDayMatch('Tỵ_Dậu_Sửu')) list.push('Dịch Mã');
     else if (zhi === 'Tỵ' && checkYearDayMatch('Hợi_Mão_Mùi')) list.push('Dịch Mã');
 
-    // 8. Hoa Cái
-    if (zhi === 'Thìn' && checkYearDayMatch('Thân_Tý_Thìn')) list.push('Hoa Cái');
-    else if (zhi === 'Tuất' && checkYearDayMatch('Dần_Ngọ_Tuất')) list.push('Hoa Cái');
-    else if (zhi === 'Sửu' && checkYearDayMatch('Tỵ_Dậu_Sửu')) list.push('Hoa Cái');
-    else if (zhi === 'Mùi' && checkYearDayMatch('Hợi_Mão_Mùi')) list.push('Hoa Cái');
+    // 8. Hoa Cái (Tra theo Chi Năm yearZhi & Chi Ngày dayZhi)
+    const checkHoaCaiByZhi = (sourceZhi, targetZhi) => {
+        if (!sourceZhi || !targetZhi) return false;
+        if (['Thân', 'Tý', 'Thìn'].includes(sourceZhi) && targetZhi === 'Thìn') return true;
+        if (['Dần', 'Ngọ', 'Tuất'].includes(sourceZhi) && targetZhi === 'Tuất') return true;
+        if (['Tỵ', 'Dậu', 'Sửu'].includes(sourceZhi) && targetZhi === 'Sửu') return true;
+        if (['Hợi', 'Mão', 'Mùi'].includes(sourceZhi) && targetZhi === 'Mùi') return true;
+        return false;
+    };
+
+    const isDayHoaCai = checkHoaCaiByZhi(dayZhi, zhi);
+    const isYearHoaCai = checkHoaCaiByZhi(yearZhi, zhi);
+
+    if (isDayHoaCai && isYearHoaCai) {
+        list.push('Hoa Cái');
+    } else if (isYearHoaCai) {
+        list.push('Hoa Cái ( năm )');
+    } else if (isDayHoaCai) {
+        list.push('Hoa Cái ( ngày )');
+    }
 
     // 9. Đào Hoa
     if (zhi === 'Dậu' && checkYearDayMatch('Thân_Tý_Thìn')) list.push('Đào Hoa');
@@ -297,27 +325,32 @@ const getShenSha = (gan, zhi, { dmGan, yearZhi, dayZhi, monthZhi, yearGan }) => 
     else if (zhi === 'Thân' && checkYearDayMatch('Tỵ_Dậu_Sửu')) list.push('Vong Thần');
     else if (zhi === 'Dần' && checkYearDayMatch('Hợi_Mão_Mùi')) list.push('Vong Thần');
 
-    // 13. Văn Xương
-    const vanXuongStems = [];
-    if (dmGan) vanXuongStems.push(dmGan);
-    if (yearGan && yearGan !== dmGan) vanXuongStems.push(yearGan);
+    // 13. Văn Xương Quý Nhân (Tra theo Can Ngày dmGan & Can Năm yearGan)
+    const checkVanXuongByGan = (targetGan, targetZhi) => {
+        if (!targetGan || !targetZhi) return false;
+        if (targetGan === 'Giáp' && targetZhi === 'Tỵ') return true;
+        if (targetGan === 'Ất' && targetZhi === 'Ngọ') return true;
+        if ((targetGan === 'Bính' || targetGan === 'Mậu') && targetZhi === 'Thân') return true;
+        if ((targetGan === 'Đinh' || targetGan === 'Kỷ') && targetZhi === 'Dậu') return true;
+        if (targetGan === 'Canh' && targetZhi === 'Hợi') return true;
+        if (targetGan === 'Tân' && targetZhi === 'Tý') return true;
+        if (targetGan === 'Nhâm' && targetZhi === 'Dần') return true;
+        if (targetGan === 'Quý' && targetZhi === 'Mão') return true;
+        return false;
+    };
 
-    let hasVanXuong = false;
-    for (const stem of vanXuongStems) {
-        if (stem === 'Giáp' && zhi === 'Tỵ') hasVanXuong = true;
-        else if (stem === 'Ất' && zhi === 'Ngọ') hasVanXuong = true;
-        else if (stem === 'Bính' && zhi === 'Thân') hasVanXuong = true;
-        else if (stem === 'Đinh' && zhi === 'Dậu') hasVanXuong = true;
-        else if (stem === 'Mậu' && zhi === 'Thân') hasVanXuong = true;
-        else if (stem === 'Kỷ' && zhi === 'Dậu') hasVanXuong = true;
-        else if (stem === 'Canh' && zhi === 'Hợi') hasVanXuong = true;
-        else if (stem === 'Tân' && zhi === 'Tý') hasVanXuong = true;
-        else if (stem === 'Nhâm' && zhi === 'Dần') hasVanXuong = true;
-        else if (stem === 'Quý' && zhi === 'Mão') hasVanXuong = true;
+    const isDayVanXuong = checkVanXuongByGan(dmGan, zhi);
+    const isYearVanXuong = checkVanXuongByGan(yearGan, zhi);
+
+    if (isDayVanXuong && isYearVanXuong) {
+        list.push('Văn Xương');
+    } else if (isYearVanXuong) {
+        list.push('Văn Xương ( năm )');
+    } else if (isDayVanXuong) {
+        list.push('Văn Xương ( ngày )');
     }
-    if (hasVanXuong) list.push('Văn Xương');
 
-    // 14. Cô Thần & Quả Tú (based on Year Branch)
+    // 14. Cô Thần & Quả Tú (Tra theo Chi Năm)
     if (['Hợi', 'Tý', 'Sửu'].includes(yearZhi)) {
         if (zhi === 'Dần') list.push('Cô Thần');
         if (zhi === 'Tuất') list.push('Quả Tú');
@@ -332,51 +365,44 @@ const getShenSha = (gan, zhi, { dmGan, yearZhi, dayZhi, monthZhi, yearGan }) => 
         if (zhi === 'Mùi') list.push('Quả Tú');
     }
 
-    // 15. Không Vong (Logic Vòng tuần hoàn)
+    // 15. Không Vong (Chỉ tra theo Tuần Không của Nhật Trụ)
     const dayKhong = getTuanKhong(dmGan, dayZhi);
-    const yearKhong = getTuanKhong(yearGan, yearZhi);
-    
-    if (dayKhong.includes(zhi) || yearKhong.includes(zhi)) {
+    if (dayKhong.includes(zhi)) {
         list.push('Không Vong');
     }
 
-    // 16. Phúc Tinh Quý Nhân (Giáp/Bính -> Tý/Dần, Ất/Quý -> Sửu/Mão, Đinh -> Hợi, Mậu -> Thân, Kỷ -> Mùi, Canh -> Ngọ, Tân -> Tỵ, Nhâm -> Thìn)
-    const phucTinhStems = [];
-    if (dmGan) phucTinhStems.push(dmGan);
-    if (yearGan && yearGan !== dmGan) phucTinhStems.push(yearGan);
-
-    let hasPhucTinh = false;
-    for (const stem of phucTinhStems) {
-        if ((stem === 'Giáp' || stem === 'Bính') && (zhi === 'Dần' || zhi === 'Tý')) hasPhucTinh = true;
-        else if ((stem === 'Ất' || stem === 'Quý') && (zhi === 'Mão' || zhi === 'Sửu')) hasPhucTinh = true;
-        else if (stem === 'Đinh' && zhi === 'Hợi') hasPhucTinh = true;
-        else if (stem === 'Mậu' && zhi === 'Thân') hasPhucTinh = true;
-        else if (stem === 'Kỷ' && zhi === 'Mùi') hasPhucTinh = true;
-        else if (stem === 'Canh' && zhi === 'Ngọ') hasPhucTinh = true;
-        else if (stem === 'Tân' && zhi === 'Tỵ') hasPhucTinh = true;
-        else if (stem === 'Nhâm' && zhi === 'Thìn') hasPhucTinh = true;
+    // 16. Phúc Tinh Quý Nhân (Tra theo 10 cặp Can Chi Nhật Trụ chuẩn học thuật & Can Ngày / Can Năm)
+    const checkPhucTinhByGan = (targetGan, targetZhi) => {
+        if (!targetGan || !targetZhi) return false;
+        if (targetGan === 'Giáp' && targetZhi === 'Dần') return true;
+        if (targetGan === 'Ất' && targetZhi === 'Sửu') return true;
+        if (targetGan === 'Bính' && targetZhi === 'Tý') return true;
+        if (targetGan === 'Đinh' && targetZhi === 'Dậu') return true;
+        if (targetGan === 'Mậu' && targetZhi === 'Thân') return true;
+        if (targetGan === 'Kỷ' && targetZhi === 'Mùi') return true;
+        if (targetGan === 'Canh' && targetZhi === 'Ngọ') return true;
+        if (targetGan === 'Tân' && targetZhi === 'Tỵ') return true;
+        if (targetGan === 'Nhâm' && targetZhi === 'Thìn') return true;
+        if (targetGan === 'Quý' && targetZhi === 'Mão') return true;
+        return false;
+    };
+    if (checkPhucTinhByGan(dmGan, zhi) || checkPhucTinhByGan(yearGan, zhi)) {
+        list.push('Phúc Tinh');
     }
-    if (hasPhucTinh) list.push('Phúc Tinh');
 
-    // 17. Quốc Ấn Quý Nhân (Giáp -> Tuất, Ất -> Hợi, Bính -> Sửu, Đinh -> Dần, Mậu -> Sửu, Kỷ -> Dần, Canh -> Thìn, Tân -> Tỵ, Nhâm -> Mùi, Quý -> Thân)
-    const quocAnStems = [];
-    if (dmGan) quocAnStems.push(dmGan);
-    if (yearGan && yearGan !== dmGan) quocAnStems.push(yearGan);
-
-    let hasQuocAn = false;
-    for (const stem of quocAnStems) {
-        if (stem === 'Giáp' && zhi === 'Tuất') hasQuocAn = true;
-        else if (stem === 'Ất' && zhi === 'Hợi') hasQuocAn = true;
-        else if (stem === 'Bính' && zhi === 'Sửu') hasQuocAn = true;
-        else if (stem === 'Đinh' && zhi === 'Dần') hasQuocAn = true;
-        else if (stem === 'Mậu' && zhi === 'Sửu') hasQuocAn = true;
-        else if (stem === 'Kỷ' && zhi === 'Dần') hasQuocAn = true;
-        else if (stem === 'Canh' && zhi === 'Thìn') hasQuocAn = true;
-        else if (stem === 'Tân' && zhi === 'Tỵ') hasQuocAn = true;
-        else if (stem === 'Nhâm' && zhi === 'Mùi') hasQuocAn = true;
-        else if (stem === 'Quý' && zhi === 'Thân') hasQuocAn = true;
+    // 17. Quốc Ấn Quý Nhân (Chỉ tra theo Nhật Chủ dmGan)
+    if (dmGan) {
+        if (dmGan === 'Giáp' && zhi === 'Tuất') list.push('Quốc Ấn');
+        else if (dmGan === 'Ất' && zhi === 'Hợi') list.push('Quốc Ấn');
+        else if (dmGan === 'Bính' && zhi === 'Sửu') list.push('Quốc Ấn');
+        else if (dmGan === 'Đinh' && zhi === 'Dần') list.push('Quốc Ấn');
+        else if (dmGan === 'Mậu' && zhi === 'Sửu') list.push('Quốc Ấn');
+        else if (dmGan === 'Kỷ' && zhi === 'Dần') list.push('Quốc Ấn');
+        else if (dmGan === 'Canh' && zhi === 'Thìn') list.push('Quốc Ấn');
+        else if (dmGan === 'Tân' && zhi === 'Tỵ') list.push('Quốc Ấn');
+        else if (dmGan === 'Nhâm' && zhi === 'Mùi') list.push('Quốc Ấn');
+        else if (dmGan === 'Quý' && zhi === 'Thân') list.push('Quốc Ấn');
     }
-    if (hasQuocAn) list.push('Quốc Ấn');
 
     // 18. Thiên Y Quý Nhân (Tháng sinh lùi 1 cung địa chi)
     const thienYMap = {
@@ -424,6 +450,230 @@ const getShenSha = (gan, zhi, { dmGan, yearZhi, dayZhi, monthZhi, yearGan }) => 
         else if (stem === 'Quý' && zhi === 'Dần') hasKimDu = true;
     }
     if (hasKimDu) list.push('Kim Dư');
+
+    // 22. Thiên La & Địa Võng (Mệnh Hỏa gặp Tuất; mệnh Thủy/Thổ gặp Thìn)
+    const yearNayIn = NAYIN_MAP[`${yearGan} ${yearZhi}`] || '';
+    if (yearNayIn) {
+        if (yearNayIn.includes('Hỏa') && zhi === 'Tuất') {
+            list.push('Thiên La');
+        }
+        if ((yearNayIn.includes('Thủy') || yearNayIn.includes('Thổ')) && zhi === 'Thìn') {
+            list.push('Địa Võng');
+        }
+    }
+
+    // 23. Khôi Canh
+    const isKhoiCanh = (gan === 'Canh' && zhi === 'Thìn') ||
+                       (gan === 'Nhâm' && zhi === 'Thìn') ||
+                       (gan === 'Mậu' && zhi === 'Tuất') ||
+                       (gan === 'Canh' && zhi === 'Tuất');
+    if (isKhoiCanh) {
+        list.push('Khôi Canh');
+    }
+
+    // 24. Âm Dương Sai Thác
+    const isAmDuongSaiThac = (gan === 'Bính' && zhi === 'Tý') ||
+                             (gan === 'Đinh' && zhi === 'Sửu') ||
+                             (gan === 'Bính' && zhi === 'Ngọ') ||
+                             (gan === 'Đinh' && zhi === 'Mùi') ||
+                             (gan === 'Mậu' && zhi === 'Dần') ||
+                             (gan === 'Mậu' && zhi === 'Thân') ||
+                             (gan === 'Tân' && zhi === 'Mão') ||
+                             (gan === 'Tân' && zhi === 'Dậu') ||
+                             (gan === 'Nhâm' && zhi === 'Thìn') ||
+                             (gan === 'Nhâm' && zhi === 'Tuất') ||
+                             (gan === 'Quý' && zhi === 'Tỵ') ||
+                             (gan === 'Quý' && zhi === 'Hợi');
+    if (isAmDuongSaiThac) {
+        list.push('Âm Dương Sai Thác');
+    }
+
+    // 25. Cô Loan Sát
+    const isCoLoan = (gan === 'Ất' && zhi === 'Tỵ') ||
+                     (gan === 'Đinh' && zhi === 'Tỵ') ||
+                     (gan === 'Tân' && zhi === 'Hợi') ||
+                     (gan === 'Mậu' && zhi === 'Thân') ||
+                     (gan === 'Giáp' && zhi === 'Dần') ||
+                     (gan === 'Bính' && zhi === 'Ngọ') ||
+                     (gan === 'Mậu' && zhi === 'Ngọ') ||
+                     (gan === 'Nhâm' && zhi === 'Tý');
+    if (isCoLoan) {
+        list.push('Cô Loan Sát');
+    }
+
+    // 26. Thập Ác Đại Bại
+    const isThapAcDaiBai = (gan === 'Giáp' && zhi === 'Thìn') ||
+                           (gan === 'Ất' && zhi === 'Tỵ') ||
+                           (gan === 'Bính' && zhi === 'Thân') ||
+                           (gan === 'Đinh' && zhi === 'Hợi') ||
+                           (gan === 'Mậu' && zhi === 'Tuất') ||
+                           (gan === 'Kỷ' && zhi === 'Sửu') ||
+                           (gan === 'Canh' && zhi === 'Thìn') ||
+                           (gan === 'Tân' && zhi === 'Tỵ') ||
+                           (gan === 'Nhâm' && zhi === 'Thân') ||
+                           (gan === 'Quý' && zhi === 'Hợi');
+    if (isThapAcDaiBai) {
+        list.push('Thập Ác Đại Bại');
+    }
+
+    // 27. Lưu Hà Sát
+    if (dmGan) {
+        if (dmGan === 'Giáp' && zhi === 'Tỵ') list.push('Lưu Hà');
+        else if (dmGan === 'Ất' && zhi === 'Ngọ') list.push('Lưu Hà');
+        else if (dmGan === 'Bính' && zhi === 'Mùi') list.push('Lưu Hà');
+        else if (dmGan === 'Đinh' && zhi === 'Thân') list.push('Lưu Hà');
+        else if (dmGan === 'Mậu' && zhi === 'Tuất') list.push('Lưu Hà');
+        else if (dmGan === 'Kỷ' && zhi === 'Hợi') list.push('Lưu Hà');
+        else if (dmGan === 'Canh' && zhi === 'Tý') list.push('Lưu Hà');
+        else if (dmGan === 'Tân' && zhi === 'Sửu') list.push('Lưu Hà');
+        else if (dmGan === 'Nhâm' && zhi === 'Dần') list.push('Lưu Hà');
+        else if (dmGan === 'Quý' && zhi === 'Mão') list.push('Lưu Hà');
+    }
+
+    // 28. Huyết Nhận Sát
+    if (monthZhi) {
+        const huyetNhanMap = {
+            'Tý': 'Mùi', 'Sửu': 'Ngọ', 'Dần': 'Tỵ', 'Mão': 'Thìn', 'Thìn': 'Mão', 'Tỵ': 'Dần',
+            'Ngọ': 'Sửu', 'Mùi': 'Tý', 'Thân': 'Hợi', 'Dậu': 'Tuất', 'Tuất': 'Dậu', 'Hợi': 'Thân'
+        };
+        if (huyetNhanMap[monthZhi] === zhi) {
+            list.push('Huyết Nhận');
+        }
+    }
+
+    // 29. Quan Phù
+    if (yearZhi) {
+        const quanPhuMap = {
+            'Tý': 'Thìn', 'Sửu': 'Tỵ', 'Dần': 'Ngọ', 'Mão': 'Mùi', 'Thìn': 'Thân', 'Tỵ': 'Dậu',
+            'Ngọ': 'Tuất', 'Mùi': 'Hợi', 'Thân': 'Tý', 'Dậu': 'Sửu', 'Tuất': 'Dần', 'Hợi': 'Mão'
+        };
+        if (quanPhuMap[yearZhi] === zhi) {
+            list.push('Quan Phù');
+        }
+    }
+
+    // 30. Tam Kỳ Quý Nhân (Thiên Thượng, Địa Thượng, Nhân Gian)
+    // Chỉ lấy 2 chữ đầu và chỉ chấp nhận 2 tổ hợp liền kề: Năm - Tháng - Ngày hoặc Tháng - Ngày - Giờ
+    const checkTamKy = (g1, g2, g3) => {
+        if (!g1 || !g2 || !g3) return null;
+        if (g1 === 'Ất' && g2 === 'Bính' && g3 === 'Đinh') return 'Thiên Thượng';
+        if (g1 === 'Giáp' && g2 === 'Mậu' && g3 === 'Canh') return 'Địa Thượng';
+        if (g1 === 'Tân' && g2 === 'Nhâm' && g3 === 'Quý') return 'Nhân Gian';
+        return null;
+    };
+
+    const tamKyYMD = checkTamKy(yearGan, monthGan, dmGan);
+    const tamKyMDH = checkTamKy(monthGan, dmGan, hourGan);
+
+    if (pillarType === 'year' && tamKyYMD) {
+        list.push(tamKyYMD);
+    } else if (pillarType === 'month' && (tamKyYMD || tamKyMDH)) {
+        list.push(tamKyYMD || tamKyMDH);
+    } else if (pillarType === 'day' && (tamKyYMD || tamKyMDH)) {
+        list.push(tamKyYMD || tamKyMDH);
+    } else if (pillarType === 'hour' && tamKyMDH) {
+        list.push(tamKyMDH);
+    }
+
+    // 31. Học Đường Quý Nhân (Tra theo Can Ngày & Can Năm)
+    const checkHocDuongByGan = (targetGan, targetZhi) => {
+        if (!targetGan || !targetZhi) return false;
+        if (targetGan === 'Giáp' && targetZhi === 'Hợi') return true;
+        if (targetGan === 'Ất' && targetZhi === 'Ngọ') return true;
+        if ((targetGan === 'Bính' || targetGan === 'Mậu') && targetZhi === 'Dần') return true;
+        if ((targetGan === 'Đinh' || targetGan === 'Kỷ') && targetZhi === 'Dậu') return true;
+        if (targetGan === 'Canh' && targetZhi === 'Tỵ') return true;
+        if (targetGan === 'Tân' && targetZhi === 'Tý') return true;
+        if (targetGan === 'Nhâm' && targetZhi === 'Thân') return true;
+        if (targetGan === 'Quý' && targetZhi === 'Mão') return true;
+        return false;
+    };
+    const isDayHocDuong = checkHocDuongByGan(dmGan, zhi);
+    const isYearHocDuong = checkHocDuongByGan(yearGan, zhi);
+    if (isDayHocDuong && isYearHocDuong) list.push('Học Đường');
+    else if (isYearHocDuong) list.push('Học Đường ( năm )');
+    else if (isDayHocDuong) list.push('Học Đường ( ngày )');
+
+    // 32. Từ Quán Quý Nhân (Tra theo Can Ngày & Can Năm)
+    const checkTuQuanByGan = (targetGan, targetZhi) => {
+        if (!targetGan || !targetZhi) return false;
+        if (targetGan === 'Giáp' && targetZhi === 'Dần') return true;
+        if (targetGan === 'Ất' && targetZhi === 'Mão') return true;
+        if ((targetGan === 'Bính' || targetGan === 'Mậu') && targetZhi === 'Tỵ') return true;
+        if ((targetGan === 'Đinh' || targetGan === 'Kỷ') && targetZhi === 'Ngọ') return true;
+        if (targetGan === 'Canh' && targetZhi === 'Thân') return true;
+        if (targetGan === 'Tân' && targetZhi === 'Dậu') return true;
+        if (targetGan === 'Nhâm' && targetZhi === 'Hợi') return true;
+        if (targetGan === 'Quý' && targetZhi === 'Tý') return true;
+        return false;
+    };
+    const isDayTuQuan = checkTuQuanByGan(dmGan, zhi);
+    const isYearTuQuan = checkTuQuanByGan(yearGan, zhi);
+    if (isDayTuQuan && isYearTuQuan) list.push('Từ Quán');
+    else if (isYearTuQuan) list.push('Từ Quán ( năm )');
+    else if (isDayTuQuan) list.push('Từ Quán ( ngày )');
+
+    // 33. Kim Thần
+    if (pillarType === 'hour' && (yearGan === 'Giáp' || yearGan === 'Kỷ' || dmGan === 'Giáp' || dmGan === 'Kỷ')) {
+        const hourCanChi = `${gan} ${zhi}`;
+        if (['Quý Dậu', 'Kỷ Tỵ', 'Ất Sửu'].includes(hourCanChi)) {
+            list.push('Kim Thần');
+        }
+    }
+
+    // 34. Đà La
+    const checkDaLaByGan = (targetGan, targetZhi) => {
+        if (!targetGan || !targetZhi) return false;
+        if (targetGan === 'Giáp' && targetZhi === 'Sửu') return true;
+        if (targetGan === 'Ất' && targetZhi === 'Dần') return true;
+        if ((targetGan === 'Bính' || targetGan === 'Mậu') && targetZhi === 'Thìn') return true;
+        if ((targetGan === 'Đinh' || targetGan === 'Kỷ') && targetZhi === 'Tỵ') return true;
+        if (targetGan === 'Canh' && targetZhi === 'Mùi') return true;
+        if (targetGan === 'Tân' && targetZhi === 'Thân') return true;
+        if (targetGan === 'Nhâm' && targetZhi === 'Tuất') return true;
+        if (targetGan === 'Quý' && targetZhi === 'Hợi') return true;
+        return false;
+    };
+    if (checkDaLaByGan(dmGan, zhi) || checkDaLaByGan(yearGan, zhi)) {
+        list.push('Đà La');
+    }
+
+    // 35. Đại Hao & 36. Tiểu Hao
+    if (yearZhi) {
+        const zhis = ['Tý', 'Sửu', 'Dần', 'Mão', 'Thìn', 'Tỵ', 'Ngọ', 'Mùi', 'Thân', 'Dậu', 'Tuất', 'Hợi'];
+        const yIdx = zhis.indexOf(yearZhi);
+        if (yIdx !== -1) {
+            const daiHaoZhi = zhis[(yIdx + 6) % 12];
+            const tieuHaoZhi = zhis[(yIdx + 5) % 12];
+            if (zhi === daiHaoZhi) list.push('Đại Hao');
+            if (zhi === tieuHaoZhi) list.push('Tiểu Hao');
+        }
+    }
+
+    // 37. Tai Sát
+    const checkTaiSatByZhi = (sourceZhi, targetZhi) => {
+        if (!sourceZhi || !targetZhi) return false;
+        if (['Thân', 'Tý', 'Thìn'].includes(sourceZhi) && targetZhi === 'Ngọ') return true;
+        if (['Tỵ', 'Dậu', 'Sửu'].includes(sourceZhi) && targetZhi === 'Mão') return true;
+        if (['Dần', 'Ngọ', 'Tuất'].includes(sourceZhi) && targetZhi === 'Tý') return true;
+        if (['Hợi', 'Mão', 'Mùi'].includes(sourceZhi) && targetZhi === 'Dậu') return true;
+        return false;
+    };
+    if (checkTaiSatByZhi(dayZhi, zhi) || checkTaiSatByZhi(yearZhi, zhi)) {
+        list.push('Tai Sát');
+    }
+
+    // 38. Tử Phù & 39. Bệnh Phù
+    if (yearZhi) {
+        const zhis = ['Tý', 'Sửu', 'Dần', 'Mão', 'Thìn', 'Tỵ', 'Ngọ', 'Mùi', 'Thân', 'Dậu', 'Tuất', 'Hợi'];
+        const yIdx = zhis.indexOf(yearZhi);
+        if (yIdx !== -1) {
+            const tuPhuZhi = zhis[(yIdx - 5 + 12) % 12];
+            const benhPhuZhi = zhis[(yIdx - 1 + 12) % 12];
+            if (zhi === tuPhuZhi) list.push('Tử Phù');
+            if (zhi === benhPhuZhi) list.push('Bệnh Phù');
+        }
+    }
 
     return list;
 };
@@ -829,20 +1079,8 @@ class BaziAnalyzer {
         const zhiList = [canChi.year.zhi, canChi.month.zhi, canChi.day.zhi, canChi.hour.zhi];
         const monthZhi = canChi.month.zhi;
 
-        const stemToElement = {
-            'Giáp': 'Moc', 'Ất': 'Moc', 'Bính': 'Hoa', 'Đinh': 'Hoa', 'Mậu': 'Tho',
-            'Kỷ': 'Tho', 'Canh': 'Kim', 'Tân': 'Kim', 'Nhâm': 'Thuy', 'Quý': 'Thuy'
-        };
-
-        const branchToElement = {
-            'Tý': 'Thuy', 'Sửu': 'Tho', 'Dần': 'Moc', 'Mão': 'Moc', 'Thìn': 'Tho', 'Tỵ': 'Hoa',
-            'Ngọ': 'Hoa', 'Mùi': 'Tho', 'Thân': 'Kim', 'Dậu': 'Kim', 'Tuất': 'Tho', 'Hợi': 'Thuy'
-        };
-
         const hasSubset = (arr, subset) => subset.every(v => arr.includes(v));
-
         const combinations = [];
-
         const groups = [
             { type: 'tamHop', branches: ['Thân', 'Tý', 'Thìn'], element: 'Thuy', leader: 'Tý' },
             { type: 'tamHop', branches: ['Dần', 'Ngọ', 'Tuất'], element: 'Hoa', leader: 'Ngọ' },
@@ -859,10 +1097,10 @@ class BaziAnalyzer {
                 const isClashed = this.hasDisruptionIntoCombination(g.branches, zhiList);
                 if (isClashed) return;
 
-                const hasCanDẫnHóa = ganList.some(gan => stemToElement[gan] === g.element);
+                const hasCanDẫnHóa = ganList.some(gan => this.rules.stemElement[gan] === g.element);
                 if (!hasCanDẫnHóa) return;
 
-                const monthBranchElem = branchToElement[monthZhi];
+                const monthBranchElem = this.rules.branchElement[monthZhi];
                 const isDongHanh = monthBranchElem === g.element;
                 const relationMap = {
                     'Kim': { 'Moc': 'khac', 'Thuy': 'sinh', 'Tho': 'duoc_sinh' },
@@ -888,25 +1126,155 @@ class BaziAnalyzer {
         return combinations;
     }
 
+    /**
+     * Evaluates Self-Penalties (Tứ Tự Hình: Thìn-Thìn, Ngọ-Ngọ, Dậu-Dậu, Hợi-Hợi)
+     */
+    evaluateSelfPenalties(canChi, monthZhi, normalizedScores = {}) {
+        const selfPenaltyPairs = [
+            { zhi: 'Thìn', transElem: 'Tho', validMonthElems: ['Tho', 'Hoa'] },
+            { zhi: 'Ngọ', transElem: 'Hoa', validMonthElems: ['Hoa', 'Moc'] },
+            { zhi: 'Dậu', transElem: 'Kim', validMonthElems: ['Kim', 'Tho'] },
+            { zhi: 'Hợi', transElem: 'Thuy', validMonthElems: ['Thuy', 'Kim'] }
+        ];
+
+        const pillars = ['year', 'month', 'day', 'hour'];
+        const branches = pillars.map(p => canChi[p].zhi);
+        const monthElem = this.rules.branchElement[monthZhi];
+        const results = [];
+
+        selfPenaltyPairs.forEach(target => {
+            const indices = [];
+            branches.forEach((b, idx) => {
+                if (b === target.zhi) indices.push(idx);
+            });
+
+            if (indices.length < 2) return;
+
+            const isMonthSupported = target.validMonthElems.includes(monthElem);
+            const isThreeOrMore = indices.length >= 3;
+
+            let isAdjacent = false;
+            if (indices.length === 2) {
+                if (Math.abs(indices[0] - indices[1]) === 1) {
+                    isAdjacent = true;
+                }
+            }
+
+            const exposedStems = pillars.map(p => canChi[p].gan);
+            const exposedElems = exposedStems.map(s => this.rules.stemElement[s]);
+
+            let hasStemTransformation = false;
+            if (isThreeOrMore) {
+                hasStemTransformation = exposedElems.includes(target.transElem);
+            } else if (isAdjacent) {
+                const stem1Elem = exposedElems[indices[0]];
+                const stem2Elem = exposedElems[indices[1]];
+                const elemScore = normalizedScores[target.transElem] || 0;
+                hasStemTransformation = (stem1Elem === target.transElem || stem2Elem === target.transElem) ||
+                                         (exposedElems.includes(target.transElem) && elemScore >= 20.0);
+            }
+
+            const clashes = { 'Thìn': 'Tuất', 'Ngọ': 'Tý', 'Dậu': 'Mão', 'Hợi': 'Tỵ' };
+            const haiMap = { 'Thìn': 'Mão', 'Ngọ': 'Sửu', 'Dậu': 'Tuất', 'Hợi': 'Thân' };
+
+            const isDisrupted = branches.some(b => {
+                if (clashes[target.zhi] === b) return true;
+                if (haiMap[target.zhi] === b) return true;
+                return false;
+            });
+
+            const isSuccess = (isThreeOrMore || isAdjacent) && isMonthSupported && hasStemTransformation && !isDisrupted;
+
+            results.push({
+                zhi: target.zhi,
+                count: indices.length,
+                indices,
+                transElem: target.transElem,
+                status: isSuccess ? 'tu_hinh_hoa_thanh' : 'tu_hinh_khong_hoa',
+                isSuccess,
+                reason: isSuccess ? `Tự hình thành công hóa ${target.transElem}` : (
+                    !isMonthSupported ? 'Lệnh tháng không hỗ trợ' :
+                    (!isAdjacent && !isThreeOrMore) ? '2 chi không đứng kề nhau' :
+                    !hasStemTransformation ? 'Không có Thiên can dẫn hóa' :
+                    'Bị xung/hình/hại vỡ tổ hợp'
+                )
+            });
+        });
+
+        return results;
+    }
+
+    /**
+     * Evaluates Dark Combinations (Ám Hợp)
+     */
+    evaluateAmHop(canChi) {
+        const pillars = ['year', 'month', 'day', 'hour'];
+        const pillarNames = { year: 'Năm', month: 'Tháng', day: 'Ngày', hour: 'Giờ' };
+        const branches = pillars.map(p => canChi[p].zhi);
+
+        const chiAmHopPairs = [
+            { b1: 'Mão', b2: 'Thân', label: 'Mão-Thân (Ất-Canh Hợp)', transElem: 'Kim' },
+            { b1: 'Dần', b2: 'Sửu', label: 'Dần-Sửu (Giáp-Kỷ, Bính-Tân, Mậu-Quý Hợp)', transElem: 'Tho' },
+            { b1: 'Ngọ', b2: 'Hợi', label: 'Ngọ-Hợi (Đinh-Nhâm, Giáp-Kỷ Hợp)', transElem: 'Moc' },
+            { b1: 'Tý', b2: 'Tỵ', label: 'Tý-Tỵ (Mậu-Quý Hợp)', transElem: 'Hoa' },
+            { b1: 'Tỵ', b2: 'Dậu', label: 'Tỵ-Dậu (Bính-Tân Hợp)', transElem: 'Kim' }
+        ];
+
+        const chiAmHopResults = [];
+        for (let i = 0; i < pillars.length; i++) {
+            for (let j = i + 1; j < pillars.length; j++) {
+                const b1 = branches[i];
+                const b2 = branches[j];
+                chiAmHopPairs.forEach(pair => {
+                    if ((b1 === pair.b1 && b2 === pair.b2) || (b1 === pair.b2 && b2 === pair.b1)) {
+                        chiAmHopResults.push({
+                            p1: pillarNames[pillars[i]],
+                            p2: pillarNames[pillars[j]],
+                            b1,
+                            b2,
+                            label: pair.label,
+                            transElem: pair.transElem
+                        });
+                    }
+                });
+            }
+        }
+
+        const canChiAmHopResults = [];
+        const canChiAmHopRules = {
+            'Mậu-Tý': 'Mậu-Tý (Mậu-Quý Hợp)',
+            'Tân-Tỵ': 'Tân-Tỵ (Bính-Tân Hợp)',
+            'Nhâm-Ngọ': 'Nhâm-Ngọ (Đinh-Nhâm Hợp)',
+            'Giáp-Ngọ': 'Giáp-Ngọ (Giáp-Kỷ Hợp)',
+            'Quý-Tỵ': 'Quý-Tỵ (Mậu-Quý Hợp)'
+        };
+
+        pillars.forEach(p => {
+            const gan = canChi[p].gan;
+            const zhi = canChi[p].zhi;
+            const key = `${gan}-${zhi}`;
+            if (canChiAmHopRules[key]) {
+                canChiAmHopResults.push({
+                    pillar: pillarNames[p],
+                    gan,
+                    zhi,
+                    label: canChiAmHopRules[key]
+                });
+            }
+        });
+
+        return {
+            chiAmHop: chiAmHopResults,
+            canChiAmHop: canChiAmHopResults
+        };
+    }
+
     determineCachCuc(dayGan, monthZhi, canChi, elementScore) {
         const exposedGans = [canChi.year.gan, canChi.month.gan, canChi.hour.gan];
         const allStems = [canChi.year.gan, canChi.month.gan, canChi.day.gan, canChi.hour.gan];
         const allZhis = [canChi.year.zhi, canChi.month.zhi, canChi.day.zhi, canChi.hour.zhi];
         
-        const stemToElement = {
-            'Giáp': 'Moc', 'Ất': 'Moc', 'Bính': 'Hoa', 'Đinh': 'Hoa', 'Mậu': 'Tho',
-            'Kỷ': 'Tho', 'Canh': 'Kim', 'Tân': 'Kim', 'Nhâm': 'Thuy', 'Quý': 'Thuy'
-        };
-        const stemYinYang = {
-            'Giáp': 'Duong', 'Ất': 'Am', 'Bính': 'Duong', 'Đinh': 'Am', 'Mậu': 'Duong',
-            'Kỷ': 'Am', 'Canh': 'Duong', 'Tân': 'Am', 'Nhâm': 'Duong', 'Quý': 'Am'
-        };
-        const branchToElement = {
-            'Tý': 'Thuy', 'Sửu': 'Tho', 'Dần': 'Moc', 'Mão': 'Moc', 'Thìn': 'Tho', 'Tỵ': 'Hoa',
-            'Ngọ': 'Hoa', 'Mùi': 'Tho', 'Thân': 'Kim', 'Dậu': 'Kim', 'Tuất': 'Tho', 'Hợi': 'Thuy'
-        };
-        
-        const dmElem = stemToElement[dayGan];
+        const dmElem = this.rules.stemElement[dayGan];
         if (!dmElem) return "Chính Quan cách";
         
         // 1. Khúc Trực cách (Mộc độc vượng)
@@ -943,7 +1311,7 @@ class BaziAnalyzer {
             !allStems.includes('Mậu') && !allStems.includes('Kỷ') && !allZhis.includes('Mùi') && !allZhis.includes('Tuất')) {
             return "Nhuận Hạ cách (Thủy độc vượng)";
         }
-        
+
         // 6. Hợp hóa cách
         const stemCombos = this.evaluateStemCombinations(canChi);
         const dmCombo = stemCombos.find(c => c.status === 'hoa' && (c.idx1 === 2 || c.idx2 === 2));
@@ -953,10 +1321,10 @@ class BaziAnalyzer {
         }
         
         const getRelation = (dm, other) => {
-            const dmE = stemToElement[dm];
-            const otherE = stemToElement[other];
-            const dmYinYang = stemYinYang[dm];
-            const otherYinYang = stemYinYang[other];
+            const dmE = this.rules.stemElement[dm];
+            const otherE = this.rules.stemElement[other];
+            const dmYinYang = this.rules.yinYang[dm];
+            const otherYinYang = this.rules.yinYang[other];
             
             if (dmE === otherE) {
                 return dmYinYang === otherYinYang ? 'Tỷ Kiên' : 'Kiếp Tài';
@@ -978,62 +1346,209 @@ class BaziAnalyzer {
             return 'Tỷ Kiên';
         };
 
-        // 7. Tòng Sát, Tòng Tài, Tòng Nhi
-        const totalScore = Object.values(elementScore).reduce((a,b) => a+b, 0);
-        const dmScore = elementScore[dmElem] || 0;
-        
-        let strongest = '';
-        let maxVal = 0;
-        for (const [el, val] of Object.entries(elementScore)) {
-            if (val > maxVal) { maxVal = val; strongest = el; }
-        }
-        
-        const isVeryWeak = (dmScore / totalScore) < 0.15;
-        const isStrongestDominant = (maxVal / totalScore) >= 0.45; // Hành tòng theo phải thực sự mạnh áp đảo (>= 45%)
-        
-        if (isVeryWeak && isStrongestDominant) {
-            const elemToStem = { 'Moc': 'Giáp', 'Hoa': 'Bính', 'Tho': 'Mậu', 'Kim': 'Canh', 'Thuy': 'Nhâm' };
-            const dummyStem = elemToStem[strongest];
-            const rel = getRelation(dayGan, dummyStem);
-            
-            if (rel === 'Thất Sát' || rel === 'Chính Quan') return "Tòng Sát cách";
-            if (rel === 'Thiên Tài' || rel === 'Chính Tài') return "Tòng Tài cách";
-            if (rel === 'Thực Thần' || rel === 'Thương Quan') return "Tòng Nhi cách";
+        const primaryHidden = (this.rules.hiddenStems[monthZhi] || [])[0]?.stem || (this.rules.hiddenStems[monthZhi] || [])[0];
+
+        if (exposedGans.includes(primaryHidden)) {
+            const rel = getRelation(dayGan, primaryHidden);
+            return `${rel} cách`;
         }
 
-        // Standard Bát Cách / Kiến Lộc / Dương Nhận
-        const monthHiddenStems = {
-            'Tý': ['Quý'],
-            'Sửu': ['Kỷ', 'Quý', 'Tân'],
-            'Dần': ['Giáp', 'Bính', 'Mậu'],
-            'Mão': ['Ất'],
-            'Thìn': ['Mậu', 'Ất', 'Quý'],
-            'Tỵ': ['Bính', 'Canh', 'Mậu'],
-            'Ngọ': ['Đinh', 'Kỷ'],
-            'Mùi': ['Kỷ', 'Đinh', 'Ất'],
-            'Thân': ['Canh', 'Nhâm', 'Mậu'],
-            'Dậu': ['Tân'],
-            'Tuất': ['Mậu', 'Tân', 'Đinh'],
-            'Hợi': ['Nhâm', 'Giáp']
-        };
-
-        const mtangs = monthHiddenStems[monthZhi] || [];
-        for (const tang of mtangs) {
-            if (exposedGans.includes(tang)) {
-                const rel = getRelation(dayGan, tang);
+        const hiddenStems = (this.rules.hiddenStems[monthZhi] || []).map(h => h.stem || h);
+        for (let i = 1; i < hiddenStems.length; i++) {
+            if (exposedGans.includes(hiddenStems[i])) {
+                const rel = getRelation(dayGan, hiddenStems[i]);
                 return `${rel} cách`;
             }
         }
-        
-        const mainQi = mtangs[0];
-        if (mainQi) {
-            const rel = getRelation(dayGan, mainQi);
-            if (rel === 'Tỷ Kiên') return "Kiến Lộc cách";
-            if (rel === 'Kiếp Tài') return "Dương Nhận cách";
+
+        if (primaryHidden) {
+            const rel = getRelation(dayGan, primaryHidden);
             return `${rel} cách`;
         }
-        
-        return "Chính Quan cách";
+
+        return "Bình thường cách";
+    }
+
+    evaluate7LevelEnergy(isDucTuLenh, count3, dongDang, khacTiet, totalScore, isTongCach) {
+        if (totalScore <= 0) return { level: 'SUY', code: 'suy', description: 'Thân Suy' };
+
+        const pctDongDang = (dongDang / totalScore) * 100;
+        const ratioKhacTiet = dongDang > 0 ? (khacTiet / dongDang) : 99;
+
+        // 1. Tòng cách hoặc quá suy yếu
+        if (isTongCach || pctDongDang < 15.0) {
+            return { level: 'CỰC NHƯỢC', code: 'cuc_nhuoc', description: 'Thân Cực Nhược (Bị Khắc/Tiết/Hao áp đảo hoàn toàn, đạt trạng thái Tòng Cách)' };
+        }
+
+        // 2. Xét theo Đắc lệnh
+        if (isDucTuLenh) {
+            if (count3 >= 3 || pctDongDang >= 65.0) {
+                return { level: 'CỰC VƯỢNG', code: 'cuc_vuong', description: 'Thân Cực Vượng (Được lệnh và được cả 3 điều Sinh/Trợ/Đắc địa)' };
+            }
+            if (count3 === 2 || (pctDongDang >= 55.0 && ratioKhacTiet <= 0.8)) {
+                return { level: 'CƯỜNG VƯỢNG', code: 'cuong_vuong', description: 'Thân Cường Vượng (Được lệnh và trợ giúp mạnh)' };
+            }
+            if (pctDongDang >= 40.0 && pctDongDang <= 52.0 && ratioKhacTiet >= 0.8 && ratioKhacTiet <= 1.25) {
+                return { level: 'CÂN BẰNG', code: 'can_bang', description: 'Thân Cân Bằng (Đắc lệnh nhưng lực lượng Ngũ Hành hòa hoãn trung hòa)' };
+            }
+            return { level: 'VƯỢNG', code: 'vuong', description: 'Thân Vượng (Được lệnh nguyệt chi hỗ trợ)' };
+        } else {
+            // Thất lệnh
+            if (pctDongDang >= 60.0) {
+                return { level: 'CƯỜNG VƯỢNG', code: 'cuong_vuong', description: 'Thân Cường Vượng (Thất lệnh nhưng Ấn/Tỷ tập trung cực mạnh)' };
+            }
+            if (count3 >= 2 && pctDongDang >= 50.0) {
+                return { level: 'VƯỢNG', code: 'vuong', description: 'Thân Vượng (Thất lệnh nhưng được sinh/trợ đắc địa mạnh)' };
+            }
+            if (pctDongDang >= 40.0 && pctDongDang <= 52.0 && ratioKhacTiet >= 0.8 && ratioKhacTiet <= 1.25) {
+                return { level: 'CÂN BẰNG', code: 'can_bang', description: 'Thân Cân Bằng (Thất lệnh nhưng lực lượng Trung Hòa bình ổn)' };
+            }
+            if (pctDongDang >= 30.0) {
+                return { level: 'SUY', code: 'suy', description: 'Thân Suy (Thất lệnh, lực lượng Đồng Đàng hơi suy)' };
+            }
+            if (pctDongDang >= 15.0) {
+                return { level: 'NHƯỢC', code: 'nhuoc', description: 'Thân Nhược (Thất lệnh, lực lượng yếu bộc lộ)' };
+            }
+            return { level: 'CỰC NHƯỢC', code: 'cuc_nhuoc', description: 'Thân Cực Nhược' };
+        }
+    }
+
+    buildEnergySupportChains(canChi) {
+        const nodes = {
+            Y: { type: 'can', name: 'Năm', symbol: canChi.year.gan, elem: this.rules.stemElement[canChi.year.gan] },
+            M: { type: 'can', name: 'Tháng', symbol: canChi.month.gan, elem: this.rules.stemElement[canChi.month.gan] },
+            D: { type: 'can', name: 'Ngày', symbol: canChi.day.gan, elem: this.rules.stemElement[canChi.day.gan], isDayMaster: true },
+            H: { type: 'can', name: 'Giờ', symbol: canChi.hour.gan, elem: this.rules.stemElement[canChi.hour.gan] },
+            Yb: { type: 'chi', name: 'Chi Năm', symbol: canChi.year.zhi, elem: this.rules.branchElement[canChi.year.zhi] },
+            Mb: { type: 'chi', name: 'Chi Tháng', symbol: canChi.month.zhi, elem: this.rules.branchElement[canChi.month.zhi] },
+            Db: { type: 'chi', name: 'Chi Ngày', symbol: canChi.day.zhi, elem: this.rules.branchElement[canChi.day.zhi] },
+            Hb: { type: 'chi', name: 'Chi Giờ', symbol: canChi.hour.zhi, elem: this.rules.branchElement[canChi.hour.zhi] }
+        };
+
+        const branchList = [canChi.year.zhi, canChi.month.zhi, canChi.day.zhi, canChi.hour.zhi];
+        const hasTyDauPha = branchList.includes('Tý') && branchList.includes('Dậu');
+        const hasMaoNgoPha = branchList.includes('Mão') && branchList.includes('Ngọ');
+
+        const isSinhHoacTro = (k1, k2) => {
+            const n1 = nodes[k1];
+            const n2 = nodes[k2];
+            if (!n1 || !n2) return false;
+
+            // ĐẶC THÙ LỤC PHÁ: Tý - Dậu Phá triệt tiêu hoàn toàn lực sinh Kim (Dậu) -> Thủy (Tý)
+            if (hasTyDauPha) {
+                const isDau = n1.symbol === 'Dậu' || (n1.type === 'chi' && n1.symbol === 'Dậu');
+                const isTy = n2.symbol === 'Tý' || (n2.type === 'chi' && n2.symbol === 'Tý') || (isDau && n2.elem === 'Thuy');
+                if (isDau && isTy && n1.elem === 'Kim' && n2.elem === 'Thuy') {
+                    return false; // Triệt tiêu đường sinh Dậu -> Tý
+                }
+            }
+
+            // ĐẶC THÙ LỤC PHÁ: Mão - Ngọ Phá triệt tiêu hoàn toàn lực sinh Mộc (Mão) -> Hỏa (Ngọ)
+            if (hasMaoNgoPha) {
+                const isMao = n1.symbol === 'Mão' || (n1.type === 'chi' && n1.symbol === 'Mão');
+                const isNgo = n2.symbol === 'Ngọ' || (n2.type === 'chi' && n2.symbol === 'Ngọ') || (isMao && n2.elem === 'Hoa');
+                if (isMao && isNgo && n1.elem === 'Moc' && n2.elem === 'Hoa') {
+                    return false; // Triệt tiêu đường sinh Mão -> Ngọ
+                }
+            }
+
+            const e1 = n1.elem;
+            const e2 = n2.elem;
+            if (e1 === e2) return true;
+            return this.rules.relation[e1]?.[e2] === 'sinh';
+        };
+
+        const adj = {
+            Yb: ['Y', 'M', 'Mb'],
+            Mb: ['M', 'Y', 'D', 'Yb', 'Db'],
+            Db: ['D', 'M', 'H', 'Mb', 'Hb'],
+            Hb: ['H', 'D', 'Db'],
+            Y: ['M'],
+            M: ['D', 'Y'],
+            H: ['D'],
+            D: [] // Nhật chủ là nút đích cuối cùng, không đi tiếp sang trụ khác!
+        };
+
+        const rawChains = [];
+
+        const dfs = (currKey, currentPath, visited) => {
+            const currNode = nodes[currKey];
+            const nextKeys = adj[currKey] || [];
+            let hasValidNext = false;
+
+            for (const nextKey of nextKeys) {
+                if (visited.has(nextKey)) continue;
+                if (isSinhHoacTro(currKey, nextKey)) {
+                    hasValidNext = true;
+                    visited.add(nextKey);
+                    dfs(nextKey, [...currentPath, nextKey], visited);
+                    visited.delete(nextKey);
+                }
+            }
+
+            // Điểm cuối BẮT BUỘC LÀ THIÊN CAN!
+            if (!hasValidNext && currentPath.length >= 2 && currNode.type === 'can') {
+                rawChains.push([...currentPath]);
+            }
+        };
+
+        Object.keys(nodes).forEach(startKey => {
+            const visited = new Set([startKey]);
+            dfs(startKey, [startKey], visited);
+        });
+
+        const isSubPath = (sub, main) => {
+            if (sub.length >= main.length) return false;
+            const subStr = sub.join(',');
+            const mainStr = main.join(',');
+            return mainStr.includes(subStr);
+        };
+
+        const maximalChains = rawChains.filter((chain, i) => {
+            return !rawChains.some((other, j) => i !== j && isSubPath(chain, other));
+        });
+
+        const formattedChains = maximalChains.map(chain => {
+            const endNodeKey = chain[chain.length - 1];
+            const endNode = nodes[endNodeKey];
+            const length = chain.length;
+            
+            let bonusPct = 0;
+            if (length === 2) bonusPct = 15;
+            else if (length === 3) bonusPct = 30;
+            else if (length >= 4) bonusPct = 50;
+
+            const pathDetails = chain.map(k => {
+                const n = nodes[k];
+                return {
+                    key: k,
+                    name: n.name,
+                    symbol: n.symbol,
+                    elem: n.elem,
+                    type: n.type
+                };
+            });
+
+            const labelStr = pathDetails.map(p => `${p.name} (${p.symbol})`).join(' ➔ ');
+
+            return {
+                path: chain,
+                pathDetails,
+                labelStr,
+                length,
+                endNode: {
+                    key: endNodeKey,
+                    name: endNode.name,
+                    symbol: endNode.symbol,
+                    elem: endNode.elem,
+                    isDayMaster: !!endNode.isDayMaster
+                },
+                bonusPct,
+                description: `Đường sinh trợ dài ${length} bước kết thúc tại ${endNode.name} (${endNode.symbol}) - Tích lũy bonus +${bonusPct}% lực lượng.`
+            };
+        });
+
+        return formattedChains;
     }
 
     analyze(dateStr, timeStr, gender = 1, dayBoundaryMode = 'midnight') { // gender: 1 (Nam), 0 (Nữ)
@@ -1120,49 +1635,82 @@ class BaziAnalyzer {
             yearZhi: toVi(baziAdjusted.getYearZhi()),
             dayZhi: toVi(baziLocal.getDayZhi()),
             monthZhi: toVi(baziAdjusted.getMonthZhi()),
-            yearGan: toVi(baziAdjusted.getYearGan())
+            yearGan: toVi(baziAdjusted.getYearGan()),
+            monthGan: toVi(baziAdjusted.getMonthGan()),
+            hourGan: toVi(baziLocal.getTimeGan())
+        };
+
+        const dmGan = toVi(baziLocal.getDayGan());
+
+        const stemYinYangMap = {
+            'Giáp': 'Duong', 'Ất': 'Am', 'Bính': 'Duong', 'Đinh': 'Am', 'Mậu': 'Duong',
+            'Kỷ': 'Am', 'Canh': 'Duong', 'Tân': 'Am', 'Nhâm': 'Duong', 'Quý': 'Am'
+        };
+
+        const getThapThanRelation = (targetGan) => {
+            if (!targetGan) return '';
+            const dmE = this.rules.stemElement[dmGan];
+            const targetE = this.rules.stemElement[targetGan];
+            const dmYY = stemYinYangMap[dmGan];
+            const targetYY = stemYinYangMap[targetGan];
+
+            if (!dmE || !targetE) return 'Tỷ Kiên';
+            if (dmE === targetE) {
+                return dmYY === targetYY ? 'Tỷ Kiên' : 'Kiếp Tài';
+            }
+
+            const relMap = {
+                'Kim': { 'Thuy': 'sinh', 'Moc': 'khac', 'Hoa': 'bi_khac', 'Tho': 'duoc_sinh' },
+                'Moc': { 'Hoa': 'sinh', 'Tho': 'khac', 'Kim': 'bi_khac', 'Thuy': 'duoc_sinh' },
+                'Thuy': { 'Moc': 'sinh', 'Hoa': 'khac', 'Tho': 'bi_khac', 'Kim': 'duoc_sinh' },
+                'Hoa': { 'Tho': 'sinh', 'Kim': 'khac', 'Thuy': 'bi_khac', 'Moc': 'duoc_sinh' },
+                'Tho': { 'Kim': 'sinh', 'Thuy': 'khac', 'Moc': 'bi_khac', 'Hoa': 'duoc_sinh' }
+            };
+
+            const rel = relMap[dmE]?.[targetE];
+            if (rel === 'duoc_sinh') return dmYY === targetYY ? 'Thiên Ấn' : 'Chính Ấn';
+            if (rel === 'sinh') return dmYY === targetYY ? 'Thực Thần' : 'Thương Quan';
+            if (rel === 'khac') return dmYY === targetYY ? 'Thiên Tài' : 'Chính Tài';
+            if (rel === 'bi_khac') return dmYY === targetYY ? 'Thất Sát' : 'Chính Quan';
+            return 'Tỷ Kiên';
         };
 
         // Bóc tách Tàng can & Thập thần & Thần Sát
         const buildPillar = (type) => {
-            let gan, zhi, thapThanGan;
-            let hiddenList = [];
+            let rawGan, rawZhi;
             
             if (type === 'year') {
-                gan = baziAdjusted.getYearGan();
-                zhi = baziAdjusted.getYearZhi();
-                thapThanGan = toThapThan(baziAdjusted.getYearShiShenGan());
-                hiddenList = baziAdjusted.getYearShiShenZhi();
+                rawGan = baziAdjusted.getYearGan();
+                rawZhi = baziAdjusted.getYearZhi();
             }
             if (type === 'month') {
-                gan = baziAdjusted.getMonthGan();
-                zhi = baziAdjusted.getMonthZhi();
-                thapThanGan = toThapThan(baziAdjusted.getMonthShiShenGan());
-                hiddenList = baziAdjusted.getMonthShiShenZhi();
+                rawGan = baziAdjusted.getMonthGan();
+                rawZhi = baziAdjusted.getMonthZhi();
             }
             if (type === 'day') {
-                gan = baziLocal.getDayGan();
-                zhi = baziLocal.getDayZhi();
-                thapThanGan = "Nhật Chủ";
-                hiddenList = baziLocal.getDayShiShenZhi();
+                rawGan = baziLocal.getDayGan();
+                rawZhi = baziLocal.getDayZhi();
             }
             if (type === 'hour') {
-                gan = baziLocal.getTimeGan();
-                zhi = baziLocal.getTimeZhi();
-                thapThanGan = toThapThan(baziLocal.getTimeShiShenGan());
-                hiddenList = baziLocal.getTimeShiShenZhi();
+                rawGan = baziLocal.getTimeGan();
+                rawZhi = baziLocal.getTimeZhi();
             }
 
-            const viZhi = toVi(zhi);
+            const viGan = toVi(rawGan);
+            const viZhi = toVi(rawZhi);
+            const thapThanGan = type === 'day' ? "Nhật Chủ" : getThapThanRelation(viGan);
+
             const hiddenStemsArr = this.rules.hiddenStems[viZhi] || [];
             
-            const tangCan = hiddenStemsArr.map((tGan, idx) => ({
-                gan: tGan.stem || tGan,
-                thapThan: toThapThan(hiddenList[idx])
-            }));
+            const tangCan = hiddenStemsArr.map((tGan) => {
+                const stemName = tGan.stem || tGan;
+                return {
+                    gan: stemName,
+                    thapThan: getThapThanRelation(stemName)
+                };
+            });
 
-            const viGan = toVi(gan);
-            const shenSha = getShenSha(viGan, viZhi, context);
+            const shenSha = getShenSha(viGan, viZhi, { ...context, pillarType: type });
 
             return {
                 gan: viGan,
@@ -1181,7 +1729,7 @@ class BaziAnalyzer {
             hour: buildPillar('hour')
         };
 
-        const dmGan = canChi.day.gan;
+
 
         const applyNaYinAndTruongSinh = (pillar) => {
             const comb = `${pillar.gan} ${pillar.zhi}`;
@@ -1272,7 +1820,7 @@ class BaziAnalyzer {
         const rawDaYunData = yun.getDaYun().map(d => {
             const gan = toVi(d.getGanZhi().substring(0, 1));
             const zhi = toVi(d.getGanZhi().substring(1, 2));
-            const pillar = buildExtraPillar(gan, zhi, false);
+            const pillar = buildExtraPillar(gan, zhi, true);
             
             const startYear = d.getStartYear();
             const startAge = d.getStartAge();
@@ -1291,7 +1839,7 @@ class BaziAnalyzer {
                     const yrGan = toVi(baziYear.getYearGan());
                     const yrZhi = toVi(baziYear.getYearZhi());
                     
-                    const lnPillar = buildExtraPillar(yrGan, yrZhi, false);
+                    const lnPillar = buildExtraPillar(yrGan, yrZhi, true);
                     
                     liuNian.push({
                         year: curYear,
@@ -1526,6 +2074,17 @@ class BaziAnalyzer {
                     if (combo.branches.includes(canChi[p].zhi)) {
                         branchAdjustedRatios[p] = [{ stem: repStem, ratio: 1.0 }];
                     }
+                });
+            }
+        });
+
+        const selfPenalties = this.evaluateSelfPenalties(canChi, canChi.month.zhi, baseElementScore);
+        selfPenalties.forEach(penalty => {
+            if (penalty.isSuccess) {
+                const repStem = this.getRepresentativeStem(penalty.transElem);
+                penalty.indices.forEach(idx => {
+                    const p = pillars[idx];
+                    branchAdjustedRatios[p] = [{ stem: repStem, ratio: 1.0 }];
                 });
             }
         });
@@ -1977,6 +2536,19 @@ class BaziAnalyzer {
             });
         });
 
+        // 5.5 Tứ Tự Hình & Ám Hợp
+        selfPenalties.forEach(penalty => {
+            if (penalty.isSuccess) {
+                ensureSeedBase(penalty.transElem);
+                elementMultipliers[penalty.transElem] += 0.25;
+            }
+        });
+
+        const amHopData = this.evaluateAmHop(canChi);
+        analysis.relations.tuHinh = selfPenalties;
+        analysis.relations.amHop = amHopData.chiAmHop;
+        analysis.relations.canChiAmHop = amHopData.canChiAmHop;
+
         // 6. Hợp Hóa Thiên Can Nghiêm Ngặt (Percentage-based)
         stemCombos.forEach(combo => {
             if (combo.status === 'hoa') {
@@ -2299,6 +2871,152 @@ class BaziAnalyzer {
         }
         const dominanceIndex = parseFloat((maxPct - 0.20).toFixed(4));
 
+        // Ten Gods (Thập Thần) Strength and Percentage Calculation
+        const thapThanScores = {
+            'Tỷ Kiên': 0, 'Kiếp Tài': 0, 'Thực Thần': 0, 'Thương Quan': 0,
+            'Thiên Tài': 0, 'Chính Tài': 0, 'Thất Sát': 0, 'Chính Quan': 0,
+            'Thiên Ấn': 0, 'Chính Ấn': 0
+        };
+
+        const stemYinYang = {
+            'Giáp': 'Duong', 'Ất': 'Am', 'Bính': 'Duong', 'Đinh': 'Am', 'Mậu': 'Duong',
+            'Kỷ': 'Am', 'Canh': 'Duong', 'Tân': 'Am', 'Nhâm': 'Duong', 'Quý': 'Am'
+        };
+
+        const getRelation = (dm, other) => {
+            const dmE = this.rules.stemElement[dm];
+            const otherE = this.rules.stemElement[other];
+            const dmYinYang = stemYinYang[dm];
+            const otherYinYang = stemYinYang[other];
+            
+            if (!dmE || !otherE) return 'Tỷ Kiên';
+            if (dmE === otherE) {
+                return dmYinYang === otherYinYang ? 'Tỷ Kiên' : 'Kiếp Tài';
+            }
+            
+            const relMap = {
+                'Kim': { 'Thuy': 'sinh', 'Moc': 'khac', 'Hoa': 'bi_khac', 'Tho': 'duoc_sinh' },
+                'Moc': { 'Hoa': 'sinh', 'Tho': 'khac', 'Kim': 'bi_khac', 'Thuy': 'duoc_sinh' },
+                'Thuy': { 'Moc': 'sinh', 'Hoa': 'khac', 'Tho': 'bi_khac', 'Kim': 'duoc_sinh' },
+                'Hoa': { 'Tho': 'sinh', 'Kim': 'khac', 'Thuy': 'bi_khac', 'Moc': 'duoc_sinh' },
+                'Tho': { 'Kim': 'sinh', 'Thuy': 'khac', 'Moc': 'bi_khac', 'Hoa': 'duoc_sinh' }
+            };
+            
+            const rel = relMap[dmE]?.[otherE];
+            if (rel === 'duoc_sinh') return dmYinYang === otherYinYang ? 'Thiên Ấn' : 'Chính Ấn';
+            if (rel === 'sinh') return dmYinYang === otherYinYang ? 'Thực Thần' : 'Thương Quan';
+            if (rel === 'khac') return dmYinYang === otherYinYang ? 'Thiên Tài' : 'Chính Tài';
+            if (rel === 'bi_khac') return dmYinYang === otherYinYang ? 'Thất Sát' : 'Chính Quan';
+            return 'Tỷ Kiên';
+        };
+
+        pillars.forEach(p => {
+            const originalGan = canChi[p].gan;
+            const originalElem = this.rules.stemElement[originalGan];
+            const targetElem = stemAdjustedElements[p];
+            const score = stemAdjustedScores[p];
+            if (targetElem && score > 0) {
+                const mult = elementMultipliers[targetElem] || 1.0;
+                const finalStemScore = score * mult;
+
+                let actualStem = originalGan;
+                if (targetElem !== originalElem) {
+                    actualStem = this.getRepresentativeStem(targetElem);
+                }
+
+                const ttName = getRelation(dmGan, actualStem);
+                if (thapThanScores[ttName] !== undefined) {
+                    thapThanScores[ttName] += finalStemScore;
+                }
+            }
+        });
+
+        pillars.forEach(p => {
+            const weight = branchAdjustedScores[p];
+            const ratios = branchAdjustedRatios[p] || [];
+            ratios.forEach(r => {
+                if (r.stem && r.ratio > 0) {
+                    const elem = this.rules.stemElement[r.stem];
+                    const mult = elementMultipliers[elem] || 1.0;
+                    const finalBranchScore = weight * r.ratio * mult;
+
+                    const ttName = getRelation(dmGan, r.stem);
+                    if (thapThanScores[ttName] !== undefined) {
+                        thapThanScores[ttName] += finalBranchScore;
+                    }
+                }
+            });
+        });
+
+        const totalThapThanScore = Object.values(thapThanScores).reduce((a, b) => a + b, 0);
+        const thapThanPercentages = {};
+
+        for (const key in thapThanScores) {
+            const score = thapThanScores[key];
+            const pct = totalThapThanScore > 0 ? parseFloat(((score / totalThapThanScore) * 100).toFixed(1)) : 0;
+            thapThanPercentages[key] = pct;
+        }
+
+        const thapThanGroups = [
+            {
+                key: 'tyKiep',
+                name: 'Tỷ Kiếp',
+                score: parseFloat((thapThanScores['Tỷ Kiên'] + thapThanScores['Kiếp Tài']).toFixed(2)),
+                percentage: parseFloat((thapThanPercentages['Tỷ Kiên'] + thapThanPercentages['Kiếp Tài']).toFixed(1)),
+                items: [
+                    { name: 'Tỷ Kiên', score: parseFloat(thapThanScores['Tỷ Kiên'].toFixed(2)), percentage: thapThanPercentages['Tỷ Kiên'] },
+                    { name: 'Kiếp Tài', score: parseFloat(thapThanScores['Kiếp Tài'].toFixed(2)), percentage: thapThanPercentages['Kiếp Tài'] }
+                ]
+            },
+            {
+                key: 'thucThuong',
+                name: 'Thực Thương',
+                score: parseFloat((thapThanScores['Thực Thần'] + thapThanScores['Thương Quan']).toFixed(2)),
+                percentage: parseFloat((thapThanPercentages['Thực Thần'] + thapThanPercentages['Thương Quan']).toFixed(1)),
+                items: [
+                    { name: 'Thực Thần', score: parseFloat(thapThanScores['Thực Thần'].toFixed(2)), percentage: thapThanPercentages['Thực Thần'] },
+                    { name: 'Thương Quan', score: parseFloat(thapThanScores['Thương Quan'].toFixed(2)), percentage: thapThanPercentages['Thương Quan'] }
+                ]
+            },
+            {
+                key: 'taiTinh',
+                name: 'Tài Tinh',
+                score: parseFloat((thapThanScores['Thiên Tài'] + thapThanScores['Chính Tài']).toFixed(2)),
+                percentage: parseFloat((thapThanPercentages['Thiên Tài'] + thapThanPercentages['Chính Tài']).toFixed(1)),
+                items: [
+                    { name: 'Thiên Tài', score: parseFloat(thapThanScores['Thiên Tài'].toFixed(2)), percentage: thapThanPercentages['Thiên Tài'] },
+                    { name: 'Chính Tài', score: parseFloat(thapThanScores['Chính Tài'].toFixed(2)), percentage: thapThanPercentages['Chính Tài'] }
+                ]
+            },
+            {
+                key: 'quanSat',
+                name: 'Quan Sát',
+                score: parseFloat((thapThanScores['Thất Sát'] + thapThanScores['Chính Quan']).toFixed(2)),
+                percentage: parseFloat((thapThanPercentages['Thất Sát'] + thapThanPercentages['Chính Quan']).toFixed(1)),
+                items: [
+                    { name: 'Thất Sát', score: parseFloat(thapThanScores['Thất Sát'].toFixed(2)), percentage: thapThanPercentages['Thất Sát'] },
+                    { name: 'Chính Quan', score: parseFloat(thapThanScores['Chính Quan'].toFixed(2)), percentage: thapThanPercentages['Chính Quan'] }
+                ]
+            },
+            {
+                key: 'anTinh',
+                name: 'Ấn Tinh',
+                score: parseFloat((thapThanScores['Thiên Ấn'] + thapThanScores['Chính Ấn']).toFixed(2)),
+                percentage: parseFloat((thapThanPercentages['Thiên Ấn'] + thapThanPercentages['Chính Ấn']).toFixed(1)),
+                items: [
+                    { name: 'Thiên Ấn', score: parseFloat(thapThanScores['Thiên Ấn'].toFixed(2)), percentage: thapThanPercentages['Thiên Ấn'] },
+                    { name: 'Chính Ấn', score: parseFloat(thapThanScores['Chính Ấn'].toFixed(2)), percentage: thapThanPercentages['Chính Ấn'] }
+                ]
+            }
+        ];
+
+        const thapThanAnalysis = {
+            scores: thapThanScores,
+            percentages: thapThanPercentages,
+            groups: thapThanGroups,
+            totalScore: parseFloat(totalThapThanScore.toFixed(2))
+        };
+
         let confidenceScore = 1.0;
         confidenceScore += exposedCount * 0.1;
         let primaryRootsCount = 0;
@@ -2385,9 +3103,10 @@ class BaziAnalyzer {
         });
         const isDuocSinh = hasAnInStems || hasAnInBranches;
 
-        // 4. Check Được Trợ Giúp: Has Tỷ Kiếp (Same element) in other stems (Gốc rễ ở Địa chi đã tính ở Đắc Địa, tránh tính trùng lặp)
-        const hasPeerInStems = otherStems.some(s => this.rules.stemElement[s] === dmElem);
-        const isDuocTroGiup = hasPeerInStems;
+        // 4. Check Được Trợ Giúp: Has Tỷ Kiếp (Same element) in adjacent stems (Can Tháng & Can Giờ kề sát Nhật chủ, Can Năm ở xa không tính)
+        const adjacentStems = [canChi.month.gan, canChi.hour.gan];
+        const hasPeerInAdjacentStems = adjacentStems.some(s => this.rules.stemElement[s] === dmElem);
+        const isDuocTroGiup = hasPeerInAdjacentStems;
 
         const getCombinationElement = (relStr) => {
             const cleanStr = relStr.split(' ')[0]; // Lấy phần 'Thân-Dậu'
@@ -2482,10 +3201,12 @@ class BaziAnalyzer {
                 thanDegree = (dongDang >= khacTiet) ? "can_bang" : "nhuoc";
             }
         } else {
-            if (count3 === 3) thanDegree = "rat_vuong";
-            else if (count3 === 2) thanDegree = "vuong";
-            else if (count3 === 1) {
-                if (hasSelfTamHopHoi) thanDegree = "vuong";
+            if (count3 === 3) {
+                thanDegree = (dongDang >= khacTiet) ? "rat_vuong" : "vuong";
+            } else if (count3 === 2) {
+                thanDegree = (dongDang >= khacTiet) ? "vuong" : "nhuoc";
+            } else if (count3 === 1) {
+                if (hasSelfTamHopHoi && dongDang >= khacTiet) thanDegree = "vuong";
                 else {
                     thanDegree = (dongDang >= khacTiet) ? "can_bang" : "nhuoc";
                 }
@@ -2498,6 +3219,12 @@ class BaziAnalyzer {
                 }
             }
         }
+
+        const energy7Levels = this.evaluate7LevelEnergy(isDucTuLenh, count3, dongDang, khacTiet, totalScore, isTongCach);
+        const supportChains = this.buildEnergySupportChains(canChi);
+
+        analysis.energy7Levels = energy7Levels;
+        analysis.supportChains = supportChains;
 
         analysis.academicFlags = {
             ducTuLenh: isDucTuLenh,
@@ -2584,6 +3311,7 @@ class BaziAnalyzer {
             dungThan,
             hyThan,
             nguyetLenhDungThan,
+            thapThanAnalysis,
             daYun: daYunData, // filtered visible ones
             rawDaYun: rawDaYunData, // complete unfiltered list
             metadata: {

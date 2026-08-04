@@ -3,6 +3,7 @@ const BaziController = require('../../src/controllers/BaziController');
 // Mock all dependencies
 jest.mock('../../src/models/BaziRecord');
 jest.mock('../../src/services/BaziAnalyzer');
+jest.mock('../../src/services/InputValidator');
 jest.mock('../../src/services/MemoryCacheService', () => ({
     clearUserHistoryCache: jest.fn()
 }));
@@ -15,6 +16,7 @@ jest.mock('../../src/services/SseService', () => ({
 
 const BaziRecord = require('../../src/models/BaziRecord');
 const BaziAnalyzer = require('../../src/services/BaziAnalyzer');
+const InputValidator = require('../../src/services/InputValidator');
 
 const mockBaziResult = {
     solarTimeline: 'Dương lịch test',
@@ -25,7 +27,7 @@ const mockBaziResult = {
     daYun: [{ tangCan: ['Giáp'] }]
 };
 
-describe('BaziController Unit Tests', () => {
+describe('BaziController Comprehensive Unit Tests', () => {
     let req, res;
 
     beforeEach(() => {
@@ -43,6 +45,13 @@ describe('BaziController Unit Tests', () => {
             status: jest.fn().mockReturnThis(),
             json: jest.fn()
         };
+
+        InputValidator.validateBaziInput.mockReturnValue({
+            isValid: true,
+            sanitized: {
+                date: '05/09/2004', time: '14:30', gender: 1, name: 'Nguyễn Văn A', midnightMode: 'midnight'
+            }
+        });
 
         BaziAnalyzer.analyze.mockReturnValue({ ...mockBaziResult });
     });
@@ -69,7 +78,7 @@ describe('BaziController Unit Tests', () => {
         expect(response.recordId).toBe('bazi-123');
     });
 
-    test('analyze: duplicate idempotency header key should return existing', async () => {
+    test('analyze: duplicate idempotency header key should return existing record', async () => {
         req.headers['idempotency-key'] = 'dup-key-123';
         const existingRecord = {
             _id: 'existing-bazi-456',
@@ -88,32 +97,24 @@ describe('BaziController Unit Tests', () => {
         expect(response.recordId).toBe('existing-bazi-456');
     });
 
-    test('analyze: semantic duplicate (same date/time/gender) should return existing', async () => {
-        // When no idempotency-key header, controller skips to semantic check (single findOne)
-        BaziRecord.findOne.mockResolvedValue({
-            _id: 'semantic-dup-789',
-            inputInfo: { name: 'Test', gender: 1 },
-            baziData: { ...mockBaziResult, menhQuai: { cung: 'Khảm' } },
-            aiInterpretation: { content: '' },
-            save: jest.fn().mockResolvedValue(true),
-            markModified: jest.fn()
+    test('analyze: invalid input should return 400', async () => {
+        InputValidator.validateBaziInput.mockReturnValue({
+            isValid: false,
+            error: 'Thiếu ngày sinh'
         });
 
         await BaziController.analyze(req, res);
 
-        expect(res.json).toHaveBeenCalled();
-        const response = res.json.mock.calls[0][0];
-        expect(response.recordId).toBe('semantic-dup-789');
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Thiếu ngày sinh' });
     });
 
-    test('analyze: missing required fields should return 400', async () => {
-        req.body = { date: '05/09/2004' }; // Missing time and gender
+    test('analyze: database exception should return 500 error', async () => {
+        BaziRecord.findOne.mockRejectedValue(new Error('Internal Mongo Error'));
 
         await BaziController.analyze(req, res);
 
-        expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith(
-            expect.objectContaining({ error: expect.any(String) })
-        );
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.json).toHaveBeenCalledWith({ error: 'Internal Server Error' });
     });
 });

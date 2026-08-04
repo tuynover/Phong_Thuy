@@ -1700,21 +1700,242 @@ export const conceptDictionary = {
     'Thiên Ất': {
         term: 'Thiên Ất',
         category: 'Thần Sát Bát Tự',
-        short_description: 'Cát thần tối quý. Gặp dữ hóa lành, quý nhân phù trợ.',
-        full_detail: '▸ Loại tinh: Cát thần đệ nhất.\n▸ Đặc trưng: Trực giác nhạy bén, thông minh, gặp nguy hóa an.\n▸ Ý nghĩa: Cuộc đời gặp nạn có người cứu giúp, tai qua nạn khỏi, thường gặp quan chức quý nhân giúp đỡ.'
+        short_description: 'Đệ nhất cát thần. Gặp nguy hóa an, quý nhân trợ giúp.',
+        full_detail: '▸ Loại tinh: Cát thần đệ nhất.\n▸ Đặc trưng: Trực giác nhạy bén, thông minh, nhân hậu.\n▸ Ý nghĩa: Cuộc đời gặp nạn có quý nhân ứng cứu, hóa giải tai ưng, dễ gặp may mắn và sự nâng đỡ từ người đi trước.'
     },
-    'Thái Cực': {
-        term: 'Thái Cực',
+    'Thiên Đức': {
+        term: 'Thiên Đức',
         category: 'Thần Sát Bát Tự',
-        short_description: 'Cát thần chủ về tri thức, tâm linh, sự thông tuệ.',
-        full_detail: '▸ Loại tinh: Cát thần.\n▸ Đặc trưng: Thích triết học, huyền học, tôn giáo, nghiên cứu sâu sắc.\n▸ Ý nghĩa: Gặp hung hóa cát, được trợ giúp vượt qua khó khăn, có chí lớn tìm tòi chân lý cuộc sống.'
+        short_description: 'Phúc đức trời ban. Hóa giải tai hung, tính tình từ bi.',
+        full_detail: '▸ Loại tinh: Cát thần cứu giải.\n▸ Đặc trưng: Nhân hậu, coi trọng đạo đức, được quý nhân giấu mặt chở che.\n▸ Ý nghĩa: Hóa giải tai họa ngầm, giảm nhẹ tai tai nạn, mang lại sự may mắn ôn hòa.'
     },
-
+    'Nguyệt Đức': {
+        term: 'Nguyệt Đức',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Phúc đức mẹ đất. Tăng cường vận may, an lành.',
+        full_detail: '▸ Loại tinh: Cát thần bình an.\n▸ Đặc trưng: Hòa nhã, dễ mến, có sức hấp dẫn nội tâm.\n▸ Ý nghĩa: Giúp công việc hanh thông, ít bị gièm pha tiểu nhân, gia đạo an vui thịnh vượng.'
+    },
+    'Văn Xương': {
+        term: 'Văn Xương',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Sao học thức nghệ thuật. Tư duy sắc bén, thi cử đỗ đạt.',
+        full_detail: '▸ Loại tinh: Cát thần trí tuệ.\n▸ Đặc trưng: Tư duy logic nhạy bén, khiếu văn chương nghệ thuật xuất chúng.\n▸ Ý nghĩa: Học hành thi cử đỗ đạt cao, tiếp thu nhanh, danh tiếng hiển hách trong giới học thuật và văn hóa.'
+    },
+    'Học Đường': {
+        term: 'Học Đường',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Sao khoa bảng tri thức. Tiếp thu nhanh, duyên học thuật.',
+        full_detail: '▸ Loại tinh: Cát thần tri thức.\n▸ Đặc trưng: Học một biết mười, nghiên cứu sâu sắc, đam mê đọc sách.\n▸ Ý nghĩa: Phù hợp trở thành học giả, nhà nghiên cứu, thầy giáo, nắm bắt tri thức đỉnh cao.'
+    },
+    'Từ Quán': {
+        term: 'Từ Quán',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Kho sách tri thức. Trí nhớ siêu phàm, viết lách tài hoa.',
+        full_detail: '▸ Loại tinh: Cát thần lập ngôn.\n▸ Đặc trưng: Văn phong uyển chuyển, trí nhớ siêu việt, tư tưởng uyên bác.\n▸ Ý nghĩa: Chủ về danh tiếng trong thi văn, lập ngôn lập thuyết, công danh rộng mở.'
+    },
+    'Lộc Thần': {
+        term: 'Lộc Thần',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Tiền tài tự thân. Bổng lộc dồi dào, kinh tế vững vàng.',
+        full_detail: '▸ Loại tinh: Cát thần tài lộc.\n▸ Đặc trưng: Tự lập, giỏi làm kinh tế, hưởng bổng lộc thực chất.\n▸ Ý nghĩa: Mang tới thu nhập hậu hĩnh từ tài năng và nỗ lực cá nhân, đời sống vật chất dư dả.'
+    },
+    'Tuế Lộc': {
+        term: 'Tuế Lộc',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Lộc Thần tại Trụ Năm. Phúc lộc gia tộc, nền tảng vững vàng.',
+        full_detail: '▸ Loại tinh: Cát thần gia nghiệp.\n▸ Ý nghĩa: Hưởng lộc tổ tiên hoặc tự lập nghiệp từ sớm với tiền đề thuận lợi.'
+    },
+    'Kiến Lộc': {
+        term: 'Kiến Lộc',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Lộc Thần tại Trụ Tháng. Kinh tế vững vàng, tài năng bộc phát.',
+        full_detail: '▸ Loại tinh: Cát thần thanh xuân.\n▸ Ý nghĩa: Tuổi trẻ năng động, tự tay gầy dựng sự nghiệp tài chính thịnh vượng.'
+    },
+    'Chuyên Lộc': {
+        term: 'Chuyên Lộc',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Lộc Thần tại Trụ Ngày. Vợ chồng tài giỏi, hậu vận sung túc.',
+        full_detail: '▸ Loại tinh: Cát thần gia đạo.\n▸ Ý nghĩa: Bản thân và phối ngẫu giỏi quản lý tài chính, cuộc sống gia đình ấm êm.'
+    },
+    'Quy Lộc': {
+        term: 'Quy Lộc',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Lộc Thần tại Trụ Giờ. Hậu vận an nhàn, con cháu vinh hiển.',
+        full_detail: '▸ Loại tinh: Cát thần hậu vận.\n▸ Ý nghĩa: Về già hưởng phúc tài lộc dồi dào, con cháu thành đạt bồi đắp.'
+    },
     'Kim Dư': {
         term: 'Kim Dư',
         category: 'Thần Sát Bát Tự',
-        short_description: 'Cát thần phú quý thịnh vượng, gia đạo viên mãn.',
-        full_detail: '▸ Loại tinh: Cát thần giàu sang.\n▸ Đặc trưng: Hiền lành, nho nhã, có lộc bất động sản.\n▸ Ý nghĩa: Tượng trưng cho xe vàng phú quý, kết hôn với người khá giả, cuộc sống an nhàn sung túc.'
+        short_description: 'Xe vàng phú quý. Thanh lịch, hưởng giàu sang, có người trợ giúp.',
+        full_detail: '▸ Loại tinh: Cát thần quý phái.\n▸ Đặc trưng: Phong thái nho nhã, có số hưởng bất động sản và phương tiện sang trọng.\n▸ Ý nghĩa: Thường có hôn nhân với gia đình khá giả, ra ngoài luôn được quý nhân đưa đón.'
+    },
+    'Dịch Mã': {
+        term: 'Dịch Mã',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Trục chuyển động. Thăng tiến xa, xuất ngoại, hay thay đổi.',
+        full_detail: '▸ Loại tinh: Dynamic Cát/Trung tinh.\n▸ Đặc trưng: Năng động, thích di chuyển, giao thương xa.\n▸ Ý nghĩa: Càng đi xa càng phát triển, dễ có vận xuất ngoại, thay đổi công việc nơi ở để vươn tới tầm cao mới.'
+    },
+    'Tướng Tinh': {
+        term: 'Tướng Tinh',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Quyền lực lãnh đạo. Quyết đoán, chỉ huy, đứng đầu tổ chức.',
+        full_detail: '▸ Loại tinh: Cát thần quyền lực.\n▸ Đặc trưng: Bản lĩnh chỉ huy, tướng tài điều binh khiển tướng.\n▸ Ý nghĩa: Dễ nắm giữ vị trí quản lý cốt cán, điều hành tập thể lớn thành công.'
+    },
+    'Thiên Thượng': {
+        term: 'Thiên Thượng',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Thiên Thượng Tam Kỳ (Ất-Bính-Đinh). Kỳ tài thiên hạ, tư duy phi thường.',
+        full_detail: '▸ Loại tinh: Đại cát thần đặc biệt.\n▸ Ý nghĩa: Bộ ba Can Ất - Bính - Đinh liền kề. Chủ về trí tuệ lỗi lạc, danh tiếng lẫy lừng, đại phát công danh.'
+    },
+    'Địa Thượng': {
+        term: 'Địa Thượng',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Địa Thượng Tam Kỳ (Giáp-Mậu-Canh). Bản lĩnh phi thường, sự nghiệp lớn.',
+        full_detail: '▸ Loại tinh: Đại cát thần đặc biệt.\n▸ Ý nghĩa: Bộ ba Can Giáp - Mậu - Canh liền kề. Chủ về chí khí kiến tạo cơ nghiệp đồ sộ, vượt mọi sóng gió.'
+    },
+    'Nhân Gian': {
+        term: 'Nhân Gian',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Nhân Gian Tam Kỳ (Tân-Nhâm-Quý). Trí tuệ kiệt xuất, tài năng nghệ thuật.',
+        full_detail: '▸ Loại tinh: Đại cát thần đặc biệt.\n▸ Ý nghĩa: Bộ ba Can Tân - Nhâm - Quý liền kề. Chủ về tư duy sắc bén, sự thấu hiểu lòng người và nghệ thuật đỉnh cao.'
+    },
+    'Phúc Tinh': {
+        term: 'Phúc Tinh',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Ngôi sao may mắn. Cuộc sống an bình, không lo sinh kế.',
+        full_detail: '▸ Loại tinh: Cát thần bình an.\n▸ Ý nghĩa: Mang tới vận may mỉm cười suốt đời, đủ ăn đủ mặc, tinh thần thong dong vô sự.'
+    },
+    'Thiên Y': {
+        term: 'Thiên Y',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Thần y bảo hộ. Thể chất tốt, có năng khiếu y học tâm lý.',
+        full_detail: '▸ Loại tinh: Cát thần sức khỏe.\n▸ Ý nghĩa: Bảo vệ sức khỏe khỏi tà khí bệnh tật, có năng khiếu trị bệnh cứu người, chữa lành vết thương.'
+    },
+    'Quốc Ấn': {
+        term: 'Quốc Ấn',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Ấn tín quốc gia. Quyền chức chính thống, con dấu quản lý.',
+        full_detail: '▸ Loại tinh: Cát thần công quyền.\n▸ Ý nghĩa: Có duyên làm việc cơ quan nhà nước, nắm giữ trọng trách, dấu ấn uy tín chuyên môn.'
+    },
+    'Kim Thần': {
+        term: 'Kim Thần',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Chí hướng hiển hách. Vượt nghịch cảnh đại phát sự nghiệp.',
+        full_detail: '▸ Loại tinh: Cát thần chí khí.\n▸ Ý nghĩa: Người có nghị lực thép, vượt qua muôn vàn gian khó để vươn lên đỉnh cao thành công.'
+    },
+    'Kình Dương': {
+        term: 'Kình Dương',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Lưỡi dao bộc trực. Nóng nảy, dễ va chạm thương tích.',
+        full_detail: '▸ Loại tinh: Hung sát mãnh liệt.\n▸ Đặc trưng: Quyết đoán cực đoan, cá tính gân guốc.\n▸ Ý nghĩa: Cần tiết chế sự cuồng nhiệt nóng nảy để tránh phẫu thuật, va chạm thương tích hay thị phi tranh chấp.'
+    },
+    'Đà La': {
+        term: 'Đà La',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Con quay trì trệ. Lo âu, chậm trễ, bị cản trở ngầm.',
+        full_detail: '▸ Loại tinh: Hung sát trì trệ.\n▸ Ý nghĩa: Tiến độ công việc dễ vướng rào cản nhỏ, tâm lý lo âu dai dẳng, cần kiên trì bền bỉ vươn lên.'
+    },
+    'Kiếp Sát': {
+        term: 'Kiếp Sát',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Hao tổn cướp bóc. Cần đề phòng lừa gạt tiền bạc, tranh chấp.',
+        full_detail: '▸ Loại tinh: Hung sát hao tài.\n▸ Ý nghĩa: Đề phòng mất mát giấy tờ, tranh chấp tài sản hay bị kẻ xấu lợi dụng niềm tin.'
+    },
+    'Vong Thần': {
+        term: 'Vong Thần',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Tinh thần bất an. Cần tỉnh táo tránh quyết định sai lầm.',
+        full_detail: '▸ Loại tinh: Hung sát tâm trí.\n▸ Ý nghĩa: Dễ bị áp lực tinh thần làm xao nhãng, vướng thị phi vô căn cứ nếu thiếu cẩn trọng pháp lý.'
+    },
+    'Cô Thần': {
+        term: 'Cô Thần',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Sự cô độc độc hành. Thích một mình, khó tìm tri kỷ.',
+        full_detail: '▸ Loại tinh: Hung sát cô đơn.\n▸ Ý nghĩa: Tâm tính trầm lắng, tự lập cao nhưng đôi khi cảm thấy ít người thấu hiểu.'
+    },
+    'Quả Tú': {
+        term: 'Quả Tú',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Góa bụa lận đận. Nội tâm thầm lặng, duyên muộn.',
+        full_detail: '▸ Loại tinh: Hung sát duyên tình.\n▸ Ý nghĩa: Đề phòng khoảng cách tình cảm, cần tăng cường chia sẻ với nửa kia để giữ ấm tình yêu.'
+    },
+    'Đại Hao': {
+        term: 'Đại Hao',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Tụ rồi lại tán. Hao tổn tài chính lớn, đầu tư cần thận trọng.',
+        full_detail: '▸ Loại tinh: Hung sát tài chính.\n▸ Ý nghĩa: Quản lý dòng tiền thận trọng, tránh mạo hiểm đầu tư rủi ro lớn trong giai đoạn gặp sao này.'
+    },
+    'Tiểu Hao': {
+        term: 'Tiểu Hao',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Hao tài nhỏ. Thường tốn tiền lặt vặt hư hỏng đồ đạc.',
+        full_detail: '▸ Loại tinh: Hung sát lặt vặt.\n▸ Ý nghĩa: Chi phí sửa chữa mua sắm gia đình gia tăng, cần lên kế hoạch chi tiêu ngăn nắp.'
+    },
+    'Tai Sát': {
+        term: 'Tai Sát',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Tai họa bất ngờ. Cẩn trọng di chuyển xe cộ sông nước.',
+        full_detail: '▸ Loại tinh: Hung sát ngoại lực.\n▸ Ý nghĩa: Chú ý an toàn giao thông, hạn chế rủi ro sông nước và giữ gìn sức khỏe.'
+    },
+    'Nguyên Thần': {
+        term: 'Nguyên Thần',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Tổn hại nguyên khí. Tinh thần uể uải, vận trình trắc trở.',
+        full_detail: '▸ Loại tinh: Hung sát sinh lực.\n▸ Ý nghĩa: Cần nghỉ ngơi điều độ, tái tạo năng lượng tích cực để vượt qua thời kỳ mệt mỏi.'
+    },
+    'Huyết Nhận': {
+        term: 'Huyết Nhận',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Huyết chi đao. Đề phòng va chạm chấn thương, mổ xẻ.',
+        full_detail: '▸ Loại tinh: Hung sát huyết quang.\n▸ Ý nghĩa: Giữ gìn an toàn lao động, đề phòng vật nhọn sắc bén hoặc phẫu thuật y tế.'
+    },
+    'Tử Phù': {
+        term: 'Tử Phù',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Dấu hiệu suy vi. Cần tăng cường sức đề kháng và lạc quan.',
+        full_detail: '▸ Loại tinh: Hung sát trì hoãn.\n▸ Ý nghĩa: Cần giữ vững tinh thần lạc quan, chăm sóc bản thân cẩn thận trước những biến động.'
+    },
+    'Bệnh Phù': {
+        term: 'Bệnh Phù',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Thần bệnh tật. Sức đề kháng yếu, cần chú ý ăn uống.',
+        full_detail: '▸ Loại tinh: Hung sát sức khỏe.\n▸ Ý nghĩa: Nhắc nhở kiểm tra sức khỏe định kỳ, chú trọng chế độ ăn uống khoa học.'
+    },
+    'Thương Quan Kiến Quan': {
+        term: 'Thương Quan Kiến Quan',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Thị phi mâu thuẫn. Dễ xung đột thẩm quyền, mất việc.',
+        full_detail: '▸ Loại tinh: Hung sát xung khắc.\n▸ Ý nghĩa: Tránh đối đầu gay gắt với cấp trên hoặc pháp lý, giữ thái độ nhã nhặn lắng nghe.'
+    },
+    'Đào Hoa': {
+        term: 'Đào Hoa',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Sức hút phái tính. Duyên dáng, thu hút nhân duyên.',
+        full_detail: '▸ Loại tinh: Duyên tình & Thu hút.\n▸ Ý nghĩa: Mang tới tài ăn nói khéo léo, sức quyến rũ tự nhiên, có lợi lớn cho nghề nghệ thuật truyền thông.'
+    },
+    'Hoa Cái': {
+        term: 'Hoa Cái',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Lọng che nghệ thuật. Tư duy triết học, tài hoa出 chúng.',
+        full_detail: '▸ Loại tinh: Nghệ thuật & Tâm linh.\n▸ Ý nghĩa: Tư duy sâu sắc uyên bác, đam mê nghệ thuật tôn giáo, trí tuệ vượt trội.'
+    },
+    'Khôi Canh': {
+        term: 'Khôi Canh',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Sao thủ lĩnh. Thông minh cực điểm, bản lĩnh thép.',
+        full_detail: '▸ Loại tinh: Uy quyền độc lập.\n▸ Ý nghĩa: Quyết đoán, thông minh tuyệt đỉnh, tính cách kiên cường lãnh đạo.'
+    },
+    'Âm Dương Sai Thác': {
+        term: 'Âm Dương Sai Thác',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Trắc trở giao tiếp. Dễ lận đận hiểu lầm tình cảm.',
+        full_detail: '▸ Loại tinh: Lệch pha giao tiếp.\n▸ Ý nghĩa: Cần biết nhường nhịn lắng nghe đối phương để xây dựng mối quan hệ bền chặt.'
+    },
+    'Thập Ác Đại Bại': {
+        term: 'Thập Ác Đại Bại',
+        category: 'Thập Ác Đại Bại',
+        short_description: 'Thất thủ hao tổn. Thận trọng khi đầu tư lớn.',
+        full_detail: '▸ Loại tinh: Biến động tài chính.\n▸ Ý nghĩa: Khuyên bạn nên giữ tiền an toàn, hạn chế đầu tư rủi ro cao trong giai đoạn này.'
     },
     'Lập Xuân': {
         term: 'Lập Xuân',

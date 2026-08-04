@@ -452,28 +452,53 @@ const MarriageBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory
     };
 
     const SHEN_SHA_COLORS = {
-        'Thiên Ất': 'text-emerald-605',
-        'Thái Cực': 'text-emerald-605',
-        'Thiên Đức': 'text-emerald-605',
-        'Nguyệt Đức': 'text-emerald-605',
-        'Lộc Thần': 'text-emerald-605',
-        'Văn Xương': 'text-emerald-605',
-        'Tướng Tinh': 'text-emerald-605',
-        'Phúc Tinh': 'text-emerald-605',
-        'Quốc Ấn': 'text-emerald-605',
-        'Thiên Y': 'text-emerald-605',
-        'Hồng Loan': 'text-emerald-605',
-        'Thiên Hỷ': 'text-emerald-605',
-        'Kim Dư': 'text-emerald-605',
+        'Thiên Ất': 'text-emerald-600',
+        'Thái Cực': 'text-emerald-600',
+        'Thiên Đức': 'text-emerald-600',
+        'Nguyệt Đức': 'text-emerald-600',
+        'Văn Xương': 'text-emerald-600',
+        'Học Đường': 'text-emerald-600',
+        'Từ Quán': 'text-emerald-600',
+        'Lộc Thần': 'text-emerald-600',
+        'Tuế Lộc': 'text-emerald-600',
+        'Kiến Lộc': 'text-emerald-600',
+        'Chuyên Lộc': 'text-emerald-600',
+        'Quy Lộc': 'text-emerald-600',
+        'Kim Dư': 'text-emerald-600',
+        'Tướng Tinh': 'text-emerald-600',
+        'Phúc Tinh': 'text-emerald-600',
+        'Thiên Y': 'text-emerald-600',
+        'Quốc Ấn': 'text-emerald-600',
+        'Kim Thần': 'text-emerald-600',
+        'Thiên Thượng': 'text-purple-600',
+        'Địa Thượng': 'text-purple-600',
+        'Nhân Gian': 'text-purple-600',
         'Kình Dương': 'text-rose-600',
+        'Đà La': 'text-rose-600',
         'Kiếp Sát': 'text-rose-600',
         'Vong Thần': 'text-rose-600',
         'Cô Thần': 'text-rose-600',
         'Quả Tú': 'text-rose-600',
+        'Đại Hao': 'text-rose-600',
+        'Tiểu Hao': 'text-rose-600',
+        'Tai Sát': 'text-rose-600',
+        'Nguyên Thần': 'text-rose-600',
+        'Huyết Nhận': 'text-rose-600',
+        'Tử Phù': 'text-rose-600',
+        'Bệnh Phù': 'text-rose-600',
+        'Thương Quan Kiến Quan': 'text-rose-600',
+        'Thiên La': 'text-rose-600',
+        'Địa Võng': 'text-rose-600',
+        'Cô Loan Sát': 'text-rose-600',
+        'Lưu Hà': 'text-rose-600',
+        'Quan Phù': 'text-rose-600',
         'Không Vong': 'text-rose-600',
-        'Dịch Mã': 'text-slate-700',
-        'Hoa Cái': 'text-slate-700',
-        'Đào Hoa': 'text-slate-700'
+        'Dịch Mã': 'text-slate-800',
+        'Hoa Cái': 'text-slate-800',
+        'Đào Hoa': 'text-slate-800',
+        'Khôi Canh': 'text-slate-800',
+        'Âm Dương Sai Thác': 'text-slate-800',
+        'Thập Ác Đại Bại': 'text-slate-800'
     };
 
     const getAbbreviatedThapThan = (name) => {
@@ -575,11 +600,12 @@ const MarriageBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory
                                 paddedShenSha.push('');
                             }
                             return paddedShenSha.map((ss, idx) => {
-                                const colorClass = SHEN_SHA_COLORS[ss] || (isFemale ? 'text-rose-700' : 'text-blue-700');
+                                const baseTerm = ss ? ss.split(' (')[0] : '';
+                                const colorClass = SHEN_SHA_COLORS[ss] || SHEN_SHA_COLORS[baseTerm] || (isFemale ? 'text-rose-700' : 'text-blue-700');
                                 return (
                                     <div key={idx} className="flex justify-center items-center text-[10px] sm:text-[12px] leading-tight w-full font-black h-[15px] sm:h-[18px]">
                                         {ss ? (
-                                            <Tooltip term={ss} unstyled={true}>
+                                            <Tooltip term={baseTerm} unstyled={true}>
                                                 <span className={`${colorClass} hover:scale-105 transition-transform cursor-help`}>
                                                     {ss}
                                                 </span>

@@ -1,7 +1,8 @@
 const IChingDataService = require('../../src/services/IChingDataService');
 
-describe('IChingDataService Unit Tests', () => {
-    test('IChingDataService should reconstruct hexagram lines correctly', () => {
+describe('IChingDataService Comprehensive Unit Tests', () => {
+
+    test('reconstructLines should correctly reconstruct 6 lines for Thuần Càn (111111) moving at lines 1 & 6', () => {
         const record = {
             primaryHexagram: {
                 binary_code: '111111',
@@ -25,9 +26,43 @@ describe('IChingDataService Unit Tests', () => {
         expect(result.primaryLines).toHaveLength(6);
         expect(result.secondaryLines).toHaveLength(6);
 
-        // Verify moving lines
+        // Verify moving lines status
         expect(result.primaryLines[0].moving).toBe(true);
         expect(result.primaryLines[1].moving).toBe(false);
         expect(result.primaryLines[5].moving).toBe(true);
+    });
+
+    test('reconstructLines should handle non-moving lines correctly (pure hexagram without transformation)', () => {
+        const record = {
+            primaryHexagram: {
+                binary_code: '000000',
+                name: 'Thuần Khôn',
+                palace: 'Khôn',
+                palace_element: 'Thổ'
+            },
+            movingLines: [],
+            lunarDateInfo: {
+                dayCanChi: 'Ất Sửu',
+                monthCanChi: 'Mậu Thìn',
+                tuankhong: 'Hải Kim'
+            }
+        };
+
+        const result = IChingDataService.reconstructLines(record);
+
+        expect(result.primaryLines).toHaveLength(6);
+        expect(result.primaryLines.every(l => l.moving === false)).toBe(true);
+    });
+
+    test('reconstructLines should correctly attach Six Animals (Lục Thú - luc_thu) based on Day Stem', () => {
+        const recordGiap = {
+            primaryHexagram: { binary_code: '101010', name: 'Thủy Hỏa Ký Tế', palace: 'Ly', palace_element: 'Hỏa' },
+            movingLines: [2],
+            lunarDateInfo: { dayCanChi: 'Giáp Tý', monthCanChi: 'Bính Dần', tuankhong: 'Tuất Hợi' }
+        };
+
+        const resGiap = IChingDataService.reconstructLines(recordGiap);
+        expect(resGiap.primaryLines[0].luc_thu).toBeDefined();
+        expect(typeof resGiap.primaryLines[0].luc_thu).toBe('string');
     });
 });

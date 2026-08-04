@@ -112,3 +112,14 @@ Một tác vụ (task) chỉ được xem là hoàn thành khi:
 
 ---
 
+## 🧪 Quy tắc Bắt buộc: Kiểm thử Giao diện trên Trình duyệt (Chrome DevTools Test)
+
+- **Quy trình nghiệm thu (Pre-completion Verification):**
+  Trước khi báo hoàn thành bất kỳ nhiệm vụ giao diện (UI/Frontend) nào, Agent **TUYỆT ĐỐI KHÔNG ĐƯỢC XÁC NHẬN HOÀN THÀNH (Declare Success)** ngay.
+- **Tự động kích hoạt & kiểm thử Chrome:**
+  1. Agent phải tự khởi chạy Dev Server (`npm run dev` hoặc tương đương) nếu server chưa chạy.
+  2. Trước khi báo hoàn thành nhiệm vụ UI, Agent bắt buộc phải dùng `chrome-devtools-mcp` để mở trình duyệt, tự thao tác click/test form, kiểm tra console log và đảm bảo 100% không có lỗi.
+  3. Agent tự thao tác trực tiếp (click các button, nhập input, mở modal, chuyển tab, test responsive...).
+  4. Chụp ảnh màn hình (Screenshot) hoặc đọc DOM/Console log để tự review giao diện.
+- **Vòng lặp Tự sửa lỗi (Self-Healing Loop):**
+  Nếu phát hiện lỗi giao diện, sai layout, vỡ responsive hoặc console error trên Chrome ➡️ Agent phải tự sửa code ➡️ Tự khởi chạy lại test trên Chrome ➡️ Lặp lại cho đến khi **100% ĐẠT YÊU CẦU** mới được xuất kết quả cuối cùng cho người dùng.

@@ -80,12 +80,12 @@ connectDB();
 
 const allowedOrigins = process.env.CLIENT_URL
   ? process.env.CLIENT_URL.split(',').map(url => url.trim().replace(/\/$/, ''))
-  : ['http://localhost:5173', 'http://localhost:3000', 'https://tuynover.ddns.net', 'https://tuynover.giize.com', 'https://tuynover.duckdns.org'];
+  : ['http://localhost:5173', 'http://localhost:5174', 'http://127.0.0.1:5173', 'http://127.0.0.1:5174', 'http://localhost:3000', 'https://tuynover.ddns.net', 'https://tuynover.giize.com', 'https://tuynover.duckdns.org'];
 
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*')) {
+    if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*') || /^http:\/\/localhost:\d+$/.test(origin) || /^http:\/\/127\.0\.0\.1:\d+$/.test(origin)) {
       return callback(null, true);
     } else {
       return callback(new Error('CORS Policy: Access from this origin is denied.'));

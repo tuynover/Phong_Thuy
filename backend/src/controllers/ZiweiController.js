@@ -3,6 +3,7 @@ const ZiweiFormatter = require('../services/ZiweiFormatter');
 const ZiweiCache = require('../services/ZiweiCache');
 const AstrologyEngine = require('../shared/engines/AstrologyEngine');
 const InputValidator = require('../services/InputValidator');
+const MemoryCacheService = require('../services/MemoryCacheService');
 const mongoose = require('mongoose');
 
 class ZiweiController {

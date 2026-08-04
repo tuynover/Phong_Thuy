@@ -181,7 +181,7 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) 
 
     if (!data) return null;
 
-    const { canChi, lunarDateStr, lunarYear, nguHanh, analysis, dungThan, hyThan, daYun } = data;
+    const { canChi, lunarDateStr, lunarYear, nguHanh, analysis, dungThan, hyThan, daYun, thapThanAnalysis } = data;
 
     const getRemedyData = (element) => {
         const remedies = {
@@ -319,28 +319,58 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) 
     };
 
     const SHEN_SHA_COLORS = {
+        // Cát Thần (Màu Xanh Ngọc)
         'Thiên Ất': 'text-emerald-600',
         'Thái Cực': 'text-emerald-600',
         'Thiên Đức': 'text-emerald-600',
         'Nguyệt Đức': 'text-emerald-600',
-        'Lộc Thần': 'text-emerald-600',
         'Văn Xương': 'text-emerald-600',
+        'Học Đường': 'text-emerald-600',
+        'Từ Quán': 'text-emerald-600',
+        'Lộc Thần': 'text-emerald-600',
+        'Tuế Lộc': 'text-emerald-600',
+        'Kiến Lộc': 'text-emerald-600',
+        'Chuyên Lộc': 'text-emerald-600',
+        'Quy Lộc': 'text-emerald-600',
+        'Kim Dư': 'text-emerald-600',
         'Tướng Tinh': 'text-emerald-600',
         'Phúc Tinh': 'text-emerald-600',
-        'Quốc Ấn': 'text-emerald-600',
         'Thiên Y': 'text-emerald-600',
-        'Hồng Loan': 'text-emerald-600',
-        'Thiên Hỷ': 'text-emerald-600',
-        'Kim Dư': 'text-emerald-600',
+        'Quốc Ấn': 'text-emerald-600',
+        'Kim Thần': 'text-emerald-600',
+        'Thiên Thượng': 'text-purple-600',
+        'Địa Thượng': 'text-purple-600',
+        'Nhân Gian': 'text-purple-600',
+
+        // Hung Sát (Màu Đỏ)
         'Kình Dương': 'text-rose-600',
+        'Đà La': 'text-rose-600',
         'Kiếp Sát': 'text-rose-600',
         'Vong Thần': 'text-rose-600',
         'Cô Thần': 'text-rose-600',
         'Quả Tú': 'text-rose-600',
+        'Đại Hao': 'text-rose-600',
+        'Tiểu Hao': 'text-rose-600',
+        'Tai Sát': 'text-rose-600',
+        'Nguyên Thần': 'text-rose-600',
+        'Huyết Nhận': 'text-rose-600',
+        'Tử Phù': 'text-rose-600',
+        'Bệnh Phù': 'text-rose-600',
+        'Thương Quan Kiến Quan': 'text-rose-600',
+        'Thiên La': 'text-rose-600',
+        'Địa Võng': 'text-rose-600',
+        'Cô Loan Sát': 'text-rose-600',
+        'Lưu Hà': 'text-rose-600',
+        'Quan Phù': 'text-rose-600',
         'Không Vong': 'text-rose-600',
+
+        // Trung Tính / Biến Đổi (Màu Đen / Xám)
         'Dịch Mã': 'text-slate-800',
         'Hoa Cái': 'text-slate-800',
-        'Đào Hoa': 'text-slate-800'
+        'Đào Hoa': 'text-slate-800',
+        'Khôi Canh': 'text-slate-800',
+        'Âm Dương Sai Thác': 'text-slate-800',
+        'Thập Ác Đại Bại': 'text-slate-800'
     };
 
     const getBatCung = (zhi) => {
@@ -372,7 +402,7 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) 
         const isMainBaziPillar = isMainBazi;
 
         return (
-            <div className={`relative flex flex-col items-center py-2.5 sm:py-4 md:py-5.5 rounded-xl shadow-sm border-2 ${isDayMaster ? 'border-amber-500 bg-amber-50/30 ring-4 ring-amber-100' : 'border-gray-200 bg-white'} flex-1 md:flex-initial ${isMainBaziPillar ? 'md:min-w-[170px] md:max-w-[200px] px-3 sm:px-5 md:px-6 mx-1 sm:mx-1.5' : 'md:min-w-[15%] md:max-w-[20%] px-1.5 sm:px-3 md:px-4'} md:flex-shrink-0`}>
+            <div className={`relative flex flex-col justify-between items-center py-2.5 sm:py-4 md:py-5.5 rounded-xl shadow-sm border-2 ${isDayMaster ? 'border-amber-500 bg-amber-50/30 ring-4 ring-amber-100' : 'border-gray-200 bg-white'} flex-1 md:flex-initial ${isMainBaziPillar ? 'md:min-w-[170px] md:max-w-[200px] px-3 sm:px-5 md:px-6 mx-1 sm:mx-1.5' : 'md:min-w-[15%] md:max-w-[20%] px-1.5 sm:px-3 md:px-4'} md:flex-shrink-0 h-full`}>
                 <Tooltip term={title} unstyled={true}>
                     <div className={`text-[9px] sm:text-xs font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full ${isDayMaster ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-500'}`}>
                         {title}
@@ -418,52 +448,56 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) 
                     </Tooltip>
                 )}
                 
-                <div className="w-full border-t border-dashed border-gray-200 mt-2.5 pt-2 flex flex-col items-center justify-center">
-                    <div className="w-full max-w-[95px] sm:max-w-[115px] flex flex-col gap-1 mt-1">
-                        {(() => {
-                            const paddedTangCan = [...tangCan];
-                            while (paddedTangCan.length < 3) {
-                                paddedTangCan.push({ gan: '', thapThan: '' });
-                            }
-                            return paddedTangCan.map((tc, idx) => (
-                                <div key={idx} className="flex justify-between items-center text-[10px] sm:text-[12.5px] leading-tight w-full h-[15px] sm:h-[18px]">
-                                    {tc.gan ? (
-                                        <>
-                                            <Tooltip term={tc.gan} unstyled={true}>
-                                                <span className={`font-bold shrink-0 text-left hover:scale-110 transition-transform ${getColorClass(stemElements[tc.gan])}`}>{tc.gan}</span>
-                                            </Tooltip>
-                                            <Tooltip term={tc.thapThan} unstyled={true}>
-                                                <span className="text-slate-800 font-bold text-right truncate pl-1 hover:text-blue-700 transition-colors">{getAbbreviatedThapThan(tc.thapThan)}</span>
-                                            </Tooltip>
-                                        </>
-                                    ) : (
-                                        <span className="invisible">&nbsp;</span>
-                                    )}
-                                </div>
-                            ));
-                        })()}
-                    </div>
-                </div>
-
-                {/* Thần Sát Bát Tự */}
-                {shenSha && shenSha.length > 0 && !hideShenSha && (
-                    <div className="w-full border-t border-dashed border-gray-200 mt-2 pt-2 flex flex-col items-center justify-center">
-                        <div className="w-full max-w-[95px] sm:max-w-[115px] flex flex-col gap-1 mt-1">
-                            {shenSha.map((ss, idx) => {
-                                const colorClass = SHEN_SHA_COLORS[ss] || 'text-slate-800';
-                                return (
-                                    <div key={idx} className="flex justify-center items-center text-[10px] sm:text-[12px] leading-tight w-full font-black h-[15px] sm:h-[18px]">
-                                        <Tooltip term={ss} unstyled={true}>
-                                            <span className={`${colorClass} hover:scale-105 transition-transform cursor-help`}>
-                                                {ss}
-                                            </span>
-                                        </Tooltip>
+                {/* Container Tàng Can & Thần Sát tự căn đáy (mt-auto) */}
+                <div className="w-full mt-auto flex flex-col items-center justify-end">
+                    <div className="w-full border-t border-dashed border-gray-200 pt-2 flex flex-col items-center justify-center">
+                        <div className="w-full max-w-[130px] sm:max-w-[150px] flex flex-col gap-1.5 mt-1">
+                            {(() => {
+                                const paddedTangCan = [...tangCan];
+                                while (paddedTangCan.length < 3) {
+                                    paddedTangCan.push({ gan: '', thapThan: '' });
+                                }
+                                return paddedTangCan.map((tc, idx) => (
+                                    <div key={idx} className="flex justify-between items-center text-[11px] sm:text-[13px] leading-tight w-full h-[16px] sm:h-[18px]">
+                                        {tc.gan ? (
+                                            <>
+                                                <Tooltip term={tc.gan} unstyled={true}>
+                                                    <span className={`font-bold shrink-0 text-left hover:scale-110 transition-transform ${getColorClass(stemElements[tc.gan])}`}>{tc.gan}</span>
+                                                </Tooltip>
+                                                <Tooltip term={tc.thapThan} unstyled={true}>
+                                                    <span className="text-slate-800 font-bold text-right truncate pl-1 hover:text-blue-700 transition-colors">{getAbbreviatedThapThan(tc.thapThan)}</span>
+                                                </Tooltip>
+                                            </>
+                                        ) : (
+                                            <span className="invisible">&nbsp;</span>
+                                        )}
                                     </div>
-                                );
-                            })}
+                                ));
+                            })()}
                         </div>
                     </div>
-                )}
+
+                    {/* Thần Sát Bát Tự */}
+                    {shenSha && shenSha.length > 0 && !hideShenSha && (
+                        <div className="w-full border-t border-dashed border-gray-200 mt-2 pt-2 flex flex-col items-center justify-center">
+                            <div className="w-full max-w-[130px] sm:max-w-[150px] flex flex-col gap-1.5 mt-1">
+                                {shenSha.map((ss, idx) => {
+                                    const baseTerm = ss.split(' (')[0];
+                                    const colorClass = SHEN_SHA_COLORS[ss] || SHEN_SHA_COLORS[baseTerm] || 'text-slate-800';
+                                    return (
+                                        <div key={idx} className="flex justify-center items-center text-[10.5px] sm:text-[12.5px] leading-normal w-full font-black min-h-[18px] py-0.5 text-center">
+                                            <Tooltip term={baseTerm} unstyled={true}>
+                                                <span className={`${colorClass} hover:scale-105 transition-transform cursor-help inline-block leading-tight`}>
+                                                    {ss}
+                                                </span>
+                                            </Tooltip>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
         );
     };
@@ -979,8 +1013,8 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) 
                         <Pillar title="Năm Sinh" pillarData={canChi.year} isMainBazi={true} />
                     </div>
 
-                    {/* Mobile layout: forced 4 columns (4 pillars, spacious layout) */}
-                    <div className="grid grid-cols-4 gap-2.5 md:hidden w-full">
+                    {/* Mobile layout: 2 rows x 2 columns (spacious, no text overlap) */}
+                    <div className="grid grid-cols-2 gap-3.5 sm:gap-4 md:hidden w-full">
                         <Pillar title="Giờ Sinh" pillarData={canChi.hour} isMainBazi={true} />
                         <Pillar title="Nhật Chủ" pillarData={canChi.day} isDayMaster={true} isMainBazi={true} />
                         <Pillar title="Nguyệt Lệnh" pillarData={canChi.month} isMainBazi={true} />
@@ -1119,25 +1153,14 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) 
                                     <Pillar title="Trụ Giờ" pillarData={canChi.hour} />
                                 </div>
 
-                                {/* Layout Mobile: 3 cột xếp dọc 2x3 */}
-                                <div className="grid grid-cols-3 gap-2 md:hidden w-full">
-                                    {/* Cột 1: Đại Vận & Lưu Niên */}
-                                    <div className="flex flex-col gap-2">
-                                        <Pillar title="Đại Vận" pillarData={daYun[selectedYunIndex]} hideTruongSinh={false} hideNaYin={false} />
-                                        <Pillar title={`Lưu Niên ${selectedLuuNianYear}`} pillarData={activeLuuNianPillar} hideTruongSinh={false} hideNaYin={false} />
-                                    </div>
-
-                                    {/* Cột 2: Trụ Ngày & Trụ Giờ */}
-                                    <div className="flex flex-col gap-2">
-                                        <Pillar title="Trụ Ngày" pillarData={canChi.day} isDayMaster={true} />
-                                        <Pillar title="Trụ Giờ" pillarData={canChi.hour} />
-                                    </div>
-
-                                    {/* Cột 3: Trụ Năm & Trụ Tháng */}
-                                    <div className="flex flex-col gap-2">
-                                        <Pillar title="Trụ Năm" pillarData={canChi.year} />
-                                        <Pillar title="Trụ Tháng" pillarData={canChi.month} />
-                                    </div>
+                                {/* Layout Mobile: Grid 2 cột x 3 hàng đồng đều chiều cao (items-stretch, equal height cards) */}
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:hidden w-full items-stretch">
+                                    <Pillar title="Đại Vận" pillarData={daYun[selectedYunIndex]} hideTruongSinh={false} hideNaYin={false} />
+                                    <Pillar title={`Lưu Niên ${selectedLuuNianYear}`} pillarData={activeLuuNianPillar} hideTruongSinh={false} hideNaYin={false} />
+                                    <Pillar title="Trụ Ngày" pillarData={canChi.day} isDayMaster={true} />
+                                    <Pillar title="Trụ Giờ" pillarData={canChi.hour} />
+                                    <Pillar title="Trụ Năm" pillarData={canChi.year} />
+                                    <Pillar title="Trụ Tháng" pillarData={canChi.month} />
                                 </div>
                             </div>
                         );
@@ -1173,8 +1196,18 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) 
                                     <span className="font-bold text-gray-600 text-sm sm:text-base">
                                         <Tooltip term="Trạng Thái Nhật Chủ">Trạng Thái Nhật Chủ</Tooltip>
                                     </span>
-                                    <Tooltip term="Trạng Thái Nhật Chủ" unstyled={true}>
-                                        <span className="text-lg sm:text-xl font-black text-rose-600 cursor-help hover:scale-105 transition-transform">{formatThan(analysis.than)}</span>
+                                    <Tooltip term={analysis.energy7Levels?.description || formatThan(analysis.than)} unstyled={true}>
+                                        <span className={`px-3 py-1 text-sm sm:text-base font-black rounded-full border shadow-sm cursor-help hover:scale-105 transition-transform ${
+                                            analysis.energy7Levels?.code === 'cuc_vuong' ? 'bg-indigo-100 text-indigo-900 border-indigo-300' :
+                                            analysis.energy7Levels?.code === 'cuong_vuong' ? 'bg-blue-100 text-blue-900 border-blue-300' :
+                                            analysis.energy7Levels?.code === 'vuong' ? 'bg-sky-100 text-sky-800 border-sky-300' :
+                                            analysis.energy7Levels?.code === 'can_bang' ? 'bg-emerald-100 text-emerald-900 border-emerald-300' :
+                                            analysis.energy7Levels?.code === 'suy' ? 'bg-amber-100 text-amber-900 border-amber-300' :
+                                            analysis.energy7Levels?.code === 'nhuoc' ? 'bg-orange-100 text-orange-900 border-orange-300' :
+                                            'bg-rose-100 text-rose-900 border-rose-300'
+                                        }`}>
+                                            {analysis.energy7Levels?.level || formatThan(analysis.than)}
+                                        </span>
                                     </Tooltip>
                                 </div>
 
@@ -1206,6 +1239,9 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) 
                         </div>
                     </div>
                 </div>
+
+                {/* Phân Tích Sức Mạnh Thập Thần Table */}
+                <ThapThanStrengthTable thapThanAnalysis={thapThanAnalysis} />
 
                 <hr className="border-gray-200" />
 
@@ -1253,7 +1289,9 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) 
                                 const typeMap = {
                                     tamHop: 'Tam Hợp Cục', banTamHop: 'Bán Tam Hợp',
                                     lucHop: 'Lục Hợp', lucXung: 'Lục Xung',
-                                    lucHai: 'Lục Hại', lucPha: 'Tương Phá'
+                                    lucHai: 'Lục Hại', lucPha: 'Tương Phá',
+                                    tuHinh: 'Tứ Tự Hình', amHop: 'Chi Chi Ám Hợp',
+                                    canChiAmHop: 'Can Chi Ám Hợp'
                                 };
                                 const isBad = ['lucXung', 'lucHai', 'lucPha'].includes(relType);
 
@@ -1261,17 +1299,30 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) 
                                     <div key={relType} className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-4 bg-white p-3 rounded-lg shadow-sm border border-gray-100">
                                         <span className="font-bold text-gray-700 text-sm sm:text-base">{typeMap[relType] || relType}</span>
                                         <div className="flex flex-wrap gap-1.5 justify-start sm:justify-end">
-                                            {arr.map((item, i) => (
-                                                <span key={i} className={`px-2.5 py-1 font-bold text-xs sm:text-sm rounded ${isBad ? 'bg-red-50 text-red-700 border border-red-100' : 'bg-emerald-50 text-emerald-700 border border-emerald-100'}`}>
-                                                    {item}
-                                                </span>
-                                            ))}
+                                            {arr.map((item, i) => {
+                                                let text = typeof item === 'string' ? item : '';
+                                                let isSuccessItem = !isBad;
+                                                if (relType === 'tuHinh') {
+                                                    text = `${item.zhi}-${item.zhi} (${item.isSuccess ? 'Hóa ' + item.transElem : 'Không hóa: ' + item.reason})`;
+                                                    isSuccessItem = item.isSuccess;
+                                                } else if (relType === 'amHop') {
+                                                    text = `${item.p1}-${item.p2}: ${item.label}`;
+                                                } else if (relType === 'canChiAmHop') {
+                                                    text = `${item.pillar}: ${item.label}`;
+                                                }
+
+                                                return (
+                                                    <span key={i} className={`px-2.5 py-1 font-bold text-xs sm:text-sm rounded ${!isSuccessItem ? 'bg-amber-50 text-amber-800 border border-amber-200' : isBad ? 'bg-red-50 text-red-700 border border-red-100' : 'bg-emerald-50 text-emerald-700 border border-emerald-100'}`}>
+                                                        {text}
+                                                    </span>
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                 );
                             })}
                             
-                            {Object.values(analysis.relations).every(arr => arr.length === 0) && (
+                            {Object.values(analysis.relations).every(arr => !arr || arr.length === 0) && (
                                 <div className="text-center text-gray-400 py-8 italic font-medium">Bát Tự bình hòa, không vướng Tương Hình, Xung, Hại.</div>
                             )}
                         </div>
@@ -1492,6 +1543,129 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) 
                     scrollbar-width: none;
                 }
             `}</style>
+        </div>
+    );
+};
+
+const ThapThanStrengthTable = ({ thapThanAnalysis }) => {
+    if (!thapThanAnalysis || !thapThanAnalysis.groups) return null;
+
+    const groupMeta = {
+        tyKiep: { label: 'Tỷ Kiếp', color: 'from-emerald-500 to-teal-600', text: 'text-emerald-800', bg: 'bg-emerald-50/60', border: 'border-emerald-200', bar: 'bg-emerald-500', desc: 'Đồng loại trợ giúp, bạn bè, anh em' },
+        thucThuong: { label: 'Thực Thương', color: 'from-amber-500 to-orange-600', text: 'text-amber-800', bg: 'bg-amber-50/60', border: 'border-amber-200', bar: 'bg-amber-500', desc: 'Tài năng, sự sáng tạo, con cái' },
+        taiTinh: { label: 'Tài Tinh', color: 'from-yellow-500 to-amber-600', text: 'text-yellow-900', bg: 'bg-yellow-50/60', border: 'border-yellow-200', bar: 'bg-yellow-500', desc: 'Tài lộc, tiền tài, của cải, người vợ' },
+        quanSat: { label: 'Quan Sát', color: 'from-purple-500 to-indigo-600', text: 'text-purple-800', bg: 'bg-purple-50/60', border: 'border-purple-200', bar: 'bg-purple-500', desc: 'Chức vị, quyền lực, kỷ luật, người chồng' },
+        anTinh: { label: 'Ấn Tinh', color: 'from-blue-500 to-cyan-600', text: 'text-blue-800', bg: 'bg-blue-50/60', border: 'border-blue-200', bar: 'bg-blue-500', desc: 'Học vấn, bằng cấp, quý nhân, mẹ đẻ' }
+    };
+
+    const getStrengthBadge = (pct) => {
+        if (pct >= 30) return { label: 'Độc Vượng', color: 'bg-rose-100 text-rose-700 border-rose-200' };
+        if (pct >= 15) return { label: 'Vượng', color: 'bg-amber-100 text-amber-800 border-amber-200' };
+        if (pct >= 5) return { label: 'Vừa', color: 'bg-emerald-100 text-emerald-700 border-emerald-200' };
+        if (pct > 0) return { label: 'Yếu', color: 'bg-slate-100 text-slate-600 border-slate-200' };
+        return { label: 'Khuyết', color: 'bg-gray-100 text-gray-400 border-gray-200' };
+    };
+
+    return (
+        <div className="mt-8 bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200/80">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 border-b border-slate-100 pb-4">
+                <div>
+                    <h3 className="text-xl font-bold text-slate-800 border-l-4 border-purple-600 pl-4 uppercase tracking-wide">
+                        Phân Tích Sức Mạnh Thập Thần
+                    </h3>
+                    <p className="text-xs sm:text-sm text-slate-500 pl-4 mt-1">
+                        Đánh giá định lượng tỷ lệ lực lượng của 10 Thập Thần trong Tứ Trụ
+                    </p>
+                </div>
+                <div className="self-start sm:self-auto bg-purple-50 border border-purple-200 text-purple-800 px-4 py-1.5 rounded-full text-xs font-semibold">
+                    Tổng lực lượng: {thapThanAnalysis.totalScore} điểm
+                </div>
+            </div>
+
+            {/* 5 Nhóm Thập Thần Progress Overview */}
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
+                {thapThanAnalysis.groups.map(group => {
+                    const meta = groupMeta[group.key] || { label: group.name, color: 'from-slate-500 to-slate-600', text: 'text-slate-800', bg: 'bg-slate-50', border: 'border-slate-200', bar: 'bg-slate-500', desc: '' };
+                    return (
+                        <div key={group.key} className={`${meta.bg} border ${meta.border} p-4 rounded-2xl flex flex-col justify-between space-y-3 transition-transform hover:-translate-y-0.5 shadow-sm`}>
+                            <div className="flex justify-between items-center">
+                                <span className={`font-bold text-sm sm:text-base ${meta.text}`}>{group.name}</span>
+                                <span className="text-xs font-black bg-white/80 backdrop-blur px-2 py-0.5 rounded-lg border border-slate-200 text-slate-700">
+                                    {group.percentage}%
+                                </span>
+                            </div>
+                            
+                            <div className="w-full bg-slate-200/70 h-2.5 rounded-full overflow-hidden">
+                                <div 
+                                    className={`h-full bg-gradient-to-r ${meta.color} transition-all duration-500 rounded-full`} 
+                                    style={{ width: `${Math.min(100, group.percentage)}%` }}
+                                />
+                            </div>
+
+                            <div className="flex justify-between items-center text-xs text-slate-500 font-medium">
+                                <span>{group.score} điểm</span>
+                                <span className="text-[11px] italic opacity-80">{meta.desc.split(',')[0]}</span>
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+
+            {/* Chi tiết Bảng 10 Thập Thần */}
+            <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                    <thead>
+                        <tr className="bg-slate-50/80 text-slate-600 text-xs sm:text-sm font-semibold border-b border-slate-200">
+                            <th className="py-3 px-4 rounded-l-xl">Phân Nhóm</th>
+                            <th className="py-3 px-4">Thập Thần Chi Tiết</th>
+                            <th className="py-3 px-4 text-center">Điểm Số</th>
+                            <th className="py-3 px-4 text-center">Tỷ Lệ (%)</th>
+                            <th className="py-3 px-4 text-center rounded-r-xl">Trạng Thái Lực Lượng</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 text-xs sm:text-sm">
+                        {thapThanAnalysis.groups.map(group => {
+                            const meta = groupMeta[group.key] || { label: group.name, text: 'text-slate-800' };
+                            return group.items.map((item, idx) => {
+                                const badge = getStrengthBadge(item.percentage);
+                                return (
+                                    <tr key={item.name} className="hover:bg-slate-50/50 transition-colors">
+                                        {idx === 0 && (
+                                            <td rowSpan={2} className={`py-4 px-4 font-bold ${meta.text} border-r border-slate-100 align-middle bg-slate-50/30`}>
+                                                <div>{group.name}</div>
+                                                <div className="text-xs font-normal opacity-70 mt-0.5">{group.percentage}% lực lượng</div>
+                                            </td>
+                                        )}
+                                        <td className="py-3.5 px-4 font-medium text-slate-800 flex items-center space-x-2">
+                                            <span className="w-2 h-2 rounded-full bg-purple-500 inline-block" />
+                                            <span>{item.name}</span>
+                                        </td>
+                                        <td className="py-3.5 px-4 text-center font-semibold text-slate-700">
+                                            {item.score}
+                                        </td>
+                                        <td className="py-3.5 px-4">
+                                            <div className="flex items-center space-x-3 max-w-[160px] mx-auto">
+                                                <div className="flex-1 bg-slate-100 h-2 rounded-full overflow-hidden">
+                                                    <div 
+                                                        className="h-full bg-purple-600 rounded-full transition-all duration-500" 
+                                                        style={{ width: `${Math.min(100, item.percentage * 2.5)}%` }}
+                                                    />
+                                                </div>
+                                                <span className="font-bold text-xs text-slate-700 w-10 text-right">{item.percentage}%</span>
+                                            </div>
+                                        </td>
+                                        <td className="py-3.5 px-4 text-center">
+                                            <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold border ${badge.color}`}>
+                                                {badge.label}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                );
+                            });
+                        })}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 };

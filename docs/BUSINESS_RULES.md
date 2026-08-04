@@ -187,12 +187,47 @@ Tác vụ chạy định kỳ lúc nửa đêm của `NotificationScheduler.js` 
         *   *Hợp mà Hóa thành công:* Biến đổi 100% điểm gốc của 2 chi sang ngũ hành mới (100% tàng can đại diện của ngũ hành đó). Ngũ hành cũ của 2 chi bị loại bỏ hoàn toàn.
         *   *Hợp bạn (Trói buộc):* Điểm số gốc của 2 chi **giảm 50%** do kiềm chế lẫn nhau.
 
-### 5.12 Quy Tắc Tam Hội Hóa Khí & Vòng Trường Sinh Vận Hạn (Bazi VIP Upgrade)
-*   **Tam Hội Hóa Khí:**
-    *   Không có khái niệm Bán Tam Hội.
-    *   Khi Tam Hợp hoặc Tam Hội hóa thành công (đủ 3 chi, lộ can dẫn hóa, Nguyệt lệnh tương sinh/đồng hành, không bị xung phá), tàng can cũ của cả 3 chi **biến mất 100%** và chuyển đổi hoàn toàn sang ngũ hành hóa thần đại diện.
-*   **Vòng Trường Sinh Đại Vận & Lưu Niên:**
-    *   Mỗi bước Đại Vận và năm Lưu Niên được tự động tra cứu vị trí Vòng Trường Sinh (Trường Sinh, Mộc Dục, Quan Đới, Lâm Quan, Đế Vượng, Suy, Bệnh, Tử, Mộ, Tuyệt, Thai, Dưỡng) đối với Nhật Chủ để hỗ trợ luận giải vận hạn.
+### 5.14 Quy Tắc Tứ Tự Hình, Ám Hợp & Trợ Giúp Thiên Can Kề Sát (Bazi 7.0 Upgrade)
+*   **Tứ Tự Hình (Thìn-Thìn, Ngọ-Ngọ, Dậu-Dậu, Hợi-Hợi):**
+    *   *Tự hình thành công:* Đủ 2 chi kề nhau (hoặc 3 chi trở lên), Nguyệt lệnh tương sinh/đồng hành, lộ can dẫn hóa Hóa thần, không bị xung/hại phá. Tàng can phụ biến mất 100% (chuyển sang 100% Chính khí hóa thần) và cộng $+25\%$ lực lượng.
+    *   *Tự hình không thành công:* Tàng can giữ nguyên, không cộng điểm lực lượng.
+*   **Ám Hợp Địa Chi:**
+    *   *Chi Chi Ám Hợp:* Mão-Thân (Ất-Canh), Dần-Sửu (Giáp-Kỷ, Bính-Tân, Mậu-Quý), Ngọ-Hợi (Đinh-Nhâm, Giáp-Kỷ), Tý-Tỵ (Mậu-Quý), Tỵ-Dậu (Bính-Tân).
+    *   *Can Chi Ám Hợp:* Mậu Tý, Tân Tỵ, Nhâm Ngọ, Giáp Ngọ, Quý Tỵ.
+*   **Phạm Vi Trợ Giúp Của Thiên Can (`isDuocTroGiup`):**
+    *   Chỉ tính 2 Thiên Can kề sát Nhật Chủ (Can Tháng và Can Giờ). Can Năm ở xa bị Can Tháng ngăn cách nên không được tính trợ giúp trực tiếp cho Nhật Chủ.
+
+### 5.15 Hệ Thống Thần Sát Bát Tự (29 Thần Sát)
+Hệ thống tự động tính toán và hiển thị 29 Thần Sát đặc thù trên lá số và đại vận/lưu niên:
+1.  **Thiên Ất Quý Nhân:** Tra theo Can Ngày & Can Năm đối chiếu Địa Chi.
+2.  **Thái Cực Quý Nhân:** Tra theo Can Ngày đối chiếu Địa Chi.
+3.  **Thiên Đức Quý Nhân:** Tra theo Chi Tháng đối chiếu Can/Chi các trụ.
+4.  **Nguyệt Đức Quý Nhân:** Tra theo Chi Tháng đối chiếu Thiên Can các trụ.
+5.  **Lộc Thần (Tuế Lộc / Kiến Lộc / Chuyên Lộc / Quy Lộc):** Vị trí đắc lộc của Can Ngày. Được phân tách dựa theo trụ xuất hiện: trụ Năm là **Tuế Lộc**, trụ Tháng là **Kiến Lộc**, trụ Ngày là **Chuyên Lộc**, trụ Giờ là **Quy Lộc** (các trường hợp khác như đại vận/lưu niên hiển thị tên chung là **Lộc Thần**).
+6.  **Kình Dương (Dương Nhận):** Vị trí đế vượng của Can Ngày.
+7.  **Dịch Mã:** Sự di chuyển, thay đổi, dựa theo Tam Hợp cục của Chi Năm & Chi Ngày.
+8.  **Hoa Cái:** Mộ khố của Tam Hợp cục của Chi Năm & Chi Ngày.
+9.  **Đào Hoa (Hàm Trì):** Vị trí mộc dục của Tam Hợp cục của Chi Năm & Chi Ngày.
+10. **Tướng Tinh:** Vị trí chính khí của Tam Hợp cục của Chi Năm & Chi Ngày.
+11. **Kiếp Sát:** Vị trí tuyệt của Tam Hợp cục của Chi Năm & Chi Ngày.
+12. **Vong Thần:** Vị trí lâm quan của Tam Hợp cục của Chi Năm & Chi Ngày.
+13. **Văn Xương Quý Nhân:** Tra theo Can Ngày đối chiếu Địa Chi.
+14. **Cô Thần & Quả Tú:** Tra theo Chi Năm đối chiếu Địa Chi cô độc của Tam Hội cục.
+15. **Không Vong (Tuần Không):** Địa chi trống rỗng dựa trên Tuần Không của trụ ngày.
+16. **Phúc Tinh Quý Nhân:** Tra theo Can Ngày đối chiếu Địa Chi.
+17. **Quốc Ấn Quý Nhân:** Tra theo Can Ngày đối chiếu Địa Chi.
+18. **Thiên Y:** Chi Tháng lùi 1 cung địa chi.
+19. **Hồng Loan & Thiên Hỷ:** Tra theo Chi Năm đối chiếu Địa Chi đào hoa hỷ khánh.
+20. **Kim Dư Quý Nhân (Xe Vàng):** Tra theo Can Ngày & Can Năm đối chiếu Địa Chi.
+21. **Thiên La:** Mệnh nạp âm năm sinh là **Hỏa** gặp địa chi **Tuất**.
+22. **Địa Võng:** Mệnh nạp âm năm sinh là **Thủy** hoặc **Thổ** gặp địa chi **Thìn**.
+23. **Khôi Canh Sát:** Trụ gặp một trong các ngày **Canh Thìn, Nhâm Thìn, Mậu Tuất, Canh Tuất**.
+24. **Âm Dương Sai Thác:** Trụ gặp một trong 12 ngày cưới trắc trở tương ứng.
+25. **Cô Loan Sát:** Trụ gặp một trong 8 ngày đơn độc hôn nhân tương ứng.
+26. **Thập Ác Đại Bại:** Trụ gặp một trong 10 ngày mưu sự thất bại không có lộc hộ trì.
+27. **Lưu Hà Sát:** Tra Can Ngày đối chiếu Địa Chi để xác định rủi ro tai nạn hao tài.
+28. **Huyết Nhận Sát:** Tra Chi Tháng sinh đối chiếu Địa Chi để xác định rủi ro thương tích phẫu thuật.
+29. **Quan Phù:** Gặp địa chi cách Chi Năm 4 cung (tiến lên) chủ về tranh chấp kiện tụng.
 
 ---
 

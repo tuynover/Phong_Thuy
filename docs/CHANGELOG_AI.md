@@ -3,6 +3,80 @@
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
 
+## 📅 Phiên bản: Bổ Sung Thuật Toán Tự Động Tính 7 Thần Sát Mới Cho Bát Tự (05/08/2026)
+
+### Bazi Algorithm & Shen Sha Extensions ([BaziAnalyzer.js](file:///t:/Phongthuy/backend/src/services/BaziAnalyzer.js#L427))
+- **Thiên La & Địa Võng (Lưới Trời Lưới Đất)**: Tích hợp công thức đối chiếu **Mệnh nạp âm năm sinh (Year Pillar Na Yin)** từ `NAYIN_MAP`. Mệnh Hỏa gặp địa chi **Tuất** ở bất cứ trụ nào $\rightarrow$ Tính là `Thiên La`. Mệnh Thủy hoặc mệnh Thổ gặp địa chi **Thìn** $\rightarrow$ Tính là `Địa Võng`.
+- **Khôi Canh Sát**: Ghi nhận tính chất cá tính mạnh mẽ khi trụ gặp một trong 4 ngày: **Canh Thìn, Nhâm Thìn, Mậu Tuất, Canh Tuất**.
+- **Âm Dương Sai Thác**: Nhận diện 12 ngày cưới trắc trở, bất hòa nhân duyên gồm **Bính Tý, Đinh Sửu, Bính Ngọ, Đinh Mùi, Mậu Dần, Mậu Thân, Tân Mão, Tân Dậu, Nhâm Thìn, Nhâm Tuất, Quý Tỵ, Quý Hợi**.
+- **Cô Loan Sát**: Nhận diện các ngày đơn độc hôn nhân gồm **Ất Tỵ, Đinh Tỵ, Tân Hợi, Mậu Thân, Giáp Dần, Bính Ngọ, Mậu Ngọ, Nhâm Tý**.
+- **Thập Ác Đại Bại**: Tự động đánh dấu 10 ngày mưu sự thất bại gồm **Giáp Thìn, Ất Tỵ, Bính Thân, Đinh Hợi, Mậu Tuất, Kỷ Sửu, Canh Thìn, Tân Tỵ, Nhâm Thân, Quý Hợi**.
+- **Lưu Hà Sát**: Tự động xác định rủi ro tai nạn hoặc hao tài qua Can ngày sinh (`dmGan`) đối chiếu với các chi.
+- **Huyết Nhận Sát (Blood Blade)**: Tự động đối chiếu Chi Tháng sinh (`monthZhi`) với Chi các trụ để xác định các cung vị dễ gặp tai nạn thương tích hoặc phẫu thuật.
+- **Quan Phù Sát**: Tích hợp thuật toán tính Quan Phù (tiến 4 cung vị từ Chi Năm sinh `yearZhi`).
+- **Phân tách Lộc Thần tự động**: Nâng cấp cơ chế nhận diện trụ sinh, tự động phân tách Lộc Thần thành **Tuế Lộc** (trụ Năm), **Kiến Lộc** (trụ Tháng), **Chuyên Lộc** (trụ Ngày), và **Quy Lộc** (trụ Giờ) trên lá số nguyên bản, đồng thời giữ nguyên tên gọi Lộc Thần chung cho các đại vận/lưu niên.
+- **Bổ sung Unit Tests**: Đã kiểm thử verified thành công toàn bộ 42 tests tại [`BaziAnalyzer.test.js`](file:///t:/Phongthuy/backend/tests/services/BaziAnalyzer.test.js#L425) bao gồm các ca kiểm thử cho Quan Phù và tất cả các phân cấp Lộc Thần.
+
+## 📅 Phiên bản: Phân Cấp 7 Mức Năng Lượng Nhật Chủ & Thuật Toán Đồ Thị Đường Sinh Trợ (02/08/2026)
+
+### Academic Engine & Graph Algorithm ([BaziAnalyzer.js](file:///t:/Phongthuy/backend/src/services/BaziAnalyzer.js))
+- **Phân Cấp 7 Mức Độ Năng Lượng Nhật Chủ (`evaluate7LevelEnergy`)**:
+  - Mở rộng phân cấp Nhật Chủ lên 7 mức độ: `CỰC NHƯỢC`, `NHƯỢC`, `SUY`, `CÂN BẰNG`, `VƯỢNG`, `CƯỜNG VƯỢNG`, `CỰC VƯỢNG`.
+  - Bổ sung công thức xác định trạng thái **`CÂN BẰNG`** khi Tỷ lệ % Đồng Đàng đạt từ $40\% - 52\%$ và tỷ số lực lượng Khắc/Tiết/Hao nằm trong khoảng hòa hoãn $(0.8 - 1.25)$.
+- **Thuật Toán Đồ Thị Đường Sinh Trợ (Energy Support Chain Graph Algorithm - `buildEnergySupportChains`)**:
+  - Thiết kế đồ thị directed graph 8 nút (4 Can và 4 Chi).
+  - Quét các chuỗi sinh/trợ liên tục kết thúc tại Thiên Can (hoặc Nhật Chủ).
+  - Áp dụng Maximal Chain Filter loại bỏ các đường con nằm trong đường dài hơn.
+  - Tích lũy bonus lực lượng cho nút điểm cuối dựa theo độ dài chuỗi ($L=2 \rightarrow +15\%, L=3 \rightarrow +30\%, L=4+ \rightarrow +50\%$).
+
+### Đầm Bằng Chiều Cao Các Thẻ Trụ Mới (Equal-Height Card Layout) ([BaziBoard.jsx](file:///t:/Phongthuy/frontend/src/components/BaziBoard.jsx))
+- **Đồng Đều Chiều Cao Các Trụ Bảng Vận Hạn Năm**: 
+  - Đã thêm `h-full flex flex-col justify-between` vào component `Pillar` và bao bọc phần Tàng Can & Thần Sát bằng container `mt-auto flex flex-col items-center justify-end`.
+  - Thay thế cách xếp 3 cột dọc rời rạc trước đây bằng layout **Grid 2 cột x 3 hàng kéo giãn bằng nhau** (`grid grid-cols-2 sm:grid-cols-3 gap-3 items-stretch`).
+  - Nhờ đó, 2 thẻ trong cùng 1 hàng grid (ví dụ: `Đại Vận` & `Lưu Niên`, `Trụ Ngày` & `Trụ Giờ`, `Trụ Năm` & `Trụ Tháng`) luôn luôn có **chiều cao bằng chẵn 100%**, triệt tiêu hoàn toàn hiện tượng lệch chân lệch trần.
+
+---
+
+### Academic Engine & Calculation Optimization ([BaziAnalyzer.js](file:///t:/Phongthuy/backend/src/services/BaziAnalyzer.js))
+- **Khắc Phục Triệt Để Bug Lộn Xộn Thần Sát & Sao Ảo (Noble Stars & Void Stars Fix)**:
+  - **Chuẩn hóa Hệ Quy Chiếu Tối Cao**: Ép buộc toàn bộ các Quý Nhân cá nhân (*Thiên Ất, Thái Cực, Văn Xương, Phúc Tinh, Quốc Ấn, Kim Dư*) **CHỈ ĐƯỢC TRA THEO NHẬT CHỦ (`dmGan`)**. Loại bỏ hoàn toàn việc dùng Can Năm `yearGan` rải sao Quý nhân ảo lên các trụ Ngày/Giờ.
+  - **Phân tầng Không Vong chuẩn xác**: Chỉ sử dụng Tuần Không của Nhật Trụ (`dayKhong`) để xét Không Vong bản thể trên 3 trụ còn lại, triệt tiêu lỗi gộp Không Vong Niên Trụ gây loạn lá số.
+
+---
+
+## 📅 Phiên bản: Tứ Tự Hình, Ám Hợp Địa Chi & Giới Hạn Cực Cấn Can Trợ Giúp (Bazi 7.0 Upgrade) (02/08/2026)
+  - Phân định chuẩn xác Tự hình thành công vs Không thành công dựa trên Lệnh tháng, vị trí kề nhau (với 2 chi), Thiên can dẫn hóa và kiểm tra xung/hại phá vỡ.
+  - Khi Tự hình thành công $\rightarrow$ Triệt tiêu 100% tàng can phụ (chuyển 100% về Chính khí hóa thần) và cộng hệ số $+25\%$ lực lượng tại PHASE 2.
+- **Thuật Toán Quét Địa Chi Ám Hợp & Can Chi Ám Hợp**:
+  - Quét 5 cặp Chi Chi Ám Hợp kinh điển: `Mão-Thân`, `Dần-Sửu`, `Ngọ-Hợi`, `Tý-Tỵ`, `Tỵ-Dậu`.
+  - Quét các trụ Can Chi Ám Hợp: `Mậu Tý`, `Tân Tỵ`, `Nhâm Ngọ`, `Giáp Ngọ`, `Quý Tỵ`.
+- **Tinh Chỉnh Phạm Vi Trợ Giúp Thiên Can (`isDuocTroGiup`)**:
+  - Giới hạn cờ `isDuocTroGiup` chỉ kiểm tra 2 Thiên Can kề sát Nhật Chủ (Can Tháng & Can Giờ). Can Năm ở xa bị Can Tháng ngăn cách nên không được tính trợ giúp trực tiếp cho Nhật Chủ.
+
+### UI/UX Design & Relations Display ([BaziBoard.jsx](file:///t:/Phongthuy/frontend/src/components/BaziBoard.jsx))
+- Hiển thị danh sách Tứ Tự Hình, Chi Chi Ám Hợp và Can Chi Ám Hợp trong phần **Hóa Giải & Hình Xung / Quan Hệ Động**.
+
+---
+
+## 📅 Phiên bản: Phân Tích Sức Mạnh Thập Thần & Giao Diện Bảng Thập Thần Premium (31/07/2026)
+
+### Calculation Engine & Quantitative Analysis ([BaziAnalyzer.js](file:///t:/Phongthuy/backend/src/services/BaziAnalyzer.js))
+- **Thuật Toán Định Lượng 10 Thập Thần**:
+  - Tích lũy chính xác điểm số lực lượng của 10 Thập Thần (*Tỷ Kiên, Kiếp Tài, Thực Thần, Thương Quan, Thiên Tài, Chính Tài, Thất Sát, Chính Quan, Thiên Ấn, Chính Ấn*) từ 4 Thiên Can và các Tàng Can Địa Chi sau điều chỉnh Hợp/Hóa/Bế Khố và hệ số Nguyệt lệnh.
+  - Tự động quy đổi phần trăm % lực lượng của từng Thập Thần và gom thành 5 Nhóm Thập Thần chính: *Tỷ Kiếp, Thực Thương, Tài Tinh, Quan Sát, Ấn Tinh*.
+  - Trả về cấu trúc `thapThanAnalysis` chứa `scores`, `percentages`, `groups` và `totalScore`.
+- **Khắc Phục Bug Đánh Giá Trạng Thái Thân (Vượng / Nhược)**:
+  - Khắc phục triệt để sơ hở gán cứng `thanDegree = "vuong"` khi `count3 === 2` ở trường hợp Thất lệnh (`!isDucTuLenh`).
+  - Bắt buộc kiểm tra điều kiện điểm lực lượng thực tế Đồng Đàng `dongDang >= khacTiet` mới được công nhận Thân Vượng, giúp lá số có Đồng Đàng kiệt quệ ($<2\%$) chuyển về đúng trạng thái **Thân Nhược** theo chuẩn học thuật Tử Bình.
+
+### UI/UX Design & Premium Component ([BaziBoard.jsx](file:///t:/Phongthuy/frontend/src/components/BaziBoard.jsx))
+- **Bảng Phân Tích Sức Mạnh Thập Thần (ThapThanStrengthTable)**:
+  - Tích hợp component `ThapThanStrengthTable` hiển thị ngay bên dưới khối Đánh Giá Ngũ Hành & Cách Cục.
+  - Hiển thị 5 thẻ nhóm Thập Thần với thanh Progress Bar gradient sống động, badge phần trăm % và mô tả đặc trưng.
+  - Hiển thị bảng chi tiết 10 Thập Thần 2 cột (Âm/Dương) gồm tên Thập thần, điểm số, thanh tỷ lệ mini-bar và nhãn xếp loại lực lượng (*Độc Vượng, Vượng, Vừa, Yếu, Khuyết*).
+
+---
+
 ## 📅 Phiên bản: Áp Dụng Thần Sát & Khóa Độ Cao Đồng Đều Các Trụ Bên Hôn Nhân (31/07/2026)
 
 ### UI/UX Design & Marriage Customization ([MarriageBoard.jsx](file:///t:/Phongthuy/frontend/src/components/MarriageBoard.jsx))

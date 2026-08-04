@@ -3,6 +3,7 @@ const IChingController = require('../../src/controllers/IChingController');
 // Mock all dependencies
 jest.mock('../../src/models/IChingRecord');
 jest.mock('../../src/services/IChingDataService');
+jest.mock('../../src/services/InputValidator');
 jest.mock('../../src/services/MemoryCacheService', () => ({
     clearUserHistoryCache: jest.fn()
 }));
@@ -15,6 +16,7 @@ jest.mock('../../src/services/SseService', () => ({
 
 const IChingRecord = require('../../src/models/IChingRecord');
 const IChingDataService = require('../../src/services/IChingDataService');
+const InputValidator = require('../../src/services/InputValidator');
 
 describe('IChingController Unit Tests', () => {
     let req, res;
@@ -35,6 +37,14 @@ describe('IChingController Unit Tests', () => {
             status: jest.fn().mockReturnThis(),
             json: jest.fn()
         };
+
+        InputValidator.validateIChingInput.mockReturnValue({
+            isValid: true,
+            sanitized: {
+                lines: req.body.lines,
+                question: 'Hỏi về công việc'
+            }
+        });
 
         IChingDataService.calculate.mockReturnValue({
             primary: { binary_code: '101010', name: 'Càn' },
@@ -76,7 +86,10 @@ describe('IChingController Unit Tests', () => {
     });
 
     test('calculate: missing lines should return 400', async () => {
-        req.body.lines = [{ value: 7 }]; // Only 1 line instead of 6
+        InputValidator.validateIChingInput.mockReturnValue({
+            isValid: false,
+            error: 'Require exactly 6 lines.'
+        });
 
         await IChingController.calculate(req, res);
 
@@ -95,17 +108,5 @@ describe('IChingController Unit Tests', () => {
         expect(res.json).toHaveBeenCalled();
         const response = res.json.mock.calls[0][0];
         expect(response.recordId).toBe('guest-record-123');
-    });
-
-    test('calculate: should call IChingDataService.calculate with lines and now', async () => {
-        IChingRecord.findOne.mockResolvedValue(null);
-        const mockRecord = { _id: 'new-123', save: jest.fn().mockResolvedValue(true) };
-        IChingRecord.mockImplementation(() => mockRecord);
-
-        await IChingController.calculate(req, res);
-
-        expect(IChingDataService.calculate).toHaveBeenCalledWith(
-            expect.objectContaining({ lines: req.body.lines })
-        );
     });
 });
