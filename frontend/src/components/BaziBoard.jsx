@@ -33,8 +33,27 @@ const getSeasonColorClass = (tietKhi) => {
     return 'text-amber-800';
 };
 
-const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) => {
+const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHistory }) => {
     const { user, setUser, token } = useContext(AuthContext);
+
+    // Unwrap nested baziData / analysisSnapshot if passing full DB record object
+    const data = React.useMemo(() => {
+        if (!rawData) return null;
+        const baziObj = rawData.baziData || rawData.analysisSnapshot || rawData.result || rawData;
+        return {
+            ...baziObj,
+            _id: rawData._id || rawData.id || baziObj._id,
+            recordId: rawData.recordId || rawData._id || rawData.id || baziObj.recordId,
+            userId: rawData.userId || baziObj.userId,
+            isPublic: rawData.isPublic !== undefined ? rawData.isPublic : baziObj.isPublic,
+            name: rawData.inputInfo?.name || rawData.name || baziObj.name,
+            gender: rawData.inputInfo?.gender !== undefined ? rawData.inputInfo.gender : (rawData.gender !== undefined ? rawData.gender : baziObj.gender),
+            inputInfo: rawData.inputInfo || baziObj.inputInfo,
+            aiInterpretation: rawData.aiInterpretation || baziObj.aiInterpretation,
+            rating: rawData.rating !== undefined ? rawData.rating : baziObj.rating,
+            feedback: rawData.feedback !== undefined ? rawData.feedback : baziObj.feedback
+        };
+    }, [rawData]);
 
     // AI Interpretation States
     const [interpretation, setInterpretation] = useState('');
@@ -181,7 +200,17 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) 
 
     if (!data) return null;
 
-    const { canChi, lunarDateStr, lunarYear, nguHanh, analysis, dungThan, hyThan, daYun, thapThanAnalysis } = data;
+    const { 
+        canChi = { year: {}, month: {}, day: {}, hour: {} }, 
+        lunarDateStr = '', 
+        lunarYear = '', 
+        nguHanh = {}, 
+        analysis = {}, 
+        dungThan = '', 
+        hyThan = '', 
+        daYun = [], 
+        thapThanAnalysis = { groups: [] } 
+    } = data;
 
     const getRemedyData = (element) => {
         const remedies = {
@@ -319,7 +348,7 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) 
     };
 
     const SHEN_SHA_COLORS = {
-        // Cát Thần (Màu Xanh Ngọc)
+        // Cát Thần (Màu Xanh Ngọc - Emerald)
         'Thiên Ất': 'text-emerald-600',
         'Thái Cực': 'text-emerald-600',
         'Thiên Đức': 'text-emerald-600',
@@ -338,11 +367,18 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) 
         'Thiên Y': 'text-emerald-600',
         'Quốc Ấn': 'text-emerald-600',
         'Kim Thần': 'text-emerald-600',
+        'Hồng Loan': 'text-emerald-600',
+        'Thiên Hỷ': 'text-emerald-600',
+
+        // Tam Kỳ Quý Nhân (Màu Tím Quý Phái)
         'Thiên Thượng': 'text-purple-600',
         'Địa Thượng': 'text-purple-600',
         'Nhân Gian': 'text-purple-600',
+        'Thiên Thượng Tam Kỳ': 'text-purple-600',
+        'Địa Thượng Tam Kỳ': 'text-purple-600',
+        'Nhân Gian Tam Kỳ': 'text-purple-600',
 
-        // Hung Sát (Màu Đỏ)
+        // Hung Sát (Màu Đỏ Rực - Rose)
         'Kình Dương': 'text-rose-600',
         'Đà La': 'text-rose-600',
         'Kiếp Sát': 'text-rose-600',
@@ -363,14 +399,30 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) 
         'Lưu Hà': 'text-rose-600',
         'Quan Phù': 'text-rose-600',
         'Không Vong': 'text-rose-600',
+        'Thập Ác Đại Bại': 'text-rose-600',
 
-        // Trung Tính / Biến Đổi (Màu Đen / Xám)
+        // Duyên Tình & Trung Tính (Màu Hồng / Xám Đen)
+        'Đào Hoa': 'text-pink-600',
         'Dịch Mã': 'text-slate-800',
         'Hoa Cái': 'text-slate-800',
-        'Đào Hoa': 'text-slate-800',
         'Khôi Canh': 'text-slate-800',
-        'Âm Dương Sai Thác': 'text-slate-800',
-        'Thập Ác Đại Bại': 'text-slate-800'
+        'Âm Dương Sai Thác': 'text-slate-800'
+    };
+
+    const getShenShaColorClass = (ss) => {
+        if (!ss) return 'text-slate-800';
+        if (SHEN_SHA_COLORS[ss]) return SHEN_SHA_COLORS[ss];
+
+        const baseTerm = ss.split(' (')[0].trim();
+        if (SHEN_SHA_COLORS[baseTerm]) return SHEN_SHA_COLORS[baseTerm];
+
+        const lower = ss.toLowerCase();
+        if (lower.includes('thượng') || lower.includes('gian') || lower.includes('tam kỳ')) return 'text-purple-600';
+        if (lower.includes('sát') || lower.includes('phù') || lower.includes('đại bại') || lower.includes('vong') || lower.includes('cô') || lower.includes('tú') || lower.includes('dương') || lower.includes('đà') || lower.includes('hao') || lower.includes('nhận') || lower.includes('kiến quan')) return 'text-rose-600';
+        if (lower.includes('lộc') || lower.includes('đức') || lower.includes('quý nhân') || lower.includes('ấn') || lower.includes('y') || lower.includes('hỷ') || lower.includes('loan') || lower.includes('xương') || lower.includes('đường') || lower.includes('quán') || lower.includes('dư') || lower.includes('tinh') || lower.includes('phúc')) return 'text-emerald-600';
+        if (lower.includes('đào hoa')) return 'text-pink-600';
+
+        return 'text-slate-800';
     };
 
     const getBatCung = (zhi) => {
@@ -392,7 +444,7 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) 
         return map[zhi.trim()] || '';
     };
 
-    const Pillar = ({ title, pillarData, isDayMaster, hideTruongSinh, hideNaYin, hideShenSha, isMainBazi }) => {
+    const Pillar = ({ title, pillarData, isDayMaster, hideTruongSinh, hideNaYin, hideShenSha, isMainBazi, minShenShaLines = 4 }) => {
         if (!pillarData || !pillarData.gan || !pillarData.zhi) return null;
         const { gan, zhi, thapThanGan, tangCan = [], naYin, truongSinh, shenSha = [] } = pillarData;
         const ganElem = stemElements[gan];
@@ -402,7 +454,7 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) 
         const isMainBaziPillar = isMainBazi;
 
         return (
-            <div className={`relative flex flex-col justify-between items-center py-2.5 sm:py-4 md:py-5.5 rounded-xl shadow-sm border-2 ${isDayMaster ? 'border-amber-500 bg-amber-50/30 ring-4 ring-amber-100' : 'border-gray-200 bg-white'} flex-1 md:flex-initial ${isMainBaziPillar ? 'md:min-w-[170px] md:max-w-[200px] px-3 sm:px-5 md:px-6 mx-1 sm:mx-1.5' : 'md:min-w-[15%] md:max-w-[20%] px-1.5 sm:px-3 md:px-4'} md:flex-shrink-0 h-full`}>
+            <div className={`relative flex flex-col items-center py-2.5 sm:py-4 md:py-5.5 rounded-xl shadow-sm border-2 ${isDayMaster ? 'border-amber-500 bg-amber-50/30 ring-4 ring-amber-100' : 'border-gray-200 bg-white'} flex-1 ${isMainBaziPillar ? 'md:min-w-[170px] md:max-w-[200px] px-3 sm:px-5 md:px-6 mx-1 sm:mx-1.5' : 'md:min-w-[15%] md:max-w-[20%] px-1.5 sm:px-3 md:px-4'} self-stretch h-full`}>
                 <Tooltip term={title} unstyled={true}>
                     <div className={`text-[9px] sm:text-xs font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full ${isDayMaster ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-500'}`}>
                         {title}
@@ -477,23 +529,36 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) 
                         </div>
                     </div>
 
-                    {/* Thần Sát Bát Tự */}
-                    {shenSha && shenSha.length > 0 && !hideShenSha && (
+                    {/* Thần Sát Bát Tự - Padded đủ số dòng để chiều cao luôn luôn bằng nhau 100% */}
+                    {!hideShenSha && (
                         <div className="w-full border-t border-dashed border-gray-200 mt-2 pt-2 flex flex-col items-center justify-center">
                             <div className="w-full max-w-[130px] sm:max-w-[150px] flex flex-col gap-1.5 mt-1">
-                                {shenSha.map((ss, idx) => {
-                                    const baseTerm = ss.split(' (')[0];
-                                    const colorClass = SHEN_SHA_COLORS[ss] || SHEN_SHA_COLORS[baseTerm] || 'text-slate-800';
-                                    return (
-                                        <div key={idx} className="flex justify-center items-center text-[10.5px] sm:text-[12.5px] leading-normal w-full font-black min-h-[18px] py-0.5 text-center">
-                                            <Tooltip term={baseTerm} unstyled={true}>
-                                                <span className={`${colorClass} hover:scale-105 transition-transform cursor-help inline-block leading-tight`}>
-                                                    {ss}
-                                                </span>
-                                            </Tooltip>
-                                        </div>
-                                    );
-                                })}
+                                {(() => {
+                                    const paddedShenSha = [...shenSha];
+                                    while (paddedShenSha.length < minShenShaLines) {
+                                        paddedShenSha.push('');
+                                    }
+                                    return paddedShenSha.map((ss, idx) => {
+                                        if (!ss) {
+                                            return (
+                                                <div key={idx} className="flex justify-center items-center text-[10.5px] sm:text-[12.5px] leading-normal w-full min-h-[18px] py-0.5 select-none">
+                                                    <span className="invisible">&nbsp;</span>
+                                                </div>
+                                            );
+                                        }
+                                        const baseTerm = ss.split(' (')[0];
+                                        const colorClass = getShenShaColorClass(ss);
+                                        return (
+                                            <div key={idx} className="flex justify-center items-center text-[10.5px] sm:text-[12.5px] leading-normal w-full font-black min-h-[18px] py-0.5 text-center">
+                                                <Tooltip term={baseTerm} unstyled={true}>
+                                                    <span className={`${colorClass} hover:scale-105 transition-transform cursor-help inline-block leading-tight`}>
+                                                        {ss}
+                                                    </span>
+                                                </Tooltip>
+                                            </div>
+                                        );
+                                    });
+                                })()}
                             </div>
                         </div>
                     )}
@@ -1005,21 +1070,34 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) 
                             </span>
                         )}
                     </h3>
-                    {/* Desktop layout: horizontal flex row (4 pillars, wide gap) */}
-                    <div className="hidden md:flex flex-row-reverse justify-center gap-6 lg:gap-8 w-full flex-nowrap">
-                        <Pillar title="Giờ Sinh" pillarData={canChi.hour} isMainBazi={true} />
-                        <Pillar title="Nhật Chủ" pillarData={canChi.day} isDayMaster={true} isMainBazi={true} />
-                        <Pillar title="Nguyệt Lệnh" pillarData={canChi.month} isMainBazi={true} />
-                        <Pillar title="Năm Sinh" pillarData={canChi.year} isMainBazi={true} />
-                    </div>
+                    {(() => {
+                        const maxBaziShenSha = Math.max(
+                            canChi.year?.shenSha?.length || 0,
+                            canChi.month?.shenSha?.length || 0,
+                            canChi.day?.shenSha?.length || 0,
+                            canChi.hour?.shenSha?.length || 0,
+                            3
+                        );
+                        return (
+                            <>
+                                {/* Desktop layout: horizontal flex row (4 pillars, wide gap, equal height) */}
+                                <div className="hidden md:flex flex-row-reverse justify-center items-stretch gap-6 lg:gap-8 w-full flex-nowrap">
+                                    <Pillar title="Giờ Sinh" pillarData={canChi.hour} isMainBazi={true} minShenShaLines={maxBaziShenSha} />
+                                    <Pillar title="Nhật Chủ" pillarData={canChi.day} isDayMaster={true} isMainBazi={true} minShenShaLines={maxBaziShenSha} />
+                                    <Pillar title="Nguyệt Lệnh" pillarData={canChi.month} isMainBazi={true} minShenShaLines={maxBaziShenSha} />
+                                    <Pillar title="Năm Sinh" pillarData={canChi.year} isMainBazi={true} minShenShaLines={maxBaziShenSha} />
+                                </div>
 
-                    {/* Mobile layout: 2 rows x 2 columns (spacious, no text overlap) */}
-                    <div className="grid grid-cols-2 gap-3.5 sm:gap-4 md:hidden w-full">
-                        <Pillar title="Giờ Sinh" pillarData={canChi.hour} isMainBazi={true} />
-                        <Pillar title="Nhật Chủ" pillarData={canChi.day} isDayMaster={true} isMainBazi={true} />
-                        <Pillar title="Nguyệt Lệnh" pillarData={canChi.month} isMainBazi={true} />
-                        <Pillar title="Năm Sinh" pillarData={canChi.year} isMainBazi={true} />
-                    </div>
+                                {/* Mobile layout: 2 rows x 2 columns (spacious, equal height) */}
+                                <div className="grid grid-cols-2 gap-3.5 sm:gap-4 md:hidden w-full items-stretch">
+                                    <Pillar title="Giờ Sinh" pillarData={canChi.hour} isMainBazi={true} minShenShaLines={maxBaziShenSha} />
+                                    <Pillar title="Nhật Chủ" pillarData={canChi.day} isDayMaster={true} isMainBazi={true} minShenShaLines={maxBaziShenSha} />
+                                    <Pillar title="Nguyệt Lệnh" pillarData={canChi.month} isMainBazi={true} minShenShaLines={maxBaziShenSha} />
+                                    <Pillar title="Năm Sinh" pillarData={canChi.year} isMainBazi={true} minShenShaLines={maxBaziShenSha} />
+                                </div>
+                            </>
+                        );
+                    })()}
                 </div>
 
                 {/* Nhịp Đại Vận & Lưu Niên */}
@@ -1134,6 +1212,16 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) 
                         const activeLuuNianPillar = daYun[selectedYunIndex]?.liuNian?.find(ln => ln.year === selectedLuuNianYear);
                         if (!activeLuuNianPillar) return null;
                         
+                        const maxVanhHanShenSha = Math.max(
+                            daYun[selectedYunIndex]?.shenSha?.length || 0,
+                            activeLuuNianPillar?.shenSha?.length || 0,
+                            canChi.year?.shenSha?.length || 0,
+                            canChi.month?.shenSha?.length || 0,
+                            canChi.day?.shenSha?.length || 0,
+                            canChi.hour?.shenSha?.length || 0,
+                            3
+                        );
+
                         return (
                             <div className="border border-purple-100 bg-purple-50/10 p-4 sm:p-6 rounded-[2rem] space-y-6">
                                 <h4 className="text-base font-extrabold text-slate-800 uppercase flex items-center justify-between flex-wrap gap-4 border-b border-purple-100/50 pb-3">
@@ -1143,24 +1231,24 @@ const BaziBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) 
                                     </span>
                                 </h4>
                                 
-                                {/* Layout Desktop: 6 cột xếp ngang */}
-                                <div className="hidden md:flex flex-row justify-center gap-2 lg:gap-4 w-full flex-nowrap">
-                                    <Pillar title="Đại Vận" pillarData={daYun[selectedYunIndex]} hideTruongSinh={false} hideNaYin={false} />
-                                    <Pillar title={`Lưu Niên ${selectedLuuNianYear}`} pillarData={activeLuuNianPillar} hideTruongSinh={false} hideNaYin={false} />
-                                    <Pillar title="Trụ Năm" pillarData={canChi.year} />
-                                    <Pillar title="Trụ Tháng" pillarData={canChi.month} />
-                                    <Pillar title="Trụ Ngày" pillarData={canChi.day} isDayMaster={true} />
-                                    <Pillar title="Trụ Giờ" pillarData={canChi.hour} />
+                                {/* Layout Desktop: 6 cột xếp ngang đồng đều chiều cao (items-stretch) */}
+                                <div className="hidden md:flex flex-row justify-center items-stretch gap-2 lg:gap-4 w-full flex-nowrap">
+                                    <Pillar title="Đại Vận" pillarData={daYun[selectedYunIndex]} hideTruongSinh={false} hideNaYin={false} minShenShaLines={maxVanhHanShenSha} />
+                                    <Pillar title={`Lưu Niên ${selectedLuuNianYear}`} pillarData={activeLuuNianPillar} hideTruongSinh={false} hideNaYin={false} minShenShaLines={maxVanhHanShenSha} />
+                                    <Pillar title="Trụ Năm" pillarData={canChi.year} minShenShaLines={maxVanhHanShenSha} />
+                                    <Pillar title="Trụ Tháng" pillarData={canChi.month} minShenShaLines={maxVanhHanShenSha} />
+                                    <Pillar title="Trụ Ngày" pillarData={canChi.day} isDayMaster={true} minShenShaLines={maxVanhHanShenSha} />
+                                    <Pillar title="Trụ Giờ" pillarData={canChi.hour} minShenShaLines={maxVanhHanShenSha} />
                                 </div>
 
                                 {/* Layout Mobile: Grid 2 cột x 3 hàng đồng đều chiều cao (items-stretch, equal height cards) */}
                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:hidden w-full items-stretch">
-                                    <Pillar title="Đại Vận" pillarData={daYun[selectedYunIndex]} hideTruongSinh={false} hideNaYin={false} />
-                                    <Pillar title={`Lưu Niên ${selectedLuuNianYear}`} pillarData={activeLuuNianPillar} hideTruongSinh={false} hideNaYin={false} />
-                                    <Pillar title="Trụ Ngày" pillarData={canChi.day} isDayMaster={true} />
-                                    <Pillar title="Trụ Giờ" pillarData={canChi.hour} />
-                                    <Pillar title="Trụ Năm" pillarData={canChi.year} />
-                                    <Pillar title="Trụ Tháng" pillarData={canChi.month} />
+                                    <Pillar title="Đại Vận" pillarData={daYun[selectedYunIndex]} hideTruongSinh={false} hideNaYin={false} minShenShaLines={maxVanhHanShenSha} />
+                                    <Pillar title={`Lưu Niên ${selectedLuuNianYear}`} pillarData={activeLuuNianPillar} hideTruongSinh={false} hideNaYin={false} minShenShaLines={maxVanhHanShenSha} />
+                                    <Pillar title="Trụ Ngày" pillarData={canChi.day} isDayMaster={true} minShenShaLines={maxVanhHanShenSha} />
+                                    <Pillar title="Trụ Giờ" pillarData={canChi.hour} minShenShaLines={maxVanhHanShenSha} />
+                                    <Pillar title="Trụ Năm" pillarData={canChi.year} minShenShaLines={maxVanhHanShenSha} />
+                                    <Pillar title="Trụ Tháng" pillarData={canChi.month} minShenShaLines={maxVanhHanShenSha} />
                                 </div>
                             </div>
                         );

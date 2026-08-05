@@ -16,8 +16,27 @@ import {
     getBgColorClass,
 } from '../utils/astrologyHelpers';
 
-const MarriageBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory }) => {
+const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHistory }) => {
     const { user, setUser, token } = useContext(AuthContext);
+
+    // Unwrap nested marriageData / analysisSnapshot if passing full DB record object
+    const data = React.useMemo(() => {
+        if (!rawData) return null;
+        const mObj = rawData.marriageData || rawData.analysisSnapshot || rawData.result || rawData;
+        return {
+            ...mObj,
+            _id: rawData._id || rawData.id || mObj._id,
+            recordId: rawData.recordId || rawData._id || rawData.id || mObj.recordId,
+            userId: rawData.userId || mObj.userId,
+            isPublic: rawData.isPublic !== undefined ? rawData.isPublic : mObj.isPublic,
+            maleBaziData: rawData.maleBaziData || mObj.maleBaziData || mObj.male || rawData.male || {},
+            femaleBaziData: rawData.femaleBaziData || mObj.femaleBaziData || mObj.female || rawData.female || {},
+            inputInfo: rawData.inputInfo || mObj.inputInfo,
+            aiInterpretation: rawData.aiInterpretation || mObj.aiInterpretation,
+            rating: rawData.rating !== undefined ? rawData.rating : mObj.rating,
+            feedback: rawData.feedback !== undefined ? rawData.feedback : mObj.feedback
+        };
+    }, [rawData]);
 
     // AI Interpretation States
     const [interpretation, setInterpretation] = useState('');
@@ -134,7 +153,9 @@ const MarriageBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory
 
     if (!data) return null;
 
-    const { recordId, maleBaziData, femaleBaziData } = data;
+    const recordId = data.recordId || data._id;
+    const maleBaziData = data.maleBaziData || {};
+    const femaleBaziData = data.femaleBaziData || {};
     const resolvedRecordId = recordId || data._id;
 
     const getNaYinColorClass = (naYinText) => {
@@ -168,10 +189,11 @@ const MarriageBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory
 
     // radar chart element drawing helper
     const FiveElementsDiagram = ({ scores, canChi }) => {
-        const totalScore = Object.values(scores).reduce((a, b) => a + b, 0);
+        const safeScores = scores || {};
+        const totalScore = Object.values(safeScores).reduce((a, b) => a + b, 0);
         const getPercentage = (key) => {
             if (!totalScore) return 0;
-            return Math.round(((scores[key] || 0) / totalScore) * 100);
+            return Math.round(((safeScores[key] || 0) / totalScore) * 100);
         };
         
         const width = 360;
@@ -452,6 +474,7 @@ const MarriageBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory
     };
 
     const SHEN_SHA_COLORS = {
+        // Cát Thần (Màu Xanh Ngọc - Emerald)
         'Thiên Ất': 'text-emerald-600',
         'Thái Cực': 'text-emerald-600',
         'Thiên Đức': 'text-emerald-600',
@@ -470,9 +493,18 @@ const MarriageBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory
         'Thiên Y': 'text-emerald-600',
         'Quốc Ấn': 'text-emerald-600',
         'Kim Thần': 'text-emerald-600',
+        'Hồng Loan': 'text-emerald-600',
+        'Thiên Hỷ': 'text-emerald-600',
+
+        // Tam Kỳ Quý Nhân (Màu Tím Quý Phái)
         'Thiên Thượng': 'text-purple-600',
         'Địa Thượng': 'text-purple-600',
         'Nhân Gian': 'text-purple-600',
+        'Thiên Thượng Tam Kỳ': 'text-purple-600',
+        'Địa Thượng Tam Kỳ': 'text-purple-600',
+        'Nhân Gian Tam Kỳ': 'text-purple-600',
+
+        // Hung Sát (Màu Đỏ Rực - Rose)
         'Kình Dương': 'text-rose-600',
         'Đà La': 'text-rose-600',
         'Kiếp Sát': 'text-rose-600',
@@ -493,12 +525,30 @@ const MarriageBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory
         'Lưu Hà': 'text-rose-600',
         'Quan Phù': 'text-rose-600',
         'Không Vong': 'text-rose-600',
+        'Thập Ác Đại Bại': 'text-rose-600',
+
+        // Duyên Tình & Trung Tính (Màu Hồng / Xám Đen)
+        'Đào Hoa': 'text-pink-600',
         'Dịch Mã': 'text-slate-800',
         'Hoa Cái': 'text-slate-800',
-        'Đào Hoa': 'text-slate-800',
         'Khôi Canh': 'text-slate-800',
-        'Âm Dương Sai Thác': 'text-slate-800',
-        'Thập Ác Đại Bại': 'text-slate-800'
+        'Âm Dương Sai Thác': 'text-slate-800'
+    };
+
+    const getShenShaColorClass = (ss, isFemale) => {
+        if (!ss) return isFemale ? 'text-rose-700' : 'text-blue-700';
+        if (SHEN_SHA_COLORS[ss]) return SHEN_SHA_COLORS[ss];
+
+        const baseTerm = ss.split(' (')[0].trim();
+        if (SHEN_SHA_COLORS[baseTerm]) return SHEN_SHA_COLORS[baseTerm];
+
+        const lower = ss.toLowerCase();
+        if (lower.includes('thượng') || lower.includes('gian') || lower.includes('tam kỳ')) return 'text-purple-600';
+        if (lower.includes('sát') || lower.includes('phù') || lower.includes('đại bại') || lower.includes('vong') || lower.includes('cô') || lower.includes('tú') || lower.includes('dương') || lower.includes('đà') || lower.includes('hao') || lower.includes('nhận') || lower.includes('kiến quan')) return 'text-rose-600';
+        if (lower.includes('lộc') || lower.includes('đức') || lower.includes('quý nhân') || lower.includes('ấn') || lower.includes('y') || lower.includes('hỷ') || lower.includes('loan') || lower.includes('xương') || lower.includes('đường') || lower.includes('quán') || lower.includes('dư') || lower.includes('tinh') || lower.includes('phúc')) return 'text-emerald-600';
+        if (lower.includes('đào hoa')) return 'text-pink-600';
+
+        return isFemale ? 'text-rose-700' : 'text-blue-700';
     };
 
     const getAbbreviatedThapThan = (name) => {
@@ -517,7 +567,7 @@ const MarriageBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory
             : (isHighlighted ? 'border-blue-500 bg-blue-50/20 ring-4 ring-blue-100' : 'border-blue-100 bg-white hover:border-blue-300');
 
         return (
-            <div className={`relative flex flex-col items-center py-4 sm:py-6 rounded-2xl shadow-sm border-2 transition-all hover:scale-[1.02] flex-1 min-h-[385px] sm:min-h-[415px] md:min-h-[455px] px-3 sm:px-5 md:px-6 mx-0.5 sm:mx-1 ${themeBorder}`}>
+            <div className={`relative flex flex-col justify-between items-center py-4 sm:py-6 rounded-2xl shadow-sm border-2 transition-all hover:scale-[1.02] flex-1 self-stretch h-full min-h-[385px] sm:min-h-[415px] md:min-h-[455px] px-3 sm:px-5 md:px-6 mx-0.5 sm:mx-1 ${themeBorder}`}>
                 <Tooltip term={title} unstyled={true}>
                     <div className={`text-[9px] sm:text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${isDayMaster ? (isFemale ? 'bg-rose-100 text-rose-800' : 'bg-blue-100 text-blue-800') : 'bg-gray-100 text-gray-505'}`}>
                         {title}
@@ -601,7 +651,7 @@ const MarriageBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory
                             }
                             return paddedShenSha.map((ss, idx) => {
                                 const baseTerm = ss ? ss.split(' (')[0] : '';
-                                const colorClass = SHEN_SHA_COLORS[ss] || SHEN_SHA_COLORS[baseTerm] || (isFemale ? 'text-rose-700' : 'text-blue-700');
+                                const colorClass = getShenShaColorClass(ss, isFemale);
                                 return (
                                     <div key={idx} className="flex justify-center items-center text-[10px] sm:text-[12px] leading-tight w-full font-black h-[15px] sm:h-[18px]">
                                         {ss ? (
@@ -624,12 +674,18 @@ const MarriageBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory
     };
 
     const BaziPillarsSection = ({ canChi, isFemale }) => {
+        const safeCanChi = {
+            year: canChi?.year || {},
+            month: canChi?.month || {},
+            day: canChi?.day || {},
+            hour: canChi?.hour || {}
+        };
         return (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 justify-center w-full pb-2">
-                <PillarCard title="Năm Sinh" gan={canChi.year.gan} zhi={canChi.year.zhi} thapThanGan={canChi.year.thapThanGan} tangCan={canChi.year.tangCan} naYin={canChi.year.naYin} truongSinh={canChi.year.truongSinh} shenSha={canChi.year.shenSha} isFemale={isFemale} isDayMaster={false} />
-                <PillarCard title="Nguyệt Lệnh" gan={canChi.month.gan} zhi={canChi.month.zhi} thapThanGan={canChi.month.thapThanGan} tangCan={canChi.month.tangCan} naYin={canChi.month.naYin} truongSinh={canChi.month.truongSinh} shenSha={canChi.month.shenSha} isFemale={isFemale} isDayMaster={false} />
-                <PillarCard title="Nhật Chủ" gan={canChi.day.gan} zhi={canChi.day.zhi} thapThanGan="Nhật Chủ" tangCan={canChi.day.tangCan} naYin={canChi.day.naYin} truongSinh={canChi.day.truongSinh} shenSha={canChi.day.shenSha} isFemale={isFemale} isDayMaster={true} />
-                <PillarCard title="Giờ Sinh" gan={canChi.hour.gan} zhi={canChi.hour.zhi} thapThanGan={canChi.hour.thapThanGan} tangCan={canChi.hour.tangCan} naYin={canChi.hour.naYin} truongSinh={canChi.hour.truongSinh} shenSha={canChi.hour.shenSha} isFemale={isFemale} isDayMaster={false} />
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 justify-center items-stretch w-full pb-2">
+                <PillarCard title="Năm Sinh" gan={safeCanChi.year.gan} zhi={safeCanChi.year.zhi} thapThanGan={safeCanChi.year.thapThanGan} tangCan={safeCanChi.year.tangCan} naYin={safeCanChi.year.naYin} truongSinh={safeCanChi.year.truongSinh} shenSha={safeCanChi.year.shenSha} isFemale={isFemale} isDayMaster={false} />
+                <PillarCard title="Nguyệt Lệnh" gan={safeCanChi.month.gan} zhi={safeCanChi.month.zhi} thapThanGan={safeCanChi.month.thapThanGan} tangCan={safeCanChi.month.tangCan} naYin={safeCanChi.month.naYin} truongSinh={safeCanChi.month.truongSinh} shenSha={safeCanChi.month.shenSha} isFemale={isFemale} isDayMaster={false} />
+                <PillarCard title="Nhật Chủ" gan={safeCanChi.day.gan} zhi={safeCanChi.day.zhi} thapThanGan="Nhật Chủ" tangCan={safeCanChi.day.tangCan} naYin={safeCanChi.day.naYin} truongSinh={safeCanChi.day.truongSinh} shenSha={safeCanChi.day.shenSha} isFemale={isFemale} isDayMaster={true} />
+                <PillarCard title="Giờ Sinh" gan={safeCanChi.hour.gan} zhi={safeCanChi.hour.zhi} thapThanGan={safeCanChi.hour.thapThanGan} tangCan={safeCanChi.hour.tangCan} naYin={safeCanChi.hour.naYin} truongSinh={safeCanChi.hour.truongSinh} shenSha={safeCanChi.hour.shenSha} isFemale={isFemale} isDayMaster={false} />
             </div>
         );
     };
@@ -687,8 +743,8 @@ const MarriageBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory
                         </div>
                         <div className="bg-slate-50 p-3 rounded-xl">
                             <span className="text-gray-400 block text-xs font-bold uppercase mb-0.5">Nạp Âm Bản Mệnh</span>
-                            <span className={`font-extrabold px-2 py-0.5 rounded border inline-block ${getNaYinColorClass(maleBaziData.canChi.day.naYin)}`}>
-                                {maleBaziData.canChi.day.naYin}
+                            <span className={`font-extrabold px-2 py-0.5 rounded border inline-block ${getNaYinColorClass(maleBaziData.canChi?.day?.naYin)}`}>
+                                {maleBaziData.canChi?.day?.naYin || 'Chưa xác định'}
                             </span>
                         </div>
                         <div className="bg-slate-50 p-3 rounded-xl">
@@ -716,8 +772,8 @@ const MarriageBoard = ({ data, onUpdateData, onRequireLogin, onInvalidateHistory
                         </div>
                         <div className="bg-slate-50 p-3 rounded-xl">
                             <span className="text-gray-400 block text-xs font-bold uppercase mb-0.5">Nạp Âm Bản Mệnh</span>
-                            <span className={`font-extrabold px-2 py-0.5 rounded border inline-block ${getNaYinColorClass(femaleBaziData.canChi.day.naYin)}`}>
-                                {femaleBaziData.canChi.day.naYin}
+                            <span className={`font-extrabold px-2 py-0.5 rounded border inline-block ${getNaYinColorClass(femaleBaziData.canChi?.day?.naYin)}`}>
+                                {femaleBaziData.canChi?.day?.naYin || 'Chưa xác định'}
                             </span>
                         </div>
                         <div className="bg-slate-50 p-3 rounded-xl">

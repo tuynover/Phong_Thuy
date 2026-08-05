@@ -85,7 +85,13 @@ const userSchema = new mongoose.Schema({
     totalChatTokens: { type: Number, default: 0 },
     totalTokens: { type: Number, default: 0 },
     lastUpdated: { type: Date, default: null }
-  }
+  },
+  tags: [{
+    _id: { type: String, default: uuidv7 },
+    name: { type: String, required: true },
+    isDefault: { type: Boolean, default: false },
+    createdAt: { type: Date, default: Date.now }
+  }]
 }, {
   timestamps: true,
 });

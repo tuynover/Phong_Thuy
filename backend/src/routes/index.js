@@ -12,6 +12,7 @@ const ziweiRoutes = require('./ziwei');
 const notificationRoutes = require('./notifications');
 const adminRoutes = require('./admin');
 const blogRoutes = require('./blog');
+const tagRoutes = require('./tag');
 const rateLimiter = require('../middleware/rateLimiter');
 
 // Giới hạn 30 lượt lập số lý/quẻ dịch trong 15 phút
@@ -29,6 +30,7 @@ router.use('/tu-vi', ziweiRoutes); // legacy alias
 router.use('/notifications', notificationRoutes);
 router.use('/admin', adminRoutes);
 router.use('/blog', blogRoutes);
+router.use('/tags', tagRoutes);
 
 // Support both unified and legacy namespaces for calculate
 router.post('/iching/calculate', calcLimiter, IChingController.calculate);

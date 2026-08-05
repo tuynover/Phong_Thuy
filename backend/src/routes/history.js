@@ -51,6 +51,9 @@ router.get('/marriage/:userId', optionalAuth, checkHistoryOwnership, HistoryCont
 router.put('/marriage/:id/rate', optionalAuth, checkRecordOwnership, HistoryController.rateMarriage);
 router.get('/marriage/:id/messages', optionalAuth, checkRecordOwnership, HistoryController.getMarriageChatMessages);
 
+// Unified All Systems History endpoint
+router.get('/all/:userId', optionalAuth, checkHistoryOwnership, HistoryController.getAllHistory);
+
 // Backwards compatibility for legacy chat and stream endpoints
 router.post('/iching/:id/interpret', optionalAuth, checkRecordOwnership, aiLimiter, creditCheck, AiInterpretationController.interpretHexagram);
 router.post('/hexagrams/:id/interpret', optionalAuth, checkRecordOwnership, aiLimiter, creditCheck, AiInterpretationController.interpretHexagram);

@@ -1910,8 +1910,8 @@ export const conceptDictionary = {
     'Đào Hoa': {
         term: 'Đào Hoa',
         category: 'Thần Sát Bát Tự',
-        short_description: 'Sức hút phái tính. Duyên dáng, thu hút nhân duyên.',
-        full_detail: '▸ Loại tinh: Duyên tình & Thu hút.\n▸ Ý nghĩa: Mang tới tài ăn nói khéo léo, sức quyến rũ tự nhiên, có lợi lớn cho nghề nghệ thuật truyền thông.'
+        short_description: 'Sức hút phái tính, nhân duyên khéo léo.',
+        full_detail: '▸ Đặc trưng: Nhân duyên cực tốt, giao tiếp uyển chuyển, sức quyến rũ tự nhiên.\n▸ Ý nghĩa: Mang tới sự may mắn trong ngoại giao, làm truyền thông nghệ thuật rất hút khách. Cần tiết chế tình cảm để giữ hạnh phúc gia đình bền vững.'
     },
     'Hoa Cái': {
         term: 'Hoa Cái',

@@ -437,13 +437,17 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
 
     if (!result) return null;
 
-    const { primary, secondary, primaryLines, secondaryLines, dateInfo } = result;
-    const renderSecondarySide = secondary.binary_code !== primary.binary_code;
+    const primaryHex = result.primary || result.primaryHexagram || result.primaryHexagramInfo;
+    const secondaryHex = result.secondary || result.transformedHexagram || result.transformedHexagramInfo;
+    const primaryLinesArr = result.primaryLines || (primaryHex ? primaryHex.lines : []) || [];
+    const secondaryLinesArr = result.secondaryLines || (secondaryHex ? secondaryHex.lines : []) || [];
+    const dateInfo = result.dateInfo || result.lunarDateInfo;
+    const renderSecondarySide = Boolean(secondaryHex && primaryHex && (secondaryHex.binary_code !== primaryHex.binary_code));
 
     const rows = [];
     for (let i = 5; i >= 0; i--) {
-        const pLine = primaryLines[i] || {};
-        const sLine = secondaryLines[i] || {};
+        const pLine = primaryLinesArr[i] || {};
+        const sLine = secondaryLinesArr[i] || {};
         rows.push({ pLine, sLine, index: i + 1 });
     }
 
@@ -541,16 +545,16 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
 
             <div className="flex flex-col md:flex-row mb-8">
                 <div className="flex-1 flex flex-col items-center relative">
-                    <HexTitle hexagram={primary} />
-                    <HexagramVisual lines={primaryLines} />
-                    <span className={`text-[13px] font-bold uppercase tracking-widest mt-2 px-3 py-1 rounded-full border ${getBgColorClass(primary.palace_element)} ${getColorClass(primary.palace_element)}`}>HỌ {primary.palace} - {primary.palace_element}</span>
+                    {primaryHex && <HexTitle hexagram={primaryHex} />}
+                    <HexagramVisual lines={primaryLinesArr} />
+                    {primaryHex && <span className={`text-[13px] font-bold uppercase tracking-widest mt-2 px-3 py-1 rounded-full border ${getBgColorClass(primaryHex.palace_element)} ${getColorClass(primaryHex.palace_element)}`}>HỌ {primaryHex.palace} - {primaryHex.palace_element}</span>}
                 </div>
                 
-                {renderSecondarySide && (
+                {renderSecondarySide && secondaryHex && (
                     <div className="flex-1 flex flex-col items-center border-t md:border-t-0 md:border-l-[1.5px] border-amber-300 pt-8 md:pt-0 relative">
-                        <HexTitle hexagram={secondary} />
-                        <HexagramVisual lines={secondaryLines} />
-                        <span className={`text-[13px] font-bold uppercase tracking-widest mt-2 px-3 py-1 rounded-full border ${getBgColorClass(secondary.palace_element)} ${getColorClass(secondary.palace_element)}`}>HỌ {secondary.palace} - {secondary.palace_element}</span>
+                        <HexTitle hexagram={secondaryHex} />
+                        <HexagramVisual lines={secondaryLinesArr} />
+                        <span className={`text-[13px] font-bold uppercase tracking-widest mt-2 px-3 py-1 rounded-full border ${getBgColorClass(secondaryHex.palace_element)} ${getColorClass(secondaryHex.palace_element)}`}>HỌ {secondaryHex.palace} - {secondaryHex.palace_element}</span>
                     </div>
                 )}
             </div>
@@ -706,7 +710,7 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
                     {/* QUẺ CHÍNH */}
                     <div className="flex-1 flex flex-col md:pr-4">
                         <div className="flex justify-end items-center mb-3">
-                            {primary.quai_than && <span className="bg-purple-100 text-purple-800 font-bold px-3 py-1 rounded-full text-sm border border-purple-200 shadow-sm">Quái Thân: {primary.quai_than}</span>}
+                            {primaryHex?.quai_than && <span className="bg-purple-100 text-purple-800 font-bold px-3 py-1 rounded-full text-sm border border-purple-200 shadow-sm">Quái Thân: {primaryHex.quai_than}</span>}
                         </div>
                         <div className="border border-gray-200 rounded-xl bg-white shadow-sm overflow-hidden">
                             <div className="overflow-x-auto w-full custom-scrollbar">
@@ -753,7 +757,7 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
                     {renderSecondarySide && (
                         <div className="flex-1 flex flex-col border-t md:border-t-0 md:border-l-[1.5px] border-gray-300 pt-6 md:pt-0 md:pl-4">
                             <div className="flex justify-end items-center mb-3">
-                                {secondary.quai_than && <span className="bg-purple-100 text-purple-800 font-bold px-3 py-1 rounded-full text-sm border border-purple-200 shadow-sm">Quái Thân: {secondary.quai_than}</span>}
+                                {secondaryHex?.quai_than && <span className="bg-purple-100 text-purple-800 font-bold px-3 py-1 rounded-full text-sm border border-purple-200 shadow-sm">Quái Thân: {secondaryHex.quai_than}</span>}
                             </div>
                             <div className="border border-gray-200 rounded-xl bg-white shadow-sm overflow-hidden">
                                 <div className="overflow-x-auto w-full custom-scrollbar">

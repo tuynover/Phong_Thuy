@@ -19,6 +19,26 @@ const {
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
+const formatUserResponse = (user) => {
+  const defaultTags = [{ _id: 'default', name: 'Chung', isDefault: true }];
+  const userTags = (user.tags && user.tags.length > 0) ? user.tags : defaultTags;
+  return {
+    id: user.id || user._id,
+    _id: user._id || user.id,
+    email: user.email,
+    name: user.name,
+    baziInfo: user.baziInfo,
+    gender: user.gender,
+    phone: user.phone || "",
+    role: user.role,
+    credits: user.credits,
+    status: user.status,
+    isEmailVerified: user.isEmailVerified || false,
+    stats: user.stats || {},
+    tags: userTags
+  };
+};
+
 const register = async (req, res) => {
   const { email, password, name, day, month, year, hour, minute, gender } = req.body;
   try {
@@ -74,7 +94,7 @@ const register = async (req, res) => {
           { expiresIn: '7d' },
           (err, token) => {
             if (err) throw err;
-            return res.json({ token, user: { id: user.id || user._id, _id: user._id || user.id, email: user.email, name: user.name, baziInfo: user.baziInfo, gender: user.gender, phone: user.phone || "", role: user.role, credits: user.credits, status: user.status } });
+            return res.json({ token, user: formatUserResponse(user) });
           }
         );
       }
@@ -122,7 +142,7 @@ const register = async (req, res) => {
       { expiresIn: '7d' },
       (err, token) => {
         if (err) throw err;
-        res.json({ token, user: { id: user.id || user._id, _id: user._id || user.id, email: user.email, name: user.name, baziInfo: user.baziInfo, gender: user.gender, phone: user.phone || "", role: user.role, credits: user.credits, status: user.status } });
+        res.json({ token, user: formatUserResponse(user) });
       }
     );
   } catch (err) {
@@ -190,7 +210,7 @@ const login = async (req, res) => {
       { expiresIn: '7d' },
       (err, token) => {
         if (err) throw err;
-        res.json({ token, user: { id: user.id || user._id, _id: user._id || user.id, email: user.email, name: user.name, baziInfo: user.baziInfo, gender: user.gender, phone: user.phone || "", role: user.role, credits: user.credits, status: user.status } });
+        res.json({ token, user: formatUserResponse(user) });
       }
     );
   } catch (err) {
@@ -232,7 +252,7 @@ const updateBaziInfo = async (req, res) => {
     
     logger.info(`Cập nhật Giờ Sinh thành công cho tài khoản [${user.email}] (Giờ sinh mới: ${hour}:${minute} ngày ${day}/${month}/${year}).`, { user: user.email, action: 'Cập nhật Giờ Sinh Bát Tự' });
 
-    res.json({ user: { id: user.id || user._id, _id: user._id || user.id, email: user.email, name: user.name, baziInfo: user.baziInfo, gender: user.gender, phone: user.phone || "", role: user.role, credits: user.credits, status: user.status } });
+    res.json({ user: formatUserResponse(user) });
   } catch (err) {
     logger.error(`Cập nhật Giờ Sinh gặp lỗi hệ thống cho tài khoản ID [${userId}].`, err, { user: `id:${userId}`, action: 'Cập nhật Giờ Sinh Bát Tự' });
     res.status(500).send('Server error');
@@ -316,7 +336,7 @@ const googleLogin = async (req, res) => {
       { expiresIn: '7d' },
       (err, token) => {
         if (err) throw err;
-        res.json({ token, user: { id: user.id, email: user.email, name: user.name, baziInfo: user.baziInfo, gender: user.gender, phone: user.phone || "", role: user.role, credits: user.credits, status: user.status } });
+        res.json({ token, user: formatUserResponse(user) });
       }
     );
   } catch (err) {
@@ -377,7 +397,7 @@ const updateProfile = async (req, res) => {
 
     logger.info(`Cập nhật Hồ Sơ thành công cho tài khoản [${user.email}].`, { user: user.email, action: 'Cập nhật Hồ Sơ' });
 
-    res.json({ user: { id: user.id, email: user.email, name: user.name, baziInfo: user.baziInfo, gender: user.gender, phone: user.phone || "", role: user.role, credits: user.credits, status: user.status, isEmailVerified: user.isEmailVerified || false } });
+    res.json({ user: formatUserResponse(user) });
   } catch (err) {
     logger.error(`Cập nhật Hồ Sơ gặp lỗi hệ thống cho tài khoản ID [${userId}].`, err, { user: `id:${userId}`, action: 'Cập nhật Hồ Sơ' });
     res.status(500).send('Server error');

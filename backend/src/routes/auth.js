@@ -42,7 +42,9 @@ router.get('/me', auth, (req, res) => {
     credits: req.dbUser.credits,
     status: req.dbUser.status,
     isDeleted: req.dbUser.isDeleted,
-    isEmailVerified: req.dbUser.isEmailVerified || false
+    isEmailVerified: req.dbUser.isEmailVerified || false,
+    stats: req.dbUser.stats || {},
+    tags: req.dbUser.tags || []
   });
 });
 

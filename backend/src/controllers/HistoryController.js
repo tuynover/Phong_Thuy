@@ -43,6 +43,137 @@ const formatCanChiSpacing = (str) => {
     return str.replace(/(Giáp|Ất|Bính|Đinh|Mậu|Kỷ|Canh|Tân|Nhâm|Quý)(?=[A-Z])/g, '$1 ');
 };
 
+const buildFilterQuery = (system, queryParams, userId) => {
+    const { tag, isPublic, startDate, endDate, gender, search, name } = queryParams;
+    const query = { 
+        userId, 
+        isDeleted: { $ne: true }, 
+        status: { $ne: 'locked' } 
+    };
+
+    const andConditions = [];
+
+    if (tag && tag !== 'Tất cả' && tag !== 'all') {
+        if (tag === 'Chung') {
+            andConditions.push({
+                $or: [
+                    { tags: 'Chung' },
+                    { tags: { $exists: false } },
+                    { tags: null },
+                    { tags: { $size: 0 } }
+                ]
+            });
+        } else {
+            query.tags = tag;
+        }
+    }
+
+    if (isPublic !== undefined && isPublic !== '' && isPublic !== 'all') {
+        query.isPublic = (isPublic === 'true' || isPublic === true);
+    }
+
+    const dateField = system === 'iching' ? 'dateCast' : 'createdAt';
+    if (startDate || endDate) {
+        query[dateField] = {};
+        if (startDate) {
+            query[dateField].$gte = new Date(startDate);
+        }
+        if (endDate) {
+            const end = new Date(endDate);
+            end.setHours(23, 59, 59, 999);
+            query[dateField].$lte = end;
+        }
+    }
+
+    const searchTerm = (search || name || '').trim();
+    if (searchTerm) {
+        const regex = new RegExp(searchTerm, 'i');
+        if (system === 'iching') {
+            query.question = regex;
+        } else if (system === 'bazi' || system === 'ziwei') {
+            query['inputInfo.name'] = regex;
+        } else if (system === 'marriage') {
+            andConditions.push({
+                $or: [
+                    { 'inputInfo.male.name': regex },
+                    { 'inputInfo.female.name': regex }
+                ]
+            });
+        }
+    }
+
+    if (gender !== undefined && gender !== '' && gender !== 'all') {
+        const gNum = parseInt(gender);
+        if (system === 'bazi') {
+            query['inputInfo.gender'] = gNum;
+        } else if (system === 'ziwei') {
+            query['inputInfo.gender'] = { $in: [gNum === 1 ? 'Nam' : 'Nữ', gNum === 1 ? 'male' : 'female', gNum, String(gNum)] };
+        }
+    }
+
+    if (andConditions.length > 0) {
+        query.$and = andConditions;
+    }
+
+    return query;
+};
+
+const filterByBirthInfo = (records, { birthDay, birthMonth, birthYear, birthHour }, system) => {
+    if (!birthDay && !birthMonth && !birthYear && (birthHour === undefined || birthHour === null || birthHour === '')) {
+        return records;
+    }
+    const bd = birthDay ? parseInt(birthDay) : null;
+    const bm = birthMonth ? parseInt(birthMonth) : null;
+    const by = birthYear ? parseInt(birthYear) : null;
+    const bh = (birthHour !== undefined && birthHour !== null && birthHour !== '') ? parseInt(birthHour) : null;
+
+    return records.filter(record => {
+        if (system === 'iching') return true;
+        const info = record.inputInfo;
+        if (!info) return true;
+
+        const checkPerson = (pInfo) => {
+            if (!pInfo) return false;
+            let dateStr = pInfo.date || '';
+            let day = null, month = null, year = null;
+            if (dateStr.includes('/')) {
+                const parts = dateStr.split('/');
+                if (parts.length === 3) {
+                    day = parseInt(parts[0]);
+                    month = parseInt(parts[1]);
+                    year = parseInt(parts[2]);
+                }
+            } else if (dateStr.includes('-')) {
+                const parts = dateStr.split('-');
+                if (parts.length === 3) {
+                    year = parseInt(parts[0]);
+                    month = parseInt(parts[1]);
+                    day = parseInt(parts[2]);
+                }
+            }
+
+            if (bd !== null && day !== bd) return false;
+            if (bm !== null && month !== bm) return false;
+            if (by !== null && year !== by) return false;
+
+            if (bh !== null) {
+                if (system === 'ziwei') {
+                    if (pInfo.hour !== undefined && pInfo.hour !== null && pInfo.hour !== bh) return false;
+                } else if (pInfo.time) {
+                    const timeHour = parseInt(pInfo.time.split(':')[0]);
+                    if (!isNaN(timeHour) && timeHour !== bh) return false;
+                }
+            }
+            return true;
+        };
+
+        if (system === 'marriage') {
+            return checkPerson(info.male) || checkPerson(info.female);
+        }
+        return checkPerson(info);
+    });
+};
+
 class HistoryController {
     static async getHexagramRecord(req, res) {
         try {
@@ -125,43 +256,14 @@ class HistoryController {
             const userId = req.params.userId;
             if (!userId) return res.status(400).json({ error: 'User ID is required' });
             
-            const limit = parseInt(req.query.limit) || 50;
-            const startDate = req.query.startDate || '';
-            const endDate = req.query.endDate || '';
-            const cacheKey = `history:${userId}:hexagrams:${limit}:${startDate}:${endDate}`;
-            
-            // Check in-memory cache
-            const cachedData = MemoryCacheService.get(cacheKey);
-            if (cachedData) {
-                return res.json(cachedData);
-            }
-            
-            const query = { 
-                userId, 
-                isDeleted: { $ne: true }, 
-                status: { $ne: 'locked' } 
-            };
-
-            if (startDate || endDate) {
-                query.dateCast = {};
-                if (startDate) {
-                    query.dateCast.$gte = new Date(startDate);
-                }
-                if (endDate) {
-                    const end = new Date(endDate);
-                    end.setHours(23, 59, 59, 999);
-                    query.dateCast.$lte = end;
-                }
-            }
+            const limit = parseInt(req.query.limit) || 100;
+            const query = buildFilterQuery('iching', req.query, userId);
 
             const records = await IChingRecord.find(query)
                 .sort({ isPinned: -1, createdAt: -1 })
                 .select('-analysisSnapshot -aiInterpretation -ungKy -movingLines')
                 .limit(limit)
                 .lean();
-            
-            // Cache for 5 minutes
-            MemoryCacheService.set(cacheKey, records, 300000);
             
             return res.json(records);
         } catch (error) {
@@ -175,41 +277,17 @@ class HistoryController {
             const userId = req.params.userId;
             if (!userId) return res.status(400).json({ error: 'User ID is required' });
             
-            const limit = parseInt(req.query.limit) || 50;
-            const startDate = req.query.startDate || '';
-            const endDate = req.query.endDate || '';
-            const cacheKey = `history:${userId}:bazi:${limit}:${startDate}:${endDate}`;
-            
-            // Check in-memory cache
-            const cachedData = MemoryCacheService.get(cacheKey);
-            if (cachedData) {
-                return res.json(cachedData);
-            }
-            
-            const query = { 
-                userId, 
-                isDeleted: { $ne: true }, 
-                status: { $ne: 'locked' } 
-            };
+            const limit = parseInt(req.query.limit) || 100;
+            const query = buildFilterQuery('bazi', req.query, userId);
 
-            if (startDate || endDate) {
-                query.createdAt = {};
-                if (startDate) {
-                    query.createdAt.$gte = new Date(startDate);
-                }
-                if (endDate) {
-                    const end = new Date(endDate);
-                    end.setHours(23, 59, 59, 999);
-                    query.createdAt.$lte = end;
-                }
-            }
-
-            const records = await BaziRecord.find(query)
+            let records = await BaziRecord.find(query)
                 .sort({ isPinned: -1, createdAt: -1 })
                 .select('-analysisSnapshot -aiInterpretation -baziData')
                 .limit(limit)
                 .lean();
                 
+            records = filterByBirthInfo(records, req.query, 'bazi');
+
             const formattedRecords = records.map(record => {
                 if (record.tietKhiTimeline) {
                     record.tietKhiTimeline = formatCanChiSpacing(record.tietKhiTimeline);
@@ -227,9 +305,6 @@ class HistoryController {
                 }
                 return record;
             });
-                
-            // Cache for 5 minutes
-            MemoryCacheService.set(cacheKey, formattedRecords, 300000);
             
             return res.json(formattedRecords);
         } catch (error) {
@@ -243,44 +318,17 @@ class HistoryController {
             const userId = req.params.userId;
             if (!userId) return res.status(400).json({ error: 'User ID is required' });
             
-            const limit = parseInt(req.query.limit) || 50;
-            const startDate = req.query.startDate || '';
-            const endDate = req.query.endDate || '';
-            const cacheKey = `history:${userId}:ziwei:${limit}:${startDate}:${endDate}`;
-            
-            // Check in-memory cache
-            const cachedData = MemoryCacheService.get(cacheKey);
-            if (cachedData) {
-                return res.json(cachedData);
-            }
-            
-            const query = { 
-                userId, 
-                isDeleted: { $ne: true }, 
-                status: { $ne: 'locked' } 
-            };
+            const limit = parseInt(req.query.limit) || 100;
+            const query = buildFilterQuery('ziwei', req.query, userId);
 
-            if (startDate || endDate) {
-                query.createdAt = {};
-                if (startDate) {
-                    query.createdAt.$gte = new Date(startDate);
-                }
-                if (endDate) {
-                    const end = new Date(endDate);
-                    end.setHours(23, 59, 59, 999);
-                    query.createdAt.$lte = end;
-                }
-            }
-
-            const records = await ZiweiRecord.find(query)
+            let records = await ZiweiRecord.find(query)
                 .sort({ isPinned: -1, createdAt: -1 })
                 .select('-chartData -analysisSnapshot -aiInterpretation')
                 .limit(limit)
                 .lean();
                 
-            // Cache for 5 minutes
-            MemoryCacheService.set(cacheKey, records, 300000);
-            
+            records = filterByBirthInfo(records, req.query, 'ziwei');
+
             return res.json(records);
         } catch (error) {
             console.error('getZiweiHistory error:', error);
@@ -515,44 +563,76 @@ class HistoryController {
             const userId = req.params.userId;
             if (!userId) return res.status(400).json({ error: 'User ID is required' });
             
-            const limit = parseInt(req.query.limit) || 50;
-            const startDate = req.query.startDate || '';
-            const endDate = req.query.endDate || '';
-            const cacheKey = `history:${userId}:marriage:${limit}:${startDate}:${endDate}`;
-            
-            const cachedData = MemoryCacheService.get(cacheKey);
-            if (cachedData) {
-                return res.json(cachedData);
-            }
-            
-            const query = { 
-                userId, 
-                isDeleted: { $ne: true }, 
-                status: { $ne: 'locked' } 
-            };
+            const limit = parseInt(req.query.limit) || 100;
+            const query = buildFilterQuery('marriage', req.query, userId);
 
-            if (startDate || endDate) {
-                query.createdAt = {};
-                if (startDate) {
-                    query.createdAt.$gte = new Date(startDate);
-                }
-                if (endDate) {
-                    const end = new Date(endDate);
-                    end.setHours(23, 59, 59, 999);
-                    query.createdAt.$lte = end;
-                }
-            }
-
-            const records = await MarriageRecord.find(query)
+            let records = await MarriageRecord.find(query)
                 .sort({ isPinned: -1, createdAt: -1 })
                 .select('-maleBaziData -femaleBaziData -aiInterpretation')
                 .limit(limit)
                 .lean();
 
-            MemoryCacheService.set(cacheKey, records, 300); // cache for 5 mins
+            records = filterByBirthInfo(records, req.query, 'marriage');
             return res.json(records);
         } catch (error) {
             console.error(error);
+            return res.status(500).json({ error: 'Server error' });
+        }
+    }
+
+    static async getAllHistory(req, res) {
+        try {
+            const userId = req.params.userId;
+            if (!userId) return res.status(400).json({ error: 'User ID is required' });
+
+            const limit = parseInt(req.query.limit) || 100;
+
+            const [hexagrams, bazisRaw, ziweisRaw, marriagesRaw] = await Promise.all([
+                IChingRecord.find(buildFilterQuery('iching', req.query, userId))
+                    .sort({ isPinned: -1, createdAt: -1 })
+                    .select('-analysisSnapshot -aiInterpretation -ungKy -movingLines')
+                    .limit(limit)
+                    .lean(),
+                BaziRecord.find(buildFilterQuery('bazi', req.query, userId))
+                    .sort({ isPinned: -1, createdAt: -1 })
+                    .select('-analysisSnapshot -aiInterpretation -baziData')
+                    .limit(limit)
+                    .lean(),
+                ZiweiRecord.find(buildFilterQuery('ziwei', req.query, userId))
+                    .sort({ isPinned: -1, createdAt: -1 })
+                    .select('-chartData -analysisSnapshot -aiInterpretation')
+                    .limit(limit)
+                    .lean(),
+                MarriageRecord.find(buildFilterQuery('marriage', req.query, userId))
+                    .sort({ isPinned: -1, createdAt: -1 })
+                    .select('-maleBaziData -femaleBaziData -aiInterpretation')
+                    .limit(limit)
+                    .lean()
+            ]);
+
+            const bazis = filterByBirthInfo(bazisRaw, req.query, 'bazi').map(record => {
+                if (record.tietKhiTimeline) record.tietKhiTimeline = formatCanChiSpacing(record.tietKhiTimeline);
+                return record;
+            });
+
+            const ziweis = filterByBirthInfo(ziweisRaw, req.query, 'ziwei');
+            const marriages = filterByBirthInfo(marriagesRaw, req.query, 'marriage');
+
+            return res.json({
+                hexagrams,
+                bazis,
+                ziweis,
+                marriages,
+                counts: {
+                    hexagrams: hexagrams.length,
+                    bazis: bazis.length,
+                    ziweis: ziweis.length,
+                    marriages: marriages.length,
+                    total: hexagrams.length + bazis.length + ziweis.length + marriages.length
+                }
+            });
+        } catch (error) {
+            console.error('getAllHistory error:', error);
             return res.status(500).json({ error: 'Server error' });
         }
     }

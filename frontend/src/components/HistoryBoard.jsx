@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { getIChingHistory, getBaziHistory, getZiweiHistory, getMarriageHistory, rateIChing, rateBazi, rateZiwei, rateMarriage, deleteCalculation, getIChingRecord, getBaziRecord, getZiweiRecord, getMarriageRecord, pinCalculation, togglePublicCalculation } from '../services/api';
-import { Star, Clock, Calendar, Trash2, X, Info, Check, AlertTriangle, Loader2, ChevronLeft, ChevronRight, Pin, Eye, Share2 } from 'lucide-react';
+import { getIChingHistory, getBaziHistory, getZiweiHistory, getMarriageHistory, rateIChing, rateBazi, rateZiwei, rateMarriage, deleteCalculation, getIChingRecord, getBaziRecord, getZiweiRecord, getMarriageRecord, pinCalculation, togglePublicCalculation, getUserTags, updateRecordTags, createTag } from '../services/api';
+import { Star, Clock, Calendar, Trash2, X, Info, Check, AlertTriangle, Loader2, ChevronLeft, ChevronRight, Pin, Eye, Share2, Tag, Filter, Search, Globe, Plus, Folder, User, ChevronDown, ChevronUp } from 'lucide-react';
 import FloatingNotificationToast from './FloatingNotificationToast';
+import CustomSelect from './CustomSelect';
 
 const LUNAR_HOURS_MAP = [
   "Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"
@@ -260,6 +261,29 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
     const [endDate, setEndDate] = useState('');
     const [activeQuickFilter, setActiveQuickFilter] = useState('');
 
+    const [userTags, setUserTags] = useState([]);
+    const [selectedTagFilter, setSelectedTagFilter] = useState('all');
+    const [isPublicFilter, setIsPublicFilter] = useState('all');
+    const [genderFilter, setGenderFilter] = useState('all');
+    const [birthDayFilter, setBirthDayFilter] = useState('');
+    const [birthMonthFilter, setBirthMonthFilter] = useState('');
+    const [birthYearFilter, setBirthYearFilter] = useState('');
+    const [birthHourFilter, setBirthHourFilter] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [tagModalRecord, setTagModalRecord] = useState(null);
+    const [newTagName, setNewTagName] = useState('');
+    const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
+
+    const isFilterModified = Boolean(
+        startDate || endDate || activeQuickFilter ||
+        (selectedTagFilter && selectedTagFilter !== 'all') ||
+        (isPublicFilter && isPublicFilter !== 'all') ||
+        (genderFilter && genderFilter !== 'all') ||
+        birthDayFilter || birthMonthFilter || birthYearFilter ||
+        (birthHourFilter !== undefined && birthHourFilter !== '') ||
+        searchQuery
+    );
+
     const handleQuickFilter = (type) => {
         const end = new Date();
         const start = new Date();
@@ -269,24 +293,28 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
             setStartDate(todayStr);
             setEndDate(todayStr);
             setActiveQuickFilter('today');
+            handleApplyFilter({ startDate: todayStr, endDate: todayStr });
         } else if (type === 'yesterday') {
             start.setDate(end.getDate() - 1);
             const yesterdayStr = start.getFullYear() + '-' + String(start.getMonth() + 1).padStart(2, '0') + '-' + String(start.getDate()).padStart(2, '0');
             setStartDate(yesterdayStr);
             setEndDate(yesterdayStr);
             setActiveQuickFilter('yesterday');
+            handleApplyFilter({ startDate: yesterdayStr, endDate: yesterdayStr });
         } else if (type === '7days') {
             start.setDate(end.getDate() - 7);
             const startStr = start.getFullYear() + '-' + String(start.getMonth() + 1).padStart(2, '0') + '-' + String(start.getDate()).padStart(2, '0');
             setStartDate(startStr);
             setEndDate(todayStr);
             setActiveQuickFilter('7days');
+            handleApplyFilter({ startDate: startStr, endDate: todayStr });
         } else if (type === '30days') {
             start.setDate(end.getDate() - 30);
             const startStr = start.getFullYear() + '-' + String(start.getMonth() + 1).padStart(2, '0') + '-' + String(start.getDate()).padStart(2, '0');
             setStartDate(startStr);
             setEndDate(todayStr);
             setActiveQuickFilter('30days');
+            handleApplyFilter({ startDate: startStr, endDate: todayStr });
         }
         setCurrentPage(1);
     };
@@ -407,6 +435,84 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
         }
     };
 
+    const handleApplyFilter = (overrideParams = {}) => {
+        setCurrentPage(1);
+        const filters = {
+            startDate: overrideParams.startDate !== undefined ? overrideParams.startDate : startDate,
+            endDate: overrideParams.endDate !== undefined ? overrideParams.endDate : endDate,
+            tag: overrideParams.tag !== undefined ? overrideParams.tag : selectedTagFilter,
+            isPublic: overrideParams.isPublic !== undefined ? overrideParams.isPublic : isPublicFilter,
+            gender: overrideParams.gender !== undefined ? overrideParams.gender : genderFilter,
+            birthDay: overrideParams.birthDay !== undefined ? overrideParams.birthDay : birthDayFilter,
+            birthMonth: overrideParams.birthMonth !== undefined ? overrideParams.birthMonth : birthMonthFilter,
+            birthYear: overrideParams.birthYear !== undefined ? overrideParams.birthYear : birthYearFilter,
+            birthHour: overrideParams.birthHour !== undefined ? overrideParams.birthHour : birthHourFilter,
+            search: overrideParams.search !== undefined ? overrideParams.search : searchQuery
+        };
+        fetchData(filters);
+    };
+
+    useEffect(() => {
+        if (user) {
+            getUserTags().then(res => setUserTags(res.data || [])).catch(() => {});
+            handleApplyFilter();
+        }
+    }, [user]);
+
+    const resetAllFilters = () => {
+        setStartDate('');
+        setEndDate('');
+        setActiveQuickFilter('');
+        setSelectedTagFilter('all');
+        setIsPublicFilter('all');
+        setGenderFilter('all');
+        setBirthDayFilter('');
+        setBirthMonthFilter('');
+        setBirthYearFilter('');
+        setBirthHourFilter('');
+        setSearchQuery('');
+        setCurrentPage(1);
+        fetchData({});
+    };
+
+    const handleSaveRecordTags = async (recordType, recordId, selectedTagNames) => {
+        setActionLoading(true);
+        try {
+            await updateRecordTags(recordType, recordId, selectedTagNames);
+            const updateList = (list) => list.map(item => item._id === recordId ? { ...item, tags: selectedTagNames } : item);
+            if (recordType === 'iching') setHexagrams(updateList);
+            else if (recordType === 'bazi') setBazis(updateList);
+            else if (recordType === 'ziwei') setZiweis(updateList);
+            else if (recordType === 'marriage') setMarriages(updateList);
+            setToastMsg("Đã cập nhật thẻ thành công.");
+        } catch (err) {
+            setToastMsg(err.response?.data?.error || "Không thể cập nhật thẻ.");
+        } finally {
+            setActionLoading(false);
+            setTagModalRecord(null);
+        }
+    };
+
+    const handleCreateNewTagInModal = async () => {
+        if (!newTagName.trim()) return;
+        const cleanName = newTagName.trim();
+        setActionLoading(true);
+        try {
+            const res = await createTag(cleanName);
+            const createdTag = res.data;
+            setUserTags(prev => [...prev.filter(t => t.name !== createdTag.name), createdTag]);
+            const currentTags = tagModalRecord?.record?.tags || ['Chung'];
+            const newTags = [...new Set([...currentTags, createdTag.name])];
+            setTagModalRecord(prev => prev ? { ...prev, record: { ...prev.record, tags: newTags } } : null);
+            setNewTagName('');
+            setToastMsg(`Đã tạo thẻ "${createdTag.name}" và chọn cho lá số.`);
+        } catch (err) {
+            setToastMsg(err.response?.data?.error || "Không thể tạo thẻ mới.");
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
     const fetchData = async (filters = {}) => {
         setLoading(true);
         try {
@@ -418,7 +524,14 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
             const params = {};
             if (filters.startDate) params.startDate = filters.startDate;
             if (filters.endDate) params.endDate = filters.endDate;
-
+            if (filters.tag && filters.tag !== 'all') params.tag = filters.tag;
+            if (filters.isPublic && filters.isPublic !== 'all') params.isPublic = filters.isPublic;
+            if (filters.gender && filters.gender !== 'all') params.gender = filters.gender;
+            if (filters.birthDay) params.birthDay = filters.birthDay;
+            if (filters.birthMonth) params.birthMonth = filters.birthMonth;
+            if (filters.birthYear) params.birthYear = filters.birthYear;
+            if (filters.birthHour !== undefined && filters.birthHour !== '') params.birthHour = filters.birthHour;
+            if (filters.search) params.search = filters.search;
 
             const [hexRes, baziRes, ziweiRes, marriageRes] = await Promise.all([
                 getIChingHistory(userId, params),
@@ -430,15 +543,6 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
             setBazis(baziRes.data);
             setZiweis(ziweiRes.data);
             setMarriages(marriageRes.data);
-            if (onSaveCache && !filters.startDate && !filters.endDate) {
-                onSaveCache({
-                    hexagrams: hexRes.data,
-                    bazis: baziRes.data,
-                    tuvis: ziweiRes.data,
-                    marriages: marriageRes.data,
-                    promise: null
-                });
-            }
         } catch (error) {
             console.error("Error fetching history", error);
         }
@@ -692,135 +796,245 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                     onClick={() => setActiveTab('iching')}
                     className={`flex-1 sm:flex-none px-4 py-2 text-xs md:text-base rounded-full font-bold transition-all ${activeTab === 'iching' ? 'bg-amber-800 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
                 >
-                    Kinh Dịch ({hexagrams.length})
+                    Kinh Dịch ({user?.stats?.ichingCount !== undefined ? user.stats.ichingCount : hexagrams.length})
                 </button>
                 <button 
                     onClick={() => setActiveTab('bazi')}
                     className={`flex-1 sm:flex-none px-4 py-2 text-xs md:text-base rounded-full font-bold transition-all ${activeTab === 'bazi' ? 'bg-blue-800 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
                 >
-                    Bát Tự ({bazis.length})
+                    Bát Tự ({user?.stats?.baziCount !== undefined ? user.stats.baziCount : bazis.length})
                 </button>
                 <button 
                     onClick={() => setActiveTab('ziwei')}
                     className={`flex-1 sm:flex-none px-4 py-2 text-xs md:text-base rounded-full font-bold transition-all ${activeTab === 'ziwei' ? 'bg-purple-800 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
                 >
-                    Tử Vi ({ziweis.length})
+                    Tử Vi ({user?.stats?.ziweiCount !== undefined ? user.stats.ziweiCount : ziweis.length})
                 </button>
                 <button 
                     onClick={() => setActiveTab('marriage')}
                     className={`flex-1 sm:flex-none px-4 py-2 text-xs md:text-base rounded-full font-bold transition-all ${activeTab === 'marriage' ? 'bg-rose-800 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
                 >
-                    Hôn Nhân ({marriages.length})
+                    Hôn Nhân ({user?.stats?.marriageCount !== undefined ? user.stats.marriageCount : marriages.length})
                 </button>
             </div>
 
-            {/* Bộ lọc ngày lập */}
-            <div className={`mb-8 p-5 rounded-3xl border ${activeTheme.border} bg-gradient-to-br from-gray-50/90 to-white/95 shadow-sm backdrop-blur-md flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5 transition-all duration-500 hover:shadow-md`}>
-                {/* Tiêu đề bộ lọc */}
-                <div className="flex items-center gap-3.5 flex-shrink-0">
-                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 transition-colors duration-500 ${
-                        activeTab === 'iching' ? 'bg-amber-50 text-amber-800' : activeTab === 'bazi' ? 'bg-blue-50 text-blue-800' : activeTab === 'ziwei' ? 'bg-purple-50 text-purple-800' : 'bg-rose-50 text-rose-800'
-                    }`}>
-                        <Calendar size={24} className="animate-pulse" />
+            {/* Section Bộ Lọc Tìm Kiếm */}
+            <div className={`mb-8 p-5 sm:p-6 rounded-3xl border ${activeTheme.border} bg-gradient-to-br from-gray-50/90 to-white/95 shadow-sm backdrop-blur-md space-y-4 transition-all duration-500 hover:shadow-md`}>
+                {/* Header Bộ Lọc */}
+                <div className="flex items-center justify-between border-b border-gray-200/80 pb-3">
+                    <div className="flex items-center gap-2.5">
+                        <div className={`w-9 h-9 rounded-2xl flex items-center justify-center transition-colors duration-500 ${
+                            activeTab === 'iching' ? 'bg-amber-100 text-amber-800' : activeTab === 'bazi' ? 'bg-blue-100 text-blue-800' : activeTab === 'ziwei' ? 'bg-purple-100 text-purple-800' : 'bg-rose-100 text-rose-800'
+                        }`}>
+                            <Filter size={18} />
+                        </div>
+                        <h3 className="font-extrabold text-slate-850 text-base">Bộ Lọc Tìm Kiếm</h3>
                     </div>
-                    <span className="text-lg md:text-xl font-extrabold text-gray-800 leading-none">Bộ lọc thời gian</span>
+                    <div className="flex items-center gap-2">
+                        <button
+                            type="button"
+                            onClick={resetAllFilters}
+                            disabled={!isFilterModified}
+                            className="px-3.5 py-2 text-xs font-bold text-red-600 hover:bg-red-50 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white rounded-2xl transition-all border border-red-100 bg-white shadow-2xs cursor-pointer"
+                        >
+                            Đặt lại
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => handleApplyFilter()}
+                            disabled={!isFilterModified}
+                            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-indigo-600 text-white font-bold text-xs rounded-2xl shadow-md transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                        >
+                            <Search size={14} />
+                            <span>Tìm kiếm</span>
+                        </button>
+                    </div>
                 </div>
-                
-                {/* Khu vực controls xếp 2 hàng thẳng tắp bên phải */}
-                <div className="flex flex-col gap-3.5 items-stretch lg:items-end flex-grow w-full lg:w-auto">
-                    {/* Hàng 1: Các nút lọc nhanh */}
-                    <div className="flex items-center bg-gray-100/60 p-1.5 rounded-2xl gap-1 w-full lg:w-auto overflow-x-auto scrollbar-none flex-nowrap justify-between sm:justify-start">
+
+                {/* Hàng Lọc Cơ Bản Theo Thời Gian */}
+                <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+                    {/* Phím tắt lọc nhanh */}
+                    <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
+                        <span className="text-xs font-bold text-slate-500 shrink-0">Lập quẻ / lá số:</span>
                         <button
                             type="button"
                             onClick={() => handleQuickFilter('today')}
-                            className={`flex-shrink-0 flex-1 sm:flex-none px-4 py-1.5 text-xs font-bold rounded-xl transition-all duration-300 ${
-                                activeQuickFilter === 'today'
-                                    ? activeTab === 'iching' ? 'bg-amber-800 text-white shadow-sm scale-105' : activeTab === 'bazi' ? 'bg-blue-800 text-white shadow-sm scale-105' : activeTab === 'ziwei' ? 'bg-purple-800 text-white shadow-sm scale-105' : 'bg-rose-800 text-white shadow-sm scale-105'
-                                    : 'text-gray-500 hover:text-gray-800 hover:bg-white/40'
-                            }`}
+                            className={`px-3 py-1 text-xs font-bold rounded-xl transition-all shrink-0 cursor-pointer ${activeQuickFilter === 'today' ? 'bg-indigo-600 text-white shadow-xs' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
                         >
                             Hôm nay
                         </button>
                         <button
                             type="button"
                             onClick={() => handleQuickFilter('yesterday')}
-                            className={`flex-shrink-0 flex-1 sm:flex-none px-4 py-1.5 text-xs font-bold rounded-xl transition-all duration-300 ${
-                                activeQuickFilter === 'yesterday'
-                                    ? activeTab === 'iching' ? 'bg-amber-800 text-white shadow-sm scale-105' : activeTab === 'bazi' ? 'bg-blue-800 text-white shadow-sm scale-105' : activeTab === 'ziwei' ? 'bg-purple-800 text-white shadow-sm scale-105' : 'bg-rose-800 text-white shadow-sm scale-105'
-                                    : 'text-gray-500 hover:text-gray-800 hover:bg-white/40'
-                            }`}
+                            className={`px-3 py-1 text-xs font-bold rounded-xl transition-all shrink-0 cursor-pointer ${activeQuickFilter === 'yesterday' ? 'bg-indigo-600 text-white shadow-xs' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
                         >
                             Hôm qua
                         </button>
                         <button
                             type="button"
                             onClick={() => handleQuickFilter('7days')}
-                            className={`flex-shrink-0 flex-1 sm:flex-none px-4 py-1.5 text-xs font-bold rounded-xl transition-all duration-300 ${
-                                activeQuickFilter === '7days'
-                                    ? activeTab === 'iching' ? 'bg-amber-800 text-white shadow-sm scale-105' : activeTab === 'bazi' ? 'bg-blue-800 text-white shadow-sm scale-105' : activeTab === 'ziwei' ? 'bg-purple-800 text-white shadow-sm scale-105' : 'bg-rose-800 text-white shadow-sm scale-105'
-                                    : 'text-gray-500 hover:text-gray-800 hover:bg-white/40'
-                            }`}
+                            className={`px-3 py-1 text-xs font-bold rounded-xl transition-all shrink-0 cursor-pointer ${activeQuickFilter === '7days' ? 'bg-indigo-600 text-white shadow-xs' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
                         >
                             7 ngày qua
                         </button>
                         <button
                             type="button"
                             onClick={() => handleQuickFilter('30days')}
-                            className={`flex-shrink-0 flex-1 sm:flex-none px-4 py-1.5 text-xs font-bold rounded-xl transition-all duration-300 ${
-                                activeQuickFilter === '30days'
-                                    ? activeTab === 'iching' ? 'bg-amber-800 text-white shadow-sm scale-105' : activeTab === 'bazi' ? 'bg-blue-800 text-white shadow-sm scale-105' : activeTab === 'ziwei' ? 'bg-purple-800 text-white shadow-sm scale-105' : 'bg-rose-800 text-white shadow-sm scale-105'
-                                    : 'text-gray-500 hover:text-gray-800 hover:bg-white/40'
-                            }`}
+                            className={`px-3 py-1 text-xs font-bold rounded-xl transition-all shrink-0 cursor-pointer ${activeQuickFilter === '30days' ? 'bg-indigo-600 text-white shadow-xs' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
                         >
                             30 ngày qua
                         </button>
                     </div>
 
-                    {/* Hàng 2: Bộ lịch chọn thủ công và nút đặt lại */}
-                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
-                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-grow sm:flex-grow-0">
-                            <CustomDatePicker
-                                value={startDate}
-                                onChange={(val) => {
-                                    setStartDate(val);
-                                    setActiveQuickFilter('');
-                                    setCurrentPage(1);
-                                }}
-                                label="Từ:"
-                                activeTheme={activeTheme}
-                                activeTab={activeTab}
-                                align="left"
-                                maxDate={endDate}
-                            />
-                            <CustomDatePicker
-                                value={endDate}
-                                onChange={(val) => {
-                                    setEndDate(val);
-                                    setActiveQuickFilter('');
-                                    setCurrentPage(1);
-                                }}
-                                label="Đến:"
-                                activeTheme={activeTheme}
-                                activeTab={activeTab}
-                                align="right"
-                                minDate={startDate}
-                            />
-                        </div>
-                        {(startDate || endDate) && (
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setStartDate('');
-                                    setEndDate('');
-                                    setActiveQuickFilter('');
-                                    setCurrentPage(1);
-                                }}
-                                className="px-4 py-2.5 text-xs font-bold text-red-500 hover:text-red-750 hover:bg-red-50/80 rounded-2xl transition-all border border-red-100 bg-white shadow-sm hover:scale-105 active:scale-95 flex items-center justify-center flex-shrink-0"
-                            >
-                                Đặt lại
-                            </button>
-                        )}
+                    {/* Chọn ngày thủ công */}
+                    <div className="flex items-center gap-2 shrink-0">
+                        <CustomDatePicker
+                            value={startDate}
+                            onChange={(val) => {
+                                setStartDate(val);
+                                setActiveQuickFilter('');
+                            }}
+                            label="Từ:"
+                            activeTheme={activeTheme}
+                            activeTab={activeTab}
+                            align="left"
+                            maxDate={endDate}
+                        />
+                        <CustomDatePicker
+                            value={endDate}
+                            onChange={(val) => {
+                                setEndDate(val);
+                                setActiveQuickFilter('');
+                            }}
+                            label="Đến:"
+                            activeTheme={activeTheme}
+                            activeTab={activeTab}
+                            align="right"
+                            minDate={startDate}
+                        />
                     </div>
+                </div>
+
+                {/* Phần Lọc Nâng Cao (Mở rộng / Thu gọn) */}
+                {isAdvancedOpen && (
+                    <div className="pt-3 border-t border-slate-200/60 animate-in fade-in slide-in-from-top-2 duration-200">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                            {/* Search */}
+                            <div className="relative">
+                                <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                                <input
+                                    type="text"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    onKeyDown={(e) => { if (e.key === 'Enter') handleApplyFilter(); }}
+                                    placeholder="Tìm theo tên / câu hỏi..."
+                                    className="w-full pl-9 pr-3.5 py-2.5 border border-slate-200 rounded-2xl bg-white font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-xs shadow-2xs"
+                                />
+                            </div>
+
+                            {/* Tag Filter */}
+                            <div>
+                                <CustomSelect
+                                    value={selectedTagFilter}
+                                    onChange={(val) => setSelectedTagFilter(val)}
+                                    icon={Folder}
+                                    options={[
+                                        { value: 'all', label: 'Thư mục: Tất cả' },
+                                        ...userTags.map(t => ({ value: t.name, label: `${t.name} (${t.counts?.total || 0})` }))
+                                    ]}
+                                />
+                            </div>
+
+                            {/* Public Status */}
+                            <div>
+                                <CustomSelect
+                                    value={isPublicFilter}
+                                    onChange={(val) => setIsPublicFilter(val)}
+                                    icon={Globe}
+                                    options={[
+                                        { value: 'all', label: 'Chia sẻ: Tất cả' },
+                                        { value: 'true', label: 'Đã chia sẻ (Public)' },
+                                        { value: 'false', label: 'Riêng tư (Private)' }
+                                    ]}
+                                />
+                            </div>
+
+                            {/* Gender */}
+                            <div>
+                                <CustomSelect
+                                    value={genderFilter}
+                                    onChange={(val) => setGenderFilter(val)}
+                                    icon={User}
+                                    options={[
+                                        { value: 'all', label: 'Giới tính: Tất cả' },
+                                        { value: '1', label: 'Nam' },
+                                        { value: '0', label: 'Nữ' }
+                                    ]}
+                                />
+                            </div>
+
+                            {/* Birth Day */}
+                            <div>
+                                <CustomSelect
+                                    value={birthDayFilter}
+                                    onChange={(val) => setBirthDayFilter(val)}
+                                    placeholder="Ngày sinh (1 - 31)"
+                                    editable={true}
+                                    onKeyDown={() => handleApplyFilter()}
+                                    options={Array.from({ length: 31 }, (_, i) => String(i + 1))}
+                                />
+                            </div>
+
+                            {/* Birth Month */}
+                            <div>
+                                <CustomSelect
+                                    value={birthMonthFilter}
+                                    onChange={(val) => setBirthMonthFilter(val)}
+                                    placeholder="Tháng sinh (1 - 12)"
+                                    editable={true}
+                                    onKeyDown={() => handleApplyFilter()}
+                                    options={Array.from({ length: 12 }, (_, i) => String(i + 1))}
+                                />
+                            </div>
+
+                            {/* Birth Year */}
+                            <div>
+                                <CustomSelect
+                                    value={birthYearFilter}
+                                    onChange={(val) => setBirthYearFilter(val)}
+                                    placeholder="Năm sinh (VD: 1995)"
+                                    editable={true}
+                                    onKeyDown={() => handleApplyFilter()}
+                                    options={Array.from({ length: 90 }, (_, i) => String(2026 - i))}
+                                />
+                            </div>
+
+                            {/* Birth Hour */}
+                            <div>
+                                <CustomSelect
+                                    value={birthHourFilter}
+                                    onChange={(val) => setBirthHourFilter(val)}
+                                    placeholder="Giờ sinh (0 - 23)"
+                                    editable={true}
+                                    onKeyDown={() => handleApplyFilter()}
+                                    options={Array.from({ length: 24 }, (_, i) => String(i))}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Nút mũi tên mở rộng / thu gọn lọc nâng cao */}
+                <div className="flex justify-center pt-1 border-t border-slate-200/50">
+                    <button
+                        type="button"
+                        onClick={() => setIsAdvancedOpen(!isAdvancedOpen)}
+                        className="px-4 py-1 text-xs font-bold text-indigo-700 hover:text-indigo-900 hover:bg-indigo-50 rounded-full transition-all flex items-center gap-1 cursor-pointer"
+                        title={isAdvancedOpen ? "Thu gọn lọc nâng cao" : "Mở rộng lọc nâng cao"}
+                    >
+                        <span>{isAdvancedOpen ? 'Thu gọn lọc nâng cao' : 'Lọc nâng cao'}</span>
+                        <ChevronDown size={16} className={`transition-transform duration-300 ${isAdvancedOpen ? 'rotate-180' : ''}`} />
+                    </button>
                 </div>
             </div>
 
@@ -848,6 +1062,18 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                                             Đã ghim
                                         </span>
                                     )}
+                                    <button
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setTagModalRecord({ type: 'iching', record });
+                                        }}
+                                        className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-amber-100/70 text-amber-900 hover:bg-amber-200/80 border border-amber-300/60 transition-all shadow-2xs cursor-pointer"
+                                        title="Chọn thẻ (thư mục) cho quẻ này"
+                                    >
+                                        <Tag size={10} className="text-amber-700 shrink-0" />
+                                        <span>{(record.tags && record.tags.length > 0) ? record.tags.join(', ') : 'Chung'}</span>
+                                    </button>
                                 </div>
                             </div>
                             <div className="flex items-center gap-2 self-end sm:self-start shrink-0" onClick={(e) => e.stopPropagation()}>
@@ -879,6 +1105,13 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                                     title={record.isPinned ? "Bỏ ghim" : "Ghim lên đầu"}
                                 >
                                     <Pin size={15} className={record.isPinned ? 'fill-current' : ''} />
+                                </button>
+                                <button 
+                                    onClick={() => setTagModalRecord({ type: 'iching', record })} 
+                                    className="p-1.5 rounded-xl hover:bg-amber-50 text-amber-700 hover:text-amber-850 transition-colors cursor-pointer"
+                                    title="Chọn thẻ (thư mục)"
+                                >
+                                    <Tag size={15} />
                                 </button>
                                 <button 
                                     onClick={() => handleViewHexagramDetail(record)} 
@@ -939,9 +1172,12 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-3">
                               <div className="space-y-1.5 flex-1 min-w-0">
                                   <h3 className="font-bold text-base sm:text-lg text-blue-905 break-words">
-                                      {record.inputInfo?.name && !record.inputInfo.name.startsWith('Bát Tự -') && !record.inputInfo.name.startsWith('Tử Vi -') 
-                                          ? record.inputInfo.name 
-                                          : 'Lá số Bát Tự'} : {record.inputInfo.date} {record.inputInfo.time} ({record.inputInfo.gender === 1 ? 'Nam' : 'Nữ'})
+                                      {(() => {
+                                          const name = record.inputInfo?.name?.trim();
+                                          const hasCustomName = name && !name.startsWith('Bát Tự -') && !name.startsWith('Tử Vi -') && name.toLowerCase() !== 'bát tự' && name.toLowerCase() !== 'tử vi';
+                                          const dateInfo = `${record.inputInfo?.date || ''} ${record.inputInfo?.time || ''} (${record.inputInfo?.gender === 1 || record.inputInfo?.gender === 'Nam' ? 'Nam' : 'Nữ'})`.trim();
+                                          return hasCustomName ? `${name} : ${dateInfo}` : dateInfo;
+                                      })()}
                                   </h3>
                                   <div className="flex flex-wrap items-center gap-2 mt-1">
                                       <span className="text-[10px] sm:text-xs text-slate-400 flex items-center gap-1">
@@ -953,6 +1189,18 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                                               Đã ghim
                                           </span>
                                       )}
+                                      <button
+                                          type="button"
+                                          onClick={(e) => {
+                                              e.stopPropagation();
+                                              setTagModalRecord({ type: 'bazi', record });
+                                          }}
+                                          className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-blue-100/70 text-blue-900 hover:bg-blue-200/80 border border-blue-300/60 transition-all shadow-2xs cursor-pointer"
+                                          title="Chọn thẻ (thư mục) cho lá số này"
+                                      >
+                                          <Tag size={10} className="text-blue-700 shrink-0" />
+                                          <span>{(record.tags && record.tags.length > 0) ? record.tags.join(', ') : 'Chung'}</span>
+                                      </button>
                                   </div>
                               </div>
                               <div className="flex items-center gap-2 self-end sm:self-start shrink-0" onClick={(e) => e.stopPropagation()}>
@@ -984,6 +1232,13 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                                       title={record.isPinned ? "Bỏ ghim" : "Ghim lên đầu"}
                                   >
                                       <Pin size={15} className={record.isPinned ? 'fill-current' : ''} />
+                                  </button>
+                                  <button 
+                                      onClick={() => setTagModalRecord({ type: 'bazi', record })} 
+                                      className="p-1.5 rounded-xl hover:bg-blue-50 text-blue-800 hover:text-blue-900 transition-colors cursor-pointer"
+                                      title="Chọn thẻ (thư mục)"
+                                  >
+                                      <Tag size={15} />
                                   </button>
                                   <button 
                                       onClick={() => handleViewBaziDetail(record)} 
@@ -1044,9 +1299,12 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-3">
                               <div className="space-y-1.5 flex-1 min-w-0">
                                   <h3 className="font-bold text-base sm:text-lg text-purple-900 break-words">
-                                      {record.inputInfo?.name && !record.inputInfo.name.startsWith('Bát Tự -') && !record.inputInfo.name.startsWith('Tử Vi -') 
-                                          ? record.inputInfo.name 
-                                          : 'Lá số Tử Vi'} : {record.inputInfo?.date || ''} ({record.inputInfo?.gender || ''} Mệnh)
+                                      {(() => {
+                                          const name = record.inputInfo?.name?.trim();
+                                          const hasCustomName = name && !name.startsWith('Bát Tự -') && !name.startsWith('Tử Vi -') && name.toLowerCase() !== 'bát tự' && name.toLowerCase() !== 'tử vi';
+                                          const dateInfo = `${record.inputInfo?.date || ''} (${record.inputInfo?.gender || ''} Mệnh)`.trim();
+                                          return hasCustomName ? `${name} : ${dateInfo}` : dateInfo;
+                                      })()}
                                   </h3>
                                   <div className="flex flex-wrap items-center gap-2 mt-1">
                                       <span className="text-[10px] sm:text-xs text-slate-400 flex items-center gap-1">
@@ -1089,6 +1347,13 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                                       title={record.isPinned ? "Bỏ ghim" : "Ghim lên đầu"}
                                   >
                                       <Pin size={15} className={record.isPinned ? 'fill-current' : ''} />
+                                  </button>
+                                  <button 
+                                      onClick={() => setTagModalRecord({ type: 'ziwei', record })} 
+                                      className="p-1.5 rounded-xl hover:bg-purple-50 text-purple-800 hover:text-purple-900 transition-colors cursor-pointer"
+                                      title="Chọn thẻ (thư mục)"
+                                  >
+                                      <Tag size={15} />
                                   </button>
                                   <button 
                                       onClick={() => onViewZiwei(record)} 
@@ -1159,6 +1424,18 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                                               Đã ghim
                                           </span>
                                       )}
+                                      <button
+                                          type="button"
+                                          onClick={(e) => {
+                                              e.stopPropagation();
+                                              setTagModalRecord({ type: 'marriage', record });
+                                          }}
+                                          className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-rose-100/70 text-rose-900 hover:bg-rose-200/80 border border-rose-300/60 transition-all shadow-2xs cursor-pointer"
+                                          title="Chọn thẻ (thư mục) cho lá số này"
+                                      >
+                                          <Tag size={10} className="text-rose-700 shrink-0" />
+                                          <span>{(record.tags && record.tags.length > 0) ? record.tags.join(', ') : 'Chung'}</span>
+                                      </button>
                                   </div>
                               </div>
                               <div className="flex items-center gap-2 self-end sm:self-start shrink-0" onClick={(e) => e.stopPropagation()}>
@@ -1190,6 +1467,13 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                                       title={record.isPinned ? "Bỏ ghim" : "Ghim lên đầu"}
                                   >
                                       <Pin size={15} className={record.isPinned ? 'fill-current' : ''} />
+                                  </button>
+                                  <button 
+                                      onClick={() => setTagModalRecord({ type: 'marriage', record })} 
+                                      className="p-1.5 rounded-xl hover:bg-rose-50 text-rose-800 hover:text-rose-900 transition-colors cursor-pointer"
+                                      title="Chọn thẻ (thư mục)"
+                                  >
+                                      <Tag size={15} />
                                   </button>
                                   <button 
                                       onClick={() => handleViewMarriageDetail(record)} 
@@ -1359,6 +1643,86 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                                     Đóng
                                 </button>
                             )}
+                        </div>
+                    </div>
+                </div>
+            )}
+            {tagModalRecord && (
+                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl border border-slate-100 space-y-4">
+                        <div className="flex items-center justify-between">
+                            <h3 className="font-bold text-base text-slate-800 flex items-center gap-2">
+                                <Tag size={18} className="text-indigo-600" />
+                                Gắn Thư Mục / Tag Cho Lá Số
+                            </h3>
+                            <button type="button" onClick={() => setTagModalRecord(null)} className="text-slate-400 hover:text-slate-700">
+                                <X size={18} />
+                            </button>
+                        </div>
+                        <p className="text-xs text-slate-500 font-medium">Chọn một hoặc nhiều thư mục để phân loại lá số này (1 lá số thuộc nhiều thư mục):</p>
+                        <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                            {userTags.map(t => {
+                                const isChecked = (tagModalRecord.record.tags || ['Chung']).includes(t.name);
+                                return (
+                                    <label key={t._id} className="flex items-center justify-between p-3 rounded-2xl border border-slate-200 hover:bg-indigo-50/50 transition-colors cursor-pointer">
+                                        <span className="text-xs font-bold text-slate-700">{t.name}</span>
+                                        <input
+                                            type="checkbox"
+                                            checked={isChecked}
+                                            onChange={(e) => {
+                                                const currentTags = tagModalRecord.record.tags || ['Chung'];
+                                                const newTags = e.target.checked
+                                                    ? [...new Set([...currentTags, t.name])]
+                                                    : currentTags.filter(item => item !== t.name);
+                                                setTagModalRecord({ ...tagModalRecord, record: { ...tagModalRecord.record, tags: newTags } });
+                                            }}
+                                            className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500"
+                                        />
+                                    </label>
+                                );
+                            })}
+                        </div>
+                        <div className="pt-2 border-t border-slate-100 flex items-center gap-2">
+                            <input
+                                type="text"
+                                placeholder="Tạo thẻ mới (vd: Gia Đình, Khách Hàng...)"
+                                value={newTagName}
+                                onChange={(e) => setNewTagName(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        handleCreateNewTagInModal();
+                                    }
+                                }}
+                                className="flex-1 text-xs px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-400 font-bold"
+                            />
+                            <button
+                                type="button"
+                                onClick={handleCreateNewTagInModal}
+                                disabled={!newTagName.trim() || actionLoading}
+                                className="px-3.5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs rounded-xl disabled:opacity-50 transition-colors cursor-pointer flex items-center gap-1"
+                            >
+                                <Plus size={13} />
+                                <span>Thêm</span>
+                            </button>
+                        </div>
+                        <div className="flex justify-end gap-2 pt-2">
+                            <button
+                                type="button"
+                                onClick={() => setTagModalRecord(null)}
+                                className="px-4 py-2.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer"
+                            >
+                                Hủy
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => handleSaveRecordTags(tagModalRecord.type, tagModalRecord.record._id, tagModalRecord.record.tags || ['Chung'])}
+                                disabled={actionLoading}
+                                className="px-5 py-2.5 rounded-xl text-xs font-bold bg-indigo-600 text-white hover:bg-indigo-700 flex items-center gap-1.5 shadow-xs cursor-pointer"
+                            >
+                                {actionLoading ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+                                <span>Lưu Thay Đổi</span>
+                            </button>
                         </div>
                     </div>
                 </div>

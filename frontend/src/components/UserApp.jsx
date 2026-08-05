@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
-import CoinToss from './CoinToss';
+import IChingInput from './IChingInput';
 import ProfileBoard from './ProfileBoard';
-import ManualInput from './ManualInput';
-import MaiHoaInput from './MaiHoaInput';
 import IChingBoard from './IChingBoard';
 import BaziInput from './BaziInput';
 import AuthModal from './AuthModal';
@@ -24,10 +22,11 @@ import {
   getMarriageRecord,
   updateBaziInfo
 } from '../services/api';
-import { UserCircle, LogOut, CalendarDays, Shield, Menu, X, History, Compass, Activity, BarChart3, Heart, Calendar, HelpCircle, ArrowUp, ArrowDown, BookOpen, Home, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
+import { UserCircle, LogOut, CalendarDays, Shield, Menu, X, History, Compass, Activity, BarChart3, Heart, Calendar, HelpCircle, ArrowUp, ArrowDown, BookOpen, Home, ChevronLeft, ChevronRight, Sparkles, Folder } from 'lucide-react';
 import { Lunar } from 'lunar-javascript';
 import MarriageInput from './MarriageInput';
 import HistoryBoard from './HistoryBoard';
+import MyFoldersModal from './MyFoldersModal';
 import HomeBoard from './HomeBoard';
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
@@ -344,6 +343,7 @@ export default function UserApp({ onSwitchToAdmin }) {
   const [currentRecordId, setCurrentRecordId] = useState(null);
   const [guestBaziId, setGuestBaziId] = useState(null);
   const [isUpdateBaziOpen, setIsUpdateBaziOpen] = useState(false);
+  const [isMyFoldersOpen, setIsMyFoldersOpen] = useState(false);
   const [isZiweiResultLoaded, setIsZiweiResultLoaded] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
 
@@ -516,29 +516,69 @@ export default function UserApp({ onSwitchToAdmin }) {
     setAppMode('iching');
   };
 
-  const handleViewHistoricalBazi = (record) => {
+  const handleViewHexagramDetail = handleViewHistoricalHexagram;
+
+  const handleViewHistoricalBazi = async (record) => {
+    if (!record) return;
     const id = record._id || record.id;
+    let target = record;
+    if (!target.baziData && !target.analysisSnapshot && !target.canChi && !target.fiveElements) {
+      try {
+        const res = await getBaziRecord(id);
+        if (res.data) target = res.data;
+      } catch (err) {
+        console.error("Lỗi khi tải lá số Bát Tự chi tiết:", err);
+      }
+    }
+    const baziObj = target.baziData || target.analysisSnapshot || target.result || target;
     setBaziResult({
-      ...record.baziData,
+      ...baziObj,
       _id: id,
       recordId: id,
-      gender: record.inputInfo?.gender,
-      name: record.inputInfo?.name,
-      inputInfo: record.inputInfo,
-      aiInterpretation: record.aiInterpretation,
-      rating: record.rating,
-      feedback: record.feedback
+      userId: target.userId,
+      isPublic: target.isPublic,
+      gender: target.inputInfo?.gender ?? baziObj.gender,
+      name: target.inputInfo?.name ?? baziObj.name,
+      inputInfo: target.inputInfo || baziObj.inputInfo,
+      aiInterpretation: target.aiInterpretation || baziObj.aiInterpretation,
+      rating: target.rating ?? baziObj.rating,
+      feedback: target.feedback ?? baziObj.feedback
     });
     setAppMode('bazi');
   };
 
   const handleViewHistoricalZiwei = (record) => {
+    if (!record) return;
     setHistoricalZiweiId(record._id || record.id);
     setAppMode('ziwei');
   };
 
-  const handleViewHistoricalMarriage = (record) => {
-    setMarriageResult(record);
+  const handleViewHistoricalMarriage = async (record) => {
+    if (!record) return;
+    const id = record._id || record.id;
+    let target = record;
+    if (!target.maleBaziData || !target.femaleBaziData || !target.maleBaziData.canChi) {
+      try {
+        const res = await getMarriageRecord(id);
+        if (res.data) target = res.data;
+      } catch (err) {
+        console.error("Lỗi khi tải chi tiết Hôn Nhân:", err);
+      }
+    }
+    const marriageObj = target.marriageData || target.analysisSnapshot || target.result || target;
+    setMarriageResult({
+      ...marriageObj,
+      _id: id,
+      recordId: id,
+      userId: target.userId,
+      isPublic: target.isPublic,
+      maleBaziData: target.maleBaziData || marriageObj.maleBaziData || {},
+      femaleBaziData: target.femaleBaziData || marriageObj.femaleBaziData || {},
+      inputInfo: target.inputInfo || marriageObj.inputInfo,
+      aiInterpretation: target.aiInterpretation || marriageObj.aiInterpretation,
+      rating: target.rating ?? marriageObj.rating,
+      feedback: target.feedback ?? marriageObj.feedback
+    });
     setAppMode('marriage');
   };
 
@@ -782,6 +822,16 @@ export default function UserApp({ onSwitchToAdmin }) {
                           <UserCircle size={15} className="text-indigo-600" />
                           Hồ sơ cá nhân
                         </button>
+                        <button 
+                          onClick={() => {
+                            setIsMyFoldersOpen(true);
+                            setIsUserMenuOpen(false);
+                          }}
+                          className="w-full text-left px-4 py-2 text-xs sm:text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-950 font-bold transition-colors flex items-center gap-2 border-t border-gray-100"
+                        >
+                          <Folder size={15} className="text-indigo-600" />
+                          Lá số của tôi
+                        </button>
                         {(user?.role === 'admin' || user?.role === 'co-admin') && (
                           <button 
                             onClick={() => {
@@ -994,6 +1044,13 @@ export default function UserApp({ onSwitchToAdmin }) {
                           >
                             Hồ sơ cá nhân
                           </button>
+                          <button 
+                            onClick={() => { setIsMyFoldersOpen(true); setIsMobileMenuOpen(false); }}
+                            className="w-full py-2.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-center font-bold text-xs text-indigo-800 transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                          >
+                            <Folder size={14} />
+                            Lá số của tôi
+                          </button>
                           {(user?.role === 'admin' || user?.role === 'co-admin') && (
                             <button 
                               onClick={() => { onSwitchToAdmin(); setIsMobileMenuOpen(false); }}
@@ -1194,59 +1251,13 @@ export default function UserApp({ onSwitchToAdmin }) {
 
         {/* SYSTEM 1: I CHING */}
         <div className={`${appMode === 'iching' ? 'block' : 'hidden'}`}>
-          {!result && !loading && (
-            <div id="iching-input-header" className="max-w-xl mx-auto mb-10 bg-white p-6 rounded-2xl shadow-sm border border-amber-100">
-              <label className="block text-amber-900 font-bold mb-3 text-lg text-center">Sự việc cần hỏi (Ý niệm)</label>
-              <textarea
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                placeholder='Ví dụ: "Xem sức khỏe và công việc sắp tới có thuận lợi hay không?"'
-                className="w-full px-4 py-3 border-2 border-amber-50 rounded-xl focus:border-amber-300 focus:ring-0 transition-colors resize-none text-gray-700 bg-amber-50/30 text-sm sm:text-base focus:outline-none"
-                rows="2"
-              ></textarea>
-              <p className="text-xs sm:text-sm text-gray-400 text-center mt-2 italic">Hãy tập trung ý niệm vào câu hỏi trước khi gieo quẻ.</p>
-            </div>
-          )}
-
           {!result && (
-            <div className="max-w-xl mx-auto bg-white p-5 sm:p-8 rounded-3xl border border-amber-100 shadow-lg relative z-10 space-y-6">
-              <div className="flex bg-slate-100/80 p-0.5 sm:p-1 rounded-2xl border border-slate-200/40 w-full">
-                <button
-                  onClick={() => setMode('coin')}
-                  disabled={loading}
-                  className={`flex-1 py-2.5 sm:py-3.5 px-0.5 sm:px-3 rounded-xl font-bold text-[10px] min-[360px]:text-[11px] min-[400px]:text-xs sm:text-sm transition-all whitespace-nowrap text-center ${mode === 'coin' ? 'bg-white text-amber-900 shadow-md' : 'text-slate-500 hover:text-slate-800'}`}
-                >
-                  Gieo Đồng Xu
-                </button>
-                <button
-                  onClick={() => setMode('maihoa')}
-                  disabled={loading}
-                  className={`flex-1 py-2.5 sm:py-3.5 px-0.5 sm:px-3 rounded-xl font-bold text-[10px] min-[360px]:text-[11px] min-[400px]:text-xs sm:text-sm transition-all whitespace-nowrap text-center ${mode === 'maihoa' ? 'bg-white text-amber-900 shadow-md' : 'text-slate-500 hover:text-slate-800'}`}
-                >
-                  Mai Hoa Dịch
-                </button>
-                <button
-                  onClick={() => setMode('manual')}
-                  disabled={loading}
-                  className={`flex-1 py-2.5 sm:py-3.5 px-0.5 sm:px-3 rounded-xl font-bold text-[10px] min-[360px]:text-[11px] min-[400px]:text-xs sm:text-sm transition-all whitespace-nowrap text-center ${mode === 'manual' ? 'bg-white text-slate-900 shadow-md' : 'text-slate-500 hover:text-slate-800'}`}
-                >
-                  Nhập Thủ Công
-                </button>
-              </div>
-
-              {loading ? (
-                <div className="text-center py-12">
-                  <div className="w-12 h-12 border-4 border-amber-200 border-t-amber-600 rounded-full animate-spin mx-auto mb-4"></div>
-                  <div className="text-base font-bold text-amber-800 animate-pulse">Đang kết nối tâm linh...</div>
-                </div>
-              ) : (
-                <div className="transition-all duration-300">
-                  {mode === 'coin' && <CoinToss onComplete={handleDivinationComplete} />}
-                  {mode === 'maihoa' && <MaiHoaInput onComplete={handleDivinationComplete} />}
-                  {mode === 'manual' && <ManualInput onComplete={handleDivinationComplete} />}
-                </div>
-              )}
-            </div>
+            <IChingInput 
+              question={question}
+              setQuestion={setQuestion}
+              onComplete={handleDivinationComplete}
+              loading={loading}
+            />
           )}
 
           {!result && !loading && (
@@ -1559,6 +1570,14 @@ export default function UserApp({ onSwitchToAdmin }) {
           const formattedTime = `${String(hour).padStart(2,'0')}:${String(minute).padStart(2,'0')}`;
            handleBaziComplete(formattedDate, formattedTime, updatedUser.gender !== undefined ? updatedUser.gender : 1, updatedUser.name);
         }} 
+      />
+      <MyFoldersModal
+        isOpen={isMyFoldersOpen}
+        onClose={() => setIsMyFoldersOpen(false)}
+        onViewHexagram={handleViewHistoricalHexagram}
+        onViewBazi={handleViewHistoricalBazi}
+        onViewZiwei={handleViewHistoricalZiwei}
+        onViewMarriage={handleViewHistoricalMarriage}
       />
 
       {shouldShowScrollButtons && (

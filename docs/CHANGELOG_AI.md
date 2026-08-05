@@ -3,6 +3,62 @@
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
 
+## 📅 Phiên bản: Gom Nhóm Lá Số (Tags/Folders), Lọc Nâng Cao Lịch Sử, Phân Hệ "Lá số của tôi" & Coverage Unit Tests (05/08/2026)
+
+### 🏷️ Backend Tagging & Advanced History Filtering System ([TagController.js](file:///t:/Phongthuy/backend/src/controllers/TagController.js), [HistoryController.js](file:///t:/Phongthuy/backend/src/controllers/HistoryController.js), [tag.js](file:///t:/Phongthuy/backend/src/routes/tag.js))
+- **Gom Nhóm Lá Số Dạng Thẻ / Folder (Zalo Style)**:
+  - Cập nhật schema `User` bổ sung mảng `tags: [{ _id, name, isDefault, createdAt }]`.
+  - Cập nhật 4 schema kỷ lục (`IChingRecord`, `BaziRecord`, `ZiweiRecord`, `MarriageRecord`) bổ sung trường `tags: { type: [String], default: ['Chung'] }` và compound index `{ userId: 1, tags: 1 }`.
+  - Tạo mới `TagController` hỗ trợ CRUD tag người dùng (`getUserTags`, `createTag`, `updateTag`, `deleteTag`, `updateRecordTags`).
+  - Đổi tên tag hoặc xóa tag tự động đồng bộ mảng `tags` trong toàn bộ 4 collections, tự động khôi phục tag mặc định `['Chung']` nếu bản ghi rỗng tag.
+  - Áp dụng kiểm tra quyền sở hữu nghiêm ngặt `checkRecordOwnership` (`record.userId === req.user.id`).
+- **Lọc Nâng Cao Đa Điều Kiện**:
+  - Nâng cấp các API xem lịch sử hỗ trợ lọc đa tiêu chí: `tag`, `isPublic` (true/false), Ngày sinh (1-31), Tháng sinh (1-12), **Năm sinh** (VD: 1995), **Giờ sinh** (0-23h / 12 Canh giờ), Giới tính (Nam/Nữ), và Từ khóa tìm kiếm Tên/Câu hỏi (`search`).
+  - Thêm API tổng hợp `GET /api/history/all/:userId` truy vấn đồng thời 4 phân hệ phục vụ xem danh sách thư mục.
+- **Kịch Bản Quét DB & Update Tag Mặc Định (DB Migration Script)**:
+  - Tạo mới [`scripts/migrateTagsAndStats.js`](file:///t:/Phongthuy/backend/scripts/migrateTagsAndStats.js) quét toàn bộ cơ sở dữ liệu MongoDB:
+    - Gán tag mặc định `['Chung']` cho tất cả 160 bản ghi hiện có (`IChingRecord`: 27, `BaziRecord`: 118, `ZiweiRecord`: 8, `MarriageRecord`: 7).
+    - Tạo tag mặc định `Chung` cho 16 tài khoản người dùng và gọi `UserStatsService.recalculateUserStats(userId)` tính lại chính xác 100% số liệu thống kê.
+- **Sửa Lỗi Hiển Thị Đếm Bản Ghi Tab Lịch Sử**:
+  - Bổ sung `stats` và `tags` vào object `user` trả về từ AuthController (`login`, `register`, `googleLogin`, `updateProfile`, `/auth/me`).
+  - Đồng bộ hiển thị badge đếm `(x)` trên các Tab Lịch sử theo giá trị nguyên tử `user.stats` từ `AuthContext` để phản ánh chính xác 100% tổng số bản ghi thực tế.
+
+### 📁 Frontend "Lá số của tôi" & Custom Select Dropdowns ([CustomSelect.jsx](file:///t:/Phongthuy/frontend/src/components/CustomSelect.jsx), [MyFoldersModal.jsx](file:///t:/Phongthuy/frontend/src/components/MyFoldersModal.jsx), [HistoryBoard.jsx](file:///t:/Phongthuy/frontend/src/components/HistoryBoard.jsx))
+- **Tách Component Input Tử Vi (`ZiweiInput.jsx`)**:
+  - Chia nhỏ form nhập Tử Vi ra tệp [`ZiweiInput.jsx`](file:///t:/Phongthuy/frontend/src/components/ZiweiInput.jsx) độc lập theo cấu trúc của `BaziInput.jsx`.
+  - Không nhập sẵn giá trị mặc định cho Ngày, Tháng, Năm, Giờ, Phút (khởi tạo rỗng `''`).
+  - Hỗ trợ vừa nhập vừa chọn (Combobox `editable={true}`).
+- **Sửa Lỗi Dữ Liệu Trống Trơn Khi Xem Chi Tiết Hôn Nhân Từ "Lá Số Của Tôi" (`UserApp.jsx`, `MarriageBoard.jsx`)**:
+  - Do danh sách lịch sử/thư mục tối ưu bỏ bớt `maleBaziData` & `femaleBaziData`, đã sửa điều kiện trong `handleViewHistoricalMarriage` để tự động gọi API `getMarriageRecord(id)` tải đầy đủ Bát Tự Nam & Nữ Mệnh khi người dùng nhấp xem chi tiết.
+- **Sửa Triệt Để Các Lỗi TypeError Hiển Thị Trong Ảnh Màn Hình (`MarriageBoard.jsx`, `BaziBoard.jsx`)**:
+  - Đã khắc phục lỗi `Cannot read properties of undefined (reading 'solarTimeline')` bằng cách cung cấp giá trị mặc định object cho `maleBaziData` & `femaleBaziData`.
+  - Khắc phục lỗi `Cannot read properties of undefined (reading 'year')` tại `BaziPillarsSection` (`MarriageBoard.jsx`) và `BaziBoard.jsx` bằng bọc an toàn `safeCanChi`.
+  - Khắc phục nguy cơ crash tại `FiveElementsDiagram` với `safeScores = scores || {}`.
+- **Đồng Bộ Nút Tag 🏷️ Đầy Đủ Cho Bát Tự & Hôn Nhân (`HistoryBoard.jsx`)**:
+  - Đã thêm đầy đủ cả Badge nút bấm `🏷️ [Tên thẻ]` lẫn Nút Icon Tag 🏷️ góc phải cho cả Bát Tự và Hôn Nhân.
+- **Gộp Input Kinh Dịch Về 1 Component (`IChingInput.jsx`) & Dọn Dẹp Mã Thừa**:
+  - Toàn bộ logic và giao diện gieo quẻ Kinh Dịch được tập trung duy nhất tại [`IChingInput.jsx`](file:///t:/Phongthuy/frontend/src/components/IChingInput.jsx).
+  - Đã xóa sạch 3 tệp tin dư thừa không còn sử dụng: `CoinToss.jsx`, `MaiHoaInput.jsx`, và `ManualInput.jsx` để giữ codebase tối ưu và gọn gàng.
+- **Tinh Chỉnh Giao Diện & Nút Tìm Kiếm Bộ Lọc**:
+  - Đổi tên nút thành **"Đặt lại"** và **"Tìm kiếm"**.
+  - Tự động disable 2 nút khi ở trạng thái mặc định (chưa thay đổi lọc) và chỉ enable khi có thay đổi.
+  - Loại bỏ các nút áp dụng trùng lặp và mô tả rườm rà.
+  - Ẩn/thu gọn phần lọc nâng cao mặc định và tích hợp nút mũi tên 🔽 **"Lọc nâng cao"** để mở rộng linh hoạt.
+- **Phân Hệ "Lá số của tôi" (My Folders Modal)**:
+  - Thêm mục **"Lá số của tôi"** vào Menu tài khoản (Desktop Dropdown & Mobile Menu Drawer).
+  - Giao diện gồm thống kê tổng số lá số/quẻ, tổng số thư mục, danh sách thẻ thư mục kèm lượt đếm, xem chi tiết thư mục có đầy đủ tab 4 phân hệ và bộ lọc nâng cao.
+  - Hỗ trợ click trực tiếp vào lá số trong thư mục để xem toàn bộ chi tiết quẻ/lá số.
+- **Gắn Tag Trực Tiếp Trên Card Lịch Sử**:
+  - Hiển thị các nhãn Tag (Pill badges) trên mỗi card bản ghi trong lịch sử kèm nút `+ Gắn tag` / gỡ tag nhanh.
+
+### 🧪 Unit Tests Suite Coverage ([TagController.test.js](file:///t:/Phongthuy/backend/tests/controllers/TagController.test.js), [HistoryFilter.test.js](file:///t:/Phongthuy/backend/tests/controllers/HistoryFilter.test.js))
+- Đã viết bộ Unit Tests tự động kiểm thử toàn bộ các trường hợp nghiệp vụ phát sinh:
+  - Tạo tag, đổi tên tag & đồng bộ 4 collections, xóa tag & khôi phục tag mặc định `Chung`.
+  - Phân quyền sở hữu: trả lời 403 Forbidden nếu người dùng thao tác tag trên lá số không thuộc sở hữu.
+  - Lọc đa tiêu chí: test lọc theo tag, `isPublic`, ngày/tháng/năm/giờ sinh, giới tính, từ khóa tìm kiếm và tổng hợp `getAllHistory`.
+
+---
+
 ## 📅 Phiên bản: Bổ Sung Thuật Toán Tự Động Tính 7 Thần Sát Mới Cho Bát Tự (05/08/2026)
 
 ### Bazi Algorithm & Shen Sha Extensions ([BaziAnalyzer.js](file:///t:/Phongthuy/backend/src/services/BaziAnalyzer.js#L427))
@@ -29,11 +85,11 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
   - Áp dụng Maximal Chain Filter loại bỏ các đường con nằm trong đường dài hơn.
   - Tích lũy bonus lực lượng cho nút điểm cuối dựa theo độ dài chuỗi ($L=2 \rightarrow +15\%, L=3 \rightarrow +30\%, L=4+ \rightarrow +50\%$).
 
-### Đầm Bằng Chiều Cao Các Thẻ Trụ Mới (Equal-Height Card Layout) ([BaziBoard.jsx](file:///t:/Phongthuy/frontend/src/components/BaziBoard.jsx))
-- **Đồng Đều Chiều Cao Các Trụ Bảng Vận Hạn Năm**: 
-  - Đã thêm `h-full flex flex-col justify-between` vào component `Pillar` và bao bọc phần Tàng Can & Thần Sát bằng container `mt-auto flex flex-col items-center justify-end`.
-  - Thay thế cách xếp 3 cột dọc rời rạc trước đây bằng layout **Grid 2 cột x 3 hàng kéo giãn bằng nhau** (`grid grid-cols-2 sm:grid-cols-3 gap-3 items-stretch`).
-  - Nhờ đó, 2 thẻ trong cùng 1 hàng grid (ví dụ: `Đại Vận` & `Lưu Niên`, `Trụ Ngày` & `Trụ Giờ`, `Trụ Năm` & `Trụ Tháng`) luôn luôn có **chiều cao bằng chẵn 100%**, triệt tiêu hoàn toàn hiện tượng lệch chân lệch trần.
+### Đồng Bộ Chiều Cao Hoàn Hảo 100% Giữa Các Trụ (Dynamic ShenSha Padding) ([BaziBoard.jsx](file:///t:/Phongthuy/frontend/src/components/BaziBoard.jsx))
+- **Thuật Toán Pad Số Dòng Thần Sát Tự Động (`minShenShaLines`)**:
+  - Tự động tính toán số lượng Thần Sát tối đa (`maxBaziShenSha` và `maxVanhHanShenSha`) trong từng nhóm trụ.
+  - Áp dụng đệm dòng ẩn `invisible` cho các trụ có ít Thần Sát hơn.
+  - **Kết quả nghiệm thu Chrome DevTools**: Cả 4 trụ ở Cấu Trúc Tứ Trụ và 6 trụ ở Bảng Vận Hạn Năm luôn luôn có **số dòng bằng chằn chặn 100%**, giữ cho đường nét đứt phân cách Tàng Can và viền chân khung bên dưới nằm trên 1 đường thẳng hàng tuyệt đối.
 
 ---
 

@@ -20,7 +20,9 @@ Hệ thống được chia làm hai phân hệ lớn:
    - **Hợp Hôn (Marriage):** Đối chiếu độ hòa hợp Bát Tự, Cung Phi, Mệnh Quái của cặp đôi Nam - Nữ và đưa ra lời khuyên gia đạo từ AI.
    - **Kiến Thức Phong Thủy (BlogBoard):** Trang chia sẻ và tra cứu bài viết học thuật phong thủy công khai. Tích hợp thanh chia sẻ đa nền tảng (Facebook, sao chép link, Web Share API di động), đồng bộ URL Deep-linking `?post={slug}` cho từng bài viết, trình diễn bài viết với `ReactMarkdown` & `remark-gfm` hỗ trợ tự động chuẩn hóa bảng GFM và chèn ảnh minh họa có chú thích.
    - **Hộp thoại Chat (AiChatWidget):** Cửa sổ chat thông minh trượt lên hiển thị stream SSE từ AI kèm các chỉ số Ứng Kỳ, Độ Tin Cậy và Rủi Ro.
-   - **Lịch sử & Đánh giá:** Lưu trữ các quẻ và lá số đã xem qua `localStorage` (đối với khách truy cập) và lưu vào Database (đối với tài khoản đã đăng nhập).
+   - **Gom nhóm lá số (Tagging/Folders):** Hệ thống phân loại lá số/quẻ dịch dạng thẻ (Zalo tags), hỗ trợ 1 lá số thuộc nhiều thư mục, tạo/sửa/xóa thư mục, gắn/chuyển tag có kiểm tra quyền sở hữu strict.
+   - **Lá số của tôi (My Folders Modal):** Phân hệ tra cứu và quản lý tổng thể trong menu tài khoản, hiển thị tổng số lá số, tổng số thư mục, mở từng thư mục kèm bộ lọc nâng cao (ngày, tháng, **năm sinh**, **giờ sinh**, giới tính, trạng thái chia sẻ `isPublic`, từ khóa tìm kiếm) và click mở chi tiết quẻ/lá số.
+   - **Lịch sử & Đánh giá:** Lưu trữ các quẻ và lá số đã xem qua `localStorage` (đối với khách truy cập) và lưu vào Database (đối với tài khoản đã đăng nhập). Đồng bộ badge số lượng chính xác O(1) từ `user.stats`.
 2. **Phân hệ Quản trị (Admin Dashboard):**
    - **Quản lý người dùng:** Theo dõi danh sách, phân quyền (Admin, Co-Admin, User, VIP), nạp/trừ credit sử dụng AI, khóa/mở khóa tài khoản.
    - **Quản lý bài viết Blog:** Soạn thảo bài viết học thuật với bộ chuyển đổi tab **Soạn Thảo Markdown** vs **Xem Trước (Preview)**, tự động sinh slug thời gian thực, quản lý bài viết nháp/công khai/xóa mềm.

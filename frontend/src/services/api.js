@@ -87,6 +87,14 @@ export const getAdminUserStats = (id) => axios.get(`${API_URL}/admin/users/${id}
 export const deleteCalculation = (type, id) => axios.delete(`${API_URL}/history/calculations/${type}/${id}`);
 export const pinCalculation = (type, id) => axios.put(`${API_URL}/history/calculations/${type}/${id}/pin`);
 export const togglePublicCalculation = (type, id, isPublic) => axios.put(`${API_URL}/history/calculations/${type}/${id}/public`, { isPublic });
+export const getAllHistory = (userId, params) => axios.get(`${API_URL}/history/all/${userId}`, { params });
+
+// Tag / Folder API Endpoints
+export const getUserTags = () => axios.get(`${API_URL}/tags`);
+export const createTag = (name) => axios.post(`${API_URL}/tags`, { name });
+export const updateTag = (tagId, name) => axios.put(`${API_URL}/tags/${tagId}`, { name });
+export const deleteTag = (tagId) => axios.delete(`${API_URL}/tags/${tagId}`);
+export const updateRecordTags = (type, id, tags) => axios.put(`${API_URL}/tags/record/${type}/${id}`, { tags });
 
 // Blog API Endpoints
 export const getBlogPosts = (params) => axios.get(`${API_URL}/blog`, { params });

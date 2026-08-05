@@ -207,7 +207,7 @@ Hệ thống tự động tính toán và hiển thị 29 Thần Sát đặc th�
 6.  **Kình Dương (Dương Nhận):** Vị trí đế vượng của Can Ngày.
 7.  **Dịch Mã:** Sự di chuyển, thay đổi, dựa theo Tam Hợp cục của Chi Năm & Chi Ngày.
 8.  **Hoa Cái:** Mộ khố của Tam Hợp cục của Chi Năm & Chi Ngày.
-9.  **Đào Hoa (Hàm Trì):** Vị trí mộc dục của Tam Hợp cục của Chi Năm & Chi Ngày.
+9.  **Đào Hoa:** Vị trí mộc dục của Tam Hợp cục của Chi Năm & Chi Ngày.
 10. **Tướng Tinh:** Vị trí chính khí của Tam Hợp cục của Chi Năm & Chi Ngày.
 11. **Kiếp Sát:** Vị trí tuyệt của Tam Hợp cục của Chi Năm & Chi Ngày.
 12. **Vong Thần:** Vị trí lâm quan của Tam Hợp cục của Chi Năm & Chi Ngày.

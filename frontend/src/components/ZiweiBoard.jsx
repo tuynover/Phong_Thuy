@@ -10,6 +10,8 @@ import { AuthContext } from '../context/AuthContext';
 import { parseMarkdownSections } from '../utils/markdownParser';
 import { validateInputDate, getMaxDaysInMonth } from '../utils/dateValidator';
 import FloatingErrorToast from './FloatingErrorToast';
+import CustomSelect from './CustomSelect';
+import ZiweiInput from './ZiweiInput';
 
 // 12 Can Chi Giờ Sinh trong Tử Vi
 const LUNAR_HOURS = [
@@ -27,90 +29,6 @@ const LUNAR_HOURS = [
   { index: 11, name: "Hợi (21:00 - 22:59)" }
 ];
 
-// UNIFIED COMBOBOX SELECTOR (PURPLE THEME)
-function CustomSelect({ value, onChange, options, placeholder }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [search, setSearch] = useState(value || '');
-  const containerRef = useRef(null);
-
-  useEffect(() => {
-    setSearch(value || '');
-  }, [value]);
-
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (containerRef.current && !containerRef.current.contains(e.target)) {
-        setIsOpen(false);
-        setSearch(value || '');
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [value]);
-
-  const filteredOptions = options.filter(opt => String(opt).includes(String(search)));
-
-  const handleInputChange = (e) => {
-    let val = e.target.value.replace(/\D/g, '');
-    const num = parseInt(val, 10);
-    if (!isNaN(num)) {
-      if (placeholder === 'DD' || placeholder === 'Ngày') {
-        if (num > 31) val = '31';
-        if (num === 0) val = '1';
-      } else if (placeholder === 'MM' || placeholder === 'Tháng') {
-        if (num > 12) val = '12';
-        if (num === 0) val = '1';
-      } else if (placeholder === 'YYYY' || placeholder === 'Năm') {
-        if (val.length >= 4 && num > 2100) val = '2100';
-      } else if (placeholder === 'HH' || placeholder === 'Giờ') {
-        if (num > 23) val = '23';
-      } else if (placeholder === 'MM' || placeholder === 'Phút') {
-        if (num > 59) val = '59';
-      }
-    }
-    setSearch(val);
-    onChange(val);
-    setIsOpen(true);
-  };
-
-  return (
-    <div ref={containerRef} className="relative flex-1">
-      <div className="relative">
-        <input
-          type="text"
-          value={search}
-          onChange={handleInputChange}
-          onFocus={() => setIsOpen(true)}
-          placeholder={placeholder}
-          className={`bg-slate-50/80 border border-slate-200 text-center text-slate-800 text-base rounded-2xl block w-full p-2.5 font-bold transition-all focus:outline-none pr-8 shadow-sm ${isOpen ? 'ring-2 ring-purple-400 border-purple-400' : ''}`}
-        />
-        <ChevronDown
-          size={14}
-          className="absolute right-2 top-4 text-purple-500 cursor-pointer shrink-0"
-          onClick={() => setIsOpen(!isOpen)}
-        />
-      </div>
-      {isOpen && filteredOptions.length > 0 && (
-        <ul className="absolute z-50 w-full mt-1 bg-white border border-purple-100 rounded-2xl shadow-lg py-1.5 max-h-48 overflow-y-auto text-center font-bold">
-          {filteredOptions.map(opt => (
-            <li
-              key={opt}
-              onClick={() => {
-                onChange(opt);
-                setSearch(opt);
-                setIsOpen(false);
-              }}
-              className={`px-3 py-1.5 text-sm cursor-pointer transition-colors hover:bg-purple-50 hover:text-purple-900 ${value === opt ? 'bg-purple-50 text-purple-800 font-extrabold' : 'text-gray-700'}`}
-            >
-              {opt}
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
-
 const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationComplete, onResultChange, autoSubmitInfo, onClearAutoSubmit, onInvalidateHistory }) => {
   const { user: ctxUser, setUser, token } = useContext(AuthContext);
   const activeUser = ctxUser || user;
@@ -118,11 +36,14 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
   const days = Array.from({ length: 31 }, (_, i) => String(i + 1));
   const months = Array.from({ length: 12 }, (_, i) => String(i + 1));
   const years = Array.from({ length: 97 }, (_, i) => String(2026 - i));
+  const hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
+  const minutes = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
 
   const [day, setDay] = useState('');
   const [month, setMonth] = useState('');
   const [year, setYear] = useState('');
-  const [hourIndex, setHourIndex] = useState(0);
+  const [hour, setHour] = useState('09');
+  const [minute, setMinute] = useState('00');
   const [gender, setGender] = useState('Nam');
   const [name, setName] = useState('');
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -281,8 +202,12 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
   }, [autoSubmitInfo]);
 
   const handleViewOwnZiwei = async () => {
-    if (!activeUser || !activeUser.baziInfo) {
-      onRequireLogin();
+    if (!activeUser || !activeUser.baziInfo || !activeUser.baziInfo.day || !activeUser.baziInfo.month || !activeUser.baziInfo.year) {
+      if (!activeUser) {
+        onRequireLogin();
+      } else {
+        setIsUpdateBaziOpen(true);
+      }
       return;
     }
     const { day, month, year, hour } = activeUser.baziInfo;
@@ -398,7 +323,9 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
     try {
       setLoadingStep('Đang lập mệnh bàn Tử Vi...');
       setProgress(50);
-      const chartRes = await createZiweiChart(formattedDate, hourIndex, gender, uid, name);
+      const parsedH = parseInt(hour, 10) || 0;
+      const calcHourIndex = getZiweiHourIndex(parsedH);
+      const chartRes = await createZiweiChart(formattedDate, calcHourIndex, gender, uid, name);
       const record = chartRes.data;
       setResult(record);
       setProgress(100);
@@ -555,250 +482,28 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
       <FloatingErrorToast message={error} onClose={() => setError('')} />
       <div className="w-full max-w-5xl mx-auto px-4 pb-24 font-sans">
       
-      {/* Xem lá số của bản thân */}
-      {activeUser && !result && !loading && (
-        <div className="max-w-xl mx-auto mb-10 text-center animate-in fade-in duration-300">
-          <button 
-            type="button"
-            onClick={handleViewOwnZiwei}
-            className="bg-[#faf6f0] border-2 border-amber-200/60 text-amber-900 px-8 py-4 rounded-2xl font-bold shadow-md transition-all hover:bg-purple-600 hover:border-purple-600 hover:text-white hover:shadow-lg hover:shadow-purple-600/20 active:bg-purple-700 hover:-translate-y-0.5 active:translate-y-0 text-lg w-full mb-4"
-          >
-            Xem Lá Số Của Bản Thân
-          </button>
-          <div className="flex items-center gap-4 py-4">
-            <div className="h-px bg-purple-100 flex-1"></div>
-            <span className="text-purple-400 font-bold text-xs uppercase tracking-wider">Hoặc lập lá số mới</span>
-            <div className="h-px bg-purple-100 flex-1"></div>
-          </div>
-        </div>
-      )}
-
-      {/* 1. INPUT BIRTH INFO FORM */}
+      {/* 1. DEDICATED ZIWEI INPUT COMPONENT */}
       {!result && !loading && (
-        <div className="bg-white/80 backdrop-blur-xl p-5 md:p-10 rounded-2xl md:rounded-[2rem] shadow-xl border border-purple-100 max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-6 duration-300">
-          <div className="flex items-center gap-3 justify-center mb-6">
-            <div className="p-2 rounded-xl bg-purple-500 text-white shadow-md shadow-purple-500/20">
-              <Sparkles size={20} />
-            </div>
-            <h3 id="ziwei-input-header" className="text-xl md:text-2xl font-extrabold text-slate-800 uppercase tracking-tight">
-              Nhập Thông Tin Tử Vi
-            </h3>
-          </div>
-          <p className="text-slate-500 text-center text-sm md:text-base leading-relaxed mb-8">
-            Hệ thống an sao Bắc Phái tự động quy đổi lịch pháp để lập đồ hình 12 Cung và truyền đạt bài luận chi tiết chính xác nhất.
-          </p>
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Họ và tên */}
-            <div>
-              <label className="block text-xs font-black uppercase text-slate-500 tracking-wider mb-2.5 ml-1">
-                Họ và Tên (Không bắt buộc)
-              </label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Nhập họ và tên..."
-                className="w-full bg-slate-50 border border-slate-200 text-slate-905 text-sm rounded-2xl block p-3.5 font-bold transition-all focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 shadow-sm"
-              />
-            </div>
-
-            {/* Giới Tính */}
-            <div>
-              <label id="ziwei-input-gender" className="block text-xs font-black uppercase text-slate-500 tracking-wider mb-2.5 ml-1">
-                Giới Tính Mệnh Cách
-              </label>
-              <div className="flex gap-4">
-                <label className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl border-2 cursor-pointer transition-all ${gender === 'Nam' ? 'border-purple-500 bg-purple-50/30 text-purple-700 font-extrabold shadow-sm' : 'border-slate-100 text-slate-500 hover:bg-slate-50'}`}>
-                  <input type="radio" name="gender" value="Nam" checked={gender === 'Nam'} onChange={() => setGender('Nam')} className="hidden" />
-                  <User size={18} /> Nam Mệnh
-                </label>
-                <label className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl border-2 cursor-pointer transition-all ${gender === 'Nữ' ? 'border-purple-500 bg-purple-50/30 text-purple-700 font-extrabold shadow-sm' : 'border-slate-100 text-slate-500 hover:bg-slate-50'}`}>
-                  <input type="radio" name="gender" value="Nữ" checked={gender === 'Nữ'} onChange={() => setGender('Nữ')} className="hidden" />
-                  <User size={18} /> Nữ Mệnh
-                </label>
-              </div>
-            </div>
-
-            {/* Ngày Tháng Năm Sinh */}
-            <div>
-              <label className="block text-xs font-black uppercase text-slate-500 tracking-wider mb-2.5 ml-1 flex items-center gap-1.5">
-                <Calendar size={14} className="text-purple-500" /> Ngày - Tháng - Năm Sinh (Dương Lịch)
-              </label>
-              <div className="flex gap-3">
-                <div className="flex-1">
-                  <span className="block text-[10px] text-slate-400 font-bold mb-1 text-center">NGÀY</span>
-                  <CustomSelect
-                    value={day}
-                    onChange={setDay}
-                    options={days}
-                    placeholder="DD"
-                  />
-                </div>
-                <div className="flex-1">
-                  <span className="block text-[10px] text-slate-400 font-bold mb-1 text-center">THÁNG</span>
-                  <CustomSelect
-                    value={month}
-                    onChange={setMonth}
-                    options={months}
-                    placeholder="MM"
-                  />
-                </div>
-                <div className="flex-[1.5]">
-                  <span className="block text-[10px] text-slate-400 font-bold mb-1 text-center">NĂM</span>
-                  <CustomSelect
-                    value={year}
-                    onChange={setYear}
-                    options={years}
-                    placeholder="YYYY"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Giờ Sinh Can Chi Grid Selector */}
-            <div>
-              <label className="block text-xs font-black uppercase text-slate-500 tracking-wider mb-3 ml-1 flex items-center gap-1.5">
-                <Clock size={14} className="text-purple-500" /> Giờ Sinh Can Chi Mệnh Vị
-              </label>
-              <div className="grid grid-cols-3 gap-2.5">
-                {LUNAR_HOURS.map((hr) => (
-                  <button
-                    key={hr.index}
-                    type="button"
-                    onClick={() => setHourIndex(hr.index)}
-                    className={`py-3 px-1 text-center rounded-2xl border-2 font-bold text-xs sm:text-sm transition-all ${
-                      hourIndex === hr.index
-                        ? 'border-purple-600 bg-purple-50/30 text-purple-800 shadow-sm'
-                        : 'border-slate-100 text-slate-500 hover:bg-slate-50 hover:border-slate-200'
-                    }`}
-                  >
-                    <div className="font-extrabold">{hr.name.split(' ')[0]}</div>
-                    <div className="text-[9.5px] text-slate-400 font-medium mt-0.5">
-                      {hr.name.substring(hr.name.indexOf('('))}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Submit Button */}
-            <div className="pt-4">
-              <button
-                type="submit"
-                disabled={!day || !month || !year || !!error}
-                className="w-full flex justify-center items-center py-4 px-6 rounded-2xl shadow-lg text-base font-extrabold text-white bg-gradient-to-r from-purple-600 to-indigo-700 hover:from-purple-700 hover:to-indigo-800 focus:outline-none transition-all hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
-              >
-                Lập Lá Số & Xem Giải Đoán
-              </button>
-            </div>
-          </form>
-
-          {/* Academic Informational Cards & FAQs */}
-          <div className="mt-10 border-t border-slate-100 pt-8 w-full space-y-8 text-left font-sans animate-in fade-in duration-300">
-            <div className="bg-white p-6 md:p-8 rounded-3xl border border-purple-50 shadow-sm space-y-6">
-              <h4 className="text-sm font-extrabold text-purple-800 uppercase tracking-widest text-center">Kiến thức học thuật Tử Vi</h4>
-              
-              <div className="space-y-6">
-                {/* Item 1 */}
-                <div className="border-b border-slate-100 pb-5">
-                  <h5 className="font-extrabold text-slate-800 text-base mb-2 flex items-center gap-2">
-                    <span className="w-1.5 h-6 rounded bg-purple-600 block"></span>
-                    1. Tử Vi Đẩu Số là gì?
-                  </h5>
-                  <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed pl-3.5 mb-2">
-                    Tử Vi Đẩu Số là môn mệnh lý học đồ sộ dựa trên giờ sinh và ngày tháng năm sinh âm lịch để thiết lập một sơ đồ an sao gọi là Mệnh Bàn Tinh Đồ. Mệnh bàn gồm 12 cung số, mô tả chi tiết các khía cạnh cuộc đời con người.
-                  </p>
-                  <ul className="list-disc pl-8 text-xs text-slate-500 space-y-1 font-medium">
-                    <li><strong>Tinh hệ chính tinh (14):</strong> Gồm các sao chủ quản lớn như Tử Vi, Thiên Phủ, Vũ Khúc, Thái Dương... quyết định tính chất căn bản của cung vị.</li>
-                    <li><strong>Các trục đối cung:</strong> Cung đối xứng trực tiếp (như Mệnh và Di, Quan và Thê) tương tác năng lượng mạnh mẽ bổ trợ lẫn nhau.</li>
-                  </ul>
-                </div>
-
-                {/* Item 2 */}
-                <div className="border-b border-slate-100 pb-5">
-                  <h5 className="font-extrabold text-slate-800 text-base mb-2 flex items-center gap-2">
-                    <span className="w-1.5 h-6 rounded bg-purple-600 block"></span>
-                    2. Phương pháp luận Mệnh Bàn chuyên sâu
-                  </h5>
-                  <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed pl-3.5 mb-2">
-                    Quy trình đọc hiểu lá số Tử Vi kết hợp giữa tiên thiên mệnh cách và hậu thiên nỗ lực hành động:
-                  </p>
-                  <ul className="list-disc pl-8 text-xs text-slate-500 space-y-1.5 font-medium">
-                    <li><strong>Cung Mệnh / Thân:</strong> Cung Mệnh là tư chất tiên thiên (trước 30 tuổi), Cung Thân là nỗ lực hậu thiên và hậu vận (sau 30 tuổi).</li>
-                    <li><strong>Tam Phương Tứ Chính:</strong> Xem xét sự tương tác của cụm 3 cung tam hợp (ví dụ: Mệnh - Tài - Quan) và cung xung chiếu để đánh giá tổng thể thời vận.</li>
-                    <li><strong>Cát Tinh & Hung Tinh:</strong> Đánh giá mức độ đắc địa hãm địa của Văn Xương, Văn Khúc, Tả Phụ, Hữu Bật (cát) đối chiếu với Kình Dương, Đà La, Hỏa Tinh, Linh Tinh (hung).</li>
-                  </ul>
-                </div>
-
-                {/* Item 3 */}
-                <div>
-                  <h5 className="font-extrabold text-slate-800 text-base mb-2 flex items-center gap-2">
-                    <span className="w-1.5 h-6 rounded bg-purple-600 block"></span>
-                    3. Bản luận giải mệnh lý cung cấp những gì?
-                  </h5>
-                  <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed pl-3.5 mb-2">
-                    Bài phân tích mệnh bàn chi tiết cung cấp:
-                  </p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-3.5 mt-3">
-                    <div className="bg-purple-50/40 p-3 rounded-xl border border-purple-100/50">
-                      <span className="block text-xs font-bold text-purple-800 uppercase tracking-wider mb-1">✓ Đồ hình Mệnh Bàn 12 Cung</span>
-                      <span className="text-[11px] text-slate-500 font-medium block">Bản đồ trực quan hiển thị vị trí đắc/hãm địa của hơn 100 sao tại Mệnh, Phụ, Phúc, Điền, Quan, Nô, Di, Tật, Tài, Tử, Phu, Huynh.</span>
-                    </div>
-                    <div className="bg-purple-50/40 p-3 rounded-xl border border-purple-100/50">
-                      <span className="block text-xs font-bold text-purple-800 uppercase tracking-wider mb-1">✓ Phân tích Cung Mệnh cốt lõi</span>
-                      <span className="text-[11px] text-slate-500 font-medium block">Chi tiết về năng lực bản thân, tính cách bẩm sinh, ngoại hình và xu hướng tư duy nghề nghiệp phù hợp.</span>
-                    </div>
-                    <div className="bg-purple-50/40 p-3 rounded-xl border border-purple-100/50">
-                      <span className="block text-xs font-bold text-purple-800 uppercase tracking-wider mb-1">✓ Vận trình Tài Bạch & Quan Lộc</span>
-                      <span className="text-[11px] text-slate-500 font-medium block">Dự đoán tài vận hanh thông hay bấp bênh, ngành nghề thăng tiến vượt trội và thời cơ làm ăn.</span>
-                    </div>
-                    <div className="bg-purple-50/40 p-3 rounded-xl border border-purple-100/50">
-                      <span className="block text-xs font-bold text-purple-800 uppercase tracking-wider mb-1">✓ Dự báo Lưu Niên / Hạn Năm</span>
-                      <span className="text-[11px] text-slate-500 font-medium block">Cảnh báo cụ thể về sức khỏe, đi lại, cơ hội công việc trong năm hiện tại giúp chủ động đón cát lánh hung.</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* FAQs Section */}
-            <div className="bg-white p-6 md:p-8 rounded-3xl border border-slate-150 shadow-sm space-y-6">
-              <h4 className="text-sm font-extrabold text-purple-800 uppercase tracking-widest text-center">Các câu hỏi thường gặp về Tử Vi</h4>
-              <div className="space-y-4">
-                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100/70">
-                  <h5 className="font-extrabold text-slate-800 text-xs sm:text-sm mb-1.5 flex items-center gap-1.5">
-                    <HelpCircle size={15} className="text-purple-600 shrink-0" />
-                    Xem Tử Vi và Bát Tự khác nhau như thế nào?
-                  </h5>
-                  <p className="text-xs text-slate-500 font-medium leading-relaxed pl-5">
-                    Bát Tự tập trung vào phân tích năng lượng ngũ hành vượng suy của Thiên Can Địa Chi để tìm Dụng Thần cải vận. Tử Vi tập trung vào việc bố cục các chòm sao (chính tinh, phụ tinh) trên 12 cung mệnh bàn để luận đoán cụ thể các sự kiện, hoàn cảnh trong suốt cuộc đời.
-                  </p>
-                </div>
-                
-                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100/70">
-                  <h5 className="font-extrabold text-slate-800 text-xs sm:text-sm mb-1.5 flex items-center gap-1.5">
-                    <HelpCircle size={15} className="text-purple-600 shrink-0" />
-                    Cung Thân trên lá số Tử Vi có ý nghĩa gì?
-                  </h5>
-                  <p className="text-xs text-slate-500 font-medium leading-relaxed pl-5">
-                    Cung Thân biểu hiện nỗ lực hành động và hậu vận của con người từ sau tuổi 30 trở đi. Cung Mệnh là tiên thiên (tính cách bẩm sinh lúc nhỏ), cung Thân là hậu thiên (sự trưởng thành, xoay xở cải thiện số phận của bản thân).
-                  </p>
-                </div>
-
-                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100/70">
-                  <h5 className="font-extrabold text-slate-800 text-xs sm:text-sm mb-1.5 flex items-center gap-1.5">
-                    <HelpCircle size={15} className="text-purple-600 shrink-0" />
-                    Lá số Tử Vi có thay đổi được không?
-                  </h5>
-                  <p className="text-xs text-slate-500 font-medium leading-relaxed pl-5">
-                    Bản đồ an sao là cố định theo giờ sinh của bạn. Tuy nhiên, cách bạn hành xử, tu tâm dưỡng tính và lựa chọn nghề nghiệp (Nhân lực) sẽ thay đổi kết quả thực tế. Người xưa có câu "Đức năng thắng số" chính là để chỉ nỗ lực này.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ZiweiInput 
+          onSubmit={({ day, month, year, hour, minute, gender, name }) => {
+            setDay(day);
+            setMonth(month);
+            setYear(year);
+            setHour(hour);
+            setMinute(minute);
+            setGender(gender);
+            setName(name);
+            handleZiweiComplete(
+              `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`,
+              hour,
+              gender,
+              name
+            );
+          }}
+          activeUser={activeUser}
+          onRequireLogin={onRequireLogin}
+          handleViewOwnZiwei={handleViewOwnZiwei}
+        />
       )}
 
       {/* 2. PROGRESS QUEUE LOADING BAR */}
@@ -892,9 +597,9 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
                 sections={
                   interpretation 
                     ? parseMarkdownSections(interpretation, 'tu_vi') 
-                    : (result.aiInterpretation.content 
+                    : (result.aiInterpretation?.content 
                         ? parseMarkdownSections(result.aiInterpretation.content, 'tu_vi')
-                        : result.aiInterpretation.sections)
+                        : result.aiInterpretation?.sections || [])
                 } 
                 theme="tu_vi"
               />
