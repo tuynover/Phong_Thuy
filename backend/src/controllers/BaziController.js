@@ -12,6 +12,10 @@ const hasNewSchema = (baziData) => {
     if (baziData.daYun && baziData.daYun.length > 0) {
         const firstYun = baziData.daYun[0];
         if (!firstYun.tangCan || firstYun.tangCan.length === 0) return false;
+        if (firstYun.liuNian && firstYun.liuNian.length > 0) {
+            const firstYear = firstYun.liuNian[0];
+            if (!firstYear.annualShenSha || !firstYear.nienVanTinh) return false;
+        }
     }
     return true;
 };
@@ -93,6 +97,7 @@ class BaziController {
                         dupRecord.baziData = freshResult;
                         dupRecord.solarTimeline = freshResult.solarTimeline;
                         dupRecord.tietKhiTimeline = freshResult.tietKhiTimeline;
+                        dupRecord.markModified('baziData');
                         updated = true;
                     }
                     if (!dupRecord.baziData.menhQuai) {
@@ -138,6 +143,7 @@ class BaziController {
                     existingRecord.baziData = freshResult;
                     existingRecord.solarTimeline = freshResult.solarTimeline;
                     existingRecord.tietKhiTimeline = freshResult.tietKhiTimeline;
+                    existingRecord.markModified('baziData');
                     updated = true;
                 }
                 if (!existingRecord.baziData.menhQuai) {

@@ -173,9 +173,11 @@ const getTuanKhong = (g, z) => {
     return [zhis[(startBranchIdx + 10) % 12], zhis[(startBranchIdx + 11) % 12]];
 };
 
-const getShenSha = (gan, zhi, { dmGan, yearZhi, dayZhi, monthZhi, yearGan, monthGan, hourGan, pillarType }) => {
+const getShenSha = (gan, zhi, { dmGan, yearZhi, dayZhi, monthZhi, yearGan, monthGan, hourGan, pillarType, gender }) => {
     const list = [];
-    
+    const zhis = ['Tý', 'Sửu', 'Dần', 'Mão', 'Thìn', 'Tỵ', 'Ngọ', 'Mùi', 'Thân', 'Dậu', 'Tuất', 'Hợi'];
+    const isNatal = ['year', 'month', 'day', 'hour'].includes(pillarType);
+
     // 1. Thiên Ất Quý Nhân (Tra theo Can Ngày dmGan & Can Năm yearGan)
     const checkThienAtByGan = (targetGan, targetZhi) => {
         if (!targetGan || !targetZhi) return false;
@@ -190,26 +192,37 @@ const getShenSha = (gan, zhi, { dmGan, yearZhi, dayZhi, monthZhi, yearGan, month
     const isDayThienAt = checkThienAtByGan(dmGan, zhi);
     const isYearThienAt = checkThienAtByGan(yearGan, zhi);
 
-    if (isDayThienAt && isYearThienAt) {
-        list.push('Thiên Ất');
-    } else if (isYearThienAt) {
-        list.push('Thiên Ất ( năm )');
-    } else if (isDayThienAt) {
-        list.push('Thiên Ất ( ngày )');
+    if (isNatal) {
+        if (isDayThienAt && isYearThienAt) {
+            list.push('Thiên Ất');
+        } else if (isYearThienAt) {
+            list.push('Thiên Ất ( năm )');
+        } else if (isDayThienAt) {
+            list.push('Thiên Ất ( ngày )');
+        }
+    } else {
+        if (isDayThienAt || isYearThienAt) {
+            list.push('Thiên Ất Quý Nhân');
+        }
     }
     
     // 2. Thái Cực Quý Nhân (Chỉ tra theo Nhật Chủ dmGan)
     if (dmGan) {
+        let isThaiCuc = false;
         if (dmGan === 'Giáp' || dmGan === 'Ất') {
-            if (zhi === 'Tý' || zhi === 'Ngọ') list.push('Thái Cực');
+            if (zhi === 'Tý' || zhi === 'Ngọ') isThaiCuc = true;
         } else if (dmGan === 'Bính' || dmGan === 'Đinh') {
-            if (zhi === 'Hợi' || zhi === 'Dậu') list.push('Thái Cực');
+            if (zhi === 'Hợi' || zhi === 'Dậu') isThaiCuc = true;
         } else if (dmGan === 'Mậu' || dmGan === 'Kỷ') {
-            if (zhi === 'Thìn' || zhi === 'Tuất' || zhi === 'Sửu' || zhi === 'Mùi') list.push('Thái Cực');
+            if (zhi === 'Thìn' || zhi === 'Tuất' || zhi === 'Sửu' || zhi === 'Mùi') isThaiCuc = true;
         } else if (dmGan === 'Canh' || dmGan === 'Tân') {
-            if (zhi === 'Dần' || zhi === 'Mão') list.push('Thái Cực');
+            if (zhi === 'Dần' || zhi === 'Mão') isThaiCuc = true;
         } else if (dmGan === 'Nhâm' || dmGan === 'Quý') {
-            if (zhi === 'Tỵ' || zhi === 'Thân') list.push('Thái Cực');
+            if (zhi === 'Tỵ' || zhi === 'Thân') isThaiCuc = true;
+        }
+
+        if (isThaiCuc) {
+            list.push(isNatal ? 'Thái Cực' : 'Thái Cực Quý Nhân');
         }
     }
     
@@ -247,11 +260,14 @@ const getShenSha = (gan, zhi, { dmGan, yearZhi, dayZhi, monthZhi, yearGan, month
     else if (dmGan === 'Quý' && zhi === 'Tý') isLocThan = true;
 
     if (isLocThan) {
-        if (pillarType === 'year') list.push('Tuế Lộc');
-        else if (pillarType === 'month') list.push('Kiến Lộc');
-        else if (pillarType === 'day') list.push('Chuyên Lộc');
-        else if (pillarType === 'hour') list.push('Quy Lộc');
-        else list.push('Lộc Thần');
+        if (isNatal) {
+            if (pillarType === 'year') list.push('Tuế Lộc');
+            else if (pillarType === 'month') list.push('Kiến Lộc');
+            else if (pillarType === 'day') list.push('Chuyên Lộc');
+            else if (pillarType === 'hour') list.push('Quy Lộc');
+        } else {
+            list.push('Lộc Thần');
+        }
     }
 
     // 6. Kình Dương (Chỉ tra theo Nhật Chủ dmGan)
@@ -293,12 +309,18 @@ const getShenSha = (gan, zhi, { dmGan, yearZhi, dayZhi, monthZhi, yearGan, month
     const isDayHoaCai = checkHoaCaiByZhi(dayZhi, zhi);
     const isYearHoaCai = checkHoaCaiByZhi(yearZhi, zhi);
 
-    if (isDayHoaCai && isYearHoaCai) {
-        list.push('Hoa Cái');
-    } else if (isYearHoaCai) {
-        list.push('Hoa Cái ( năm )');
-    } else if (isDayHoaCai) {
-        list.push('Hoa Cái ( ngày )');
+    if (isNatal) {
+        if (isDayHoaCai && isYearHoaCai) {
+            list.push('Hoa Cái');
+        } else if (isYearHoaCai) {
+            list.push('Hoa Cái ( năm )');
+        } else if (isDayHoaCai) {
+            list.push('Hoa Cái ( ngày )');
+        }
+    } else {
+        if (isDayHoaCai || isYearHoaCai) {
+            list.push('Hoa Cái');
+        }
     }
 
     // 9. Đào Hoa
@@ -342,12 +364,18 @@ const getShenSha = (gan, zhi, { dmGan, yearZhi, dayZhi, monthZhi, yearGan, month
     const isDayVanXuong = checkVanXuongByGan(dmGan, zhi);
     const isYearVanXuong = checkVanXuongByGan(yearGan, zhi);
 
-    if (isDayVanXuong && isYearVanXuong) {
-        list.push('Văn Xương');
-    } else if (isYearVanXuong) {
-        list.push('Văn Xương ( năm )');
-    } else if (isDayVanXuong) {
-        list.push('Văn Xương ( ngày )');
+    if (isNatal) {
+        if (isDayVanXuong && isYearVanXuong) {
+            list.push('Văn Xương');
+        } else if (isYearVanXuong) {
+            list.push('Văn Xương ( năm )');
+        } else if (isDayVanXuong) {
+            list.push('Văn Xương ( ngày )');
+        }
+    } else {
+        if (isDayVanXuong || isYearVanXuong) {
+            list.push('Văn Xương Quý Nhân');
+        }
     }
 
     // 14. Cô Thần & Quả Tú (Tra theo Chi Năm)
@@ -366,9 +394,11 @@ const getShenSha = (gan, zhi, { dmGan, yearZhi, dayZhi, monthZhi, yearGan, month
     }
 
     // 15. Không Vong (Chỉ tra theo Tuần Không của Nhật Trụ)
-    const dayKhong = getTuanKhong(dmGan, dayZhi);
-    if (dayKhong.includes(zhi)) {
-        list.push('Không Vong');
+    if (isNatal) {
+        const dayKhong = getTuanKhong(dmGan, dayZhi);
+        if (dayKhong.includes(zhi)) {
+            list.push('Không Vong');
+        }
     }
 
     // 16. Phúc Tinh Quý Nhân (Tra theo 10 cặp Can Chi Nhật Trụ chuẩn học thuật & Can Ngày / Can Năm)
@@ -387,33 +417,37 @@ const getShenSha = (gan, zhi, { dmGan, yearZhi, dayZhi, monthZhi, yearGan, month
         return false;
     };
     if (checkPhucTinhByGan(dmGan, zhi) || checkPhucTinhByGan(yearGan, zhi)) {
-        list.push('Phúc Tinh');
+        list.push(isNatal ? 'Phúc Tinh' : 'Phúc Tinh Quý Nhân');
     }
 
     // 17. Quốc Ấn Quý Nhân (Chỉ tra theo Nhật Chủ dmGan)
     if (dmGan) {
-        if (dmGan === 'Giáp' && zhi === 'Tuất') list.push('Quốc Ấn');
-        else if (dmGan === 'Ất' && zhi === 'Hợi') list.push('Quốc Ấn');
-        else if (dmGan === 'Bính' && zhi === 'Sửu') list.push('Quốc Ấn');
-        else if (dmGan === 'Đinh' && zhi === 'Dần') list.push('Quốc Ấn');
-        else if (dmGan === 'Mậu' && zhi === 'Sửu') list.push('Quốc Ấn');
-        else if (dmGan === 'Kỷ' && zhi === 'Dần') list.push('Quốc Ấn');
-        else if (dmGan === 'Canh' && zhi === 'Thìn') list.push('Quốc Ấn');
-        else if (dmGan === 'Tân' && zhi === 'Tỵ') list.push('Quốc Ấn');
-        else if (dmGan === 'Nhâm' && zhi === 'Mùi') list.push('Quốc Ấn');
-        else if (dmGan === 'Quý' && zhi === 'Thân') list.push('Quốc Ấn');
+        let isQuocAn = false;
+        if (dmGan === 'Giáp' && zhi === 'Tuất') isQuocAn = true;
+        else if (dmGan === 'Ất' && zhi === 'Hợi') isQuocAn = true;
+        else if (dmGan === 'Bính' && zhi === 'Sửu') isQuocAn = true;
+        else if (dmGan === 'Đinh' && zhi === 'Dần') isQuocAn = true;
+        else if (dmGan === 'Mậu' && zhi === 'Sửu') isQuocAn = true;
+        else if (dmGan === 'Kỷ' && zhi === 'Dần') isQuocAn = true;
+        else if (dmGan === 'Canh' && zhi === 'Thìn') isQuocAn = true;
+        else if (dmGan === 'Tân' && zhi === 'Tỵ') isQuocAn = true;
+        else if (dmGan === 'Nhâm' && zhi === 'Mùi') isQuocAn = true;
+        else if (dmGan === 'Quý' && zhi === 'Thân') isQuocAn = true;
+
+        if (isQuocAn) {
+            list.push(isNatal ? 'Quốc Ấn' : 'Quốc Ấn Quý Nhân');
+        }
     }
 
-    // 18. Thiên Y Quý Nhân (Tháng sinh lùi 1 cung địa chi)
-    const thienYMap = {
-        'Tý': 'Hợi', 'Sửu': 'Tý', 'Dần': 'Sửu', 'Mão': 'Dần', 'Thìn': 'Mão', 'Tỵ': 'Thìn',
-        'Ngọ': 'Tỵ', 'Mùi': 'Ngọ', 'Thân': 'Mùi', 'Dậu': 'Thân', 'Tuất': 'Dậu', 'Hợi': 'Tuất'
-    };
-    if (monthZhi && thienYMap[monthZhi] === zhi) {
-        list.push('Thiên Y');
+    // 18. Thiên Y
+    if (monthZhi) {
+        const prevIdx = (zhis.indexOf(monthZhi) - 1 + 12) % 12;
+        if (zhis[prevIdx] === zhi) {
+            list.push('Thiên Y');
+        }
     }
 
-    // 19. Hồng Loan (Địa chi năm gặp cung đào hoa Hồng Loan)
+    // 19. Hồng Loan
     const hongLoanMap = {
         'Tý': 'Mão', 'Sửu': 'Dần', 'Dần': 'Sửu', 'Mão': 'Tý', 'Thìn': 'Hợi', 'Tỵ': 'Tuất',
         'Ngọ': 'Dậu', 'Mùi': 'Thân', 'Thân': 'Mùi', 'Dậu': 'Ngọ', 'Tuất': 'Tỵ', 'Hợi': 'Thìn'
@@ -422,7 +456,7 @@ const getShenSha = (gan, zhi, { dmGan, yearZhi, dayZhi, monthZhi, yearGan, month
         list.push('Hồng Loan');
     }
 
-    // 20. Thiên Hỷ (Xung với Hồng Loan)
+    // 20. Thiên Hỷ
     const thienHyMap = {
         'Tý': 'Dậu', 'Sửu': 'Thân', 'Dần': 'Mùi', 'Mão': 'Ngọ', 'Thìn': 'Tỵ', 'Tỵ': 'Thìn',
         'Ngọ': 'Mão', 'Mùi': 'Dần', 'Thân': 'Sửu', 'Dậu': 'Tý', 'Tuất': 'Hợi', 'Hợi': 'Tuất'
@@ -431,7 +465,7 @@ const getShenSha = (gan, zhi, { dmGan, yearZhi, dayZhi, monthZhi, yearGan, month
         list.push('Thiên Hỷ');
     }
 
-    // 21. Kim Dư Quý Nhân (Giáp -> Thìn, Ất -> Tỵ, Bính -> Mùi, Đinh -> Thân, Mậu -> Mùi, Kỷ -> Thân, Canh -> Tuất, Tân -> Hợi, Nhâm -> Sửu, Quý -> Dần)
+    // 21. Kim Dư Quý Nhân
     const kimDuStems = [];
     if (dmGan) kimDuStems.push(dmGan);
     if (yearGan && yearGan !== dmGan) kimDuStems.push(yearGan);
@@ -451,7 +485,7 @@ const getShenSha = (gan, zhi, { dmGan, yearZhi, dayZhi, monthZhi, yearGan, month
     }
     if (hasKimDu) list.push('Kim Dư');
 
-    // 22. Thiên La & Địa Võng (Mệnh Hỏa gặp Tuất; mệnh Thủy/Thổ gặp Thìn)
+    // 22. Thiên La & Địa Võng
     const yearNayIn = NAYIN_MAP[`${yearGan} ${yearZhi}`] || '';
     if (yearNayIn) {
         if (yearNayIn.includes('Hỏa') && zhi === 'Tuất') {
@@ -462,58 +496,66 @@ const getShenSha = (gan, zhi, { dmGan, yearZhi, dayZhi, monthZhi, yearGan, month
         }
     }
 
-    // 23. Khôi Canh
-    const isKhoiCanh = (gan === 'Canh' && zhi === 'Thìn') ||
-                       (gan === 'Nhâm' && zhi === 'Thìn') ||
-                       (gan === 'Mậu' && zhi === 'Tuất') ||
-                       (gan === 'Canh' && zhi === 'Tuất');
-    if (isKhoiCanh) {
-        list.push('Khôi Canh');
+    // 23. Khôi Cương (Natal Only)
+    if (isNatal) {
+        const isKhoiCuong = (gan === 'Canh' && zhi === 'Thìn') ||
+                            (gan === 'Nhâm' && zhi === 'Thìn') ||
+                            (gan === 'Mậu' && zhi === 'Tuất') ||
+                            (gan === 'Canh' && zhi === 'Tuất');
+        if (isKhoiCuong) {
+            list.push('Khôi Cương');
+        }
     }
 
-    // 24. Âm Dương Sai Thác
-    const isAmDuongSaiThac = (gan === 'Bính' && zhi === 'Tý') ||
-                             (gan === 'Đinh' && zhi === 'Sửu') ||
-                             (gan === 'Bính' && zhi === 'Ngọ') ||
-                             (gan === 'Đinh' && zhi === 'Mùi') ||
-                             (gan === 'Mậu' && zhi === 'Dần') ||
-                             (gan === 'Mậu' && zhi === 'Thân') ||
-                             (gan === 'Tân' && zhi === 'Mão') ||
-                             (gan === 'Tân' && zhi === 'Dậu') ||
-                             (gan === 'Nhâm' && zhi === 'Thìn') ||
-                             (gan === 'Nhâm' && zhi === 'Tuất') ||
-                             (gan === 'Quý' && zhi === 'Tỵ') ||
-                             (gan === 'Quý' && zhi === 'Hợi');
-    if (isAmDuongSaiThac) {
-        list.push('Âm Dương Sai Thác');
+    // 24. Âm Dương Sai Thác (Natal Only)
+    if (isNatal) {
+        const isAmDuongSaiThac = (gan === 'Bính' && zhi === 'Tý') ||
+                                 (gan === 'Đinh' && zhi === 'Sửu') ||
+                                 (gan === 'Bính' && zhi === 'Ngọ') ||
+                                 (gan === 'Đinh' && zhi === 'Mùi') ||
+                                 (gan === 'Mậu' && zhi === 'Dần') ||
+                                 (gan === 'Mậu' && zhi === 'Thân') ||
+                                 (gan === 'Tân' && zhi === 'Mão') ||
+                                 (gan === 'Tân' && zhi === 'Dậu') ||
+                                 (gan === 'Nhâm' && zhi === 'Thìn') ||
+                                 (gan === 'Nhâm' && zhi === 'Tuất') ||
+                                 (gan === 'Quý' && zhi === 'Tỵ') ||
+                                 (gan === 'Quý' && zhi === 'Hợi');
+        if (isAmDuongSaiThac) {
+            list.push('Âm Dương Sai Thác');
+        }
     }
 
-    // 25. Cô Loan Sát
-    const isCoLoan = (gan === 'Ất' && zhi === 'Tỵ') ||
-                     (gan === 'Đinh' && zhi === 'Tỵ') ||
-                     (gan === 'Tân' && zhi === 'Hợi') ||
-                     (gan === 'Mậu' && zhi === 'Thân') ||
-                     (gan === 'Giáp' && zhi === 'Dần') ||
-                     (gan === 'Bính' && zhi === 'Ngọ') ||
-                     (gan === 'Mậu' && zhi === 'Ngọ') ||
-                     (gan === 'Nhâm' && zhi === 'Tý');
-    if (isCoLoan) {
-        list.push('Cô Loan Sát');
+    // 25. Cô Loan Sát (Natal Only)
+    if (isNatal) {
+        const isCoLoan = (gan === 'Ất' && zhi === 'Tỵ') ||
+                         (gan === 'Đinh' && zhi === 'Tỵ') ||
+                         (gan === 'Tân' && zhi === 'Hợi') ||
+                         (gan === 'Mậu' && zhi === 'Thân') ||
+                         (gan === 'Giáp' && zhi === 'Dần') ||
+                         (gan === 'Bính' && zhi === 'Ngọ') ||
+                         (gan === 'Mậu' && zhi === 'Ngọ') ||
+                         (gan === 'Nhâm' && zhi === 'Tý');
+        if (isCoLoan) {
+            list.push('Cô Loan Sát');
+        }
     }
 
-    // 26. Thập Ác Đại Bại
-    const isThapAcDaiBai = (gan === 'Giáp' && zhi === 'Thìn') ||
-                           (gan === 'Ất' && zhi === 'Tỵ') ||
-                           (gan === 'Bính' && zhi === 'Thân') ||
-                           (gan === 'Đinh' && zhi === 'Hợi') ||
-                           (gan === 'Mậu' && zhi === 'Tuất') ||
-                           (gan === 'Kỷ' && zhi === 'Sửu') ||
-                           (gan === 'Canh' && zhi === 'Thìn') ||
-                           (gan === 'Tân' && zhi === 'Tỵ') ||
-                           (gan === 'Nhâm' && zhi === 'Thân') ||
-                           (gan === 'Quý' && zhi === 'Hợi');
-    if (isThapAcDaiBai) {
-        list.push('Thập Ác Đại Bại');
+    // 26. Thập Ác Đại Bại (Natal Only)
+    if (isNatal) {
+        const isThapAcDaiBai = (gan === 'Giáp' && zhi === 'Thìn') ||
+                               (gan === 'Ất' && zhi === 'Tỵ') ||
+                               (gan === 'Bính' && zhi === 'Thân') ||
+                               (gan === 'Đinh' && zhi === 'Hợi') ||
+                               (gan === 'Mậu' && zhi === 'Tuất') ||
+                               (gan === 'Kỷ' && zhi === 'Sửu') ||
+                               (gan === 'Canh' && zhi === 'Thìn') ||
+                               (gan === 'Tân' && zhi === 'Tỵ') ||
+                               (gan === 'Nhâm' && zhi === 'Thân') ||
+                               (gan === 'Quý' && zhi === 'Hợi');
+        if (isThapAcDaiBai) {
+            list.push('Thập Ác Đại Bại');
+        }
     }
 
     // 27. Lưu Hà Sát
@@ -552,30 +594,32 @@ const getShenSha = (gan, zhi, { dmGan, yearZhi, dayZhi, monthZhi, yearGan, month
         }
     }
 
-    // 30. Tam Kỳ Quý Nhân (Thiên Thượng, Địa Thượng, Nhân Gian)
-    // Chỉ lấy 2 chữ đầu và chỉ chấp nhận 2 tổ hợp liền kề: Năm - Tháng - Ngày hoặc Tháng - Ngày - Giờ
-    const checkTamKy = (g1, g2, g3) => {
-        if (!g1 || !g2 || !g3) return null;
-        if (g1 === 'Ất' && g2 === 'Bính' && g3 === 'Đinh') return 'Thiên Thượng';
-        if (g1 === 'Giáp' && g2 === 'Mậu' && g3 === 'Canh') return 'Địa Thượng';
-        if (g1 === 'Tân' && g2 === 'Nhâm' && g3 === 'Quý') return 'Nhân Gian';
-        return null;
-    };
+    // 30. Tam Kỳ Quý Nhân (Natal Only)
+    if (isNatal) {
+        const checkTamKy = (g1, g2, g3) => {
+            if (!g1 || !g2 || !g3) return null;
+            const set = [g1, g2, g3].sort().join(',');
+            if (set === 'Canh,Giáp,Mậu') return 'Thiên Thượng Tam Kỳ';
+            if (set === 'Nhâm,Quý,Tân') return 'Địa Thượng Tam Kỳ';
+            if (set === 'Ất,Bính,Đinh') return 'Nhân Gian Tam Kỳ';
+            return null;
+        };
 
-    const tamKyYMD = checkTamKy(yearGan, monthGan, dmGan);
-    const tamKyMDH = checkTamKy(monthGan, dmGan, hourGan);
+        const tamKyYMD = checkTamKy(yearGan, monthGan, dmGan);
+        const tamKyMDH = checkTamKy(monthGan, dmGan, hourGan);
 
-    if (pillarType === 'year' && tamKyYMD) {
-        list.push(tamKyYMD);
-    } else if (pillarType === 'month' && (tamKyYMD || tamKyMDH)) {
-        list.push(tamKyYMD || tamKyMDH);
-    } else if (pillarType === 'day' && (tamKyYMD || tamKyMDH)) {
-        list.push(tamKyYMD || tamKyMDH);
-    } else if (pillarType === 'hour' && tamKyMDH) {
-        list.push(tamKyMDH);
+        if (pillarType === 'year' && tamKyYMD) {
+            list.push(tamKyYMD);
+        } else if (pillarType === 'month' && (tamKyYMD || tamKyMDH)) {
+            list.push(tamKyYMD || tamKyMDH);
+        } else if (pillarType === 'day' && (tamKyYMD || tamKyMDH)) {
+            list.push(tamKyYMD || tamKyMDH);
+        } else if (pillarType === 'hour' && tamKyMDH) {
+            list.push(tamKyMDH);
+        }
     }
 
-    // 31. Học Đường Quý Nhân (Tra theo Can Ngày & Can Năm)
+    // 31. Học Đường Quý Nhân
     const checkHocDuongByGan = (targetGan, targetZhi) => {
         if (!targetGan || !targetZhi) return false;
         if (targetGan === 'Giáp' && targetZhi === 'Hợi') return true;
@@ -590,11 +634,17 @@ const getShenSha = (gan, zhi, { dmGan, yearZhi, dayZhi, monthZhi, yearGan, month
     };
     const isDayHocDuong = checkHocDuongByGan(dmGan, zhi);
     const isYearHocDuong = checkHocDuongByGan(yearGan, zhi);
-    if (isDayHocDuong && isYearHocDuong) list.push('Học Đường');
-    else if (isYearHocDuong) list.push('Học Đường ( năm )');
-    else if (isDayHocDuong) list.push('Học Đường ( ngày )');
+    if (isNatal) {
+        if (isDayHocDuong && isYearHocDuong) list.push('Học Đường');
+        else if (isYearHocDuong) list.push('Học Đường ( năm )');
+        else if (isDayHocDuong) list.push('Học Đường ( ngày )');
+    } else {
+        if (isDayHocDuong || isYearHocDuong) {
+            list.push('Học Đường');
+        }
+    }
 
-    // 32. Từ Quán Quý Nhân (Tra theo Can Ngày & Can Năm)
+    // 32. Từ Quán Quý Nhân
     const checkTuQuanByGan = (targetGan, targetZhi) => {
         if (!targetGan || !targetZhi) return false;
         if (targetGan === 'Giáp' && targetZhi === 'Dần') return true;
@@ -609,9 +659,15 @@ const getShenSha = (gan, zhi, { dmGan, yearZhi, dayZhi, monthZhi, yearGan, month
     };
     const isDayTuQuan = checkTuQuanByGan(dmGan, zhi);
     const isYearTuQuan = checkTuQuanByGan(yearGan, zhi);
-    if (isDayTuQuan && isYearTuQuan) list.push('Từ Quán');
-    else if (isYearTuQuan) list.push('Từ Quán ( năm )');
-    else if (isDayTuQuan) list.push('Từ Quán ( ngày )');
+    if (isNatal) {
+        if (isDayTuQuan && isYearTuQuan) list.push('Từ Quán');
+        else if (isYearTuQuan) list.push('Từ Quán ( năm )');
+        else if (isDayTuQuan) list.push('Từ Quán ( ngày )');
+    } else {
+        if (isDayTuQuan || isYearTuQuan) {
+            list.push('Từ Quán');
+        }
+    }
 
     // 33. Kim Thần
     if (pillarType === 'hour' && (yearGan === 'Giáp' || yearGan === 'Kỷ' || dmGan === 'Giáp' || dmGan === 'Kỷ')) {
@@ -665,7 +721,6 @@ const getShenSha = (gan, zhi, { dmGan, yearZhi, dayZhi, monthZhi, yearGan, month
 
     // 38. Tử Phù & 39. Bệnh Phù
     if (yearZhi) {
-        const zhis = ['Tý', 'Sửu', 'Dần', 'Mão', 'Thìn', 'Tỵ', 'Ngọ', 'Mùi', 'Thân', 'Dậu', 'Tuất', 'Hợi'];
         const yIdx = zhis.indexOf(yearZhi);
         if (yIdx !== -1) {
             const tuPhuZhi = zhis[(yIdx - 5 + 12) % 12];
@@ -673,6 +728,196 @@ const getShenSha = (gan, zhi, { dmGan, yearZhi, dayZhi, monthZhi, yearGan, month
             if (zhi === tuPhuZhi) list.push('Tử Phù');
             if (zhi === benhPhuZhi) list.push('Bệnh Phù');
         }
+    }
+
+    // ==========================================================
+    // MỚI: Bổ sung 5 Cát Thần & Hung Sát Tĩnh (Natal Only / Nhóm 1-5)
+    // ==========================================================
+    
+    // 40. Thiên Trù Quý Nhân
+    let isThienTru = false;
+    if (dmGan === 'Giáp' && zhi === 'Tỵ') isThienTru = true;
+    else if (dmGan === 'Ất' && zhi === 'Ngọ') isThienTru = true;
+    else if (dmGan === 'Bính' && zhi === 'Tỵ') isThienTru = true;
+    else if (dmGan === 'Đinh' && zhi === 'Ngọ') isThienTru = true;
+    else if (dmGan === 'Mậu' && zhi === 'Ngọ') isThienTru = true;
+    else if (dmGan === 'Kỷ' && zhi === 'Thân') isThienTru = true;
+    else if (dmGan === 'Canh' && zhi === 'Dần') isThienTru = true;
+    else if (dmGan === 'Tân' && zhi === 'Mão') isThienTru = true;
+    else if (dmGan === 'Nhâm' && zhi === 'Tý') isThienTru = true;
+    else if (dmGan === 'Quý' && zhi === 'Hợi') isThienTru = true;
+    if (isThienTru) {
+        list.push('Thiên Trù Quý Nhân');
+    }
+
+    // 41. Đường Phù
+    let isDuongPhu = false;
+    if (dmGan === 'Giáp' && zhi === 'Tuất') isDuongPhu = true;
+    else if (dmGan === 'Ất' && zhi === 'Hợi') isDuongPhu = true;
+    else if (dmGan === 'Bính' && zhi === 'Sửu') isDuongPhu = true;
+    else if (dmGan === 'Đinh' && zhi === 'Dần') isDuongPhu = true;
+    else if (dmGan === 'Mậu' && zhi === 'Sửu') isDuongPhu = true;
+    else if (dmGan === 'Kỷ' && zhi === 'Dần') isDuongPhu = true;
+    else if (dmGan === 'Canh' && zhi === 'Thìn') isDuongPhu = true;
+    else if (dmGan === 'Tân' && zhi === 'Tỵ') isDuongPhu = true;
+    else if (dmGan === 'Nhâm' && zhi === 'Mùi') isDuongPhu = true;
+    else if (dmGan === 'Quý' && zhi === 'Thân') isDuongPhu = true;
+    if (isDuongPhu) {
+        list.push('Đường Phù');
+    }
+
+    // 42. Hồng Diễm Sát
+    let isHongDiem = false;
+    if (dmGan === 'Giáp' && zhi === 'Thân') isHongDiem = true;
+    else if (dmGan === 'Ất' && zhi === 'Ngọ') isHongDiem = true;
+    else if (dmGan === 'Bính' && zhi === 'Dần') isHongDiem = true;
+    else if (dmGan === 'Đinh' && zhi === 'Mùi') isHongDiem = true;
+    else if (dmGan === 'Mậu' && zhi === 'Thìn') isHongDiem = true;
+    else if (dmGan === 'Kỷ' && zhi === 'Thìn') isHongDiem = true;
+    else if (dmGan === 'Canh' && zhi === 'Tuất') isHongDiem = true;
+    else if (dmGan === 'Tân' && zhi === 'Dậu') isHongDiem = true;
+    else if (dmGan === 'Nhâm' && zhi === 'Tý') isHongDiem = true;
+    else if (dmGan === 'Quý' && zhi === 'Thân') isHongDiem = true;
+    if (isHongDiem) {
+        list.push('Hồng Diễm Sát');
+    }
+
+    if (isNatal) {
+        // 44. Phi Nhẫn (Đối xung với Kình Dương)
+        let isPhiNhan = false;
+        if (dmGan === 'Giáp' && zhi === 'Dậu') isPhiNhan = true;
+        else if (dmGan === 'Ất' && zhi === 'Tuất') isPhiNhan = true;
+        else if ((dmGan === 'Bính' || dmGan === 'Mậu') && zhi === 'Tý') isPhiNhan = true;
+        else if ((dmGan === 'Đinh' || dmGan === 'Kỷ') && zhi === 'Sửu') isPhiNhan = true;
+        else if (dmGan === 'Canh' && zhi === 'Mão') isPhiNhan = true;
+        else if (dmGan === 'Tân' && zhi === 'Thìn') isPhiNhan = true;
+        else if (dmGan === 'Nhâm' && zhi === 'Ngọ') isPhiNhan = true;
+        else if (dmGan === 'Quý' && zhi === 'Mùi') isPhiNhan = true;
+        if (isPhiNhan) {
+            list.push('Phi Nhẫn');
+        }
+
+        // 45. Nguyên Thần (Đại Hao cố định)
+        if (yearZhi && yearGan && gender !== undefined) {
+            const isDuongYear = ['Giáp', 'Bính', 'Mậu', 'Canh', 'Nhâm'].includes(yearGan);
+            const yIdx = zhis.indexOf(yearZhi);
+            let targetIdx = -1;
+            if ((gender === 1 && isDuongYear) || (gender === 0 && !isDuongYear)) {
+                targetIdx = (yIdx + 7) % 12;
+            } else {
+                targetIdx = (yIdx + 5) % 12;
+            }
+            if (targetIdx !== -1 && zhis[targetIdx] === zhi) {
+                list.push('Nguyên Thần');
+            }
+        }
+    }
+
+    return list;
+};
+
+// =========================================================================
+// MỚI: Bảng Thần Sát Vận Hạn dự báo Vòng Thái Tuế Lưu Niên & Sao Chiếu
+// =========================================================================
+const getLuuNienShenShaForPillar = (pillarZhi, pillarGan, luuNienGan, luuNienZhi, context) => {
+    const list = [];
+    const { dmGan, yearZhi, dayZhi } = context;
+    const zhis = ['Tý', 'Sửu', 'Dần', 'Mão', 'Thìn', 'Tỵ', 'Ngọ', 'Mùi', 'Thân', 'Dậu', 'Tuất', 'Hợi'];
+    const pIdx = zhis.indexOf(pillarZhi);
+    const lnIdx = zhis.indexOf(luuNienZhi);
+    if (pIdx === -1 || lnIdx === -1) return [];
+
+    const diff = (pIdx - lnIdx + 12) % 12;
+
+    // 12 Sao Vòng Thái Tuế Lưu Niên
+    if (diff === 0) list.push('Thái Tuế');
+    else if (diff === 1) list.push('Thiếu Dương');
+    else if (diff === 2) list.push('Tang Môn');
+    else if (diff === 3) list.push('Thiếu Âm');
+    else if (diff === 4) list.push('Quan Phù');
+    else if (diff === 5) {
+        list.push('Tử Phù');
+        list.push('Tiểu Hao');
+    }
+    else if (diff === 6) {
+        list.push('Tuế Phá');
+        list.push('Đại Hao');
+    }
+    else if (diff === 7) list.push('Long Đức');
+    else if (diff === 8) list.push('Bạch Hổ');
+    else if (diff === 9) list.push('Phúc Đức');
+    else if (diff === 10) list.push('Điếu Khách');
+    else if (diff === 11) list.push('Trực Phù');
+
+    // Các Sao Chiếu theo Can/Chi của năm lưu niên
+    const checkThienAtByGan = (targetGan, targetZhi) => {
+        if (!targetGan || !targetZhi) return false;
+        if (targetGan === 'Giáp' || targetGan === 'Mậu') return targetZhi === 'Sửu' || targetZhi === 'Mùi';
+        if (targetGan === 'Ất' || targetGan === 'Kỷ') return targetZhi === 'Tý' || targetZhi === 'Thân';
+        if (targetGan === 'Bính' || targetGan === 'Đinh') return targetZhi === 'Hợi' || targetZhi === 'Dậu';
+        if (targetGan === 'Canh' || targetGan === 'Tân') return targetZhi === 'Dần' || targetZhi === 'Ngọ';
+        if (targetGan === 'Nhâm' || targetGan === 'Quý') return targetZhi === 'Tỵ' || targetZhi === 'Mão';
+        return false;
+    };
+    if (checkThienAtByGan(luuNienGan, pillarZhi)) {
+        list.push('Thiên Ất Quý Nhân');
+    }
+
+    const checkVanXuongByGan = (targetGan, targetZhi) => {
+        if (!targetGan || !targetZhi) return false;
+        if (targetGan === 'Giáp' && targetZhi === 'Tỵ') return true;
+        if (targetGan === 'Ất' && targetZhi === 'Ngọ') return true;
+        if ((targetGan === 'Bính' || targetGan === 'Mậu') && targetZhi === 'Thân') return true;
+        if ((targetGan === 'Đinh' || targetGan === 'Kỷ') && targetZhi === 'Dậu') return true;
+        if (targetGan === 'Canh' && targetZhi === 'Hợi') return true;
+        if (targetGan === 'Tân' && targetZhi === 'Tý') return true;
+        if (targetGan === 'Nhâm' && targetZhi === 'Dần') return true;
+        if (targetGan === 'Quý' && targetZhi === 'Mão') return true;
+        return false;
+    };
+    if (checkVanXuongByGan(luuNienGan, pillarZhi)) {
+        list.push('Văn Xương');
+    }
+
+    const checkMatch = (zhi, val) => {
+        return (['Thân', 'Tý', 'Thìn'].includes(zhi) && val === 'Thân_Tý_Thìn') ||
+               (['Dần', 'Ngọ', 'Tuất'].includes(zhi) && val === 'Dần_Ngọ_Tuất') ||
+               (['Tỵ', 'Dậu', 'Sửu'].includes(zhi) && val === 'Tỵ_Dậu_Sửu') ||
+               (['Hợi', 'Mão', 'Mùi'].includes(zhi) && val === 'Hợi_Mão_Mùi');
+    };
+
+    if (pillarZhi === 'Dần' && checkMatch(luuNienZhi, 'Thân_Tý_Thìn')) list.push('Dịch Mã');
+    else if (pillarZhi === 'Thân' && checkMatch(luuNienZhi, 'Dần_Ngọ_Tuất')) list.push('Dịch Mã');
+    else if (pillarZhi === 'Hợi' && checkMatch(luuNienZhi, 'Tỵ_Dậu_Sửu')) list.push('Dịch Mã');
+    else if (pillarZhi === 'Tỵ' && checkMatch(luuNienZhi, 'Hợi_Mão_Mùi')) list.push('Dịch Mã');
+
+    if (pillarZhi === 'Dậu' && checkMatch(luuNienZhi, 'Thân_Tý_Thìn')) list.push('Đào Hoa');
+    else if (pillarZhi === 'Mão' && checkMatch(luuNienZhi, 'Dần_Ngọ_Tuất')) list.push('Đào Hoa');
+    else if (pillarZhi === 'Ngọ' && checkMatch(luuNienZhi, 'Tỵ_Dậu_Sửu')) list.push('Đào Hoa');
+    else if (pillarZhi === 'Tý' && checkMatch(luuNienZhi, 'Hợi_Mão_Mùi')) list.push('Đào Hoa');
+
+    if (['Thân', 'Tý', 'Thìn'].includes(luuNienZhi) && pillarZhi === 'Thìn') list.push('Hoa Cái');
+    else if (['Dần', 'Ngọ', 'Tuất'].includes(luuNienZhi) && pillarZhi === 'Tuất') list.push('Hoa Cái');
+    else if (['Tỵ', 'Dậu', 'Sửu'].includes(luuNienZhi) && pillarZhi === 'Sửu') list.push('Hoa Cái');
+    else if (['Hợi', 'Mão', 'Mùi'].includes(luuNienZhi) && pillarZhi === 'Mùi') list.push('Hoa Cái');
+
+    if (pillarZhi === 'Tỵ' && checkMatch(luuNienZhi, 'Thân_Tý_Thìn')) list.push('Kiếp Sát');
+    else if (pillarZhi === 'Hợi' && checkMatch(luuNienZhi, 'Dần_Ngọ_Tuất')) list.push('Kiếp Sát');
+    else if (pillarZhi === 'Dần' && checkMatch(luuNienZhi, 'Tỵ_Dậu_Sửu')) list.push('Kiếp Sát');
+    else if (pillarZhi === 'Thân' && checkMatch(luuNienZhi, 'Hợi_Mão_Mùi')) list.push('Kiếp Sát');
+
+    if (['Hợi', 'Tý', 'Sửu'].includes(luuNienZhi)) {
+        if (pillarZhi === 'Dần') list.push('Cô Thần');
+        if (pillarZhi === 'Tuất') list.push('Quả Tú');
+    } else if (['Dần', 'Mão', 'Thìn'].includes(luuNienZhi)) {
+        if (pillarZhi === 'Tỵ') list.push('Cô Thần');
+        if (pillarZhi === 'Sửu') list.push('Quả Tú');
+    } else if (['Tỵ', 'Ngọ', 'Mùi'].includes(luuNienZhi)) {
+        if (pillarZhi === 'Thân') list.push('Cô Thần');
+        if (pillarZhi === 'Thìn') list.push('Quả Tú');
+    } else if (['Thân', 'Dậu', 'Tuất'].includes(luuNienZhi)) {
+        if (pillarZhi === 'Hợi') list.push('Cô Thần');
+        if (pillarZhi === 'Mùi') list.push('Quả Tú');
     }
 
     return list;
@@ -1376,8 +1621,15 @@ class BaziAnalyzer {
         const ratioKhacTiet = dongDang > 0 ? (khacTiet / dongDang) : 99;
 
         // 1. Tòng cách hoặc quá suy yếu
-        if (isTongCach || pctDongDang < 15.0) {
-            return { level: 'CỰC NHƯỢC', code: 'cuc_nhuoc', description: 'Thân Cực Nhược (Bị Khắc/Tiết/Hao áp đảo hoàn toàn, đạt trạng thái Tòng Cách)' };
+        if (isTongCach) {
+            if (pctDongDang >= 50.0) {
+                return { level: 'CỰC VƯỢNG', code: 'cuc_vuong', description: 'Thân Cực Vượng (Đạt trạng thái Tòng Vượng/Tòng Cường cách)' };
+            } else {
+                return { level: 'CỰC NHƯỢC', code: 'cuc_nhuoc', description: 'Thân Cực Nhược (Bị Khắc/Tiết/Hao áp đảo hoàn toàn, đạt trạng thái Tòng Cách)' };
+            }
+        }
+        if (pctDongDang < 15.0) {
+            return { level: 'CỰC NHƯỢC', code: 'cuc_nhuoc', description: 'Thân Cực Nhược (Bị Khắc/Tiết/Hao áp đảo hoàn toàn)' };
         }
 
         // 2. Xét theo Đắc lệnh
@@ -1637,7 +1889,9 @@ class BaziAnalyzer {
             monthZhi: toVi(baziAdjusted.getMonthZhi()),
             yearGan: toVi(baziAdjusted.getYearGan()),
             monthGan: toVi(baziAdjusted.getMonthGan()),
-            hourGan: toVi(baziLocal.getTimeGan())
+            hourGan: toVi(baziLocal.getTimeGan()),
+            hourZhi: toVi(baziLocal.getTimeZhi()),
+            gender: genderInt
         };
 
         const dmGan = toVi(baziLocal.getDayGan());
@@ -1841,6 +2095,56 @@ class BaziAnalyzer {
                     
                     const lnPillar = buildExtraPillar(yrGan, yrZhi, true);
                     
+                    const annualShenSha = {
+                        year: getLuuNienShenShaForPillar(canChi.year.zhi, canChi.year.gan, yrGan, yrZhi, context),
+                        month: getLuuNienShenShaForPillar(canChi.month.zhi, canChi.month.gan, yrGan, yrZhi, context),
+                        day: getLuuNienShenShaForPillar(canChi.day.zhi, canChi.day.gan, yrGan, yrZhi, context),
+                        hour: getLuuNienShenShaForPillar(canChi.hour.zhi, canChi.hour.gan, yrGan, yrZhi, context)
+                    };
+
+                    const nienVanTinh = [];
+                    // Can-based
+                    if (yrGan === 'Giáp' || yrGan === 'Mậu') nienVanTinh.push({ name: 'Quý Nhân', zhi: 'Sửu; Mùi' });
+                    else if (yrGan === 'Ất' || yrGan === 'Kỷ') nienVanTinh.push({ name: 'Quý Nhân', zhi: 'Tý; Thân' });
+                    else if (yrGan === 'Bính' || yrGan === 'Đinh') nienVanTinh.push({ name: 'Quý Nhân', zhi: 'Hợi; Dậu' });
+                    else if (yrGan === 'Canh' || yrGan === 'Tân') nienVanTinh.push({ name: 'Quý Nhân', zhi: 'Dần; Ngọ' });
+                    else if (yrGan === 'Nhâm' || yrGan === 'Quý') nienVanTinh.push({ name: 'Quý Nhân', zhi: 'Tỵ; Mão' });
+
+                    // Đào Hoa / Dịch Mã
+                    const zhisList = ['Tý', 'Sửu', 'Dần', 'Mão', 'Thìn', 'Tỵ', 'Ngọ', 'Mùi', 'Thân', 'Dậu', 'Tuất', 'Hợi'];
+                    if (['Thân', 'Tý', 'Thìn'].includes(yrZhi)) {
+                        nienVanTinh.push({ name: 'Đào Hoa', zhi: 'Dậu' });
+                        nienVanTinh.push({ name: 'Thiên Mã', zhi: 'Dần' });
+                    } else if (['Dần', 'Ngọ', 'Tuất'].includes(yrZhi)) {
+                        nienVanTinh.push({ name: 'Đào Hoa', zhi: 'Mão' });
+                        nienVanTinh.push({ name: 'Thiên Mã', zhi: 'Thân' });
+                    } else if (['Tỵ', 'Dậu', 'Sửu'].includes(yrZhi)) {
+                        nienVanTinh.push({ name: 'Đào Hoa', zhi: 'Ngọ' });
+                        nienVanTinh.push({ name: 'Thiên Mã', zhi: 'Hợi' });
+                    } else if (['Hợi', 'Mão', 'Mùi'].includes(yrZhi)) {
+                        nienVanTinh.push({ name: 'Đào Hoa', zhi: 'Tý' });
+                        nienVanTinh.push({ name: 'Thiên Mã', zhi: 'Tỵ' });
+                    }
+
+                    // Hồng Loan
+                    const hlMap = {
+                        'Tý': 'Mão', 'Sửu': 'Dần', 'Dần': 'Sửu', 'Mão': 'Tý', 'Thìn': 'Hợi', 'Tỵ': 'Tuất',
+                        'Ngọ': 'Dậu', 'Mùi': 'Thân', 'Thân': 'Mùi', 'Dậu': 'Ngọ', 'Tuất': 'Tỵ', 'Hợi': 'Thìn'
+                    };
+                    if (context.yearZhi && hlMap[context.yearZhi]) {
+                        nienVanTinh.push({ name: 'Hồng Loan', zhi: hlMap[context.yearZhi] });
+                    }
+
+                    // Vòng Thái Tuế
+                    nienVanTinh.push({ name: 'Thái Tuế', zhi: yrZhi });
+                    const yrIdx = zhisList.indexOf(yrZhi);
+                    if (yrIdx !== -1) {
+                        nienVanTinh.push({ name: 'Tuế Phá', zhi: zhisList[(yrIdx + 6) % 12] });
+                        nienVanTinh.push({ name: 'Đại Hao', zhi: zhisList[(yrIdx + 6) % 12] });
+                        nienVanTinh.push({ name: 'Tiểu Hao', zhi: zhisList[(yrIdx + 5) % 12] });
+                        nienVanTinh.push({ name: 'Phúc Đức', zhi: zhisList[(yrIdx + 9) % 12] });
+                    }
+                    
                     liuNian.push({
                         year: curYear,
                         age: curAge,
@@ -1851,7 +2155,9 @@ class BaziAnalyzer {
                         tangCan: lnPillar.tangCan,
                         naYin: lnPillar.naYin,
                         truongSinh: lnPillar.truongSinh,
-                        shenSha: lnPillar.shenSha
+                        shenSha: lnPillar.shenSha,
+                        annualShenSha,
+                        nienVanTinh
                     });
                 }
             }
@@ -2754,6 +3060,22 @@ class BaziAnalyzer {
                         const maxPenalty = -0.4 * (scoreCon - 2.5 * scoreCha);
                         const penalty = maxPenalty * activation;
                         currentScores[cha] = Math.max(0, scoreCha + penalty);
+                    }
+                }
+            });
+
+            // Thuận khắc cực đoan (Cường khắc): Hành khắc quá vượng sẽ tiêu diệt/làm suy kiệt hành bị khắc (ví dụ: Thủy vượng Hỏa tắt)
+            this.rules.elements.forEach(attacker => {
+                const victim = Object.keys(this.rules.relation[attacker]).find(k => this.rules.relation[attacker][k] === 'khac');
+                if (victim) {
+                    const scoreAttacker = currentScores[attacker];
+                    const scoreVictim = currentScores[victim];
+                    const attackerPct = scoreAttacker / totalAfterSat;
+                    
+                    if (attackerPct > 0.40 && scoreVictim > 0) {
+                        const activation = smoothStep(0.40, 0.70, attackerPct);
+                        const factor = 1.0 - (0.90 * activation); // giảm tới 90%
+                        currentScores[victim] *= factor;
                     }
                 }
             });

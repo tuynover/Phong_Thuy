@@ -113,10 +113,16 @@ Tác vụ chạy định kỳ lúc nửa đêm của `NotificationScheduler.js` 
 *   **Bão hòa & Bù đắp:** 
     *   Hành cực thịnh bị bão hòa năng lượng (tỷ lệ $>40\% \rightarrow$ giảm $30\%$ bonus; $>50\% \rightarrow$ giảm $50\%$; $>60\% \rightarrow$ giảm $80\%$).
     *   Hành cực suy được bù đắp hỗ trợ chuyển hóa (tỷ lệ $<8\% \rightarrow$ nhân $1.3$ lần bonus; $<5\% \rightarrow$ nhân $1.5$ lần).
+*   **Mẹ vượng hại con (Phản sinh cực đoan):** Nếu hành mẹ chiếm tỷ lệ $>30\%$, sẽ gây áp lực phạt giảm mạnh hành con (như Thủy vượng Mộc trôi).
+*   **Con vượng khắc ngược cha (Phản khắc cực đoan):** Nếu hành con vượt trội hơn gấp đôi hành cha, hành cha sẽ bị phạt giảm mạnh (như Thủy vượng Thổ lưu).
+*   **Thuận khắc cực đoan (Cường khắc):** Nếu hành khắc (attacker) quá mạnh chiếm tỷ lệ $>40\%$ tổng lượng ngũ hành, hành bị khắc (victim) sẽ bị hủy diệt hoặc làm suy kiệt nặng nề (giảm tới $90\%$ lực lượng, ví dụ: Thủy vượng Hỏa tắt).
 
 ### 5.5 Điểm Sàn Phân Cấp & Chuẩn Hóa
 *   **Điểm sàn phân cấp:** Khi không tòng cách, điểm sàn tối thiểu phụ thuộc vào mức độ hiện diện: Can lộ ($5\%$), Bản khí ẩn ($4\%$), Trung khí ẩn ($2\%$), Dư khí ẩn ($1\%$) của điểm cơ sở ngũ hành.
 *   **Tòng cách bypass:** Nếu có 1 hành vượt trội chiếm $>65\%$ tổng điểm thô $\rightarrow$ Vô hiệu hóa hoàn toàn điểm sàn để các hành bị xung khắc rơi tự do về $0\%$.
+*   **Đánh giá Năng lượng Tòng Cách:**
+    *   *Tòng Nhược (Tòng Tài/Sát/Nhi):* Đồng Đảng dưới 50% $\rightarrow$ Nhật Chủ ở trạng thái **CỰC NHƯỢC**.
+    *   *Tòng Vượng/Tòng Cường (Nhuận Hạ, Viêm Thượng, v.v.):* Đồng Đảng từ 50% trở lên $\rightarrow$ Nhật Chủ ở trạng thái **CỰC VƯỢNG**.
 
 ### 5.6 Các Chỉ Số Học Thuật Cao Cấp (Output)
 *   **Entropy ($H$):** Đo lường mức độ lưu thông/cân bằng của lá số:
@@ -274,6 +280,18 @@ Hệ thống triển khai cơ chế kiểm soát dữ liệu đầu vào nghiêm
 - Áp dụng tại dòng code đầu tiên của cả 4 Controller: [`BaziController.js`](file:///t:/Phongthuy/backend/src/controllers/BaziController.js#L73), [`ZiweiController.js`](file:///t:/Phongthuy/backend/src/controllers/ZiweiController.js#L11), [`MarriageController.js`](file:///t:/Phongthuy/backend/src/controllers/MarriageController.js#L73), và [`IChingController.js`](file:///t:/Phongthuy/backend/src/controllers/IChingController.js#L7).
 - Thực thi các hàm `validateBaziInput`, `validateZiweiInput`, `validateMarriageInput`, và `validateIChingInput`.
 - Phản hồi ngay lập tức HTTP status `400 Bad Request` trong $<0.005$ms nếu dữ liệu không hợp lệ, bảo vệ máy chủ khỏi các request rác hoặc tấn công quá tải.
+
+### 7.2 Quy Tắc Thiết Kế Form Nhập Liệu Chuẩn Hóa
+- **Tử Vi Form (`ZiweiInput.jsx`):**
+  - Tách riêng thành component độc lập tương tự `BaziInput.jsx`.
+  - Không điền sẵn giá trị mặc định cho Ngày, Tháng, Năm, Giờ, Phút (khởi tạo rỗng `''`), yêu cầu người dùng chủ động chọn hoặc gõ.
+  - Áp dụng Combobox vừa gõ vừa chọn (`editable={true}`) kèm hỗ trợ bộ chọn ngày `CustomDatePicker`.
+- **Kinh Dịch Form (`IChingInput.jsx`):**
+  - Tập trung 3 phương thức lập quẻ (Gieo quẻ ảo 3 đồng xu, Mai Hoa Giờ Động Tâm / Seri Tiền, Nhập thủ công) vào duy nhất tệp `IChingInput.jsx` mà vẫn bảo toàn 100% giao diện và trải nghiệm gốc.
+
+### 7.3 Quy Tắc Tải Chi Tiết Lá Số Từ Thư Mục / Lịch Sử
+- **Cơ chế tải xem trước (Lightweight Preview):** Danh sách lịch sử và danh sách lá số trong thư mục chỉ tải thông tin tóm tắt (`inputInfo`, `tags`, `isPublic`, `createdAt`) để cuộn nhanh.
+- **Tự động tải chi tiết (Lazy Full Fetching):** Khi bấm "Xem chi tiết", hệ thống tự động kiểm tra sự tồn tại của dữ liệu chi tiết (`canChi`, `baziData`, `maleBaziData`, `femaleBaziData`). Nếu thiếu (do dữ liệu trả về từ xem trước), hệ thống bắt buộc kích hoạt gọi API `getBaziRecord(id)` hoặc `getMarriageRecord(id)` để nạp 100% dữ liệu trước khi chuyển tab, triệt tiêu hoàn toàn hiện tượng vỡ giao diện hay trống trơn thông tin.
 
 
 

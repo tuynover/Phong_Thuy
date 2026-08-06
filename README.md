@@ -26,11 +26,12 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
 ### 🌟 Chức năng chính theo từng Phân hệ
 
 #### A. Kinh Dịch (IChing Board)
-* Giao diện tích hợp 2 bảng điều khiển chính:
+* Giao diện tích hợp tất cả các phương thức gieo quẻ vào một thành phần duy nhất **[`IChingInput.jsx`](file:///t:/Phongthuy/frontend/src/components/IChingInput.jsx)** mà vẫn giữ nguyên 100% giao diện và trải nghiệm người dùng:
   * **Gieo Quẻ Lục Hào (Coin Toss):** Mô phỏng gieo quẻ ảo (tung 3 đồng xu 6 lần), tính toán Quẻ Chính, Quẻ Biến, Hào Động, Vượng Suy, Vòng Trường Sinh (12 giai đoạn), Quái Thân và các mối quan hệ Ngũ Hành.
   * **Mai Hoa Dịch Số (Mai Hoa Input):** Hỗ trợ lập quẻ theo 2 phương thức: **Giờ Động Tâm** (tính toán dựa trên ngày giờ) và **Seri Tiền 8 Số** (dãy số ngẫu nhiên). Công thức Số Lý Động Tâm được hiển thị trực quan và chi tiết ngay trên màn hình.
+  * **Nhập Thủ Công (Manual Input):** Nhập trực tiếp các âm dương của 6 hào.
 * **Thầy Dịch Giải AI:** Nút nổi bật (Floating Action Button - FAB) góc dưới khi tạo quẻ thành công, cung cấp luồng xác thực đăng nhập trước khi gọi AI và hiển thị trạng thái phân tích động (Đang xét Nhật Nguyệt, Đang tính Hào Động...).
-* Tệp tin liên quan: [IChingBoard.jsx](file:///t:/Phongthuy/frontend/src/components/IChingBoard.jsx), [MaiHoaInput.jsx](file:///t:/Phongthuy/frontend/src/components/MaiHoaInput.jsx), [CoinToss.jsx](file:///t:/Phongthuy/frontend/src/components/CoinToss.jsx).
+* Tệp tin liên quan: [IChingBoard.jsx](file:///t:/Phongthuy/frontend/src/components/IChingBoard.jsx), [IChingInput.jsx](file:///t:/Phongthuy/frontend/src/components/IChingInput.jsx).
 
 #### B. Mệnh Số Bát Tự (Bazi Board)
 * Nhập ngày giờ sinh để lập lá số Tứ Trụ.
@@ -39,12 +40,13 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
 * Tệp tin liên quan: [BaziBoard.jsx](file:///t:/Phongthuy/frontend/src/components/BaziBoard.jsx), [BaziInput.jsx](file:///t:/Phongthuy/frontend/src/components/BaziInput.jsx).
 
 #### C. Lá Số Tử Vi (Ziwei Board & Chart)
+* **Form Nhập Liệu Tách Riêng (`ZiweiInput.jsx`):** Được tách thành component độc lập theo cấu trúc của `BaziInput.jsx`. Hỗ trợ vừa nhập vừa chọn (Combobox `editable={true}`), không khởi tạo sẵn giá trị mặc định cho Ngày, Tháng, Năm, Giờ, Phút (khởi tạo rỗng `''`), tích hợp component lịch chọn ngày tùy chỉnh `CustomDatePicker`.
 * **Mệnh bàn 4x4 truyền thống:** Đồ hình 12 cung sắp xếp vòng quanh Trung Cung theo tọa độ Địa Chi chuẩn cổ học phương Đông.
 * **Phân tích Tinh Tú:** Hiển thị Chính tinh kèm độ sáng (Miếu, Vượng, Đắc, Bình, Hãm), Lục cát tinh, Lục sát tinh và tạp tinh được chia thành các cột Cát/Sát rõ ràng, phân biệt màu sắc ngũ hành từng sao.
 * **Vòng Trường Sinh & Hạn:** Hiển thị Đại Hạn, Tiểu Hạn, Nguyệt Hạn tương ứng trên các cung vị.
 * **Mobile List View:** Tự động tối ưu hóa và thu gọn bố cục thành danh sách rút gọn mượt mà trên thiết bị di động.
 * **Thầy Tử Vi AI:** Gửi yêu cầu giải đoán trực tiếp. Hệ thống hiển thị dòng văn bản luận giải trực quan qua luồng SSE Stream thời gian thực tương tự như Kinh Dịch và Bát Tự.
-* Tệp tin liên quan: [ZiweiBoard.jsx](file:///t:/Phongthuy/frontend/src/components/ZiweiBoard.jsx), [ZiweiChart.jsx](file:///t:/Phongthuy/frontend/src/components/ZiweiChart.jsx).
+* Tệp tin liên quan: [ZiweiBoard.jsx](file:///t:/Phongthuy/frontend/src/components/ZiweiBoard.jsx), [ZiweiChart.jsx](file:///t:/Phongthuy/frontend/src/components/ZiweiChart.jsx), [ZiweiInput.jsx](file:///t:/Phongthuy/frontend/src/components/ZiweiInput.jsx).
 
 #### D. Hợp Hôn - Xem Tuổi Kết Hôn (Marriage Board)
 * Cho phép nhập đầy đủ thông tin ngày giờ sinh của cả Nam và Nữ để kiểm tra mức độ hòa hợp.
@@ -117,6 +119,11 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
     * **SEO & Meta Tags:** Viết bộ xử lý render tĩnh HTML (`backend/src/routes/seo.js`), tự động nạp index.html của frontend và tiêm (inject) các thẻ meta tags Open Graph động phục vụ hiển thị ảnh đại diện và mô tả khi chia sẻ link Bát tự/Tử vi/Kinh dịch công khai lên các mạng xã hội.
     * **Dynamic XML Sitemap:** Endpoint `/sitemap.xml` tự động tổng hợp danh sách các trang chính tĩnh, bài viết Blog đã xuất bản, và các liên kết lá số công khai (`isPublic: true`) của người dùng để dẫn đường cho bot tìm kiếm thu thập dữ liệu.
     * **Google Indexing API:** Tự động gửi các sự kiện ping thông báo (`URL_UPDATED` khi tạo bài viết/bật chia sẻ, hoặc `URL_DELETED` khi xóa mềm/tắt chia sẻ) lên API Google Indexing để đẩy nhanh tốc độ lập chỉ mục nội dung.
+11. **Tối Ưu Hóa Form Nhập Liệu, Hệ Thống Thẻ Thư Mục Đồng Bộ & Tải Lá Số Chuẩn (08/2026):**
+    * **Gộp Form Nhập Kinh Dịch (`IChingInput.jsx`):** Hợp nhất toàn bộ 3 phương thức gieo quẻ (Lục Hào Tung Xu, Mai Hoa Giờ Động Tâm / Seri Tiền, Nhập Thủ Công) về một component duy nhất `IChingInput.jsx` để dễ quản lý và dọn dẹp các tệp dư thừa (`CoinToss.jsx`, `MaiHoaInput.jsx`, `ManualInput.jsx`).
+    * **Tách Form Tử Vi (`ZiweiInput.jsx`):** Đóng gói form nhập Tử Vi thành component độc lập theo chuẩn của `BaziInput.jsx`, hỗ trợ Combobox vừa nhập vừa chọn, không nhập sẵn giá trị mặc định cho Ngày, Tháng, Năm, Giờ, Phút (khởi tạo rỗng `''`), tích hợp component lịch tùy chỉnh `CustomDatePicker`.
+    * **Đồng Bộ Nút Thẻ Thư Mục (Tags):** Bổ sung đầy đủ Badge nhãn thẻ `🏷️ [Tên thẻ]` và nút Icon Tag 🏷️ cho cả 4 phân hệ (Kinh Dịch, Bát Tự, Tử Vi, Hôn Nhân) trên thẻ danh sách `HistoryBoard.jsx` và modal `MyFoldersModal.jsx`.
+    * **Tự Động Tải Chi Tiết Lá Số (Full-Detail Fetching):** Xử lý tự động bóc tách dữ liệu lồng `baziData`/`marriageData`/`analysisSnapshot` ở `BaziBoard.jsx` và `MarriageBoard.jsx`. Tự động kích hoạt gọi API `getBaziRecord(id)` và `getMarriageRecord(id)` khi bấm xem chi tiết từ Lịch sử / Lá số của tôi, khắc phục triệt để lỗi màn hình trắng hay trống trơn dữ liệu.
 
 ---
 
@@ -236,9 +243,11 @@ Hệ thống API Backend sử dụng tiền tố `/api` và phân chia thành c�
    ```
 5. Mở trình duyệt và truy cập `http://localhost:5173`.
 
-### 🐳 Cách 2: Khởi chạy bằng Docker Compose (Khuyên dùng cho AWS VM hoặc môi trường đóng gói)
+### 🐳 Cách 2: Khởi chạy bằng Docker Compose và Luồng Tự Động CI/CD
 
-Nếu bạn muốn chạy đóng gói toàn bộ hệ thống (Frontend và Backend) cùng Nginx Reverse Proxy (lắng nghe ở cổng 80), hãy làm theo các bước sau:
+Dự án đã được tích hợp quy trình **Tích hợp và Triển khai Liên tục (CI/CD)** hoàn chỉnh qua GitHub Actions (xem chi tiết tại [DEVELOPMENT_GUIDE.md](file:///t:/Phongthuy/docs/DEVELOPMENT_GUIDE.md) và [ARCHITECTURE.md](file:///t:/Phongthuy/docs/ARCHITECTURE.md)).
+
+Nếu bạn muốn chạy đóng gói thủ công trên máy cục bộ, hãy làm theo các bước sau:
 
 1. Đảm bảo đã tạo và cấu hình tệp `.env` tại thư mục `/backend` (kết nối MongoDB Atlas, cấu hình JWT_SECRET, GEMINI_API_KEY...).
 2. Tại thư mục gốc của dự án, khởi chạy Docker Compose:

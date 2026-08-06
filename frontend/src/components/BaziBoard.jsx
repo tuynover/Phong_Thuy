@@ -400,13 +400,28 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
         'Quan Phù': 'text-rose-600',
         'Không Vong': 'text-rose-600',
         'Thập Ác Đại Bại': 'text-rose-600',
+        'Tỷ Kiên Cô Quả': 'text-rose-600',
+        'Phi Nhẫn': 'text-rose-600',
+        'Tang Môn': 'text-rose-600',
+        'Điếu Khách': 'text-rose-600',
+        'Trực Phù': 'text-rose-600',
 
         // Duyên Tình & Trung Tính (Màu Hồng / Xám Đen)
         'Đào Hoa': 'text-pink-600',
+        'Hồng Diễm Sát': 'text-pink-600',
         'Dịch Mã': 'text-slate-800',
         'Hoa Cái': 'text-slate-800',
-        'Khôi Canh': 'text-slate-800',
-        'Âm Dương Sai Thác': 'text-slate-800'
+        'Khôi Cương': 'text-slate-800',
+        'Âm Dương Sai Thác': 'text-slate-800',
+        'Thái Tuế': 'text-slate-800',
+
+        // Cát Thần Vận Hạn
+        'Thiên Trù Quý Nhân': 'text-emerald-600',
+        'Đường Phù': 'text-emerald-600',
+        'Thiếu Dương': 'text-emerald-600',
+        'Thiếu Âm': 'text-emerald-600',
+        'Long Đức': 'text-emerald-600',
+        'Phúc Đức': 'text-emerald-600'
     };
 
     const getShenShaColorClass = (ss) => {
@@ -454,7 +469,7 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
         const isMainBaziPillar = isMainBazi;
 
         return (
-            <div className={`relative flex flex-col items-center py-2.5 sm:py-4 md:py-5.5 rounded-xl shadow-sm border-2 ${isDayMaster ? 'border-amber-500 bg-amber-50/30 ring-4 ring-amber-100' : 'border-gray-200 bg-white'} flex-1 ${isMainBaziPillar ? 'md:min-w-[170px] md:max-w-[200px] px-3 sm:px-5 md:px-6 mx-1 sm:mx-1.5' : 'md:min-w-[15%] md:max-w-[20%] px-1.5 sm:px-3 md:px-4'} self-stretch h-full`}>
+            <div className={`relative flex flex-col items-center py-2.5 sm:py-4 md:py-5.5 rounded-xl shadow-sm border-2 ${isDayMaster ? 'border-amber-500 bg-amber-50/30 ring-4 ring-amber-100' : 'border-gray-200 bg-white'} flex-1 ${isMainBaziPillar ? 'md:min-w-[170px] md:max-w-[200px] px-3 sm:px-5 md:px-6 mx-1 sm:mx-1.5' : 'md:min-w-[15%] md:max-w-[20%] px-1.5 sm:px-3 md:px-4'} self-stretch`}>
                 <Tooltip term={title} unstyled={true}>
                     <div className={`text-[9px] sm:text-xs font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full ${isDayMaster ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-500'}`}>
                         {title}
@@ -500,69 +515,68 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
                     </Tooltip>
                 )}
                 
-                {/* Container Tàng Can & Thần Sát tự căn đáy (mt-auto) */}
-                <div className="w-full mt-auto flex flex-col items-center justify-end">
-                    <div className="w-full border-t border-dashed border-gray-200 pt-2 flex flex-col items-center justify-center">
+                {/* Container Tàng Can & Thần Sát tự căn đáy */}
+                <div className="w-full border-t border-dashed border-gray-200 mt-4 pt-2 flex flex-col items-center justify-center">
+                    <div className="w-full max-w-[130px] sm:max-w-[150px] flex flex-col gap-1.5 mt-1">
+                        {(() => {
+                            const paddedTangCan = [...tangCan];
+                            while (paddedTangCan.length < 3) {
+                                paddedTangCan.push({ gan: '', thapThan: '' });
+                            }
+                            return paddedTangCan.map((tc, idx) => (
+                                <div key={idx} className="flex justify-between items-center text-[11px] sm:text-[13px] leading-tight w-full h-[16px] sm:h-[18px]">
+                                    {tc.gan ? (
+                                        <>
+                                            <Tooltip term={tc.gan} unstyled={true}>
+                                                <span className={`font-bold shrink-0 text-left hover:scale-110 transition-transform ${getColorClass(stemElements[tc.gan])}`}>{tc.gan}</span>
+                                            </Tooltip>
+                                            <Tooltip term={tc.thapThan} unstyled={true}>
+                                                <span className="text-slate-800 font-bold text-right truncate pl-1 hover:text-blue-700 transition-colors">{getAbbreviatedThapThan(tc.thapThan)}</span>
+                                            </Tooltip>
+                                        </>
+                                    ) : (
+                                        <span className="invisible">&nbsp;</span>
+                                    )}
+                                </div>
+                            ));
+                        })()}
+                    </div>
+                </div>
+
+                {/* Thần Sát Bát Tự - Padded đủ số dòng để chiều cao luôn luôn bằng nhau 100% */}
+                {!hideShenSha && (
+                    <div className="w-full border-t border-dashed border-gray-200 mt-2 pt-2 flex flex-col items-center justify-center">
                         <div className="w-full max-w-[130px] sm:max-w-[150px] flex flex-col gap-1.5 mt-1">
                             {(() => {
-                                const paddedTangCan = [...tangCan];
-                                while (paddedTangCan.length < 3) {
-                                    paddedTangCan.push({ gan: '', thapThan: '' });
+                                const paddedShenSha = [...shenSha];
+                                while (paddedShenSha.length < minShenShaLines) {
+                                    paddedShenSha.push('');
                                 }
-                                return paddedTangCan.map((tc, idx) => (
-                                    <div key={idx} className="flex justify-between items-center text-[11px] sm:text-[13px] leading-tight w-full h-[16px] sm:h-[18px]">
-                                        {tc.gan ? (
-                                            <>
-                                                <Tooltip term={tc.gan} unstyled={true}>
-                                                    <span className={`font-bold shrink-0 text-left hover:scale-110 transition-transform ${getColorClass(stemElements[tc.gan])}`}>{tc.gan}</span>
-                                                </Tooltip>
-                                                <Tooltip term={tc.thapThan} unstyled={true}>
-                                                    <span className="text-slate-800 font-bold text-right truncate pl-1 hover:text-blue-700 transition-colors">{getAbbreviatedThapThan(tc.thapThan)}</span>
-                                                </Tooltip>
-                                            </>
-                                        ) : (
-                                            <span className="invisible">&nbsp;</span>
-                                        )}
-                                    </div>
-                                ));
+                                return paddedShenSha.map((ss, idx) => {
+                                    if (!ss) {
+                                        return (
+                                            <div key={idx} className="flex justify-center items-center text-[10.5px] sm:text-[12.5px] leading-normal w-full min-h-[18px] py-0.5 select-none">
+                                                <span className="invisible">&nbsp;</span>
+                                            </div>
+                                        );
+                                    }
+                                    const baseTerm = ss.split(' (')[0].replace(/ Quý Nhân/g, '').trim();
+                                    const displayName = ss.replace(/ Quý Nhân/g, '');
+                                    const colorClass = getShenShaColorClass(ss);
+                                    return (
+                                        <div key={idx} className="flex justify-center items-center text-[10.5px] sm:text-[12.5px] leading-normal w-full font-black min-h-[18px] py-0.5 text-center">
+                                            <Tooltip term={baseTerm} unstyled={true}>
+                                                <span className={`${colorClass} hover:scale-105 transition-transform cursor-help inline-block leading-tight`}>
+                                                    {displayName}
+                                                </span>
+                                            </Tooltip>
+                                        </div>
+                                    );
+                                });
                             })()}
                         </div>
                     </div>
-
-                    {/* Thần Sát Bát Tự - Padded đủ số dòng để chiều cao luôn luôn bằng nhau 100% */}
-                    {!hideShenSha && (
-                        <div className="w-full border-t border-dashed border-gray-200 mt-2 pt-2 flex flex-col items-center justify-center">
-                            <div className="w-full max-w-[130px] sm:max-w-[150px] flex flex-col gap-1.5 mt-1">
-                                {(() => {
-                                    const paddedShenSha = [...shenSha];
-                                    while (paddedShenSha.length < minShenShaLines) {
-                                        paddedShenSha.push('');
-                                    }
-                                    return paddedShenSha.map((ss, idx) => {
-                                        if (!ss) {
-                                            return (
-                                                <div key={idx} className="flex justify-center items-center text-[10.5px] sm:text-[12.5px] leading-normal w-full min-h-[18px] py-0.5 select-none">
-                                                    <span className="invisible">&nbsp;</span>
-                                                </div>
-                                            );
-                                        }
-                                        const baseTerm = ss.split(' (')[0];
-                                        const colorClass = getShenShaColorClass(ss);
-                                        return (
-                                            <div key={idx} className="flex justify-center items-center text-[10.5px] sm:text-[12.5px] leading-normal w-full font-black min-h-[18px] py-0.5 text-center">
-                                                <Tooltip term={baseTerm} unstyled={true}>
-                                                    <span className={`${colorClass} hover:scale-105 transition-transform cursor-help inline-block leading-tight`}>
-                                                        {ss}
-                                                    </span>
-                                                </Tooltip>
-                                            </div>
-                                        );
-                                    });
-                                })()}
-                            </div>
-                        </div>
-                    )}
-                </div>
+                )}
             </div>
         );
     };
@@ -1212,43 +1226,116 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
                         const activeLuuNianPillar = daYun[selectedYunIndex]?.liuNian?.find(ln => ln.year === selectedLuuNianYear);
                         if (!activeLuuNianPillar) return null;
                         
+                        const mergedYear = canChi.year;
+                        const mergedMonth = canChi.month;
+                        const mergedDay = canChi.day;
+                        const mergedHour = canChi.hour;
+
                         const maxVanhHanShenSha = Math.max(
                             daYun[selectedYunIndex]?.shenSha?.length || 0,
                             activeLuuNianPillar?.shenSha?.length || 0,
-                            canChi.year?.shenSha?.length || 0,
-                            canChi.month?.shenSha?.length || 0,
-                            canChi.day?.shenSha?.length || 0,
-                            canChi.hour?.shenSha?.length || 0,
+                            mergedYear?.shenSha?.length || 0,
+                            mergedMonth?.shenSha?.length || 0,
+                            mergedDay?.shenSha?.length || 0,
+                            mergedHour?.shenSha?.length || 0,
                             3
                         );
 
                         return (
-                            <div className="border border-purple-100 bg-purple-50/10 p-4 sm:p-6 rounded-[2rem] space-y-6">
+                            <div className="border border-purple-100 bg-purple-50/10 p-4 sm:p-6 rounded-[2rem] space-y-8">
                                 <h4 className="text-base font-extrabold text-slate-800 uppercase flex items-center justify-between flex-wrap gap-4 border-b border-purple-100/50 pb-3">
                                     <span>Bảng Đối Chiếu Vận Hạn Năm {selectedLuuNianYear} ( {activeLuuNianPillar.gan} {activeLuuNianPillar.zhi} )</span>
                                     <span className="text-xs font-semibold text-purple-700 bg-purple-50 px-3 py-1 rounded-full border border-purple-100 normal-case">
                                         Đại Vận {daYun[selectedYunIndex].gan} {daYun[selectedYunIndex].zhi} ( {daYun[selectedYunIndex].startAge} - {daYun[selectedYunIndex].startAge + 9} Tuổi )
                                     </span>
                                 </h4>
-                                
-                                {/* Layout Desktop: 6 cột xếp ngang đồng đều chiều cao (items-stretch) */}
-                                <div className="hidden md:flex flex-row justify-center items-stretch gap-2 lg:gap-4 w-full flex-nowrap">
-                                    <Pillar title="Đại Vận" pillarData={daYun[selectedYunIndex]} hideTruongSinh={false} hideNaYin={false} minShenShaLines={maxVanhHanShenSha} />
-                                    <Pillar title={`Lưu Niên ${selectedLuuNianYear}`} pillarData={activeLuuNianPillar} hideTruongSinh={false} hideNaYin={false} minShenShaLines={maxVanhHanShenSha} />
-                                    <Pillar title="Trụ Năm" pillarData={canChi.year} minShenShaLines={maxVanhHanShenSha} />
-                                    <Pillar title="Trụ Tháng" pillarData={canChi.month} minShenShaLines={maxVanhHanShenSha} />
-                                    <Pillar title="Trụ Ngày" pillarData={canChi.day} isDayMaster={true} minShenShaLines={maxVanhHanShenSha} />
-                                    <Pillar title="Trụ Giờ" pillarData={canChi.hour} minShenShaLines={maxVanhHanShenSha} />
+
+                                {/* Niên Vận Tinh & Niên Biểu Thần Sát */}
+                                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+                                    {/* Niên Vận Tinh (Cột Trái) */}
+                                    <div className="lg:col-span-4 bg-white border border-gray-150 rounded-2xl p-4 shadow-sm flex flex-col justify-between">
+                                        <div>
+                                            <div className="bg-emerald-800 text-white font-extrabold text-center py-2 px-4 rounded-xl text-xs sm:text-sm mb-4 uppercase tracking-wider">
+                                                Niên Vận Tinh {selectedLuuNianYear}
+                                            </div>
+                                            <div className="flex flex-col divide-y divide-gray-100 text-xs sm:text-sm">
+                                                {(activeLuuNianPillar.nienVanTinh || []).map((vt, idx) => (
+                                                    <div key={idx} className="flex justify-between py-2 items-center">
+                                                        <span className="font-bold text-gray-600">{vt.name}</span>
+                                                        <span className="font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100 italic">{vt.zhi}</span>
+                                                    </div>
+                                                ))}
+                                                {(!activeLuuNianPillar.nienVanTinh || activeLuuNianPillar.nienVanTinh.length === 0) && (
+                                                    <div className="text-center py-6 text-gray-400 italic">Không có niên vận tinh</div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Niên Biểu Thần Sát (Cột Phải) */}
+                                    <div className="lg:col-span-8 bg-white border border-gray-150 rounded-2xl p-4 shadow-sm flex flex-col justify-between">
+                                        <div>
+                                            <div className="bg-emerald-800 text-white font-extrabold text-center py-2 px-4 rounded-xl text-xs sm:text-sm mb-4 uppercase tracking-wider">
+                                                Niên Biểu Thần Sát {selectedLuuNianYear}
+                                            </div>
+                                            <div className="grid grid-cols-4 gap-2 text-center divide-x divide-gray-150">
+                                                {['hour', 'day', 'month', 'year'].map((key) => {
+                                                    const titleMap = { hour: 'GIỜ', day: 'NGÀY', month: 'THÁNG', year: 'NĂM' };
+                                                    const staticStars = canChi[key]?.shenSha || [];
+                                                    const dynamicStars = activeLuuNianPillar.annualShenSha?.[key] || [];
+                                                    const stars = Array.from(new Set([...staticStars, ...dynamicStars]));
+                                                    return (
+                                                        <div key={key} className="flex flex-col gap-2 min-h-[160px] px-1 sm:px-2">
+                                                            <div className="font-extrabold text-gray-800 border-b border-gray-100 pb-2 text-[10px] sm:text-[13px] tracking-wider">
+                                                                {titleMap[key]}
+                                                            </div>
+                                                            <div className="flex flex-col gap-1.5 mt-2 justify-center items-center">
+                                                                {stars.map((ss, idx) => {
+                                                                    const colorClass = getShenShaColorClass(ss);
+                                                                    const baseTerm = ss.split(' (')[0].replace(/ Quý Nhân/g, '').trim();
+                                                                    const displayName = ss.replace(/ Quý Nhân/g, '');
+                                                                    return (
+                                                                        <Tooltip key={idx} term={baseTerm} unstyled={true}>
+                                                                            <span className={`${colorClass} font-black text-[9.5px] sm:text-[12.5px] leading-tight hover:scale-105 transition-transform cursor-help block text-center`}>
+                                                                                {displayName}
+                                                                            </span>
+                                                                        </Tooltip>
+                                                                    );
+                                                                })}
+                                                                {stars.length === 0 && (
+                                                                    <span className="text-gray-300 text-[10px] sm:text-xs italic select-none">Không có</span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                {/* Layout Mobile: Grid 2 cột x 3 hàng đồng đều chiều cao (items-stretch, equal height cards) */}
-                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:hidden w-full items-stretch">
-                                    <Pillar title="Đại Vận" pillarData={daYun[selectedYunIndex]} hideTruongSinh={false} hideNaYin={false} minShenShaLines={maxVanhHanShenSha} />
-                                    <Pillar title={`Lưu Niên ${selectedLuuNianYear}`} pillarData={activeLuuNianPillar} hideTruongSinh={false} hideNaYin={false} minShenShaLines={maxVanhHanShenSha} />
-                                    <Pillar title="Trụ Ngày" pillarData={canChi.day} isDayMaster={true} minShenShaLines={maxVanhHanShenSha} />
-                                    <Pillar title="Trụ Giờ" pillarData={canChi.hour} minShenShaLines={maxVanhHanShenSha} />
-                                    <Pillar title="Trụ Năm" pillarData={canChi.year} minShenShaLines={maxVanhHanShenSha} />
-                                    <Pillar title="Trụ Tháng" pillarData={canChi.month} minShenShaLines={maxVanhHanShenSha} />
+                                <div className="space-y-3">
+                                    <div className="text-xs font-bold text-gray-500 uppercase tracking-wider pl-1">Đối Chiếu Trụ Vận Hạn (Tổng Hợp)</div>
+                                    
+                                    {/* Layout Desktop: 6 cột xếp ngang đồng đều chiều cao (items-stretch) */}
+                                    <div className="hidden md:flex flex-row justify-center items-stretch gap-2 lg:gap-4 w-full flex-nowrap">
+                                        <Pillar title="Đại Vận" pillarData={daYun[selectedYunIndex]} hideTruongSinh={false} hideNaYin={false} minShenShaLines={maxVanhHanShenSha} />
+                                        <Pillar title={`Lưu Niên ${selectedLuuNianYear}`} pillarData={activeLuuNianPillar} hideTruongSinh={false} hideNaYin={false} minShenShaLines={maxVanhHanShenSha} />
+                                        <Pillar title="Trụ Năm" pillarData={mergedYear} minShenShaLines={maxVanhHanShenSha} />
+                                        <Pillar title="Trụ Tháng" pillarData={mergedMonth} minShenShaLines={maxVanhHanShenSha} />
+                                        <Pillar title="Trụ Ngày" pillarData={mergedDay} isDayMaster={true} minShenShaLines={maxVanhHanShenSha} />
+                                        <Pillar title="Trụ Giờ" pillarData={mergedHour} minShenShaLines={maxVanhHanShenSha} />
+                                    </div>
+
+                                    {/* Layout Mobile: Grid 2 cột x 3 hàng đồng đều chiều cao (items-stretch, equal height cards) */}
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:hidden w-full items-stretch">
+                                        <Pillar title="Đại Vận" pillarData={daYun[selectedYunIndex]} hideTruongSinh={false} hideNaYin={false} minShenShaLines={maxVanhHanShenSha} />
+                                        <Pillar title={`Lưu Niên ${selectedLuuNianYear}`} pillarData={activeLuuNianPillar} hideTruongSinh={false} hideNaYin={false} minShenShaLines={maxVanhHanShenSha} />
+                                        <Pillar title="Trụ Ngày" pillarData={mergedDay} isDayMaster={true} minShenShaLines={maxVanhHanShenSha} />
+                                        <Pillar title="Trụ Giờ" pillarData={mergedHour} minShenShaLines={maxVanhHanShenSha} />
+                                        <Pillar title="Trụ Năm" pillarData={mergedYear} minShenShaLines={maxVanhHanShenSha} />
+                                        <Pillar title="Trụ Tháng" pillarData={mergedMonth} minShenShaLines={maxVanhHanShenSha} />
+                                    </div>
                                 </div>
                             </div>
                         );

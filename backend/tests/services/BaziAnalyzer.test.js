@@ -389,10 +389,10 @@ describe('BaziAnalyzer Comprehensive Unit Test Suite', () => {
             expect(res.canChi.hour.shenSha).toContain('Địa Võng');
         });
 
-        test('Should correctly detect Khôi Canh on matching pillars', () => {
+        test('Should correctly detect Khôi Cương on matching pillars', () => {
             // Canh Thìn, Nhâm Thìn, Mậu Tuất, Canh Tuất
             const res1 = BaziAnalyzer.analyze('2000-04-12', '12:00', 1); // Born in Canh Thìn year
-            expect(res1.canChi.year.shenSha).toContain('Khôi Canh');
+            expect(res1.canChi.year.shenSha).toContain('Khôi Cương');
         });
 
         test('Should correctly detect Âm Dương Sai Thác on matching pillars', () => {
@@ -515,6 +515,59 @@ describe('BaziAnalyzer Comprehensive Unit Test Suite', () => {
                 ...res.canChi.hour.shenSha
             ];
             expect(allShenSha).toBeDefined();
+        });
+
+        test('Should correctly detect new static stars (Thiên Trù, Đường Phù, Hồng Diễm, Phi Nhẫn, Nguyên Thần)', () => {
+            // 1990-01-09 09:30 has Day Master Giáp and hour branch Tỵ
+            const res = BaziAnalyzer.analyze('1990-01-09', '09:30', 1);
+            expect(res.canChi.hour.shenSha).toContain('Thiên Trù Quý Nhân');
+        });
+
+        test('Should correctly project annual Shen Sha on luck cycles (Da Yun / Liu Nian)', () => {
+            const res = BaziAnalyzer.analyze('1988-02-20', '12:00', 1);
+            expect(res.daYun).toBeDefined();
+            const firstYun = res.daYun[0];
+            expect(firstYun.liuNian).toBeDefined();
+            const firstYear = firstYun.liuNian[0];
+            expect(firstYear.annualShenSha).toBeDefined();
+            expect(firstYear.nienVanTinh).toBeDefined();
+            
+            // Should contain Tai Sui stars for year & month
+            expect(firstYear.annualShenSha.year).toBeDefined();
+            expect(firstYear.annualShenSha.month).toBeDefined();
+        });
+    });
+
+    // ==========================================
+    // 5. NEW SPECIFIC TESTS (TÒNG VƯỢNG, CƯỜNG KHẮC & SHEN SHA SPLIT)
+    // ==========================================
+    describe('5. Special Patterns, Extinguished Elements (Cường Khắc) & Shen Sha Split', () => {
+        test('Should correctly identify Nhuận Hạ Cách and evaluate Day Master as CỰC VƯỢNG', () => {
+            // date='2023-01-05', time='01:00' (Nhâm Dần, Nhâm Tý, Quý Hợi, Quý Sửu)
+            const res = BaziAnalyzer.analyze('2023-01-05', '01:00', 1);
+            expect(res.analysis.cachCuc).toBe('Nhuận Hạ cách (Thủy độc vượng)');
+            expect(res.analysis.energy7Levels.level).toBe('CỰC VƯỢNG');
+            expect(res.analysis.energy7Levels.code).toBe('cuc_vuong');
+        });
+
+        test('Should correctly apply Cường Khắc (extinction) and reduce Fire to 0% in a Water-dominated chart', () => {
+            const res = BaziAnalyzer.analyze('2023-01-05', '01:00', 1);
+            // Since Thủy is extremely strong (>98%), Fire (Hỏa) from tàng can Bính in Dần should be crushed to 0% (or <= 0.2%)
+            expect(res.nguHanh.Hoa).toBeLessThanOrEqual(0.2);
+            expect(res.nguHanh.Moc).toBe(0);
+            expect(res.nguHanh.Tho).toBe(0);
+            expect(res.nguHanh.Kim).toBe(0);
+        });
+
+        test('Should not contain Tỷ Kiên Cô Quả star in analysis or pillars', () => {
+            const res = BaziAnalyzer.analyze('2023-01-05', '01:00', 1);
+            const allShenSha = [
+                ...res.canChi.year.shenSha,
+                ...res.canChi.month.shenSha,
+                ...res.canChi.day.shenSha,
+                ...res.canChi.hour.shenSha
+            ];
+            expect(allShenSha.join(',')).not.toContain('Tỷ Kiên Cô Quả');
         });
     });
 });

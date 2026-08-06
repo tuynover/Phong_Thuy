@@ -199,3 +199,52 @@ graph TD
 - **Tách biệt Tiến trình (Process Isolation):** Tác vụ nén và upload tốn CPU/RAM được xử lý bởi cronjob hệ điều hành và chạy qua container Docker phụ trợ ngắn hạn, tránh hiện tượng nghẽn Event Loop của Express.js hoặc làm crash máy chủ web khi lượng dữ liệu lớn.
 - **Tính tự lập cao:** Ngay cả khi Node.js Backend gặp sự cố ngừng hoạt động, tác vụ backup vẫn hoạt động độc lập và gửi dữ liệu lên đám mây bình thường.
 - **Tiết kiệm tài nguyên:** Các container và tiến trình backup chỉ được sinh ra trong thời gian ngắn lúc 00:00 đêm và tự động bị tiêu hủy (`--rm`) ngay sau khi hoàn thành.
+
+---
+
+## 6. Quy trình Tích hợp và Triển khai Liên tục (CI/CD Pipeline)
+
+Hệ thống sử dụng **GitHub Actions** kết hợp **Docker Hub** để tự động hóa hoàn toàn quá trình triển khai mã nguồn lên máy chủ AWS EC2.
+
+### 6.1 Sơ đồ Luồng CI/CD
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Dev as Lập trình viên
+    participant GH as GitHub Actions
+    participant Hub as Docker Hub
+    participant EC2 as AWS EC2
+
+    Dev->>GH: 1. git push origin main
+    
+    rect rgb(30, 41, 59)
+    note right of GH: Giai đoạn 1: Kiểm Thử (Testing)
+    GH->>GH: 2. Tải Code & Cài đặt Node.js
+    GH->>GH: 3. Chạy `npm test` (86/86 Jest Tests)
+    GH-->>Dev: Nếu FAILED: Hủy build & Báo lỗi
+    end
+
+    rect rgb(30, 41, 59)
+    note right of GH: Giai đoạn 2: Đóng Gói (Build)
+    GH->>Hub: 4. Login vào Docker Hub
+    GH->>GH: 5. Build Image (Sử dụng Cache GHA)
+    GH->>Hub: 6. Đẩy 2 Image lên Docker Hub
+    end
+
+    rect rgb(30, 41, 59)
+    note right of EC2: Giai đoạn 3: Triển Khai (Deploy)
+    GH->>EC2: 7. Đăng nhập SSH bằng PEM Key
+    GH->>EC2: 8. Tự động `git pull` & Cập nhật biến môi trường
+    EC2->>Hub: 9. `docker compose pull`
+    GH->>EC2: 10. `docker compose up -d` (Cập nhật In-place)
+    GH->>EC2: 11. `docker compose restart nginx`
+    end
+```
+
+### 6.2 Lợi Ích Của Luồng CI/CD Hiện Tại
+- **Ngăn chặn lỗi trước khi lên sóng (Gatekeeping):** Unit Test chạy ngay vòng đầu, ngăn chặn việc triển khai nếu code bị lỗi logic.
+- **Giảm tải EC2 (Offloading):** Toàn bộ quá trình build tốn kém RAM/CPU được đẩy sang Github, giúp máy chủ EC2 luôn ổn định (tránh sập web do out of memory).
+- **Tốc độ build siêu nhanh (Layer Caching):** Việc tận dụng `setup-buildx-action` với `cache-from: type=gha` cho phép bỏ qua quá trình tải lại node_modules nếu `package.json` không thay đổi.
+- **Thay ở đâu sửa ở đó (In-place Rolling Update):** Cơ chế thông minh của `docker compose up -d` đảm bảo chỉ những container bị thay đổi mã nguồn (image mới) mới bị khởi động lại, các container còn lại (DB, Redis) đạt trạng thái Zero-downtime.
+- **Quản lý cấu hình tập trung (Single Source of Truth):** Sử dụng Github Secrets để nạp biến môi trường `${DOCKERHUB_USERNAME}` vào trực tiếp script deploy, giúp mã nguồn `docker-compose.yml` sạch sẽ, linh động.

@@ -3,6 +3,38 @@
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
 
+## 📅 Phiên bản: Bát Tự Thần Sát Split, Dynamic Tai Sui, Auto-Migration & UI Layout Perfect Fit (07/08/2026)
+
+### 🪐 Dynamic Tai Sui & Bát Tự Thần Sát Split ([BaziAnalyzer.js](file:///t:/Phongthuy/backend/src/services/BaziAnalyzer.js), [BaziBoard.jsx](file:///t:/Phongthuy/frontend/src/components/BaziBoard.jsx))
+- **Phân Tách Hệ Thống Thần Sát**: Tách biệt rõ ràng Thần Sát Tĩnh (chỉ tính cho 4 trụ gốc lá số) và Thần Sát Động (Thần Sát Thái Tuế / Lưu Niên Đại Vận) theo đúng yêu cầu lý thuyết học thuật Phương Đông.
+- **Tự Động Tính Lưu Niên Projected Stars**: Xây dựng hàm `getLuuNienShenShaForPillar` tính toán chính xác 12 sao vòng Thái Tuế và các sao chiếu theo Thiên Can / Địa Chi của năm lưu niên chiếu lên 4 trụ gốc.
+- **Đồng Bộ Dữ Liệu Niên Biểu**: Tích hợp hiển thị đồng thời cả **Thần Sát Tĩnh (Bản mệnh)** và **Thần Sát Động (Lưu niên)** tại bảng `Niên Biểu Thần Sát` của từng năm, giúp tổng hợp trọn vẹn cát hung hội tụ.
+- **Giữ Nguyên Thần Sát Tĩnh Trụ Gốc**: Điều chỉnh phần `Đối Chiếu Trụ Vận Hạn (Tổng Hợp)` bên dưới chỉ hiển thị duy nhất Thần Sát Tĩnh cố định của lá số gốc để bảo toàn ý nghĩa cấu trúc tứ trụ nguyên thủy.
+- **Lọc Bỏ Sao Phối Hợp Thập Thần**: Loại bỏ sao **Tỷ Kiên Cô Quả** ra khỏi danh sách tính toán do đây là sao phối hợp với Thập Thần.
+- **Chuẩn Hóa Tên Gọi Thần Sát**: Ẩn chữ "Quý Nhân" ở phần hiển thị của tất cả các sao có hậu tố này (ví dụ: *Thiên Ất Quý Nhân* hiển thị thành *Thiên Ất*, *Thiên Trù Quý Nhân* thành *Thiên Trù*) giúp giao diện gọn gàng và trực quan.
+
+### ⚙️ Auto-Migration Schema Check & Persist Fix ([BaziController.js](file:///t:/Phongthuy/backend/src/controllers/BaziController.js))
+- **Cập Nhật hasNewSchema**: Điều chỉnh hàm kiểm tra schema để bắt buộc kiểm tra sự tồn tại của `annualShenSha` và `nienVanTinh` trong chu kỳ Lưu Niên, phát hiện chính xác các bản ghi cũ chưa nâng cấp để kích hoạt migration ngầm.
+- **Sửa Lỗi Mongoose Mixed Save**: Bổ sung cuộc gọi `dupRecord.markModified('baziData')` and `existingRecord.markModified('baziData')` sau khi gán lại `baziData` mới. Điều này giải quyết triệt để lỗi Mongoose không lưu các thay đổi của trường dạng Mixed (`Object`) xuống MongoDB.
+
+### 🎨 Tối Ưu Chiều Cao Cột Đối Chiếu (Flexbox Stretch Fix)
+- **Đồng Bộ Chiều Cao 100% Cột Trụ**: Loại bỏ lớp `h-full` xung quanh `Pillar` component gây xung đột trong flex container, cho phép thuộc tính `self-stretch` của Flexbox tự động co dãn các cột đối chiếu cao bằng nhau một cách hoàn hảo, không còn bị lệch độ cao giữa các trụ.
+
+### 🧪 Browser Verification & DevTools Testing
+- **Kiểm Thử Chrome DevTools**: Khởi chạy thành công local server, thực hiện điền thông tin và lập lá số Bát Tự mới, kiểm tra trực tiếp console log và thao tác click chuyển đổi năm Lưu Niên trên UI, đảm bảo giao diện đạt chuẩn Premium và chạy hoàn hảo 100% không phát sinh lỗi.
+
+## 📅 Phiên bản: Tích Hợp Tự Động Hóa Triển Khai CI/CD Lên AWS EC2 Qua Docker Hub & Chặn Lỗi Bằng Unit Tests (06/08/2026)
+
+### 🚀 CI/CD Pipeline & GitHub Actions Automation
+- **Thiết lập luồng CI/CD Tự Động Toàn Diện (`.github/workflows/deploy.yml`)**:
+  - Tự động hóa quá trình đóng gói và triển khai ứng dụng bằng Github Actions khi có thao tác `git push` lên nhánh `main`.
+  - **Bức Tường Phòng Thủ (CI Testing)**: Tích hợp bước chạy tự động toàn bộ 86 Unit Tests bằng Jest trước khi build. Nếu bất kỳ test nào thất bại, quá trình build sẽ bị hủy bỏ (Abort) để bảo vệ hệ thống khỏi lỗi.
+  - **Đóng Gói & Lưu Trữ (Docker Hub Integration)**: Chuyển quá trình tốn kém phần cứng (build docker image) sang Github Actions (sử dụng Docker BuildKit Layer Caching cực nhanh), đóng gói Frontend/Backend và đẩy trực tiếp lên Docker Hub, giải phóng tải cho máy chủ EC2.
+  - **Cập Nhật In-Place "Thay Ở Đâu Sửa Ở Đó" (CD Deployment)**: Sử dụng SSH Key (PEM) kết nối vào EC2, tự động chạy `docker compose pull` và `docker compose up -d` để tải các layer image mới và khởi động lại chính xác những container bị thay đổi mà không làm sập các service khác (Zero-downtime cho database, Nginx, Redis).
+- **Tối Ưu Cấu Hình Nginx & Single Source of Truth**:
+  - Gắn kèm lệnh `docker compose restart nginx` cuối chu trình để làm mới upstream IPs và dọn dẹp cache ẩn của proxy.
+  - Sử dụng biến động `${DOCKERHUB_USERNAME}` trong `docker-compose.yml` để biến file cấu hình thành Single Source of Truth (quản lý 1 chỗ từ trang Github Secrets).
+
 ## 📅 Phiên bản: Gom Nhóm Lá Số (Tags/Folders), Lọc Nâng Cao Lịch Sử, Phân Hệ "Lá số của tôi" & Coverage Unit Tests (05/08/2026)
 
 ### 🏷️ Backend Tagging & Advanced History Filtering System ([TagController.js](file:///t:/Phongthuy/backend/src/controllers/TagController.js), [HistoryController.js](file:///t:/Phongthuy/backend/src/controllers/HistoryController.js), [tag.js](file:///t:/Phongthuy/backend/src/routes/tag.js))
@@ -1412,3 +1444,31 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
   - Viết mới hàm `handleTogglePin` xử lý thay đổi trạng thái và tự động sắp xếp lại (re-sort) danh sách tại client-side để đồng bộ tức thời không cần tải lại trang. Loại bỏ thông báo popup thành công (`showAlert`) khi ghim để thao tác ghim/bỏ ghim diễn ra mượt mà và yên lặng (silent toggle).
 - **Phong cách hiển thị danh sách (`index.css`):**
   - Thu nhỏ khoảng cách căn lề trái (padding-left) của thẻ danh sách `.markdown-content ul` và `.markdown-content ol` từ `1.25rem` xuống `0.9rem` để tối ưu hóa không gian hiển thị của danh sách gạch đầu dòng trên các thiết bị di động và các thẻ chat có diện tích hẹp.
+
+---
+
+## 📅 Phiên bản: Tách Biệt Thần Sát Tĩnh/Động & Nâng Cấp Thuật Toán Ngũ Hành Bát Tự 4.0
+
+### 1. Tách Biệt Thần Sát Tĩnh & Động (Thái Tuế)
+- **Backend & Frontend:**
+  - Tách biệt hoàn toàn Thần Sát Tĩnh (Natal Stars - theo lá số bản mệnh) và Thần Sát Động (Yearly/Tai Sui Stars - tính theo lưu niên).
+  - Phần đối chiếu vận hạn tổng hợp ở cuối trang chỉ hiển thị Thần Sát Tĩnh. Phần Niên Biểu Thần Sát hiển thị gộp cả Thần Sát Tĩnh và Thần Sát Động.
+  - Lược bỏ sao phối hợp thập thần `Tỷ Kiên Cô Quả` ra khỏi kết quả phân tích trong [BaziAnalyzer.js](file:///t:/Phongthuy/backend/src/services/BaziAnalyzer.js).
+  - Tự động lọc bỏ từ khóa "Quý Nhân" ở giao diện hiển thị tên sao để tối ưu hóa không gian hiển thị.
+
+### 2. Sửa Lỗi Lệch Chiều Cao & Căn Thẳng Hàng Các Đường Nét Đứt
+- **Frontend:**
+  - **Bát Tự ([BaziBoard.jsx](file:///t:/Phongthuy/frontend/src/components/BaziBoard.jsx)):**
+    - Lược bỏ thuộc tính `h-full` tại thẻ cột trụ so sánh đối chiếu để cơ chế `items-stretch` của Flexbox tự động dãn đều các cột theo chiều cao của cột dài nhất.
+    - Sửa đổi container Thập Thần trống của Nhật Chủ (Trụ Ngày) sử dụng `<span className="invisible">&nbsp;</span>` thay vì chuỗi trống `''` để ngăn trình duyệt tự động sụp đổ (collapse) chiều cao của ô, giúp căn hàng đầu của các trụ thẳng hàng tuyệt đối.
+    - Loại bỏ wrapper div dùng `mt-auto` và `justify-end` ở phần Tàng Can & Thần Sát trong component `Pillar`. Đồng thời đặt khoảng cách cố định `mt-4` cho Tàng Can so với phần trên. Giải pháp này giúp căn chỉnh tất cả các đường nét đứt phân cách (`--------`) của cả 3 phần (Phần trên, Tàng Can, Thần Sát) thẳng hàng tuyệt đối nằm ngang trên toàn bộ 6 cột trụ Bát Tự.
+  - **Hợp Hôn ([MarriageBoard.jsx](file:///t:/Phongthuy/frontend/src/components/MarriageBoard.jsx)):**
+    - Loại bỏ thuộc tính căn đều `justify-between` trên thẻ trụ `PillarCard` để các cột không bị kéo dãn khác nhau theo độ dài sao.
+    - Đặt khoảng cách cố định `mt-4` cho Tàng Can so với phần trên, đồng bộ hóa hoàn toàn với Bát Tự giúp các đường phân nét đứt thẳng hàng tuyệt đối.
+
+### 3. Nâng Cấp Thuật Toán Bát Tự & Cân Bằng Ngũ Hành
+- **Backend ([BaziAnalyzer.js](file:///t:/Phongthuy/backend/src/services/BaziAnalyzer.js)):**
+  - Khắc phục lỗi hàm `evaluate7LevelEnergy` gán cứng trạng thái Nhật Chủ là `CỰC NHƯỢC` cho toàn bộ các lá số Tòng Cách. Đã bổ sung bộ lọc phân loại dựa trên tỷ lệ Đồng Đảng: nếu tỷ lệ Đồng Đảng $\ge 50\%$ (như Thủy vượng 98% của Nhuận Hạ Cách) sẽ phản hồi trạng thái Nhật Chủ là **`CỰC VƯỢNG`**.
+  - Bổ sung logic **Thuận khắc cực đoan (Cường khắc)**: Khi một hành khắc chiếm ưu thế tuyệt đối ($>40\%$ tổng lượng ngũ hành), hành bị khắc sẽ bị suy kiệt nặng nề hoặc bị tiêu diệt (giảm tối đa 90% điểm số, ví dụ Thủy vượng Hỏa tắt). Nhờ đó, hành bị khắc sẽ hiển thị đúng về $0\%$ trên biểu đồ.
+- **Tài liệu:** Cập nhật các quy tắc học thuật mới này vào [BUSINESS_RULES.md](file:///t:/Phongthuy/docs/BUSINESS_RULES.md).
+

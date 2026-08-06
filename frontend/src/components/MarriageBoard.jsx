@@ -567,7 +567,7 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
             : (isHighlighted ? 'border-blue-500 bg-blue-50/20 ring-4 ring-blue-100' : 'border-blue-100 bg-white hover:border-blue-300');
 
         return (
-            <div className={`relative flex flex-col justify-between items-center py-4 sm:py-6 rounded-2xl shadow-sm border-2 transition-all hover:scale-[1.02] flex-1 self-stretch h-full min-h-[385px] sm:min-h-[415px] md:min-h-[455px] px-3 sm:px-5 md:px-6 mx-0.5 sm:mx-1 ${themeBorder}`}>
+            <div className={`relative flex flex-col justify-start items-center py-4 sm:py-6 rounded-2xl shadow-sm border-2 transition-all hover:scale-[1.02] flex-1 self-stretch h-full min-h-[385px] sm:min-h-[415px] md:min-h-[455px] px-3 sm:px-5 md:px-6 mx-0.5 sm:mx-1 ${themeBorder}`}>
                 <Tooltip term={title} unstyled={true}>
                     <div className={`text-[9px] sm:text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${isDayMaster ? (isFemale ? 'bg-rose-100 text-rose-800' : 'bg-blue-100 text-blue-800') : 'bg-gray-100 text-gray-505'}`}>
                         {title}
@@ -614,7 +614,7 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
                 )}
                 
                 {/* Tàng can: pad lên đủ 3 dòng cố định chiều cao */}
-                <div className="w-full border-t border-dashed border-gray-200 mt-2.5 pt-2 flex flex-col items-center justify-center">
+                <div className="w-full border-t border-dashed border-gray-200 mt-4 pt-2 flex flex-col items-center justify-center">
                     <div className="w-full max-w-[125px] sm:max-w-[145px] flex flex-col gap-1 mt-1">
                         {(() => {
                             const paddedTangCan = [...tangCan];

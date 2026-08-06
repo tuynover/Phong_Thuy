@@ -93,7 +93,7 @@ VITE_API_URL=http://localhost:3001/api
 
 ---
 
-## 🐳 6. Khởi chạy bằng Docker & Triển khai trên AWS VM
+## 🐳 6. Khởi chạy bằng Docker & Triển khai CI/CD trên AWS EC2
 
 Hệ thống cung cấp sẵn cấu hình Docker và Nginx Reverse Proxy để chạy môi trường đóng gói hoặc triển khai lên máy ảo AWS (EC2/Lighthouse).
 
@@ -132,3 +132,17 @@ Lệnh này sẽ thực hiện:
     Nếu nhận về `ok` tức là backend đã kết nối thành công qua Nginx.
   - Kiểm tra giao diện frontend: Truy cập địa chỉ IP public của máy ảo AWS hoặc `http://localhost/` trên trình duyệt. Thử bấm F5 làm mới trang tại các trang con để kiểm chứng cơ chế SPA routing hoạt động tốt.
 
+### 6.4 Triển khai Tự động bằng CI/CD (GitHub Actions)
+
+Dự án đã được thiết lập luồng CI/CD hoàn chỉnh (tại tệp `.github/workflows/deploy.yml`). 
+Mỗi khi bạn thực hiện `git push` lên nhánh `main`, hệ thống sẽ tự động:
+1. Chạy 86/86 Unit Test để kiểm tra độ ổn định.
+2. Build và nén Frontend/Backend đẩy lên **Docker Hub** để tận dụng Caching cực nhanh và giảm tải cho máy chủ.
+3. Sử dụng SSH Key kết nối vào EC2 để cập nhật tự động (pull image mới) mà không gây sập các dịch vụ không liên quan.
+
+**Để kích hoạt luồng tự động này, bạn cần điền 5 thông tin bí mật (Secrets) sau trên kho lưu trữ GitHub (Settings > Secrets and variables > Actions):**
+- `DOCKERHUB_USERNAME`: Tên đăng nhập Docker Hub (Ví dụ: `hoangnguyen`).
+- `DOCKERHUB_TOKEN`: Mã Access Token lấy từ trang Security của Docker Hub.
+- `EC2_HOST`: IP Public của máy ảo EC2.
+- `EC2_USERNAME`: Tên tài khoản SSH (ví dụ: `ubuntu`).
+- `EC2_PRIVATE_KEY`: Toàn bộ nội dung của file `.pem` (bao gồm cả dòng `-----BEGIN...` và `-----END...`).

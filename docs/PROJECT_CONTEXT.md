@@ -97,5 +97,11 @@ Trước đây, mỗi phân hệ có các bảng hội thoại và tin nhắn ri
 - **Đồng bộ Router Static Pages:** Đồng bộ router client (`UserApp.jsx`) cho các trang tĩnh phụ (`/about` - Giới thiệu, `/privacy` - Chính sách bảo mật, `/terms` - Điều khoản dịch vụ) để hỗ trợ Googlebot và người dùng truy cập trực tiếp bằng liên kết tĩnh, tự động đổi URL trình duyệt qua `pushState`.
 - **Premium Toast & State nội bộ:** Thay thế hoàn toàn alert thô cứng bằng component `FloatingNotificationToast` nền trắng viền xám mờ tinh tế (Light Mode) tự đóng sau 1.5 giây. Đồng thời, chuyển đổi `BaziBoard` và `MarriageBoard` sang dùng state `result` nội bộ (tương tự `ZiweiBoard`) và cập nhật cache Lịch sử đúng các key số nhiều (`bazis`, `marriages`) để switch bật/tắt chia sẻ gạt đổi màu realtime lập tức.
 
+### 4.10 Tối Ưu Hóa Form Nhập Liệu, Hệ Thống Thẻ Thư Mục Đồng Bộ & Tải Lá Số Chuẩn (08/2026)
+- **Gộp Form Kinh Dịch (`IChingInput.jsx`):** Hợp nhất 3 phương thức gieo quẻ (Lục Hào Tung Xu, Mai Hoa Giờ Động Tâm / Seri Tiền, Nhập Thủ Công) về một component duy nhất `IChingInput.jsx`, dọn dẹp các tệp dư thừa không còn sử dụng (`CoinToss.jsx`, `MaiHoaInput.jsx`, `ManualInput.jsx`).
+- **Đóng Gói Form Tử Vi (`ZiweiInput.jsx`):** Đóng gói form nhập Tử Vi thành component độc lập theo cấu trúc của `BaziInput.jsx`, hỗ trợ Combobox vừa nhập vừa chọn (editable), không nhập sẵn giá trị mặc định cho Ngày, Tháng, Năm, Giờ, Phút (khởi tạo rỗng `''`), tích hợp component lịch chọn ngày `CustomDatePicker`.
+- **Đồng Bộ Nút Thẻ Thư Mục (Tags):** Bổ sung đầy đủ Badge nhãn thẻ `🏷️ [Tên thẻ]` và nút Icon Tag 🏷️ cho cả 4 phân hệ (Kinh Dịch, Bát Tự, Tử Vi, Hôn Nhân) trên thẻ danh sách `HistoryBoard.jsx` và modal `MyFoldersModal.jsx`.
+- **Tự Động Tải Chi Tiết Lá Số (Full-Detail Fetching):** Xử lý bóc tách tự động các cấu trúc dữ liệu lồng `baziData`/`marriageData`/`analysisSnapshot` ở `BaziBoard.jsx` và `MarriageBoard.jsx`. Tự động kích hoạt gọi API `getBaziRecord(id)` và `getMarriageRecord(id)` khi bấm xem chi tiết từ Lịch sử / Lá số của tôi, khắc phục triệt để lỗi màn hình trắng hay trống trơn dữ liệu.
+
 
 
