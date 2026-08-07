@@ -3361,7 +3361,7 @@ class BaziAnalyzer {
         
         // 1. Check Được Tư Lệnh (Nhân Khí Tư Lệnh nắm quyền)
         const tuLenhElem = this.rules.stemElement[tuLenhCan];
-        const isDucTuLenh = tuLenhElem === dmElem || (tuLenhElem && this.rules.relation[tuLenhElem]?.[dmElem] === 'duoc_sinh');
+        const isDucTuLenh = tuLenhElem === dmElem || (tuLenhElem && this.rules.relation[dmElem]?.[tuLenhElem] === 'duoc_sinh');
 
         // Clashes, hinh, hai maps for disruption check
         const clashes = {
@@ -3498,9 +3498,10 @@ class BaziAnalyzer {
             analysis.than = "tong_cach";
             const rel = this.rules.relation[dmElem][strongestElem];
             if (rel === 'tro') analysis.tongCachType = "tòng vượng";
-            else if (rel === 'khac') analysis.tongCachType = "tòng sát";
+            else if (rel === 'duoc_sinh') analysis.tongCachType = "tòng cường";
+            else if (rel === 'khac') analysis.tongCachType = "tòng tài";
+            else if (rel === 'bi_khac') analysis.tongCachType = "tòng sát";
             else if (rel === 'sinh') analysis.tongCachType = "tòng nhi";
-            else if (rel === 'bi_khac') analysis.tongCachType = "tòng tài";
             else analysis.tongCachType = "tòng cách đặc biệt";
         } else {
             if (dongDang > khacTiet * 1.2) analysis.than = "vuong";

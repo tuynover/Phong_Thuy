@@ -54,6 +54,7 @@ class AiInterpretationController {
     static async interpretHexagram(req, res) {
         const { id } = req.params;
         let record = null;
+        let pingInterval = null;
 
         try {
             record = req.record || await findByIdFlex(IChingRecord, id);
@@ -79,7 +80,6 @@ class AiInterpretationController {
             res.setHeader('Content-Encoding', 'none');
 
             let isConnectionOpen = true;
-            let pingInterval = null;
 
             req.on('close', () => {
                 isConnectionOpen = false;
@@ -211,6 +211,7 @@ class AiInterpretationController {
     static async interpretBazi(req, res) {
         const { id } = req.params;
         let record = null;
+        let pingInterval = null;
 
         try {
             record = req.record || await findByIdFlex(BaziRecord, id);
@@ -236,7 +237,6 @@ class AiInterpretationController {
             res.setHeader('Content-Encoding', 'none');
 
             let isConnectionOpen = true;
-            let pingInterval = null;
 
             req.on('close', () => {
                 isConnectionOpen = false;
@@ -336,6 +336,7 @@ class AiInterpretationController {
     static async interpretMarriage(req, res) {
         const { id } = req.params;
         let record = null;
+        let pingInterval = null;
 
         try {
             record = req.record || await findByIdFlex(MarriageRecord, id);
@@ -361,7 +362,6 @@ class AiInterpretationController {
             res.setHeader('Content-Encoding', 'none');
 
             let isConnectionOpen = true;
-            let pingInterval = null;
 
             req.on('close', () => {
                 isConnectionOpen = false;
@@ -461,6 +461,7 @@ class AiInterpretationController {
     static async interpretZiwei(req, res) {
         const { id } = req.params;
         let record = null;
+        let pingInterval = null;
 
         try {
             record = req.record || await ZiweiRecord.findById(id);
@@ -487,7 +488,6 @@ class AiInterpretationController {
             res.setHeader('Content-Encoding', 'none');
 
             let isConnectionOpen = true;
-            let pingInterval = null;
 
             req.on('close', () => {
                 isConnectionOpen = false;
@@ -667,7 +667,6 @@ class AiInterpretationController {
             res.setHeader('Content-Encoding', 'none');
 
             let isConnectionOpen = true;
-            let pingInterval = null;
 
             req.on('close', () => {
                 isConnectionOpen = false;
@@ -916,7 +915,6 @@ class AiInterpretationController {
             res.setHeader('Content-Encoding', 'none');
 
             let isConnectionOpen = true;
-            let pingInterval = null;
 
             req.on('close', () => {
                 isConnectionOpen = false;
@@ -1127,7 +1125,6 @@ class AiInterpretationController {
             res.setHeader('Content-Encoding', 'none');
 
             let isConnectionOpen = true;
-            let pingInterval = null;
 
             req.on('close', () => {
                 isConnectionOpen = false;
@@ -1358,7 +1355,6 @@ class AiInterpretationController {
             });
 
             let isConnectionOpen = true;
-            let pingInterval = null;
 
             req.on('close', () => {
                 isConnectionOpen = false;

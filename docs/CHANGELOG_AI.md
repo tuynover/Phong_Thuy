@@ -3,7 +3,32 @@
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
 
+## 📅 Phiên bản: Luận giải Bát Tự Thần Sát Chuyên Sâu, Tích Hợp Vận Hạn Lưu Niên Động 2026/2027 & Lời Khuyên Hành Động (07/08/2026)
+
+### 🪐 Nâng Cấp Prompt Luận Giải Bát Tự Chuyên Sâu ([BaziPrompts.js](file:///t:/Phongthuy/backend/src/services/BaziPrompts.js), [ai.js](file:///t:/Phongthuy/backend/src/config/ai.js))
+- **Tăng Phiên Bản Prompt**: Tăng `BAZI_PROMPT_VERSION` từ `"v2_7_step_grouped"` lên `"v3_0_shensha_upgrade"`.
+- **Tích Hợp Thần Sát Tĩnh & Lục Thân**: Hướng dẫn AI sử dụng chi tiết Thần Sát Tĩnh của các trụ gốc để giải đoán sâu sắc Sự nghiệp, Tài vận, Hôn nhân và Sức khỏe ở Bước 3. Đồng thời định hướng rõ sơ đồ Lục Thân theo giới tính (Nam lấy Tài làm vợ, Nữ lấy Quan làm chồng, v.v.) để giải đoán gia đạo chính xác.
+- **Luận giải theo Tổ hợp Thần Sát**: Yêu cầu AI luận giải Thần Sát theo các tổ hợp cát-hung kết hợp (như Quý Nhân gặp Không Vong/Hình xung thì giảm cát; Đào Hoa gặp Kình Dương, Kiếp Sát tạo thành Đào Hoa Sát...), tránh luận đơn lẻ. Nếu không có tổ hợp cổ điển, AI tự biện chứng tượng nghĩa của tổ hợp.
+- **Đánh giá Lực lượng Thần Sát theo Vòng Trường Sinh**: Hướng dẫn AI đối chiếu cung Trường Sinh tĩnh tại các trụ để đong đếm lực lượng của Thần Sát (tọa Sinh/Vượng thì tác dụng mạnh mẽ, tọa Tử/Tuyệt/Bệnh thì suy kiệt vô lực).
+- **Tích hợp Thần sát Lưu niên vào Giải mã (Bước 4)**: Cập nhật Bước 4 yêu cầu AI giải mã kết hợp cả Thần sát tĩnh bản mệnh và Thần sát động lưu niên, đong đếm theo Trường Sinh và Tổ hợp, nâng khống chế số lượng từ lên 225-275 từ.
+- **Tương Tác Can Chi Động & Tam Hình**: Dạy AI phân tích các tương tác Can Chi động của Đại vận và Lưu niên như hiện tượng thấu can/thông căn (Can lưu niên thấu ra từ Địa chi gốc), và cục diện **Tam hình (Sửu - Mùi - Tuất)** khi Lưu niên gặp các chi xung hợp hình hại.
+- **Tách Biệt Luận Đoán Lưu Niên 2026 & 2027**: Yêu cầu AI luận giải chi tiết tách biệt từng năm 2026 và 2027, không gộp chung. Kết hợp số tuổi đương số (32 và 33 tuổi) để dự đoán các sự kiện sát sườn thực tế.
+- **Ứng Kỳ Tháng Âm Lịch**: Yêu cầu AI chỉ ra tháng cụ thể bộc phát cát hung dựa vào sự xung hợp can chi của tháng với năm.
+- **Bổ Sung Lời Khuyên Hành Động**: Thêm phần con khuyên đương số việc nên làm dựa trên tính chất Hỷ kỵ và Thập thần của năm 2026.
+
+### ⚙️ Bổ Sung Hàm Helper Định Dạng Vận Hạn Chi Tiết ([astrologyHelpers.js](file:///t:/Phongthuy/backend/src/shared/utils/astrologyHelpers.js))
+- **Hàm `formatDetailedBaziTimeline`**: Tạo hàm helper trích xuất động Đại vận hiện tại và thông tin Lưu niên chi tiết 2 năm (2026, 2027) bao gồm tuổi tác, Can Chi, Thập Thần, Nạp Âm, Niên Vận Tinh di động, và Thần sát Lưu niên tác động lên 4 trụ bản mệnh để truyền trực tiếp vào prompt của AI.
+
+### 🛠️ Sửa Lỗi Rò Rỉ Bộ Nhớ (Memory Leak) Do Shadowing ([AiInterpretationController.js](file:///t:/Phongthuy/backend/src/controllers/AiInterpretationController.js))
+- **Khắc phục lỗi scoping của pingInterval**: Phát hiện lỗi shadowing biến `pingInterval` trong 8 endpoint SSE (gồm cả interpret và chat của các phân hệ). Việc khai báo đè `let pingInterval` bên trong khối `try` làm cho khối `finally` không thể xóa được bộ đệm ping (`clearInterval`), gây ra rò rỉ bộ nhớ nghiêm trọng trên server.
+- **Giải quyết**: Di chuyển khai báo `let pingInterval = null;` lên scope ngoài (trước khối `try`) và xóa từ khóa `let` trong khối `try` để gán chính xác vào biến ngoài, đảm bảo dọn dẹp timer 100% khi kết nối đóng.
+
+### 🧪 Unit Tests & Script Kiểm Thử Tích Hợp AI Thực Tế ([AiInterpretationController.test.js](file:///t:/Phongthuy/backend/tests/controllers/AiInterpretationController.test.js), [test_ai_integration.js](file:///t:/Phongthuy/backend/src/scripts/test_ai_integration.js))
+- **Tích Hợp Unit Test**: Viết file unit test mock chính thức `AiInterpretationController.test.js` kiểm thử tất cả các trường hợp lập luận giải Bát Tự, chat AI và phản hồi lỗi. Toàn bộ Jest test suite 167/167 tests đều đã chạy PASS thành công.
+- **Script Tích Hợp Đăng Nhập & Luận giải AI thật**: Tạo script `test_ai_integration.js` sử dụng tài khoản thực tế (`cobatuoc@gmail.com` / `12345678`) để thực hiện luồng thật: Đăng nhập -> Lập lá số -> Stream SSE luận giải từ Gemini (nhận hơn 14k ký tự) -> Stream SSE Chat Hỏi đáp từ Gemini. Chạy script thực tế thành công 100% trơn tru.
+
 ## 📅 Phiên bản: Bát Tự Thần Sát Split, Dynamic Tai Sui, Auto-Migration & UI Layout Perfect Fit (07/08/2026)
+
 
 ### 🪐 Dynamic Tai Sui & Bát Tự Thần Sát Split ([BaziAnalyzer.js](file:///t:/Phongthuy/backend/src/services/BaziAnalyzer.js), [BaziBoard.jsx](file:///t:/Phongthuy/frontend/src/components/BaziBoard.jsx))
 - **Phân Tách Hệ Thống Thần Sát**: Tách biệt rõ ràng Thần Sát Tĩnh (chỉ tính cho 4 trụ gốc lá số) và Thần Sát Động (Thần Sát Thái Tuế / Lưu Niên Đại Vận) theo đúng yêu cầu lý thuyết học thuật Phương Đông.
@@ -1470,5 +1495,13 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
 - **Backend ([BaziAnalyzer.js](file:///t:/Phongthuy/backend/src/services/BaziAnalyzer.js)):**
   - Khắc phục lỗi hàm `evaluate7LevelEnergy` gán cứng trạng thái Nhật Chủ là `CỰC NHƯỢC` cho toàn bộ các lá số Tòng Cách. Đã bổ sung bộ lọc phân loại dựa trên tỷ lệ Đồng Đảng: nếu tỷ lệ Đồng Đảng $\ge 50\%$ (như Thủy vượng 98% của Nhuận Hạ Cách) sẽ phản hồi trạng thái Nhật Chủ là **`CỰC VƯỢNG`**.
   - Bổ sung logic **Thuận khắc cực đoan (Cường khắc)**: Khi một hành khắc chiếm ưu thế tuyệt đối ($>40\%$ tổng lượng ngũ hành), hành bị khắc sẽ bị suy kiệt nặng nề hoặc bị tiêu diệt (giảm tối đa 90% điểm số, ví dụ Thủy vượng Hỏa tắt). Nhờ đó, hành bị khắc sẽ hiển thị đúng về $0\%$ trên biểu đồ.
+  - **Sửa lỗi xác định Được Tư Lệnh (`isDucTuLenh`):** Thay đổi logic kiểm tra quan hệ ngũ hành giữa Nhật chủ (`dmElem`) và lệnh tháng (`tuLenhElem`). Trước đây kiểm tra ngược thành `relation[tuLenhElem][dmElem] === 'duoc_sinh'`, dẫn đến việc Thân Kim sinh tháng Thân lại bị coi là Thổ được Kim sinh (được Tư Lệnh), làm sai lệch toàn bộ trạng thái Nhật chủ sang Cường Vượng. Sau khi sửa thành `relation[dmElem][tuLenhElem] === 'duoc_sinh'`, hệ thống đánh giá chính xác Nhật chủ là **NHƯỢC** (Thất lệnh), Dụng thần là **HỎA** và Hỷ thần là **THỔ**.
+  - **Sửa lỗi phân loại Tòng Cách (`tongCachType`):** Khắc phục lỗi hoán đổi vị trí phân loại Tòng Sát và Tòng Tài do đặt điều kiện so khớp nhầm giữa hành khắc và hành bị khắc. Đồng thời bổ sung trường hợp hành mạnh nhất là Ấn tinh (`duoc_sinh`) để gán chính xác là **Tòng Cường cách** thay vì rơi vào nhánh "Tòng cách đặc biệt" mặc định.
+- **Kiểm thử ([BaziAnalyzer.test.js](file:///t:/Phongthuy/backend/tests/services/BaziAnalyzer.test.js), [InputValidator.test.js](file:///t:/Phongthuy/backend/tests/services/InputValidator.test.js), [IChingDataService.test.js](file:///t:/Phongthuy/backend/tests/services/IChingDataService.test.js)):**
+  - Bổ sung bộ kiểm thử hồi quy bảo đảm tính đúng đắn cho logic Được Tư Lệnh và phân loại Tòng Cách.
+  - Bổ sung kiểm thử tự động toàn diện cho **tất cả 15 cách cục hiện có** (5 ngoại cách độc vượng, 10 cách cục thập thần thông thường).
+  - Bổ sung kiểm thử độ chính xác của **Dụng Thần, Hỷ Thần và Kỵ Thần** dựa trên các nhóm trạng thái Nhật Chủ Thân Vượng và Thân Nhược khác nhau (bao gồm các ca thực tế không bị nhiễu do Điều Hầu mùa đông).
+  - **Tạo mới bộ kiểm thử cho `InputValidator.js`:** Bao quát 14 tests xác thực toàn bộ các luồng dữ liệu đầu vào của Bát Tự (Bazi), Tử Vi (Ziwei), Hợp Hôn (Marriage), và Kinh Dịch (IChing), bao gồm kiểm thử ngày thực tế (nhuận/thường), múi giờ, số hào Kinh Dịch, và giới hạn ký tự câu hỏi.
+  - **Bổ sung kiểm thử cho Kinh Dịch (`IChingDataService.test.js`):** Thêm các test case tự động cho phương thức `calculate()`, bảo đảm giải đoán trùng khớp cấu trúc đầu ra của quẻ chủ, quẻ biến, tính chính xác của Lục Thần (Lục Thú), múi giờ Hà Nội (Asia/Ho_Chi_Minh), và cơ chế ném lỗi khi số hào gieo không hợp lệ.
 - **Tài liệu:** Cập nhật các quy tắc học thuật mới này vào [BUSINESS_RULES.md](file:///t:/Phongthuy/docs/BUSINESS_RULES.md).
 

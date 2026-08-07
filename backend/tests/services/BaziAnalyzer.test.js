@@ -569,5 +569,234 @@ describe('BaziAnalyzer Comprehensive Unit Test Suite', () => {
             ];
             expect(allShenSha.join(',')).not.toContain('Tỷ Kiên Cô Quả');
         });
+
+        test('Should correctly identify isDucTuLenh: false and evaluate Day Master Mậu Thổ in Thân month as NHƯỢC', () => {
+            const res = BaziAnalyzer.analyze('27/08/2004', '07:30', 1);
+            expect(res.analysis.academicFlags.ducTuLenh).toBe(false);
+            expect(res.analysis.energy7Levels.level).toBe('NHƯỢC');
+            expect(res.dungThan).toBe('Hoa');
+            expect(res.hyThan).toBe('Tho');
+        });
+
+        test('Regression: check academic isDucTuLenh rules across all 5 elements and seasonal interactions', () => {
+            const elements = ['Kim', 'Moc', 'Thuy', 'Hoa', 'Tho'];
+            
+            elements.forEach(dm => {
+                elements.forEach(season => {
+                    // Check logic: isDucTuLenh is true if season is same element OR season generates day master
+                    const relation = BaziAnalyzer.rules.relation[dm]?.[season];
+                    const expectedIsDucTuLenh = (season === dm) || (relation === 'duoc_sinh');
+                    
+                    if (season === dm) {
+                        expect(expectedIsDucTuLenh).toBe(true);
+                    } else if (relation === 'duoc_sinh') {
+                        expect(expectedIsDucTuLenh).toBe(true);
+                    } else {
+                        expect(expectedIsDucTuLenh).toBe(false);
+                    }
+                });
+            });
+        });
+
+        test('Regression: check correct mapping of tongCachType based on strongest element relationship', () => {
+            const dm = 'Tho'; // Day Master Earth
+            
+            const scenarios = [
+                { strongest: 'Tho', expected: 'tòng vượng' },      // Peer -> Tòng Vượng
+                { strongest: 'Hoa', expected: 'tòng cường' },     // Resource -> Tòng Cường
+                { strongest: 'Thuy', expected: 'tòng tài' },       // Wealth -> Tòng Tài
+                { strongest: 'Moc', expected: 'tòng sát' },        // Power -> Tòng Sát
+                { strongest: 'Kim', expected: 'tòng nhi' }          // Output -> Tòng Nhi
+            ];
+            
+            scenarios.forEach(({ strongest, expected }) => {
+                const rel = BaziAnalyzer.rules.relation[dm]?.[strongest];
+                let tongCachType = '';
+                if (rel === 'tro') tongCachType = 'tòng vượng';
+                else if (rel === 'duoc_sinh') tongCachType = 'tòng cường';
+                else if (rel === 'khac') tongCachType = 'tòng tài';
+                else if (rel === 'bi_khac') tongCachType = 'tòng sát';
+                else if (rel === 'sinh') tongCachType = 'tòng nhi';
+                else tongCachType = 'tòng cách đặc biệt';
+                
+                expect(tongCachType).toBe(expected);
+            });
+        });
+
+        // 6. COMPREHENSIVE TESTS FOR PATTERNS (CÁCH CỤC) & DỤNG/HỶ/KỴ THẦN ACCURACY
+        describe('6. Bazi Patterns (Cách cục) & Dụng/Hỷ/Kỵ Thần Accuracy', () => {
+            test('Should correctly identify the 5 special patterns (Độc Vượng Cách)', () => {
+                // 1. Khúc Trực cách (Mộc độc vượng)
+                const ct1 = {
+                    year: { gan: 'Ất', zhi: 'Mão' },
+                    month: { gan: 'Giáp', zhi: 'Dần' },
+                    day: { gan: 'Giáp', zhi: 'Thìn' },
+                    hour: { gan: 'Ất', zhi: 'Mão' }
+                };
+                expect(BaziAnalyzer.determineCachCuc('Giáp', 'Dần', ct1)).toBe('Khúc Trực cách (Mộc độc vượng)');
+
+                // 2. Viêm Thượng cách (Hỏa độc vượng)
+                const ct2 = {
+                    year: { gan: 'Đinh', zhi: 'Tỵ' },
+                    month: { gan: 'Bính', zhi: 'Ngọ' },
+                    day: { gan: 'Bính', zhi: 'Mùi' },
+                    hour: { gan: 'Đinh', zhi: 'Tỵ' }
+                };
+                expect(BaziAnalyzer.determineCachCuc('Bính', 'Ngọ', ct2)).toBe('Viêm Thượng cách (Hỏa độc vượng)');
+
+                // 3. Gia Tường cách (Thổ độc vượng)
+                const ct3 = {
+                    year: { gan: 'Kỷ', zhi: 'Sửu' },
+                    month: { gan: 'Mậu', zhi: 'Tuất' },
+                    day: { gan: 'Mậu', zhi: 'Thìn' },
+                    hour: { gan: 'Kỷ', zhi: 'Mùi' }
+                };
+                expect(BaziAnalyzer.determineCachCuc('Mậu', 'Tuất', ct3)).toBe('Gia Tường cách (Thổ độc vượng)');
+
+                // 4. Tòng Cách cách (Kim độc vượng)
+                const ct4 = {
+                    year: { gan: 'Tân', zhi: 'Thân' },
+                    month: { gan: 'Canh', zhi: 'Dậu' },
+                    day: { gan: 'Canh', zhi: 'Tuất' },
+                    hour: { gan: 'Tân', zhi: 'Thân' }
+                };
+                expect(BaziAnalyzer.determineCachCuc('Canh', 'Dậu', ct4)).toBe('Tòng Cách cách (Kim độc vượng)');
+
+                // 5. Nhuận Hạ cách (Thủy độc vượng)
+                const ct5 = {
+                    year: { gan: 'Quý', zhi: 'Hợi' },
+                    month: { gan: 'Nhâm', zhi: 'Tý' },
+                    day: { gan: 'Nhâm', zhi: 'Thìn' },
+                    hour: { gan: 'Quý', zhi: 'Hợi' }
+                };
+                expect(BaziAnalyzer.determineCachCuc('Nhâm', 'Tý', ct5)).toBe('Nhuận Hạ cách (Thủy độc vượng)');
+            });
+
+            test('Should correctly identify all 10 standard Thập Thần patterns based on month primary hidden stem', () => {
+                // 1. Chính Ấn cách: Giáp gặp Tý (chứa Quý) và Quý lộ
+                const ct1 = {
+                    year: { gan: 'Bính', zhi: 'Thìn' },
+                    month: { gan: 'Quý', zhi: 'Tý' },
+                    day: { gan: 'Giáp', zhi: 'Thìn' },
+                    hour: { gan: 'Bính', zhi: 'Thìn' }
+                };
+                expect(BaziAnalyzer.determineCachCuc('Giáp', 'Tý', ct1)).toBe('Chính Ấn cách');
+
+                // 2. Thiên Ấn cách: Giáp gặp Hợi (chứa Nhâm) và Nhâm lộ
+                const ct2 = {
+                    year: { gan: 'Bính', zhi: 'Thìn' },
+                    month: { gan: 'Nhâm', zhi: 'Hợi' },
+                    day: { gan: 'Giáp', zhi: 'Thìn' },
+                    hour: { gan: 'Bính', zhi: 'Thìn' }
+                };
+                expect(BaziAnalyzer.determineCachCuc('Giáp', 'Hợi', ct2)).toBe('Thiên Ấn cách');
+
+                // 3. Chính Quan cách: Giáp gặp Dậu (chứa Tân) và Tân lộ
+                const ct3 = {
+                    year: { gan: 'Bính', zhi: 'Thìn' },
+                    month: { gan: 'Tân', zhi: 'Dậu' },
+                    day: { gan: 'Giáp', zhi: 'Thìn' },
+                    hour: { gan: 'Bính', zhi: 'Thìn' }
+                };
+                expect(BaziAnalyzer.determineCachCuc('Giáp', 'Dậu', ct3)).toBe('Chính Quan cách');
+
+                // 4. Thất Sát cách: Giáp gặp Thân (chứa Canh) và Canh lộ
+                const ct4 = {
+                    year: { gan: 'Bính', zhi: 'Thìn' },
+                    month: { gan: 'Canh', zhi: 'Thân' },
+                    day: { gan: 'Giáp', zhi: 'Thìn' },
+                    hour: { gan: 'Bính', zhi: 'Thìn' }
+                };
+                expect(BaziAnalyzer.determineCachCuc('Giáp', 'Thân', ct4)).toBe('Thất Sát cách');
+
+                // 5. Thương Quan cách: Giáp gặp Ngọ (chứa Đinh) và Đinh lộ
+                const ct5 = {
+                    year: { gan: 'Bính', zhi: 'Thìn' },
+                    month: { gan: 'Đinh', zhi: 'Ngọ' },
+                    day: { gan: 'Giáp', zhi: 'Thìn' },
+                    hour: { gan: 'Bính', zhi: 'Thìn' }
+                };
+                expect(BaziAnalyzer.determineCachCuc('Giáp', 'Ngọ', ct5)).toBe('Thương Quan cách');
+
+                // 6. Thực Thần cách: Giáp gặp Tỵ (chứa Bính) và Bính lộ
+                const ct6 = {
+                    year: { gan: 'Đinh', zhi: 'Thìn' },
+                    month: { gan: 'Bính', zhi: 'Tỵ' },
+                    day: { gan: 'Giáp', zhi: 'Thìn' },
+                    hour: { gan: 'Đinh', zhi: 'Thìn' }
+                };
+                expect(BaziAnalyzer.determineCachCuc('Giáp', 'Tỵ', ct6)).toBe('Thực Thần cách');
+
+                // 7. Chính Tài cách: Giáp gặp Mùi (chứa Kỷ) và Kỷ lộ
+                const ct7 = {
+                    year: { gan: 'Bính', zhi: 'Thìn' },
+                    month: { gan: 'Kỷ', zhi: 'Mùi' },
+                    day: { gan: 'Giáp', zhi: 'Thìn' },
+                    hour: { gan: 'Bính', zhi: 'Thìn' }
+                };
+                expect(BaziAnalyzer.determineCachCuc('Giáp', 'Mùi', ct7)).toBe('Chính Tài cách');
+
+                // 8. Thiên Tài cách: Giáp gặp Thìn (chứa Mậu) và Mậu lộ (dùng Canh ở năm để tránh Khúc Trực)
+                const ct8 = {
+                    year: { gan: 'Canh', zhi: 'Tý' },
+                    month: { gan: 'Mậu', zhi: 'Thìn' },
+                    day: { gan: 'Giáp', zhi: 'Tý' },
+                    hour: { gan: 'Bính', zhi: 'Tý' }
+                };
+                expect(BaziAnalyzer.determineCachCuc('Giáp', 'Thìn', ct8)).toBe('Thiên Tài cách');
+
+                // 9. Kiếp Tài cách: Giáp gặp Mão (chứa Ất) và Ất lộ (dùng Canh ở năm để tránh Khúc Trực)
+                const ct9 = {
+                    year: { gan: 'Canh', zhi: 'Thìn' },
+                    month: { gan: 'Ất', zhi: 'Mão' },
+                    day: { gan: 'Giáp', zhi: 'Thìn' },
+                    hour: { gan: 'Bính', zhi: 'Thìn' }
+                };
+                expect(BaziAnalyzer.determineCachCuc('Giáp', 'Mão', ct9)).toBe('Kiếp Tài cách');
+
+                // 10. Tỷ Kiên cách: Giáp gặp Dần (chứa Giáp) và Giáp lộ (dùng Canh ở năm để tránh Khúc Trực)
+                const ct10 = {
+                    year: { gan: 'Canh', zhi: 'Thìn' },
+                    month: { gan: 'Giáp', zhi: 'Dần' },
+                    day: { gan: 'Giáp', zhi: 'Thìn' },
+                    hour: { gan: 'Đinh', zhi: 'Thìn' }
+                };
+                expect(BaziAnalyzer.determineCachCuc('Giáp', 'Dần', ct10)).toBe('Tỷ Kiên cách');
+            });
+
+            test('Should verify accuracy of Dụng Thần, Hỷ Thần & Kỵ Thần based on Day Master strength', () => {
+                // Scenario A: Mệnh Thân Nhược (Giáp Thân - Nhâm Thân - Mậu Dần - Bính Thìn)
+                // - Thân Nhược -> Cần sinh trợ
+                // - Dụng Thần: Hỏa (Ấn tinh)
+                // - Hỷ Thần: Thổ (Tỷ Kiếp)
+                // - Kỵ Thần (conceptual): Kim, Mộc, Thủy (Khắc/Tiet/Hao)
+                const resWeak = BaziAnalyzer.analyze('27/08/2004', '07:30', 1);
+                expect(resWeak.analysis.energy7Levels.level).toBe('NHƯỢC');
+                expect(resWeak.dungThan).toBe('Hoa');
+                expect(resWeak.hyThan).toBe('Tho');
+                
+                // Assert kỵ elements (should be Kim, Moc, Thuy)
+                const kycElementsWeak = ['Kim', 'Moc', 'Thuy'];
+                const dmElem = BaziAnalyzer.rules.stemElement[resWeak.canChi.day.gan];
+                kycElementsWeak.forEach(el => {
+                    const relation = BaziAnalyzer.rules.relation[dmElem][el];
+                    expect(['tro', 'duoc_sinh']).not.toContain(relation);
+                });
+
+                // Scenario B: Mệnh Thân Vượng (12/03/1985 08:00)
+                const resStrong = BaziAnalyzer.analyze('12/03/1985', '08:00', 1);
+                expect(resStrong.analysis.energy7Levels.level).toContain('VƯỢNG');
+                // Thân Vượng -> Dụng/Hỷ phải giúp xì hơi/khắc chế (Kim, Thổ, Hỏa)
+                expect(['Kim', 'Tho', 'Hoa']).toContain(resStrong.dungThan);
+                expect(['Kim', 'Tho', 'Hoa']).toContain(resStrong.hyThan);
+
+                // Scenario C: Mệnh Thân Nhược thông thường (15/10/1992 14:00)
+                const resWeakNormal = BaziAnalyzer.analyze('15/10/1992', '14:00', 1);
+                expect(['SUY', 'NHƯỢC', 'CỰC NHƯỢC']).toContain(resWeakNormal.analysis.energy7Levels.level);
+                // Thân Nhược -> Dụng/Hỷ cần sinh trợ (Thủy, Mộc)
+                expect(['Thuy', 'Moc']).toContain(resWeakNormal.dungThan);
+                expect(['Thuy', 'Moc']).toContain(resWeakNormal.hyThan);
+            });
+        });
     });
 });

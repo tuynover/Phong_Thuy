@@ -65,4 +65,41 @@ describe('IChingDataService Comprehensive Unit Tests', () => {
         expect(resGiap.primaryLines[0].luc_thu).toBeDefined();
         expect(typeof resGiap.primaryLines[0].luc_thu).toBe('string');
     });
+
+    describe('IChingDataService.calculate Method', () => {
+        const lines = [
+            { type: 1, moving: false },
+            { type: 1, moving: false },
+            { type: 1, moving: false },
+            { type: 1, moving: false },
+            { type: 1, moving: false },
+            { type: 1, moving: false }
+        ];
+
+        test('Should correctly calculate and map pure hexagram with no moving lines', () => {
+            const fixedDate = new Date('2026-08-07T14:30:00Z'); // Fixed deterministic date
+            const result = IChingDataService.calculate({ lines, now: fixedDate });
+
+            expect(result).toBeDefined();
+            expect(result.primary).toBeDefined();
+            expect(result.secondary).toBeDefined();
+            expect(result.primaryLines).toHaveLength(6);
+            expect(result.secondaryLines).toHaveLength(6);
+            
+            // For a pure hexagram with no moving lines, secondary should be same as primary
+            expect(result.secondary.binary_code).toBe(result.primary.binary_code);
+            
+            // Check that dateInfo keys are present and correctly populated
+            expect(result.dateInfo).toBeDefined();
+            expect(result.dateInfo.solarDate).toBeDefined();
+            expect(result.dateInfo.lunarDateStr).toBeDefined();
+            expect(result.dateInfo.dayCanChi).toBeDefined();
+            expect(result.dateInfo.monthCanChi).toBeDefined();
+        });
+
+        test('Should throw error if lines array is invalid or missing', () => {
+            expect(() => IChingDataService.calculate({ lines: null })).toThrow();
+            expect(() => IChingDataService.calculate({ lines: lines.slice(0, 5) })).toThrow();
+        });
+    });
 });
