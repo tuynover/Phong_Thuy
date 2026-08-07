@@ -103,6 +103,13 @@ class AiService {
             return await this._executeWithFallback(async (modelName) => {
                 const model = this.genAI.getGenerativeModel({ model: modelName });
                 const resultStream = await model.generateContentStream(prompt);
+                
+                // Mấu chốt: Bắt lỗi Promise response để ngăn chặn UnhandledRejection làm crash Node.js
+                // Lỗi thực tế sẽ được bắt và xử lý bởi vòng lặp 'for await' khi đọc stream ở Controller.
+                if (resultStream && resultStream.response) {
+                    resultStream.response.catch(() => {});
+                }
+                
                 return resultStream;
             }, options);
         } catch (error) {
