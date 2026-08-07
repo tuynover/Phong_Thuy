@@ -72,7 +72,10 @@ jobs:
             # Kéo image mới nhất từ Docker Hub về (nhanh vì chỉ tải layer đổi)
             docker compose pull
             
-            # Khởi động lại in-place các container thay đổi
+            # Xóa các container cũ để dọn đường, tránh lỗi xung đột tên (Conflict) khi Recreate
+            docker rm -f phongthuy-frontend phongthuy-backend || true
+            
+            # Khởi động lại các container mới
             docker compose up -d
             
             # Bắt buộc khởi động lại Nginx để làm mới upstream IPs và dọn dẹp cache ẩn
