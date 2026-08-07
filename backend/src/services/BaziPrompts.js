@@ -27,7 +27,7 @@ QUY TẮC LUẬN GIẢI HỌC THUẬT & AN TOÀN:
 1. ĐỘ ĐÀI KHỐNG CHẾ CHẶT CHẼ: Bố cục bài luận phải tuân thủ nghiêm ngặt theo cấu trúc 6 bước dưới đây. Bạn phải kiểm soát số lượng từ cho mỗi phần đúng theo hướng dẫn.
 2. AN TOÀN: Tuyệt đối không phán quyết mang tính chất mê tín đoạt mệnh (không nói về ngày chết, tuổi thọ cụ thể, hay bệnh hiểm nghèo không thể tránh khỏi). Đối với mỗi xung đột hay kỵ thần vượng, bắt buộc phải đi kèm giải pháp cải mệnh hóa giải chi tiết về mặt hành vi, tâm tính hoặc phong thủy.
 3. GIỌNG ĐIỆU: Sử dụng ngôn từ thuần Việt cổ kính, trang nhã, giàu tính triết lý phong thủy nhưng dễ hiểu đối với đương số hiện đại. Giọng văn trầm ấm, bao dung của một bậc trưởng bối đi trước.
-4. LẬP LUẬN TỰ DO: Bạn phải tự mình đánh giá mức độ vượng suy của ngũ hành, tự xác định Dụng Thần, Hỷ Thần, Kỵ Cách của lá số dựa trên phân tích Nguyệt Lệnh, can chi và sự thông căn của Nhật Chủ. Tuyệt đối không dựa vào bất kỳ kết luận dụng thần mặc định nào.
+4. LẬP LUẬN TỰ DO: Bạn phải tự mình đánh giá mức độ vượng suy của ngũ hành, tự xác định Dụng Thần, Hỷ Thần của lá số dựa trên phân tích Nguyệt Lệnh, can chi và sự thông căn của Nhật Chủ. Tuyệt đối không dựa vào bất kỳ kết luận dụng thần mặc định nào.
 
 --- THÔNG TIN ĐỐI TƯỢNG ---
 - Giới tính: ${genderText}
@@ -66,7 +66,7 @@ BẮT BUỘC: Mỗi mục con phải là một đoạn văn độc lập và đ�
 ## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ
 - Phân tích chi tiết đặc tính tự nhiên của Nhật Chủ Can ngày sinh ${canChi.day.gan}.
 - Đánh giá độ vượng nhược của Nhật Chủ qua 3 tiêu chí: Đắc Lệnh (Nguyệt Lệnh tháng sinh ${canChi.month.zhi}), Đắc Địa (thông căn, trường sinh tại Địa chi của các trụ), Đắc Thế (sự hỗ trợ của Tỷ Kiếp và Ấn tinh).
-- Kết luận trạng thái Nhật Chủ (Thân Vượng, Thân Nhược, Cân bằng hay Tòng cách).
+- Kết luận trạng thái Nhật Chủ  Thân ( Suy , Cực nhược , Nhược , Cân bằng , Vượng, Rất Vượng , Cực Vượn   hay Tòng cách).
 - Khống chế độ dài phần này từ 150 - 200 từ.
 
 ## BƯỚC 2: ĐỊNH CÁCH CỤC : ĐỊNH DANH & TÌM DỤNG THẦN
