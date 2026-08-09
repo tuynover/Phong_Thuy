@@ -6,6 +6,7 @@ const adminAuth = require('../middleware/adminAuth');
 
 // Public endpoints (optionalAuth allows identifying if request comes from an Admin to see drafts)
 router.get('/', optionalAuth, BlogController.getPosts);
+router.get('/categories', optionalAuth, BlogController.getCategories);
 router.get('/:slug', optionalAuth, BlogController.getPostBySlug);
 
 // Admin-only endpoints

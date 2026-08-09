@@ -375,17 +375,19 @@ describe('BaziAnalyzer Comprehensive Unit Test Suite', () => {
     // 11. DETAILED SHEN SHA VERIFICATION (ALL 29 SHEN SHA)
     // ==========================================
     describe('11. Detailed Shen Sha Verification', () => {
-        test('Should correctly detect Thiên La when Hỏa mệnh year meets Tuất branch', () => {
-            // Born in 1986 Bính Dần (Lư Trung Hỏa). We analyze a day or time with Tuất.
-            const res = BaziAnalyzer.analyze('1986-07-28', '19:30', 1); // 19:30 is Tuất hour
-            expect(res.canChi.hour.zhi).toBe('Tuất');
+        test('Should correctly detect Thiên La when Thìn/Tỵ interaction occurs between day/year branch and other pillars', () => {
+            // Born in 1988 Mậu Thìn (Year branch is Thìn). Hour is Tỵ (10:00).
+            const res = BaziAnalyzer.analyze('1988-05-15', '10:00', 1);
+            expect(res.canChi.year.zhi).toBe('Thìn');
+            expect(res.canChi.hour.zhi).toBe('Tỵ');
             expect(res.canChi.hour.shenSha).toContain('Thiên La');
         });
 
-        test('Should correctly detect Địa Võng when Thủy/Thổ mệnh year meets Thìn branch', () => {
-            // Born in 1996 Bính Tý (Giản Hạ Thủy). We analyze a time with Thìn.
-            const res = BaziAnalyzer.analyze('1996-07-28', '07:30', 1); // 07:30 is Thìn hour
-            expect(res.canChi.hour.zhi).toBe('Thìn');
+        test('Should correctly detect Địa Võng when Tuất/Hợi interaction occurs between day/year branch and other pillars', () => {
+            // Born in 1994 Giáp Tuất (Year branch is Tuất). Hour is Hợi (22:00).
+            const res = BaziAnalyzer.analyze('1994-05-15', '22:00', 1);
+            expect(res.canChi.year.zhi).toBe('Tuất');
+            expect(res.canChi.hour.zhi).toBe('Hợi');
             expect(res.canChi.hour.shenSha).toContain('Địa Võng');
         });
 
@@ -395,10 +397,16 @@ describe('BaziAnalyzer Comprehensive Unit Test Suite', () => {
             expect(res1.canChi.year.shenSha).toContain('Khôi Cương');
         });
 
-        test('Should correctly detect Âm Dương Sai Thác on matching pillars', () => {
-            // Bính Tý is Âm Dương Sai Thác. Year 1996 (after Feb 4) is Bính Tý.
-            const res = BaziAnalyzer.analyze('1996-05-15', '12:00', 1);
-            expect(res.canChi.year.shenSha).toContain('Âm Dương Sai Thác');
+        test('Should correctly detect Âm Dương Sai Thác strictly on the Day pillar and ignore other pillars', () => {
+            // Case 1: Bính Tý is Âm Dương Sai Thác. If it appears on the Year pillar (e.g. 1996-05-15 Bính Tý year), it should NOT be flagged.
+            const resYear = BaziAnalyzer.analyze('1996-05-15', '12:00', 1);
+            expect(resYear.canChi.year.canChi).toBe('Bính Tý');
+            expect(resYear.canChi.year.shenSha).not.toContain('Âm Dương Sai Thác');
+
+            // Case 2: Bính Tý appears on the Day pillar (e.g. 1996-02-09 Bính Tý day), it should be flagged.
+            const resDay = BaziAnalyzer.analyze('1996-02-09', '12:00', 1);
+            expect(resDay.canChi.day.canChi).toBe('Bính Tý');
+            expect(resDay.canChi.day.shenSha).toContain('Âm Dương Sai Thác');
         });
 
         test('Should correctly detect Cô Loan Sát on matching pillars', () => {
@@ -419,9 +427,11 @@ describe('BaziAnalyzer Comprehensive Unit Test Suite', () => {
             expect(res.canChi.hour.shenSha).toContain('Lưu Hà');
         });
 
-        test('Should correctly detect Huyết Nhận on matching pillars', () => {
-            // monthZhi = Tý meets Mùi
-            const res = BaziAnalyzer.analyze('1990-12-25', '14:30', 1); // monthZhi is Tý (Tháng Mười Một Âm lịch), hour is Mùi
+        test('Should correctly detect Huyết Nhận on matching pillars using yearZhi and the new mapping', () => {
+            // yearZhi = Tý (e.g. year 1996 Bính Tý), hourZhi = Tuất (19:30)
+            const res = BaziAnalyzer.analyze('1996-05-15', '19:30', 1);
+            expect(res.canChi.year.zhi).toBe('Tý');
+            expect(res.canChi.hour.zhi).toBe('Tuất');
             expect(res.canChi.hour.shenSha).toContain('Huyết Nhận');
         });
 
@@ -458,18 +468,80 @@ describe('BaziAnalyzer Comprehensive Unit Test Suite', () => {
             expect(allShenSha).toBeDefined();
         });
 
-        test('Should correctly detect 2-word Tam Kỳ Quý Nhân (Thiên Thượng, Địa Thượng, Nhân Gian)', () => {
-            const res = BaziAnalyzer.analyze('1985-06-15', '00:30', 1);
-            expect(res).toBeDefined();
-            // Verify Tam Kỳ labels match short 2-word format
-            const allShenSha = [
-                ...res.canChi.year.shenSha,
-                ...res.canChi.month.shenSha,
-                ...res.canChi.day.shenSha,
-                ...res.canChi.hour.shenSha
+        test('Should correctly detect 3-word Tam Kỳ Quý Nhân and check strict ordering', () => {
+            // 1. Forward Thiên Thượng Tam Kỳ (Giáp - Mậu - Canh): 1984-04-06 (Y: Giáp, M: Mậu, D: Canh)
+            const res1 = BaziAnalyzer.analyze('1984-04-06', '12:00', 1);
+            expect(res1).toBeDefined();
+            const shenSha1 = [
+                ...res1.canChi.year.shenSha,
+                ...res1.canChi.month.shenSha,
+                ...res1.canChi.day.shenSha,
+                ...res1.canChi.hour.shenSha
             ];
-            const tamKyFound = allShenSha.filter(s => ['Thiên Thượng', 'Địa Thượng', 'Nhân Gian'].includes(s));
-            expect(tamKyFound).toBeDefined();
+            expect(shenSha1).toContain('Thiên Thượng Tam Kỳ');
+
+            // 2. Reverse Thiên Thượng Tam Kỳ (Canh - Mậu - Giáp): 1980-02-11 (Y: Canh, M: Mậu, D: Giáp)
+            const res2 = BaziAnalyzer.analyze('1980-02-11', '12:00', 1);
+            expect(res2).toBeDefined();
+            const shenSha2 = [
+                ...res2.canChi.year.shenSha,
+                ...res2.canChi.month.shenSha,
+                ...res2.canChi.day.shenSha,
+                ...res2.canChi.hour.shenSha
+            ];
+            expect(shenSha2).toContain('Thiên Thượng Tam Kỳ');
+
+            // 3. Forward Địa Thượng Tam Kỳ (Nhâm - Quý - Tân): 1982-03-09 (Y: Nhâm, M: Quý, D: Tân)
+            const res3 = BaziAnalyzer.analyze('1982-03-09', '12:00', 1);
+            const shenSha3 = [
+                ...res3.canChi.year.shenSha,
+                ...res3.canChi.month.shenSha,
+                ...res3.canChi.day.shenSha,
+                ...res3.canChi.hour.shenSha
+            ];
+            expect(shenSha3).toContain('Địa Thượng Tam Kỳ');
+
+            // 4. Reverse Địa Thượng Tam Kỳ (Tân - Quý - Nhâm): 1981-05-14 (Y: Tân, M: Quý, D: Nhâm)
+            const res4 = BaziAnalyzer.analyze('1981-05-14', '12:00', 1);
+            const shenSha4 = [
+                ...res4.canChi.year.shenSha,
+                ...res4.canChi.month.shenSha,
+                ...res4.canChi.day.shenSha,
+                ...res4.canChi.hour.shenSha
+            ];
+            expect(shenSha4).toContain('Địa Thượng Tam Kỳ');
+
+            // 5. Forward Nhân Gian Tam Kỳ (Ất - Bính - Đinh): 1985-10-15 (Y: Ất, M: Bính, D: Đinh)
+            const res5 = BaziAnalyzer.analyze('1985-10-15', '12:00', 1);
+            const shenSha5 = [
+                ...res5.canChi.year.shenSha,
+                ...res5.canChi.month.shenSha,
+                ...res5.canChi.day.shenSha,
+                ...res5.canChi.hour.shenSha
+            ];
+            expect(shenSha5).toContain('Nhân Gian Tam Kỳ');
+
+            // 6. Reverse Nhân Gian Tam Kỳ (Đinh - Bính - Ất): 1987-06-15 (Y: Đinh, M: Bính, D: Ất)
+            const res6 = BaziAnalyzer.analyze('1987-06-15', '12:00', 1);
+            const shenSha6 = [
+                ...res6.canChi.year.shenSha,
+                ...res6.canChi.month.shenSha,
+                ...res6.canChi.day.shenSha,
+                ...res6.canChi.hour.shenSha
+            ];
+            expect(shenSha6).toContain('Nhân Gian Tam Kỳ');
+
+            // 7. Invalid permutation (e.g. 1985-06-15 has no Tam Ky)
+            const res7 = BaziAnalyzer.analyze('1985-06-15', '00:30', 1);
+            const shenSha7 = [
+                ...res7.canChi.year.shenSha,
+                ...res7.canChi.month.shenSha,
+                ...res7.canChi.day.shenSha,
+                ...res7.canChi.hour.shenSha
+            ];
+            expect(shenSha7).not.toContain('Thiên Thượng Tam Kỳ');
+            expect(shenSha7).not.toContain('Địa Thượng Tam Kỳ');
+            expect(shenSha7).not.toContain('Nhân Gian Tam Kỳ');
         });
 
         test('Should correctly detect Học Đường and Từ Quán Quý Nhân with explicit assertions', () => {
@@ -499,10 +571,40 @@ describe('BaziAnalyzer Comprehensive Unit Test Suite', () => {
             expect(allShenSha).toBeDefined();
         });
 
-        test('Should correctly detect Kim Thần on matching Hour pillar', () => {
-            // Hour pillar Quý Dậu, Kỷ Tỵ or Ất Sửu when Year/Day stem is Giáp or Kỷ
-            const res = BaziAnalyzer.analyze('1984-02-15', '18:00', 1); // 18:00 is Dậu hour
-            expect(res).toBeDefined();
+        test('Should correctly detect Kim Thần on matching Day or Hour pillar with strict stem conditions', () => {
+            // Case 1: Day pillar is 'Ất Sửu' - should have Kim Thần unconditionally on Day pillar
+            const resDay = BaziAnalyzer.analyze('1985-01-26', '12:00', 1);
+            expect(resDay.canChi.day.canChi).toBe('Ất Sửu');
+            expect(resDay.canChi.day.shenSha).toContain('Kim Thần');
+
+            // Case 2: Hour pillar is 'Ất Sửu' and Day stem is 'Giáp' (1985-01-05 02:00 is Giáp Thìn day, Ất Sửu hour)
+            const resHourMatch = BaziAnalyzer.analyze('1985-01-05', '02:00', 1);
+            expect(resHourMatch.canChi.day.gan).toBe('Giáp');
+            expect(resHourMatch.canChi.hour.canChi).toBe('Ất Sửu');
+            expect(resHourMatch.canChi.hour.shenSha).toContain('Kim Thần');
+
+            // Case 3: Hour pillar is 'Đinh Sửu' (on day 'Ất Tỵ') - should not receive Kim Thần as it's not Ất Sửu/Kỷ Tỵ/Quý Dậu
+            const resHourMismatch = BaziAnalyzer.analyze('1985-01-06', '02:00', 1);
+            expect(resHourMismatch.canChi.day.gan).toBe('Ất');
+            expect(resHourMismatch.canChi.hour.canChi).toBe('Đinh Sửu');
+            expect(resHourMismatch.canChi.hour.shenSha).not.toContain('Kim Thần');
+        });
+
+        test('Should correctly detect Hồng Diễm Sát using both Day stem and Year stem with updated branch mappings', () => {
+            // Case 1: Triggered by Year stem (Giáp) matching with Hour branch (Ngọ)
+            // Date 1985-01-01 12:00 -> Year stem is Giáp, Day stem is Canh. Hour branch is Ngọ.
+            const resYearMatch = BaziAnalyzer.analyze('1985-01-01', '12:00', 1);
+            expect(resYearMatch.canChi.year.gan).toBe('Giáp');
+            expect(resYearMatch.canChi.day.gan).toBe('Canh');
+            expect(resYearMatch.canChi.hour.zhi).toBe('Ngọ');
+            expect(resYearMatch.canChi.hour.shenSha).toContain('Hồng Diễm Sát');
+
+            // Case 2: Triggered by Day stem (Canh) matching with Hour branch (Thân)
+            // Date 1985-01-01 16:00 -> Year stem is Giáp, Day stem is Canh. Hour branch is Thân.
+            const resDayMatch = BaziAnalyzer.analyze('1985-01-01', '16:00', 1);
+            expect(resDayMatch.canChi.day.gan).toBe('Canh');
+            expect(resDayMatch.canChi.hour.zhi).toBe('Thân');
+            expect(resDayMatch.canChi.hour.shenSha).toContain('Hồng Diễm Sát');
         });
 
         test('Should verify traditional 34 Shen Sha exist and calculate correctly', () => {
@@ -796,6 +898,28 @@ describe('BaziAnalyzer Comprehensive Unit Test Suite', () => {
                 // Thân Nhược -> Dụng/Hỷ cần sinh trợ (Thủy, Mộc)
                 expect(['Thuy', 'Moc']).toContain(resWeakNormal.dungThan);
                 expect(['Thuy', 'Moc']).toContain(resWeakNormal.hyThan);
+            });
+
+            test('Should correctly identify new Shen Sha stars: Thiên Xá, Tứ Phế, Âm Chú Dương Thụ, Câu Sát, Giảo Sát, Ngũ Quỷ, Cách Giác, Tang Môn, Điếu Khách', () => {
+                // 1. Thiên Xá: Spring month + Mậu Dần day
+                const resThienXa = BaziAnalyzer.analyze('03/03/1992', '12:00', 1);
+                expect(resThienXa.canChi.day.shenSha).toContain('Thiên Xá');
+
+                // 2. Tứ Phế: Spring month + Canh Thân day
+                const resTuPhe = BaziAnalyzer.analyze('24/02/1990', '12:00', 1);
+                expect(resTuPhe.canChi.day.shenSha).toContain('Tứ Phế');
+
+                // 3. Âm Chú Dương Thụ: monthZhi=Dần + dayZhi=Tý
+                const resAmChu = BaziAnalyzer.analyze('04/02/1990', '12:00', 1);
+                expect(resAmChu.canChi.day.shenSha).toContain('Âm Chú Dương Thụ');
+
+                // 4. Cách Giác & Câu/Giảo & Ngũ Quỷ & Tang Môn / Điếu Khách on 04/02/1990 04:30
+                // Year 1990 Canh Ngọ (Ngũ Quỷ on Year)
+                // dayZhi is Tý, hour is 04:30 (Dần hour) -> triggers Cách Giác on Day and Hour
+                const resCombo = BaziAnalyzer.analyze('04/02/1990', '04:30', 1);
+                expect(resCombo.canChi.day.shenSha).not.toContain('Cách Giác');
+                expect(resCombo.canChi.hour.shenSha).toContain('Cách Giác');
+                expect(resCombo.canChi.year.shenSha).toContain('Ngũ Quỷ');
             });
         });
     });

@@ -203,8 +203,8 @@ Tác vụ chạy định kỳ lúc nửa đêm của `NotificationScheduler.js` 
 *   **Phạm Vi Trợ Giúp Của Thiên Can (`isDuocTroGiup`):**
     *   Chỉ tính 2 Thiên Can kề sát Nhật Chủ (Can Tháng và Can Giờ). Can Năm ở xa bị Can Tháng ngăn cách nên không được tính trợ giúp trực tiếp cho Nhật Chủ.
 
-### 5.15 Hệ Thống Thần Sát Bát Tự (29 Thần Sát)
-Hệ thống tự động tính toán và hiển thị 29 Thần Sát đặc thù trên lá số và đại vận/lưu niên:
+### 5.15 Hệ Thống Thần Sát Bát Tự (41 Thần Sát)
+Hệ thống tự động tính toán và hiển thị 32 Thần Sát đặc thù trên lá số và đại vận/lưu niên:
 1.  **Thiên Ất Quý Nhân:** Tra theo Can Ngày & Can Năm đối chiếu Địa Chi.
 2.  **Thái Cực Quý Nhân:** Tra theo Can Ngày đối chiếu Địa Chi.
 3.  **Thiên Đức Quý Nhân:** Tra theo Chi Tháng đối chiếu Can/Chi các trụ.
@@ -225,15 +225,24 @@ Hệ thống tự động tính toán và hiển thị 29 Thần Sát đặc th�
 18. **Thiên Y:** Chi Tháng lùi 1 cung địa chi.
 19. **Hồng Loan & Thiên Hỷ:** Tra theo Chi Năm đối chiếu Địa Chi đào hoa hỷ khánh.
 20. **Kim Dư Quý Nhân (Xe Vàng):** Tra theo Can Ngày & Can Năm đối chiếu Địa Chi.
-21. **Thiên La:** Mệnh nạp âm năm sinh là **Hỏa** gặp địa chi **Tuất**.
-22. **Địa Võng:** Mệnh nạp âm năm sinh là **Thủy** hoặc **Thổ** gặp địa chi **Thìn**.
+21. **Thiên La:** Cát hung tinh xuất hiện khi Chi Ngày hoặc Chi Năm là **Thìn** gặp địa chi **Tỵ**, hoặc Chi Ngày hoặc Chi Năm là **Tỵ** gặp địa chi **Thìn**.
+22. **Địa Võng:** Cát hung tinh xuất hiện khi Chi Ngày hoặc Chi Năm là **Tuất** gặp địa chi **Hợi**, hoặc Chi Ngày hoặc Chi Năm là **Hợi** gặp địa chi **Tuất**.
 23. **Khôi Canh Sát:** Trụ gặp một trong các ngày **Canh Thìn, Nhâm Thìn, Mậu Tuất, Canh Tuất**.
-24. **Âm Dương Sai Thác:** Trụ gặp một trong 12 ngày cưới trắc trở tương ứng.
+24. **Âm Dương Sai Thác:** Chỉ tính riêng tại **Trụ Ngày (Nhật Trụ)** của đương số nếu trụ ngày gặp một trong 12 ngày cưới trắc trở tương ứng.
 25. **Cô Loan Sát:** Trụ gặp một trong 8 ngày đơn độc hôn nhân tương ứng.
 26. **Thập Ác Đại Bại:** Trụ gặp một trong 10 ngày mưu sự thất bại không có lộc hộ trì.
 27. **Lưu Hà Sát:** Tra Can Ngày đối chiếu Địa Chi để xác định rủi ro tai nạn hao tài.
-28. **Huyết Nhận Sát:** Tra Chi Tháng sinh đối chiếu Địa Chi để xác định rủi ro thương tích phẫu thuật.
+28. **Huyết Nhận Sát:** Tra cứu theo Địa Chi của năm sinh (Niên Chi) đối chiếu Địa Chi của các trụ theo bảng quy chiếu để xác định rủi ro tai nạn, thương tích, đổ máu, phẫu thuật.
 29. **Quan Phù:** Gặp địa chi cách Chi Năm 4 cung (tiến lên) chủ về tranh chấp kiện tụng.
+30. **Tam Kỳ Quý Nhân:** Tổ hợp của 3 Thiên Can liên tiếp xuất hiện trên các trụ kề nhau (Năm-Tháng-Ngày hoặc Tháng-Ngày-Giờ) theo đúng thứ tự Xuôi hoặc Ngược (tổng cộng có 4 trường hợp được tính cho mỗi tổ hợp):
+     *   **Thiên Thượng Tam Kỳ:** `Giáp - Mậu - Canh` hoặc `Canh - Mậu - Giáp`.
+     *   **Địa Thượng Tam Kỳ:** `Nhâm - Quý - Tân` hoặc `Tân - Quý - Nhâm`.
+     *   **Nhân Gian Tam Kỳ:** `Ất - Bính - Đinh` hoặc `Đinh - Bính - Ảt`.
+31. **Kim Thần:** Cát tinh tra theo Can Chi trụ Ngày và trụ Giờ:
+     *   **Trụ Ngày:** Trụ Ngày gặp `Ất Sửu`, `Kỷ Tỵ`, hoặc `Quý Dậu` mặc định là Kim Thần.
+     *   **Trụ Giờ:** Trụ Giờ gặp `Ất Sửu`, `Kỷ Tỵ`, hoặc `Quý Dậu` chỉ được tính là Kim Thần khi Nhật Chủ (Can Ngày) là **Giáp** hoặc **Kỷ**.
+32. **Hồng Diễm Sát:** Tinh tú chủ về duyên dáng, đào hoa. Tra cứu theo cả Can Ngày (Nhật Can) và Can Năm (Niên Can) đối chiếu Địa Chi các trụ: Giáp gặp Ngọ, Ất gặp Thân, Bính gặp Dần, Đinh gặp Mùi, Mậu/Kỷ gặp Thìn, Canh gặp Thân, Tân gặp Dậu, Nhâm gặp Tý, Quý gặp Tuất.
+33. **Cách Giác (Cách Góc):** Cát hung tinh tra cứu theo Địa Chi của ngày sinh (Nhật Chi). Nếu Địa Chi của trụ đang xét tiến lên đúng 2 cung Địa Chi so với Nhật Chi thì trụ đó ghi nhận Cách Giác.
 
 ---
 

@@ -118,6 +118,23 @@ class BlogController {
     }
   }
 
+  // GET /api/blog/categories - Fetch all distinct categories
+  static async getCategories(req, res) {
+    try {
+      const isAdmin = req.user && (req.user.role === 'admin' || req.user.role === 'co-admin');
+      const query = { isDeleted: { $ne: true } };
+      if (!isAdmin) {
+        query.isPublished = true;
+      }
+      const categories = await BlogPost.distinct('category', query);
+      const cleanCategories = categories.filter(c => c).sort((a, b) => a.localeCompare(b, 'vi'));
+      return res.json({ success: true, categories: cleanCategories });
+    } catch (error) {
+      console.error('[BlogController.getCategories] Error:', error);
+      return res.status(500).json({ error: 'Lỗi khi tải danh sách chủ đề.' });
+    }
+  }
+
   // POST /api/blog - Create new post (Admin only)
   static async createPost(req, res) {
     try {

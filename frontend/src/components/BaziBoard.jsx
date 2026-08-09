@@ -348,41 +348,55 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
     };
 
     const SHEN_SHA_COLORS = {
-        // Cát Thần (Màu Xanh Ngọc - Emerald)
+        // --- 1. NHÓM CÁT THẦN (MÀU XANH - Emerald) ---
         'Thiên Ất': 'text-emerald-600',
+        'Thiên Ất Quý Nhân': 'text-emerald-600',
         'Thái Cực': 'text-emerald-600',
+        'Thái Cực Quý Nhân': 'text-emerald-600',
         'Thiên Đức': 'text-emerald-600',
+        'Thiên Đức Quý Nhân': 'text-emerald-600',
         'Nguyệt Đức': 'text-emerald-600',
-        'Văn Xương': 'text-emerald-600',
-        'Học Đường': 'text-emerald-600',
-        'Từ Quán': 'text-emerald-600',
+        'Nguyệt Đức Quý Nhân': 'text-emerald-600',
         'Lộc Thần': 'text-emerald-600',
         'Tuế Lộc': 'text-emerald-600',
         'Kiến Lộc': 'text-emerald-600',
         'Chuyên Lộc': 'text-emerald-600',
         'Quy Lộc': 'text-emerald-600',
-        'Kim Dư': 'text-emerald-600',
+        'Văn Xương': 'text-emerald-600',
+        'Văn Xương Quý Nhân': 'text-emerald-600',
+        'Học Đường': 'text-emerald-600',
+        'Học Đường Quý Nhân': 'text-emerald-600',
+        'Từ Quán': 'text-emerald-600',
+        'Từ Quán Quý Nhân': 'text-emerald-600',
         'Tướng Tinh': 'text-emerald-600',
         'Phúc Tinh': 'text-emerald-600',
+        'Phúc Tinh Quý Nhân': 'text-emerald-600',
         'Thiên Y': 'text-emerald-600',
         'Quốc Ấn': 'text-emerald-600',
-        'Kim Thần': 'text-emerald-600',
-        'Hồng Loan': 'text-emerald-600',
+        'Quốc Ấn Quý Nhân': 'text-emerald-600',
+        'Thiên Trù': 'text-emerald-600',
+        'Thiên Trù Quý Nhân': 'text-emerald-600',
+        'Đường Phù': 'text-emerald-600',
         'Thiên Hỷ': 'text-emerald-600',
+        'Thiên Hỷ Quý Nhân': 'text-emerald-600',
+        'Kim Dư': 'text-emerald-600',
+        'Kim Dư Quý Nhân': 'text-emerald-600',
+        'Thiên Xá': 'text-emerald-600',
+        'Âm Chú Dương Thụ': 'text-emerald-600',
+        'Thiên Thượng Tam Kỳ': 'text-emerald-600',
+        'Địa Thượng Tam Kỳ': 'text-emerald-600',
+        'Nhân Gian Tam Kỳ': 'text-emerald-600',
+        'Thiếu Dương': 'text-emerald-600',
+        'Thiếu Âm': 'text-emerald-600',
+        'Long Đức': 'text-emerald-600',
+        'Phúc Đức': 'text-emerald-600',
 
-        // Tam Kỳ Quý Nhân (Màu Tím Quý Phái)
-        'Thiên Thượng': 'text-purple-600',
-        'Địa Thượng': 'text-purple-600',
-        'Nhân Gian': 'text-purple-600',
-        'Thiên Thượng Tam Kỳ': 'text-purple-600',
-        'Địa Thượng Tam Kỳ': 'text-purple-600',
-        'Nhân Gian Tam Kỳ': 'text-purple-600',
-
-        // Hung Sát (Màu Đỏ Rực - Rose)
+        // --- 2. NHÓM HUNG SÁT (MÀU ĐỎ - Rose) ---
         'Kình Dương': 'text-rose-600',
         'Đà La': 'text-rose-600',
         'Kiếp Sát': 'text-rose-600',
         'Vong Thần': 'text-rose-600',
+        'Vong Sát': 'text-rose-600',
         'Cô Thần': 'text-rose-600',
         'Quả Tú': 'text-rose-600',
         'Đại Hao': 'text-rose-600',
@@ -390,6 +404,7 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
         'Tai Sát': 'text-rose-600',
         'Nguyên Thần': 'text-rose-600',
         'Huyết Nhận': 'text-rose-600',
+        'Huyết Nhận Sát': 'text-rose-600',
         'Tử Phù': 'text-rose-600',
         'Bệnh Phù': 'text-rose-600',
         'Thương Quan Kiến Quan': 'text-rose-600',
@@ -397,31 +412,33 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
         'Địa Võng': 'text-rose-600',
         'Cô Loan Sát': 'text-rose-600',
         'Lưu Hà': 'text-rose-600',
+        'Lưu Hà Sát': 'text-rose-600',
         'Quan Phù': 'text-rose-600',
-        'Không Vong': 'text-rose-600',
         'Thập Ác Đại Bại': 'text-rose-600',
         'Tỷ Kiên Cô Quả': 'text-rose-600',
         'Phi Nhẫn': 'text-rose-600',
+        'Tứ Phế': 'text-rose-600',
+        'Câu Sát': 'text-rose-600',
+        'Giảo Sát': 'text-rose-600',
+        'Ngũ Quỷ': 'text-rose-600',
+        'Cách Giác': 'text-rose-600',
         'Tang Môn': 'text-rose-600',
         'Điếu Khách': 'text-rose-600',
+        'Bạch Hổ': 'text-rose-600',
+        'Tuế Phá': 'text-rose-600',
         'Trực Phù': 'text-rose-600',
 
-        // Duyên Tình & Trung Tính (Màu Hồng / Xám Đen)
-        'Đào Hoa': 'text-pink-600',
-        'Hồng Diễm Sát': 'text-pink-600',
+        // --- 3. NHÓM TRUNG TÍNH / CÁT HUNG LẪN LỘN (MÀU ĐEN - Slate) ---
+        'Đào Hoa': 'text-slate-800',
+        'Hồng Loan': 'text-slate-800',
+        'Hồng Diễm Sát': 'text-slate-800',
+        'Không Vong': 'text-slate-800',
         'Dịch Mã': 'text-slate-800',
         'Hoa Cái': 'text-slate-800',
         'Khôi Cương': 'text-slate-800',
         'Âm Dương Sai Thác': 'text-slate-800',
-        'Thái Tuế': 'text-slate-800',
-
-        // Cát Thần Vận Hạn
-        'Thiên Trù Quý Nhân': 'text-emerald-600',
-        'Đường Phù': 'text-emerald-600',
-        'Thiếu Dương': 'text-emerald-600',
-        'Thiếu Âm': 'text-emerald-600',
-        'Long Đức': 'text-emerald-600',
-        'Phúc Đức': 'text-emerald-600'
+        'Kim Thần': 'text-slate-800',
+        'Thái Tuế': 'text-slate-800'
     };
 
     const getShenShaColorClass = (ss) => {
@@ -432,10 +449,14 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
         if (SHEN_SHA_COLORS[baseTerm]) return SHEN_SHA_COLORS[baseTerm];
 
         const lower = ss.toLowerCase();
-        if (lower.includes('thượng') || lower.includes('gian') || lower.includes('tam kỳ')) return 'text-purple-600';
-        if (lower.includes('sát') || lower.includes('phù') || lower.includes('đại bại') || lower.includes('vong') || lower.includes('cô') || lower.includes('tú') || lower.includes('dương') || lower.includes('đà') || lower.includes('hao') || lower.includes('nhận') || lower.includes('kiến quan')) return 'text-rose-600';
-        if (lower.includes('lộc') || lower.includes('đức') || lower.includes('quý nhân') || lower.includes('ấn') || lower.includes('y') || lower.includes('hỷ') || lower.includes('loan') || lower.includes('xương') || lower.includes('đường') || lower.includes('quán') || lower.includes('dư') || lower.includes('tinh') || lower.includes('phúc')) return 'text-emerald-600';
-        if (lower.includes('đào hoa')) return 'text-pink-600';
+        // Cát Thần (Xanh)
+        if (lower.includes('lộc') || lower.includes('đức') || lower.includes('quý nhân') || lower.includes('ấn') || lower.includes('y') || lower.includes('hỷ') || lower.includes('xương') || lower.includes('đường') || lower.includes('quán') || lower.includes('dư') || lower.includes('tinh') || lower.includes('phúc')) {
+            return 'text-emerald-600';
+        }
+        // Hung Sát (Đỏ)
+        if (lower.includes('sát') || lower.includes('phù') || lower.includes('đại bại') || lower.includes('vong') || lower.includes('cô') || lower.includes('tú') || lower.includes('dương') || lower.includes('đà') || lower.includes('hao') || lower.includes('nhận') || lower.includes('kiến quan') || lower.includes('phế') || lower.includes('quỷ') || lower.includes('giác') || lower.includes('môn') || lower.includes('khách') || lower.includes('hổ')) {
+            return 'text-rose-600';
+        }
 
         return 'text-slate-800';
     };
@@ -561,12 +582,12 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
                                         );
                                     }
                                     const baseTerm = ss.split(' (')[0].replace(/ Quý Nhân/g, '').trim();
-                                    const displayName = ss.replace(/ Quý Nhân/g, '');
+                                    const displayName = ss.replace(/ Quý Nhân/g, '').replace(/\(\s+/g, '(').replace(/\s+\)/g, ')');
                                     const colorClass = getShenShaColorClass(ss);
                                     return (
                                         <div key={idx} className="flex justify-center items-center text-[10.5px] sm:text-[12.5px] leading-normal w-full font-black min-h-[18px] py-0.5 text-center">
                                             <Tooltip term={baseTerm} unstyled={true}>
-                                                <span className={`${colorClass} hover:scale-105 transition-transform cursor-help inline-block leading-tight`}>
+                                                <span className={`${colorClass} hover:scale-105 transition-transform cursor-help inline-block leading-tight whitespace-nowrap`}>
                                                     {displayName}
                                                 </span>
                                             </Tooltip>
@@ -1225,6 +1246,22 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
                     {(() => {
                         const activeLuuNianPillar = daYun[selectedYunIndex]?.liuNian?.find(ln => ln.year === selectedLuuNianYear);
                         if (!activeLuuNianPillar) return null;
+
+                        const maxStaticStars = Math.max(
+                            canChi.hour?.shenSha?.length || 0,
+                            canChi.day?.shenSha?.length || 0,
+                            canChi.month?.shenSha?.length || 0,
+                            canChi.year?.shenSha?.length || 0,
+                            1
+                        );
+
+                        const maxDynamicStars = Math.max(
+                            activeLuuNianPillar.annualShenSha?.hour?.length || 0,
+                            activeLuuNianPillar.annualShenSha?.day?.length || 0,
+                            activeLuuNianPillar.annualShenSha?.month?.length || 0,
+                            activeLuuNianPillar.annualShenSha?.year?.length || 0,
+                            1
+                        );
                         
                         const mergedYear = canChi.year;
                         const mergedMonth = canChi.month;
@@ -1262,7 +1299,21 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
                                                 {(activeLuuNianPillar.nienVanTinh || []).map((vt, idx) => (
                                                     <div key={idx} className="flex justify-between py-2 items-center">
                                                         <span className="font-bold text-gray-600">{vt.name}</span>
-                                                        <span className="font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100 italic">{vt.zhi}</span>
+                                                        <span className="font-black text-xs sm:text-sm flex gap-1 items-center italic">
+                                                            {vt.zhi.split(';').map((p, pIdx, arr) => {
+                                                                const trimmed = p.trim();
+                                                                const elem = branchElements[trimmed] || stemElements[trimmed];
+                                                                const colorClass = elem ? getColorClass(elem) : 'text-slate-800';
+                                                                return (
+                                                                    <React.Fragment key={pIdx}>
+                                                                        <span className={`${colorClass} hover:scale-110 transition-transform inline-block`}>
+                                                                            {trimmed}
+                                                                        </span>
+                                                                        {pIdx < arr.length - 1 && <span className="text-gray-400 font-normal">;</span>}
+                                                                    </React.Fragment>
+                                                                );
+                                                            })}
+                                                        </span>
                                                     </div>
                                                 ))}
                                                 {(!activeLuuNianPillar.nienVanTinh || activeLuuNianPillar.nienVanTinh.length === 0) && (
@@ -1283,27 +1334,57 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
                                                     const titleMap = { hour: 'GIỜ', day: 'NGÀY', month: 'THÁNG', year: 'NĂM' };
                                                     const staticStars = canChi[key]?.shenSha || [];
                                                     const dynamicStars = activeLuuNianPillar.annualShenSha?.[key] || [];
-                                                    const stars = Array.from(new Set([...staticStars, ...dynamicStars]));
                                                     return (
                                                         <div key={key} className="flex flex-col gap-2 min-h-[160px] px-1 sm:px-2">
                                                             <div className="font-extrabold text-gray-800 border-b border-gray-100 pb-2 text-[10px] sm:text-[13px] tracking-wider">
                                                                 {titleMap[key]}
                                                             </div>
-                                                            <div className="flex flex-col gap-1.5 mt-2 justify-center items-center">
-                                                                {stars.map((ss, idx) => {
-                                                                    const colorClass = getShenShaColorClass(ss);
-                                                                    const baseTerm = ss.split(' (')[0].replace(/ Quý Nhân/g, '').trim();
-                                                                    const displayName = ss.replace(/ Quý Nhân/g, '');
-                                                                    return (
-                                                                        <Tooltip key={idx} term={baseTerm} unstyled={true}>
-                                                                            <span className={`${colorClass} font-black text-[9.5px] sm:text-[12.5px] leading-tight hover:scale-105 transition-transform cursor-help block text-center`}>
-                                                                                {displayName}
-                                                                            </span>
-                                                                        </Tooltip>
-                                                                    );
-                                                                })}
-                                                                {stars.length === 0 && (
-                                                                    <span className="text-gray-300 text-[10px] sm:text-xs italic select-none">Không có</span>
+                                                            <div className="flex flex-col gap-1.5 mt-2 justify-start items-center flex-1 w-full">
+                                                                {staticStars.length > 0 || dynamicStars.length > 0 ? (
+                                                                    <>
+                                                                        {/* Thần Sát Gốc (Bên trên) */}
+                                                                        <div 
+                                                                            className="flex flex-col gap-1.5 items-center w-full"
+                                                                            style={{ minHeight: `${maxStaticStars * 1.5}rem` }}
+                                                                        >
+                                                                            {staticStars.map((ss, idx) => {
+                                                                                const colorClass = getShenShaColorClass(ss);
+                                                                                const baseTerm = ss.split(' (')[0].replace(/ Quý Nhân/g, '').trim();
+                                                                                const displayName = ss.replace(/ Quý Nhân/g, '').replace(/\(\s+/g, '(').replace(/\s+\)/g, ')');
+                                                                                return (
+                                                                                    <Tooltip key={`static-${idx}`} term={baseTerm} unstyled={true}>
+                                                                                        <span className={`${colorClass} font-black text-[9.5px] sm:text-[12.5px] leading-tight hover:scale-105 transition-transform cursor-help block text-center whitespace-nowrap`}>
+                                                                                            {displayName}
+                                                                                        </span>
+                                                                                    </Tooltip>
+                                                                                );
+                                                                            })}
+                                                                        </div>
+
+                                                                        {/* Gạch nét đứt phân chia */}
+                                                                        <div className="w-full border-t border-dashed border-slate-300 my-2" />
+
+                                                                        {/* Thần Sát Thái Tuế (Bên dưới) */}
+                                                                        <div 
+                                                                            className="flex flex-col gap-1.5 items-center w-full"
+                                                                            style={{ minHeight: `${maxDynamicStars * 1.5}rem` }}
+                                                                        >
+                                                                            {dynamicStars.map((ss, idx) => {
+                                                                                const colorClass = getShenShaColorClass(ss);
+                                                                                const baseTerm = ss.split(' (')[0].replace(/ Quý Nhân/g, '').trim();
+                                                                                const displayName = ss.replace(/ Quý Nhân/g, '').replace(/\(\s+/g, '(').replace(/\s+\)/g, ')');
+                                                                                return (
+                                                                                    <Tooltip key={`dynamic-${idx}`} term={baseTerm} unstyled={true}>
+                                                                                        <span className={`${colorClass} font-black text-[9.5px] sm:text-[12.5px] leading-tight hover:scale-105 transition-transform cursor-help block text-center whitespace-nowrap`}>
+                                                                                            {displayName}
+                                                                                        </span>
+                                                                                    </Tooltip>
+                                                                                );
+                                                                            })}
+                                                                        </div>
+                                                                    </>
+                                                                ) : (
+                                                                    <span className="text-gray-300 text-[10px] sm:text-xs italic select-none my-auto">Không có</span>
                                                                 )}
                                                             </div>
                                                         </div>

@@ -456,37 +456,24 @@ Chức năng chạy in-memory, phục vụ xem ngày cát hung và tư vấn kho
 ### 8.1 Lấy danh sách bài viết
 - **Endpoint:** `GET /api/blog`
 - **Query Params:**
-  - `category` (tùy chọn): Lọc theo danh mục (`iching`, `bazi`, `ziwei`, `marriage`, `fengshui`, `general`). Mặc định `all` hoặc bỏ trống để lấy tất cả.
+  - `category` (tùy chọn): Lọc theo chủ đề bài viết (ví dụ: `iching`, `bazi`, hoặc chủ đề tự tạo như `ngũ hành`, `sức khỏe`). Mặc định `all` hoặc bỏ trống để lấy tất cả.
   - `search` (tùy chọn): Từ khóa tìm kiếm theo tiêu đề hoặc tóm tắt.
   - `page` (tùy chọn): Số trang hiển thị (mặc định: 1).
   - `limit` (tùy chọn): Số lượng bài viết mỗi trang (mặc định: 9).
   - `showAll` (tùy chọn, chỉ dành cho Admin): Gửi `true` để lấy toàn bộ bao gồm bản nháp và bài viết đã xóa mềm.
+
+### 8.2 Lấy danh sách tất cả chủ đề (Categories) độc nhất
+Tải danh sách các chủ đề (categories) hiện có đang được sử dụng trong các bài viết.
+- **Endpoint:** `GET /api/blog/categories`
 - **Phản hồi (200):**
   ```json
   {
     "success": true,
-    "posts": [
-      {
-        "_id": "0190cfba-4321-7000-8000-000000000001",
-        "title": "Ý nghĩa sao Thái Tuế năm Bính Ngọ 2026",
-        "slug": "y-nghia-sao-thai-tue-nam-binh-ngo-2026",
-        "summary": "Phân tích chi tiết sự ảnh hưởng của sao Thái Tuế đối với 12 con giáp...",
-        "category": "ziwei",
-        "author": "Ban Quản Trị",
-        "views": 42,
-        "isPublished": true,
-        "isDeleted": false,
-        "createdAt": "2026-07-20T08:00:00.000Z",
-        "thumbnailUrl": "https://example.com/images/thai-tue.jpg"
-      }
-    ],
-    "total": 1,
-    "page": 1,
-    "pages": 1
+    "categories": ["bazi", "fengshui", "iching", "marriage", "ziwei", "ngũ hành", "sức khỏe"]
   }
   ```
 
-### 8.2 Xem chi tiết bài viết (bằng Slug)
+### 8.3 Xem chi tiết bài viết (bằng Slug)
 Tải chi tiết nội dung Markdown của bài viết và tự động tăng số lượt xem lên 1. Đồng thời trả về 3 bài viết liên quan cùng danh mục.
 - **Endpoint:** `GET /api/blog/:slug`
 - **Phản hồi (200):**
@@ -520,7 +507,7 @@ Tải chi tiết nội dung Markdown của bài viết và tự động tăng s�
   }
   ```
 
-### 8.3 Tạo bài viết mới
+### 8.4 Tạo bài viết mới
 Yêu cầu quyền Admin/Co-Admin.
 - **Endpoint:** `POST /api/blog`
 - **Headers:** `Authorization: Bearer <token>`
@@ -549,14 +536,14 @@ Yêu cầu quyền Admin/Co-Admin.
   }
   ```
 
-### 8.4 Cập nhật bài viết
+### 8.5 Cập nhật bài viết
 Yêu cầu quyền Admin/Co-Admin.
 - **Endpoint:** `PUT /api/blog/:id`
 - **Headers:** `Authorization: Bearer <token>`
 - **Body:** Tương tự tạo bài viết (các trường không truyền sẽ giữ nguyên).
 - **Phản hồi (200):** Trả về `success: true` và thông tin bài viết đã cập nhật.
 
-### 8.5 Xóa mềm bài viết
+### 8.6 Xóa mềm bài viết
 Yêu cầu quyền Admin/Co-Admin. Bài viết sẽ ẩn khỏi danh sách của người dùng thường nhưng không mất vĩnh viễn trong DB.
 - **Endpoint:** `DELETE /api/blog/:id`
 - **Headers:** `Authorization: Bearer <token>`
@@ -568,7 +555,7 @@ Yêu cầu quyền Admin/Co-Admin. Bài viết sẽ ẩn khỏi danh sách của
   }
   ```
 
-### 8.6 Khôi phục bài viết đã xóa mềm
+### 8.7 Khôi phục bài viết đã xóa mềm
 Yêu cầu quyền Admin/Co-Admin.
 - **Endpoint:** `POST /api/blog/:id/restore`
 - **Headers:** `Authorization: Bearer <token>`
@@ -580,7 +567,7 @@ Yêu cầu quyền Admin/Co-Admin.
   }
   ```
 
-### 8.7 Dynamic XML Sitemap (SEO)
+### 8.8 Dynamic XML Sitemap (SEO)
 Lấy sơ đồ trang web động phục vụ Googlebot lập chỉ mục.
 - **Endpoint:** `GET /sitemap.xml` (ở root level của website)
 - **Phản hồi (200):** Nội dung XML sitemap chuẩn UTF-8 (`Content-Type: application/xml; charset=utf-8`). Tự động gom các URL tĩnh chính, các bài viết Blog đã phát hành, và toàn bộ quẻ dịch/lá số đã được người dùng bật chế độ chia sẻ công khai (`isPublic: true`).

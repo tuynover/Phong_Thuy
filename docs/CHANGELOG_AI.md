@@ -3,6 +3,54 @@
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
 
+## 📅 Phiên bản: Cập nhật Thuật toán Thần sát Huyết Nhận Sát & Cách Giác / Cách Góc (10/08/2026)
+
+### 🪐 Thuật Toán Học Thuật Bát Tự ([BaziAnalyzer.js](file:///t:/Phongthuy/backend/src/services/BaziAnalyzer.js))
+- **Nâng Cấp Huyết Nhận Sát**: Thay đổi hoàn toàn logic xác định Huyết Nhận Sát để đối chiếu dựa trên **Địa Chi của năm sinh (Niên Chi)** thay vì Địa Chi của tháng sinh (Nguyệt Chi) như trước đây:
+  - Cập nhật bảng tra cứu học thuật mới: Tý->Tuất, Sửu->Dậu, Dần->Thân, Mão->Mùi, Thìn->Ngọ, Tỵ->Tỵ, Ngọ->Thìn, Mùi->Mão, Thân->Dần, Dậu->Sửu, Tuất->Tý, Hợi->Hợi.
+- **Nâng Cấp Cách Giác (Cách Góc)**: Thay thế thuật toán kiểm tra sự tương tác hai chiều giữa Địa Chi ngày và giờ cũ. Logic mới chỉ sử dụng **Địa Chi ngày sinh (Nhật Chi - `dayZhi`)** làm chuẩn:
+  - Bất kỳ trụ nào có Địa Chi tiến lên đúng 2 cung Địa Chi so với Nhật Chi (`(dIdx + 2) % 12`) thì trụ đó được ghi nhận có thần sát Cách Giác.
+
+### 🧪 Bộ Kiểm Thử Tự Động Backend ([BaziAnalyzer.test.js](file:///t:/Phongthuy/backend/tests/services/BaziAnalyzer.test.js))
+- **Cập Nhật Unit Tests Cho Huyết Nhận**: Sửa đổi ca kiểm thử để xác minh Huyết Nhận được kích hoạt thành công từ Niên Chi kết hợp Địa Chi các trụ khác theo bảng quy chiếu mới (sử dụng ngày sinh `1996-05-15` có năm Bính Tý và giờ Tuất).
+- **Cập Nhật Unit Tests Cho Cách Giác**: Sửa đổi ca kiểm thử để đảm bảo Cách Giác chỉ kích hoạt tại các trụ khớp chuẩn xác với Chi ngày tiến 2 (sử dụng ngày sinh `1990-02-04` lúc `04:30` có ngày Mậu Tý và giờ Giáp Dần $\rightarrow$ ghi nhận Cách Giác tại trụ giờ `Dần`, và không còn ghi nhận Cách Giác tại trụ ngày `Tý`).
+
+### 📄 Tài Liệu Nghiệp Vụ ([BUSINESS_RULES.md](file:///t:/Phongthuy/docs/BUSINESS_RULES.md))
+- **Định Nghĩa Thần Sát**: Cập nhật định nghĩa học thuật của **Huyết Nhận Sát** ở mục 28 chỉ rõ cách tra dựa trên Địa Chi năm sinh. Thêm định nghĩa cụ thể cho **Cách Giác (Cách Góc)** ở mục 33 và cập nhật tổng số lượng thần sát trong hệ thống lên **41 Thần Sát**.
+
+## 📅 Phiên bản: Viết Bài Thiên Ất Quý Nhân & Thiên Nguyệt Đức, Tích Hợp Hiển Thị Thumbnail Đầu Chi Tiết, Tối Ưu Sắp Xếp Mobile & Markdown Regex (09/08/2026)
+
+### 🪐 Nội Dung Blog & Database ([BlogSeedService.js](file:///t:/Phongthuy/backend/src/services/BlogSeedService.js))
+- **Viết Bài Thiên Ất Quý Nhân & Thiên Nguyệt Đức Chuyên Sâu**: Viết hai bài viết học thuật tiếng Việt cực kỳ chi tiết về **"Thiên Ất Quý Nhân"** và **"Thiên Nguyệt Đức Quý Nhân"** (đại cát thần giải ách trừ tai trong Tứ Trụ Bát Tự) với tiêu đề hấp dẫn, cấu trúc 5 phần chi tiết, bảng tra cứu theo tháng/ngày sinh, cùng các phương pháp cải vận bằng phương vị Quý Nhân.
+- **Tích Hợp Database Seeding**: Thêm hai đối tượng bài viết vào danh sách `SEED_POSTS` trong `BlogSeedService.js` để tự động gieo dữ liệu khi cài đặt mới.
+- **Tạo Script Insert Trực Tiếp & Dọn Dẹp**: Viết và chạy các script `insert_thien_at_post.js` và `insert_thien_nguyet_duc_post.js` kết nối trực tiếp MongoDB Atlas để nạp dữ liệu bài viết mới hiển thị lập tức trên môi trường hiện tại của người dùng, sau đó dọn dẹp các script tạm khỏi thư mục dự án.
+
+### 🎨 Giao Diện Người Dùng & Trải Nghiệm Blog ([BlogBoard.jsx](file:///t:/Phongthuy/frontend/src/components/BlogBoard.jsx), [AdminApp.jsx](file:///t:/Phongthuy/frontend/src/components/AdminApp.jsx))
+- **Hiển Thị Thumbnail Đầu Chi Tiết Bài Viết**: Sửa đổi component `BlogBoard.jsx` để tự động render ảnh `thumbnailUrl` ở đầu giao diện chi tiết bài viết với kích thước gốc (`h-auto w-full block`) và margin-bottom `mb-6`, mang lại giao diện đọc tin tức cực kỳ cao cấp và hiện đại.
+- **Tối Ưu Sắp Xếp, Loại Bỏ Badge Dư Thừa & Khép Khoảng Trống (Top Bar, Spacing & Tag Removal)**: Thu gọn nút quay về chỉ hiển thị icon `←` ở màn hình di động, thu nhỏ padding các nút share để vừa khít trên một hàng ngang duy nhất. Loại bỏ hoàn toàn nhãn danh mục ("BÁT TỰ") khỏi phần đầu trang chi tiết bài viết (trên cả mobile & desktop) để giải phóng diện tích dọc và tránh gây rối mắt. Đồng thời khép nhỏ khoảng cách dọc (`space-y-5`) và padding (`p-4`) trên mobile để loại bỏ các khoảng trống thừa thãi, giúp tiêu đề, thông tin tác giả và ảnh đại diện hiển thị tập trung và sạch sẽ.
+- **Tối Ưu Hóa Markdown Cleanup Regex**: Phát hiện và khắc phục lỗi regex của frontend (`replace`) quá tham lam làm nuốt mất dấu ngắt dòng kép (`\n\n`) trước các chữ in đậm/in nghiêng `**` ở đầu đoạn văn. Đã thay thế bằng regex khớp ngắt dòng đơn lẻ `[^\S\r\n]*\r?\n[^\S\r\n]*` để bảo toàn nguyên vẹn khoảng cách phân chia các đoạn văn trong bài viết.
+
+## 📅 Phiên bản: Cập nhật Thuật Toán Kim Thần, Hồng Diễm Sát, Thiên La & Địa Võng, Âm Dương Sai Thác (09/08/2026)
+
+### 🪐 Thuật Toán Học Thuật Bát Tự ([BaziAnalyzer.js](file:///t:/Phongthuy/backend/src/services/BaziAnalyzer.js))
+- **Nâng Cấp Cát Tinh Kim Thần**: Thay đổi logic xác định Kim Thần để áp dụng cho cả **Trụ Ngày** và **Trụ Giờ** theo đúng quy tắc sách cổ:
+  - **Trụ Ngày**: Nếu ngày sinh là `Ất Sửu`, `Kỷ Tỵ`, hoặc `Quý Dậu` thì mặc định ngày sinh có Kim Thần.
+  - **Trụ Giờ**: Nếu giờ sinh là `Ất Sửu`, `Kỷ Tỵ`, hoặc `Quý Dậu` thì chỉ được tính có Kim Thần khi Nhật Can (Can của ngày sinh) là **Giáp** hoặc **Kỷ** (loại bỏ việc xét Thiên Can của năm).
+- **Cập Nhật Thần Sát Hồng Diễm Sát**: Thay đổi bảng quy chiếu Địa Chi theo Can sang hệ thống học thuật mới (Giáp->Ngọ, Ất->Thân, Canh->Thân, Quý->Tuất, v.v.), đồng thời mở rộng phạm vi tra cứu để **xét cả Can Ngày (Nhật Can) và Can Năm (Niên Can)** thay vì chỉ xét Nhật Can như trước đây.
+- **Nâng Cấp Thiên La & Địa Võng**: Gỡ bỏ hoàn toàn logic kiểm tra dựa trên Nạp Âm Hỏa/Thủy/Thổ cũ. Thay vào đó, áp dụng logic dựa trên mối tương tác Địa Chi giữa Chi Ngày (`dayZhi`) hoặc Chi Năm (`yearZhi`) với các trụ khác:
+  - **Thiên La**: Chi Ngày/Năm là `Thìn` gặp trụ khác có chi `Tỵ` (hoặc ngược lại).
+  - **Địa Võng**: Chi Ngày/Năm là `Tuất` gặp trụ khác có chi `Hợi` (hoặc ngược lại).
+- **Giới Hạn Âm Dương Sai Thác**: Sửa đổi thuật toán của Thần sát **Âm Dương Sai Thác** để **chỉ tính tại Trụ Ngày (Nhật Trụ)** thay vì xét trên cả 4 trụ như trước.
+
+### 🧪 Bộ Kiểm Thử Tự Động Backend ([BaziAnalyzer.test.js](file:///t:/Phongthuy/backend/tests/services/BaziAnalyzer.test.js))
+- **Mở Rộng Unit Tests Cho Kim Thần**: Viết thêm các test cases chi tiết để bao phủ 100% logic Kim Thần mới.
+- **Thêm Unit Tests Cho Hồng Diễm Sát**: Bổ sung các test cases kiểm tra sự xuất hiện của Hồng Diễm Sát kích hoạt bởi Can Năm và Can Ngày theo bảng quy chiếu mới với các ngày sinh thực tế chính xác.
+- **Cập Nhật Unit Tests Thiên La & Địa Võng**: Thay đổi các ca kiểm thử cũ (lấy ngày sinh 1988 Mậu Thìn cho Thiên La và 1994 Giáp Tuất cho Địa Võng) để phản ánh đúng logic tương tác chi mới.
+- **Cập Nhật Unit Tests Âm Dương Sai Thác**: Sửa đổi ca kiểm thử để kiểm chứng Âm Dương Sai Thác chỉ xuất hiện trên trụ Ngày (ngày Bính Tý `1996-02-09`) và hoàn toàn không xuất hiện trên các trụ khác (như trụ Năm của năm Bính Tý `1996-05-15`).
+
+### 📄 Tài Liệu Nghiệp Vụ ([BUSINESS_RULES.md](file:///t:/Phongthuy/docs/BUSINESS_RULES.md))
+- **Định Nghĩa Lại Thần Sát**: Tăng tổng số lượng Thần Sát Bát Tự lên **32 Thần Sát**, bổ sung định nghĩa học thuật cụ thể cho **Kim Thần** ở mục 31, **Hồng Diễm Sát** ở mục 32, cập nhật định nghĩa tương tác chi của **Thiên La** (mục 21) & **Địa Võng** (mục 22), và định rõ phạm vi chỉ tính ở trụ Ngày đối với **Âm Dương Sai Thác** (mục 24).
+
 ## 📅 Phiên bản: Luận giải Bát Tự Thần Sát Chuyên Sâu, Tích Hợp Vận Hạn Lưu Niên Động 2026/2027 & Lời Khuyên Hành Động (07/08/2026)
 
 ### 🪐 Nâng Cấp Prompt Luận Giải Bát Tự Chuyên Sâu ([BaziPrompts.js](file:///t:/Phongthuy/backend/src/services/BaziPrompts.js), [ai.js](file:///t:/Phongthuy/backend/src/config/ai.js))
@@ -1505,3 +1553,40 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
   - **Bổ sung kiểm thử cho Kinh Dịch (`IChingDataService.test.js`):** Thêm các test case tự động cho phương thức `calculate()`, bảo đảm giải đoán trùng khớp cấu trúc đầu ra của quẻ chủ, quẻ biến, tính chính xác của Lục Thần (Lục Thú), múi giờ Hà Nội (Asia/Ho_Chi_Minh), và cơ chế ném lỗi khi số hào gieo không hợp lệ.
 - **Tài liệu:** Cập nhật các quy tắc học thuật mới này vào [BUSINESS_RULES.md](file:///t:/Phongthuy/docs/BUSINESS_RULES.md).
 
+### 4. Sửa Lỗi Tự Động Xuống Dòng Dấu Ngoặc Đóng Thần Sát
+- **Frontend ([BaziBoard.jsx](file:///t:/Phongthuy/frontend/src/components/BaziBoard.jsx), [MarriageBoard.jsx](file:///t:/Phongthuy/frontend/src/components/MarriageBoard.jsx)):**
+  - Loại bỏ các khoảng trắng dư thừa bên trong dấu ngoặc của nhãn Thần Sát (ví dụ: `( ngày )` chuyển thành `(ngày)`, `( năm )` chuyển thành `(năm)`) để trình duyệt hiểu đây là một chuỗi liền mạch, ngăn chặn việc tự động bẻ dấu ngoặc đóng `)` xuống dòng mới khi chiều ngang bị thu hẹp.
+  - Tích hợp lớp CSS `whitespace-nowrap` cho các thẻ hiển thị Thần Sát của cả bốn Trụ bản mệnh lẫn cột Niên biểu vận hạn, đảm bảo toàn bộ tên Thần Sát luôn nằm gọn gàng trên cùng một dòng.
+
+
+
+---
+
+## 📅 Phiên bản: Hỗ Trợ Chủ Đề (Categories) Động & Cập Nhật Metadata Hiển Thị Bài Viết Blog
+
+### 1. Backend & Database
+- **Mongoose Schema ([BlogPost.js](file:///t:/Phongthuy/backend/src/models/BlogPost.js)):**
+  - Gỡ bỏ thuộc tính `enum` giới hạn trong trường `category`, chuyển đổi sang kiểu `String` có cấu trúc động kèm các bộ lọc `trim` và giá trị mặc định là `'Chung'` (`default: 'Chung'`). Việc này cho phép tạo các chủ đề/category mới không giới hạn và tự ý nhập liệu bằng tiếng Việt trực tiếp (ví dụ: "ngũ hành", "sức khỏe").
+- **API Routing & Controllers ([blog.js](file:///t:/Phongthuy/backend/src/routes/blog.js), [BlogController.js](file:///t:/Phongthuy/backend/src/controllers/BlogController.js)):**
+  - Bổ sung endpoint mới `GET /api/blog/categories` lấy danh sách toàn bộ các chủ đề (categories) độc nhất hiện có từ cơ sở dữ liệu (`BlogPost.distinct('category')`), tự động sắp xếp theo thứ tự bảng chữ cái tiếng Việt.
+  - Phân quyền động cho phép Admin xem cả các chủ đề của các bài viết nháp (`isPublished: false`), trong khi người dùng thường chỉ nhìn thấy các chủ đề của các bài viết đã công khai.
+
+### 2. Frontend & Giao diện Người dùng
+- **Trang chi tiết bài viết ([BlogBoard.jsx](file:///t:/Phongthuy/frontend/src/components/BlogBoard.jsx)):**
+  - Loại bỏ hoàn toàn badge category màu mè dư thừa ở đầu trang chi tiết của cả bản desktop và mobile để thu gọn chiều cao header theo yêu cầu của người dùng.
+  - Tích hợp nhãn hiển thị chủ đề động `"Chủ đề: [Tên chủ đề]"` ngay bên cạnh tác giả trên dòng metadata của bài viết, sử dụng màu chữ Indigo đậm nổi bật nhằm tăng tính đồng bộ thẩm mỹ.
+  - Hỗ trợ click trực tiếp vào badge chủ đề trên thẻ bài viết hoặc link chủ đề dưới tiêu đề bài viết chi tiết để tự động lọc và hiển thị toàn bộ bài viết cùng chủ đề một cách nhanh chóng. Tích hợp `e.stopPropagation()` ngăn chặn hiện tượng nổi bọt sự kiện (event bubbling) khi click badge từ danh sách.
+  - Nâng cấp nạp danh mục động khi component được khởi tạo (`mount`), thay thế mảng tĩnh cứng `CATEGORIES` cũ bằng `categories` state đồng bộ trực tiếp từ DB.
+  - Viết mới các hàm helper `getCategoryLabel` và `getCategoryColor` hỗ trợ dịch tự động các danh mục tiếng Anh cũ (`bazi` thành "Bát Tự", `iching` thành "Kinh Dịch"...) và giữ nguyên văn các chủ đề tiếng Việt tự gõ mới tạo, đồng thời gán màu sắc HSL trang nhã tương ứng (màu xanh indigo dịu nhẹ cho các chủ đề mới).
+- **Trang Quản trị Blog ([AdminApp.jsx](file:///t:/Phongthuy/frontend/src/components/AdminApp.jsx)):**
+  - Nạp danh sách gợi ý categories từ API khi admin truy cập phân hệ Blog.
+  - Thay thế ô chọn danh mục `<select>` gán cứng cũ trong Modal soạn thảo/chỉnh sửa bài viết bằng input text thông minh liên kết với `<datalist id="blog-categories-list">`. Cơ chế này cho phép admin vừa có thể chọn nhanh từ danh sách các chủ đề cũ đã tồn tại, vừa có thể nhập một chủ đề mới hoàn toàn một cách mượt mà và trực quan.
+  - Làm mới (refresh) danh sách gợi ý chủ đề ngay sau khi lưu/cập nhật bài viết thành công.
+  - Cập nhật nhãn category trong bảng danh sách bài viết quản trị để tự động hiển thị đúng tên chủ đề tiếng Việt tự tạo hoặc dịch các mã danh mục cũ.
+
+### 3. Kiểm thử & Tài liệu
+- **Kiểm thử Giao diện (Browser Verification):**
+  - Sử dụng Chrome DevTools MCP chạy Dev Server, giả lập và chụp ảnh màn hình desktop/mobile chứng minh hiển thị chủ đề bên cạnh tác giả hoạt động chính xác và cực kỳ gọn gàng.
+- **Tài liệu Kỹ thuật ([DATABASE.md](file:///t:/Phongthuy/docs/DATABASE.md), [API.md](file:///t:/Phongthuy/docs/API.md)):**
+  - Đồng bộ cấu trúc schema `BlogPost.category` mới trong tài liệu database.
+  - Cập nhật tài liệu API chi tiết cho endpoint `GET /api/blog/categories` mới cùng các bộ lọc tham số category động của API blog.

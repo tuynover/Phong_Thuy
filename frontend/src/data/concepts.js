@@ -1937,6 +1937,48 @@ export const conceptDictionary = {
         short_description: 'Thất thủ hao tổn. Thận trọng khi đầu tư lớn.',
         full_detail: '▸ Loại tinh: Biến động tài chính.\n▸ Ý nghĩa: Khuyên bạn nên giữ tiền an toàn, hạn chế đầu tư rủi ro cao trong giai đoạn này.'
     },
+    'Thiên Xá': {
+        term: 'Thiên Xá',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Xá tội hóa cát. Gặp nguy hóa an, giải tai ương pháp lý.',
+        full_detail: '▸ Loại tinh: Cát thần đệ nhất xá giải.\n▸ Ý nghĩa: Cuộc đời nếu có gặp rắc rối, kiện cáo hay tai ương đều được giảm nhẹ hoặc giải thoát, mang lại sự bình an vô sự.'
+    },
+    'Âm Chú Dương Thụ': {
+        term: 'Âm Chú Dương Thụ',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Phúc ấm tổ tiên. Quý nhân âm thầm hộ vệ cứu giải.',
+        full_detail: '▸ Loại tinh: Cát thần phúc đức.\n▸ Ý nghĩa: Thể hiện phúc ấm sâu dày tích lũy từ cha ông, giúp hóa giải hung hiểm bất ngờ, cầu nguyện linh ứng.'
+    },
+    'Tứ Phế': {
+        term: 'Tứ Phế',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Mùa sinh khắc Nhật chủ. Sức khỏe yếu, làm việc thiếu kiên trì.',
+        full_detail: '▸ Loại tinh: Hung sát hưu tù cực đoan.\n▸ Ý nghĩa: Ngũ hành Nhật chủ rơi vào trạng thái thoái khí bại địa, dễ mệt mỏi thể chất, cần rèn luyện ý chí và giữ gìn sức khỏe.'
+    },
+    'Câu Sát': {
+        term: 'Câu Sát',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Thần cản trở dây dưa. Đề phòng khẩu thiệt thị phi, cản trở.',
+        full_detail: '▸ Loại tinh: Hung sát thị phi dây dưa.\n▸ Ý nghĩa: Dễ vướng rắc rối giao tiếp, bị lôi kéo vào tranh cãi hoặc cản trở tiến độ công việc.'
+    },
+    'Giảo Sát': {
+        term: 'Giảo Sát',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Thần vướng mắc lôi thôi. Đề phòng quan phi tố tụng, kiện cáo.',
+        full_detail: '▸ Loại tinh: Hung sát pháp lý lôi thôi.\n▸ Ý nghĩa: Đề phòng các thủ tục pháp lý tranh chấp hoặc quan hệ cá nhân bất hòa kéo dài.'
+    },
+    'Ngũ Quỷ': {
+        term: 'Ngũ Quỷ',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Tiểu nhân quấy phá. Dễ gặp thị phi vô cớ, hao tổn.',
+        full_detail: '▸ Loại tinh: Hung sát tiểu nhân quấy nhiễu.\n▸ Ý nghĩa: Đề phòng bị gièm pha sau lưng hoặc những bất đồng không đáng có làm tổn hao tinh thần và tiền tài.'
+    },
+    'Cách Giác': {
+        term: 'Cách Giác',
+        category: 'Thần Sát Bát Tự',
+        short_description: 'Ngăn cách chia lìa. Tranh chấp bất hòa, xa cách người thân.',
+        full_detail: '▸ Loại tinh: Hung sát xa cách chia rẽ.\n▸ Ý nghĩa: Chủ về bất đồng quan điểm nghiêm trọng dẫn tới xa cách gia đình, người thân hoặc vướng kiện tụng tranh chấp lạnh lùng.'
+    },
     'Lập Xuân': {
         term: 'Lập Xuân',
         category: 'Tiết Khí',

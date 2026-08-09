@@ -296,7 +296,7 @@ Lưu trữ các bài viết kiến thức phong thủy và học thuật chuyên
     slug: { type: String, required: true, unique: true },
     summary: { type: String, required: true },
     content: { type: String, required: true },
-    category: { type: String, enum: ['iching', 'bazi', 'ziwei', 'marriage', 'fengshui', 'general'], default: 'general' },
+    category: { type: String, required: true, trim: true, default: 'Chung' },
     tags: { type: [String], default: [] },
     thumbnailUrl: { type: String, default: '' },
     isPublished: { type: Boolean, default: true },

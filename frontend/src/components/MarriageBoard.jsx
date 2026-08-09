@@ -474,41 +474,55 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
     };
 
     const SHEN_SHA_COLORS = {
-        // Cát Thần (Màu Xanh Ngọc - Emerald)
+        // --- 1. NHÓM CÁT THẦN (MÀU XANH - Emerald) ---
         'Thiên Ất': 'text-emerald-600',
+        'Thiên Ất Quý Nhân': 'text-emerald-600',
         'Thái Cực': 'text-emerald-600',
+        'Thái Cực Quý Nhân': 'text-emerald-600',
         'Thiên Đức': 'text-emerald-600',
+        'Thiên Đức Quý Nhân': 'text-emerald-600',
         'Nguyệt Đức': 'text-emerald-600',
-        'Văn Xương': 'text-emerald-600',
-        'Học Đường': 'text-emerald-600',
-        'Từ Quán': 'text-emerald-600',
+        'Nguyệt Đức Quý Nhân': 'text-emerald-600',
         'Lộc Thần': 'text-emerald-600',
         'Tuế Lộc': 'text-emerald-600',
         'Kiến Lộc': 'text-emerald-600',
         'Chuyên Lộc': 'text-emerald-600',
         'Quy Lộc': 'text-emerald-600',
-        'Kim Dư': 'text-emerald-600',
+        'Văn Xương': 'text-emerald-600',
+        'Văn Xương Quý Nhân': 'text-emerald-600',
+        'Học Đường': 'text-emerald-600',
+        'Học Đường Quý Nhân': 'text-emerald-600',
+        'Từ Quán': 'text-emerald-600',
+        'Từ Quán Quý Nhân': 'text-emerald-600',
         'Tướng Tinh': 'text-emerald-600',
         'Phúc Tinh': 'text-emerald-600',
+        'Phúc Tinh Quý Nhân': 'text-emerald-600',
         'Thiên Y': 'text-emerald-600',
         'Quốc Ấn': 'text-emerald-600',
-        'Kim Thần': 'text-emerald-600',
-        'Hồng Loan': 'text-emerald-600',
+        'Quốc Ấn Quý Nhân': 'text-emerald-600',
+        'Thiên Trù': 'text-emerald-600',
+        'Thiên Trù Quý Nhân': 'text-emerald-600',
+        'Đường Phù': 'text-emerald-600',
         'Thiên Hỷ': 'text-emerald-600',
+        'Thiên Hỷ Quý Nhân': 'text-emerald-600',
+        'Kim Dư': 'text-emerald-600',
+        'Kim Dư Quý Nhân': 'text-emerald-600',
+        'Thiên Xá': 'text-emerald-600',
+        'Âm Chú Dương Thụ': 'text-emerald-600',
+        'Thiên Thượng Tam Kỳ': 'text-emerald-600',
+        'Địa Thượng Tam Kỳ': 'text-emerald-600',
+        'Nhân Gian Tam Kỳ': 'text-emerald-600',
+        'Thiếu Dương': 'text-emerald-600',
+        'Thiếu Âm': 'text-emerald-600',
+        'Long Đức': 'text-emerald-600',
+        'Phúc Đức': 'text-emerald-600',
 
-        // Tam Kỳ Quý Nhân (Màu Tím Quý Phái)
-        'Thiên Thượng': 'text-purple-600',
-        'Địa Thượng': 'text-purple-600',
-        'Nhân Gian': 'text-purple-600',
-        'Thiên Thượng Tam Kỳ': 'text-purple-600',
-        'Địa Thượng Tam Kỳ': 'text-purple-600',
-        'Nhân Gian Tam Kỳ': 'text-purple-600',
-
-        // Hung Sát (Màu Đỏ Rực - Rose)
+        // --- 2. NHÓM HUNG SÁT (MÀU ĐỎ - Rose) ---
         'Kình Dương': 'text-rose-600',
         'Đà La': 'text-rose-600',
         'Kiếp Sát': 'text-rose-600',
         'Vong Thần': 'text-rose-600',
+        'Vong Sát': 'text-rose-600',
         'Cô Thần': 'text-rose-600',
         'Quả Tú': 'text-rose-600',
         'Đại Hao': 'text-rose-600',
@@ -516,6 +530,7 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
         'Tai Sát': 'text-rose-600',
         'Nguyên Thần': 'text-rose-600',
         'Huyết Nhận': 'text-rose-600',
+        'Huyết Nhận Sát': 'text-rose-600',
         'Tử Phù': 'text-rose-600',
         'Bệnh Phù': 'text-rose-600',
         'Thương Quan Kiến Quan': 'text-rose-600',
@@ -523,16 +538,34 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
         'Địa Võng': 'text-rose-600',
         'Cô Loan Sát': 'text-rose-600',
         'Lưu Hà': 'text-rose-600',
+        'Lưu Hà Sát': 'text-rose-600',
         'Quan Phù': 'text-rose-600',
-        'Không Vong': 'text-rose-600',
         'Thập Ác Đại Bại': 'text-rose-600',
+        'Tỷ Kiên Cô Quả': 'text-rose-600',
+        'Phi Nhẫn': 'text-rose-600',
+        'Tứ Phế': 'text-rose-600',
+        'Câu Sát': 'text-rose-600',
+        'Giảo Sát': 'text-rose-600',
+        'Ngũ Quỷ': 'text-rose-600',
+        'Cách Giác': 'text-rose-600',
+        'Tang Môn': 'text-rose-600',
+        'Điếu Khách': 'text-rose-600',
+        'Bạch Hổ': 'text-rose-600',
+        'Tuế Phá': 'text-rose-600',
+        'Trực Phù': 'text-rose-600',
 
-        // Duyên Tình & Trung Tính (Màu Hồng / Xám Đen)
-        'Đào Hoa': 'text-pink-600',
+        // --- 3. NHÓM TRUNG TÍNH / CÁT HUNG LẪN LỘN (MÀU ĐEN - Slate) ---
+        'Đào Hoa': 'text-slate-800',
+        'Hồng Loan': 'text-slate-800',
+        'Hồng Diễm Sát': 'text-slate-800',
+        'Không Vong': 'text-slate-800',
         'Dịch Mã': 'text-slate-800',
         'Hoa Cái': 'text-slate-800',
+        'Khôi Cương': 'text-slate-800',
         'Khôi Canh': 'text-slate-800',
-        'Âm Dương Sai Thác': 'text-slate-800'
+        'Âm Dương Sai Thác': 'text-slate-800',
+        'Kim Thần': 'text-slate-800',
+        'Thái Tuế': 'text-slate-800'
     };
 
     const getShenShaColorClass = (ss, isFemale) => {
@@ -543,12 +576,16 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
         if (SHEN_SHA_COLORS[baseTerm]) return SHEN_SHA_COLORS[baseTerm];
 
         const lower = ss.toLowerCase();
-        if (lower.includes('thượng') || lower.includes('gian') || lower.includes('tam kỳ')) return 'text-purple-600';
-        if (lower.includes('sát') || lower.includes('phù') || lower.includes('đại bại') || lower.includes('vong') || lower.includes('cô') || lower.includes('tú') || lower.includes('dương') || lower.includes('đà') || lower.includes('hao') || lower.includes('nhận') || lower.includes('kiến quan')) return 'text-rose-600';
-        if (lower.includes('lộc') || lower.includes('đức') || lower.includes('quý nhân') || lower.includes('ấn') || lower.includes('y') || lower.includes('hỷ') || lower.includes('loan') || lower.includes('xương') || lower.includes('đường') || lower.includes('quán') || lower.includes('dư') || lower.includes('tinh') || lower.includes('phúc')) return 'text-emerald-600';
-        if (lower.includes('đào hoa')) return 'text-pink-600';
+        // Cát Thần (Xanh)
+        if (lower.includes('lộc') || lower.includes('đức') || lower.includes('quý nhân') || lower.includes('ấn') || lower.includes('y') || lower.includes('hỷ') || lower.includes('xương') || lower.includes('đường') || lower.includes('quán') || lower.includes('dư') || lower.includes('tinh') || lower.includes('phúc')) {
+            return 'text-emerald-600';
+        }
+        // Hung Sát (Đỏ)
+        if (lower.includes('sát') || lower.includes('phù') || lower.includes('đại bại') || lower.includes('vong') || lower.includes('cô') || lower.includes('tú') || lower.includes('dương') || lower.includes('đà') || lower.includes('hao') || lower.includes('nhận') || lower.includes('kiến quan') || lower.includes('phế') || lower.includes('quỷ') || lower.includes('giác') || lower.includes('môn') || lower.includes('khách') || lower.includes('hổ')) {
+            return 'text-rose-600';
+        }
 
-        return isFemale ? 'text-rose-700' : 'text-blue-700';
+        return 'text-slate-800';
     };
 
     const getAbbreviatedThapThan = (name) => {
@@ -651,13 +688,14 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
                             }
                             return paddedShenSha.map((ss, idx) => {
                                 const baseTerm = ss ? ss.split(' (')[0] : '';
+                                const cleanSS = ss ? ss.replace(/\(\s+/g, '(').replace(/\s+\)/g, ')') : '';
                                 const colorClass = getShenShaColorClass(ss, isFemale);
                                 return (
                                     <div key={idx} className="flex justify-center items-center text-[10px] sm:text-[12px] leading-tight w-full font-black h-[15px] sm:h-[18px]">
                                         {ss ? (
                                             <Tooltip term={baseTerm} unstyled={true}>
-                                                <span className={`${colorClass} hover:scale-105 transition-transform cursor-help`}>
-                                                    {ss}
+                                                <span className={`${colorClass} hover:scale-105 transition-transform cursor-help whitespace-nowrap`}>
+                                                    {cleanSS}
                                                 </span>
                                             </Tooltip>
                                         ) : (

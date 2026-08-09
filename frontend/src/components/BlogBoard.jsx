@@ -3,7 +3,8 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { 
   getBlogPosts, 
-  getBlogPost 
+  getBlogPost,
+  getBlogCategories
 } from '../services/api';
 import { 
   Search, 
@@ -26,33 +27,29 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// Category meta details
-const CATEGORIES = [
-  { id: 'all', label: 'Tất Cả', color: 'bg-slate-100 text-slate-800 border-slate-200' },
-  { id: 'iching', label: 'Kinh Dịch', color: 'bg-amber-50 text-amber-800 border-amber-200/50' },
-  { id: 'bazi', label: 'Bát Tự', color: 'bg-blue-50 text-blue-800 border-blue-200/50' },
-  { id: 'ziwei', label: 'Tử Vi', color: 'bg-purple-50 text-purple-800 border-purple-200/50' },
-  { id: 'marriage', label: 'Hôn Nhân', color: 'bg-rose-50 text-rose-800 border-rose-200/50' },
-  { id: 'fengshui', label: 'Phong Thủy', color: 'bg-teal-50 text-teal-800 border-teal-200/50' }
-];
-
-const categoryLabels = {
-  all: 'Tất Cả',
-  iching: 'Kinh Dịch',
-  bazi: 'Bát Tự',
-  ziwei: 'Tử Vi',
-  marriage: 'Hôn Nhân',
-  fengshui: 'Phong Thủy',
-  general: 'Chung'
+const getCategoryLabel = (cat) => {
+  const labels = {
+    all: 'Tất Cả',
+    iching: 'Kinh Dịch',
+    bazi: 'Bát Tự',
+    ziwei: 'Tử Vi',
+    marriage: 'Hôn Nhân',
+    fengshui: 'Phong Thủy',
+    general: 'Chung'
+  };
+  return labels[cat] || cat;
 };
 
-const categoryColors = {
-  iching: 'text-amber-800 bg-amber-50 border-amber-200/50',
-  bazi: 'text-blue-800 bg-blue-50 border-blue-200/50',
-  ziwei: 'text-purple-800 bg-purple-50 border-purple-200/50',
-  marriage: 'text-rose-800 bg-rose-50 border-rose-200/50',
-  fengshui: 'text-teal-800 bg-teal-50 border-teal-200/50',
-  general: 'text-slate-800 bg-slate-50 border-slate-200/50'
+const getCategoryColor = (cat) => {
+  const colors = {
+    iching: 'text-amber-800 bg-amber-50 border-amber-200/50',
+    bazi: 'text-blue-800 bg-blue-50 border-blue-200/50',
+    ziwei: 'text-purple-800 bg-purple-50 border-purple-200/50',
+    marriage: 'text-rose-800 bg-rose-50 border-rose-200/50',
+    fengshui: 'text-teal-800 bg-teal-50 border-teal-200/50',
+    general: 'text-slate-800 bg-slate-50 border-slate-200/50'
+  };
+  return colors[cat] || 'text-indigo-800 bg-indigo-50 border-indigo-200/40';
 };
 
 export default function BlogBoard({ onSelectModule, initialSlug, onClearSlug, onSelectPost }) {
@@ -60,6 +57,7 @@ export default function BlogBoard({ onSelectModule, initialSlug, onClearSlug, on
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
+  const [categories, setCategories] = useState(['all']);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchText, setSearchText] = useState('');
   const [searchTerm, setSearchTerm] = useState(''); // Trigger fetch when term changes
@@ -155,6 +153,22 @@ export default function BlogBoard({ onSelectModule, initialSlug, onClearSlug, on
     }
   }, [selectedPost]);
 
+  // Load dynamic categories on mount
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await getBlogCategories();
+        if (res.data && res.data.success) {
+          setCategories(['all', ...res.data.categories]);
+        }
+      } catch (err) {
+        console.error('Error fetching blog categories:', err);
+        setCategories(['all', 'iching', 'bazi', 'ziwei', 'marriage', 'fengshui', 'general']);
+      }
+    };
+    fetchCategories();
+  }, []);
+
   // Fetch post details
   const fetchPostDetail = useCallback(async (slug) => {
     setLoading(true);
@@ -195,6 +209,11 @@ export default function BlogBoard({ onSelectModule, initialSlug, onClearSlug, on
   const handleCategoryClick = (catId) => {
     setSelectedCategory(catId);
     setPage(1);
+    if (selectedPost) {
+      setSelectedPost(null);
+      setRelatedPosts([]);
+      if (onClearSlug) onClearSlug();
+    }
   };
 
   const handleBackToList = () => {
@@ -247,17 +266,17 @@ export default function BlogBoard({ onSelectModule, initialSlug, onClearSlug, on
                 
                 {/* Categories Tabs */}
                 <div className="flex items-center gap-1.5 overflow-x-auto pb-2 md:pb-0 scrollbar-none shrink-0 max-w-full">
-                  {CATEGORIES.map(cat => (
+                  {categories.map(cat => (
                     <button
-                      key={cat.id}
-                      onClick={() => handleCategoryClick(cat.id)}
+                      key={cat}
+                      onClick={() => handleCategoryClick(cat)}
                       className={`px-4 py-2 rounded-xl text-xs font-bold transition-all uppercase tracking-wider border select-none whitespace-nowrap cursor-pointer ${
-                        selectedCategory === cat.id 
+                        selectedCategory === cat 
                           ? 'bg-slate-800 text-white border-slate-800 shadow-sm' 
                           : 'bg-slate-50 text-slate-500 border-slate-200/50 hover:bg-slate-100 hover:text-slate-800'
                       }`}
                     >
-                      {cat.label}
+                      {getCategoryLabel(cat)}
                     </button>
                   ))}
                 </div>
@@ -312,10 +331,16 @@ export default function BlogBoard({ onSelectModule, initialSlug, onClearSlug, on
                         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 to-transparent" />
                         
                         {/* Category Badge on top of image */}
-                        <span className={`absolute top-4 left-4 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border shadow-sm ${
-                          categoryColors[post.category] || categoryColors.general
-                        }`}>
-                          {categoryLabels[post.category] || 'Phong Thủy'}
+                        <span 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleCategoryClick(post.category);
+                          }}
+                          className={`absolute top-4 left-4 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border shadow-sm cursor-pointer hover:opacity-90 active:scale-95 transition-all z-10 ${
+                            getCategoryColor(post.category)
+                          }`}
+                        >
+                          {getCategoryLabel(post.category)}
                         </span>
                       </div>
 
@@ -384,23 +409,24 @@ export default function BlogBoard({ onSelectModule, initialSlug, onClearSlug, on
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
-              className="space-y-8 bg-white border border-amber-100/50 p-6 md:p-10 rounded-[2rem] shadow-md relative"
+              className="space-y-5 sm:space-y-8 bg-white border border-amber-100/50 p-4 sm:p-8 md:p-10 rounded-[2rem] shadow-md relative"
             >
               {/* Back Button & Top Share Bar */}
-              <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center justify-between gap-3 border-b border-slate-50 pb-3">
                 <button 
                   onClick={handleBackToList}
-                  className="inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200/80 px-4 py-2.5 rounded-xl transition-all cursor-pointer select-none"
+                  className="inline-flex items-center justify-center gap-2 text-xs font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200/80 p-2.5 sm:px-4 sm:py-2.5 rounded-xl transition-all cursor-pointer select-none"
+                  title="Quay lại danh sách"
                 >
-                  <ArrowLeft size={15} />
-                  <span>Quay lại danh sách</span>
+                  <ArrowLeft size={16} />
+                  <span className="hidden sm:inline">Quay lại danh sách</span>
                 </button>
 
                 {/* Share Actions Bar */}
                 <div className="flex items-center gap-2">
                   <button 
                     onClick={handleCopyLink}
-                    className={`inline-flex items-center gap-1.5 text-xs font-bold px-3.5 py-2.5 rounded-xl border transition-all cursor-pointer select-none ${
+                    className={`inline-flex items-center justify-center gap-1.5 text-xs font-bold p-2.5 sm:px-3.5 sm:py-2.5 rounded-xl border transition-all cursor-pointer select-none ${
                       copied 
                         ? 'bg-emerald-50 border-emerald-300 text-emerald-700 shadow-xs' 
                         : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-700 shadow-xs'
@@ -408,14 +434,14 @@ export default function BlogBoard({ onSelectModule, initialSlug, onClearSlug, on
                     title="Sao chép đường dẫn bài viết"
                   >
                     {copied ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
-                    <span>{copied ? 'Đã sao chép!' : 'Sao chép link'}</span>
+                    <span className="hidden sm:inline">{copied ? 'Đã sao chép!' : 'Sao chép link'}</span>
                   </button>
 
                   <a 
                     href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(getArticleShareUrl())}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold px-3.5 py-2.5 rounded-xl bg-blue-50 border border-blue-200/60 text-blue-700 hover:bg-blue-100 transition-all select-none"
+                    className="inline-flex items-center justify-center gap-1.5 text-xs font-bold p-2.5 sm:px-3.5 sm:py-2.5 rounded-xl bg-blue-50 border border-blue-200/60 text-blue-700 hover:bg-blue-100 transition-all select-none"
                     title="Chia sẻ lên Facebook"
                   >
                     <Share2 size={14} />
@@ -425,7 +451,7 @@ export default function BlogBoard({ onSelectModule, initialSlug, onClearSlug, on
                   {navigator.share && (
                     <button 
                       onClick={handleNativeShare}
-                      className="inline-flex items-center gap-1.5 text-xs font-bold px-3.5 py-2.5 rounded-xl bg-indigo-50 border border-indigo-200/60 text-indigo-700 hover:bg-indigo-100 transition-all cursor-pointer select-none"
+                      className="inline-flex items-center justify-center gap-1.5 text-xs font-bold p-2.5 sm:px-3.5 sm:py-2.5 rounded-xl bg-indigo-50 border border-indigo-200/60 text-indigo-700 hover:bg-indigo-100 transition-all cursor-pointer select-none"
                       title="Chia sẻ ứng dụng khác"
                     >
                       <ExternalLink size={14} />
@@ -436,24 +462,32 @@ export default function BlogBoard({ onSelectModule, initialSlug, onClearSlug, on
               </div>
 
               {/* Header Info */}
-              <header className="space-y-4 border-b border-slate-100 pb-6">
-                <span className={`inline-block px-3 py-1 rounded-lg text-xs font-black uppercase tracking-wider border shadow-sm ${
-                  categoryColors[selectedPost.category] || categoryColors.general
-                }`}>
-                  {categoryLabels[selectedPost.category]}
-                </span>
-                
-                <h1 className="text-2xl md:text-4xl font-extrabold text-slate-900 font-[Montserrat] leading-tight">
+              <header className="space-y-2.5 border-b border-slate-100 pb-4">
+                <h1 className="text-xl md:text-4xl font-extrabold text-slate-900 font-[Montserrat] leading-snug">
                   {selectedPost.title}
                 </h1>
 
-                <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-slate-400 font-bold">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-400 font-bold">
                   <span>Tác giả: <strong className="text-slate-700 font-bold">{selectedPost.author}</strong></span>
+                  <span className="text-slate-300">|</span>
+                  <span>Chủ đề: <strong onClick={() => handleCategoryClick(selectedPost.category)} className="text-slate-700 hover:text-indigo-600 font-bold cursor-pointer transition-colors">{getCategoryLabel(selectedPost.category)}</strong></span>
+                  <span className="text-slate-300">|</span>
                   <span className="flex items-center gap-1"><Calendar size={13} /> {new Date(selectedPost.createdAt).toLocaleDateString('vi-VN')}</span>
                   <span className="flex items-center gap-1"><Eye size={13} /> {selectedPost.views} lượt xem</span>
                   <span className="flex items-center gap-1"><Clock size={13} /> {getReadTime(selectedPost.content)} phút đọc</span>
                 </div>
               </header>
+
+              {selectedPost.thumbnailUrl && (
+                <div className="w-full overflow-hidden rounded-[1.5rem] border border-slate-200/80 shadow-xs mb-6">
+                  <img 
+                    src={selectedPost.thumbnailUrl} 
+                    alt={selectedPost.title} 
+                    className="w-full h-auto block"
+                    loading="lazy"
+                  />
+                </div>
+              )}
 
               {/* Content body rendered with Markdown */}
               <article className="prose max-w-none text-slate-700 leading-relaxed text-sm md:text-base font-sans pb-10 border-b border-slate-100">
@@ -502,10 +536,10 @@ export default function BlogBoard({ onSelectModule, initialSlug, onClearSlug, on
                   {(() => {
                     if (!selectedPost.content) return '';
                     let text = selectedPost.content
-                      .replace(/\*\*\s*\r?\n\s*/g, '**')
-                      .replace(/\s*\r?\n\s*\*\*/g, '**')
-                      .replace(/__\s*\r?\n\s*/g, '__')
-                      .replace(/\s*\r?\n\s*__/g, '__');
+                      .replace(/\*\*[^\S\r\n]*\r?\n[^\S\r\n]*/g, '**')
+                      .replace(/[^\S\r\n]*\r?\n[^\S\r\n]*\*\*/g, '**')
+                      .replace(/__[^\S\r\n]*\r?\n[^\S\r\n]*/g, '__')
+                      .replace(/[^\S\r\n]*\r?\n[^\S\r\n]*__/g, '__');
                     const lines = text.split(/\r?\n/);
                     const resultLines = [];
                     let currentTableRow = [];
@@ -648,9 +682,9 @@ export default function BlogBoard({ onSelectModule, initialSlug, onClearSlug, on
                       >
                         <div className="space-y-1">
                           <span className={`inline-block px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider border shadow-sm ${
-                            categoryColors[post.category] || categoryColors.general
+                            getCategoryColor(post.category)
                           }`}>
-                            {categoryLabels[post.category]}
+                            {getCategoryLabel(post.category)}
                           </span>
                           <h4 className="font-extrabold text-slate-800 group-hover:text-indigo-600 transition-colors text-sm font-[Montserrat] line-clamp-2 leading-tight">
                             {post.title}

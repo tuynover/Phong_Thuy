@@ -99,6 +99,7 @@ export const updateRecordTags = (type, id, tags) => axios.put(`${API_URL}/tags/r
 // Blog API Endpoints
 export const getBlogPosts = (params) => axios.get(`${API_URL}/blog`, { params });
 export const getBlogPost = (slug) => axios.get(`${API_URL}/blog/${slug}`);
+export const getBlogCategories = () => axios.get(`${API_URL}/blog/categories`);
 export const createBlogPost = (postData) => axios.post(`${API_URL}/blog`, postData);
 export const updateBlogPost = (id, postData) => axios.put(`${API_URL}/blog/${id}`, postData);
 export const deleteBlogPost = (id) => axios.delete(`${API_URL}/blog/${id}`);

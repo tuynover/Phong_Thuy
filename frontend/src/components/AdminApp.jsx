@@ -20,8 +20,8 @@ import {
   markAdminNotificationRead,
   resolveAdminAppeal,
   restoreAdminUser,
-  getAdminUserStats,
   getBlogPosts,
+  getBlogCategories,
   createBlogPost,
   updateBlogPost,
   deleteBlogPost,
@@ -190,6 +190,7 @@ export default function AdminApp({ onSwitchToUser }) {
   const [blogSearch, setBlogSearch] = useState('');
   const [blogCategory, setBlogCategory] = useState('all');
   const [blogLoading, setBlogLoading] = useState(false);
+  const [existingCategories, setExistingCategories] = useState([]);
 
   // Blog Form states
   const [isBlogModalOpen, setIsBlogModalOpen] = useState(false);
@@ -478,8 +479,20 @@ export default function AdminApp({ onSwitchToUser }) {
         fetchBlogPostsData();
         isBlogDirty.current = false;
       }
+      loadBlogCategories();
     }
   }, [activeTab, blogPage, blogCategory, blogSearch, blogPosts]);
+
+  const loadBlogCategories = async () => {
+    try {
+      const res = await getBlogCategories();
+      if (res.data && res.data.success) {
+        setExistingCategories(res.data.categories || []);
+      }
+    } catch (err) {
+      console.error('Lỗi khi tải categories:', err);
+    }
+  };
 
   async function fetchBlogPostsData(overrideSearch = undefined, overrideCategory = undefined) {
     setBlogLoading(true);
@@ -560,6 +573,7 @@ export default function AdminApp({ onSwitchToUser }) {
           showAlert('Cập nhật bài viết thành công!');
           setIsBlogModalOpen(false);
           fetchBlogPostsData();
+          loadBlogCategories();
         }
       } else {
         const res = await createBlogPost(postData);
@@ -568,6 +582,7 @@ export default function AdminApp({ onSwitchToUser }) {
           setIsBlogModalOpen(false);
           setBlogPage(1);
           fetchBlogPostsData();
+          loadBlogCategories();
         }
       }
     } catch (err) {
@@ -2789,7 +2804,8 @@ export default function AdminApp({ onSwitchToUser }) {
                          post.category === 'bazi' ? 'Bát Tự' :
                          post.category === 'ziwei' ? 'Tử Vi' :
                          post.category === 'marriage' ? 'Hôn Nhân' :
-                         post.category === 'fengshui' ? 'Phong Thủy' : 'Chung'}
+                         post.category === 'fengshui' ? 'Phong Thủy' :
+                         post.category === 'general' ? 'Chung' : post.category}
                       </td>
                       <td className="px-4 py-3.5">{post.author}</td>
                       <td className="px-4 py-3.5 font-mono font-bold text-amber-500">{post.views}</td>
@@ -2928,19 +2944,27 @@ export default function AdminApp({ onSwitchToUser }) {
 
                 {/* Category */}
                 <div>
-                  <span className="block text-[10px] font-bold uppercase text-slate-400 tracking-wider mb-2 ml-1">Danh mục</span>
-                  <select
+                  <span className="block text-[10px] font-bold uppercase text-slate-400 tracking-wider mb-2 ml-1">Chủ đề (Category)</span>
+                  <input
+                    type="text"
+                    list="blog-categories-list"
                     value={blogFormCategory}
                     onChange={(e) => setBlogFormCategory(e.target.value)}
-                    className="bg-slate-950 border border-slate-800 text-slate-100 font-bold rounded-xl block w-full p-2.5 focus:outline-none focus:border-amber-500 cursor-pointer text-xs"
-                  >
+                    placeholder="Chọn hoặc nhập chủ đề..."
+                    className="bg-slate-950 border border-slate-800 text-slate-100 font-bold rounded-xl block w-full p-2.5 transition-all focus:outline-none focus:border-amber-500 shadow-sm text-xs"
+                    required
+                  />
+                  <datalist id="blog-categories-list">
                     <option value="general">Chung / Phong Thủy</option>
                     <option value="iching">Kinh Dịch</option>
                     <option value="bazi">Bát Tự</option>
                     <option value="ziwei">Tử Vi</option>
                     <option value="marriage">Hôn Nhân</option>
                     <option value="fengshui">Phong Thủy Chuyên Sâu</option>
-                  </select>
+                    {existingCategories.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </datalist>
                 </div>
 
                 {/* Thumbnail URL */}
@@ -3055,10 +3079,10 @@ export default function AdminApp({ onSwitchToUser }) {
                           {(() => {
                             if (!blogFormContent) return '';
                             let text = blogFormContent
-                              .replace(/\*\*\s*\r?\n\s*/g, '**')
-                              .replace(/\s*\r?\n\s*\*\*/g, '**')
-                              .replace(/__\s*\r?\n\s*/g, '__')
-                              .replace(/\s*\r?\n\s*__/g, '__');
+                              .replace(/\*\*[^\S\r\n]*\r?\n[^\S\r\n]*/g, '**')
+                              .replace(/[^\S\r\n]*\r?\n[^\S\r\n]*\*\*/g, '**')
+                              .replace(/__[^\S\r\n]*\r?\n[^\S\r\n]*/g, '__')
+                              .replace(/[^\S\r\n]*\r?\n[^\S\r\n]*__/g, '__');
                             const lines = text.split(/\r?\n/);
                             const resultLines = [];
                             let currentTableRow = [];

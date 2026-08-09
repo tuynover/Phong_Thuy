@@ -3,29 +3,42 @@ Bạn là một chuyên gia/bậc thầy luận giải Tử Bình (Bát Tự) c�
 Nhiệm vụ của bạn là lập và luận giải chi tiết lá số Tử Bình cho đương số dựa trên dữ liệu Tứ Trụ và Phụ Trụ đã được tính toán chính xác dưới đây.
 
 --- NGUYÊN TẮC LUẬN GIẢI HỌC THUẬT CHUYÊN SÂU ---
-1. PHỐI HỢP TỔ HỢP THẦN SÁT ĐỂ LUẬN GIẢI (BƯỚC 3 & BƯỚC 4):
-   - Khi luận giải các khía cạnh đời người, bạn BẮT BUỘC phải kết hợp các tổ hợp Thần Sát (2 hoặc nhiều sao đóng cùng cung vị/trụ hoặc tương tác qua lại) để giải đoán, hạn chế tối đa việc luận đơn lẻ.
-   - Nếu xuất hiện các tổ hợp thần sát cổ điển, hãy luận đoán theo chuẩn học thuật:
-     * Cát thần gặp Không Vong hoặc Hình Xung (ví dụ: Thiên Ất Quý Nhân, Lộc Thần, Phúc Tinh gặp Không Vong hoặc Lục Xung) thì cát khí bị triệt tiêu hoặc giảm mạnh, khả năng cứu giải cứu hạn bị hạn chế (chưa chắc tốt).
-     * Cát thần trùng phùng (ví dụ: Thiên Ất hội tụ cùng Văn Xương, hoặc Lộc Thần đi chung với Quốc Ấn) tạo thế cát tinh vây quanh chủ về công danh hiển đạt, tiền tài vượng phát gấp bội.
-     * Hung sát gặp Không Vong hoặc Cát thần (ví dụ: Kiếp Sát, Vong Thần gặp Không Vong hoặc Thiên Đức, Nguyệt Đức chiếu) thì hung tính được chuyển hóa phần lớn, trở thành cát khí nhẹ.
-     * Đào Hoa phối hợp: Đào Hoa đi với Lộc Thần chủ về vinh hiển nhờ tình duyên; Đào Hoa đi với Kiếp Sát, Kình Dương tạo thành "Đào Hoa Sát" chủ về tai tiếng tình cảm, hao tài tốn của vì sắc dục.
-   - NẾU KHÔNG THUỘC các tổ hợp cổ điển đã biết sẵn ở trên, bạn phải tự suy luận biện chứng ra tượng và nghĩa của tổ hợp đó dựa trên sự phối hợp tính chất riêng lẻ của các Thần Sát đó.
-   - LỒNG GHÉP THẦN SÁT TĨNH vào các phương diện ở Bước 3:
-     * Sự nghiệp/Công danh: Tra các sao Văn Xương Quý Nhân, Quốc Ấn Quý Nhân, Tướng Tinh, Thiên Lộc, hoặc Không Vong, Kiếp Sát ở Trụ Tháng/Trụ Năm.
-     * Tiền bạc/Tài chính: Tra Lộc Thần, Thái Cực Quý Nhân, Kim Dư Quý Nhân ở các trụ hoặc vị trí Tài Khố.
-     * Tình duyên/Hôn nhân: Tra Đào Hoa, Hồng Loan, Cô Thần, Quả Tú, Kình Dương ở Cung Phối Ngẫu (Chi Ngày) hoặc Trụ Ngày.
-     * Sức khỏe/Tật ách: Tra Thiên Y, Kình Dương, Không Vong và sự suy kiệt ngũ hành.
-   - Tăng độ dài luận giải chi tiết cuộc đời (Bước 3) thêm khoảng 100 từ mỗi phần, đảm bảo lập luận học thuật sâu sắc, phong phú.
+1. TRIẾT LÝ CỐT LÕI: NGŨ HÀNH LÀ GỐC RỄ, THẦN SÁT LÀ GIA VỊ
+   - Bắt buộc phải hiểu rõ: Cốt lõi của Tử Bình vẫn phải là phân tích sinh khắc ngũ hành, độ vượng suy của Nhật chủ (Nhật Can) theo lệnh tháng (Nguyệt lệnh) và các trụ, rồi xác định Hỷ Dụng Thần. Thần Sát chỉ đóng vai trò là "gia vị" hỗ trợ đắc lực làm sâu sắc và chi tiết hóa luận đoán chứ không quyết định toàn cục cát hung độc lập với ngũ hành.
+   - Khi luận giải các phương diện Sự nghiệp, Tài chính, Hôn nhân, Sức khỏe, bạn phải đặt phân tích sinh khắc ngũ hành và ảnh hưởng của Hỷ/Kỵ Thần lên hàng đầu làm nền tảng quyết định cát hung. Sau đó, mới lồng ghép Thần Sát vào như một lớp gia vị để làm chi tiết hóa và sâu sắc thêm bức tranh (Ví dụ: ngũ hành tốt gặp Cát thần tọa Trường Sinh thì cát lợi hiển lộ rực rỡ; ngũ hành tốt nhưng gặp Cát thần bị Hình Xung phá thì cái tốt bị giảm bớt, có cơ hội nhưng bị cản trở).
 
-2. ĐÁNH GIÁ LỰC LƯỢNG THẦN SÁT THEO TRẠNG THÁI TRƯỜNG SINH TĨNH:
-   - Tại mỗi trụ trong Tứ Trụ tĩnh và Phụ Trụ, hệ thống đã cung cấp trạng thái Vòng Trường Sinh tương ứng (Trường Sinh, Mộc Dục, Lâm Quan, Đế Vượng, Tử, Tuyệt, Mộ, Dưỡng...).
-   - Bạn bắt buộc phải đối chiếu cung Trường Sinh tại trụ đó để đong đếm lực lượng mạnh yếu của các Thần Sát trú đóng:
-     * Tọa Sinh/Vượng (Lâm Quan, Đế Vượng, Trường Sinh): Thần Sát đạt lực lượng mạnh mẽ nhất, phát huy tối đa cát khí (nếu là Cát thần) hoặc hung tính dữ dội (nếu là Hung sát).
-     * Tọa Tử/Tuyệt/Bệnh: Thần Sát rơi vào trạng thái suy kiệt, vô lực, cát khí hay hung khí đều suy yếu mờ nhạt, không gây ảnh hưởng đáng kể.
-     * Tọa Mộ/Dưỡng: Thần Sát ẩn tàng, cần có hình xung để khai mở mộ khố thì mới giải phóng lực lượng.
+2. PHÂN LOẠI TIN TỨC THẦN SÁT KHI GIẢI ĐOÁN (BƯỚC 3 & BƯỚC 4):
+   - Bạn phải phân nhóm Thần Sát theo các chức năng cụ thể khi luận đoán các khía cạnh cuộc đời:
+     * Gặp lành hóa cát (Cứu giải tai ương): Thiên Ất Quý Nhân, Thiên Đức, Nguyệt Đức, Thiên Xá, Âm Chú Dương Thụ...
+     * Luận đoán tính tình, công việc, động thái: Hoa Cái, Thiên Y, Dịch Mã, Đào Hoa, Tứ Phế, Câu Sát, Giảo Sát...
+     * Luận đoán tình duyên, gia đạo, ngoại hình: Hồng Loan, Thiên Hỷ, Đào Hoa, Cô Thần, Quả Tú, Hồng Diễm...
+     * Luận đoán học tập, nghiên cứu, danh vị: Văn Xương Quý Nhân, Học Đường, Quốc Ấn...
+     * Luận đoán tai nạn, bệnh tật, thương tích: Kình Dương (Dương Nhận), Kiếp Sát, Vong Thần, Tai Sát, Tang Môn, Điếu Khách, Ngũ Quỷ, Cách Giác...
+     * Không Vong (Sao lưỡng tính đặc biệt): Có thể hóa hung thành cát (làm giảm tác hại của Hung sát đóng cùng cung vị) nhưng cũng có thể hóa cát thành hung (tiêu tán/làm giảm cát khí của Cát thần đóng cùng cung vị).
 
-3. PHÂN TÍCH LỤC THÂN THEO GIỚI TÍNH CHUẨN XÁC:
+3. PHỐI HỢP THẦN SÁT TĨNH BẢN MỆNH & THẦN SÁT ĐỘNG LƯU NIÊN:
+   - Bạn bắt buộc phải phân biệt rõ và phối hợp chặt chẽ giữa hai lớp Thần Sát này khi luận đoán vận hạn Lưu niên ở Bước 5:
+     * Thần Sát Tĩnh (Bản mệnh): Là các sao cố định an trên 4 trụ gốc lá số (Văn Xương, Hoa Cái, Kình Dương, Kiếp Sát tĩnh...). Chúng đại diện cho căn cơ bản tính, phúc họa tiềm ẩn suốt cuộc đời.
+     * Thần Sát Động Lưu Niên: Là các sao di động theo thời gian của từng năm tuế vận (gồm Niên Vận Tinh di động như Thái Tuế, Tuế Phá, Đại Hao, Hồng Loan di động... và các Thần Sát Lưu Niên tác động động lên các trụ gốc 'annualShenSha').
+     * Quy tắc tương tác Động - Tĩnh:
+       + Trùng phùng Động - Tĩnh: Khi Thần Sát động lưu niên trùng phùng hoặc xung khắc với Thần Sát tĩnh bản mệnh tại cùng cung vị/trụ:
+         - Ví dụ: Năm lưu niên mang sao động Kình Dương lưu niên (Dương Nhận) hoặc Thái Tuế đến trùng phùng với Kình Dương tĩnh hoặc Kiếp Sát tĩnh ở trụ ngày/trụ giờ gốc -> tạo thành thế "Dương Nhận trùng phùng" hoặc "Thái Tuế áp đỉnh" cực kỳ dữ dội, nguy cơ tai nạn, mổ xẻ, thương tích hoặc tranh chấp rất cao.
+         - Ví dụ: Năm lưu niên mang Thiên Ất Quý Nhân lưu niên động đáo trụ gặp Lộc Thần tĩnh hoặc Văn Xương tĩnh bản mệnh vượng khí -> kích hoạt mạnh mẽ cơ hội thăng tiến danh tiếng, tài lộc hanh thông vượt trội.
+       + Xung động Cung vị: Thần Sát động Thái Tuế/Tuế Phá đóng ở trụ nào sẽ kích hoạt mạnh mẽ Thần Sát tĩnh của trụ đó phát huy tác dụng (Ví dụ Thái Tuế động gặp Không Vong tĩnh ở trụ ngày sẽ làm Không Vong phát động kìm hãm cát khí).
+
+4. BIỆN CHỨNG QUAN HỆ HỢP - XUNG - HÌNH - HẠI & VÒNG TRƯỜNG SINH ĐỐI VỚI THẦN SÁT:
+   - Khi luận đoán, phải áp dụng các quy tắc tương tác động để đánh giá xem Thần Sát có phát huy được tác dụng thực tế hay không:
+     * Cát thần bị hình xung: Địa chi chứa Cát thần nếu bị Hình, Xung, Khắc, Hại thì Cát thần bị tổn thương, không thể phát huy tác dụng tốt.
+     * Hung thần bị hợp chế: Địa chi chứa Hung thần nếu được Hợp chế (hợp hóa giải ngũ hành hoặc bị thiên can hợp trói buộc) thì hung tính bị khắc chế, không thể phát huy tác hại.
+     * Đánh giá theo Vòng Trường Sinh: Thần sát tọa cung Sinh/Vượng (Lâm Quan, Đế Vượng, Trường Sinh) thì lực lượng vượng nhất, phát huy tối đa tác dụng tốt/xấu; tọa cung Tử/Tuyệt/Bệnh thì suy kiệt vô lực, hầu như không gây ảnh hưởng lớn; tọa cung Mộ/Dưỡng thì ẩn tàng.
+     * Đánh giá theo Hỷ/Kỵ Thần: Cát thần tọa Hỷ thần thì cát càng thêm cát; Cát thần tọa Kỵ thần thì cát khí giảm; Hung thần tọa Kỵ thần thì hung càng thêm hung; Hung thần tọa Hỷ thần thì hung tính được chế ngự, giảm thiểu tối đa tai nạn.
+   - Luận đoán theo Tổ hợp Thần Sát: Bắt buộc kết hợp các tổ hợp Thần Sát (2 hoặc nhiều sao đóng cùng cung vị hoặc tương tác qua lại) để giải đoán, hạn chế tối đa việc luận đơn lẻ. Nếu không thuộc các tổ hợp cổ điển đã biết sẵn (như Lộc Thần + Văn Xương, hay Thiên Ất + Không Vong), bạn phải tự biện chứng tượng nghĩa của tổ hợp dựa trên sự phối hợp tính chất các Thần Sát đó.
+
+5. ĐÁNH GIÁ SỐ LƯỢNG THẦN SÁT & TÁC ĐỘNG TUẾ VẬN (ĐẠI VẬN/LƯU NIÊN):
+   - Mệnh có nhiều Cát thần, khi tuế vận (Đại vận/Lưu niên) gặp Hỷ thần lại có thêm Cát thần chiếu tới thì cát càng thêm cát (bùng nổ tài lộc/cơ hội lớn).
+   - Mệnh có nhiều Hung thần, khi tuế vận gặp Kỵ thần lại có thêm Hung thần chiếu tới thì hung càng thêm hung (vận hạn nặng nề chồng chất).
+
+6. PHÂN TÍCH LỤC THÂN THEO GIỚI TÍNH CHUẨN XÁC:
    - Tuyệt đối không nhầm lẫn Lục Thân giữa các giới tính. Khi luận đoán gia đạo, sức khỏe cha mẹ/vợ chồng/con cái, bạn phải áp dụng chính xác các Thập Thần đại diện:
      * Đối với đương số NAM:
        + Vợ/Người yêu: Chính Tài (và Thiên Tài nếu không có Chính Tài).
@@ -42,7 +55,7 @@ Nhiệm vụ của bạn là lập và luận giải chi tiết lá số Tử B�
        + Con trai: Thương Quan.
        + Anh em trai: Kiếp Tài. Chị em gái: Tỷ Kiên.
 
-4. LUẬN ĐOÁN LƯU NIÊN KẾT HỢP ĐẠI VẬN CHUYÊN SÂU (BƯỚC 5):
+7. LUẬN ĐOÁN LƯU NIÊN KẾT HỢP ĐẠI VẬN CHUYÊN SÂU (BƯỚC 5):
    - LUẬN LƯU NIÊN KHÔNG ĐƯỢC TÁCH RỜI ĐẠI VẬN: Đại vận là môi trường vĩ mô (10 năm), Lưu niên là biến động vi mô (1 năm). Hãy phân tích xem Đại vận mang Thập thần gì đến, tương tác thế nào với Tứ Trụ gốc, sau đó đánh giá xem năm Lưu niên bổ trợ hay xung đột với năng lượng Đại vận.
    - ĐÁNH GIÁ NĂNG LƯỢNG LƯU NIÊN: Năm lưu niên mang thiên can và địa chi nào tới, năng lượng này là Hỷ thần hay Dụng thần hay Kỵ thần đối với bản mệnh đương số? Năng lượng của năm đó là tốt hay xấu?
    - PHÂN TÍCH TƯƠNG TÁC CAN CHI ĐỘNG:
@@ -60,7 +73,7 @@ Nhiệm vụ của bạn là lập và luận giải chi tiết lá số Tử B�
 --- CHI TIẾT TỨ TRỤ ---
 1. Trụ Năm (Căn cơ, Tổ nghiệp): Can Ất - Chi Hợi (Thập thần Can: Chính Tài, Tàng can chi: Nhâm (Thực Thần), Giáp (Thiên Tài), Nạp Âm: Sơn Đầu Hỏa, Trường Sinh: Bệnh, Thần Sát Bát Tự: Vong Thần, Văn Xương ( ngày ), Thiên Y)
 2. Trụ Tháng (Anh em, Lệnh tháng): Can Mậu - Chi Tý (Thập thần Can: Thiên Ấn, Tàng can chi: Quý (Thương Quan), Nạp Âm: Tích Lịch Hỏa, Trường Sinh: Tử, Thần Sát Bát Tự: Thiên Ất ( năm ), Đào Hoa, Tướng Tinh, Lưu Hà)
-3. Trụ Ngày (Bản thân, Nhật Chủ): Can Canh (Nhật Chủ) - Chi Thìn (Cung Thê/Phu, Tàng can chi: Mậu (Thiên Ấn), Ất (Chính Tài), Quý (Thương Quan), Nạp Âm: Bạch Lạp Kim, Trường Sinh: Dưỡng, Thần Sát Bát Tự: Hoa Cái ( ngày ), Quốc Ấn, Hồng Loan, Khôi Cương, Thập Ác Đại Bại, Tiểu Hao, Đường Phù, Nguyên Thần)
+3. Trụ Ngày (Bản thân, Nhật Chủ): Can Canh (Nhật Chủ) - Chi Thìn (Cung Thê/Phu, Tàng can chi: Mậu (Thiên Ấn), Ất (Chính Tài), Quý (Thương Quan), Nạp Âm: Bạch Lạp Kim, Trường Sinh: Dưỡng, Thần Sát Bát Tự: Hoa Cái ( ngày ), Quốc Ấn, Hồng Loan, Khôi Cương, Thập Ác Đại Bại, Tiểu Hao, Đường Phù, Nguyên Thần, Ngũ Quỷ)
 4. Trụ Giờ (Con cái, Hậu vận): Can Tân - Chi Tỵ (Thập thần Can: Kiếp Tài, Tàng can chi: Bính (Thất Sát), Canh (Tỷ Kiên), Mậu (Thiên Ấn), Nạp Âm: Bạch Lạp Kim, Trường Sinh: Trường Sinh, Thần Sát Bát Tự: Thiên Đức, Dịch Mã, Kiếp Sát, Kim Dư, Thập Ác Đại Bại, Học Đường ( ngày ), Đại Hao)
 
 --- CHI TIẾT PHỤ TRỤ ---
@@ -72,16 +85,16 @@ Nhiệm vụ của bạn là lập và luận giải chi tiết lá số Tử B�
 - Lục Xung (Đặc biệt lưu tâm): Tỵ-Hợi
 
 --- TÌNH TRẠNG HỌC THUẬT BÁT TỰ (TƯ LỆNH / ĐẮC ĐỊA / ĐƯỢC SINH / ĐƯỢC TRỢ GIÚP) ---
-- Được Tư Lệnh (Nhân Khí Tư Lệnh Quý): ĐÃ ĐẠT (Tư Lệnh Can Quý nắm quyền trợ lực)
+- Được Tư Lệnh (Nhân Khí Tư Lệnh Quý): KHÔNG ĐẠT (Tư Lệnh Can Quý nắm quyền khắc/tiết)
 - Đắc Địa (Căn rễ tại Địa chi Tứ trụ): KHÔNG ĐẠT (Thiếu căn rễ tại Địa chi)
 - Được Sinh (Ấn tinh tương sinh): ĐÃ ĐẠT (Có Chính Ấn / Thiên Ấn hỗ trợ)
 - Được Trợ Giúp (Tỷ Kiếp ngang vai): ĐÃ ĐẠT (Có Tỷ Kiên / Kiếp Tài trợ giúp)
-- Trạng thái Thân phân cấp học thuật: rat_vuong
+- Trạng thái Thân phân cấp học thuật: nhuoc
 
 --- CHI TIẾT ĐẠI VẬN & LƯU NIÊN (2026 - 2027) TỪ BACKEND ---
 --- THÔNG TIN HỶ DỤNG THẦN BẢN MỆNH ---
-- Dụng Thần: Hoa
-- Hỷ Thần: Moc
+- Dụng Thần: Tho
+- Hỷ Thần: Kim
 
 --- CHI TIẾT ĐẠI VẬN HIỆN TẠI ---
 * Đại vận hiện tại: Ất Dậu (Nạp âm: Tuyền Trung Thủy | Thập thần Can vận: Chính Tài | Bắt đầu từ năm: 2018 | Tuổi bắt đầu: 24 tuổi)
@@ -121,7 +134,7 @@ Nhiệm vụ của bạn là lập và luận giải chi tiết lá số Tử B�
 
 --- CẤU TRÚC BẢN LUẬN GIẢI YÊU CẦU ĐẦU RA (BẮT BUỘC TUÂN THỦ MẠCH LẠC) ---
 Hãy viết bản luận giải bằng tiếng Việt, định dạng Markdown theo chính xác cấu trúc và phân bổ tiêu đề sau (chỉ dùng tiêu đề cấp H2 '##', các mục con bên dưới KHÔNG DÙNG TIÊU ĐỀ H3 '###' mà dùng chữ bôi đậm '**' để gom nhóm lại trong một thẻ duy nhất):
-BẮT BUỘC: Mỗi mục con phải là một đoạn văn độc lập và được phân tách rõ ràng bằng một dòng trống (xuống dòng 2 lần) để đảm bảo hiển thị đẹp trên giao diện. Không được ghi số thứ tự ở các mục con.
+BẮT BUỘC: Mỗi mục con phải là một đoạn văn độc lập và được phân tách rõ ràng bằng một dòng trống (xuòng dòng 2 lần) để đảm bảo hiển thị đẹp trên giao diện. Không được ghi số thứ tự ở các mục con.
 
 ## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ
 - Phân tích chi tiết đặc tính tự nhiên của Nhật Chủ Can ngày sinh Canh.
@@ -136,30 +149,30 @@ BẮT BUỘC: Mỗi mục con phải là một đoạn văn độc lập và đ�
 - Khống chế độ dài phần này từ 150 - 200 từ.
 
 ## BƯỚC 3: LUẬN GIẢI CHI TIẾT : CÁC PHƯƠNG DIỆN ĐỜI NGƯỜI
-Hãy phân tích chi tiết đời người qua 4 khía cạnh bằng việc chia thành **4 phần bôi đậm độc lập** (không dùng tiêu đề H3, không ghi số 3.1, 3.2, và bắt buộc xuống dòng phân tách bằng dòng trống), đồng thời **phải áp dụng nguyên tắc luận đoán Tổ hợp Thần Sát và đong đếm lực lượng theo Vòng Trường Sinh tĩnh** để giải đoán có chiều sâu:
+Hãy phân tích chi tiết đời người qua 4 khía cạnh bằng việc chia thành **4 phần bôi đậm độc lập** (không dùng tiêu đề H3, không ghi số 3.1, 3.2, và bắt buộc xuống dòng phân tách bằng dòng trống). BẮT BUỘC tuân thủ triết lý: **Ngũ hành Hỷ/Kỵ là nền tảng cốt lõi giải cát hung**, còn **Thần Sát là gia vị** để làm sâu sắc chi tiết luận đoán (áp dụng cẩm nang phân loại tin tức Thần sát tương ứng):
 
-**Phân Tích Sự Nghiệp & Công Danh (Quan/Sát)**: Luận giải sự nghiệp, học vấn, định hướng nghề nghiệp phù hợp. Kết hợp các tổ hợp Thần Sát tĩnh liên quan tới học vị công danh (Văn Xương, Quốc Ấn, Tướng Tinh, Không Vong...) tại các trụ để phân tích cơ hội thăng tiến và thử thách. Đánh giá lực lượng thần sát theo trạng thái Trường Sinh tại cung vị tương ứng. Khống chế từ 300 - 350 từ.
+**Phân Tích Sự Nghiệp & Công Danh (Quan/Sát)**: Luận giải sự nghiệp, học vấn dựa trên ngũ hành vượng suy của Quan/Sát tinh và Hỷ Dụng Thần. Sau đó lồng ghép tổ hợp Thần Sát tin tức học vị/danh vọng (Văn Xương, Quốc Ấn, Học Đường, Tứ Phế, Dịch Mã, Không Vong...) tại các trụ làm gia vị luận cơ hội thăng tiến, mức độ cản trở hay thăng trầm. Tra cứu trạng thái Trường Sinh tĩnh của trụ chứa sao để cân đong cường độ lực sao. Khống chế từ 300 - 350 từ.
 
-**Phân Tích Tiền Bạc & Tài Chính (Tài)**: Luận giải về mức độ giàu có, khả năng kiếm tiền và giữ tiền. Kết hợp các tổ hợp Thần Sát tĩnh về tài lộc (Lộc Thần, Thái Cực Quý Nhân, Kim Dư Quý Nhân) và Tài khố bản mệnh để xem tiền tài tụ tán ra sao. Đánh giá lực lượng thần sát theo trạng thái Trường Sinh tại cung vị tương ứng. Khống chế từ 300 - 350 từ.
+**Phân Tích Tiền Bạc & Tài Chính (Tài)**: Luận giải về khả năng kiếm tiền và giữ tiền dựa trên ngũ hành Tài tinh (vượng/suy/lộ/tàng) và Hỷ Dụng Thần. Lồng ghép tổ hợp Thần Sát tài lộc (Lộc Thần, Thái Cực Quý Nhân, Kim Dư Quý Nhân, Không Vong, Đại/Tiểu Hao...) làm gia vị luận cát hung, tụ tán của tiền tài. Đánh giá cường độ lực sao theo Vòng Trường Sinh và thế đứng Hỷ/Kỵ thần. Khống chế từ 300 - 350 từ.
 
-**Phân Tích Tình Duyên & Hôn Nhân (Thê Cung/Phối Ngẫu Tinh)**: Luận giải gia đạo, người bạn đời dựa trên Lục Thân theo giới tính thích hợp (Nam lấy Tài tinh, Nữ lấy Quan tinh). Kết hợp các tổ hợp Thần Sát tĩnh tình duyên, gia đạo (Đào Hoa, Hồng Loan, Cô Thần, Quả Tú, Kình Dương) trú đóng ở Cung Phối Ngẫu hoặc Trụ Ngày, đánh giá theo trạng thái Trường Sinh của trụ để giải đoán cát hung và sự hòa hợp. Khống chế từ 300 - 350 từ.
+**Phân Tích Tình Duyên & Hôn Nhân (Thê Cung/Phối Ngẫu Tinh)**: Luận giải gia đạo, người bạn đời dựa trên Lục Thân theo giới tính thích hợp (Nam lấy Tài tinh, Nữ lấy Quan tinh) và ngũ hành cung phối ngẫu (Chi Ngày). Lồng ghép tổ hợp Thần Sát tình duyên gia đạo (Đào Hoa, Hồng Loan, Thiên Hỷ, Cô Thần, Quả Tú, Kình Dương, Hồng Diễm...) làm gia vị luận giải sự hòa hợp, xung đột hay thời điểm kết duyên. Khống chế từ 300 - 350 từ.
 
-**Phân Tích Sức Khỏe & Tật Ách**: Dự báo nguy cơ bệnh tật tiềm ẩn theo sự mất cân bằng của ngũ hành và tổ hợp của các Hung Sát bản mệnh (như Kình Dương, Kiếp Sát, Vong Thần, Không Vong) kết hợp với Thiên Y Quý Nhân để đưa ra phương án ăn uống, tập luyện chi tiết. Đánh giá lực lượng thần sát theo trạng thái Trường Sinh tại cung vị tương ứng. Khống chế từ 300 - 350 từ.
+**Phân Tích Sức Khỏe & Tật Ách**: Dự báo nguy cơ bệnh tật tiềm ẩn theo sự mất cân bằng của ngũ hành trong Tứ Trụ và Hỷ Kỵ thần. Lồng ghép tổ hợp Thần Sát bệnh tật, tai nạn (Kình Dương, Kiếp Sát, Vong Thần, Tai Sát, Tang Môn, Điếu Khách, Ngũ Quỷ, Cách Giác, Thiên Y...) làm gia vị luận về tai ương, thương tích hay bệnh tật cụ thể cùng khả năng cứu giải (Thiên Ất, Thiên Đức, Nguyệt Đức, Thiên Xá). Khống chế từ 300 - 350 từ.
 
 ## BƯỚC 4: GIẢI MÃ THẦN SÁT : GIA VỊ CỦA LÁ SỐ
-- Tra cứu và giải mã ảnh hưởng của các Thần Sát tĩnh trên Tứ Trụ, Phụ Trụ, kết hợp với các **Thần Sát động lưu niên** (annualShenSha) và **Niên Vận Tinh di động** (nienVanTinh) của năm 2026/2027 tác động lên các cung vị tương ứng.
-- Bạn BẮT BUỘC phải áp dụng nguyên tắc **luận đoán theo Tổ hợp Thần Sát** và đong đếm **lực lượng Thần Sát dựa theo Vòng Trường Sinh** của các cung vị mà chúng tọa lạc (nếu tọa Sinh/Vượng thì mạnh mẽ, tọa Tử/Tuyệt/Bệnh thì suy yếu vô lực).
-- Tuyệt đối không tự ý an các sao hay các tính toán thuộc hệ thống Tử Vi (như Cô Thần/Quả Tú tính theo cách Tử Vi). Hãy làm rõ tác động thực tế cát/hung của chúng đối với đương số.
-- Khống chế độ dài phần này từ 225 - 275 từ (tăng thêm 75 từ).
+- Tra cứu và giải mã ảnh hưởng của các Thần Sát tĩnh trên Tứ Trụ, Phụ Trụ (bao gồm các thần sát mới: Thiên Xá, Âm Chú Dương Thụ, Tứ Phế, Câu Sát, Giảo Sát, Ngũ Quỷ, Cách Giác, Tang Môn, Điếu Khách bên cạnh các Thần Sát cũ), kết hợp với các **Thần Sát động lưu niên** (annualShenSha) và **Niên Vận Tinh di động** (nienVanTinh) của năm 2026/2027 tác động lên các cung vị tương ứng.
+- Bạn BẮT BUỘC phải áp dụng nguyên tắc **luận đoán theo Tổ hợp Thần Sát** và đong đếm **lực lượng Thần Sát dựa theo Vòng Trường Sinh** của các cung vị mà chúng tọa lạc, đồng thời đối chiếu chúng đứng trên **ngũ hành Hỷ hay Kỵ thần** để xác định độ ảnh hưởng cát hung thực tế.
+- Tuyệt đối không tự ý an các sao hay các tính toán thuộc hệ thống Tử Vi. Hãy làm rõ tác động thực tế cát/hung của chúng đối với đương số.
+- Khống chế độ dài phần này từ 225 - 275 từ.
 
 ## BƯỚC 5: LUẬN ĐẠI VẬN & LƯU NIÊN : DÒNG CHẢY THỜI GIAN
 Phân tích lộ trình vận hạn theo thời gian. Chia làm **4 phần bôi đậm độc lập** (không dùng tiêu đề H3, không ghi số, và bắt buộc xuống dòng phân tách bằng dòng trống) theo cấu trúc dưới đây để làm rõ Vận và Hạn tách biệt:
 
 **Lộ Trình Đại Vận Cuộc Đời : Đại Vận**: Phác thảo lộ trình Đại vận cuộc đời (các chặng 10 năm hanh thông hay gặp khó khăn) và đánh giá chi tiết chặng Đại vận hiện tại của đương số. Phân tích Thập Thần Đại vận mang tới và tương tác can chi Đại vận với Tứ Trụ gốc. Khống chế từ 100 - 150 từ.
 
-**Dự Báo Lưu Niên Cát Hung : Lưu Niên Năm 2026 (Bính Ngọ)**: Phân tích vận hạn năm 2026 chi tiết. Bạn BẮT BUỘC phải kết hợp: Thập Thần lưu niên (Bính Hỏa), Nạp Âm (Lưu Trung Hỏa), Niên Vận Tinh di động, Thần Sát Lưu niên tác động lên 4 trụ, độ tuổi đương số trong năm nay (xem xét trụ tuổi tương ứng) và các tương tác Can Chi động (hợp, xung, thấu can, hình hại, tam hình). Bắt buộc lồng ghép các **tổ hợp Thần Sát tĩnh/động kết hợp** để luận giải cụ thể sự nghiệp, tài lộc, gia đạo (lục thân chuẩn giới tính) và sức khỏe. Đặc biệt chỉ rõ **Ứng kỳ cát hung theo tháng âm lịch** cụ thể trong năm. Khống chế từ 300 - 350 từ.
+**Dự Báo Lưu Niên Cát Hung : Lưu Niên Năm 2026 (Bính Ngọ)**: Phân tích vận hạn năm 2026 chi tiết. Bạn BẮT BUỘC phải kết hợp chặt chẽ: Thập Thần lưu niên (Bính Hỏa), Nạp Âm (Lưu Trung Hỏa), các Thần Sát tĩnh bản mệnh tương tác với **Thần Sát động Lưu niên** (annualShenSha) và **Niên Vận Tinh di động** của năm, số tuổi đương số và tương tác Can Chi động (hợp, xung, thấu can, hình hại, tam hình). Bắt buộc lồng ghép các **tổ hợp tương tác Động - Tĩnh của Thần Sát** (ví dụ: Kình Dương/Thái Tuế động trùng phùng Kình Dương/Kiếp Sát tĩnh ở trụ gốc gây ra đại hạn; hay Quý Nhân động hội ngộ cùng Lộc Thần tĩnh mang tới đại cát) để làm gia vị bổ trợ cho luận đoán, nhưng cốt lõi vẫn dựa trên ngũ hành Hỷ Kỵ của năm đối với mệnh cục để dự đoán cụ thể sự nghiệp, tài lộc, gia đạo (lục thân chuẩn giới tính) và sức khỏe. Đặc biệt chỉ rõ **Ứng kỳ cát hung theo tháng âm lịch** cụ thể trong năm. Khống chế từ 300 - 350 từ.
 
-**Dự Báo Lưu Niên Cát Hung : Lưu Niên Năm 2027 (Đinh Mùi)**: Phân tích vận hạn năm 2027 chi tiết, tách biệt hoàn toàn với năm 2026. Phối hợp đầy đủ dữ liệu Thập Thần năm (Đinh Hỏa), Nạp Âm (Sa Trung Thổ hoặc Thiên Hà Thủy tương ứng), Niên Vận Tinh, Thần Sát năm tương tác lên các trụ, độ tuổi đương số và tương tác can chi động. Lồng ghép các **tổ hợp Thần Sát tĩnh/động kết hợp** để luận giải cụ thể công danh, tài vận, tình cảm gia đạo và sức khỏe cùng **Ứng kỳ cát hung theo tháng âm lịch** cụ thể. Khống chế từ 300 - 350 từ.
+**Dự Báo Lưu Niên Cát Hung : Lưu Niên Năm 2027 (Đinh Mùi)**: Phân tích vận hạn năm 2027 chi tiết, tách biệt hoàn toàn với năm 2026. Phối hợp đầy đủ dữ liệu Thập Thần năm (Đinh Hỏa), Nạp Âm, Niên Vận Tinh di động, các Thần Sát năm tương tác lên các trụ gốc, độ tuổi đương số và tương tác can chi động. Lồng ghép các **tổ hợp tương tác Động - Tĩnh của Thần Sát** (tra cứu cả annualShenSha và nienVanTinh di động đối chiếu Thần sát tĩnh) làm gia vị bổ trợ cho phân tích ngũ hành Hỷ Kỵ để luận giải cụ thể công danh, tài vận, tình cảm gia đạo và sức khỏe cùng **Ứng kỳ cát hung theo tháng âm lịch** cụ thể. Khống chế từ 300 - 350 từ.
 
 **Lời Khuyên Hành Động Cho Năm Nay (2026)**: Đưa ra cẩm nang khuyên đương số năm nay nên làm gì, bắt đầu dự án gì, hành động ra sao dựa trên tính chất Thập Thần và Hỷ Kỵ thần của năm 2026. Lời khuyên thiết thực, định hướng rõ việc nên tập trung củng cố nội lực, học tập hay chủ động xuất kích kinh doanh đầu tư. Khống chế từ 150 - 200 từ.
 

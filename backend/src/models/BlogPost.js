@@ -28,8 +28,9 @@ const blogPostSchema = new mongoose.Schema({
   },
   category: {
     type: String,
-    enum: ['iching', 'bazi', 'ziwei', 'marriage', 'fengshui', 'general'],
-    default: 'general'
+    required: true,
+    trim: true,
+    default: 'Chung'
   },
   tags: [{
     type: String

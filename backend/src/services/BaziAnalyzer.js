@@ -173,7 +173,7 @@ const getTuanKhong = (g, z) => {
     return [zhis[(startBranchIdx + 10) % 12], zhis[(startBranchIdx + 11) % 12]];
 };
 
-const getShenSha = (gan, zhi, { dmGan, yearZhi, dayZhi, monthZhi, yearGan, monthGan, hourGan, pillarType, gender }) => {
+const getShenSha = (gan, zhi, { dmGan, yearZhi, dayZhi, monthZhi, yearGan, monthGan, hourGan, pillarType, gender, hourZhi }) => {
     const list = [];
     const zhis = ['Tý', 'Sửu', 'Dần', 'Mão', 'Thìn', 'Tỵ', 'Ngọ', 'Mùi', 'Thân', 'Dậu', 'Tuất', 'Hợi'];
     const isNatal = ['year', 'month', 'day', 'hour'].includes(pillarType);
@@ -486,15 +486,14 @@ const getShenSha = (gan, zhi, { dmGan, yearZhi, dayZhi, monthZhi, yearGan, month
     if (hasKimDu) list.push('Kim Dư');
 
     // 22. Thiên La & Địa Võng
-    const yearNayIn = NAYIN_MAP[`${yearGan} ${yearZhi}`] || '';
-    if (yearNayIn) {
-        if (yearNayIn.includes('Hỏa') && zhi === 'Tuất') {
-            list.push('Thiên La');
-        }
-        if ((yearNayIn.includes('Thủy') || yearNayIn.includes('Thổ')) && zhi === 'Thìn') {
-            list.push('Địa Võng');
-        }
-    }
+    const isThienLa = ((dayZhi === 'Thìn' || yearZhi === 'Thìn') && zhi === 'Tỵ') ||
+                      ((dayZhi === 'Tỵ' || yearZhi === 'Tỵ') && zhi === 'Thìn');
+                      
+    const isDiaVong = ((dayZhi === 'Tuất' || yearZhi === 'Tuất') && zhi === 'Hợi') ||
+                      ((dayZhi === 'Hợi' || yearZhi === 'Hợi') && zhi === 'Tuất');
+                      
+    if (isThienLa) list.push('Thiên La');
+    if (isDiaVong) list.push('Địa Võng');
 
     // 23. Khôi Cương (Natal Only)
     if (isNatal) {
@@ -507,8 +506,8 @@ const getShenSha = (gan, zhi, { dmGan, yearZhi, dayZhi, monthZhi, yearGan, month
         }
     }
 
-    // 24. Âm Dương Sai Thác (Natal Only)
-    if (isNatal) {
+    // 24. Âm Dương Sai Thác (Natal Only - Chỉ tính ở trụ Ngày)
+    if (isNatal && pillarType === 'day') {
         const isAmDuongSaiThac = (gan === 'Bính' && zhi === 'Tý') ||
                                  (gan === 'Đinh' && zhi === 'Sửu') ||
                                  (gan === 'Bính' && zhi === 'Ngọ') ||
@@ -572,13 +571,13 @@ const getShenSha = (gan, zhi, { dmGan, yearZhi, dayZhi, monthZhi, yearGan, month
         else if (dmGan === 'Quý' && zhi === 'Mão') list.push('Lưu Hà');
     }
 
-    // 28. Huyết Nhận Sát
-    if (monthZhi) {
+    // 28. Huyết Nhận Sát (Tra theo Chi Năm yearZhi)
+    if (yearZhi) {
         const huyetNhanMap = {
-            'Tý': 'Mùi', 'Sửu': 'Ngọ', 'Dần': 'Tỵ', 'Mão': 'Thìn', 'Thìn': 'Mão', 'Tỵ': 'Dần',
-            'Ngọ': 'Sửu', 'Mùi': 'Tý', 'Thân': 'Hợi', 'Dậu': 'Tuất', 'Tuất': 'Dậu', 'Hợi': 'Thân'
+            'Tý': 'Tuất', 'Sửu': 'Dậu', 'Dần': 'Thân', 'Mão': 'Mùi', 'Thìn': 'Ngọ', 'Tỵ': 'Tỵ',
+            'Ngọ': 'Thìn', 'Mùi': 'Mão', 'Thân': 'Dần', 'Dậu': 'Sửu', 'Tuất': 'Tý', 'Hợi': 'Hợi'
         };
-        if (huyetNhanMap[monthZhi] === zhi) {
+        if (huyetNhanMap[yearZhi] === zhi) {
             list.push('Huyết Nhận');
         }
     }
@@ -598,10 +597,18 @@ const getShenSha = (gan, zhi, { dmGan, yearZhi, dayZhi, monthZhi, yearGan, month
     if (isNatal) {
         const checkTamKy = (g1, g2, g3) => {
             if (!g1 || !g2 || !g3) return null;
-            const set = [g1, g2, g3].sort().join(',');
-            if (set === 'Canh,Giáp,Mậu') return 'Thiên Thượng Tam Kỳ';
-            if (set === 'Nhâm,Quý,Tân') return 'Địa Thượng Tam Kỳ';
-            if (set === 'Ất,Bính,Đinh') return 'Nhân Gian Tam Kỳ';
+            // Thiên Thượng Tam Kỳ: Giáp - Mậu - Canh hoặc Canh - Mậu - Giáp
+            if ((g1 === 'Giáp' && g2 === 'Mậu' && g3 === 'Canh') || (g1 === 'Canh' && g2 === 'Mậu' && g3 === 'Giáp')) {
+                return 'Thiên Thượng Tam Kỳ';
+            }
+            // Địa Thượng Tam Kỳ: Nhâm - Quý - Tân hoặc Tân - Quý - Nhâm
+            if ((g1 === 'Nhâm' && g2 === 'Quý' && g3 === 'Tân') || (g1 === 'Tân' && g2 === 'Quý' && g3 === 'Nhâm')) {
+                return 'Địa Thượng Tam Kỳ';
+            }
+            // Nhân Gian Tam Kỳ: Ất - Bính - Đinh hoặc Đinh - Bính - Ất
+            if ((g1 === 'Ất' && g2 === 'Bính' && g3 === 'Đinh') || (g1 === 'Đinh' && g2 === 'Bính' && g3 === 'Ất')) {
+                return 'Nhân Gian Tam Kỳ';
+            }
             return null;
         };
 
@@ -670,9 +677,11 @@ const getShenSha = (gan, zhi, { dmGan, yearZhi, dayZhi, monthZhi, yearGan, month
     }
 
     // 33. Kim Thần
-    if (pillarType === 'hour' && (yearGan === 'Giáp' || yearGan === 'Kỷ' || dmGan === 'Giáp' || dmGan === 'Kỷ')) {
-        const hourCanChi = `${gan} ${zhi}`;
-        if (['Quý Dậu', 'Kỷ Tỵ', 'Ất Sửu'].includes(hourCanChi)) {
+    const canChiStr = `${gan} ${zhi}`;
+    if (['Quý Dậu', 'Kỷ Tỵ', 'Ất Sửu'].includes(canChiStr)) {
+        if (pillarType === 'day') {
+            list.push('Kim Thần');
+        } else if (pillarType === 'hour' && (dmGan === 'Giáp' || dmGan === 'Kỷ')) {
             list.push('Kim Thần');
         }
     }
@@ -767,17 +776,22 @@ const getShenSha = (gan, zhi, { dmGan, yearZhi, dayZhi, monthZhi, yearGan, month
     }
 
     // 42. Hồng Diễm Sát
-    let isHongDiem = false;
-    if (dmGan === 'Giáp' && zhi === 'Thân') isHongDiem = true;
-    else if (dmGan === 'Ất' && zhi === 'Ngọ') isHongDiem = true;
-    else if (dmGan === 'Bính' && zhi === 'Dần') isHongDiem = true;
-    else if (dmGan === 'Đinh' && zhi === 'Mùi') isHongDiem = true;
-    else if (dmGan === 'Mậu' && zhi === 'Thìn') isHongDiem = true;
-    else if (dmGan === 'Kỷ' && zhi === 'Thìn') isHongDiem = true;
-    else if (dmGan === 'Canh' && zhi === 'Tuất') isHongDiem = true;
-    else if (dmGan === 'Tân' && zhi === 'Dậu') isHongDiem = true;
-    else if (dmGan === 'Nhâm' && zhi === 'Tý') isHongDiem = true;
-    else if (dmGan === 'Quý' && zhi === 'Thân') isHongDiem = true;
+    const checkHongDiem = (targetGan, targetZhi) => {
+        if (!targetGan || !targetZhi) return false;
+        if (targetGan === 'Giáp' && targetZhi === 'Ngọ') return true;
+        if (targetGan === 'Ất' && targetZhi === 'Thân') return true;
+        if (targetGan === 'Bính' && targetZhi === 'Dần') return true;
+        if (targetGan === 'Đinh' && targetZhi === 'Mùi') return true;
+        if (targetGan === 'Mậu' && targetZhi === 'Thìn') return true;
+        if (targetGan === 'Kỷ' && targetZhi === 'Thìn') return true;
+        if (targetGan === 'Canh' && targetZhi === 'Thân') return true;
+        if (targetGan === 'Tân' && targetZhi === 'Dậu') return true;
+        if (targetGan === 'Nhâm' && targetZhi === 'Tý') return true;
+        if (targetGan === 'Quý' && targetZhi === 'Tuất') return true;
+        return false;
+    };
+
+    const isHongDiem = checkHongDiem(dmGan, zhi) || checkHongDiem(yearGan, zhi);
     if (isHongDiem) {
         list.push('Hồng Diễm Sát');
     }
@@ -810,6 +824,102 @@ const getShenSha = (gan, zhi, { dmGan, yearZhi, dayZhi, monthZhi, yearGan, month
             if (targetIdx !== -1 && zhis[targetIdx] === zhi) {
                 list.push('Nguyên Thần');
             }
+        }
+    }
+
+    // 46. Thiên Xá (Chỉ xuất hiện ở Trụ Ngày)
+    if (isNatal && pillarType === 'day') {
+        const isSpring = ['Dần', 'Mão', 'Thìn'].includes(monthZhi);
+        const isSummer = ['Tỵ', 'Ngọ', 'Mùi'].includes(monthZhi);
+        const isAutumn = ['Thân', 'Dậu', 'Tuất'].includes(monthZhi);
+        const isWinter = ['Hợi', 'Tý', 'Sửu'].includes(monthZhi);
+
+        const canChiDay = `${gan} ${zhi}`;
+        let isThienXa = false;
+        if (isSpring && canChiDay === 'Mậu Dần') isThienXa = true;
+        else if (isSummer && canChiDay === 'Giáp Ngọ') isThienXa = true;
+        else if (isAutumn && canChiDay === 'Mậu Thân') isThienXa = true;
+        else if (isWinter && canChiDay === 'Giáp Tý') isThienXa = true;
+
+        if (isThienXa) {
+            list.push('Thiên Xá');
+        }
+    }
+
+    // 47. Âm Chú Dương Thụ
+    if (monthZhi) {
+        const amChuMap = {
+            'Dần': 'Tý', 'Mão': 'Hợi', 'Thìn': 'Tuất', 'Tỵ': 'Dậu', 'Ngọ': 'Tuất', 'Mùi': 'Hợi',
+            'Thân': 'Tý', 'Dậu': 'Sửu', 'Tuất': 'Dần', 'Hợi': 'Mão', 'Tý': 'Dần', 'Sửu': 'Sửu'
+        };
+        if (amChuMap[monthZhi] === zhi) {
+            list.push('Âm Chú Dương Thụ');
+        }
+    }
+
+    // 48. Tứ Phế (Chỉ xuất hiện ở Trụ Ngày)
+    if (isNatal && pillarType === 'day') {
+        const isSpring = ['Dần', 'Mão', 'Thìn'].includes(monthZhi);
+        const isSummer = ['Tỵ', 'Ngọ', 'Mùi'].includes(monthZhi);
+        const isAutumn = ['Thân', 'Dậu', 'Tuất'].includes(monthZhi);
+        const isWinter = ['Hợi', 'Tý', 'Sửu'].includes(monthZhi);
+
+        const canChiDay = `${gan} ${zhi}`;
+        let isTuPhe = false;
+        if (isSpring && ['Canh Thân', 'Tân Dậu'].includes(canChiDay)) isTuPhe = true;
+        else if (isSummer && ['Nhâm Tý', 'Quý Hợi'].includes(canChiDay)) isTuPhe = true;
+        else if (isAutumn && ['Giáp Dần', 'Ất Mão'].includes(canChiDay)) isTuPhe = true;
+        else if (isWinter && ['Bính Ngọ', 'Đinh Tỵ'].includes(canChiDay)) isTuPhe = true;
+
+        if (isTuPhe) {
+            list.push('Tứ Phế');
+        }
+    }
+
+    // 49. Câu Sát & Giảo Sát
+    if (yearZhi && yearGan && gender !== undefined) {
+        const isYangYear = ['Giáp', 'Bính', 'Mậu', 'Canh', 'Nhâm'].includes(yearGan);
+        const yIdx = zhis.indexOf(yearZhi);
+        if (yIdx !== -1) {
+            const isYangMaleOrYinFemale = (gender === 1 && isYangYear) || (gender === 0 && !isYangYear);
+            const couIdx = isYangMaleOrYinFemale ? (yIdx + 3) % 12 : (yIdx - 3 + 12) % 12;
+            const jiaoIdx = isYangMaleOrYinFemale ? (yIdx - 3 + 12) % 12 : (yIdx + 3) % 12;
+
+            if (zhi === zhis[couIdx]) list.push('Câu Sát');
+            if (zhi === zhis[jiaoIdx]) list.push('Giảo Sát');
+        }
+    }
+
+    // 50. Ngũ Quỷ
+    if (monthZhi) {
+        const mIdx = zhis.indexOf(monthZhi);
+        if (mIdx !== -1) {
+            const nguQuyZhi = zhis[(mIdx + 4) % 12];
+            if (zhi === nguQuyZhi) {
+                list.push('Ngũ Quỷ');
+            }
+        }
+    }
+
+    // 51. Cách Giác (Cách Góc - Tra theo Chi Ngày dayZhi)
+    if (dayZhi) {
+        const dIdx = zhis.indexOf(dayZhi);
+        if (dIdx !== -1) {
+            const targetZhi = zhis[(dIdx + 2) % 12];
+            if (zhi === targetZhi) {
+                list.push('Cách Giác');
+            }
+        }
+    }
+
+    // 52. Tang Môn & Điếu Khách (Bản Mệnh)
+    if (yearZhi) {
+        const yIdx = zhis.indexOf(yearZhi);
+        if (yIdx !== -1) {
+            const tangMonZhi = zhis[(yIdx + 2) % 12];
+            const dieuKhachZhi = zhis[(yIdx - 2 + 12) % 12];
+            if (zhi === tangMonZhi) list.push('Tang Môn');
+            if (zhi === dieuKhachZhi) list.push('Điếu Khách');
         }
     }
 
