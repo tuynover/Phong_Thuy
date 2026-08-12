@@ -19,15 +19,20 @@ if [ -z "$MONGODB_URI" ]; then
 fi
 
 if [ -z "$1" ]; then
-    echo "Cách dùng:"
-    echo "./scripts/restore.sh backups/mongodb_xxx.tar.gz"
-    exit 1
+    # Tìm bản backup mới nhất trong thư mục backups
+    LATEST_BACKUP=$(ls -1t "$BACKUP_DIR"/mongodb_*.tar.gz 2>/dev/null | head -n 1)
+    if [ -z "$LATEST_BACKUP" ]; then
+        echo "Không tìm thấy bất kỳ file backup nào trong thư mục $BACKUP_DIR"
+        exit 1
+    fi
+    BACKUP_FILE="$LATEST_BACKUP"
+    echo "Tự động chọn bản backup mới nhất: $BACKUP_FILE"
+else
+    BACKUP_FILE="$1"
 fi
 
-BACKUP_FILE="$1"
-
 if [ ! -f "$BACKUP_FILE" ]; then
-    echo "Không tìm thấy file backup."
+    echo "Không tìm thấy file backup: $BACKUP_FILE"
     exit 1
 fi
 
