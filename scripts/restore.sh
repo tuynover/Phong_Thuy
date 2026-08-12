@@ -49,7 +49,7 @@ docker run --rm \
     --user $(id -u):$(id -g) \
     -v "$TMP_DIR:/backup" \
     mongo:8 \
-    bash -c "mongorestore --drop --uri=\"$MONGODB_URI\" /backup"
+    bash -c "mongorestore --drop --uri=\"$MONGODB_URI\" /backup/*"
 
 rm -rf "$TMP_DIR"
 
