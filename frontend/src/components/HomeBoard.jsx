@@ -23,7 +23,6 @@ import {
   BookOpen,
   Eye
 } from 'lucide-react';
-import Footer from './Footer';
 
 const categoryLabels = {
   iching: 'Kinh Dịch',
@@ -830,9 +829,9 @@ export default function HomeBoard({ onSelectModule, user, onRequireLogin, onView
               >
                 {/* Thumbnail */}
                 <div className="aspect-[16/10] w-full bg-slate-105 overflow-hidden relative border-b border-slate-100">
-                  {post.thumbnail ? (
+                  {post.thumbnailUrl ? (
                     <img 
-                      src={post.thumbnail} 
+                      src={post.thumbnailUrl} 
                       alt={post.title} 
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
@@ -881,9 +880,6 @@ export default function HomeBoard({ onSelectModule, user, onRequireLogin, onView
           </div>
         </motion.section>
       )}
-
-      {/* 7. MINIMAL ELEGANT FOOTER */}
-      <Footer onSelectModule={onSelectModule} />
 
       {/* 8. DESTINY MODAL FORM */}
       <AnimatePresence>

@@ -487,7 +487,7 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
                         </div>
                         <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
                             <span className="w-40 sm:shrink-0 text-gray-500 font-bold sm:font-normal">Can Chi:</span>
-                            <span>Giờ <strong className="text-red-700">{dateInfo.hourCanChi}</strong>, ngày <strong className="text-red-700">{dateInfo.dayCanChi}</strong>, tháng <strong className="text-amber-700">{dateInfo.monthCanChi}</strong>, năm <strong className="text-amber-700">{dateInfo.yearCanChi}</strong></span>
+                            <span>Giờ <strong className="text-red-700 whitespace-nowrap">{dateInfo.hourCanChi}</strong>, ngày <strong className="text-red-700 whitespace-nowrap">{dateInfo.dayCanChi}</strong>, tháng <strong className="text-amber-700 whitespace-nowrap">{dateInfo.monthCanChi}</strong>, năm <strong className="text-amber-700 whitespace-nowrap">{dateInfo.yearCanChi}</strong></span>
                         </div>
                         <div className="flex flex-wrap gap-x-12 gap-y-3">
                             <div className="flex gap-2">

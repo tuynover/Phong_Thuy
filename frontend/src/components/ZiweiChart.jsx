@@ -230,11 +230,11 @@ const PalaceCell = React.memo(({ palace, elementHighlight }) => {
 
         {/* Đỉnh giữa: Tên cung (in hoa đậm, CĂN GIỮA TUYỆT ĐỐI, theo ngũ hành bản cung) */}
         <span className={`text-center font-black uppercase tracking-tight text-[9px] md:text-[13px] whitespace-nowrap cursor-help ${branchColorClass}`}>
-          <Tooltip term={palace.name} unstyled={true}>
+          <Tooltip type="ziwei" term={palace.name} unstyled={true}>
             <span>{palace.name}</span>
           </Tooltip>
           {palace.isBodyPalace && (
-            <Tooltip term="Thân" unstyled={true}>
+            <Tooltip type="ziwei" term="Thân" unstyled={true}>
               <span className="text-[7.5px] md:text-[9.5px] ml-0.5 font-extrabold">(Thân)</span>
             </Tooltip>
           )}
@@ -254,7 +254,7 @@ const PalaceCell = React.memo(({ palace, elementHighlight }) => {
             const colorClass = ELEMENT_COLORS[el] || "text-neutral-900";
             return (
               <div key={idx} className="flex items-center gap-0.5 leading-none">
-                <Tooltip term={normalizeStarName(star.name)} unstyled={true}>
+                <Tooltip type="ziwei" term={normalizeStarName(star.name)} unstyled={true}>
                   <span className={`font-black text-[10px] md:text-[13.5px] tracking-tight hover:scale-105 transition-transform cursor-help ${colorClass}`}>
                     {star.name}
                     {star.brightness && (
@@ -263,7 +263,7 @@ const PalaceCell = React.memo(({ palace, elementHighlight }) => {
                   </span>
                 </Tooltip>
                 {star.mutagen && (
-                  <Tooltip term={MUTAGEN_LABELS[star.mutagen]} unstyled={true}>
+                  <Tooltip type="ziwei" term={MUTAGEN_LABELS[star.mutagen]} unstyled={true}>
                     <span className={`text-[7px] md:text-[8.5px] px-0.5 rounded border font-black uppercase tracking-wider cursor-help ${MUTAGEN_STYLES[star.mutagen]}`}>
                       {MUTAGEN_LABELS[star.mutagen]}
                     </span>
@@ -275,7 +275,7 @@ const PalaceCell = React.memo(({ palace, elementHighlight }) => {
         </div>
       ) : (
         <div className="my-1 shrink-0 flex items-center justify-center select-none cursor-help">
-          <Tooltip term="Vô Chính Diệu" unstyled={true}>
+          <Tooltip type="ziwei" term="Vô Chính Diệu" unstyled={true}>
             <span className="text-[9px] md:text-[11px] text-slate-300 font-extrabold tracking-widest hover:text-slate-400 transition-colors">VÔ CHÍNH DIỆU</span>
           </Tooltip>
         </div>
@@ -289,7 +289,7 @@ const PalaceCell = React.memo(({ palace, elementHighlight }) => {
             const el = STAR_ELEMENTS[star.name] || "Thủy";
             const colorClass = ELEMENT_COLORS[el] || "text-neutral-900";
             return (
-              <Tooltip key={idx} term={normalizeStarName(star.name)} unstyled={true}>
+              <Tooltip type="ziwei" key={idx} term={normalizeStarName(star.name)} unstyled={true}>
                 <span className={`font-semibold tracking-tight cursor-help hover:brightness-75 transition-all ${colorClass} w-full`}>
                   {star.name}
                   {star.brightness && (
@@ -307,7 +307,7 @@ const PalaceCell = React.memo(({ palace, elementHighlight }) => {
             const el = STAR_ELEMENTS[star.name] || "Thủy";
             const colorClass = ELEMENT_COLORS[el] || "text-neutral-900";
             return (
-              <Tooltip key={idx} term={normalizeStarName(star.name)} unstyled={true}>
+              <Tooltip type="ziwei" key={idx} term={normalizeStarName(star.name)} unstyled={true}>
                 <span className={`font-semibold tracking-tight cursor-help hover:brightness-75 transition-all ${colorClass} w-full`}>
                   {star.name}
                   {star.brightness && (
@@ -329,7 +329,7 @@ const PalaceCell = React.memo(({ palace, elementHighlight }) => {
 
         {/* Đáy giữa: Tên vòng Trường sinh (Mộc Dục) */}
         <span className="font-semibold text-slate-500 cursor-help hover:text-slate-700 transition-colors">
-          <Tooltip term={cleanChangsheng(palace.changsheng12)} unstyled={true}>
+          <Tooltip type="ziwei" term={cleanChangsheng(palace.changsheng12)} unstyled={true}>
             <span>{cleanChangsheng(palace.changsheng12)}</span>
           </Tooltip>
         </span>
@@ -374,11 +374,11 @@ const PalaceListView = ({ palaces, elementHighlight }) => {
             <div className="flex justify-between items-center border-b border-purple-50 pb-2">
               <div className="flex items-center gap-2">
                 <span className={`text-sm font-black uppercase tracking-wider cursor-help ${branchColorClass}`}>
-                  <Tooltip term={palace.name} unstyled={true}>
+                  <Tooltip type="ziwei" term={palace.name} unstyled={true}>
                     <span>{palace.name}</span>
                   </Tooltip>
                   {palace.isBodyPalace && (
-                    <Tooltip term="Thân" unstyled={true}>
+                    <Tooltip type="ziwei" term="Thân" unstyled={true}>
                       <span className="text-xs ml-1 font-extrabold">(Thân)</span>
                     </Tooltip>
                   )}
@@ -403,14 +403,14 @@ const PalaceListView = ({ palaces, elementHighlight }) => {
                     const colorClass = ELEMENT_COLORS[el] || "text-neutral-900";
                     return (
                       <span key={sIdx} className={`font-black text-xs bg-slate-50 px-2 py-0.5 rounded border border-gray-100 flex items-center gap-1 ${colorClass}`}>
-                        <Tooltip term={normalizeStarName(star.name)} unstyled={true}>
+                        <Tooltip type="ziwei" term={normalizeStarName(star.name)} unstyled={true}>
                           <span className="cursor-help hover:scale-105 transition-transform flex items-center gap-0.5">
                             {star.name}
                             {star.brightness && <span className="text-[9px] text-slate-400">({star.brightness})</span>}
                           </span>
                         </Tooltip>
                         {star.mutagen && (
-                          <Tooltip term={MUTAGEN_LABELS[star.mutagen]} unstyled={true}>
+                          <Tooltip type="ziwei" term={MUTAGEN_LABELS[star.mutagen]} unstyled={true}>
                             <span className={`text-[7px] px-1 rounded border font-black uppercase cursor-help ${MUTAGEN_STYLES[star.mutagen]}`}>
                               {MUTAGEN_LABELS[star.mutagen]}
                             </span>
@@ -423,7 +423,7 @@ const PalaceListView = ({ palaces, elementHighlight }) => {
               ) : (
                 <div className="flex items-center gap-1.5 cursor-help select-none">
                   <span className="text-[10px] font-bold text-slate-400">Chính tinh:</span>
-                  <Tooltip term="Vô Chính Diệu" unstyled={true}>
+                  <Tooltip type="ziwei" term="Vô Chính Diệu" unstyled={true}>
                     <span className="text-xs font-black text-slate-300 bg-slate-50/50 px-2 py-0.5 rounded border border-dashed border-slate-200 hover:text-slate-400 transition-colors">VÔ CHÍNH DIỆU</span>
                   </Tooltip>
                 </div>
@@ -436,7 +436,7 @@ const PalaceListView = ({ palaces, elementHighlight }) => {
                     <div className="flex flex-wrap gap-1.5 items-center">
                       <span className="text-[10px] font-bold text-emerald-600">Cát tinh:</span>
                       {leftStars.map((star, sIdx) => (
-                        <Tooltip key={sIdx} term={normalizeStarName(star.name)} unstyled={true}>
+                        <Tooltip type="ziwei" key={sIdx} term={normalizeStarName(star.name)} unstyled={true}>
                           <span className={`text-xs font-semibold cursor-help hover:brightness-75 transition-all ${ELEMENT_COLORS[STAR_ELEMENTS[star.name] || 'Thủy']}`}>
                             {star.name}{star.brightness ? `(${star.brightness})` : ''}
                           </span>
@@ -448,7 +448,7 @@ const PalaceListView = ({ palaces, elementHighlight }) => {
                     <div className="flex flex-wrap gap-1.5 items-center">
                       <span className="text-[10px] font-bold text-rose-600">Sát/Bại tinh:</span>
                       {rightStars.map((star, sIdx) => (
-                        <Tooltip key={sIdx} term={normalizeStarName(star.name)} unstyled={true}>
+                        <Tooltip type="ziwei" key={sIdx} term={normalizeStarName(star.name)} unstyled={true}>
                           <span className={`text-xs font-semibold cursor-help hover:brightness-75 transition-all ${ELEMENT_COLORS[STAR_ELEMENTS[star.name] || 'Thủy']}`}>
                             {star.name}{star.brightness ? `(${star.brightness})` : ''}
                           </span>
@@ -464,7 +464,7 @@ const PalaceListView = ({ palaces, elementHighlight }) => {
             <div className="flex justify-between items-center border-t border-purple-50/50 pt-2 text-[10px] text-slate-500 font-semibold mt-1">
               <span className="flex items-center gap-1">
                 Trường sinh: 
-                <Tooltip term={palace.changsheng12 === "Mục Dục" ? "Mộc Dục" : palace.changsheng12} unstyled={true}>
+                <Tooltip type="ziwei" term={palace.changsheng12 === "Mục Dục" ? "Mộc Dục" : palace.changsheng12} unstyled={true}>
                   <strong className="text-slate-700 cursor-help hover:text-slate-900 transition-colors">{palace.changsheng12 === "Mục Dục" ? "Mộc Dục" : palace.changsheng12}</strong>
                 </Tooltip>
               </span>
@@ -578,18 +578,18 @@ const ZiweiChart = ({ chartData }) => {
                   <div className="grid grid-cols-2 gap-1 md:gap-3 bg-purple-50/20 p-1 md:p-4 rounded-xl md:rounded-2xl border border-purple-100/30 text-[7px] md:text-sm">
                     <div className="flex flex-col">
                       <span className="text-[6px] md:text-[10px] text-slate-400 font-extrabold uppercase tracking-wider mb-0.5">Bản Mệnh Cục</span>
-                      <Tooltip term={chartData.fiveElementsClass || "Kim Tứ Cục"} unstyled={true}>
+                      <Tooltip type="ziwei" term={chartData.fiveElementsClass || "Kim Tứ Cục"} unstyled={true}>
                         <span className="font-extrabold text-slate-900 leading-none cursor-help hover:text-slate-600">{chartData.fiveElementsClass || "Kim Tứ Cục"}</span>
                       </Tooltip>
                     </div>
                     <div className="flex flex-col">
                       <span className="text-[6px] md:text-[10px] text-slate-400 font-extrabold uppercase tracking-wider mb-0.5">Mệnh / Thân Chủ</span>
                       <span className="font-extrabold text-slate-900 leading-none flex items-center gap-0.5">
-                        <Tooltip term={chartData.soul || "Liêm Trinh"} unstyled={true}>
+                        <Tooltip type="ziwei" term={chartData.soul || "Liêm Trinh"} unstyled={true}>
                           <span className="cursor-help hover:text-slate-600">{chartData.soul || "Liêm Trinh"}</span>
                         </Tooltip>
                         <span className="text-slate-300 font-normal">/</span>
-                        <Tooltip term={chartData.body || "Thiên Lương"} unstyled={true}>
+                        <Tooltip type="ziwei" term={chartData.body || "Thiên Lương"} unstyled={true}>
                           <span className="cursor-help hover:text-slate-600">{chartData.body || "Thiên Lương"}</span>
                         </Tooltip>
                       </span>
@@ -650,18 +650,18 @@ const ZiweiChart = ({ chartData }) => {
             <div className="grid grid-cols-2 gap-2 text-xs bg-purple-50/20 p-3 rounded-xl border border-purple-100/20">
               <div className="flex flex-col">
                 <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Bản Mệnh Cục</span>
-                <Tooltip term={chartData.fiveElementsClass || "Kim Tứ Cục"} unstyled={true}>
+                <Tooltip type="ziwei" term={chartData.fiveElementsClass || "Kim Tứ Cục"} unstyled={true}>
                   <span className="font-extrabold text-slate-900 cursor-help hover:text-slate-600">{chartData.fiveElementsClass || "Kim Tứ Cục"}</span>
                 </Tooltip>
               </div>
               <div className="flex flex-col">
                 <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Mệnh / Thân Chủ</span>
                 <span className="font-extrabold text-slate-900 flex items-center gap-0.5">
-                  <Tooltip term={chartData.soul || "Liêm Trinh"} unstyled={true}>
+                  <Tooltip type="ziwei" term={chartData.soul || "Liêm Trinh"} unstyled={true}>
                     <span className="cursor-help hover:text-slate-600">{chartData.soul || "Liêm Trinh"}</span>
                   </Tooltip>
                   <span className="text-slate-350 font-normal">/</span>
-                  <Tooltip term={chartData.body || "Thiên Lương"} unstyled={true}>
+                  <Tooltip type="ziwei" term={chartData.body || "Thiên Lương"} unstyled={true}>
                     <span className="cursor-help hover:text-slate-600">{chartData.body || "Thiên Lương"}</span>
                   </Tooltip>
                 </span>

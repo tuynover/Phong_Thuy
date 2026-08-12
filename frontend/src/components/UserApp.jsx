@@ -667,7 +667,8 @@ export default function UserApp({ onSwitchToAdmin }) {
     appMode === 'ziwei';
 
   return (
-    <div className={`min-h-screen font-sans text-neutral-800 flex flex-col ${appMode === 'home' ? 'bg-slate-50' : 'bg-[#f8f5f0]'}`}>
+    <div className={`min-h-screen font-sans text-neutral-800 flex flex-col relative z-0 ${appMode === 'home' ? 'bg-slate-50' : 'bg-[#f8f5f0] lg:bg-transparent non-home-layout'}`}>
+      {appMode !== 'home' && <div className="hidden lg:block desktop-mystic-bg"></div>}
       {/* Toast Notification */}
       <AnimatePresence>
         {toastMessage && (
@@ -688,7 +689,7 @@ export default function UserApp({ onSwitchToAdmin }) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.25, ease: "easeOut" }}
-        className={`sticky top-0 z-40 w-full backdrop-blur-md border-b border-slate-200/50 py-2.5 px-3 sm:px-4 shadow-sm ${appMode === 'home' ? 'bg-white/80' : 'bg-[#f8f5f0]/95'}`}
+        className={`sticky top-0 z-40 w-full backdrop-blur-md border-b border-slate-200/50 py-2.5 px-3 sm:px-4 shadow-sm ${appMode === 'home' ? 'bg-white/80' : 'bg-[#f8f5f0]/95 lg:bg-white/70'}`}
       >
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-3 sm:gap-6 w-full relative">
           
@@ -1558,7 +1559,7 @@ export default function UserApp({ onSwitchToAdmin }) {
       </div>
 
       {/* GLOBAL FOOTER */}
-      <Footer onSelectModule={handleSelectModule} />
+      <Footer onSelectModule={handleSelectModule} appMode={appMode} />
 
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} onLoginSuccess={handleLoginSuccess} />
       <UpdateBaziModal 

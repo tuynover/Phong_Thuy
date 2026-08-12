@@ -435,10 +435,10 @@ describe('BaziAnalyzer Comprehensive Unit Test Suite', () => {
             expect(res.canChi.hour.shenSha).toContain('Huyết Nhận');
         });
 
-        test('Should correctly detect Quan Phù on matching pillars', () => {
+        test('Should verify Quan Phù is not detected on static pillars', () => {
             // Year is Tý (e.g. 1996 Bính Tý), meets Thìn branch
             const res = BaziAnalyzer.analyze('1996-05-15', '07:30', 1); // 07:30 is Thìn hour
-            expect(res.canChi.hour.shenSha).toContain('Quan Phù');
+            expect(res.canChi.hour.shenSha).not.toContain('Quan Phù');
         });
 
         test('Should correctly sub-classify Lộc Thần into Tuế Lộc, Kiến Lộc, Chuyên Lộc, Quy Lộc', () => {
@@ -558,17 +558,39 @@ describe('BaziAnalyzer Comprehensive Unit Test Suite', () => {
             expect(hasHocDuong || hasTuQuan || res).toBeTruthy();
         });
 
-        test('Should correctly detect Đà La, Tai Sát, Đại Hao and Tiểu Hao with explicit assertions', () => {
-            // Test date for year Tý (1996 Bính Tý):
-            // Dai Hao is Ngọ, Tieu Hao is Tỵ, Tu Phu is Mùi, Benh Phu is Hợi
-            const res = BaziAnalyzer.analyze('1996-05-15', '07:30', 1);
-            const allShenSha = [
-                ...res.canChi.year.shenSha,
-                ...res.canChi.month.shenSha,
-                ...res.canChi.day.shenSha,
-                ...res.canChi.hour.shenSha
-            ];
-            expect(allShenSha).toBeDefined();
+        test('Should correctly detect Đại Hao and Tuế Phá under new academic rules', () => {
+            // Person born on 1996-05-15 13:30 (Bính Tý year, Kỷ Mùi hour, Nhâm Ngọ day), Male.
+            const res = BaziAnalyzer.analyze('1996-05-15', '13:30', 1);
+
+            // 1. Static (Bản mệnh):
+            // - Nguyên Thần of Tý (Male, Yang Year) is Mùi (hour branch is Mùi). It should be renamed to 'Đại Hao'.
+            expect(res.canChi.hour.shenSha).toContain('Đại Hao');
+            expect(res.canChi.hour.shenSha).not.toContain('Nguyên Thần');
+
+            // - Opposing branch of Tý is Ngọ (day branch is Ngọ). The old check assigned 'Đại Hao' here. Now it should NOT be flagged.
+            expect(res.canChi.day.shenSha).not.toContain('Đại Hao');
+
+            // 2. Dynamic (Vận hạn / Lưu niên):
+            // - Look at 2026 Bính Ngọ where year branch is Tý.
+            // - For dynamic/annual stars on pillars (annualShenSha), it should NOT receive 'Tuế Phá' or 'Đại Hao'.
+            // - For the nienVanTinh list (left-side), it should receive 'Tuế Phá' but NOT 'Đại Hao'.
+            let found2026 = null;
+            for (const yun of res.daYun) {
+                const ln = yun.liuNian.find(y => y.year === 2026);
+                if (ln) {
+                    found2026 = ln;
+                    break;
+                }
+            }
+            if (found2026) {
+                expect(found2026.annualShenSha.year).not.toContain('Tuế Phá');
+                expect(found2026.annualShenSha.year).not.toContain('Đại Hao');
+                
+                const hasNienVanTuePha = found2026.nienVanTinh.some(t => t.name === 'Tuế Phá');
+                const hasNienVanDaiHao = found2026.nienVanTinh.some(t => t.name === 'Đại Hao');
+                expect(hasNienVanTuePha).toBeTruthy();
+                expect(hasNienVanDaiHao).toBeFalsy();
+            }
         });
 
         test('Should correctly detect Kim Thần on matching Day or Hour pillar with strict stem conditions', () => {
@@ -900,7 +922,7 @@ describe('BaziAnalyzer Comprehensive Unit Test Suite', () => {
                 expect(['Thuy', 'Moc']).toContain(resWeakNormal.hyThan);
             });
 
-            test('Should correctly identify new Shen Sha stars: Thiên Xá, Tứ Phế, Âm Chú Dương Thụ, Câu Sát, Giảo Sát, Ngũ Quỷ, Cách Giác, Tang Môn, Điếu Khách', () => {
+            test('Should correctly identify new Shen Sha stars: Thiên Xá, Tứ Phế, Âm Chú Dương Thụ, Câu Sát, Giảo Sát, Ngũ Quỷ, Cách Giác', () => {
                 // 1. Thiên Xá: Spring month + Mậu Dần day
                 const resThienXa = BaziAnalyzer.analyze('03/03/1992', '12:00', 1);
                 expect(resThienXa.canChi.day.shenSha).toContain('Thiên Xá');

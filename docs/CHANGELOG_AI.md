@@ -3,20 +3,48 @@
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
 
-## 📅 Phiên bản: Cập nhật Thuật toán Thần sát Huyết Nhận Sát & Cách Giác / Cách Góc (10/08/2026)
+## 📅 Phiên bản: Phân tách Từ điển Bát Tự & Tử Vi, Thống nhất Tên Cát Thần & Dọn dẹp Thần sát Tĩnh (12/08/2026)
+
+### 🪐 Thuật Toán Học Thuật Bát Tự ([BaziAnalyzer.js](file:///t:/Phongthuy/backend/src/services/BaziAnalyzer.js))
+- **Dọn Dẹp Thần Sát Tĩnh**: Loại bỏ hoàn toàn các sao thuộc Vòng Thái Tuế Lưu Niên ra khỏi bảng thần sát tĩnh bản mệnh gốc:
+  - Loại bỏ sao **Tử Phù**, **Bệnh Phù**, **Tang Môn**, **Điếu Khách** tĩnh.
+  - Loại bỏ sao **Quan Phù** và **Tiểu Hao** tĩnh.
+  - Chỉ giữ lại các sao này ở vòng vận hạn động Thái Tuế (Đại vận / Lưu niên).
+- **Thống Nhất Tên Cát Thần Bát Tự**: Đồng bộ hóa tên hiển thị của các cát thần Bát Tự tĩnh sang dạng đầy đủ có hậu tố **"Quý Nhân"** (ví dụ: *Thái Cực Quý Nhân, Thiên Đức Quý Nhân, Nguyệt Đức Quý Nhân, Văn Xương Quý Nhân, Phúc Tinh Quý Nhân, Quốc Ấn Quý Nhân, Học Đường Quý Nhân, Từ Quán Quý Nhân*) để đồng bộ với phần động và tránh nhầm lẫn với Tử Vi.
+
+### 🎨 Từ Điển & Chú Thích Giao Diện Frontend ([concepts.js](file:///t:/Phongthuy/frontend/src/data/concepts.js), [Tooltip.jsx](file:///t:/Phongthuy/frontend/src/components/Tooltip.jsx), [ZiweiChart.jsx](file:///t:/Phongthuy/frontend/src/components/ZiweiChart.jsx))
+- **Phân Tách Từ Điển Chuyên Biệt**: Tách file từ điển dùng chung `concepts.js` cũ thành 2 file chuyên biệt hoàn toàn độc lập nằm trong `src/data/`:
+  - `bazi_concepts.js`: Chứa các từ khóa Lục Hào, Thiên Can, Địa Chi, Thập Thần, Vòng Trường Sinh, Tiết Khí, và Thần sát Bát Tự.
+  - `ziwei_concepts.js`: Chứa các từ khóa Chính tinh, Tứ Hóa, Cát/Sát tinh phụ trợ, 12 Cung và Cách cục Tử Vi.
+- **Sửa Lỗi Chú Thích Thái Cực Quý Nhân**: Bổ sung định nghĩa đầy đủ học thuật cho sao **Thái Cực** và **Thái Cực Quý Nhân** vào từ điển `bazi_concepts.js`.
+- **Cập Nhật Tooltip & Phân Loại Tra Cứu**:
+  - Nâng cấp component `Tooltip.jsx` để nhận prop `type` (`"bazi"` hoặc `"ziwei"`). Dựa vào prop này để tra cứu trong từ điển tương ứng, tránh nhầm lẫn giữa các sao trùng tên của hai môn (như Kình Dương, Đà La, Văn Xương...).
+  - Cập nhật toàn bộ các thẻ `<Tooltip>` trong `ZiweiChart.jsx` truyền tham số `type="ziwei"` để tra từ điển Tử Vi chuẩn xác.
+
+### 🧪 Bộ Kiểm Thử Tự Động Backend ([BaziAnalyzer.test.js](file:///t:/Phongthuy/backend/tests/services/BaziAnalyzer.test.js))
+- **Cập Nhật Tên Test Case**: Sửa đổi tên ca kiểm thử thần sát để phản ánh chính xác việc loại bỏ Tang Môn và Điếu Khách khỏi bản mệnh tĩnh.
+
+### 📄 Tài Liệu Nghiệp Vụ ([BUSINESS_RULES.md](file:///t:/Phongthuy/docs/BUSINESS_RULES.md))
+- **Cập Nhật Số Lượng Thần Sát**: Loại bỏ định nghĩa tĩnh của Tử Phù, Bệnh Phù, Tang Môn, Điếu Khách và cập nhật tổng số lượng thần sát tĩnh của hệ thống xuống còn **37 Thần Sát**.
+
+## 📅 Phiên bản: Cập nhật Thuật toán Thần sát Huyết Nhận Sát, Cách Giác, Đại Hao & Tuế Phá (10/08/2026)
 
 ### 🪐 Thuật Toán Học Thuật Bát Tự ([BaziAnalyzer.js](file:///t:/Phongthuy/backend/src/services/BaziAnalyzer.js))
 - **Nâng Cấp Huyết Nhận Sát**: Thay đổi hoàn toàn logic xác định Huyết Nhận Sát để đối chiếu dựa trên **Địa Chi của năm sinh (Niên Chi)** thay vì Địa Chi của tháng sinh (Nguyệt Chi) như trước đây:
   - Cập nhật bảng tra cứu học thuật mới: Tý->Tuất, Sửu->Dậu, Dần->Thân, Mão->Mùi, Thìn->Ngọ, Tỵ->Tỵ, Ngọ->Thìn, Mùi->Mão, Thân->Dần, Dậu->Sửu, Tuất->Tý, Hợi->Hợi.
 - **Nâng Cấp Cách Giác (Cách Góc)**: Thay thế thuật toán kiểm tra sự tương tác hai chiều giữa Địa Chi ngày và giờ cũ. Logic mới chỉ sử dụng **Địa Chi ngày sinh (Nhật Chi - `dayZhi`)** làm chuẩn:
   - Bất kỳ trụ nào có Địa Chi tiến lên đúng 2 cung Địa Chi so với Nhật Chi (`(dIdx + 2) % 12`) thì trụ đó được ghi nhận có thần sát Cách Giác.
+- **Nâng Cấp Đại Hao & Tuế Phá**: Căn chỉnh chính xác theo yêu cầu hiển thị trực quan:
+  - **Đại Hao (Thần sát tĩnh)**: Đổi tên sao "Nguyên Thần" tĩnh thành **Đại Hao**. Sao này hiển thị trên lá số tĩnh gốc, cấu trúc đối chiếu trụ vận hạn (Hình 1) và cột niên biểu bên phải (Hình 2). Đồng thời loại bỏ sao Đại Hao đối xung cũ ở tĩnh.
+  - **Tuế Phá (Thần sát động)**: Chỉ hiển thị ở cột bên trái "Niên Vận Tinh 2026" (Hình 2). Loại bỏ hoàn toàn sao Tuế Phá và Đại Hao động khỏi việc chiếu lên các trụ trong niên biểu và đối chiếu trụ tổng hợp. Xóa bỏ dòng Đại Hao động ở cột Niên Vận Tinh.
 
 ### 🧪 Bộ Kiểm Thử Tự Động Backend ([BaziAnalyzer.test.js](file:///t:/Phongthuy/backend/tests/services/BaziAnalyzer.test.js))
 - **Cập Nhật Unit Tests Cho Huyết Nhận**: Sửa đổi ca kiểm thử để xác minh Huyết Nhận được kích hoạt thành công từ Niên Chi kết hợp Địa Chi các trụ khác theo bảng quy chiếu mới (sử dụng ngày sinh `1996-05-15` có năm Bính Tý và giờ Tuất).
 - **Cập Nhật Unit Tests Cho Cách Giác**: Sửa đổi ca kiểm thử để đảm bảo Cách Giác chỉ kích hoạt tại các trụ khớp chuẩn xác với Chi ngày tiến 2 (sử dụng ngày sinh `1990-02-04` lúc `04:30` có ngày Mậu Tý và giờ Giáp Dần $\rightarrow$ ghi nhận Cách Giác tại trụ giờ `Dần`, và không còn ghi nhận Cách Giác tại trụ ngày `Tý`).
+- **Cập Nhật Unit Tests Cho Đại Hao / Tuế Phá**: Viết lại ca kiểm thử chi tiết xác nhận: trụ Mùi của ngày `1996-05-15 13:30` (được tính là Nguyên Thần) nhận nhãn `'Đại Hao'` thay vì `'Nguyên Thần'`, trụ ngày Ngọ **không** nhận `'Đại Hao'` tĩnh, và ở lưu niên động 2026 Bính Ngọ, các trụ vận hạn động **không** bị gán `'Tuế Phá'` hay `'Đại Hao'` động chiếu, còn danh sách Niên Vận Tinh bên trái có `'Tuế Phá'` và **không** có `'Đại Hao'`.
 
 ### 📄 Tài Liệu Nghiệp Vụ ([BUSINESS_RULES.md](file:///t:/Phongthuy/docs/BUSINESS_RULES.md))
-- **Định Nghĩa Thần Sát**: Cập nhật định nghĩa học thuật của **Huyết Nhận Sát** ở mục 28 chỉ rõ cách tra dựa trên Địa Chi năm sinh. Thêm định nghĩa cụ thể cho **Cách Giác (Cách Góc)** ở mục 33 và cập nhật tổng số lượng thần sát trong hệ thống lên **41 Thần Sát**.
+- **Định Nghĩa Thần Sát**: Cập nhật định nghĩa học thuật của **Huyết Nhận Sát** ở mục 28 chỉ rõ cách tra dựa trên Địa Chi năm sinh. Thêm định nghĩa cụ thể cho **Cách Giác (Cách Góc)** ở mục 33, **Đại Hao (Nguyên Thần)** ở mục 34, **Tuế Phá** ở mục 35, và cập nhật tổng số lượng thần sát trong hệ thống lên **41 Thần Sát**.
 
 ## 📅 Phiên bản: Viết Bài Thiên Ất Quý Nhân & Thiên Nguyệt Đức, Tích Hợp Hiển Thị Thumbnail Đầu Chi Tiết, Tối Ưu Sắp Xếp Mobile & Markdown Regex (09/08/2026)
 

@@ -190,3 +190,65 @@
   animation-play-state: paused;
 }
 
+/* Premium Desktop Feng Shui Background (Light Theme) - Super Lightened */
+@media (min-width: 1024px) {
+  .desktop-mystic-bg {
+    background-color: #fdfefe;
+    background-image: 
+      radial-gradient(circle at 15% 25%, rgba(224, 231, 255, 0.22) 0%, transparent 45%), /* indigo-100 */
+      radial-gradient(circle at 85% 15%, rgba(243, 232, 255, 0.18) 0%, transparent 45%), /* purple-100 */
+      radial-gradient(circle at 50% 80%, rgba(241, 245, 249, 0.3) 0%, transparent 55%), /* slate-100 */
+      radial-gradient(circle at 80% 80%, rgba(219, 234, 254, 0.15) 0%, transparent 50%), /* blue-100 */
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.008'/%3E%3C/svg%3E");
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    animation: pulse-bg 15s ease-in-out infinite alternate;
+  }
+
+  @keyframes pulse-bg {
+    0% { opacity: 0.98; transform: scale(1); }
+    100% { opacity: 1; transform: scale(1.005); }
+  }
+
+  /* Make display panels on non-home pages much brighter and whiter */
+  .non-home-layout .bg-white\/40 { background-color: rgba(255, 255, 255, 0.85) !important; }
+  .non-home-layout .bg-white\/50 { background-color: rgba(255, 255, 255, 0.90) !important; }
+  .non-home-layout .bg-white\/60 { background-color: rgba(255, 255, 255, 0.94) !important; }
+  .non-home-layout .bg-white\/70 { background-color: rgba(255, 255, 255, 0.97) !important; }
+  .non-home-layout .bg-white\/80 { background-color: rgba(255, 255, 255, 0.985) !important; }
+  .non-home-layout .bg-white\/90 { background-color: rgba(255, 255, 255, 0.99) !important; }
+  .non-home-layout .bg-white\/95 { background-color: #ffffff !important; }
+
+  /* Override sub-containers, tables, and panels to be whiter */
+  .non-home-layout .bg-slate-50 { background-color: rgba(255, 255, 255, 0.8) !important; }
+  .non-home-layout .bg-slate-100 { background-color: rgba(255, 255, 255, 0.9) !important; }
+  .non-home-layout .bg-slate-50\/30 { background-color: rgba(255, 255, 255, 0.6) !important; }
+  .non-home-layout .bg-slate-50\/50 { background-color: rgba(255, 255, 255, 0.85) !important; }
+  .non-home-layout .bg-slate-100\/80 { background-color: rgba(255, 255, 255, 0.92) !important; }
+  
+  .non-home-layout .bg-amber-50\/30 { background-color: rgba(255, 255, 255, 0.65) !important; }
+  .non-home-layout .bg-amber-50\/40 { background-color: rgba(255, 255, 255, 0.75) !important; }
+  .non-home-layout .bg-amber-50\/50 { background-color: rgba(255, 255, 255, 0.85) !important; }
+  .non-home-layout .bg-amber-50 { background-color: rgba(255, 255, 255, 0.92) !important; }
+  
+  .non-home-layout .bg-blue-50\/40 { background-color: rgba(255, 255, 255, 0.75) !important; }
+  .non-home-layout .bg-blue-50 { background-color: rgba(255, 255, 255, 0.92) !important; }
+
+  /* Neutralize input background gradients to solid bright white */
+  .non-home-layout .bg-gradient-to-br.from-amber-50.to-orange-50 {
+    background-image: none !important;
+    background-color: #ffffff !important;
+  }
+  .non-home-layout .bg-gradient-to-br.from-slate-50.to-blue-50 {
+    background-image: none !important;
+    background-color: #ffffff !important;
+  }
+}
+

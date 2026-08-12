@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { getConcept } from '../services/api';
-import { conceptDictionary } from '../data/concepts';
+import { baziConcepts } from '../data/bazi_concepts';
+import { ziweiConcepts } from '../data/ziwei_concepts';
 
-const Tooltip = ({ term, children, className, placement = 'top', unstyled = false }) => {
+const Tooltip = ({ term, children, className, placement = 'top', unstyled = false, type = 'bazi' }) => {
     const termStr = typeof term === 'string' ? term : (term ? String(term) : '');
     const [open, setOpen] = useState(false);
     const [info, setInfo] = useState(null);
@@ -95,8 +96,9 @@ const Tooltip = ({ term, children, className, placement = 'top', unstyled = fals
     const loadConceptData = async () => {
         if (!info && termStr) {
             const trimmedTerm = termStr.trim();
-            if (conceptDictionary[trimmedTerm]) {
-                setInfo(conceptDictionary[trimmedTerm]);
+            const dict = type === 'ziwei' ? ziweiConcepts : baziConcepts;
+            if (dict[trimmedTerm]) {
+                setInfo(dict[trimmedTerm]);
             } else {
                 setLoading(true);
                 try {
