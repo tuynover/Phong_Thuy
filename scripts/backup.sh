@@ -36,10 +36,10 @@ tar -czf "$BACKUP_DIR/mongodb_$DATE.tar.gz" -C "$TMP_DIR" .
 
 rm -rf "$TMP_DIR"
 
-# Giữ lại 7 bản backup mới nhất
-ls -1t "$BACKUP_DIR"/mongodb_*.tar.gz 2>/dev/null | tail -n +8 | xargs -r rm
-# Chỉ giữ lại 7 file backup mới nhất
-find "$BACKUP_DIR" -name "*.tar.gz" -type f | sort | head -n -7 | xargs -r rm -f
+# Giữ lại 9 bản backup mới nhất
+ls -1t "$BACKUP_DIR"/mongodb_*.tar.gz 2>/dev/null | tail -n +10 | xargs -r rm
+# Chỉ giữ lại 9 file backup mới nhất
+find "$BACKUP_DIR" -name "*.tar.gz" -type f | sort | head -n -9 | xargs -r rm -f
 echo "Backup hoàn tất:"
 echo "$BACKUP_DIR/mongodb_$DATE.tar.gz"
 "$PROJECT_DIR/scripts/upload_drive.sh"
