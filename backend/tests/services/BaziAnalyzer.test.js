@@ -698,8 +698,8 @@ describe('BaziAnalyzer Comprehensive Unit Test Suite', () => {
             const res = BaziAnalyzer.analyze('27/08/2004', '07:30', 1);
             expect(res.analysis.academicFlags.ducTuLenh).toBe(false);
             expect(res.analysis.energy7Levels.level).toBe('NHƯỢC');
-            expect(res.dungThan).toBe('Hoa');
-            expect(res.hyThan).toBe('Tho');
+            expect(res.dungThan).toBe('Hỏa');
+            expect(res.hyThan).toBe('Thổ');
         });
 
         test('Regression: check academic isDucTuLenh rules across all 5 elements and seasonal interactions', () => {
@@ -896,8 +896,8 @@ describe('BaziAnalyzer Comprehensive Unit Test Suite', () => {
                 // - Kỵ Thần (conceptual): Kim, Mộc, Thủy (Khắc/Tiet/Hao)
                 const resWeak = BaziAnalyzer.analyze('27/08/2004', '07:30', 1);
                 expect(resWeak.analysis.energy7Levels.level).toBe('NHƯỢC');
-                expect(resWeak.dungThan).toBe('Hoa');
-                expect(resWeak.hyThan).toBe('Tho');
+                expect(resWeak.dungThan).toBe('Hỏa');
+                expect(resWeak.hyThan).toBe('Thổ');
                 
                 // Assert kỵ elements (should be Kim, Moc, Thuy)
                 const kycElementsWeak = ['Kim', 'Moc', 'Thuy'];
@@ -911,15 +911,15 @@ describe('BaziAnalyzer Comprehensive Unit Test Suite', () => {
                 const resStrong = BaziAnalyzer.analyze('12/03/1985', '08:00', 1);
                 expect(resStrong.analysis.energy7Levels.level).toContain('VƯỢNG');
                 // Thân Vượng -> Dụng/Hỷ phải giúp xì hơi/khắc chế (Kim, Thổ, Hỏa)
-                expect(['Kim', 'Tho', 'Hoa']).toContain(resStrong.dungThan);
-                expect(['Kim', 'Tho', 'Hoa']).toContain(resStrong.hyThan);
+                expect(['Kim', 'Thổ', 'Hỏa']).toContain(resStrong.dungThan);
+                expect(['Kim', 'Thổ', 'Hỏa']).toContain(resStrong.hyThan);
 
                 // Scenario C: Mệnh Thân Nhược thông thường (15/10/1992 14:00)
                 const resWeakNormal = BaziAnalyzer.analyze('15/10/1992', '14:00', 1);
                 expect(['SUY', 'NHƯỢC', 'CỰC NHƯỢC']).toContain(resWeakNormal.analysis.energy7Levels.level);
                 // Thân Nhược -> Dụng/Hỷ cần sinh trợ (Thủy, Mộc)
-                expect(['Thuy', 'Moc']).toContain(resWeakNormal.dungThan);
-                expect(['Thuy', 'Moc']).toContain(resWeakNormal.hyThan);
+                expect(['Thủy', 'Mộc']).toContain(resWeakNormal.dungThan);
+                expect(['Thủy', 'Mộc']).toContain(resWeakNormal.hyThan);
             });
 
             test('Should correctly identify new Shen Sha stars: Thiên Xá, Tứ Phế, Âm Chú Dương Thụ, Câu Sát, Giảo Sát, Ngũ Quỷ, Cách Giác', () => {

@@ -1584,7 +1584,7 @@ class BaziAnalyzer {
         };
     }
 
-    determineCachCuc(dayGan, monthZhi, canChi, elementScore) {
+    determineCachCuc(dayGan, monthZhi, canChi, elementScore, isTongCach = true) {
         const exposedGans = [canChi.year.gan, canChi.month.gan, canChi.hour.gan];
         const allStems = [canChi.year.gan, canChi.month.gan, canChi.day.gan, canChi.hour.gan];
         const allZhis = [canChi.year.zhi, canChi.month.zhi, canChi.day.zhi, canChi.hour.zhi];
@@ -1593,35 +1593,35 @@ class BaziAnalyzer {
         if (!dmElem) return "Chính Quan cách";
         
         // 1. Khúc Trực cách (Mộc độc vượng)
-        if ((dayGan === 'Giáp' || dayGan === 'Ất') && 
+        if (isTongCach && (dayGan === 'Giáp' || dayGan === 'Ất') && 
             ['Dần', 'Mão', 'Thìn'].includes(monthZhi) && 
             !allStems.includes('Canh') && !allStems.includes('Tân') && !allZhis.includes('Dậu')) {
             return "Khúc Trực cách (Mộc độc vượng)";
         }
         
         // 2. Viêm Thượng cách (Hỏa độc vượng)
-        if ((dayGan === 'Bính' || dayGan === 'Đinh') && 
+        if (isTongCach && (dayGan === 'Bính' || dayGan === 'Đinh') && 
             ['Tỵ', 'Ngọ', 'Mùi'].includes(monthZhi) && 
             !allStems.includes('Nhâm') && !allStems.includes('Quý') && !allZhis.includes('Hợi') && !allZhis.includes('Tý')) {
             return "Viêm Thượng cách (Hỏa độc vượng)";
         }
         
         // 3. Gia Tường cách (Thổ độc vượng)
-        if ((dayGan === 'Mậu' || dayGan === 'Kỷ') && 
+        if (isTongCach && (dayGan === 'Mậu' || dayGan === 'Kỷ') && 
             ['Thìn', 'Tuất', 'Sửu', 'Mùi'].includes(monthZhi) && 
             !allStems.includes('Giáp') && !allStems.includes('Ất') && !allZhis.includes('Dần') && !allZhis.includes('Mão')) {
             return "Gia Tường cách (Thổ độc vượng)";
         }
         
         // 4. Tòng Cách cách (Kim độc vượng)
-        if ((dayGan === 'Canh' || dayGan === 'Tân') && 
+        if (isTongCach && (dayGan === 'Canh' || dayGan === 'Tân') && 
             ['Thân', 'Dậu', 'Tuất'].includes(monthZhi) && 
             !allStems.includes('Bính') && !allStems.includes('Đinh') && !allZhis.includes('Ngọ') && !allZhis.includes('Tỵ')) {
             return "Tòng Cách cách (Kim độc vượng)";
         }
         
         // 5. Nhuận Hạ cách (Thủy độc vượng)
-        if ((dayGan === 'Nhâm' || dayGan === 'Quý') && 
+        if (isTongCach && (dayGan === 'Nhâm' || dayGan === 'Quý') && 
             ['Hợi', 'Tý', 'Thìn'].includes(monthZhi) && 
             !allStems.includes('Mậu') && !allStems.includes('Kỷ') && !allZhis.includes('Mùi') && !allZhis.includes('Tuất')) {
             return "Nhuận Hạ cách (Thủy độc vượng)";
@@ -3345,7 +3345,19 @@ class BaziAnalyzer {
                         const ratio = scoreCon / scoreCha;
                         const activation = smoothStep(2.0, 3.0, ratio);
                         const maxPenalty = -0.4 * (scoreCon - 2.5 * scoreCha);
-                        const penalty = maxPenalty * activation;
+                        let penalty = maxPenalty * activation;
+                        
+                        // Chốt chặn: Nếu hành bị phản khắc có địa chi bản khí làm điểm tựa tĩnh, không cho phép triệt tiêu quá 50% điểm số
+                        // (Ngoại trừ trường hợp đồ hình Tòng Cách - tức hành con chiếm >= 65% tổng điểm)
+                        const hasBranchAnchor = branchList.some(b => this.rules.branchElement[b] === cha);
+                        const isConTongCach = (scoreCon / totalAfterSat) >= 0.65;
+                        if (hasBranchAnchor && !isConTongCach) {
+                            const maxAllowedPenalty = -0.5 * scoreCha;
+                            if (penalty < maxAllowedPenalty) {
+                                penalty = maxAllowedPenalty;
+                            }
+                        }
+                        
                         currentScores[cha] = Math.max(0, scoreCha + penalty);
                     }
                 }
@@ -3860,7 +3872,7 @@ class BaziAnalyzer {
         }
 
         // Determine structure (Cách cục) based on docx rules
-        analysis.cachCuc = this.determineCachCuc(dmGan, monthZhi, canChi, normalizedScores);
+        analysis.cachCuc = this.determineCachCuc(dmGan, monthZhi, canChi, normalizedScores, isTongCach);
 
         // PHASE 4: Dụng Thần & Hỷ Thần Nâng Cao (Hybrid Dung Than Engine)
         const dungThanDetail = this.calculateDungThanDetail(dmGan, monthZhi, canChi, normalizedScores, thanDegree, isTongCach, analysis.cachCuc);
@@ -4090,14 +4102,15 @@ class BaziAnalyzer {
                     phuUcKT = cungHanh;
                 }
             } else if (isNhuoc) {
+                const scTaKhac = scores[taKhac] || scores[taKhacKey] || 0;
                 if (scKhacTa > 30) {
                     phuUcDT = sinhChoTa;
                     phuUcHT = cungHanh;
                     phuUcKT = taKhac;
-                } else if (scTaSinh > 30) {
+                } else if (scTaSinh > 30 || scTaKhac > 30) {
                     phuUcDT = sinhChoTa;
                     phuUcHT = cungHanh;
-                    phuUcKT = taSinh;
+                    phuUcKT = scTaSinh > scTaKhac ? taSinh : taKhac;
                 } else {
                     phuUcDT = cungHanh;
                     phuUcHT = sinhChoTa;

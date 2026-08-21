@@ -212,7 +212,19 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
         thapThanAnalysis = { groups: [] } 
     } = data;
 
+    const effectiveDungThan = dungThan || data.dungThanInfo?.primary?.dungThan || analysis?.dungThan || data.dungThanInfo?.primary?.dungThan || '';
+    const effectiveHyThan = hyThan || data.dungThanInfo?.primary?.hyThan || analysis?.hyThan || data.dungThanInfo?.primary?.hyThan || '';
+
     const getRemedyData = (element) => {
+        if (!element) return null;
+        const normalizedKey = {
+            'Mộc': 'Moc', 'Moc': 'Moc', 'mộc': 'Moc', 'moc': 'Moc',
+            'Hỏa': 'Hoa', 'Hoa': 'Hoa', 'hỏa': 'Hoa', 'hoa': 'Hoa',
+            'Thổ': 'Tho', 'Tho': 'Tho', 'thổ': 'Tho', 'tho': 'Tho',
+            'Kim': 'Kim', 'kim': 'Kim',
+            'Thủy': 'Thuy', 'Thuy': 'Thuy', 'thủy': 'Thuy', 'thuy': 'Thuy'
+        }[element] || element;
+
         const remedies = {
             'Moc': {
                 colors: "Xanh lá cây, xanh lục, xanh ngọc, xanh bộ đội.",
@@ -245,10 +257,10 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
                 items: "Trang sức đá Obsidian Đen, Thạch Anh Tóc Đen, Aquamarine, đặt bể cá cảnh hoặc thác nước phong thủy mini."
             }
         };
-        return remedies[element] || null;
+        return remedies[normalizedKey] || null;
     };
 
-    const remedyData = getRemedyData(dungThan);
+    const remedyData = getRemedyData(effectiveDungThan);
 
     const renderCanChiSpans = (canChiStr) => {
         if (!canChiStr) return '';
@@ -1474,21 +1486,21 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
                                     </div>
                                 )}
 
-                                <div className={`flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border-l-4 ${getBgColorClass(dungThan).replace('bg-', 'border-l-').replace(/border-\w+-200/, '')}`}>
+                                <div className={`flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border-l-4 ${getBgColorClass(effectiveDungThan).replace('bg-', 'border-l-').replace(/border-\w+-200/, '')}`}>
                                     <span className="font-bold text-gray-650 text-sm sm:text-base">
                                         <Tooltip term="Dụng Thần">Dụng Thần (Khuyên Dùng)</Tooltip>
                                     </span>
-                                    <Tooltip term={formatElement(dungThan)} unstyled={true}>
-                                        <span className={`text-lg sm:text-xl font-black uppercase tracking-widest cursor-help hover:scale-105 transition-transform ${getColorClass(dungThan)}`}>{formatElement(dungThan)}</span>
+                                    <Tooltip term={formatElement(effectiveDungThan)} unstyled={true}>
+                                        <span className={`text-lg sm:text-xl font-black uppercase tracking-widest cursor-help hover:scale-105 transition-transform ${getColorClass(effectiveDungThan)}`}>{formatElement(effectiveDungThan)}</span>
                                     </Tooltip>
                                 </div>
 
-                                <div className={`flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border-l-4 ${getBgColorClass(hyThan).replace('bg-', 'border-l-').replace(/border-\w+-200/, '')}`}>
+                                <div className={`flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border-l-4 ${getBgColorClass(effectiveHyThan).replace('bg-', 'border-l-').replace(/border-\w+-200/, '')}`}>
                                     <span className="font-bold text-gray-650 text-sm sm:text-base">
                                         <Tooltip term="Hỷ Thần">Hỷ Thần (Phụ Trợ)</Tooltip>
                                     </span>
-                                    <Tooltip term={formatElement(hyThan)} unstyled={true}>
-                                        <span className={`text-lg sm:text-xl font-black uppercase tracking-widest cursor-help hover:scale-105 transition-transform ${getColorClass(hyThan)}`}>{formatElement(hyThan)}</span>
+                                    <Tooltip term={formatElement(effectiveHyThan)} unstyled={true}>
+                                        <span className={`text-lg sm:text-xl font-black uppercase tracking-widest cursor-help hover:scale-105 transition-transform ${getColorClass(effectiveHyThan)}`}>{formatElement(effectiveHyThan)}</span>
                                     </Tooltip>
                                 </div>
                             </div>

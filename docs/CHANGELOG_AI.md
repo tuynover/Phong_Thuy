@@ -3,6 +3,25 @@
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
 
+
+## 📅 Phiên bản: Khắc Phục Điểm Mù Cách Cục Ngoại Cách & Tối Ưu Phản Khắc Bát Tự (21/08/2026)
+
+### 🪐 Nâng Cấp Logic Cách Cục & Phù Ức Bát Tự ([BaziAnalyzer.js](file:///t:/Phongthuy/backend/src/services/BaziAnalyzer.js))
+- **Chuẩn hóa Phân Loại Ngoại Cách (Độc Vượng):**
+  - Tích hợp tham số `isTongCach` thực tế (đã tính toán định lượng dựa trên tỷ lệ điểm ngũ hành) vào hàm `determineCachCuc`.
+  - Quy định 5 Ngoại cách Độc Vượng (*Khúc Trực, Viêm Thượng, Gia Sắc, Tòng Cách, Nhuận Hạ*) chỉ được thành lập khi đồ hình Bát Tự đạt trạng thái `isTongCach === true`.
+  - Khắc phục triệt để lỗi gán nhãn sai lệch Ngoại cách (như *Tòng Cách cách*) trên các lá số Thân Nhược/Bình thường (ví dụ: lá số Canh Dần sinh tháng Nhâm Tuất có Dần-Mão Mộc mạnh mẽ). Các lá số này hiện tại được trả về đúng Bát Chính Cách (ví dụ: *Thiên Ấn cách*).
+- **Tối Ưu Logic Phản Khắc (Con Vượng Khắc Ngược Cha):**
+  - Bổ sung chốt chặn bảo vệ (Guard Clause) điểm số cho các hành bị phản khắc: Nếu hành bị phản khắc có Địa chi bản khí tĩnh cắm rễ trong mệnh cục (`branchList` chứa địa chi thuộc hành đó) và đồ hình không phải Tòng Cách (`isConTongCach < 65%`), thì không cho phép triệt tiêu hoàn toàn điểm số của hành đó (giới hạn mức phạt tối đa `penalty` không vượt quá 50% điểm số ban đầu).
+  - Nhờ đó, bảo toàn năng lượng của các địa chi tĩnh thực tế (ví dụ: giữ lại điểm số Mộc của Dần-Mão trong lá số Canh Dần thay vì bị Thổ vượng phản khắc triệt tiêu về 0.64%).
+- **Mở Rộng Điều Kiện Chọn Dụng Thần Thân Nhược:**
+  - Bổ sung điều kiện kiểm tra khi Tài tinh quá vượng (`scTaKhac > 30%`): Tự động ưu tiên chọn Ấn tinh (`sinhChoTa`) làm Dụng Thần và Tỷ Kiếp (`cungHanh`) làm Hỷ Thần nhằm cân bằng sinh phù bản mệnh và kiềm chế tài tinh, đồng bộ học thuật cổ học.
+
+### 🧪 Hoàn Thiện Bộ Unit Tests ([BaziAnalyzer.test.js](file:///t:/Phongthuy/backend/tests/services/BaziAnalyzer.test.js))
+- **Đồng Bộ Hóa Ngôn Ngữ Dụng Thần:**
+  - Cập nhật các khẳng định (assertions) của bộ unit test Dụng Thần/Hỷ Thần sang dạng tiếng Việt có dấu (`'Hỏa'`, `'Thổ'`, `'Kim'`, `'Thủy'`, `'Mộc'`) thay vì ký hiệu không dấu cũ, tương thích 100% với cấu trúc dữ liệu hiển thị thực tế trên Frontend.
+  - Chạy `npm test` thành công toàn diện **205/205 tests PASS 100%**.
+
 ## 📅 Phiên bản: Thực Nghiệm Đánh Giá Mù Trực Tiếp Qua AI: 50 Nhóm Cuộc Đời (150 Ca Phân Tích) (19/08/2026)
 
 ### 🧪 Quy Trình Đánh Giá Mù Toàn Diện (Double-blind AI Evaluation)
@@ -19,7 +38,12 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
 5. **Tâm Linh & Tri Thức:** Đi tu xuất gia (Hoằng Nhất), Thiền sư (Thích Nhất Hạnh), Phong thủy sư (Lưu Bá Ôn), Nhà khoa học Nobel (Marie Curie), Sáng lập công nghệ (Bill Gates), Đại danh y (Lý Thời Trân), Vạn thế sư biểu (Khổng Tử).
 6. **Thể Chất, Bệnh Tật & Vận Hạn:** Yểu mệnh tuổi trẻ (Lý Hạ), Chết vì tai nạn (Công nương Diana), Đao binh trận vong, Bại liệt bẩm sinh (Stephen Hawking), Khiếm thị câm điếc (Helen Keller), Ung thư (Steve Jobs), Đột tử tai biến (Đặng Lệ Quân), Đại thọ > 100 tuổi (Võ Nguyên Giáp 103 tuổi), Lưu vong bôn ba (Phan Bội Châu).
 
-### 🛡️ Nâng Cấp Prompt Bát Tự ([BaziPrompts.js](file:///t:/Phongthuy/backend/src/services/BaziPrompts.js))
+### 🧪 Bộ Test Cases Kiểm Thử Toàn Diện Dụng Thần & Cách Cục Bát Tự (21/08/2026)
+- **Script Thực Thần Benchmarking:** Tạo [test_all_dung_than_cach_cuc_testcases.js](file:///t:/Phongthuy/backend/src/scripts/test_all_dung_than_cach_cuc_testcases.js) bọc 26 ca kiểm thử bao phủ toàn bộ 5 nguyên lý Dụng Thần cổ học (*Điều Hậu, Thông Quan, Tòng Cách, Phù Ức Thân Nhược, Phù Ức Thân Vượng*) và Bát Chính Cách/Quý Cách đặc thù.
+- **Jest Unit Test Suite:** Thêm [DungThanCachCuc.test.js](file:///t:/Phongthuy/backend/tests/services/DungThanCachCuc.test.js) tự động hóa kiểm thử trong CI/CD pipeline.
+- **Khắc Phục Lỗi Display Dụng Thần (Accented Elements):** Sửa lỗi chuẩn hóa key tra cứu trong `BaziBoard.jsx` giúp thẻ Cải Vận hiển thị chính xác 100% màu sắc, phương vị, ngành nghề và vật phẩm phong thủy trợ mệnh.
+
+---
 - **Chỉ Dẫn Trực Diện & Không Kiêng Kỵ (Direct Diagnostic Directive):**
   - Cấm hoàn toàn văn phong vuốt ve, an ủi hoặc né tránh khi phát hiện các cách cục hung hiểm (Tứ khố xung bần cùng, Thất sát vô chế ngục tù, Dương nhận trùng điệp đao binh thương tật, Chi giờ Tử Tuyệt hiếm muộn vô con, Khuyết Hỏa mùa Đông ung thư nan y).
   - Bắt buộc AI chẩn đoán thẳng thắn và cảnh báo rủi ro thực chất.
