@@ -34,11 +34,7 @@ class AiService {
     async _executeWithFallback(action, options = {}) {
         const chain = [
             options.model || this.defaultModelName,
-            "gemini-3.5-flash",
-            "gemini-3-flash",
-            "gemini-2.0-flash",
-            "gemini-1.5-flash",
-            "gemini-1.5-pro"
+            "gemini-3.1-flash-lite"
         ];
         
         // Loại bỏ trùng lặp và giữ nguyên thứ tự ưu tiên thử nghiệm
@@ -47,29 +43,32 @@ class AiService {
         let lastError = null;
         for (const modelName of modelsToTry) {
             try {
-                console.log(`[AiService] Đang thử nghiệm với mô hình AI: ${modelName}`);
                 return await action(modelName);
             } catch (error) {
                 console.error(`[AiService] Mô hình ${modelName} gặp lỗi:`, error.message);
                 lastError = error;
-                // Tiếp tục thử nghiệm các model dự phòng khác trong chuỗi nếu gặp lỗi
             }
         }
         throw lastError;
     }
 
-    async generateInterpretation(prompt, options = {}, retries = 2) {
+    async generateInterpretation(prompt, options = {}, retries = 4) {
         if (!this.genAI) {
             throw new Error("Hệ thống chưa được cấu hình API Key của AI.");
         }
 
         try {
             return await this._executeWithFallback(async (modelName) => {
-                const model = this.genAI.getGenerativeModel({ model: modelName });
+                const model = this.genAI.getGenerativeModel({
+                    model: modelName,
+                    generationConfig: {
+                        maxOutputTokens: 8192
+                    }
+                });
                 for (let attempt = 1; attempt <= retries + 1; attempt++) {
                     try {
                         const timeoutPromise = new Promise((_, reject) =>
-                            setTimeout(() => reject(new Error('AI Request Timeout')), 25000)
+                            setTimeout(() => reject(new Error('AI Request Timeout')), 120000)
                         );
 
                         const generatePromise = model.generateContent(prompt);
@@ -77,11 +76,12 @@ class AiService {
                         const response = result.response;
                         return this.cleanMarkdown(response.text());
                     } catch (error) {
-                        console.error(`AI Generation Error (Attempt ${attempt} on ${modelName}):`, error.message);
+                        const waitTime = attempt * 2000;
+                        console.error(`AI Generation Error (Attempt ${attempt}/${retries + 1} on ${modelName}): ${error.message} - Retrying in ${waitTime}ms...`);
                         if (attempt === retries + 1) {
                             throw error;
                         }
-                        await new Promise(res => setTimeout(res, 2000));
+                        await new Promise(res => setTimeout(res, waitTime));
                     }
                 }
             }, options);
@@ -101,7 +101,12 @@ class AiService {
 
         try {
             return await this._executeWithFallback(async (modelName) => {
-                const model = this.genAI.getGenerativeModel({ model: modelName });
+                const model = this.genAI.getGenerativeModel({
+                    model: modelName,
+                    generationConfig: {
+                        maxOutputTokens: 8192
+                    }
+                });
                 const resultStream = await model.generateContentStream(prompt);
                 
                 // Mấu chốt: Bắt lỗi Promise response để ngăn chặn UnhandledRejection làm crash Node.js

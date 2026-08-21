@@ -166,7 +166,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
     return Math.floor((hour - 1) / 2) + 1;
   };
 
-  const handleZiweiComplete = async (dateStr, hourStr, genderStr, nameStr) => {
+  const handleZiweiComplete = async (dateStr, hourStr, genderStr, nameStr, calendarMode = 'solar', isLeap = false) => {
     setError(null);
     setLoading(true);
     setResult(null);
@@ -181,7 +181,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
     try {
       setLoadingStep('Đang lập mệnh bàn Tử Vi...');
       setProgress(50);
-      const chartRes = await createZiweiChart(dateStr, hourIndexConverted, genderStr, uid, nameStr);
+      const chartRes = await createZiweiChart(dateStr, hourIndexConverted, genderStr, uid, nameStr, { calendarMode, isLeap });
       const record = chartRes.data;
       setResult(record);
       setProgress(100);
@@ -196,7 +196,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
 
   useEffect(() => {
     if (autoSubmitInfo && autoSubmitInfo.dateStr) {
-      handleZiweiComplete(autoSubmitInfo.dateStr, autoSubmitInfo.hourStr, autoSubmitInfo.genderStr, autoSubmitInfo.nameStr || activeUser?.name);
+      handleZiweiComplete(autoSubmitInfo.dateStr, autoSubmitInfo.hourStr, autoSubmitInfo.genderStr, autoSubmitInfo.nameStr || activeUser?.name, autoSubmitInfo.calendarMode || 'solar', autoSubmitInfo.isLeap || false);
       if (onClearAutoSubmit) onClearAutoSubmit();
     }
   }, [autoSubmitInfo]);
@@ -485,7 +485,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
       {/* 1. DEDICATED ZIWEI INPUT COMPONENT */}
       {!result && !loading && (
         <ZiweiInput 
-          onSubmit={({ day, month, year, hour, minute, gender, name }) => {
+          onSubmit={({ day, month, year, hour, minute, gender, name, calendarMode, isLeap }) => {
             setDay(day);
             setMonth(month);
             setYear(year);
@@ -497,7 +497,9 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
               `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`,
               hour,
               gender,
-              name
+              name,
+              calendarMode,
+              isLeap
             );
           }}
           activeUser={activeUser}

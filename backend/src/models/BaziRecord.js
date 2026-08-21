@@ -20,7 +20,21 @@ const baziRecordSchema = new mongoose.Schema({
     name: { type: String, default: "" },
     date: String, // e.g. "05/09/2004"
     time: String, // e.g. "14:30"
-    gender: Number // 1 for Male, 0 for Female
+    gender: Number, // 1 for Male, 0 for Female
+    calendarMode: { type: String, default: "solar" },
+    birthSolarYear: { type: Number, default: null },
+    isLeap: { type: Boolean, default: false },
+    lunarDate: { type: String, default: "" },
+    manualData: {
+      yearGan: String,
+      yearZhi: String,
+      monthGan: String,
+      monthZhi: String,
+      dayGan: String,
+      dayZhi: String,
+      hourGan: String,
+      hourZhi: String
+    }
   },
   solarTimeline: {
     type: String,

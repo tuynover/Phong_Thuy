@@ -3,6 +3,7 @@ import { Calendar, Clock, User, Sparkles } from 'lucide-react';
 import CustomSelect from './CustomSelect';
 import FloatingErrorToast from './FloatingErrorToast';
 import { validateInputDate, getMaxDaysInMonth } from '../utils/dateValidator';
+import { LunarYear, LunarMonth } from 'lunar-javascript';
 
 export default function ZiweiInput({ 
     onSubmit, 
@@ -17,6 +18,7 @@ export default function ZiweiInput({
     const minutes = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
 
     // Không nhập sẵn giá trị mặc định cho Ziwei
+    const [calendarMode, setCalendarMode] = useState('solar'); // solar | lunar
     const [day, setDay] = useState('');
     const [month, setMonth] = useState('');
     const [year, setYear] = useState('');
@@ -24,18 +26,51 @@ export default function ZiweiInput({
     const [minute, setMinute] = useState('');
     const [gender, setGender] = useState('Nam');
     const [name, setName] = useState('');
+    const [isLeap, setIsLeap] = useState(false);
+    const [hasLeap, setHasLeap] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
+
+
+
+    // Auto-check lunar leap month
+    useEffect(() => {
+        if (calendarMode === 'lunar' && year && month) {
+            try {
+                const ly = LunarYear.fromYear(parseInt(year, 10));
+                const leapMonth = ly ? ly.getLeapMonth() : 0;
+                const isCandidate = leapMonth > 0 && parseInt(month, 10) === leapMonth;
+                setHasLeap(isCandidate);
+                if (!isCandidate) setIsLeap(false);
+            } catch (e) {
+                setHasLeap(false);
+                setIsLeap(false);
+            }
+        } else {
+            setHasLeap(false);
+            setIsLeap(false);
+        }
+    }, [calendarMode, year, month]);
 
     // Auto-clamp Day when Month or Year changes
     useEffect(() => {
         if (day && month && year) {
-            const maxDays = getMaxDaysInMonth(month, year);
+            let maxDays = 31;
+            if (calendarMode === 'lunar') {
+                try {
+                    const lm = LunarMonth.fromYm(parseInt(year, 10), isLeap ? -parseInt(month, 10) : parseInt(month, 10));
+                    maxDays = lm ? lm.getDayCount() : 30;
+                } catch (e) {
+                    maxDays = 30;
+                }
+            } else {
+                maxDays = getMaxDaysInMonth(month, year);
+            }
             const dNum = parseInt(day, 10);
             if (!isNaN(dNum) && dNum > maxDays) {
                 setDay(String(maxDays));
             }
         }
-    }, [month, year, day]);
+    }, [calendarMode, month, year, day, isLeap]);
 
     // Real-time dynamic validation for ZiweiInput
     useEffect(() => {
@@ -65,10 +100,12 @@ export default function ZiweiInput({
             return;
         }
 
-        const val = validateInputDate(day, month, year);
-        if (!val.isValid) {
-            setErrorMsg(val.message);
-            return;
+        if (calendarMode === 'solar') {
+            const val = validateInputDate(day, month, year);
+            if (!val.isValid) {
+                setErrorMsg(val.message);
+                return;
+            }
         }
 
         if (onSubmit) {
@@ -79,7 +116,9 @@ export default function ZiweiInput({
                 hour,
                 minute,
                 gender,
-                name
+                name,
+                calendarMode,
+                isLeap
             });
         }
     };
@@ -121,6 +160,12 @@ export default function ZiweiInput({
                     </p>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
+                        {/* TAB SELECTOR */}
+                        <div className="flex bg-slate-100/80 p-1.5 rounded-2xl w-full max-w-sm mx-auto mb-6 border border-slate-200/50 shadow-inner">
+                            <button type="button" onClick={() => setCalendarMode('solar')} className={`flex-1 text-center py-2 rounded-xl text-xs font-extrabold transition-all duration-300 ${calendarMode === 'solar' ? 'bg-white text-purple-600 shadow-md scale-[1.02]' : 'text-slate-500 hover:text-slate-700'}`}>Dương lịch</button>
+                            <button type="button" onClick={() => setCalendarMode('lunar')} className={`flex-1 text-center py-2 rounded-xl text-xs font-extrabold transition-all duration-300 ${calendarMode === 'lunar' ? 'bg-white text-purple-600 shadow-md scale-[1.02]' : 'text-slate-500 hover:text-slate-700'}`}>Âm lịch</button>
+                        </div>
+
                         {/* Họ và tên */}
                         <div>
                             <label className="block text-xs font-black uppercase text-slate-500 tracking-wider mb-2.5 ml-1">
@@ -155,7 +200,7 @@ export default function ZiweiInput({
                         {/* Ngày Tháng Năm Sinh */}
                         <div>
                             <label className="block text-xs font-black uppercase text-slate-500 tracking-wider mb-2.5 ml-1 flex items-center gap-1.5">
-                                <Calendar size={14} className="text-purple-500" /> Ngày - Tháng - Năm Sinh (Dương Lịch)
+                                <Calendar size={14} className="text-purple-500" /> Ngày - Tháng - Năm Sinh ({calendarMode === 'solar' ? 'Dương Lịch' : 'Âm Lịch'})
                             </label>
                             <div className="flex gap-3">
                                 <div className="flex-1">
@@ -190,6 +235,22 @@ export default function ZiweiInput({
                                 </div>
                             </div>
                         </div>
+
+                        {/* Switch Tháng nhuận cho Âm lịch */}
+                        {calendarMode === 'lunar' && hasLeap && (
+                            <div className="flex items-center gap-3 p-3 bg-purple-50/50 border border-purple-100/50 rounded-2xl shadow-sm animate-in fade-in slide-in-from-top-2">
+                                <input
+                                    type="checkbox"
+                                    id="ziweiIsLeap"
+                                    checked={isLeap}
+                                    onChange={(e) => setIsLeap(e.target.checked)}
+                                    className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500 cursor-pointer"
+                                />
+                                <label htmlFor="ziweiIsLeap" className="text-xs font-bold text-slate-700 cursor-pointer select-none">
+                                    Sinh vào tháng nhuận (Tháng {month} nhuận)
+                                </label>
+                            </div>
+                        )}
 
                         {/* Thời Gian Sinh */}
                         <div>

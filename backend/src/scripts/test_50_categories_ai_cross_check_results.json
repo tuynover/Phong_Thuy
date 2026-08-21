@@ -1,0 +1,861 @@
+{
+  "totalCategories": 50,
+  "totalCasesInScope": 150,
+  "totalAITested": 50,
+  "correctMatches": 50,
+  "partialMatches": 0,
+  "blindspotErrors": 0,
+  "accuracyRate": "100.0%",
+  "results": [
+    {
+      "catId": 1,
+      "category": "Đại Phú / Tỷ Phú Toàn Cầu",
+      "person": "Phạm Nhật Vượng",
+      "fact": "Tỷ phú số 1 VN, Bất động sản & Xe điện toàn cầu, đại phú cự triệu",
+      "tuTru": "Mậu Thân | Kỷ Mùi | Đinh Mùi | Giáp Thìn",
+      "than": "tong_cach",
+      "cachCuc": "Viêm Thượng cách (Hỏa độc vượng)",
+      "dungThan": "Thổ",
+      "mechanism": "Tòng Cách / Chuyên Vượng (Thuận khí thế cực vượng)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\n\nNhật chủ Đinh Hỏa sinh vào tháng Mùi, tiết Đại Thử, đây là thời điểm Hỏa khí đã thoái, Thổ khí đương quyền (Thực Thần nắm lệnh). Về mặt ngũ hành, Đinh Hỏa là \"đăng chúc chi hỏa\", cần Giáp Mộc làm nguồn sống và Ất Mộc để duy trì lâu dài. Tuy nhiên, trong lá số này, địa chi Mùi-Mùi trùng điệp, Mậu Thổ thấu can ở trụ năm, Giáp Mộc ở trụ giờ bị Mậu thổ á..."
+    },
+    {
+      "catId": 2,
+      "category": "Tiểu Thương / Buôn Bán Tự Do",
+      "person": "Tiểu Thương Chợ Đồng Xuân",
+      "fact": "Buôn bán vải vóc tích lũy tài sản tầm trung, xoay vòng vốn nhanh",
+      "tuTru": "Ất Mão | Nhâm Ngọ | Nhâm Thìn | Quý Mão",
+      "than": "nhuoc",
+      "cachCuc": "Chính Tài cách",
+      "dungThan": "Kim",
+      "mechanism": "Phù Ức Thân Nhược (Sinh phù / Trợ lực Tỷ Kiếp)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\n\nNhật chủ Nhâm Thủy sinh vào tháng Ngọ, giữa tiết Mang Chủng, khi khí Hỏa đương vượng, Thủy ở trạng thái thai nghén, khí thế suy kiệt (tử địa). Xét toàn cục, Nhật chủ Nhâm Thủy tuy có Quý Thủy ở trụ giờ làm trợ thủ và Thìn Thổ (còn gọi là Thủy khố) làm căn rễ, nhưng cấu trúc Bát tự bị vây hãm bởi Mộc (Thương quan) sinh Hỏa (Tài) quá vượng. Khí thế Nhậ..."
+    },
+    {
+      "catId": 3,
+      "category": "Nghèo Hèn / Cùng Đinh",
+      "person": "Cùng Đinh Cổ Án",
+      "fact": "Cả đời làm thuê làm mướn, không nhà không cửa, nghèo đói cùng cực",
+      "tuTru": "Đinh Sửu | Nhâm Dần | Nhâm Tuất | Quý Mão",
+      "than": "nhuoc",
+      "cachCuc": "Thực Thần cách",
+      "dungThan": "Kim",
+      "mechanism": "Phù Ức Thân Nhược (Sinh phù / Trợ lực Tỷ Kiếp)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "Chào bạn, với tư cách là một chuyên gia Tử Bình, tôi đã tiếp nhận lá số của đương số (Nam mệnh, sinh ngày 18/02/1877). Đây là một lá số có cấu trúc ngũ hành khá đặc biệt, cần sự phân tích cẩn trọng để thấu thị dòng chảy của mệnh cách.\n\n## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\n\nNhật chủ Nhâm Thủy sinh vào tháng Dần (tiết Lập Xuân), lúc này Mộc khí đương lệnh, tiết khí của Thủy rất mạnh. Nhâm ..."
+    },
+    {
+      "catId": 4,
+      "category": "Ăn Mày / Khất Cái",
+      "person": "Khất Cái Bần Hàn Cổ Án",
+      "fact": "Tứ khố xung tàn, ăn xin đầu đường xó chợ, chết cóng ngoài đường",
+      "tuTru": "Mậu Tý | Tân Dậu | Nhâm Tý | Tân Sửu",
+      "than": "tong_cach",
+      "cachCuc": "Chính Ấn cách",
+      "dungThan": "Kim",
+      "mechanism": "Tòng Cách / Chuyên Vượng (Thuận khí thế cực vượng)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "Chào bạn, với tư cách là một chuyên gia Tử Bình, tôi đã tiếp nhận lá số của bạn. Đây là một lá số có cấu trúc rất đặc biệt, mang tính \"thuần túy\" về hành Kim (Ấn tinh) bao vây Nhật chủ Nhâm Thủy.\n\n## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\nNhật chủ Nhâm Thủy sinh tháng Dậu, là tiết khí Kim vượng nhất trong năm (lệnh tháng), Tân Kim thấu can, Ấn tinh đương quyền. Nhâm Thủy sinh vào mùa thu, đượ..."
+    },
+    {
+      "catId": 5,
+      "category": "Đi Tù / Ngục Tù Hình Án",
+      "person": "Bạc Hy Lai",
+      "fact": "Cựu Ủy viên Bộ Chính trị TQ, ngã ngựa đại án tham nhũng, tù chung thân",
+      "tuTru": "Kỷ Sửu | Canh Ngọ | Giáp Ngọ | Kỷ Tỵ",
+      "than": "nhuoc",
+      "cachCuc": "Chính Tài cách",
+      "dungThan": "Thủy",
+      "mechanism": "Điều Hậu kết hợp Phù Ức (Cấp thiết giải hàn/nhiệt mùa sinh)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "Chào đương số, với tư cách là một chuyên gia Tử Bình, tôi đã tiến hành phân tích sâu sắc lá số của ông. Đây là một lá số có cấu trúc ngũ hành khá đặc biệt, đòi hỏi sự tinh tế trong việc điều tiết khí thế.\n\n## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\nNhật chủ Giáp Mộc sinh vào tháng Ngọ (tiết Hạ Chí), khi Hỏa khí đương lệnh, Mộc tử tại Ngọ, khí thế của Nhật chủ cực kỳ suy yếu. Giáp Mộc sinh mùa ..."
+    },
+    {
+      "catId": 6,
+      "category": "Đại Án Kinh Tế / Lừa Đảo Sụp Đổ",
+      "person": "Trương Mỹ Lan",
+      "fact": "Đại án Vạn Thịnh Phát / SCB rút ruột ngân hàng, án tử hình",
+      "tuTru": "Bính Thân | Mậu Tuất | Quý Sửu | Mậu Ngọ",
+      "than": "tong_cach",
+      "cachCuc": "Chính Quan cách",
+      "dungThan": "Thổ",
+      "mechanism": "Tòng Cách / Chuyên Vượng (Thuận khí thế cực vượng)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\n\nNhật chủ Quý Thủy sinh vào tháng Tuất, tiết Hàn Lộ, lúc này khí Thổ nắm lệnh, Thổ vượng làm chủ, Quý Thủy bị khắc chế mạnh mẽ. Trong bát tự, Quý Thủy không có căn rễ ở địa chi, lại bị các hành Thổ (Quan Sát) vây quanh từ các trụ Tháng, Giờ và cả tàng can trụ Ngày. Quý Thủy là nước mưa, vốn cần sự thanh khiết và thông thoát, nhưng tại đây bị Thổ vây h..."
+    },
+    {
+      "catId": 7,
+      "category": "Kẻ Cướp / Đạo Tặc",
+      "person": "Trương Tử Cường",
+      "fact": "Vua bắt cóc cướp bóc vũ trang Hong Kong, tử hình 1998",
+      "tuTru": "Ất Mùi | Canh Thìn | Mậu Tuất | Bính Thìn",
+      "than": "nhuoc",
+      "cachCuc": "Chính Quan cách",
+      "dungThan": "Hỏa",
+      "mechanism": "Phù Ức Thân Nhược (Sinh phù / Trợ lực Tỷ Kiếp)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "Chào bạn, với tư cách là một chuyên gia Tử Bình, tôi đã phân tích lá số của bạn dựa trên dữ liệu Tứ trụ đã cung cấp. Đây là một lá số mang cấu trúc đặc thù, đòi hỏi sự tinh tế trong việc điều phối năng lượng.\n\n## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\nNhật chủ Mậu Thổ sinh vào tháng Thìn – tháng cuối xuân, khí Thổ nắm lệnh nhưng đang chuyển giao sang Hỏa khí. Tuy nhiên, nhìn tổng thể Tứ trụ, ..."
+    },
+    {
+      "catId": 8,
+      "category": "Sát Nhân / Tội Phạm Bạo Lực",
+      "person": "Sát Nhân Đao Binh Cổ Án",
+      "fact": "Khát máu hung bạo giết người cướp của liên hoàn, xử chém thị chúng",
+      "tuTru": "Bính Dần | Giáp Ngọ | Mậu Ngọ | Mậu Ngọ",
+      "than": "tong_cach",
+      "cachCuc": "Chính Ấn cách",
+      "dungThan": "Thổ",
+      "mechanism": "Tòng Cách / Chuyên Vượng (Thuận khí thế cực vượng)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "Chào đương số, với tư cách là một chuyên gia Tử Bình, tôi đã tiếp nhận lá số của bạn. Dựa trên dữ liệu: **Nam mệnh, sinh ngày 12/06/1866 lúc 12:00 (Can Mậu - Chi Ngọ).** \n\nĐây là một lá số có kết cấu \"Hỏa Thổ khô táo\" cực mạnh, mang tính chất của một người có ý chí sắt đá, tầm nhìn rộng nhưng thiếu sự mềm mỏng và thiếu yếu tố Thủy để điều hòa. Dưới đây là phân tích chi tiết:\n\n## BƯỚC 1: PHÂN TÍCH ..."
+    },
+    {
+      "catId": 9,
+      "category": "Đánh Bạc / Phá Sản Cờ Bạc",
+      "person": "Đổ Đồ Phá Gia Cổ Án",
+      "fact": "Mê đỏ đen bạc bịp, bán sạch ruộng vườn tổ nghiệp, thắt cổ tự vẫn",
+      "tuTru": "Canh Thìn | Canh Thìn | Quý Dậu | Bính Thìn",
+      "than": "vuong",
+      "cachCuc": "Nhuận Hạ cách (Thủy độc vượng)",
+      "dungThan": "Hỏa",
+      "mechanism": "Phù Ức Thân Vượng (Tiết tú / Khắc chế / Hao tài)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "Chào bạn, với tư cách là một chuyên gia Tử Bình, tôi đã tiếp nhận lá số của bạn. Đây là một lá số có cấu trúc rất đặc biệt, mang đậm dấu ấn của hành Kim và sự khô khốc của hành Thổ. Dưới đây là bản luận giải chuyên sâu dựa trên các dữ liệu Tứ Trụ bạn cung cấp.\n\n## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\n\nNhật chủ Quý Thủy sinh tháng Thìn (tiết Thanh Minh), Thổ vượng đương quyền, Quý Thủy bị Th..."
+    },
+    {
+      "catId": 10,
+      "category": "2-3 Đời Vợ / Đa Thê Tái Giá",
+      "person": "Tom Cruise",
+      "fact": "Tài tử điện ảnh, 3 lần kết hôn ly hôn (Mimi Rogers, Nicole Kidman, Katie Holmes)",
+      "tuTru": "Nhâm Dần | Bính Ngọ | Nhâm Dần | Mậu Thân",
+      "than": "nhuoc",
+      "cachCuc": "Chính Tài cách",
+      "dungThan": "Kim",
+      "mechanism": "Phù Ức Thân Nhược (Sinh phù / Trợ lực Tỷ Kiếp)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\n\nNhật chủ Nhâm Thủy sinh vào tháng Ngọ (giữa mùa Hạ), là thời điểm Hỏa khí cực thịnh, Thủy bị tổn hao nặng nề (Thủy tử tại Ngọ). Nhâm Thủy tọa Dần, tuy Dần là trường sinh của Hỏa nhưng cũng chứa Mậu Thổ (Sát) và Bính Hỏa (Tài), không thể làm gốc rễ vững chãi cho Thủy. Bản mệnh \"Thân nhược\" rõ rệt.\n\nXét về tổng thể, lá số bị vây hãm bởi Tài Sát (Hỏa - ..."
+    },
+    {
+      "catId": 11,
+      "category": "2-3 Đời Chồng / Đa Phu",
+      "person": "Marilyn Monroe",
+      "fact": "Minh tinh quyến rũ, 3 lần kết hôn đổ vỡ (James Dougherty, Joe DiMaggio, Arthur Miller)",
+      "tuTru": "Bính Dần | Quý Tỵ | Tân Dậu | Quý Tỵ",
+      "than": "nhuoc",
+      "cachCuc": "Chính Quan cách",
+      "dungThan": "Mộc",
+      "mechanism": "Thông Quan Dụng Thần (Hòa giải hai phe giao tranh)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "Chào bạn, với tư cách là một chuyên gia Tử Bình, tôi đã tiếp nhận lá số của bạn. Đây là một lá số đặc biệt với cấu trúc mang tính tri thức và sự cô đọng cao. Dưới đây là phần luận giải chi tiết dựa trên các nguyên tắc học thuật nghiêm ngặt.\n\n## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\n\nNhật chủ Tân Kim sinh tháng Tỵ (tháng hạ), thời điểm Hỏa khí đương quyền, Tân Kim là kim trang sức, gặp mùa Hỏ..."
+    },
+    {
+      "catId": 12,
+      "category": "Sát Phu / Khắc Chồng Bi Kịch",
+      "person": "Từ Hi Thái Hậu",
+      "fact": "Hàm Phong Đế mất sớm ở tuổi 30, Từ Hi nắm quyền góa phụ suốt 47 năm",
+      "tuTru": "Ất Mùi | Đinh Hợi | Ất Sửu | Quý Mùi",
+      "than": "vuong",
+      "cachCuc": "Chính Ấn cách",
+      "dungThan": "Kim",
+      "mechanism": "Phù Ức Thân Vượng (Tiết tú / Khắc chế / Hao tài)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "Đây là bản luận giải lá số Tử Bình cho đương số nữ, sinh ngày 29/11/1835 (Tiết Tiểu Tuyết), với tư duy biện chứng kết hợp cổ học và thời đại mới.\n\n## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\n\nNhật chủ Ất Mộc sinh vào tháng Hợi (mùa Đông), là lúc thủy vượng, mộc tướng, khí thế đang trong giai đoạn dưỡng dục. Ất Mộc là âm mộc, biểu trưng cho cỏ cây hoa lá, nhu mềm nhưng bền bỉ, có khả năng vươn m..."
+    },
+    {
+      "catId": 13,
+      "category": "Sát Thê / Khắc Vợ",
+      "person": "Beethoven",
+      "fact": "Tỷ Kiếp đoạt Tài, cả đời yêu đơn phương trắc trở, không thể lấy vợ",
+      "tuTru": "Canh Dần | Mậu Tý | Nhâm Dần | Mậu Thân",
+      "than": "rat_vuong",
+      "cachCuc": "Kiếp Tài cách",
+      "dungThan": "Thủy",
+      "mechanism": "Thông Quan Dụng Thần (Hòa giải hai phe giao tranh)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "Chào đương số, với tư cách là một chuyên gia Tử Bình, tôi đã tiếp nhận và phân tích kỹ lưỡng lá số của bạn. Dưới đây là luận giải chi tiết dựa trên sự phối hợp giữa Cổ học kinh điển và tư duy quản trị hiện đại.\n\n## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\n\nNhật chủ Nhâm Thủy sinh vào tháng Tý (tháng mùa Đông), là thời điểm Thủy khí vượng nhất (Lệnh tháng – Đế Vượng). Tuy nhiên, cục diện Tứ trụ ..."
+    },
+    {
+      "catId": 14,
+      "category": "Đi Tu / Xuất Gia Cao Tăng",
+      "person": "Hoằng Nhất Pháp Sư",
+      "fact": "Bậc thầy nghệ thuật tài hoa dứt áo xuất gia tu khổ hạnh đắc đạo",
+      "tuTru": "Canh Thìn | Bính Tuất | Ất Dậu | Canh Thìn",
+      "than": "nhuoc",
+      "cachCuc": "Chính Tài cách",
+      "dungThan": "Thổ",
+      "mechanism": "Tòng Cách / Chuyên Vượng (Thuận khí thế cực vượng)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "Chào bạn, với tư cách là một chuyên gia Tử Bình, tôi đã tiếp nhận lá số của bạn. Đây là một lá số có cấu trúc rất đặc biệt, đầy rẫy sự xung đột nhưng cũng chứa đựng tiềm năng chuyển hóa mạnh mẽ. Dưới đây là luận giải chi tiết theo hệ thống học thuật chuyên sâu.\n\n## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\n\nNhật chủ **Ất Mộc** sinh vào tháng Tuất (cuối thu), lúc này Kim vượng, Mộc khí đi vào trạ..."
+    },
+    {
+      "catId": 15,
+      "category": "Thiền Sư / Lãnh Tụ Tâm Linh",
+      "person": "Thiền Sư Thích Nhất Hạnh",
+      "fact": "Khai sáng Làng Mai, sứ giả hòa bình tâm linh toàn cầu, đại thọ",
+      "tuTru": "Bính Dần | Mậu Tuất | Quý Dậu | Ất Mão",
+      "than": "vuong",
+      "cachCuc": "Chính Quan cách",
+      "dungThan": "Hỏa",
+      "mechanism": "Phù Ức Thân Vượng (Tiết tú / Khắc chế / Hao tài)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "Chào bạn, với tư cách là một chuyên gia Tử Bình, tôi đã tiếp nhận lá số của bạn. Đây là một lá số mang đầy đủ nét tinh hoa của ngũ hành: Nhật chủ **Quý Thủy** sinh tháng **Tuất** (cuối Thu), khí Thổ vượng đương quyền, tạo nên một kết cấu mệnh cách rất đặc thù. Dưới đây là bản luận giải chi tiết dựa trên nền tảng học thuật kinh điển và tư duy thời đại mới.\n\n## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢ..."
+    },
+    {
+      "catId": 16,
+      "category": "Mệnh Lý Sư / Thầy Phong Thủy",
+      "person": "Lưu Bá Ôn",
+      "fact": "Quân sư khai quốc nhà Minh, đại sư phong thủy thần cơ diệu toán",
+      "tuTru": "Tân Hợi | Ất Mùi | Ất Mão | Kỷ Mão",
+      "than": "vuong",
+      "cachCuc": "Thiên Tài cách",
+      "dungThan": "Hỏa",
+      "mechanism": "Thông Quan Dụng Thần (Hòa giải hai phe giao tranh)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "Chào đương số, với tư cách là một chuyên gia Tử Bình, tôi đã tiếp nhận và phân tích kỹ lưỡng lá số của bạn. Dưới đây là bản luận giải chi tiết, kết hợp giữa triết học cổ điển và tư duy quản trị hiện đại.\n\n## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\n\nNhật chủ **Ất Mộc** sinh vào tháng Mùi (giữa mùa Hạ, Thổ vượng Kim tướng), đây là thời điểm Mộc khí suy nhược, thổ vượng tiết khí. Tuy nhiên, nhìn ..."
+    },
+    {
+      "catId": 17,
+      "category": "Đồng Tính / Phi Nhị Nguyên Giới Tính",
+      "person": "Alan Turing",
+      "fact": "Cha đẻ ngành khoa học máy tính, đồng tính luyến ái, bị bức tử",
+      "tuTru": "Nhâm Tý | Bính Ngọ | Canh Ngọ | Đinh Sửu",
+      "than": "nhuoc",
+      "cachCuc": "Chính Quan cách",
+      "dungThan": "Hỏa",
+      "mechanism": "Tòng Cách / Chuyên Vượng (Thuận khí thế cực vượng)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\n\nNhật chủ Canh Kim sinh vào tháng Ngọ (Hỏa vượng, Kim tử, Hỏa là Chính Quan/Thất Sát). Canh Kim là dương kim, bản chất cứng rắn, nghĩa khí nhưng khi sinh vào tháng Ngọ, tiết Hạ Chí, Hỏa khí cực thịnh, kim rơi vào trạng thái \"tử địa\" về ngũ hành, nhiệt độ quá cao khiến kim trở nên giòn, dễ bị nung chảy.\n\nTrong lá số này, Canh Kim không có căn rễ ở địa ..."
+    },
+    {
+      "catId": 18,
+      "category": "Độc Thân Suốt Đời",
+      "person": "Isaac Newton",
+      "fact": "Nhà vật lý toán học vĩ đại nhất, sống độc thân không vợ con cả đời",
+      "tuTru": "Nhâm Ngọ | Nhâm Tý | Canh Tuất | Đinh Sửu",
+      "than": "tong_cach",
+      "cachCuc": "Thương Quan cách",
+      "dungThan": "Thủy",
+      "mechanism": "Tòng Cách / Chuyên Vượng (Thuận khí thế cực vượng)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "Chào đương số, với tư cách là một chuyên gia Tử Bình, tôi đã tiếp nhận và phân tích kỹ lưỡng lá số của bạn. Đây là một lá số có cấu trúc rất đặc biệt, mang tính \"hàn lạnh\" nhưng khí thế lại vô cùng mạnh mẽ. Dưới đây là luận giải chi tiết theo các tiêu chuẩn học thuật cao nhất.\n\n## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\nNhật chủ Canh Kim sinh vào tháng Tý (tiết Đông Chí), khí trời cực hàn, Thủ..."
+    },
+    {
+      "catId": 19,
+      "category": "Tuyệt Tự / Vô Tử Không Con",
+      "person": "Hoàng Đế Phổ Nghi",
+      "fact": "Hoàng đế cuối cùng nhà Thanh, nhiều phi tần nhưng tuyệt tự không con",
+      "tuTru": "Bính Ngọ | Canh Dần | Nhâm Ngọ | Tân Sửu",
+      "than": "nhuoc",
+      "cachCuc": "Thiên Tài cách",
+      "dungThan": "Thủy",
+      "mechanism": "Phù Ức Thân Nhược (Sinh phù / Trợ lực Tỷ Kiếp)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "Chào bạn, với tư cách là một chuyên gia Tử Bình, tôi đã tiếp nhận lá số của bạn. Đây là một lá số có cấu trúc nội tại rất đặc biệt, đầy rẫy sự tương phản giữa sự tinh anh của trí tuệ và áp lực của hoàn cảnh. Dưới đây là luận giải chi tiết dựa trên nền tảng khoa học mệnh lý Đông Phương kết hợp tư duy thời đại.\n\n## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\nNhật chủ Nhâm Thủy sinh vào tháng Dần (đầ..."
+    },
+    {
+      "catId": 20,
+      "category": "Con Cái Bất Hiếu / Phá Gia",
+      "person": "Trương Mỗ Bị Con Phá Sản",
+      "fact": "Con trai mê cờ bạc nghiện ngập bán sạch nhà cửa đuổi cha mẹ",
+      "tuTru": "Bính Tuất | Nhâm Thìn | Tân Sửu | Tân Mão",
+      "than": "vuong",
+      "cachCuc": "Chính Ấn cách",
+      "dungThan": "Hỏa",
+      "mechanism": "Phù Ức Thân Vượng (Tiết tú / Khắc chế / Hao tài)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "Chào đương số, với tư cách là một chuyên gia Tử Bình, tôi đã tiếp nhận lá số của bạn. Đây là một lá số có cấu trúc khá đặc biệt, đòi hỏi sự tinh tế trong việc thấu thị dòng chảy ngũ hành. Dưới đây là bản luận giải chi tiết dựa trên các nguyên tắc kinh điển và tư duy hiện đại.\n\n## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\n\nNhật chủ **Tân Kim** sinh vào tháng Thìn (thổ vượng, khí của tàn xuân), là..."
+    },
+    {
+      "catId": 21,
+      "category": "Kỹ Nữ / Gái Làng Chơi",
+      "person": "Tiểu Thanh Danh Kỹ",
+      "fact": "Kỹ nữ nổi tiếng tài sắc lầu xanh, cuộc đời phong trần phiêu dạt",
+      "tuTru": "Nhâm Ngọ | Quý Mão | Bính Thìn | Kỷ Hợi",
+      "than": "rat_vuong",
+      "cachCuc": "Chính Ấn cách",
+      "dungThan": "Kim",
+      "mechanism": "Phù Ức Thân Vượng (Tiết tú / Khắc chế / Hao tài)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "Chào đương số, với tư cách là một chuyên gia Tử Bình, tôi đã tiếp nhận lá số của bạn. Dưới đây là bảng luận giải chi tiết, kết hợp giữa triết lý cổ điển và tư duy quản trị hiện đại.\n\n## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\n\nNhật chủ Bính Hỏa sinh vào tháng Mão, tiết Kinh Trập, mộc khí đương lệnh, là \"Chính Ấn\" cách. Bính Hỏa là thái dương, bản tính rực rỡ, nhưng sinh mùa xuân mộc vượng, Ấn ..."
+    },
+    {
+      "catId": 22,
+      "category": "Scandal Tình Ái / Đào Hoa Sát",
+      "person": "Trần Quán Hy",
+      "fact": "Minh tinh dính đại án rò rỉ ảnh nóng 2008, sụp đổ sự nghiệp giải trí",
+      "tuTru": "Canh Thân | Ất Dậu | Quý Sửu | Bính Thìn",
+      "than": "vuong",
+      "cachCuc": "Thiên Ấn cách",
+      "dungThan": "Hỏa",
+      "mechanism": "Phù Ức Thân Vượng (Tiết tú / Khắc chế / Hao tài)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "Chào bạn, với tư cách là một chuyên gia Tử Bình, tôi đã tiếp nhận lá số của bạn. Đây là một lá số có cấu trúc ngũ hành khá đặc thù, đòi hỏi sự tinh tế trong việc thấu hiểu sự chuyển hóa giữa \"thực lực\" và \"xu hướng\". Dưới đây là luận giải chi tiết:\n\n## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\n\nNhật chủ Quý Thủy sinh vào tháng Dậu (tiết Thu Phân), Kim vượng Thủy tướng, là đắc lệnh. Tuy nhiên, nh..."
+    },
+    {
+      "catId": 23,
+      "category": "Minh Tinh Trốn Thuế / Bị Phong Sát",
+      "person": "Phạm Băng Băng",
+      "fact": "Nữ hoàng giải trí bị phạt trốn thuế 3000 tỷ VNĐ năm 2018, cấm sóng hoàn toàn",
+      "tuTru": "Tân Dậu | Đinh Dậu | Đinh Dậu | Quý Mão",
+      "than": "tong_cach",
+      "cachCuc": "Thiên Tài cách",
+      "dungThan": "Kim",
+      "mechanism": "Tòng Cách / Chuyên Vượng (Thuận khí thế cực vượng)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\n\nNhật chủ Đinh Hỏa sinh vào tháng Dậu (tiết Bạch Lộ), lúc này Kim khí đương lệnh, Hỏa khí suy kiệt, là thế \"Tử địa\" của Hỏa. Đinh Hỏa là ngọn lửa đèn dầu, cần sự tương trợ của Giáp Mộc hoặc sự hội tụ của Tỷ Kiếp mới có thể duy trì được ánh sáng. Xét toàn cục Bát tự, Đinh Hỏa tọa Dậu (Kim vượng), lại bị vây quanh bởi Tân Kim và Quý Thủy. Bản mệnh thiếu..."
+    },
+    {
+      "catId": 24,
+      "category": "Nghiện Ngập Ma Túy / Sa Ngã",
+      "person": "Whitney Houston",
+      "fact": "Diva huyền thoại sa vào ma túy, chết đuối trong bồn tắm",
+      "tuTru": "Quý Mão | Canh Thân | Giáp Thân | Giáp Tuất",
+      "than": "rat_vuong",
+      "cachCuc": "Thất Sát cách",
+      "dungThan": "Thổ",
+      "mechanism": "Phù Ức Thân Vượng (Tiết tú / Khắc chế / Hao tài)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\n\nNhật chủ Giáp Mộc sinh vào tháng Thân (tiết Lập Thu), lúc này Kim khí đương lệnh, Mộc tử, Giáp Mộc vốn đang bị khắc chế bởi Thất Sát (Canh kim) tại Nguyệt lệnh. Tuy nhiên, xét toàn cục Tứ trụ: Canh Kim lộ ở trụ tháng, nhưng Nhật chủ Giáp Mộc lại được ấn tinh Quý Thủy (năm) dưỡng mệnh, đồng thời có Tỷ kiên (Giáp) ở giờ hỗ trợ, cộng với căn rễ tiềm ẩn ..."
+    },
+    {
+      "catId": 25,
+      "category": "Tự Sát / Trầm Cảm U Uất",
+      "person": "Vincent van Gogh",
+      "fact": "Danh họa cắt tai, trầm cảm tâm thần tự bắn vào ngực năm 37 tuổi",
+      "tuTru": "Quý Sửu | Ất Mão | Bính Thân | Giáp Ngọ",
+      "than": "tong_cach",
+      "cachCuc": "Chính Ấn cách",
+      "dungThan": "Mộc",
+      "mechanism": "Tòng Cách / Chuyên Vượng (Thuận khí thế cực vượng)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "Chào đương số. Với tư cách là một chuyên gia Tử Bình, tôi đã tiếp nhận lá số của bạn. Đây là lá số mang cấu trúc đặc biệt, đòi hỏi sự tinh tế trong việc nhận diện khí thế ngũ hành. Dưới đây là bản luận giải chi tiết theo yêu cầu.\n\n## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\nNhật chủ Bính Hỏa sinh vào tháng Mão, tiết Xuân Phân, Mộc vượng Hỏa tướng. Tuy nhiên, nhìn vào toàn cục Tứ trụ: Can năm Qu..."
+    },
+    {
+      "catId": 26,
+      "category": "Yểu Mệnh Tuổi Trẻ < 30",
+      "person": "Lý Hạ (Thi Quỷ)",
+      "fact": "Thi tài kiệt xuất thời Đường, ốm yếu qua đời năm 27 tuổi",
+      "tuTru": "Canh Ngọ | Quý Mùi | Giáp Ngọ | Kỷ Tỵ",
+      "than": "vuong",
+      "cachCuc": "Chính Tài cách",
+      "dungThan": "Kim",
+      "mechanism": "Phù Ức Thân Vượng (Tiết tú / Khắc chế / Hao tài)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "Chào đương số, tôi là chuyên gia Tử Bình với hơn 20 năm thực chiến. Dựa trên dữ liệu Tứ Trụ bạn cung cấp, tôi đã vận dụng các kinh điển như *Tích Thiên Tủy* và *Tử Bình Chân Thuyên* kết hợp với tư duy quản trị hiện đại để luận giải lá số của bạn như sau:\n\n## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\n\nNhật chủ Giáp Mộc sinh vào tháng Mùi (lệnh tháng), tiết Tiểu Thử, hỏa khí đang vượng, thổ là thự..."
+    },
+    {
+      "catId": 27,
+      "category": "Chết Vì Tai Nạn Phi Mạng",
+      "person": "Công nương Diana",
+      "fact": "Tử nạn xe hơi thảm khốc dưới hầm Paris năm 1997",
+      "tuTru": "Tân Sửu | Giáp Ngọ | Ất Mùi | Bính Tuất",
+      "than": "nhuoc",
+      "cachCuc": "Thực Thần cách",
+      "dungThan": "Thủy",
+      "mechanism": "Điều Hậu kết hợp Phù Ức (Cấp thiết giải hàn/nhiệt mùa sinh)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\n\nNhật chủ **Ất Mộc** sinh tháng Ngọ, là tiết khí Hạ Chí, lúc này Hỏa khí cực thịnh, Mộc lâm bệnh địa. Ất Mộc là hoa cỏ mềm mại, cần có Thủy tưới nhuận và Bính Hỏa sưởi ấm, nhưng ở đây Hỏa quá vượng (Tháng Ngọ, trụ Giờ Bính Hỏa thấu xuất), trong khi tứ trụ thiếu vắng Thủy cục, Mộc căn yếu ớt (chỉ có chút Ất trong chi Mùi). Nhật chủ không đắc lệnh, khôn..."
+    },
+    {
+      "catId": 28,
+      "category": "Chết Vì Đao Binh Chiến Tranh",
+      "person": "Chiến Tướng Trận Vong",
+      "fact": "Tử trận nơi sa trường bởi gươm giáo đạn pháo",
+      "tuTru": "Nhâm Ngọ | Ất Tỵ | Quý Sửu | Ất Mão",
+      "than": "vuong",
+      "cachCuc": "Chính Tài cách",
+      "dungThan": "Thổ",
+      "mechanism": "Phù Ức Thân Vượng (Tiết tú / Khắc chế / Hao tài)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "Chào đương số, với tư cách là một chuyên gia Tử Bình, tôi đã tiếp nhận và phân tích lá số của bạn dựa trên các nguyên tắc học thuật kinh điển kết hợp với tư duy hiện đại. Dưới đây là luận giải chi tiết:\n\n## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\n\nNhật chủ Quý Thủy sinh vào tháng Tỵ (Lệnh tháng Hỏa vượng), mùa Hạ tiết Lập Hạ, là lúc Thủy suy, Hỏa vượng. Quý Thủy là âm thủy, tính chất linh hoạt..."
+    },
+    {
+      "catId": 29,
+      "category": "Bại Liệt / Tàn Tật Bẩm Sinh",
+      "person": "Stephen Hawking",
+      "fact": "Thiên tài vật lý mắc bệnh xơ cứng teo cơ ALS, liệt toàn thân",
+      "tuTru": "Tân Tỵ | Tân Sửu | Tân Dậu | Quý Tỵ",
+      "than": "rat_vuong",
+      "cachCuc": "Thực Thần cách",
+      "dungThan": "Kim",
+      "mechanism": "Thông Quan Dụng Thần (Hòa giải hai phe giao tranh)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\n\nNhật chủ Tân Kim, sinh tháng Sửu (tiết Tiểu Hàn), là lúc Kim còn dư khí, nhưng khí lạnh của đất Đông Đông rất thịnh. Tân Kim là ngọc trong đá, bản chất thanh nhã, sắc sảo và cầu toàn. Trong lá số này, Nhật chủ có Tân Kim ở Trụ Năm, Trụ Tháng, Trụ Ngày, lại tọa Dậu là Lâm Quan (tự vượng), cho thấy một sự kiên cường, bản lĩnh độc lập cực kỳ cao.\n\nXét v..."
+    },
+    {
+      "catId": 30,
+      "category": "Mù Lòa / Khiếm Thị Điếc Câm",
+      "person": "Helen Keller",
+      "fact": "Mù điếc từ 19 tháng tuổi, trở thành nhà văn nhà hoạt động vĩ đại",
+      "tuTru": "Canh Thìn | Nhâm Ngọ | Đinh Hợi | Mậu Thân",
+      "than": "rat_vuong",
+      "cachCuc": "Tỷ Kiên cách",
+      "dungThan": "Thủy",
+      "mechanism": "Phù Ức Thân Vượng (Tiết tú / Khắc chế / Hao tài)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "Dưới đây là bản luận giải chuyên sâu về lá số Tử Bình của đương số, được thực hiện dựa trên nền tảng kinh điển kết hợp tư duy thời đại mới.\n\n## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\n\nNhật chủ Đinh Hỏa sinh vào tháng Ngọ – đây là tháng của Lửa (hỏa vượng), chính là **Kiến Lộc cách**. Đinh Hỏa là \"Đăng chúc chi hỏa\" (lửa đèn dầu), vốn yếu ớt nhưng khi sinh vào tháng Ngọ, lửa đang ở thời kỳ rực..."
+    },
+    {
+      "catId": 31,
+      "category": "Ung Thư / Khối U Hiểm Nghèo",
+      "person": "Steve Jobs",
+      "fact": "Sáng lập Apple, qua đời vì ung thư tuyến tụy năm 56 tuổi",
+      "tuTru": "Ất Mùi | Mậu Dần | Bính Thìn | Mậu Tuất",
+      "than": "vuong",
+      "cachCuc": "Thực Thần cách",
+      "dungThan": "Hỏa",
+      "mechanism": "Thông Quan Dụng Thần (Hòa giải hai phe giao tranh)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "Chào bạn, với tư cách là một chuyên gia Tử Bình, tôi đã tiếp nhận và phân tích kỹ lưỡng lá số của đương số sinh ngày 24/02/1955. Dưới đây là bản luận giải chuyên sâu dựa trên các quy tắc học thuật đã thiết lập.\n\n## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\n\nNhật chủ Bính Hỏa sinh tháng Dần (tiết Vũ Thủy), là lúc Mộc khí đương lệnh, Bính Hỏa có khí Trường Sinh tại Dần. Tuy nhiên, xét tổng thể Tứ ..."
+    },
+    {
+      "catId": 32,
+      "category": "Đột Tử / Tai Biến Tim Mạch",
+      "person": "Đặng Lệ Quân",
+      "fact": "Đột ngột lên cơn hen suyễn trụy tim qua đời tại Thái Lan tuổi 42",
+      "tuTru": "Nhâm Thìn | Quý Sửu | Canh Thìn | Kỷ Mão",
+      "than": "vuong",
+      "cachCuc": "Chính Ấn cách",
+      "dungThan": "Hỏa",
+      "mechanism": "Điều Hậu kết hợp Phù Ức (Cấp thiết giải hàn/nhiệt mùa sinh)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "Chào đương số, với tư cách là một chuyên gia Tử Bình, tôi đã phân tích lá số của bà dựa trên hệ thống lý thuyết kinh điển và tư duy hiện đại. Dưới đây là luận giải chi tiết:\n\n## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\nNhật chủ Canh Kim sinh vào tháng Sửu (tiết Đại Hàn), tháng này là thời điểm Kim khí lạnh lẽo, Thổ vượng sinh Kim nhưng cũng đồng thời làm Kim bị chôn vùi (Kim dư hàn). Canh Kim l..."
+    },
+    {
+      "catId": 33,
+      "category": "Đại Thọ > 100 Tuổi",
+      "person": "Đại tướng Võ Nguyên Giáp",
+      "fact": "Đại tướng Tổng tư lệnh QĐNDVN, đại thọ 103 tuổi, phúc thọ song toàn",
+      "tuTru": "Tân Hợi | Bính Thân | Đinh Mão | Quý Mão",
+      "than": "vuong",
+      "cachCuc": "Chính Tài cách",
+      "dungThan": "Kim",
+      "mechanism": "Phù Ức Thân Vượng (Tiết tú / Khắc chế / Hao tài)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "Chào đương số, tôi là chuyên gia Tử Bình của bạn. Với lá số sinh ngày 25/08/1911 (Tân Hợi - Bính Thân - Đinh Mão - Quý Mão), chúng ta sẽ tiến hành giải mã trên nền tảng tri thức học thuật sâu sắc nhất.\n\n## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\n\nNhật chủ Đinh Hỏa sinh vào tháng Thân (tiết Xử Thử), lúc này Kim khí đương quyền, Hỏa khí đang trong giai đoạn nhàn nhạt, suy yếu (tử địa). Tuy nhiên..."
+    },
+    {
+      "catId": 34,
+      "category": "Tổng Thống / Nguyên Thủ Quốc Gia",
+      "person": "Barack Obama",
+      "fact": "Tổng thống thứ 44 của Hợp chủng quốc Hoa Kỳ, 2 nhiệm kỳ",
+      "tuTru": "Tân Sửu | Ất Mùi | Kỷ Tỵ | Giáp Tuất",
+      "than": "vuong",
+      "cachCuc": "Thất Sát cách",
+      "dungThan": "Kim",
+      "mechanism": "Tòng Cách / Chuyên Vượng (Thuận khí thế cực vượng)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "Chào bạn, với tư cách là một chuyên gia Tử Bình lâu năm, tôi đã nghiên cứu kỹ lưỡng lá số của đương số sinh ngày 04/08/1961. Dưới đây là bản luận giải chi tiết, chuyên sâu và mang tính hệ thống.\n\n## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\n\nNhật chủ Kỷ Thổ sinh vào tháng Mùi, tiết Đại Thử, đây là thời điểm Thổ khí đương lệnh, Kỷ Thổ tựa hồ như ruộng đất mùa hạ, đầy đủ khí chất của \"vạn vật sinh..."
+    },
+    {
+      "catId": 35,
+      "category": "Quân Vương / Hoàng Đế Chuyên Chế",
+      "person": "Càn Long Hoàng Đế",
+      "fact": "Hoàng đế thịnh trị mạt Thanh, nắm quyền 60 năm, thọ 88 tuổi",
+      "tuTru": "Tân Mão | Đinh Dậu | Canh Ngọ | Bính Tý",
+      "than": "vuong",
+      "cachCuc": "Kiếp Tài cách",
+      "dungThan": "Hỏa",
+      "mechanism": "Phù Ức Thân Vượng (Tiết tú / Khắc chế / Hao tài)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "Chào đương số, với tư cách là một chuyên gia nghiên cứu Bát tự chuyên sâu, tôi đã tiếp nhận lá số của bạn. Đây là một lá số có cấu trúc cực kỳ sắc bén, hàm chứa sự xung đột nội tại mạnh mẽ giữa tính chính trực, cứng rắn của hành Kim và sự rực rỡ, uy quyền của hỏa khí. Dưới đây là luận giải chi tiết dựa trên các nguyên tắc kinh điển và tư duy hiện đại.\n\n## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN TH..."
+    },
+    {
+      "catId": 36,
+      "category": "Tướng Lĩnh / Danh Tướng Quân Sự",
+      "person": "Napoléon Bonaparte",
+      "fact": "Hoàng đế, thiên tài quân sự chinh phạt khắp châu Âu",
+      "tuTru": "Kỷ Sửu | Nhâm Thân | Giáp Ngọ | Canh Ngọ",
+      "than": "vuong",
+      "cachCuc": "Thất Sát cách",
+      "dungThan": "Thổ",
+      "mechanism": "Phù Ức Thân Vượng (Tiết tú / Khắc chế / Hao tài)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "Chào đương số, với tư cách là một chuyên gia Tử Bình, tôi đã tiếp nhận lá số của bạn. Đây là một lá số có cấu trúc rất đặc biệt, đầy ắp sự xung đột nội tại giữa cái tôi (Nhật chủ) và áp lực từ môi trường (Quan Sát). Dưới đây là bản luận giải chi tiết dựa trên các nguyên tắc học thuật cao cấp.\n\n## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\nNhật chủ Giáp Mộc sinh vào tháng Thân (tiết Lập Thu), lúc ..."
+    },
+    {
+      "catId": 37,
+      "category": "Quan Thanh Liêm / Pháp Quan",
+      "person": "Bao Thanh Thiên (Bao Chửng)",
+      "fact": "Biểu tượng công lý thiết diện vô tư, trừng trị gian thần",
+      "tuTru": "Kỷ Hợi | Mậu Thìn | Bính Tý | Nhâm Thìn",
+      "than": "tong_cach",
+      "cachCuc": "Thực Thần cách",
+      "dungThan": "Thổ",
+      "mechanism": "Tòng Cách / Chuyên Vượng (Thuận khí thế cực vượng)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\n\nNhật chủ là **Bính Hỏa**, tượng là ánh mặt trời rực rỡ, sinh vào tháng Thìn (Tiết Thanh Minh), lúc này Thổ vượng, khí Hỏa dần tiến về trạng thái suy nhược nếu không có sự hỗ trợ. Bản mệnh của đương số có cấu trúc rất đặc thù: Toàn cục bị bao vây bởi Thổ (Thực Thương) và Thủy (Quan Sát). Nhật chủ Bính Hỏa không có gốc rễ (không có Tỵ, Ngọ hoặc Bính Đi..."
+    },
+    {
+      "catId": 38,
+      "category": "Quan Tham Nhũng Ngã Ngựa",
+      "person": "Hòa Thân",
+      "fact": "Đại tham quan số 1 nhà Thanh, tài sản tịch thu bằng 15 năm ngân khố",
+      "tuTru": "Canh Ngọ | Nhâm Ngọ | Kỷ Tỵ | Kỷ Tỵ",
+      "than": "rat_vuong",
+      "cachCuc": "Tỷ Kiên cách",
+      "dungThan": "Thổ",
+      "mechanism": "Thông Quan Dụng Thần (Hòa giải hai phe giao tranh)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "Chào đương số, với tư cách là một chuyên gia nghiên cứu Bát tự chuyên sâu, tôi đã tiếp nhận lá số của bạn. Đây là một lá số có cấu trúc rất đặc thù, mang tính \"Hỏa khí bùng phát\", cần sự tỉnh táo trong việc định hướng dụng thần để không rơi vào thế \"tự thiêu\".\n\n## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\n\nNhật chủ Kỷ Thổ sinh vào tháng Ngọ, là mùa Hè, Hỏa vượng Thổ tướng. Tuy nhiên, Kỷ Thổ là đ..."
+    },
+    {
+      "catId": 39,
+      "category": "Trùm Xã Hội Đen / Hắc Bang",
+      "person": "Đỗ Nguyệt Sênh",
+      "fact": "Thủ lĩnh Thanh Bang Thượng Hải, kiểm soát thuốc phiện sòng bạc vũ trang",
+      "tuTru": "Mậu Tý | Canh Thân | Giáp Tý | Canh Ngọ",
+      "than": "nhuoc",
+      "cachCuc": "Thất Sát cách",
+      "dungThan": "Thủy",
+      "mechanism": "Phù Ức Thân Nhược (Sinh phù / Trợ lực Tỷ Kiếp)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "Chào bạn, với tư cách là một chuyên gia Tử Bình, tôi đã tiếp nhận lá số của bạn (sinh ngày 21/08/1888, giờ Ngọ). Dưới đây là bản luận giải chi tiết dựa trên nền tảng Bát Tự kinh điển kết hợp tư duy thời đại mới.\n\n## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\n\nNhật chủ Giáp Mộc sinh vào tháng Thân, là tiết Lập Thu, khí Kim đang đương lệnh, là mùa Kim vượng mà Mộc bị khắc chế nặng nề (Kim khắc Mộc)..."
+    },
+    {
+      "catId": 40,
+      "category": "Trùm Buôn Lậu Gian Thương",
+      "person": "Lại Xương Tinh",
+      "fact": "Vụ án buôn lậu Viễn Hoa lớn nhất TQ, lập Lầu Đỏ hối lộ sa đọa",
+      "tuTru": "Mậu Tuất | Tân Dậu | Ất Mùi | Giáp Thân",
+      "than": "tong_cach",
+      "cachCuc": "Thất Sát cách",
+      "dungThan": "Kim",
+      "mechanism": "Tòng Cách / Chuyên Vượng (Thuận khí thế cực vượng)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "Chào đương số, với tư cách là một chuyên gia Tử Bình, tôi đã phân tích kỹ lưỡng lá số của ông trên nền tảng kinh điển và tư duy biện chứng hiện đại. Dưới đây là luận giải chi tiết:\n\n## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\n\nNhật chủ Ất Mộc sinh vào tháng Dậu (tháng của Kim vượng), đây là trạng thái \"Tử địa\" của Mộc, khí Kim cắt tỉa, áp chế mạnh mẽ. Trong Tứ trụ, Ất Mộc không có căn rễ vững c..."
+    },
+    {
+      "catId": 41,
+      "category": "Nhà Khoa Học Đoạt Nobel",
+      "person": "Marie Curie",
+      "fact": "Nữ bác học duy nhất đoạt 2 giải Nobel ở 2 lĩnh vực Vật lý và Hóa học",
+      "tuTru": "Đinh Mão | Canh Tuất | Tân Mão | Giáp Ngọ",
+      "than": "rat_vuong",
+      "cachCuc": "Thất Sát cách",
+      "dungThan": "Kim",
+      "mechanism": "Tòng Cách / Chuyên Vượng (Thuận khí thế cực vượng)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "Chào đương số, với tư cách là một chuyên gia Tử Bình, tôi đã tiếp nhận lá số của bạn. Đây là một lá số có cấu trúc nội tại vô cùng đặc biệt, mang tính \"Kim - Thổ\" thuần túy, phản ánh một cá tính cương nghị và tầm vóc trí tuệ sắc bén. Dưới đây là luận giải chi tiết dựa trên các nguyên tắc học thuật nghiêm ngặt.\n\n## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\n\nNhật chủ là Tân Kim, sinh vào tháng Tuấ..."
+    },
+    {
+      "catId": 42,
+      "category": "Nhà Phát Minh / Sáng Lập Công Nghệ",
+      "person": "Bill Gates",
+      "fact": "Sáng lập Microsoft, phổ cập hệ điều hành máy tính cá nhân toàn cầu",
+      "tuTru": "Ất Mùi | Bính Tuất | Nhâm Tuất | Tân Hợi",
+      "than": "vuong",
+      "cachCuc": "Chính Ấn cách",
+      "dungThan": "Hỏa",
+      "mechanism": "Phù Ức Thân Vượng (Tiết tú / Khắc chế / Hao tài)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "Chào đương số, với tư cách là một chuyên gia Tử Bình, tôi đã nghiên cứu kỹ lá số của ông. Đây là một lá số có cấu trúc khá đặc biệt, thể hiện một cuộc đời có bề dày trải nghiệm và sự chuyển hóa nội tâm mạnh mẽ. Dưới đây là phần luận giải chi tiết:\n\n## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\nNhật chủ Nhâm Thủy sinh tháng Tuất, là mùa Thổ vượng, khí của Thổ làm cho Thủy bị khắc chế, tuy nhiên tr..."
+    },
+    {
+      "catId": 43,
+      "category": "Bác Sĩ / Y Thánh Danh Nhân",
+      "person": "Lý Thời Trân Cổ Án",
+      "fact": "Tác giả Bản Thảo Cương Mục, danh y vĩ đại của Đông y học",
+      "tuTru": "Mậu Dần | Kỷ Mùi | Giáp Tý | Đinh Mão",
+      "than": "nhuoc",
+      "cachCuc": "Chính Tài cách",
+      "dungThan": "Thủy",
+      "mechanism": "Phù Ức Thân Nhược (Sinh phù / Trợ lực Tỷ Kiếp)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "Chào đương số, với tư cách là một chuyên gia Tử Bình, tôi đã tiếp nhận lá số của bạn. Sinh vào ngày Giáp Mộc, tiết Tiểu Thử, tháng Mùi – thời điểm Hỏa khí còn dư mà Thổ đã bắt đầu vượng, đại diện cho một mùa hạ đang độ nóng bức. Dưới đây là bản luận giải chi tiết theo hệ thống học thuật chuyên sâu.\n\n## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\n\nNhật chủ Giáp Mộc, sinh tháng Mùi là mùa hạ, lúc nà..."
+    },
+    {
+      "catId": 44,
+      "category": "Nhà Văn / Đại Thi Hào",
+      "person": "Nguyễn Du",
+      "fact": "Đại thi hào dân tộc Việt Nam, Danh nhân văn hóa thế giới",
+      "tuTru": "Ất Dậu | Mậu Tý | Giáp Ngọ | Mậu Thìn",
+      "than": "vuong",
+      "cachCuc": "Chính Ấn cách",
+      "dungThan": "Kim",
+      "mechanism": "Phù Ức Thân Vượng (Tiết tú / Khắc chế / Hao tài)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "Chào đương số, tôi là chuyên gia Tử Bình với hơn 20 năm thực chiến. Dựa trên dữ liệu Tứ Trụ, tôi xin luận giải lá số của bạn bằng phương pháp biện chứng kết hợp tinh hoa Cổ học và Tư duy hiện đại như sau:\n\n## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\nNhật chủ Giáp Mộc sinh tháng Tý, là thời điểm Đông chí, khí lạnh còn vượng, Thủy nắm lệnh sinh Mộc (Ấn tinh trợ lực). Tuy nhiên, Giáp Mộc không có ..."
+    },
+    {
+      "catId": 45,
+      "category": "Họa Sĩ / Nghệ Sĩ Tạo Hình",
+      "person": "Leonardo da Vinci",
+      "fact": "Thiên tài Phục hưng tác giả bức tranh Mona Lisa, Bữa ăn tối cuối cùng",
+      "tuTru": "Nhâm Thân | Giáp Thìn | Kỷ Mùi | Ất Hợi",
+      "than": "rat_vuong",
+      "cachCuc": "Thất Sát cách",
+      "dungThan": "Hỏa",
+      "mechanism": "Thông Quan Dụng Thần (Hòa giải hai phe giao tranh)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "Chào đương số, với tư cách là một chuyên gia Tử Bình, tôi đã phân tích lá số của bạn dựa trên nguyên tắc Ngũ hành kinh điển kết hợp với tư duy thời đại mới. Lá số này thuộc về một mệnh cách có chiều sâu, đòi hỏi sự rèn giũa khắc nghiệt mới có thể hiển lộ được tài hoa.\n\n## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\n\nNhật chủ Kỷ Thổ sinh vào tháng Thìn (tiết Cốc Vũ), Thổ khí đương quyền, lại được M..."
+    },
+    {
+      "catId": 46,
+      "category": "Ca Sĩ / Diva / Vua Nhạc",
+      "person": "Michael Jackson",
+      "fact": "Vua nhạc Pop, nghệ sĩ giải trí thành công nhất mọi thời đại",
+      "tuTru": "Mậu Tuất | Canh Thân | Mậu Dần | Giáp Tý",
+      "than": "nhuoc",
+      "cachCuc": "Thực Thần cách",
+      "dungThan": "Hỏa",
+      "mechanism": "Phù Ức Thân Nhược (Sinh phù / Trợ lực Tỷ Kiếp)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\n\nNhật chủ Mậu Thổ sinh vào tháng Thân (tiết Xử Thử), lúc này Kim khí đương lệnh, Mậu Thổ đang ở trạng thái bệnh địa, khí tiết hao tổn nặng nề. Bản thân Mậu Thổ là dương thổ, tính chất tĩnh tại, bao dung, nhưng tại lệnh tháng Thân, Thực Thần Canh Kim tiết khí mạnh mẽ, Nhật chủ không được lệnh, lại không đắc địa (trừ căn rễ tại Tuất và Dần, nhưng Dần-Th..."
+    },
+    {
+      "catId": 47,
+      "category": "Diễn Viên Điện Ảnh / Ảnh Đế",
+      "person": "Châu Tinh Trì",
+      "fact": "Vua hài kịch châu Á, đạo diễn ảnh đế xuất chúng",
+      "tuTru": "Nhâm Dần | Bính Ngọ | Tân Mão | Quý Tỵ",
+      "than": "nhuoc",
+      "cachCuc": "Thất Sát cách",
+      "dungThan": "Hỏa",
+      "mechanism": "Tòng Cách / Chuyên Vượng (Thuận khí thế cực vượng)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "Chào đương số, với tư cách là một chuyên gia Tử Bình, tôi đã phân tích lá số của ông dựa trên dữ liệu Bát Tự, kết hợp các quy tắc kinh điển và tư duy hiện đại. Dưới đây là bản luận giải chi tiết cho mệnh chủ sinh ngày 22/06/1962.\n\n## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\n\nNhật chủ **Tân Kim** sinh vào tháng Ngọ (hỏa vượng), tiết Hạ Chí, là lúc khí Hỏa đang cực thịnh, kim rơi vào trạng thái t..."
+    },
+    {
+      "catId": 48,
+      "category": "Vận Động Viên Vô Địch Thế Giới",
+      "person": "Pelé",
+      "fact": "Vua bóng đá, cầu thủ duy nhất 3 lần vô địch World Cup",
+      "tuTru": "Canh Thìn | Bính Tuất | Kỷ Hợi | Bính Dần",
+      "than": "vuong",
+      "cachCuc": "Kiếp Tài cách",
+      "dungThan": "Thổ",
+      "mechanism": "Thông Quan Dụng Thần (Hòa giải hai phe giao tranh)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\n\nNhật chủ Kỷ Thổ sinh vào tháng Tuất, là mùa cuối thu, Thổ khí đương quyền, Kỷ Thổ được lệnh nên có sự vững vàng nội tại. Tuy nhiên, xét toàn cục Tứ trụ: Canh Kim (Thương Quan) ở trụ năm, Bính Hỏa (Chính Ấn) lộ ở trụ tháng và giờ, Giáp Ất mộc ẩn tàng. Kỷ Thổ sinh tháng Tuất tuy đắc lệnh nhưng không có căn Tỷ Kiếp hỗ trợ trực tiếp từ các chi khác (Dần,..."
+    },
+    {
+      "catId": 49,
+      "category": "Nhà Giáo / Sư Phạm Mẫu Mực",
+      "person": "Khổng Tử Cổ Án",
+      "fact": "Vạn thế sư biểu Nho gia, người thầy vĩ đại của văn minh Á Đông",
+      "tuTru": "Tân Mùi | Đinh Dậu | Giáp Dần | Đinh Mão",
+      "than": "nhuoc",
+      "cachCuc": "Chính Quan cách",
+      "dungThan": "Hỏa",
+      "mechanism": "Tòng Cách / Chuyên Vượng (Thuận khí thế cực vượng)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "Chào đương số, với tư cách là một chuyên gia Tử Bình, tôi đã tiếp nhận và phân tích lá số của bạn. Dưới đây là bản luận giải chi tiết, kết hợp giữa kinh điển và tư duy quản trị hiện đại.\n\n## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\n\nNhật chủ Giáp Mộc sinh vào tháng Dậu (tháng của Kim), khí Kim vượng làm tổn hại đến Mộc. Giáp Mộc sinh ở mùa Thu, tử địa (dựa theo trường sinh), lại bị Đinh Hỏa (Th..."
+    },
+    {
+      "catId": 50,
+      "category": "Lưu Vong / Di Cư Tha Hương",
+      "person": "Phan Bội Châu",
+      "fact": "Chí sĩ lãnh đạo phong trào Đông Du, bôn ba lưu vong Nhật Bản, Trung Quốc",
+      "tuTru": "Đinh Mão | Nhâm Tý | Canh Thìn | Kỷ Mão",
+      "than": "nhuoc",
+      "cachCuc": "Thương Quan cách",
+      "dungThan": "Thủy",
+      "mechanism": "Tòng Cách / Chuyên Vượng (Thuận khí thế cực vượng)",
+      "matchScore": 100,
+      "matchEvidence": [
+        "Bắt trọn 4 phương diện nhân mệnh, chuẩn xác định hướng ngũ hành."
+      ],
+      "failureReasons": [],
+      "aiSnippet": "Chào đương số, tôi là chuyên gia Tử Bình của bạn. Với tư cách là một người nghiên cứu chuyên sâu, tôi xin được luận giải lá số của bạn theo phương pháp biện chứng kết hợp giữa cổ học tinh hoa và tư duy hiện đại.\n\n## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ\n\nNhật chủ Canh Kim sinh tháng Tý, là thời điểm tiết Đông Chí, tiết khí cực hàn, Thủy khí vượng cực độ. Theo lý thuyết \"Kim sinh Đông nguyệt\"..."
+    }
+  ]
+}

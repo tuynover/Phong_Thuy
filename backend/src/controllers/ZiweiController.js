@@ -17,9 +17,24 @@ class ZiweiController {
         return res.status(400).json({ error: valResult.error });
       }
 
-      const { date, hour, gender, timezone, school, calendarType, name } = valResult.sanitized;
+      let { date, hour, gender, timezone, school, calendarType, name, calendarMode = 'solar', isLeap } = valResult.sanitized;
       const userId = req.body.userId || 'guest';
       const idempotencyKey = req.headers['idempotency-key'] || req.headers['Idempotency-Key'];
+      const rawDate = req.body.date; // Ngày âm lịch gốc dạng chuỗi từ client
+
+      if (calendarMode === 'lunar') {
+        const { Lunar } = require('lunar-javascript');
+        const parts = date.split('-');
+        const yNum = parseInt(parts[0], 10);
+        const mNum = parseInt(parts[1], 10);
+        const dNum = parseInt(parts[2], 10);
+        
+        const lunarObj = Lunar.fromYmd(yNum, isLeap ? -mNum : mNum, dNum);
+        const solarObj = lunarObj.getSolar();
+        
+        // Quy đổi sang dương lịch YYYY-MM-DD
+        date = `${solarObj.getYear()}-${String(solarObj.getMonth()).padStart(2, '0')}-${String(solarObj.getDay()).padStart(2, '0')}`;
+      }
 
       // 1. Kiểm tra bằng Idempotency Key header nếu được cung cấp
       if (idempotencyKey) {
@@ -41,7 +56,6 @@ class ZiweiController {
       // B. Kiểm tra Database xem đã tồn tại lá số này cho user chưa (Database Idempotency)
       const existingRecord = await ZiweiRecord.findOne({ userId, chartHash, isDeleted: { $ne: true } });
       if (existingRecord) {
-        // Cập nhật lại bộ nhớ đệm và trả về bản ghi cũ
         ZiweiCache.setChart(chartHash, existingRecord);
         return res.json(existingRecord);
       }
@@ -56,13 +70,26 @@ class ZiweiController {
 
       const formattedName = name?.trim() || `Tử Vi - ${gender} Mệnh`;
 
+      const inputInfo = { 
+        name: formattedName, 
+        date, 
+        hour, 
+        gender, 
+        timezone, 
+        school, 
+        calendarType,
+        calendarMode,
+        isLeap,
+        lunarDate: calendarMode === 'lunar' ? rawDate : ''
+      };
+
       // 5. Lưu bản ghi thô vào database
       const newRecord = await ZiweiRecord.create({
         _id: recordId,
         userId,
         system: 'ziwei',
         idempotencyKey: idempotencyKey || `${userId}:${chartHash}`,
-        inputInfo: { name: formattedName, date, hour, gender, timezone, school, calendarType },
+        inputInfo,
         chartHash,
         chartData: formattedOutput.chart_data,
         aiInterpretation: { summary: "", sections: [] }

@@ -245,6 +245,13 @@ Hệ thống tự động tính toán và hiển thị 35 Thần Sát đặc th�
 33. **Đại Hao (Nguyên Thần):** Thần sát tĩnh tra cứu kết hợp Địa Chi năm sinh, Can năm sinh (Âm/Dương) và Giới tính của đương số (Dương Nam/Âm Nữ tiến 7 cung, Âm Nam/Dương Nữ tiến 5 cung).
 34. **Tuế Phá:** Thần sát động vận hạn chỉ hiển thị tại bảng Niên Vận Tinh động bên trái khi Địa Chi của năm Lưu Niên đối xung trực tiếp với Địa Chi năm sinh bản mệnh.
 
+### 5.16 Quy Chuẩn Luận Giải Bát Tự vNext (Hiện Đại Hóa & Y Học Biện Chứng)
+- **Ánh xạ Ngành nghề Hiện đại (Modern Career Mapping):** Quy đổi Thập Thần sang nền kinh tế tri thức (Thực Thương = AI, Công nghệ số, Startup; Quan Sát = CEO, Quản trị cấp cao, Pháp lý; Tài Tinh = Fintech, Đầu tư quỹ).
+- **Nhận diện Ngoại Cách (Special Patterns):** Tự động nhận diện Tòng Nhi, Tòng Tài, Tòng Sát, Chuyên Vượng, Sát Ấn Tương Sinh, Thương Quan Hợp/Chế Sát nhằm tránh đảo ngược Dụng Thần trong các thế cực đoan.
+- **Hôn nhân & Bình đẳng giới Thời đại Mới:** Nữ mệnh có Quan Sát vượng không phán "khắc chồng", phân tích năng lực tự chủ và chuyển hóa Quan Sát thành sự nghiệp độc lập.
+- **Y học Bát Tự & Bệnh học Đông Y (TCM Pathology):** Liên kết ngũ hành thiên lệch với bệnh học tạng phủ hiện đại (Hỏa vượng thiêu Mộc/Kim -> tế bào đột biến/ung bướu tụy, phổi, gan; Kim hàn Thủy lãnh -> thận suy, trầm cảm).
+- **Chuyển hóa Nghịch cảnh (Resilience):** Phân tích các năm hạn Tam Hình, Lục Xung, Thái Tuế Áp Đỉnh theo hướng nhận diện cơ chế biến áp lực thành bàn đạp phát triển nội lực.
+
 ---
 
 ## 📚 6. Quy tắc Nghiệp vụ Quản lý Blog, Deep-Linking & Định dạng Markdown

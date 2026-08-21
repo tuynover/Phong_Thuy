@@ -1300,5 +1300,30 @@ export const baziConcepts = {
         "category": "Thần Sát Bát Tự",
         "short_description": "Kho sách tri thức. Trí nhớ siêu phàm, viết lách tài hoa.",
         "full_detail": "▸ Loại tinh: Cát thần lập ngôn.\n▸ Đặc trưng: Văn phong uyển chuyển, trí nhớ siêu việt, tư tưởng uyên bác.\n▸ Ý nghĩa: Chủ về danh tiếng trong thi văn, lập ngôn lập thuyết, công danh rộng mở."
+    },
+    "Lưu Hà": {
+        "term": "Lưu Hà",
+        "short_description": "Hung sát trôi nổi, biến động. Đề phòng sông nước, huyết quang.",
+        "full_detail": "▸ Bản chất: Hung sát chủ về sự biến động, phiêu bạt bất định, hoặc các sự cố liên quan đến máu và nước.\n▸ Ảnh hưởng: Gặp Lưu Hà ở mệnh cục hoặc vận hạn cần chú ý an toàn khi đi lại trên sông nước. Nữ mệnh cần đề phòng các vấn đề về sản ách, huyết quang.\n▸ Tích cực: Nếu gặp cát tinh sinh trợ hoặc đắc dụng thần, có thể đại diện cho sự nhanh nhẹn, lưu loát, tài ngoại giao hoặc đi xa lập nghiệp phát đạt."
+    },
+    "Lưu Hà Sát": {
+        "term": "Lưu Hà Sát",
+        "short_description": "Hung sát trôi nổi, biến động. Đề phòng sông nước, huyết quang.",
+        "full_detail": "▸ Bản chất: Hung sát chủ về sự biến động, phiêu bạt bất định, hoặc các sự cố liên quan đến máu và nước.\n▸ Ảnh hưởng: Gặp Lưu Hà ở mệnh cục hoặc vận hạn cần chú ý an toàn khi đi lại trên sông nước. Nữ mệnh cần đề phòng các vấn đề về sản ách, huyết quang.\n▸ Tích cực: Nếu gặp cát tinh sinh trợ hoặc đắc dụng thần, có thể đại diện cho sự nhanh nhẹn, lưu loát, tài ngoại giao hoặc đi xa lập nghiệp phát đạt."
+    },
+    "Thiên Hỷ": {
+        "term": "Thiên Hỷ",
+        "short_description": "Cát tinh hỷ sự, đào hoa cát tường, nhân duyên thuận lợi.",
+        "full_detail": "▸ Bản chất: Cát tinh chủ về niềm vui, sự hòa hợp, may mắn và các sự kiện hỷ sự (cưới hỏi, sinh con).\n▸ Ảnh hưởng: Mang lại vận thế vui tươi, tinh thần lạc quan, dễ gặp cơ hội kết duyên lành hoặc có tin mừng trong gia đạo. \n▸ Cứu giải: Có khả năng hóa giải bớt vận xui, gặp hung hóa cát nhẹ nhàng."
+    },
+    "Cô Loan": {
+        "term": "Cô Loan",
+        "short_description": "Hung sát cô độc tình cảm, trắc trở duyên nợ.",
+        "full_detail": "▸ Bản chất: Hung sát chủ về sự cô đơn, xa cách trong các mối quan hệ tình cảm và gia đình (Cô Loan quả nhạn).\n▸ Ảnh hưởng: Vợ chồng dễ gặp cảnh bất hòa, lạnh nhạt, xa cách vì công việc hoặc khó chia sẻ tâm tư, phòng khuê đơn chiếc.\n▸ Hóa giải: Hôn nhân muộn màng, kết hôn với người từng trải hoặc sống bao dung, nhường nhịn nhau sẽ giảm bớt tác hại."
+    },
+    "Cô Loan Sát": {
+        "term": "Cô Loan Sát",
+        "short_description": "Hung sát cô độc tình cảm, trắc trở duyên nợ.",
+        "full_detail": "▸ Bản chất: Hung sát chủ về sự cô đơn, xa cách trong các mối quan hệ tình cảm và gia đình (Cô Loan quả nhạn).\n▸ Ảnh hưởng: Vợ chồng dễ gặp cảnh bất hòa, lạnh nhạt, xa cách vì công việc hoặc khó chia sẻ tâm tư, phòng khuê đơn chiếc.\n▸ Hóa giải: Hôn nhân muộn màng, kết hôn với người từng trải hoặc sống bao dung, nhường nhịn nhau sẽ giảm bớt tác hại."
     }
 };

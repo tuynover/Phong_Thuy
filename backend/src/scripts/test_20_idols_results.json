@@ -1,0 +1,426 @@
+[
+  {
+    "id": 1,
+    "name": "Michael Jackson",
+    "country": "Mỹ (US-UK)",
+    "role": "Vua nhạc Pop thế giới (King of Pop)",
+    "date": "29/08/1958",
+    "time": "23:45",
+    "tuTru": "Mậu Tuất | Canh Thân | Mậu Dần | Giáp Tý",
+    "nhatChu": "Mậu (N/A)",
+    "than": "nhuoc",
+    "cachCuc": "Thực Thần cách",
+    "dungThan": "N/A",
+    "hyThan": "N/A",
+    "relations": {
+      "xung": [
+        "Dần-Thân"
+      ],
+      "hop": [],
+      "tamHop": [],
+      "hinh": []
+    }
+  },
+  {
+    "id": 2,
+    "name": "Taylor Swift",
+    "country": "Mỹ (US-UK)",
+    "role": "Siêu sao nhạc Pop & Country toàn cầu thế kỷ 21",
+    "date": "13/12/1989",
+    "time": "05:17",
+    "tuTru": "Kỷ Tỵ | Bính Tý | Đinh Mùi | Quý Mão",
+    "nhatChu": "Đinh (N/A)",
+    "than": "vuong",
+    "cachCuc": "Thất Sát cách",
+    "dungThan": "N/A",
+    "hyThan": "N/A",
+    "relations": {
+      "xung": [],
+      "hop": [],
+      "tamHop": [],
+      "hinh": []
+    }
+  },
+  {
+    "id": 3,
+    "name": "Beyoncé",
+    "country": "Mỹ (US-UK)",
+    "role": "Nữ hoàng R&B thế giới (Queen Bey)",
+    "date": "04/09/1981",
+    "time": "10:00",
+    "tuTru": "Tân Dậu | Bính Thân | Ất Dậu | Tân Tỵ",
+    "nhatChu": "Ất (N/A)",
+    "than": "tong_cach",
+    "cachCuc": "Chính Quan cách",
+    "dungThan": "N/A",
+    "hyThan": "N/A",
+    "relations": {
+      "xung": [],
+      "hop": [],
+      "tamHop": [],
+      "hinh": []
+    }
+  },
+  {
+    "id": 4,
+    "name": "Freddie Mercury",
+    "country": "Anh (US-UK)",
+    "role": "Giọng ca huyền thoại ban nhạc Queen",
+    "date": "05/09/1946",
+    "time": "06:10",
+    "tuTru": "Bính Tuất | Bính Thân | Nhâm Ngọ | Quý Mão",
+    "nhatChu": "Nhâm (N/A)",
+    "than": "rat_vuong",
+    "cachCuc": "Thiên Ấn cách",
+    "dungThan": "N/A",
+    "hyThan": "N/A",
+    "relations": {
+      "xung": [],
+      "hop": [],
+      "tamHop": [],
+      "hinh": []
+    }
+  },
+  {
+    "id": 5,
+    "name": "Madonna",
+    "country": "Mỹ (US-UK)",
+    "role": "Nữ hoàng nhạc Pop (Queen of Pop)",
+    "date": "16/08/1958",
+    "time": "07:05",
+    "tuTru": "Mậu Tuất | Canh Thân | Ất Sửu | Canh Thìn",
+    "nhatChu": "Ất (N/A)",
+    "than": "vuong",
+    "cachCuc": "Chính Quan cách",
+    "dungThan": "N/A",
+    "hyThan": "N/A",
+    "relations": {
+      "xung": [
+        "Thìn-Tuất"
+      ],
+      "hop": [],
+      "tamHop": [],
+      "hinh": []
+    }
+  },
+  {
+    "id": 6,
+    "name": "Marilyn Monroe",
+    "country": "Mỹ (Hollywood)",
+    "role": "Biểu tượng gợi cảm & minh tinh Hollywood",
+    "date": "01/06/1926",
+    "time": "09:30",
+    "tuTru": "Bính Dần | Quý Tỵ | Tân Dậu | Quý Tỵ",
+    "nhatChu": "Tân (N/A)",
+    "than": "nhuoc",
+    "cachCuc": "Chính Quan cách",
+    "dungThan": "N/A",
+    "hyThan": "N/A",
+    "relations": {
+      "xung": [],
+      "hop": [],
+      "tamHop": [],
+      "hinh": []
+    }
+  },
+  {
+    "id": 7,
+    "name": "Leonardo DiCaprio",
+    "country": "Mỹ (Hollywood)",
+    "role": "Tài tử điện ảnh đoạt Oscar (Titanic)",
+    "date": "11/11/1974",
+    "time": "02:47",
+    "tuTru": "Giáp Dần | Ất Hợi | Bính Thìn | Kỷ Sửu",
+    "nhatChu": "Bính (N/A)",
+    "than": "can_bang",
+    "cachCuc": "Thiên Ấn cách",
+    "dungThan": "N/A",
+    "hyThan": "N/A",
+    "relations": {
+      "xung": [],
+      "hop": [
+        "Dần-Hợi"
+      ],
+      "tamHop": [],
+      "hinh": []
+    }
+  },
+  {
+    "id": 8,
+    "name": "Tom Cruise",
+    "country": "Mỹ (Hollywood)",
+    "role": "Siêu sao hành động Hollywood (Top Gun, M:I)",
+    "date": "03/07/1962",
+    "time": "15:06",
+    "tuTru": "Nhâm Dần | Bính Ngọ | Nhâm Dần | Mậu Thân",
+    "nhatChu": "Nhâm (N/A)",
+    "than": "nhuoc",
+    "cachCuc": "Chính Tài cách",
+    "dungThan": "N/A",
+    "hyThan": "N/A",
+    "relations": {
+      "xung": [
+        "Dần-Thân"
+      ],
+      "hop": [],
+      "tamHop": [],
+      "hinh": []
+    }
+  },
+  {
+    "id": 9,
+    "name": "Audrey Hepburn",
+    "country": "Bỉ / Anh (Hollywood)",
+    "role": "Biểu tượng thanh lịch & minh tinh Oscar",
+    "date": "04/05/1929",
+    "time": "03:00",
+    "tuTru": "Kỷ Tỵ | Mậu Thìn | Kỷ Dậu | Bính Dần",
+    "nhatChu": "Kỷ (N/A)",
+    "than": "cuc_vuong",
+    "cachCuc": "Kiếp Tài cách",
+    "dungThan": "N/A",
+    "hyThan": "N/A",
+    "relations": {
+      "xung": [],
+      "hop": [
+        "Thìn-Dậu"
+      ],
+      "tamHop": [],
+      "hinh": []
+    }
+  },
+  {
+    "id": 10,
+    "name": "Jungkook (BTS)",
+    "country": "Hàn Quốc (K-Pop)",
+    "role": "Golden Maknae siêu sao K-Pop toàn cầu",
+    "date": "01/09/1997",
+    "time": "15:30",
+    "tuTru": "Đinh Sửu | Mậu Thân | Bính Ngọ | Bính Thân",
+    "nhatChu": "Bính (N/A)",
+    "than": "nhuoc",
+    "cachCuc": "Thực Thần cách",
+    "dungThan": "N/A",
+    "hyThan": "N/A",
+    "relations": {
+      "xung": [],
+      "hop": [],
+      "tamHop": [],
+      "hinh": []
+    }
+  },
+  {
+    "id": 11,
+    "name": "G-Dragon (BIGBANG)",
+    "country": "Hàn Quốc (K-Pop)",
+    "role": "Ông hoàng K-Pop & Biểu tượng thời trang",
+    "date": "18/08/1988",
+    "time": "12:00",
+    "tuTru": "Mậu Thìn | Canh Thân | Ất Tỵ | Nhâm Ngọ",
+    "nhatChu": "Ất (N/A)",
+    "than": "nhuoc",
+    "cachCuc": "Chính Quan cách",
+    "dungThan": "N/A",
+    "hyThan": "N/A",
+    "relations": {
+      "xung": [],
+      "hop": [
+        "Thân-Tỵ"
+      ],
+      "tamHop": [],
+      "hinh": []
+    }
+  },
+  {
+    "id": 12,
+    "name": "IU (Lee Ji-eun)",
+    "country": "Hàn Quốc (K-Pop)",
+    "role": "Em gái quốc dân, Nữ ca sĩ / Nhạc sĩ số 1",
+    "date": "16/05/1993",
+    "time": "14:30",
+    "tuTru": "Quý Dậu | Đinh Tỵ | Đinh Dậu | Đinh Mùi",
+    "nhatChu": "Đinh (N/A)",
+    "than": "rat_vuong",
+    "cachCuc": "Kiếp Tài cách",
+    "dungThan": "N/A",
+    "hyThan": "N/A",
+    "relations": {
+      "xung": [],
+      "hop": [],
+      "tamHop": [],
+      "hinh": []
+    }
+  },
+  {
+    "id": 13,
+    "name": "Son Ye-jin",
+    "country": "Hàn Quốc (K-Drama)",
+    "role": "Nữ thần phim tình cảm Hàn Quốc (Hạ Cánh Nơi Anh)",
+    "date": "11/01/1982",
+    "time": "06:00",
+    "tuTru": "Tân Dậu | Tân Sửu | Giáp Ngọ | Đinh Mão",
+    "nhatChu": "Giáp (N/A)",
+    "than": "vuong",
+    "cachCuc": "Chính Quan cách",
+    "dungThan": "N/A",
+    "hyThan": "N/A",
+    "relations": {
+      "xung": [
+        "Mão-Dậu"
+      ],
+      "hop": [],
+      "tamHop": [],
+      "hinh": []
+    }
+  },
+  {
+    "id": 14,
+    "name": "Châu Kiệt Luân (Jay Chou)",
+    "country": "Đài Loan (Mandopop)",
+    "role": "Ông hoàng nhạc Pop châu Á (King of Mandopop)",
+    "date": "18/01/1979",
+    "time": "10:30",
+    "tuTru": "Mậu Ngọ | Ất Sửu | Ất Dậu | Tân Tỵ",
+    "nhatChu": "Ất (N/A)",
+    "than": "nhuoc",
+    "cachCuc": "Thất Sát cách",
+    "dungThan": "N/A",
+    "hyThan": "N/A",
+    "relations": {
+      "xung": [],
+      "hop": [],
+      "tamHop": [],
+      "hinh": []
+    }
+  },
+  {
+    "id": 15,
+    "name": "Vương Phi (Faye Wong)",
+    "country": "Trung Quốc (C-Pop)",
+    "role": "Thiên hậu làng nhạc Hoa ngữ",
+    "date": "08/08/1969",
+    "time": "21:15",
+    "tuTru": "Kỷ Dậu | Nhâm Thân | Ất Mão | Đinh Hợi",
+    "nhatChu": "Ất (N/A)",
+    "than": "can_bang",
+    "cachCuc": "Chính Ấn cách",
+    "dungThan": "N/A",
+    "hyThan": "N/A",
+    "relations": {
+      "xung": [
+        "Mão-Dậu"
+      ],
+      "hop": [],
+      "tamHop": [],
+      "hinh": []
+    }
+  },
+  {
+    "id": 16,
+    "name": "Lưu Đức Hoa (Andy Lau)",
+    "country": "Hong Kong (C-Pop)",
+    "role": "Thiên vương giải trí Hong Kong & Ca sĩ / Diễn viên",
+    "date": "27/09/1961",
+    "time": "06:15",
+    "tuTru": "Tân Sửu | Đinh Dậu | Quý Hợi | Ất Mão",
+    "nhatChu": "Quý (N/A)",
+    "than": "rat_vuong",
+    "cachCuc": "Thiên Ấn cách",
+    "dungThan": "N/A",
+    "hyThan": "N/A",
+    "relations": {
+      "xung": [
+        "Mão-Dậu"
+      ],
+      "hop": [],
+      "tamHop": [],
+      "hinh": []
+    }
+  },
+  {
+    "id": 17,
+    "name": "Takuya Kimura (SMAP)",
+    "country": "Nhật Bản (J-Pop)",
+    "role": "Thần tượng quốc dân số 1 lịch sử J-Pop",
+    "date": "13/11/1972",
+    "time": "10:00",
+    "tuTru": "Nhâm Tý | Tân Hợi | Mậu Thân | Đinh Tỵ",
+    "nhatChu": "Mậu (N/A)",
+    "than": "tong_cach",
+    "cachCuc": "Thiên Tài cách",
+    "dungThan": "N/A",
+    "hyThan": "N/A",
+    "relations": {
+      "xung": [
+        "Tỵ-Hợi"
+      ],
+      "hop": [
+        "Thân-Tỵ"
+      ],
+      "tamHop": [],
+      "hinh": []
+    }
+  },
+  {
+    "id": 18,
+    "name": "Aishwarya Rai",
+    "country": "Ấn Độ (Bollywood)",
+    "role": "Hoa hậu Thế giới 1994 & Nữ hoàng Bollywood",
+    "date": "01/11/1973",
+    "time": "04:05",
+    "tuTru": "Quý Sửu | Nhâm Tuất | Tân Sửu | Canh Dần",
+    "nhatChu": "Tân (N/A)",
+    "than": "rat_vuong",
+    "cachCuc": "Tòng Cách cách (Kim độc vượng)",
+    "dungThan": "N/A",
+    "hyThan": "N/A",
+    "relations": {
+      "xung": [],
+      "hop": [],
+      "tamHop": [],
+      "hinh": []
+    }
+  },
+  {
+    "id": 19,
+    "name": "Sơn Tùng M-TP",
+    "country": "Việt Nam (V-Pop)",
+    "role": "Nghệ sĩ & Ca sĩ hàng đầu V-Pop",
+    "date": "05/07/1994",
+    "time": "06:30",
+    "tuTru": "Giáp Tuất | Canh Ngọ | Nhâm Thìn | Quý Mão",
+    "nhatChu": "Nhâm (N/A)",
+    "than": "nhuoc",
+    "cachCuc": "Chính Tài cách",
+    "dungThan": "N/A",
+    "hyThan": "N/A",
+    "relations": {
+      "xung": [
+        "Thìn-Tuất"
+      ],
+      "hop": [],
+      "tamHop": [],
+      "hinh": []
+    }
+  },
+  {
+    "id": 20,
+    "name": "Mỹ Tâm",
+    "country": "Việt Nam (V-Pop)",
+    "role": "Họa mi tóc nâu, Nữ ca sĩ hàng đầu V-Pop 20+ năm",
+    "date": "16/01/1981",
+    "time": "08:30",
+    "tuTru": "Canh Thân | Kỷ Sửu | Giáp Ngọ | Mậu Thìn",
+    "nhatChu": "Giáp (N/A)",
+    "than": "nhuoc",
+    "cachCuc": "Chính Tài cách",
+    "dungThan": "N/A",
+    "hyThan": "N/A",
+    "relations": {
+      "xung": [],
+      "hop": [],
+      "tamHop": [],
+      "hinh": []
+    }
+  }
+]

@@ -1873,86 +1873,160 @@ class BaziAnalyzer {
         return formattedChains;
     }
 
-    analyze(dateStr, timeStr, gender = 1, dayBoundaryMode = 'midnight') { // gender: 1 (Nam), 0 (Nữ)
+    analyze(dateStr, timeStr, gender = 1, dayBoundaryMode = 'midnight', manualData = null) { // gender: 1 (Nam), 0 (Nữ)
         // 1. Data Prep
-        let day, month, year;
-        if (dateStr.includes('-')) {
-            const parts = dateStr.split('-').map(Number);
-            year = parts[0];
-            month = parts[1];
-            day = parts[2];
-        } else {
-            const parts = dateStr.split('/').map(Number);
-            day = parts[0];
-            month = parts[1];
-            year = parts[2];
-        }
-        const [hour, minute] = timeStr.split(':').map(Number);
-        
+        let day = 1, month = 1, year = 1990, hour = 12, minute = 0;
         const genderInt = parseInt(gender) === 0 ? 0 : 1;
         const sect = dayBoundaryMode === 'zi_hour' ? 1 : 2;
 
-        // A. local Bazi for Day and Hour
-        const solarLocal = Solar.fromYmdHms(year, month, day, hour, minute, 0);
-        const lunarLocal = solarLocal.getLunar();
-        const baziLocal = lunarLocal.getEightChar();
-        baziLocal.setSect(sect);
+        let solarLocal, lunarLocal, baziLocal, solarAdjusted, lunarAdjusted, baziAdjusted;
+        let solarTimeline, tietKhiTimeline, tietKhiName, tuLenhCan, lunarDateStr, lunarYear;
+        let birthSolarYear = manualData ? manualData.birthSolarYear : null;
 
-        // B. Adjusted Bazi (+1 hour for GMT+8 Beijing astronomical solar terms) for Year, Month, and Da Yun
-        const solarAdjusted = solarLocal.nextHour(1);
-        const lunarAdjusted = solarAdjusted.getLunar();
-        const baziAdjusted = lunarAdjusted.getEightChar();
-        baziAdjusted.setSect(sect);
-        
-        const solarTimeline = `${String(day).padStart(2,'0')}/${String(month).padStart(2,'0')}/${year} ${String(hour).padStart(2,'0')}:${String(minute).padStart(2,'0')}`;
-        const tietKhiTimeline = `${toVi(baziLocal.getTimeGan() + baziLocal.getTimeZhi())} - ${toVi(baziLocal.getDayGan() + baziLocal.getDayZhi())} - ${toVi(baziAdjusted.getMonthGan() + baziAdjusted.getMonthZhi())} - ${toVi(baziAdjusted.getYearGan() + baziAdjusted.getYearZhi())}`;
+        const BAN_KHI = {
+            'Tý': 'Quý', 'Sửu': 'Kỷ', 'Dần': 'Giáp', 'Mão': 'Ất', 'Thìn': 'Mậu', 'Tỵ': 'Bính',
+            'Ngọ': 'Đinh', 'Mùi': 'Kỷ', 'Thân': 'Canh', 'Dậu': 'Tân', 'Tuất': 'Mậu', 'Hợi': 'Nhâm'
+        };
 
-        const JIE_NAMES = ['立春', '惊蛰', '清明', '立夏', '芒种', '小暑', '立秋', '白露', '寒露', '立冬', '大雪', '小寒'];
-        let prevJie = lunarAdjusted.getPrevJieQi();
-        const tietKhiName = prevJie ? (JIE_QI_VI[prevJie.getName()] || prevJie.getName()) : '';
+        const getTaiNguyen = (monthGan, monthZhi) => {
+            const stems = ['Giáp', 'Ất', 'Bính', 'Đinh', 'Mậu', 'Kỷ', 'Canh', 'Tân', 'Nhâm', 'Quý'];
+            const zhis = ['Tý', 'Sửu', 'Dần', 'Mão', 'Thìn', 'Tỵ', 'Ngọ', 'Mùi', 'Thân', 'Dậu', 'Tuất', 'Hợi'];
+            const gIdx = stems.indexOf(monthGan);
+            const zIdx = zhis.indexOf(monthZhi);
+            if (gIdx === -1 || zIdx === -1) return '';
+            const tnGan = stems[(gIdx + 1) % 10];
+            const tnZhi = zhis[(zIdx + 3) % 12];
+            return `${tnGan} ${tnZhi}`;
+        };
 
-        // For Bazi month day-count, we must calculate elapsed days since the start of the Tiết (Jie) term, NOT the Trung khí (Qi) term.
-        let prevJieForDayCount = prevJie;
-        if (prevJieForDayCount && !JIE_NAMES.includes(prevJieForDayCount.getName())) {
-            const tempSolar = prevJieForDayCount.getSolar().nextDay(-2);
-            prevJieForDayCount = tempSolar.getLunar().getPrevJieQi();
+        const getCungMenh = (yearGan, monthZhi, hourZhi) => {
+            const stems = ['Giáp', 'Ất', 'Bính', 'Đinh', 'Mậu', 'Kỷ', 'Canh', 'Tân', 'Nhâm', 'Quý'];
+            const zhis = ['Tý', 'Sửu', 'Dần', 'Mão', 'Thìn', 'Tỵ', 'Ngọ', 'Mùi', 'Thân', 'Dậu', 'Tuất', 'Hợi'];
+            
+            const mIdx = zhis.indexOf(monthZhi);
+            const hIdx = zhis.indexOf(hourZhi);
+            if (mIdx === -1 || hIdx === -1) return '';
+            
+            const cmZhiIdx = (mIdx - hIdx + 12) % 12;
+            const cmZhi = zhis[cmZhiIdx];
+            
+            const startGanMap = {
+                'Giáp': 'Bính', 'Kỷ': 'Bính',
+                'Ất': 'Mậu', 'Canh': 'Mậu',
+                'Bính': 'Canh', 'Tân': 'Canh',
+                'Đinh': 'Nhâm', 'Nhâm': 'Nhâm',
+                'Mậu': 'Giáp', 'Quý': 'Giáp'
+            };
+            const startGan = startGanMap[yearGan];
+            const startGanIdx = stems.indexOf(startGan);
+            
+            const steps = (cmZhiIdx - 2 + 12) % 12;
+            const cmGan = stems[(startGanIdx + steps) % 10];
+            
+            return `${cmGan} ${cmZhi}`;
+        };
+
+        if (manualData) {
+            year = birthSolarYear || 1990;
+            month = 1;
+            day = 1;
+            hour = 12;
+            minute = 0;
+            solarTimeline = `Nhập thủ công Bát tự`;
+            tietKhiTimeline = `${manualData.hourGan}${manualData.hourZhi} - ${manualData.dayGan}${manualData.dayZhi} - ${manualData.monthGan}${manualData.monthZhi} - ${manualData.yearGan}${manualData.yearZhi}`;
+            tietKhiName = 'Nhập thủ công Bát tự';
+            tuLenhCan = BAN_KHI[manualData.monthZhi] || '';
+            lunarDateStr = 'Nhập thủ công Bát tự';
+            lunarYear = `${manualData.yearGan} ${manualData.yearZhi}`;
+        } else {
+            if (dateStr.includes('-')) {
+                const parts = dateStr.split('-').map(Number);
+                year = parts[0];
+                month = parts[1];
+                day = parts[2];
+            } else {
+                const parts = dateStr.split('/').map(Number);
+                day = parts[0];
+                month = parts[1];
+                year = parts[2];
+            }
+            birthSolarYear = year;
+            const timeParts = timeStr.split(':').map(Number);
+            hour = timeParts[0];
+            minute = timeParts[1];
+
+            // A. local Bazi for Day and Hour
+            solarLocal = Solar.fromYmdHms(year, month, day, hour, minute, 0);
+            lunarLocal = solarLocal.getLunar();
+            baziLocal = lunarLocal.getEightChar();
+            baziLocal.setSect(sect);
+
+            // B. Adjusted Bazi (+1 hour for GMT+8 Beijing astronomical solar terms) for Year, Month, and Da Yun
+            solarAdjusted = solarLocal.nextHour(1);
+            lunarAdjusted = solarAdjusted.getLunar();
+            baziAdjusted = lunarAdjusted.getEightChar();
+            baziAdjusted.setSect(sect);
+            
+            solarTimeline = `${String(day).padStart(2,'0')}/${String(month).padStart(2,'0')}/${year} ${String(hour).padStart(2,'0')}:${String(minute).padStart(2,'0')}`;
+            tietKhiTimeline = `${toVi(baziLocal.getTimeGan() + baziLocal.getTimeZhi())} - ${toVi(baziLocal.getDayGan() + baziLocal.getDayZhi())} - ${toVi(baziAdjusted.getMonthGan() + baziAdjusted.getMonthZhi())} - ${toVi(baziAdjusted.getYearGan() + baziAdjusted.getYearZhi())}`;
+
+            const JIE_NAMES = ['立春', '惊蛰', '清明', '立夏', '芒种', '小暑', '立秋', '白露', '寒露', '立冬', '大雪', '小寒'];
+            let prevJie = lunarAdjusted.getPrevJieQi();
+            tietKhiName = prevJie ? (JIE_QI_VI[prevJie.getName()] || prevJie.getName()) : '';
+
+            // For Bazi month day-count, we must calculate elapsed days since the start of the Tiết (Jie) term, NOT the Trung khí (Qi) term.
+            let prevJieForDayCount = prevJie;
+            if (prevJieForDayCount && !JIE_NAMES.includes(prevJieForDayCount.getName())) {
+                const tempSolar = prevJieForDayCount.getSolar().nextDay(-2);
+                prevJieForDayCount = tempSolar.getLunar().getPrevJieQi();
+            }
+
+            // Calculate days elapsed since the start of the Bazi month (Tiết term)
+            tuLenhCan = '';
+            if (prevJieForDayCount) {
+                const jieSolar = prevJieForDayCount.getSolar();
+                const birthDate = new Date(
+                    solarAdjusted.getYear(),
+                    solarAdjusted.getMonth() - 1,
+                    solarAdjusted.getDay(),
+                    solarAdjusted.getHour(),
+                    solarAdjusted.getMinute(),
+                    solarAdjusted.getSecond()
+                );
+                const jieDate = new Date(
+                    jieSolar.getYear(),
+                    jieSolar.getMonth() - 1,
+                    jieSolar.getDay(),
+                    jieSolar.getHour(),
+                    jieSolar.getMinute(),
+                    jieSolar.getSecond()
+                );
+                const msDiff = birthDate.getTime() - jieDate.getTime();
+                const daysElapsed = Math.max(1, Math.floor(msDiff / (24 * 60 * 60 * 1000)) + 1);
+                const monthZhiVi = toVi(baziAdjusted.getMonthZhi());
+                tuLenhCan = getTuLenhCan(monthZhiVi, daysElapsed);
+            }
+
+            // Standard Lunar calendar birth info (Shifts strictly at Lunar New Year Mùng 1 Tết)
+            lunarDateStr = `ngày ${lunarLocal.getDay()} tháng ${lunarLocal.getMonth()} năm ${lunarLocal.getYear()} Âm lịch`;
+            lunarYear = toVi(lunarLocal.getYearInGanZhi());
         }
-
-        // Calculate days elapsed since the start of the Bazi month (Tiết term)
-        let tuLenhCan = '';
-        if (prevJieForDayCount) {
-            const jieSolar = prevJieForDayCount.getSolar();
-            const birthDate = new Date(
-                solarAdjusted.getYear(),
-                solarAdjusted.getMonth() - 1,
-                solarAdjusted.getDay(),
-                solarAdjusted.getHour(),
-                solarAdjusted.getMinute(),
-                solarAdjusted.getSecond()
-            );
-            const jieDate = new Date(
-                jieSolar.getYear(),
-                jieSolar.getMonth() - 1,
-                jieSolar.getDay(),
-                jieSolar.getHour(),
-                jieSolar.getMinute(),
-                jieSolar.getSecond()
-            );
-            const msDiff = birthDate.getTime() - jieDate.getTime();
-            const daysElapsed = Math.max(1, Math.floor(msDiff / (24 * 60 * 60 * 1000)) + 1);
-            const monthZhiVi = toVi(baziAdjusted.getMonthZhi());
-            tuLenhCan = getTuLenhCan(monthZhiVi, daysElapsed);
-        }
-
-        // Standard Lunar calendar birth info (Shifts strictly at Lunar New Year Mùng 1 Tết)
-        const lunarDateStr = `ngày ${lunarLocal.getDay()} tháng ${lunarLocal.getMonth()} năm ${lunarLocal.getYear()} Âm lịch`;
-        const lunarYear = toVi(lunarLocal.getYearInGanZhi());
 
         // Build Da Yun
-        const yun = baziAdjusted.getYun(genderInt);
+        const yun = (manualData || !baziAdjusted) ? null : baziAdjusted.getYun(genderInt);
 
         // Định nghĩa context Thần Sát bằng tiếng Việt để tính toán chính xác
-        const context = {
+        const context = manualData ? {
+            dmGan: manualData.dayGan,
+            yearZhi: manualData.yearZhi,
+            dayZhi: manualData.dayZhi,
+            monthZhi: manualData.monthZhi,
+            yearGan: manualData.yearGan,
+            monthGan: manualData.monthGan,
+            hourGan: manualData.hourGan,
+            hourZhi: manualData.hourZhi,
+            gender: genderInt
+        } : {
             dmGan: toVi(baziLocal.getDayGan()),
             yearZhi: toVi(baziAdjusted.getYearZhi()),
             dayZhi: toVi(baziLocal.getDayZhi()),
@@ -1964,7 +2038,7 @@ class BaziAnalyzer {
             gender: genderInt
         };
 
-        const dmGan = toVi(baziLocal.getDayGan());
+        const dmGan = manualData ? manualData.dayGan : toVi(baziLocal.getDayGan());
 
         const stemYinYangMap = {
             'Giáp': 'Duong', 'Ất': 'Am', 'Bính': 'Duong', 'Đinh': 'Am', 'Mậu': 'Duong',
@@ -2001,27 +2075,43 @@ class BaziAnalyzer {
 
         // Bóc tách Tàng can & Thập thần & Thần Sát
         const buildPillar = (type) => {
-            let rawGan, rawZhi;
+            let viGan, viZhi;
             
-            if (type === 'year') {
-                rawGan = baziAdjusted.getYearGan();
-                rawZhi = baziAdjusted.getYearZhi();
+            if (manualData) {
+                if (type === 'year') {
+                    viGan = manualData.yearGan;
+                    viZhi = manualData.yearZhi;
+                } else if (type === 'month') {
+                    viGan = manualData.monthGan;
+                    viZhi = manualData.monthZhi;
+                } else if (type === 'day') {
+                    viGan = manualData.dayGan;
+                    viZhi = manualData.dayZhi;
+                } else if (type === 'hour') {
+                    viGan = manualData.hourGan;
+                    viZhi = manualData.hourZhi;
+                }
+            } else {
+                let rawGan, rawZhi;
+                if (type === 'year') {
+                    rawGan = baziAdjusted.getYearGan();
+                    rawZhi = baziAdjusted.getYearZhi();
+                }
+                if (type === 'month') {
+                    rawGan = baziAdjusted.getMonthGan();
+                    rawZhi = baziAdjusted.getMonthZhi();
+                }
+                if (type === 'day') {
+                    rawGan = baziLocal.getDayGan();
+                    rawZhi = baziLocal.getDayZhi();
+                }
+                if (type === 'hour') {
+                    rawGan = baziLocal.getTimeGan();
+                    rawZhi = baziLocal.getTimeZhi();
+                }
+                viGan = toVi(rawGan);
+                viZhi = toVi(rawZhi);
             }
-            if (type === 'month') {
-                rawGan = baziAdjusted.getMonthGan();
-                rawZhi = baziAdjusted.getMonthZhi();
-            }
-            if (type === 'day') {
-                rawGan = baziLocal.getDayGan();
-                rawZhi = baziLocal.getDayZhi();
-            }
-            if (type === 'hour') {
-                rawGan = baziLocal.getTimeGan();
-                rawZhi = baziLocal.getTimeZhi();
-            }
-
-            const viGan = toVi(rawGan);
-            const viZhi = toVi(rawZhi);
             const thapThanGan = type === 'day' ? "Nhật Chủ" : getThapThanRelation(viGan);
 
             const hiddenStemsArr = this.rules.hiddenStems[viZhi] || [];
@@ -2132,8 +2222,14 @@ class BaziAnalyzer {
             };
         };
 
-        const taiNguyenCanChi = toVi(baziAdjusted.getTaiYuan());
-        const cungMenhCanChi = toVi(baziLocal.getMingGong());
+        let taiNguyenCanChi, cungMenhCanChi;
+        if (manualData) {
+            taiNguyenCanChi = getTaiNguyen(manualData.monthGan, manualData.monthZhi);
+            cungMenhCanChi = getCungMenh(manualData.yearGan, manualData.monthZhi, manualData.hourZhi);
+        } else {
+            taiNguyenCanChi = toVi(baziAdjusted.getTaiYuan());
+            cungMenhCanChi = toVi(baziLocal.getMingGong());
+        }
         const [tnGan, tnZhi] = taiNguyenCanChi.split(' ');
         const [cmGan, cmZhi] = cungMenhCanChi.split(' ');
 
@@ -2141,27 +2237,43 @@ class BaziAnalyzer {
         const cungMenh = buildExtraPillar(cmGan, cmZhi, false);
 
         // Build Da Yun enriched with pillars and Flowing Years (Lưu Niên)
-        const rawDaYunData = yun.getDaYun().map(d => {
-            const gan = toVi(d.getGanZhi().substring(0, 1));
-            const zhi = toVi(d.getGanZhi().substring(1, 2));
-            const pillar = buildExtraPillar(gan, zhi, true);
-            
-            const startYear = d.getStartYear();
-            const startAge = d.getStartAge();
-            
-            // Build 10 Flowing Years (Lưu Niên) for this Great Cycle
-            const liuNian = [];
-            if (gan && zhi) {
-                for (let i = 0; i < 10; i++) {
-                    const curYear = startYear + i;
-                    const curAge = startAge + i;
-                    
-                    // Get Bazi Year Can Chi for curYear using July 1st reference to ensure accuracy
+        let rawDaYunData;
+        if (manualData) {
+            const stems = ['Giáp', 'Ất', 'Bính', 'Đinh', 'Mậu', 'Kỷ', 'Canh', 'Tân', 'Nhâm', 'Quý'];
+            const zhis = ['Tý', 'Sửu', 'Dần', 'Mão', 'Thìn', 'Tỵ', 'Ngọ', 'Mùi', 'Thân', 'Dậu', 'Tuất', 'Hợi'];
+            const isMale = genderInt === 1;
+            const isYangGan = ['Giáp', 'Bính', 'Mậu', 'Canh', 'Nhâm'].includes(manualData.yearGan);
+            const isForward = (isMale && isYangGan) || (!isMale && !isYangGan);
+
+            const daYunList = [];
+            let currentGanIdx = stems.indexOf(manualData.monthGan);
+            let currentZhiIdx = zhis.indexOf(manualData.monthZhi);
+            const startAgeDefault = 1; // Khởi vận 1 tuổi mặc định
+
+            for (let i = 0; i < 8; i++) {
+                if (isForward) {
+                    currentGanIdx = (currentGanIdx + 1) % 10;
+                    currentZhiIdx = (currentZhiIdx + 1) % 12;
+                } else {
+                    currentGanIdx = (currentGanIdx - 1 + 10) % 10;
+                    currentZhiIdx = (currentZhiIdx - 1 + 12) % 12;
+                }
+                const dyGan = stems[currentGanIdx];
+                const dyZhi = zhis[currentZhiIdx];
+                const startAge = startAgeDefault + i * 10;
+                const startYear = birthSolarYear + startAge;
+
+                const pillar = buildExtraPillar(dyGan, dyZhi, true);
+
+                // Build 10 Flowing Years (Lưu Niên)
+                const liuNian = [];
+                for (let j = 0; j < 10; j++) {
+                    const curYear = startYear + j;
+                    const curAge = startAge + j;
                     const sol = Solar.fromYmd(curYear, 7, 1, 12, 0, 0);
                     const lun = sol.getLunar();
-                    const baziYear = lun.getEightChar();
-                    const yrGan = toVi(baziYear.getYearGan());
-                    const yrZhi = toVi(baziYear.getYearZhi());
+                    const yrGan = toVi(lun.getYearGan());
+                    const yrZhi = toVi(lun.getYearZhi());
                     
                     const lnPillar = buildExtraPillar(yrGan, yrZhi, true);
                     
@@ -2229,23 +2341,129 @@ class BaziAnalyzer {
                         nienVanTinh
                     });
                 }
+                
+                daYunList.push({
+                    startYear,
+                    startAge,
+                    gan: pillar.gan,
+                    zhi: pillar.zhi,
+                    canChi: pillar.canChi,
+                    thapThanGan: pillar.thapThanGan,
+                    tangCan: pillar.tangCan,
+                    naYin: pillar.naYin,
+                    truongSinh: pillar.truongSinh,
+                    shenSha: pillar.shenSha,
+                    liuNian
+                });
             }
-            
-            return {
-                startYear,
-                startAge,
-                gan: pillar.gan,
-                zhi: pillar.zhi,
-                canChi: pillar.canChi,
-                thapThanGan: pillar.thapThanGan,
-                tangCan: pillar.tangCan,
-                naYin: pillar.naYin,
-                truongSinh: pillar.truongSinh,
-                shenSha: pillar.shenSha,
-                liuNian
-            };
-        });
+            rawDaYunData = daYunList;
+        } else {
+            rawDaYunData = yun.getDaYun().map(d => {
+                const gan = toVi(d.getGanZhi().substring(0, 1));
+                const zhi = toVi(d.getGanZhi().substring(1, 2));
+                const pillar = buildExtraPillar(gan, zhi, true);
+                
+                const startYear = d.getStartYear();
+                const startAge = d.getStartAge();
+                
+                // Build 10 Flowing Years (Lưu Niên) for this Great Cycle
+                const liuNian = [];
+                if (gan && zhi) {
+                    for (let i = 0; i < 10; i++) {
+                        const curYear = startYear + i;
+                        const curAge = startAge + i;
+                        
+                        // Get Bazi Year Can Chi for curYear using July 1st reference to ensure accuracy
+                        const sol = Solar.fromYmd(curYear, 7, 1, 12, 0, 0);
+                        const lun = sol.getLunar();
+                        const baziYear = lun.getEightChar();
+                        const yrGan = toVi(baziYear.getYearGan());
+                        const yrZhi = toVi(baziYear.getYearZhi());
+                        
+                        const lnPillar = buildExtraPillar(yrGan, yrZhi, true);
+                        
+                        const annualShenSha = {
+                            year: getLuuNienShenShaForPillar(canChi.year.zhi, canChi.year.gan, yrGan, yrZhi, context),
+                            month: getLuuNienShenShaForPillar(canChi.month.zhi, canChi.month.gan, yrGan, yrZhi, context),
+                            day: getLuuNienShenShaForPillar(canChi.day.zhi, canChi.day.gan, yrGan, yrZhi, context),
+                            hour: getLuuNienShenShaForPillar(canChi.hour.zhi, canChi.hour.gan, yrGan, yrZhi, context)
+                        };
 
+                        const nienVanTinh = [];
+                        // Can-based
+                        if (yrGan === 'Giáp' || yrGan === 'Mậu') nienVanTinh.push({ name: 'Quý Nhân', zhi: 'Sửu; Mùi' });
+                        else if (yrGan === 'Ất' || yrGan === 'Kỷ') nienVanTinh.push({ name: 'Quý Nhân', zhi: 'Tý; Thân' });
+                        else if (yrGan === 'Bính' || yrGan === 'Đinh') nienVanTinh.push({ name: 'Quý Nhân', zhi: 'Hợi; Dậu' });
+                        else if (yrGan === 'Canh' || yrGan === 'Tân') nienVanTinh.push({ name: 'Quý Nhân', zhi: 'Dần; Ngọ' });
+                        else if (yrGan === 'Nhâm' || yrGan === 'Quý') nienVanTinh.push({ name: 'Quý Nhân', zhi: 'Tỵ; Mão' });
+
+                        // Đào Hoa / Dịch Mã
+                        const zhisList = ['Tý', 'Sửu', 'Dần', 'Mão', 'Thìn', 'Tỵ', 'Ngọ', 'Mùi', 'Thân', 'Dậu', 'Tuất', 'Hợi'];
+                        if (['Thân', 'Tý', 'Thìn'].includes(yrZhi)) {
+                            nienVanTinh.push({ name: 'Đào Hoa', zhi: 'Dậu' });
+                            nienVanTinh.push({ name: 'Thiên Mã', zhi: 'Dần' });
+                        } else if (['Dần', 'Ngọ', 'Tuất'].includes(yrZhi)) {
+                            nienVanTinh.push({ name: 'Đào Hoa', zhi: 'Mão' });
+                            nienVanTinh.push({ name: 'Thiên Mã', zhi: 'Thân' });
+                        } else if (['Tỵ', 'Dậu', 'Sửu'].includes(yrZhi)) {
+                            nienVanTinh.push({ name: 'Đào Hoa', zhi: 'Ngọ' });
+                            nienVanTinh.push({ name: 'Thiên Mã', zhi: 'Hợi' });
+                        } else if (['Hợi', 'Mão', 'Mùi'].includes(yrZhi)) {
+                            nienVanTinh.push({ name: 'Đào Hoa', zhi: 'Tý' });
+                            nienVanTinh.push({ name: 'Thiên Mã', zhi: 'Tỵ' });
+                        }
+
+                        // Hồng Loan
+                        const hlMap = {
+                            'Tý': 'Mão', 'Sửu': 'Dần', 'Dần': 'Sửu', 'Mão': 'Tý', 'Thìn': 'Hợi', 'Tỵ': 'Tuất',
+                            'Ngọ': 'Dậu', 'Mùi': 'Thân', 'Thân': 'Mùi', 'Dậu': 'Ngọ', 'Tuất': 'Tỵ', 'Hợi': 'Thìn'
+                        };
+                        if (context.yearZhi && hlMap[context.yearZhi]) {
+                            nienVanTinh.push({ name: 'Hồng Loan', zhi: hlMap[context.yearZhi] });
+                        }
+
+                        // Vòng Thái Tuế
+                        nienVanTinh.push({ name: 'Thái Tuế', zhi: yrZhi });
+                        const yrIdx = zhisList.indexOf(yrZhi);
+                        if (yrIdx !== -1) {
+                            nienVanTinh.push({ name: 'Tuế Phá', zhi: zhisList[(yrIdx + 6) % 12] });
+                            nienVanTinh.push({ name: 'Tiểu Hao', zhi: zhisList[(yrIdx + 5) % 12] });
+                            nienVanTinh.push({ name: 'Phúc Đức', zhi: zhisList[(yrIdx + 9) % 12] });
+                        }
+                        
+                        liuNian.push({
+                            year: curYear,
+                            age: curAge,
+                            gan: lnPillar.gan,
+                            zhi: lnPillar.zhi,
+                            canChi: lnPillar.canChi,
+                            thapThanGan: lnPillar.thapThanGan,
+                            tangCan: lnPillar.tangCan,
+                            naYin: lnPillar.naYin,
+                            truongSinh: lnPillar.truongSinh,
+                            shenSha: lnPillar.shenSha,
+                            annualShenSha,
+                            nienVanTinh
+                        });
+                    }
+                }
+                
+                return {
+                    startYear,
+                    startAge,
+                    gan: pillar.gan,
+                    zhi: pillar.zhi,
+                    canChi: pillar.canChi,
+                    thapThanGan: pillar.thapThanGan,
+                    tangCan: pillar.tangCan,
+                    naYin: pillar.naYin,
+                    truongSinh: pillar.truongSinh,
+                    shenSha: pillar.shenSha,
+                    liuNian
+                };
+            });
+        }
+        
         // daYun filters out pre-Da Yun childhood cycle with empty stem-branch
         const daYunData = rawDaYunData.filter(d => d.gan && d.zhi);
 
@@ -3644,25 +3862,16 @@ class BaziAnalyzer {
         // Determine structure (Cách cục) based on docx rules
         analysis.cachCuc = this.determineCachCuc(dmGan, monthZhi, canChi, normalizedScores);
 
-        // PHASE 4: Dụng Thần & Hỷ Thần
-        let dungThan = "";
-        let hyThan = "";
+        // PHASE 4: Dụng Thần & Hỷ Thần Nâng Cao (Hybrid Dung Than Engine)
+        const dungThanDetail = this.calculateDungThanDetail(dmGan, monthZhi, canChi, normalizedScores, thanDegree, isTongCach, analysis.cachCuc);
+        const dungThan = dungThanDetail.primary.dungThan;
+        const hyThan = dungThanDetail.primary.hyThan;
+        const kyThan = dungThanDetail.primary.kyThan;
         
-        if (isTongCach) {
-            // Tòng theo hành mạnh nhất
-            dungThan = strongestElem;
-            hyThan = Object.keys(this.rules.relation[strongestElem]).find(k => this.rules.relation[strongestElem][k] === 'duoc_sinh');
-        } else {
-            if (analysis.than === "vuong") {
-                // Find element that Khắc or Tiết (Sinh Xuất) day master mostly
-                dungThan = Object.keys(this.rules.relation[dmElem]).find(k => this.rules.relation[dmElem][k] === 'bi_khac'); // Thê Tài
-                hyThan = Object.keys(this.rules.relation[dmElem]).find(k => this.rules.relation[dmElem][k] === 'khac'); // Quan Sát
-            } else {
-                // Nhược -> Sinh (Phụ mẫu) / Trợ (Huynh đệ)
-                dungThan = Object.keys(this.rules.relation[dmElem]).find(k => this.rules.relation[dmElem][k] === 'duoc_sinh'); 
-                hyThan = dmElem;
-            }
-        }
+        analysis.dungThan = dungThan;
+        analysis.hyThan = hyThan;
+        analysis.kyThan = kyThan;
+        analysis.dungThanInfo = dungThanDetail;
 
         // PHASE 4.5: Nguyệt Lệnh Dụng Thần
         let nguyetLenhDungThan = "";
@@ -3702,6 +3911,8 @@ class BaziAnalyzer {
             analysis,
             dungThan,
             hyThan,
+            kyThan,
+            dungThanInfo: dungThanDetail,
             nguyetLenhDungThan,
             thapThanAnalysis,
             daYun: daYunData, // filtered visible ones
@@ -3711,6 +3922,288 @@ class BaziAnalyzer {
                 utcOffset: 7,
                 solarTimestamp: new Date(Date.UTC(year, month - 1, day, hour, minute)).getTime()
             }
+        };
+    }
+
+    calculateDungThanDetail(dmGan, monthZhi, canChi, scores, thanDegree, isTongCach, cachCuc) {
+        const vnElemMap = {
+            'Moc': 'Mộc', 'Hoa': 'Hỏa', 'Tho': 'Thổ', 'Kim': 'Kim', 'Thuy': 'Thủy',
+            'Mộc': 'Mộc', 'Hỏa': 'Hỏa', 'Thổ': 'Thổ', 'Thủy': 'Thủy'
+        };
+        const keyElemMap = {
+            'Mộc': 'Moc', 'Hỏa': 'Hoa', 'Thổ': 'Tho', 'Kim': 'Kim', 'Thủy': 'Thuy',
+            'Moc': 'Moc', 'Hoa': 'Hoa', 'Tho': 'Tho', 'Thuy': 'Thuy'
+        };
+
+        const rawDmElem = this.rules.stemElement[dmGan] || 'Hoa';
+        const dmKey = keyElemMap[rawDmElem] || 'Hoa';
+        const dmElem = vnElemMap[dmKey] || 'Hỏa';
+        
+        // Map relationships using keyElemMap / vnElemMap
+        const sinhChoTaKey = Object.keys(this.rules.relation[dmKey]).find(k => this.rules.relation[dmKey][k] === 'duoc_sinh') || 'Moc'; // Ấn
+        const cungHanhKey = dmKey; // Tỷ Kiếp
+        const taSinhKey = Object.keys(this.rules.relation[dmKey]).find(k => this.rules.relation[dmKey][k] === 'sinh') || 'Tho'; // Thực Thương
+        const taKhacKey = Object.keys(this.rules.relation[dmKey]).find(k => this.rules.relation[dmKey][k] === 'khac') || 'Kim'; // Thê Tài
+        const khacTaKey = Object.keys(this.rules.relation[dmKey]).find(k => this.rules.relation[dmKey][k] === 'bi_khac') || 'Thuy'; // Quan Sát
+
+        const sinhChoTa = vnElemMap[sinhChoTaKey];
+        const cungHanh = vnElemMap[cungHanhKey];
+        const taSinh = vnElemMap[taSinhKey];
+        const taKhac = vnElemMap[taKhacKey];
+        const khacTa = vnElemMap[khacTaKey];
+
+        // 1. Điều Hậu (Climate condition)
+        let climateState = {
+            season: 'Bình hòa',
+            idealElement: null,
+            inherentSupport: 'Khí hậu bình hòa, không vướng hàn nhiệt cực đoan',
+            urgency: 'Bình thường'
+        };
+
+        const winterBranches = ['Hợi', 'Tý', 'Sửu'];
+        const summerBranches = ['Tỵ', 'Ngọ', 'Mùi'];
+
+        const allStems = [canChi.year.gan, canChi.month.gan, canChi.day.gan, canChi.hour.gan];
+        const allZhis = [canChi.year.zhi, canChi.month.zhi, canChi.day.zhi, canChi.hour.zhi];
+
+        const hasFireSupport = allStems.some(s => ['Bính', 'Đinh'].includes(s)) || allZhis.some(z => ['Tỵ', 'Ngọ', 'Dần'].includes(z));
+        const hasWaterSupport = allStems.some(s => ['Nhâm', 'Quý'].includes(s)) || allZhis.some(z => ['Hợi', 'Tý', 'Thân'].includes(z));
+
+        if (winterBranches.includes(monthZhi)) {
+            climateState = {
+                season: 'Mùa Đông (Hàn lãnh)',
+                idealElement: 'Hỏa',
+                inherentSupport: hasFireSupport ? 'Tứ Trụ đã có Hỏa tinh sưởi ấm cục diện' : 'Tứ Trụ khuyết Hỏa, giá lạnh cực độ cần Hỏa sưởi ấm',
+                urgency: hasFireSupport ? 'Trung bình' : 'Rất cao'
+            };
+        } else if (summerBranches.includes(monthZhi)) {
+            climateState = {
+                season: 'Mùa Hạ (Viêm nhiệt)',
+                idealElement: 'Thủy',
+                inherentSupport: hasWaterSupport ? 'Tứ Trụ đã có Thủy tinh nhuận trạch làm mát' : 'Tứ Trụ khuyết Thủy, khô hạn gay gắt cần Thủy tưới nhuận',
+                urgency: hasWaterSupport ? 'Trung bình' : 'Rất cao'
+            };
+        }
+
+        // 2. Thông Quan (Mediation)
+        let mediationState = {
+            isConflict: false,
+            conflictingElements: [],
+            mediator: null,
+            description: 'Ngũ hành lưu thông bình ổn'
+        };
+
+        const pairs = [
+            { e1: 'Kim', e2: 'Mộc', med: 'Thủy', desc: 'Kim Mộc giao chiến cần Thủy thông quan' },
+            { e1: 'Thủy', e2: 'Hỏa', med: 'Mộc', desc: 'Thủy Hỏa tương xung cần Mộc thông quan' },
+            { e1: 'Hỏa', e2: 'Kim', med: 'Thổ', desc: 'Hỏa Kim tương khắc cần Thổ thông quan' },
+            { e1: 'Mộc', e2: 'Thổ', med: 'Hỏa', desc: 'Mộc Thổ giao tranh cần Hỏa thông quan' },
+            { e1: 'Thổ', e2: 'Thủy', med: 'Kim', desc: 'Thổ Thủy tương khắc cần Kim thông quan' }
+        ];
+
+        for (const p of pairs) {
+            const sc1 = scores[p.e1] || scores[keyElemMap[p.e1]] || 0;
+            const sc2 = scores[p.e2] || scores[keyElemMap[p.e2]] || 0;
+            if (sc1 >= 24 && sc2 >= 24) {
+                mediationState = {
+                    isConflict: true,
+                    conflictingElements: [p.e1, p.e2],
+                    mediator: p.med,
+                    description: p.desc
+                };
+                break;
+            }
+        }
+
+        // 3. Xây dựng các Kịch bản Scenarios
+        const scenarios = [];
+        let primaryDungThan = "";
+        let primaryHyThan = "";
+        let primaryKyThan = "";
+        let primaryMechanism = "";
+        let primaryConfidence = 0.85;
+        let primaryRationale = "";
+
+        const sortedElems = Object.keys(scores).sort((a, b) => scores[b] - scores[a]);
+        const rawStrongest = sortedElems[0] || dmElem;
+        const strongestElem = vnElemMap[rawStrongest] || rawStrongest;
+        const strongestKey = keyElemMap[strongestElem] || 'Moc';
+        const strongestScore = scores[rawStrongest] || 0;
+
+        if (isTongCach || strongestScore >= 55) {
+            // TÒNG CÁCH / CHUYÊN VƯỢNG
+            const tongDung = strongestElem;
+            const tongHyKey = Object.keys(this.rules.relation[strongestKey]).find(k => this.rules.relation[strongestKey][k] === 'duoc_sinh') || strongestKey;
+            const tongKyKey = Object.keys(this.rules.relation[strongestKey]).find(k => this.rules.relation[strongestKey][k] === 'bi_khac') || 'Kim';
+
+            const tongHy = vnElemMap[tongHyKey] || strongestElem;
+            const tongKy = vnElemMap[tongKyKey] || 'Kim';
+
+            primaryDungThan = tongDung;
+            primaryHyThan = tongHy;
+            primaryKyThan = tongKy;
+            primaryMechanism = "Tòng Cách / Chuyên Vượng (Thuận khí thế cực vượng)";
+            primaryConfidence = isTongCach ? 0.95 : 0.85;
+            primaryRationale = `Khí thế ngũ hành ${strongestElem} chiếm ưu thế áp đảo (${strongestScore.toFixed(1)}%), thuận theo khí vượng làm Dụng Thần, kỵ nhất hành ${tongKy} xung phá bộc phát.`;
+
+            scenarios.push({
+                name: "Kịch bản Tòng Cách tối ưu",
+                dungThan: tongDung,
+                hyThan: tongHy,
+                kyThan: tongKy,
+                score: 95,
+                mechanism: "Tòng Cách"
+            });
+
+            const altDung = ['cuc_vuong', 'rat_vuong', 'vuong'].includes(thanDegree) ? taKhac : sinhChoTa;
+            const altHy = ['cuc_vuong', 'rat_vuong', 'vuong'].includes(thanDegree) ? taSinh : cungHanh;
+            scenarios.push({
+                name: "Kịch bản Phù Ức dự phòng (nếu vận trình chuyển hóa phá Tòng)",
+                dungThan: altDung,
+                hyThan: altHy,
+                kyThan: strongestElem,
+                score: 70,
+                mechanism: "Phù Ức dự phòng"
+            });
+        } else {
+            // CHÍNH CÁCH
+            const isVuong = ['cuc_vuong', 'rat_vuong', 'vuong'].includes(thanDegree);
+            const isNhuoc = ['nhuoc', 'rat_nhuoc', 'cuc_nhuoc'].includes(thanDegree);
+
+            let phuUcDT = isVuong ? taKhac : sinhChoTa;
+            let phuUcHT = isVuong ? taSinh : cungHanh;
+            let phuUcKT = isVuong ? sinhChoTa : khacTa;
+
+            const scSinh = scores[sinhChoTa] || scores[sinhChoTaKey] || 0;
+            const scCung = scores[cungHanh] || scores[cungHanhKey] || 0;
+            const scKhacTa = scores[khacTa] || scores[khacTaKey] || 0;
+            const scTaSinh = scores[taSinh] || scores[taSinhKey] || 0;
+
+            if (isVuong) {
+                if (scSinh > scCung + 10) {
+                    phuUcDT = taKhac;
+                    phuUcHT = taSinh;
+                    phuUcKT = sinhChoTa;
+                } else {
+                    phuUcDT = khacTa;
+                    phuUcHT = taKhac;
+                    phuUcKT = cungHanh;
+                }
+            } else if (isNhuoc) {
+                if (scKhacTa > 30) {
+                    phuUcDT = sinhChoTa;
+                    phuUcHT = cungHanh;
+                    phuUcKT = taKhac;
+                } else if (scTaSinh > 30) {
+                    phuUcDT = sinhChoTa;
+                    phuUcHT = cungHanh;
+                    phuUcKT = taSinh;
+                } else {
+                    phuUcDT = cungHanh;
+                    phuUcHT = sinhChoTa;
+                    phuUcKT = khacTa;
+                }
+            }
+
+            if (climateState.idealElement && climateState.urgency === 'Rất cao') {
+                primaryDungThan = climateState.idealElement;
+                const idealKey = keyElemMap[climateState.idealElement] || 'Hoa';
+                const climateHyKey = Object.keys(this.rules.relation[idealKey]).find(k => this.rules.relation[idealKey][k] === 'duoc_sinh');
+                const climateKyKey = Object.keys(this.rules.relation[idealKey]).find(k => this.rules.relation[idealKey][k] === 'bi_khac');
+
+                primaryHyThan = vnElemMap[climateHyKey] || phuUcHT;
+                primaryKyThan = vnElemMap[climateKyKey] || phuUcKT;
+                primaryMechanism = "Điều Hậu kết hợp Phù Ức (Cấp thiết giải hàn/nhiệt mùa sinh)";
+                primaryConfidence = 0.92;
+                primaryRationale = `Sinh vào ${climateState.season}, Tứ Trụ ${climateState.inherentSupport}. Cần ưu tiên dùng ${climateState.idealElement} điều hòa khí hậu kết hợp ${phuUcDT} nâng đỡ thể cách.`;
+
+                scenarios.push({
+                    name: "Kịch bản Điều Hậu ưu tiên cao nhất",
+                    dungThan: climateState.idealElement,
+                    hyThan: primaryHyThan,
+                    kyThan: primaryKyThan,
+                    score: 92,
+                    mechanism: "Điều Hậu tối thượng"
+                });
+
+                scenarios.push({
+                    name: "Kịch bản Phù Ức tiêu chuẩn",
+                    dungThan: phuUcDT,
+                    hyThan: phuUcHT,
+                    kyThan: phuUcKT,
+                    score: 82,
+                    mechanism: "Phù Ức cơ bản"
+                });
+            } else if (mediationState.isConflict && mediationState.mediator) {
+                primaryDungThan = mediationState.mediator;
+                const medKey = keyElemMap[mediationState.mediator] || 'Thuy';
+                const medHyKey = Object.keys(this.rules.relation[medKey]).find(k => this.rules.relation[medKey][k] === 'duoc_sinh');
+
+                primaryHyThan = vnElemMap[medHyKey] || phuUcHT;
+                primaryKyThan = mediationState.conflictingElements[0];
+                primaryMechanism = "Thông Quan Dụng Thần (Hòa giải hai phe giao tranh)";
+                primaryConfidence = 0.88;
+                primaryRationale = `${mediationState.description} (${mediationState.conflictingElements.join(' vs ')}), cần dùng ${mediationState.mediator} làm cầu nối lưu thông khí thế.`;
+
+                scenarios.push({
+                    name: "Kịch bản Thông Quan hòa giải",
+                    dungThan: mediationState.mediator,
+                    hyThan: primaryHyThan,
+                    kyThan: primaryKyThan,
+                    score: 88,
+                    mechanism: "Thông Quan"
+                });
+
+                scenarios.push({
+                    name: "Kịch bản Phù Ức Thân Vượng/Nhược",
+                    dungThan: phuUcDT,
+                    hyThan: phuUcHT,
+                    kyThan: phuUcKT,
+                    score: 80,
+                    mechanism: "Phù Ức"
+                });
+            } else {
+                primaryDungThan = phuUcDT;
+                primaryHyThan = phuUcHT;
+                primaryKyThan = phuUcKT;
+                primaryMechanism = isVuong ? "Phù Ức Thân Vượng (Tiết tú / Khắc chế / Hao tài)" : "Phù Ức Thân Nhược (Sinh phù / Trợ lực Tỷ Kiếp)";
+                primaryConfidence = 0.90;
+                primaryRationale = `Nhật Chủ ${dmGan} (${dmElem}) thuộc trạng thái Thân ${thanDegree}. Cần lấy ${primaryDungThan} làm Dụng Thần ${isVuong ? 'tiết bớt vượng khí' : 'bổ trợ nguyên khí'} và ${primaryHyThan} làm Hỷ Thần trợ lực.`;
+
+                scenarios.push({
+                    name: "Kịch bản Phù Ức chuẩn xác",
+                    dungThan: phuUcDT,
+                    hyThan: phuUcHT,
+                    kyThan: phuUcKT,
+                    score: 90,
+                    mechanism: "Phù Ức"
+                });
+
+                if (climateState.idealElement) {
+                    scenarios.push({
+                        name: "Kịch bản phối hợp Điều Hậu",
+                        dungThan: climateState.idealElement,
+                        hyThan: phuUcHT,
+                        kyThan: phuUcKT,
+                        score: 82,
+                        mechanism: "Điều Hậu phối hợp"
+                    });
+                }
+            }
+        }
+
+        return {
+            primary: {
+                dungThan: primaryDungThan,
+                hyThan: primaryHyThan,
+                kyThan: primaryKyThan,
+                mechanism: primaryMechanism,
+                confidence: primaryConfidence,
+                rationale: primaryRationale
+            },
+            scenarios,
+            climateState,
+            mediationState
         };
     }
 }

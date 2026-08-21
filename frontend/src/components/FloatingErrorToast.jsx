@@ -11,7 +11,7 @@ const FloatingErrorToast = ({ message, onClose }) => {
 
     const timer = setTimeout(() => {
       onClose();
-    }, 3000);
+    }, 1500);
 
     return () => clearTimeout(timer);
   }, [message, onClose]);

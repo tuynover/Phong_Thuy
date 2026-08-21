@@ -111,7 +111,26 @@ Lưu trữ thông tin lá số Tứ Trụ học thuật và các bài phân tíc
   {
     _id: { type: String, default: uuidv7 },
     userId: { type: String, required: true, default: 'guest' },
-    inputInfo: { date: String, time: String, gender: Number },
+    inputInfo: { 
+      name: { type: String, default: "" },
+      date: String,
+      time: String,
+      gender: Number,
+      calendarMode: { type: String, default: "solar" },
+      birthSolarYear: { type: Number, default: null },
+      isLeap: { type: Boolean, default: false },
+      lunarDate: { type: String, default: "" },
+      manualData: {
+        yearGan: String,
+        yearZhi: String,
+        monthGan: String,
+        monthZhi: String,
+        dayGan: String,
+        dayZhi: String,
+        hourGan: String,
+        hourZhi: String
+      }
+    },
     solarTimeline: { type: String, required: true },
     tietKhiTimeline: { type: String, required: true },
     baziData: { type: Object, required: true },
@@ -132,7 +151,18 @@ Lưu trữ thông số bản mệnh Tử Vi thô lập từ thư viện iztro v�
   {
     _id: { type: String, default: uuidv7 },
     userId: { type: String, required: true, default: 'guest' },
-    inputInfo: { date: String, hour: Number, gender: String, school: String },
+    inputInfo: { 
+      name: { type: String, default: "" },
+      date: String,
+      hour: Number,
+      gender: String,
+      timezone: { type: Number, default: 7 },
+      school: { type: String, default: 'bac_phai' },
+      calendarType: { type: String, default: 'solar' },
+      calendarMode: { type: String, default: 'solar' },
+      isLeap: { type: Boolean, default: false },
+      lunarDate: { type: String, default: "" }
+    },
     chartHash: { type: String, required: true },
     chartData: { type: Object, required: true },
     rating: { type: Number, default: null },

@@ -2,13 +2,17 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Phong Thủy & Gieo Quẻ API",
-    "version": "1.0.0",
-    "description": "Tài liệu API và môi trường thử nghiệm trực quan cho Hệ thống Phong Thủy & Gieo Quẻ. Hỗ trợ đầy đủ các phân hệ Kinh Dịch, Bát Tự, Tử Vi, Kết Hôn, Trạch Cát và Quản Trị."
+    "version": "2.0.0",
+    "description": "Tài liệu API và môi trường thử nghiệm trực quan cho Hệ thống Phong Thủy & Gieo Quẻ. Hỗ trợ đầy đủ các phân hệ Kinh Dịch Lục Hào/Mai Hoa, Tứ Trụ Bát Tự, Mệnh Bàn Tử Vi, Bát Tự Hợp Hôn, Xem Ngày Hoàng Đạo (Trạch Cát), Quản lý Thư mục (Tags), Bài viết (Blog), Luận giải AI Realtime (SSE) và Quản Trị Hệ Thống (Admin)."
   },
   "servers": [
     {
       "url": "http://localhost:3001",
-      "description": "Máy chủ Phát triển (Local)"
+      "description": "Máy chủ Phát triển Local"
+    },
+    {
+      "url": "https://tuynover.ddns.net",
+      "description": "Máy chủ Production (AWS EC2)"
     }
   ],
   "components": {
@@ -29,7 +33,11 @@
     "schemas": {
       "RegisterRequest": {
         "type": "object",
-        "required": ["email", "password", "name", "gender"],
+        "required": [
+          "email",
+          "password",
+          "name"
+        ],
         "properties": {
           "email": {
             "type": "string",
@@ -47,15 +55,41 @@
           },
           "gender": {
             "type": "integer",
-            "enum": [0, 1],
+            "enum": [
+              0,
+              1
+            ],
             "description": "1: Nam, 0: Nữ",
             "example": 1
+          },
+          "day": {
+            "type": "integer",
+            "example": 5
+          },
+          "month": {
+            "type": "integer",
+            "example": 9
+          },
+          "year": {
+            "type": "integer",
+            "example": 2004
+          },
+          "hour": {
+            "type": "integer",
+            "example": 14
+          },
+          "minute": {
+            "type": "integer",
+            "example": 30
           }
         }
       },
       "LoginRequest": {
         "type": "object",
-        "required": ["email", "password"],
+        "required": [
+          "email",
+          "password"
+        ],
         "properties": {
           "email": {
             "type": "string",
@@ -69,9 +103,120 @@
           }
         }
       },
+      "GoogleLoginRequest": {
+        "type": "object",
+        "required": [
+          "credential"
+        ],
+        "properties": {
+          "credential": {
+            "type": "string",
+            "description": "Google OAuth2 ID Token",
+            "example": "eyJhbGciOiJSUzI1NiIsImtpZCI6Ij..."
+          }
+        }
+      },
+      "UpdateProfileRequest": {
+        "type": "object",
+        "required": [
+          "userId"
+        ],
+        "properties": {
+          "userId": {
+            "type": "string",
+            "example": "01908ef9-ef8a-7221-bf92-123456789abc"
+          },
+          "name": {
+            "type": "string",
+            "example": "Nguyen Van A"
+          },
+          "gender": {
+            "type": "integer",
+            "enum": [
+              0,
+              1
+            ],
+            "example": 1
+          },
+          "phone": {
+            "type": "string",
+            "example": "0987654321"
+          },
+          "day": {
+            "type": "integer",
+            "example": 5
+          },
+          "month": {
+            "type": "integer",
+            "example": 9
+          },
+          "year": {
+            "type": "integer",
+            "example": 2004
+          },
+          "hour": {
+            "type": "integer",
+            "example": 14
+          },
+          "minute": {
+            "type": "integer",
+            "example": 30
+          }
+        }
+      },
+      "UpdateBaziInfoRequest": {
+        "type": "object",
+        "required": [
+          "userId",
+          "day",
+          "month",
+          "year",
+          "hour",
+          "minute"
+        ],
+        "properties": {
+          "userId": {
+            "type": "string",
+            "example": "01908ef9-ef8a-7221-bf92-123456789abc"
+          },
+          "day": {
+            "type": "integer",
+            "example": 5
+          },
+          "month": {
+            "type": "integer",
+            "example": 9
+          },
+          "year": {
+            "type": "integer",
+            "example": 2004
+          },
+          "hour": {
+            "type": "integer",
+            "example": 14
+          },
+          "minute": {
+            "type": "integer",
+            "example": 30
+          },
+          "ownBaziRecordId": {
+            "type": "string",
+            "nullable": true,
+            "example": "01908ef9-ef8a-7221-bf92-bazi1234567"
+          },
+          "ownZiweiRecordId": {
+            "type": "string",
+            "nullable": true,
+            "example": "01908ef9-ef8a-7221-bf92-ziwei1234567"
+          }
+        }
+      },
       "ChangePasswordRequest": {
         "type": "object",
-        "required": ["currentPassword", "newPassword"],
+        "required": [
+          "currentPassword",
+          "newPassword"
+        ],
         "properties": {
           "currentPassword": {
             "type": "string",
@@ -83,9 +228,87 @@
           }
         }
       },
+      "ForgotPasswordRequest": {
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "user@example.com"
+          }
+        }
+      },
+      "ResetPasswordRequest": {
+        "type": "object",
+        "required": [
+          "email",
+          "otp",
+          "newPassword"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "user@example.com"
+          },
+          "otp": {
+            "type": "string",
+            "example": "654321"
+          },
+          "newPassword": {
+            "type": "string",
+            "example": "NewSecretPassword123"
+          }
+        }
+      },
+      "VerifyEmailRequest": {
+        "type": "object",
+        "required": [
+          "otp"
+        ],
+        "properties": {
+          "otp": {
+            "type": "string",
+            "example": "123456"
+          }
+        }
+      },
+      "SubmitAppealRequest": {
+        "type": "object",
+        "required": [
+          "userId",
+          "email",
+          "message"
+        ],
+        "properties": {
+          "userId": {
+            "type": "string",
+            "example": "01908ef9-ef8a-7221-bf92-123456789abc"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "user@example.com"
+          },
+          "reason": {
+            "type": "string",
+            "example": "Bị khóa do thử nghiệm spam"
+          },
+          "message": {
+            "type": "string",
+            "example": "Kính gửi BQT, tôi xin mở khóa tài khoản..."
+          }
+        }
+      },
       "IChingCalculateRequest": {
         "type": "object",
-        "required": ["question", "userId"],
+        "required": [
+          "question",
+          "userId"
+        ],
         "properties": {
           "question": {
             "type": "string",
@@ -98,75 +321,119 @@
           },
           "method": {
             "type": "string",
-            "enum": ["luc_hao", "mai_hoa_time", "mai_hoa_money"],
-            "description": "Phương pháp lập quẻ",
+            "enum": [
+              "luc_hao",
+              "mai_hoa_time",
+              "mai_hoa_money"
+            ],
             "example": "luc_hao"
           },
           "tosses": {
             "type": "array",
             "items": {
               "type": "integer",
-              "enum": [0, 1, 2, 3]
+              "enum": [
+                0,
+                1,
+                2,
+                3
+              ]
             },
-            "description": "6 lần gieo đồng xu (1: 1 Ngửa, 2: 2 Ngửa, 3: 3 Ngửa, 0: 0 Ngửa) - Chỉ dùng cho phương pháp 'luc_hao'",
-            "example": [3, 2, 2, 3, 1, 2]
+            "example": [
+              3,
+              2,
+              2,
+              3,
+              1,
+              2
+            ]
           },
           "dateTime": {
             "type": "string",
             "format": "date-time",
-            "description": "Thời gian động tâm dạng ISO - Chỉ dùng cho phương pháp 'mai_hoa_time'",
             "example": "2026-07-02T15:00:00"
           },
           "serialNumber": {
             "type": "string",
-            "description": "Seri tiền 8 số - Chỉ dùng cho phương pháp 'mai_hoa_money'",
             "example": "83749281"
           }
         }
       },
       "BaziAnalyzeRequest": {
         "type": "object",
-        "required": ["date", "time", "gender", "userId"],
+        "required": [
+          "date",
+          "time",
+          "gender",
+          "userId"
+        ],
         "properties": {
+          "name": {
+            "type": "string",
+            "example": "Nguyen Van A"
+          },
           "date": {
             "type": "string",
-            "description": "Ngày sinh dương lịch (YYYY-MM-DD)",
             "example": "2004-09-05"
           },
           "time": {
             "type": "string",
-            "description": "Giờ sinh (HH:mm)",
             "example": "14:30"
           },
           "gender": {
             "type": "integer",
-            "enum": [0, 1],
-            "description": "1: Nam, 0: Nữ",
+            "enum": [
+              0,
+              1
+            ],
             "example": 1
           },
           "userId": {
             "type": "string",
-            "description": "UUIDv7 của user hoặc 'guest'",
             "example": "guest"
           }
         }
       },
       "MarriageAnalyzeRequest": {
         "type": "object",
-        "required": ["male", "female", "userId"],
+        "required": [
+          "male",
+          "female",
+          "userId"
+        ],
         "properties": {
           "male": {
             "type": "object",
             "properties": {
-              "date": { "type": "string", "example": "2004-08-27" },
-              "time": { "type": "string", "example": "07:30" }
+              "name": {
+                "type": "string",
+                "example": "Nam"
+              },
+              "date": {
+                "type": "string",
+                "example": "2004-08-27"
+              },
+              "time": {
+                "type": "string",
+                "example": "07:30"
+              }
             }
           },
           "female": {
             "type": "object",
             "properties": {
-              "date": { "type": "string", "example": "2001-01-02" },
-              "time": { "type": "string", "example": "03:02" }
+              "name": {
+                "type": "string",
+                "example": "Nữ"
+              },
+              "date": {
+                "type": "string",
+                "example": "2001-01-02"
+              },
+              "time": {
+                "type": "string",
+                "example": "03:02"
+              }
             }
           },
           "userId": {
@@ -177,35 +444,54 @@
       },
       "ZiweiChartRequest": {
         "type": "object",
-        "required": ["date", "hour", "gender", "calendarType"],
+        "required": [
+          "date",
+          "hour",
+          "gender",
+          "calendarType"
+        ],
         "properties": {
+          "name": {
+            "type": "string",
+            "example": "Nguyen Van A"
+          },
           "date": {
             "type": "string",
-            "description": "Ngày sinh (YYYY-MM-DD)",
             "example": "2004-09-05"
           },
           "hour": {
             "type": "integer",
             "minimum": 0,
             "maximum": 11,
-            "description": "Chỉ số giờ địa chi: 0 (Tý) đến 11 (Hợi)",
             "example": 7
           },
           "gender": {
             "type": "string",
-            "enum": ["Nam", "Nữ"],
+            "enum": [
+              "Nam",
+              "Nữ"
+            ],
             "example": "Nam"
           },
           "calendarType": {
             "type": "string",
-            "enum": ["solar", "lunar"],
+            "enum": [
+              "solar",
+              "lunar"
+            ],
             "example": "solar"
+          },
+          "userId": {
+            "type": "string",
+            "example": "guest"
           }
         }
       },
       "AIChatRequest": {
         "type": "object",
-        "required": ["message"],
+        "required": [
+          "message"
+        ],
         "properties": {
           "message": {
             "type": "string",
@@ -215,7 +501,9 @@
       },
       "RateRecordRequest": {
         "type": "object",
-        "required": ["rating"],
+        "required": [
+          "rating"
+        ],
         "properties": {
           "rating": {
             "type": "integer",
@@ -231,18 +519,32 @@
       },
       "LinkRecordRequest": {
         "type": "object",
-        "required": ["userId"],
+        "required": [
+          "userId"
+        ],
         "properties": {
           "userId": {
             "type": "string",
-            "description": "UUIDv7 của user mới",
-            "example": "uuid-v7-new-user-id"
+            "example": "01908ef9-ef8a-7221-bf92-123456789abc"
+          }
+        }
+      },
+      "TogglePublicRequest": {
+        "type": "object",
+        "properties": {
+          "isPublic": {
+            "type": "boolean",
+            "example": true
           }
         }
       },
       "DateCheckRequest": {
         "type": "object",
-        "required": ["birthYear", "solarDate", "activity"],
+        "required": [
+          "birthYear",
+          "solarDate",
+          "activity"
+        ],
         "properties": {
           "birthYear": {
             "type": "integer",
@@ -250,25 +552,31 @@
           },
           "solarDate": {
             "type": "string",
-            "description": "Ngày cần kiểm tra (YYYY-MM-DD hoặc DD/MM/YYYY)",
             "example": "2026-07-03"
           },
           "solarHour": {
             "type": "string",
-            "description": "Giờ kiểm tra (HH:mm) - Tùy chọn",
             "example": "12:00"
           },
           "activity": {
             "type": "string",
-            "enum": ["dai_su", "khoi_nghiep", "xay_dung"],
-            "description": "Công việc dự định làm",
+            "enum": [
+              "dai_su",
+              "khoi_nghiep",
+              "xay_dung"
+            ],
             "example": "dai_su"
           }
         }
       },
       "DateConsultRequest": {
         "type": "object",
-        "required": ["birthYear", "startDate", "endDate", "activity"],
+        "required": [
+          "birthYear",
+          "startDate",
+          "endDate",
+          "activity"
+        ],
         "properties": {
           "birthYear": {
             "type": "integer",
@@ -284,36 +592,191 @@
           },
           "activity": {
             "type": "string",
-            "enum": ["dai_su", "khoi_nghiep", "xay_dung"],
+            "enum": [
+              "dai_su",
+              "khoi_nghiep",
+              "xay_dung"
+            ],
             "example": "dai_su"
+          }
+        }
+      },
+      "CreateTagRequest": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Gia đình"
+          }
+        }
+      },
+      "UpdateTagRequest": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Sự nghiệp & Tài lộc"
+          }
+        }
+      },
+      "UpdateRecordTagsRequest": {
+        "type": "object",
+        "required": [
+          "tags"
+        ],
+        "properties": {
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "Gia đình",
+              "Sự nghiệp"
+            ]
+          }
+        }
+      },
+      "CreateBlogPostRequest": {
+        "type": "object",
+        "required": [
+          "title",
+          "summary",
+          "content"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "Giải mã ý nghĩa 64 quẻ Kinh Dịch"
+          },
+          "slug": {
+            "type": "string",
+            "example": "giai-ma-y-nghia-64-que-kinh-dich"
+          },
+          "summary": {
+            "type": "string",
+            "example": "Tóm lược các nguyên lý căn bản của Kinh Dịch trong dự đoán sự nghiệp và tài vận."
+          },
+          "content": {
+            "type": "string",
+            "example": "# Nội dung bài viết Markdown..."
+          },
+          "category": {
+            "type": "string",
+            "example": "Kinh Dịch"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "Kinh Dịch",
+              "Dự đoán"
+            ]
+          },
+          "thumbnailUrl": {
+            "type": "string",
+            "example": "https://example.com/thumb.jpg"
+          },
+          "isPublished": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "UpdateBlogPostRequest": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "Giải mã chi tiết 64 quẻ Kinh Dịch"
+          },
+          "slug": {
+            "type": "string",
+            "example": "giai-ma-chi-tiet-64-que-kinh-dich"
+          },
+          "summary": {
+            "type": "string",
+            "example": "Tóm lược cập nhật..."
+          },
+          "content": {
+            "type": "string",
+            "example": "# Nội dung sửa đổi..."
+          },
+          "category": {
+            "type": "string",
+            "example": "Kinh Dịch"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "Kinh Dịch"
+            ]
+          },
+          "thumbnailUrl": {
+            "type": "string",
+            "example": "https://example.com/thumb2.jpg"
+          },
+          "isPublished": {
+            "type": "boolean",
+            "example": true
           }
         }
       },
       "AdminUpdateRoleRequest": {
         "type": "object",
-        "required": ["role"],
+        "required": [
+          "role"
+        ],
         "properties": {
           "role": {
             "type": "string",
-            "enum": ["user", "vip", "co-admin", "admin"],
+            "enum": [
+              "user",
+              "vip",
+              "co-admin",
+              "admin"
+            ],
             "example": "vip"
           }
         }
       },
       "AdminUpdateCreditsRequest": {
         "type": "object",
-        "required": ["credits"],
+        "required": [
+          "credits"
+        ],
         "properties": {
           "credits": {
             "type": "integer",
-            "description": "Số lượng credits muốn cộng/trừ (chấp nhận số âm)",
             "example": 10
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "set",
+              "add",
+              "subtract"
+            ],
+            "example": "add"
           }
         }
       },
       "AdminLockRequest": {
         "type": "object",
-        "required": ["reason"],
+        "required": [
+          "reason"
+        ],
         "properties": {
           "reason": {
             "type": "string",
@@ -323,25 +786,47 @@
       },
       "AdminResolveAppealRequest": {
         "type": "object",
-        "required": ["status"],
+        "required": [
+          "action"
+        ],
         "properties": {
-          "status": {
+          "action": {
             "type": "string",
-            "enum": ["approved", "rejected"],
-            "example": "approved"
-          },
-          "adminNotes": {
-            "type": "string",
-            "example": "Chấp thuận mở khóa tài khoản sau khi xem xét khiếu nại"
+            "enum": [
+              "approve",
+              "reject"
+            ],
+            "description": "'approve' mở khóa tài khoản, 'reject' từ chối khiếu nại",
+            "example": "approve"
           }
         }
       }
     }
   },
   "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "Hệ Thống"
+        ],
+        "summary": "Health Check endpoint cho AWS ALB/Nginx load balancer",
+        "responses": {
+          "200": {
+            "description": "Máy chủ hoạt động bình thường",
+            "content": {
+              "text/plain": {
+                "example": "ok"
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/auth/register": {
       "post": {
-        "tags": ["Xác thực & Người dùng"],
+        "tags": [
+          "Xác thực & Người dùng"
+        ],
         "summary": "Đăng ký tài khoản mới",
         "requestBody": {
           "required": true,
@@ -355,31 +840,20 @@
         },
         "responses": {
           "201": {
-            "description": "Tạo tài khoản thành công",
-            "content": {
-              "application/json": {
-                "example": {
-                  "token": "eyJhbGciOi...",
-                  "user": {
-                    "id": "01908ef9-ef8a-7221-bf92-123456789abc",
-                    "email": "user@example.com",
-                    "name": "Nguyen Van A",
-                    "credits": 1
-                  }
-                }
-              }
-            }
+            "description": "Tạo tài khoản thành công"
           },
           "400": {
-            "description": "Dữ liệu gửi lên không hợp lệ hoặc email đã tồn tại"
+            "description": "Dữ liệu không hợp lệ hoặc email đã tồn tại"
           }
         }
       }
     },
     "/api/auth/login": {
       "post": {
-        "tags": ["Xác thực & Người dùng"],
-        "summary": "Đăng nhập",
+        "tags": [
+          "Xác thực & Người dùng"
+        ],
+        "summary": "Đăng nhập bằng Email & Mật khẩu",
         "requestBody": {
           "required": true,
           "content": {
@@ -392,23 +866,115 @@
         },
         "responses": {
           "200": {
-            "description": "Đăng nhập thành công",
-            "content": {
-              "application/json": {
-                "example": {
-                  "token": "eyJhbGciOi...",
-                  "user": {
-                    "id": "01908ef9-ef8a-7221-bf92-123456789abc",
-                    "email": "user@example.com",
-                    "name": "Nguyen Van A",
-                    "credits": 1
-                  }
-                }
+            "description": "Đăng nhập thành công"
+          },
+          "400": {
+            "description": "Sai email hoặc mật khẩu"
+          },
+          "403": {
+            "description": "Tài khoản bị khóa hoặc xóa"
+          }
+        }
+      }
+    },
+    "/api/auth/google": {
+      "post": {
+        "tags": [
+          "Xác thực & Người dùng"
+        ],
+        "summary": "Đăng nhập / Đăng ký qua Google OAuth2 ID Token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoogleLoginRequest"
               }
             }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Đăng nhập Google thành công"
+          },
+          "400": {
+            "description": "Token Google không hợp lệ hoặc email chưa verify"
+          }
+        }
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Xác thực & Người dùng"
+        ],
+        "summary": "Lấy thông tin tài khoản hiện tại của người dùng",
+        "responses": {
+          "200": {
+            "description": "Thông tin chi tiết tài khoản"
           },
           "401": {
-            "description": "Sai email hoặc mật khẩu"
+            "description": "Chưa xác thực hoặc token không hợp lệ"
+          }
+        }
+      }
+    },
+    "/api/auth/profile": {
+      "put": {
+        "tags": [
+          "Xác thực & Người dùng"
+        ],
+        "summary": "Cập nhật hồ sơ người dùng (Tên, giới tính, số điện thoại, ngày giờ sinh)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProfileRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cập nhật hồ sơ thành công"
+          },
+          "400": {
+            "description": "Số điện thoại hoặc dữ liệu không hợp lệ"
+          },
+          "404": {
+            "description": "Không tìm thấy người dùng"
+          }
+        }
+      }
+    },
+    "/api/auth/bazi": {
+      "put": {
+        "tags": [
+          "Xác thực & Người dùng"
+        ],
+        "summary": "Cập nhật thông tin sinh Bát Tự & liên kết lá số bản thân",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBaziInfoRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cập nhật thông tin sinh thành công"
+          },
+          "404": {
+            "description": "Không tìm thấy người dùng"
           }
         }
       }
@@ -416,9 +982,13 @@
     "/api/auth/change-password": {
       "put": {
         "security": [
-          { "bearerAuth": [] }
+          {
+            "bearerAuth": []
+          }
         ],
-        "tags": ["Xác thực & Người dùng"],
+        "tags": [
+          "Xác thực & Người dùng"
+        ],
         "summary": "Thay đổi mật khẩu tài khoản hiện tại",
         "requestBody": {
           "required": true,
@@ -432,17 +1002,143 @@
         },
         "responses": {
           "200": {
-            "description": "Thay đổi mật khẩu thành công",
-            "content": {
-              "application/json": {
-                "example": {
-                  "message": "Đổi mật khẩu thành công."
-                }
-              }
-            }
+            "description": "Đổi mật khẩu thành công"
+          },
+          "400": {
+            "description": "Mật khẩu hiện tại sai hoặc mật khẩu mới quá ngắn"
           },
           "401": {
-            "description": "Không có token hoặc token không hợp lệ"
+            "description": "Chưa xác thực"
+          }
+        }
+      }
+    },
+    "/api/auth/forgot-password": {
+      "post": {
+        "tags": [
+          "Xác thực & Người dùng"
+        ],
+        "summary": "Yêu cầu gửi mã OTP khôi phục mật khẩu qua Email",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Mã OTP đã được gửi đến email"
+          },
+          "404": {
+            "description": "Không tìm thấy tài khoản với email này"
+          }
+        }
+      }
+    },
+    "/api/auth/reset-password": {
+      "post": {
+        "tags": [
+          "Xác thực & Người dùng"
+        ],
+        "summary": "Đặt lại mật khẩu mới bằng mã OTP xác thực email",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Khôi phục mật khẩu thành công"
+          },
+          "400": {
+            "description": "Mã OTP không chính xác hoặc đã hết hạn"
+          }
+        }
+      }
+    },
+    "/api/auth/send-verification-email": {
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Xác thực & Người dùng"
+        ],
+        "summary": "Gửi mã OTP xác thực email nhận +2 credits",
+        "responses": {
+          "200": {
+            "description": "Mã OTP đã được gửi tới email của người dùng"
+          },
+          "400": {
+            "description": "Email đã được xác thực trước đó"
+          }
+        }
+      }
+    },
+    "/api/auth/verify-email": {
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Xác thực & Người dùng"
+        ],
+        "summary": "Xác thực mã OTP email để nhận +2 credits",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyEmailRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Xác thực thành công, cộng 2 credits"
+          },
+          "400": {
+            "description": "Mã OTP sai hoặc hết hạn"
+          }
+        }
+      }
+    },
+    "/api/auth/appeal": {
+      "post": {
+        "tags": [
+          "Xác thực & Người dùng"
+        ],
+        "summary": "Gửi đơn khiếu nại khóa/xóa tài khoản tới Ban Quản Trị",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitAppealRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Đơn khiếu nại đã được gửi thành công"
+          },
+          "400": {
+            "description": "Đã có đơn khiếu nại đang chờ xử lý"
           }
         }
       }
@@ -450,24 +1146,17 @@
     "/api/auth/logout": {
       "post": {
         "security": [
-          { "bearerAuth": [] }
+          {
+            "bearerAuth": []
+          }
         ],
-        "tags": ["Xác thực & Người dùng"],
-        "summary": "Đăng xuất tài khoản",
-        "description": "Đăng xuất và hủy bỏ hiệu lực của toàn bộ JWT token hiện tại trên máy chủ.",
+        "tags": [
+          "Xác thực & Người dùng"
+        ],
+        "summary": "Đăng xuất tài khoản (Vô hiệu hóa Token & Xóa Cache)",
         "responses": {
           "200": {
-            "description": "Đăng xuất thành công",
-            "content": {
-              "application/json": {
-                "example": {
-                  "message": "Đăng xuất thành công."
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Không có token hoặc token không hợp lệ"
+            "description": "Đăng xuất thành công"
           }
         }
       }
@@ -475,23 +1164,28 @@
     "/api/auth/events": {
       "get": {
         "security": [
-          { "queryAuth": [] }
+          {
+            "queryAuth": []
+          }
         ],
-        "tags": ["Xác thực & Người dùng"],
-        "summary": "Đồng bộ tài khoản phía client qua SSE (Server-Sent Events)",
-        "description": "Sự kiện được gửi đi: `account_locked`, `account_deleted`, `account_updated`",
+        "tags": [
+          "Xác thực & Người dùng"
+        ],
+        "summary": "Đồng bộ tài khoản realtime qua SSE (Server-Sent Events)",
         "parameters": [
           {
             "name": "token",
             "in": "query",
             "required": true,
-            "schema": { "type": "string" },
+            "schema": {
+              "type": "string"
+            },
             "description": "JWT Token"
           }
         ],
         "responses": {
           "200": {
-            "description": "Luồng sự kiện được thiết lập thành công",
+            "description": "Luồng SSE text/event-stream đồng bộ trạng thái tài khoản",
             "content": {
               "text/event-stream": {}
             }
@@ -501,9 +1195,11 @@
     },
     "/api/iching/calculate": {
       "post": {
-        "tags": ["Tính toán & Gieo Quẻ"],
-        "summary": "Tính toán Quẻ Kinh Dịch (Lập Quẻ)",
-        "description": "Hỗ trợ 3 phương pháp gieo quẻ: Lục hào (tosses), Mai Hoa Dịch Số theo Giờ động tâm (mai_hoa_time) và Seri tiền 8 số (mai_hoa_money).",
+        "tags": [
+          "Tính toán & Gieo Quẻ"
+        ],
+        "summary": "Lập Quẻ Kinh Dịch (Lục Hào / Mai Hoa)",
+        "description": "Hỗ trợ 3 phương pháp gieo quẻ: Lục hào (tosses 6 lần), Mai Hoa Dịch Số theo Giờ động tâm (mai_hoa_time) và Seri tiền 8 số (mai_hoa_money).",
         "requestBody": {
           "required": true,
           "content": {
@@ -516,30 +1212,18 @@
         },
         "responses": {
           "200": {
-            "description": "Thành công. Trả về đồ hình quẻ, hào động, nạp giáp, ngũ hành.",
-            "content": {
-              "application/json": {
-                "example": {
-                  "_id": "01908ef9-ef8a-7221-bf92-123456789abc",
-                  "question": "Sự nghiệp năm nay thế nào?",
-                  "primaryHexagram": { "name": "Thuần Càn", "number": 1 },
-                  "transformedHexagram": { "name": "Thiên Phong Cấu", "number": 44 },
-                  "movingLines": [1],
-                  "lunarDateInfo": {
-                    "dayCanChi": "Giáp Tý",
-                    "monthCanChi": "Mậu Thìn"
-                  }
-                }
-              }
-            }
+            "description": "Thành công. Trả về đồ hình quẻ, hào động, lục thân, lục thú, nạp giáp, thế ứng."
           }
         }
       }
     },
     "/api/bazi/analyze": {
       "post": {
-        "tags": ["Tính toán & Gieo Quẻ"],
+        "tags": [
+          "Tính toán & Gieo Quẻ"
+        ],
         "summary": "Lập Bản Đồ Tứ Trụ Bát Tự",
+        "description": "Tính toán 4 trụ Can Chi, Thập thần, Tàng can, Vòng Trường sinh, Điểm ngũ hành vượng suy theo thuật toán 4.0.",
         "requestBody": {
           "required": true,
           "content": {
@@ -552,33 +1236,17 @@
         },
         "responses": {
           "200": {
-            "description": "Thành công. Trả về 4 trụ (Can Chi), Thập thần, Đại vận, Tiểu vận.",
-            "content": {
-              "application/json": {
-                "example": {
-                  "_id": "01908ef9-ef8a-7221-bf92-123456789def",
-                  "inputInfo": {
-                    "date": "2004-09-05",
-                    "time": "14:30",
-                    "gender": 1
-                  },
-                  "baziData": {
-                    "year": { "gan": "Giáp", "zhi": "Thân" },
-                    "month": { "gan": "Nhâm", "zhi": "Thân" },
-                    "day": { "gan": "Quý", "zhi": "Hợi" },
-                    "hour": { "gan": "Kỷ", "zhi": "Mùi" }
-                  }
-                }
-              }
-            }
+            "description": "Thành công. Trả về 4 trụ, Đại vận, Tiểu vận, Thập thần và Ngũ hành."
           }
         }
       }
     },
     "/api/marriage/analyze": {
       "post": {
-        "tags": ["Tính toán & Gieo Quẻ"],
-        "summary": "Xem Tuổi Kết Hôn (Hợp Hôn)",
+        "tags": [
+          "Tính toán & Gieo Quẻ"
+        ],
+        "summary": "Xem Tuổi Hợp Hôn (Bát Tự Hợp Hôn)",
         "requestBody": {
           "required": true,
           "content": {
@@ -591,25 +1259,17 @@
         },
         "responses": {
           "200": {
-            "description": "Lập dữ liệu so sánh tuổi nam nữ thành công.",
-            "content": {
-              "application/json": {
-                "example": {
-                  "_id": "01908ef9-ef8a-7221-bf92-123456789ghi",
-                  "maleBaziData": {},
-                  "femaleBaziData": {},
-                  "compatibilityScore": 8.5
-                }
-              }
-            }
+            "description": "Thành công. Trả về điểm tương hợp, phân tích ngũ hành, thiên can, địa chi và cung phi."
           }
         }
       }
     },
     "/api/ziwei": {
       "post": {
-        "tags": ["Tính toán & Gieo Quẻ"],
-        "summary": "Lập Mệnh Bàn Tử Vi",
+        "tags": [
+          "Tính toán & Gieo Quẻ"
+        ],
+        "summary": "Lập Mệnh Bàn Tử Vi Đẩu Số (12 Cung & An Sao)",
         "requestBody": {
           "required": true,
           "content": {
@@ -622,53 +1282,31 @@
         },
         "responses": {
           "200": {
-            "description": "Thành công. Trả về thông tin an sao 12 cung chi tiết dựa trên thư viện iztro.",
-            "content": {
-              "application/json": {
-                "example": {
-                  "_id": "01908ef9-ef8a-7221-bf92-123456789jkl",
-                  "inputInfo": {
-                    "date": "2004-09-05",
-                    "hour": 7,
-                    "gender": "Nam"
-                  },
-                  "chartData": {
-                    "palaces": []
-                  }
-                }
-              }
-            }
+            "description": "Thành công. Trả về cấu trúc 12 cung, chính tinh, phụ tinh, tứ hóa và đại vận."
           }
         }
       }
     },
     "/api/concept/{term}": {
       "get": {
-        "tags": ["Tính toán & Gieo Quẻ"],
-        "summary": "Tra cứu khái niệm học thuật phương Đông",
+        "tags": [
+          "Tính toán & Gieo Quẻ"
+        ],
+        "summary": "Tra cứu khái niệm học thuật Cổ học Phương Đông",
         "parameters": [
           {
             "name": "term",
             "in": "path",
             "required": true,
-            "schema": { "type": "string" },
-            "description": "Tên khái niệm học thuật (ví dụ: Phụ Mẫu, Thê Tài, Thanh Long...)",
+            "schema": {
+              "type": "string"
+            },
             "example": "Phụ Mẫu"
           }
         ],
         "responses": {
           "200": {
-            "description": "Khái niệm được tìm thấy",
-            "content": {
-              "application/json": {
-                "example": {
-                  "term": "Phụ Mẫu",
-                  "category": "Lục Thân",
-                  "short_description": "Cha mẹ, bề trên, giấy tờ, xe cộ, nhà cửa.",
-                  "full_detail": "▸ Người đại diện: Cha mẹ, ông bà...\n▸ Sự vật: Hợp đồng, văn bằng..."
-                }
-              }
-            }
+            "description": "Chi tiết khái niệm"
           },
           "404": {
             "description": "Không tìm thấy khái niệm"
@@ -676,14 +1314,64 @@
         }
       }
     },
+    "/api/date/check": {
+      "post": {
+        "tags": [
+          "Xem Ngày Hoàng Đạo (Trạch Cát)"
+        ],
+        "summary": "Kiểm tra độ cát hung của một ngày cụ thể so với tuổi",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DateCheckRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Kết quả đánh giá ngày hoàng đạo, trực, thần sát và giờ hoàng đạo"
+          }
+        }
+      }
+    },
+    "/api/date/consult": {
+      "post": {
+        "tags": [
+          "Xem Ngày Hoàng Đạo (Trạch Cát)"
+        ],
+        "summary": "Tư vấn tìm danh sách ngày hoàng đạo tốt nhất trong khoảng thời gian",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DateConsultRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Danh sách các ngày phù hợp nhất được sắp xếp theo điểm số"
+          }
+        }
+      }
+    },
     "/api/ai/{system}/{id}/interpret": {
       "post": {
         "security": [
-          { "bearerAuth": [] }
+          {
+            "bearerAuth": []
+          }
         ],
-        "tags": ["Luận Giải & Chat AI"],
-        "summary": "Yêu cầu AI Luận giải (SSE Stream)",
-        "description": "Bắt đầu stream SSE trả về các phân tích phong thủy từ Gemini. Cần truyền token JWT trong Authorization header.",
+        "tags": [
+          "Luận Giải & Chat AI"
+        ],
+        "summary": "Yêu cầu AI Luận giải chuyên sâu (SSE Stream)",
+        "description": "Phát stream Server-Sent Events (text/event-stream) chứa các đoạn phân tích từ Gemini LLM. Tự động kiểm tra và trừ 1 credit nguyên tử.",
         "parameters": [
           {
             "name": "system",
@@ -691,7 +1379,12 @@
             "required": true,
             "schema": {
               "type": "string",
-              "enum": ["iching", "bazi", "ziwei", "marriage"]
+              "enum": [
+                "iching",
+                "bazi",
+                "ziwei",
+                "marriage"
+              ]
             },
             "description": "Phân hệ tương ứng"
           },
@@ -699,17 +1392,21 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "string" },
-            "description": "UUIDv7 của bản ghi cần luận giải",
-            "example": "01908ef9-ef8a-7221-bf92-123456789abc"
+            "schema": {
+              "type": "string"
+            },
+            "description": "UUIDv7 của bản ghi"
           }
         ],
         "responses": {
           "200": {
-            "description": "Thành công. Phát stream `text/event-stream` chứa các chuỗi markdown thô và kết thúc bằng sự kiện `done`.",
+            "description": "Luồng text/event-stream trả về markdown realtime và kết thúc bằng event done",
             "content": {
               "text/event-stream": {}
             }
+          },
+          "402": {
+            "description": "Không đủ lượt sử dụng (Credits)"
           }
         }
       }
@@ -717,11 +1414,14 @@
     "/api/ai/{system}/{id}/chat": {
       "post": {
         "security": [
-          { "bearerAuth": [] }
+          {
+            "bearerAuth": []
+          }
         ],
-        "tags": ["Luận Giải & Chat AI"],
-        "summary": "Chat hỏi đáp sâu về bản ghi (SSE Stream)",
-        "description": "Gửi câu hỏi tiếp theo dựa trên bản cảnh quẻ/lá số đã lập để nhận câu trả lời dạng stream.",
+        "tags": [
+          "Luận Giải & Chat AI"
+        ],
+        "summary": "Hỏi đáp và trò chuyện chuyên sâu về bản ghi (SSE Stream)",
         "parameters": [
           {
             "name": "system",
@@ -729,17 +1429,21 @@
             "required": true,
             "schema": {
               "type": "string",
-              "enum": ["iching", "bazi", "ziwei", "marriage"]
-            },
-            "description": "Phân hệ tương ứng"
+              "enum": [
+                "iching",
+                "bazi",
+                "ziwei",
+                "marriage"
+              ]
+            }
           },
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "string" },
-            "description": "UUIDv7 của bản ghi",
-            "example": "01908ef9-ef8a-7221-bf92-123456789abc"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -754,7 +1458,7 @@
         },
         "responses": {
           "200": {
-            "description": "Phát stream câu trả lời kèm event `structured` chứa các trường tóm tắt cuối cùng.",
+            "description": "Stream câu trả lời AI dạng SSE text/event-stream",
             "content": {
               "text/event-stream": {}
             }
@@ -765,10 +1469,14 @@
     "/api/history/{system}/{userId}": {
       "get": {
         "security": [
-          { "bearerAuth": [] }
+          {
+            "bearerAuth": []
+          }
         ],
-        "tags": ["Lịch Sử & Đánh Giá"],
-        "summary": "Lấy danh sách lịch sử quẻ/lá số đã xem của user",
+        "tags": [
+          "Lịch Sử & Bản Ghi"
+        ],
+        "summary": "Lấy danh sách lịch sử quẻ/lá số theo phân hệ của người dùng",
         "parameters": [
           {
             "name": "system",
@@ -776,57 +1484,86 @@
             "required": true,
             "schema": {
               "type": "string",
-              "enum": ["iching", "bazi", "ziwei", "marriage"]
-            },
-            "description": "Phân hệ tương ứng"
+              "enum": [
+                "iching",
+                "bazi",
+                "ziwei",
+                "marriage"
+              ]
+            }
           },
           {
             "name": "userId",
             "in": "path",
             "required": true,
-            "schema": { "type": "string" },
-            "description": "UUIDv7 của người dùng hoặc 'guest'",
-            "example": "guest"
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tag",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Lọc theo thẻ/thư mục"
+          },
+          {
+            "name": "isPublic",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Lọc theo trạng thái công khai: 'true', 'false' hoặc 'all'"
           },
           {
             "name": "limit",
             "in": "query",
-            "required": false,
-            "schema": { "type": "integer", "default": 50 },
-            "description": "Số lượng bản ghi tối đa muốn lấy",
-            "example": 10
-          },
-          {
-            "name": "startDate",
-            "in": "query",
-            "required": false,
-            "schema": { "type": "string", "format": "date" },
-            "description": "Ngày bắt đầu lọc (định dạng YYYY-MM-DD)",
-            "example": "2026-07-01"
-          },
-          {
-            "name": "endDate",
-            "in": "query",
-            "required": false,
-            "schema": { "type": "string", "format": "date" },
-            "description": "Ngày kết thúc lọc (định dạng YYYY-MM-DD)",
-            "example": "2026-07-07"
+            "schema": {
+              "type": "integer",
+              "default": 50
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "Danh sách các bản ghi lịch sử",
-            "content": {
-              "application/json": {
-                "example": [
-                  {
-                    "_id": "01908ef9-ef8a-7221-bf92-123456789abc",
-                    "createdAt": "2026-07-09T18:00:00.000Z",
-                    "userId": "guest"
-                  }
-                ]
-              }
+            "description": "Danh sách các bản ghi lịch sử"
+          }
+        }
+      }
+    },
+    "/api/history/all/{userId}": {
+      "get": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Lịch Sử & Bản Ghi"
+        ],
+        "summary": "Lấy toàn bộ lịch sử tổng hợp của cả 4 phân hệ (IChing, Bazi, Ziwei, Marriage)",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dữ liệu lịch sử 4 phân hệ kèm tổng số đếm counts"
           }
         }
       }
@@ -834,10 +1571,14 @@
     "/api/history/{system}/record/{id}": {
       "get": {
         "security": [
-          { "bearerAuth": [] }
+          {
+            "bearerAuth": []
+          }
         ],
-        "tags": ["Lịch Sử & Đánh Giá"],
-        "summary": "Chi tiết một bản ghi quẻ/lá số cụ thể",
+        "tags": [
+          "Lịch Sử & Bản Ghi"
+        ],
+        "summary": "Lấy chi tiết một bản ghi quẻ/lá số theo ID",
         "parameters": [
           {
             "name": "system",
@@ -845,17 +1586,21 @@
             "required": true,
             "schema": {
               "type": "string",
-              "enum": ["iching", "bazi", "ziwei", "marriage"]
-            },
-            "description": "Phân hệ"
+              "enum": [
+                "iching",
+                "bazi",
+                "ziwei",
+                "marriage"
+              ]
+            }
           },
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "string" },
-            "description": "UUIDv7 của bản ghi",
-            "example": "01908ef9-ef8a-7221-bf92-123456789abc"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -868,13 +1613,17 @@
         }
       }
     },
-    "/api/history/{system}/{id}/rate": {
-      "put": {
+    "/api/history/{system}/{id}/messages": {
+      "get": {
         "security": [
-          { "bearerAuth": [] }
+          {
+            "bearerAuth": []
+          }
         ],
-        "tags": ["Lịch Sử & Đánh Giá"],
-        "summary": "Đánh giá chất lượng bản ghi luận giải",
+        "tags": [
+          "Lịch Sử & Bản Ghi"
+        ],
+        "summary": "Lấy lịch sử hội thoại chat follow-up của bản ghi",
         "parameters": [
           {
             "name": "system",
@@ -882,17 +1631,79 @@
             "required": true,
             "schema": {
               "type": "string",
-              "enum": ["iching", "bazi", "ziwei", "marriage"]
-            },
-            "description": "Phân hệ"
+              "enum": [
+                "iching",
+                "bazi",
+                "ziwei",
+                "marriage"
+              ]
+            }
           },
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "string" },
-            "description": "UUIDv7 của bản ghi",
-            "example": "01908ef9-ef8a-7221-bf92-123456789abc"
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Danh sách tin nhắn trong cuộc hội thoại"
+          }
+        }
+      }
+    },
+    "/api/history/{system}/{id}/rate": {
+      "put": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Lịch Sử & Bản Ghi"
+        ],
+        "summary": "Đánh giá chất lượng bản ghi luận giải (1-5 sao)",
+        "parameters": [
+          {
+            "name": "system",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "iching",
+                "bazi",
+                "ziwei",
+                "marriage"
+              ]
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -915,10 +1726,14 @@
     "/api/history/{system}/{id}/link": {
       "put": {
         "security": [
-          { "bearerAuth": [] }
+          {
+            "bearerAuth": []
+          }
         ],
-        "tags": ["Lịch Sử & Đánh Giá"],
-        "summary": "Liên kết bản ghi của khách vãng lai (guest) vào tài khoản thành viên",
+        "tags": [
+          "Lịch Sử & Bản Ghi"
+        ],
+        "summary": "Liên kết bản ghi từ khách vãng lai (guest) vào tài khoản thành viên",
         "parameters": [
           {
             "name": "system",
@@ -926,17 +1741,20 @@
             "required": true,
             "schema": {
               "type": "string",
-              "enum": ["iching", "bazi", "ziwei"]
-            },
-            "description": "Phân hệ"
+              "enum": [
+                "iching",
+                "bazi",
+                "ziwei"
+              ]
+            }
           },
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "string" },
-            "description": "UUIDv7 của bản ghi",
-            "example": "01908ef9-ef8a-7221-bf92-123456789abc"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -951,7 +1769,7 @@
         },
         "responses": {
           "200": {
-            "description": "Liên kết thành công"
+            "description": "Liên kết bản ghi thành công"
           }
         }
       }
@@ -959,11 +1777,14 @@
     "/api/history/calculations/{type}/{id}": {
       "delete": {
         "security": [
-          { "bearerAuth": [] }
+          {
+            "bearerAuth": []
+          }
         ],
-        "tags": ["Lịch Sử & Đánh Giá"],
-        "summary": "Xóa bản ghi lịch sử",
-        "description": "Yêu cầu JWT Token. Người dùng chỉ có quyền xóa bản ghi thuộc sở hữu của chính mình.",
+        "tags": [
+          "Lịch Sử & Bản Ghi"
+        ],
+        "summary": "Xóa bản ghi lịch sử (Xóa mềm & cập nhật thống kê O(1))",
         "parameters": [
           {
             "name": "type",
@@ -971,29 +1792,26 @@
             "required": true,
             "schema": {
               "type": "string",
-              "enum": ["iching", "bazi", "ziwei", "marriage"]
-            },
-            "description": "Loại bản ghi"
+              "enum": [
+                "iching",
+                "bazi",
+                "ziwei",
+                "marriage"
+              ]
+            }
           },
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "string" },
-            "description": "UUIDv7 của bản ghi",
-            "example": "01908ef9-ef8a-7221-bf92-123456789abc"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "Xóa thành công",
-            "content": {
-              "application/json": {
-                "example": {
-                  "message": "Xóa bản ghi thành công."
-                }
-              }
-            }
+            "description": "Xóa bản ghi thành công"
           },
           "403": {
             "description": "Không có quyền xóa bản ghi này"
@@ -1001,28 +1819,496 @@
         }
       }
     },
+    "/api/history/calculations/{type}/{id}/pin": {
+      "put": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Lịch Sử & Bản Ghi"
+        ],
+        "summary": "Bật/Tắt ghim bản ghi lên đầu danh sách",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "iching",
+                "bazi",
+                "ziwei",
+                "marriage"
+              ]
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cập nhật trạng thái ghim thành công"
+          }
+        }
+      }
+    },
+    "/api/history/calculations/{type}/{id}/public": {
+      "put": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Lịch Sử & Bản Ghi"
+        ],
+        "summary": "Bật/Tắt chế độ công khai chia sẻ bản ghi & tự động ping Google Indexing API",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "iching",
+                "bazi",
+                "ziwei",
+                "marriage"
+              ]
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TogglePublicRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cập nhật trạng thái công khai thành công"
+          }
+        }
+      }
+    },
+    "/api/tags": {
+      "get": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Quản lý Thẻ & Thư Mục"
+        ],
+        "summary": "Lấy danh sách các thẻ/thư mục của người dùng kèm số lượng bản ghi từng phân hệ",
+        "responses": {
+          "200": {
+            "description": "Danh sách thẻ và số lượng bản ghi"
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Quản lý Thẻ & Thư Mục"
+        ],
+        "summary": "Tạo thẻ/thư mục phân loại mới",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTagRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Tạo thẻ mới thành công"
+          },
+          "400": {
+            "description": "Tên thẻ bị trùng hoặc trống"
+          }
+        }
+      }
+    },
+    "/api/tags/{tagId}": {
+      "put": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Quản lý Thẻ & Thư Mục"
+        ],
+        "summary": "Đổi tên thẻ/thư mục (Đồng bộ đổi tên trong toàn bộ 4 collection)",
+        "parameters": [
+          {
+            "name": "tagId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTagRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Đổi tên thẻ thành công"
+          },
+          "400": {
+            "description": "Không thể đổi tên thư mục mặc định hoặc tên bị trùng"
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Quản lý Thẻ & Thư Mục"
+        ],
+        "summary": "Xóa thẻ/thư mục (Tự động gỡ thẻ khỏi các bản ghi)",
+        "parameters": [
+          {
+            "name": "tagId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Xóa thẻ thành công"
+          },
+          "400": {
+            "description": "Không thể xóa thư mục mặc định 'Chung'"
+          }
+        }
+      }
+    },
+    "/api/tags/record/{type}/{id}": {
+      "put": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Quản lý Thẻ & Thư Mục"
+        ],
+        "summary": "Gán danh sách thẻ/thư mục cho một bản ghi quẻ/lá số cụ thể",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "iching",
+                "bazi",
+                "ziwei",
+                "marriage"
+              ]
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRecordTagsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cập nhật thẻ bản ghi thành công"
+          }
+        }
+      }
+    },
+    "/api/blog": {
+      "get": {
+        "tags": [
+          "Bài Viết & Kiến Thức (Blog)"
+        ],
+        "summary": "Lấy danh sách bài viết kiến thức phong thủy (Hỗ trợ phân trang, lọc chủ đề, tìm kiếm)",
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 9
+            }
+          },
+          {
+            "name": "showAll",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Danh sách bài viết kèm metadata phân trang"
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Bài Viết & Kiến Thức (Blog)"
+        ],
+        "summary": "Tạo bài viết kiến thức mới (Dành cho Admin/Co-Admin, tự động ping Googlebot)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBlogPostRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Tạo bài viết thành công"
+          },
+          "403": {
+            "description": "Không có quyền Admin"
+          }
+        }
+      }
+    },
+    "/api/blog/categories": {
+      "get": {
+        "tags": [
+          "Bài Viết & Kiến Thức (Blog)"
+        ],
+        "summary": "Lấy danh sách toàn bộ các chủ đề/danh mục bài viết hiện có",
+        "responses": {
+          "200": {
+            "description": "Danh sách các chủ đề"
+          }
+        }
+      }
+    },
+    "/api/blog/{slug}": {
+      "get": {
+        "tags": [
+          "Bài Viết & Kiến Thức (Blog)"
+        ],
+        "summary": "Lấy chi tiết bài viết theo Slug đường dẫn thân thiện (Tự động tăng lượt xem nguyên tử)",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "giai-ma-y-nghia-64-que-kinh-dich"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Nội dung bài viết kèm danh sách bài liên quan"
+          },
+          "404": {
+            "description": "Không tìm thấy bài viết"
+          }
+        }
+      }
+    },
+    "/api/blog/{id}": {
+      "put": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Bài Viết & Kiến Thức (Blog)"
+        ],
+        "summary": "Cập nhật bài viết theo ID (Admin only)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBlogPostRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cập nhật bài viết thành công"
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Bài Viết & Kiến Thức (Blog)"
+        ],
+        "summary": "Xóa mềm bài viết (Admin only, tự động ping URL_DELETED tới Google)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Xóa bài viết thành công"
+          }
+        }
+      }
+    },
+    "/api/blog/{id}/restore": {
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Bài Viết & Kiến Thức (Blog)"
+        ],
+        "summary": "Khôi phục bài viết đã bị xóa mềm (Admin only)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Khôi phục bài viết thành công"
+          }
+        }
+      }
+    },
     "/api/notifications": {
       "get": {
         "security": [
-          { "bearerAuth": [] }
+          {
+            "bearerAuth": []
+          }
         ],
-        "tags": ["Thông Báo"],
+        "tags": [
+          "Thông Báo Người Dùng"
+        ],
         "summary": "Lấy danh sách thông báo của người dùng",
         "responses": {
           "200": {
-            "description": "Danh sách các thông báo của người dùng.",
-            "content": {
-              "application/json": {
-                "example": [
-                  {
-                    "_id": "01908ef9-ef8a-7221-bf92-123456789zzz",
-                    "title": "Nhắc nhở Ứng Kỳ",
-                    "content": "Quẻ của bạn có sự kiện quan trọng trong tháng 8 âm lịch này.",
-                    "read": false
-                  }
-                ]
-              }
-            }
+            "description": "Danh sách các thông báo"
           }
         }
       }
@@ -1030,21 +2316,17 @@
     "/api/notifications/read-all": {
       "put": {
         "security": [
-          { "bearerAuth": [] }
+          {
+            "bearerAuth": []
+          }
         ],
-        "tags": ["Thông Báo"],
+        "tags": [
+          "Thông Báo Người Dùng"
+        ],
         "summary": "Đánh dấu tất cả thông báo là đã đọc",
         "responses": {
           "200": {
-            "description": "Cập nhật thành công",
-            "content": {
-              "application/json": {
-                "example": {
-                  "success": true,
-                  "modifiedCount": 3
-                }
-              }
-            }
+            "description": "Cập nhật thành công"
           }
         }
       }
@@ -1052,142 +2334,27 @@
     "/api/notifications/{id}/read": {
       "put": {
         "security": [
-          { "bearerAuth": [] }
+          {
+            "bearerAuth": []
+          }
         ],
-        "tags": ["Thông Báo"],
+        "tags": [
+          "Thông Báo Người Dùng"
+        ],
         "summary": "Đánh dấu một thông báo cụ thể là đã đọc",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "string" },
-            "description": "UUIDv7 của thông báo",
-            "example": "01908ef9-ef8a-7221-bf92-123456789zzz"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "Đánh dấu đọc thành công",
-            "content": {
-              "application/json": {
-                "example": {
-                  "success": true
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/date/check": {
-      "post": {
-        "tags": ["Xem Ngày Hoàng Đạo (Trạch Cát)"],
-        "summary": "Kiểm tra độ tốt xấu của một ngày cụ thể so với tuổi",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DateCheckRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Thành công. Trả về đánh giá chi tiết cát hung và giờ hoàng đạo.",
-            "content": {
-              "application/json": {
-                "example": {
-                  "userYearInfo": {
-                    "yearCanChi": "Canh Ngọ",
-                    "naYin": "Lộ Bàng Thổ",
-                    "gan": "Canh",
-                    "zhi": "Ngọ"
-                  },
-                  "dayEvaluation": {
-                    "rating": "Nên",
-                    "score": 1.5,
-                    "positiveFactors": [
-                      "Ngũ hành ngày là Thành Đầu Thổ (Thổ) Tương Hòa với bản mệnh Lộ Bàng Thổ (Thổ) của bạn.",
-                      "Ngày có Trực Thành tốt cho công việc dự kiến."
-                    ],
-                    "negativeFactors": [
-                      "Ngày Hắc Đạo xung kỵ (Bạch Hổ)."
-                    ],
-                    "lunarDateInfo": {
-                      "year": 2026,
-                      "month": 5,
-                      "day": 19,
-                      "yearCanChi": "Bính Ngọ",
-                      "monthCanChi": "Mậu Ngọ",
-                      "dayCanChi": "Mậu Dần",
-                      "truc": "Thành",
-                      "deity": "Bạch Hổ",
-                      "deityType": "Hắc Đạo"
-                    }
-                  },
-                  "hourEvaluation": {
-                    "rating": "Rất tốt",
-                    "score": 2,
-                    "positiveFactors": [ "Giờ Hoàng Đạo trị nhật bởi thần Thiên Đức." ],
-                    "negativeFactors": [],
-                    "hourName": "Tỵ",
-                    "hourCanChi": "Đinh Tỵ",
-                    "deity": "Thiên Đức",
-                    "deityType": "Hoàng Đạo",
-                    "timeRange": "9h - 11h"
-                  },
-                  "solarDateInfo": {
-                    "date": "03/07/2026",
-                    "hour": "12:00"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/date/consult": {
-      "post": {
-        "tags": ["Xem Ngày Hoàng Đạo (Trạch Cát)"],
-        "summary": "Tư vấn tìm ngày hoàng đạo tốt nhất trong một khoảng thời gian",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DateConsultRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Thành công. Trả về danh sách ngày phù hợp nhất kèm gợi ý giờ hoàng đạo.",
-            "content": {
-              "application/json": {
-                "example": {
-                  "userYearInfo": {
-                    "yearCanChi": "Canh Ngọ",
-                    "naYin": "Lộ Bàng Thổ",
-                    "gan": "Canh",
-                    "zhi": "Ngọ"
-                  },
-                  "recommendations": [
-                    {
-                      "solarDate": "02/07/2026",
-                      "dayEvaluation": { "score": 1.5 },
-                      "goodHours": [
-                        { "hourName": "Dần", "timeRange": "3h - 5h", "rating": "Rất tốt", "deity": "Kim Quỹ" }
-                      ]
-                    }
-                  ]
-                }
-              }
-            }
+            "description": "Đánh dấu đọc thành công"
           }
         }
       }
@@ -1195,27 +2362,66 @@
     "/api/admin/users": {
       "get": {
         "security": [
-          { "bearerAuth": [] }
+          {
+            "bearerAuth": []
+          }
         ],
-        "tags": ["Quản trị Hệ thống"],
-        "summary": "Lấy danh sách toàn bộ người dùng trong hệ thống",
+        "tags": [
+          "Quản trị Hệ thống (Admin)"
+        ],
+        "summary": "Lấy danh sách thành viên (Hỗ trợ phân trang con trỏ Cursor UUIDv7, lọc vai trò, tìm kiếm)",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "user",
+                "vip",
+                "co-admin",
+                "admin"
+              ]
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "locked",
+                "deleted"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 15
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": "Danh sách người dùng",
-            "content": {
-              "application/json": {
-                "example": [
-                  {
-                    "_id": "01908ef9-ef8a-7221-bf92-123456789abc",
-                    "email": "user@example.com",
-                    "name": "Nguyen Van A",
-                    "role": "user",
-                    "credits": 5,
-                    "status": "active"
-                  }
-                ]
-              }
-            }
+            "description": "Danh sách người dùng"
           }
         }
       }
@@ -1223,18 +2429,22 @@
     "/api/admin/users/{id}/role": {
       "put": {
         "security": [
-          { "bearerAuth": [] }
+          {
+            "bearerAuth": []
+          }
         ],
-        "tags": ["Quản trị Hệ thống"],
-        "summary": "Cập nhật quyền hạn (role) của người dùng",
+        "tags": [
+          "Quản trị Hệ thống (Admin)"
+        ],
+        "summary": "Cập nhật vai trò (Role) của người dùng",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "string" },
-            "description": "UUIDv7 của người dùng",
-            "example": "01908ef9-ef8a-7221-bf92-123456789abc"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -1249,7 +2459,7 @@
         },
         "responses": {
           "200": {
-            "description": "Cập nhật quyền hạn thành công"
+            "description": "Cập nhật vai trò thành công"
           }
         }
       }
@@ -1257,18 +2467,22 @@
     "/api/admin/users/{id}/credits": {
       "put": {
         "security": [
-          { "bearerAuth": [] }
+          {
+            "bearerAuth": []
+          }
         ],
-        "tags": ["Quản trị Hệ thống"],
+        "tags": [
+          "Quản trị Hệ thống (Admin)"
+        ],
         "summary": "Nạp/Trừ credit cho người dùng",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "string" },
-            "description": "UUIDv7 của người dùng",
-            "example": "01908ef9-ef8a-7221-bf92-123456789abc"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -1291,18 +2505,22 @@
     "/api/admin/users/{id}/lock": {
       "post": {
         "security": [
-          { "bearerAuth": [] }
+          {
+            "bearerAuth": []
+          }
         ],
-        "tags": ["Quản trị Hệ thống"],
+        "tags": [
+          "Quản trị Hệ thống (Admin)"
+        ],
         "summary": "Khóa tài khoản người dùng",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "string" },
-            "description": "UUIDv7 của người dùng",
-            "example": "01908ef9-ef8a-7221-bf92-123456789abc"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "requestBody": {
@@ -1325,18 +2543,22 @@
     "/api/admin/users/{id}/unlock": {
       "post": {
         "security": [
-          { "bearerAuth": [] }
+          {
+            "bearerAuth": []
+          }
         ],
-        "tags": ["Quản trị Hệ thống"],
+        "tags": [
+          "Quản trị Hệ thống (Admin)"
+        ],
         "summary": "Mở khóa tài khoản người dùng",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "schema": { "type": "string" },
-            "description": "UUIDv7 của người dùng",
-            "example": "01908ef9-ef8a-7221-bf92-123456789abc"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -1346,16 +2568,461 @@
         }
       }
     },
+    "/api/admin/users/{id}": {
+      "delete": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Quản trị Hệ thống (Admin)"
+        ],
+        "summary": "Xóa mềm người dùng (isDeleted: true)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Xóa người dùng thành công"
+          }
+        }
+      }
+    },
+    "/api/admin/users/{id}/restore": {
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Quản trị Hệ thống (Admin)"
+        ],
+        "summary": "Khôi phục tài khoản người dùng đã xóa mềm",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Khôi phục tài khoản thành công"
+          }
+        }
+      }
+    },
+    "/api/admin/users/{id}/stats": {
+      "get": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Quản trị Hệ thống (Admin)"
+        ],
+        "summary": "Lấy chi tiết thống kê mức tiêu thụ tài nguyên và số lần lập lá số của thành viên",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Thông tin chi tiết thống kê người dùng"
+          }
+        }
+      }
+    },
+    "/api/admin/calculations": {
+      "get": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Quản trị Hệ thống (Admin)"
+        ],
+        "summary": "Lấy danh sách toàn bộ các bản ghi quẻ/lá số trong hệ thống (Hỗ trợ Cursor pagination & Bulk Query chống N+1)",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "iching",
+                "bazi",
+                "ziwei",
+                "marriage"
+              ]
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "locked",
+                "deleted"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 15
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Danh sách bản ghi quẻ/lá số đã gộp thông tin người dùng"
+          }
+        }
+      }
+    },
+    "/api/admin/calculations/{type}/{id}": {
+      "get": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Quản trị Hệ thống (Admin)"
+        ],
+        "summary": "Xem chi tiết bản ghi quẻ/lá số dưới quyền quản trị",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "iching",
+                "bazi",
+                "ziwei",
+                "marriage"
+              ]
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Chi tiết bản ghi tương ứng"
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Quản trị Hệ thống (Admin)"
+        ],
+        "summary": "Admin xóa mềm bản ghi quẻ/lá số",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "iching",
+                "bazi",
+                "ziwei",
+                "marriage"
+              ]
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Xóa bản ghi thành công"
+          }
+        }
+      }
+    },
+    "/api/admin/calculations/{type}/{id}/lock": {
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Quản trị Hệ thống (Admin)"
+        ],
+        "summary": "Khóa bản ghi quẻ/lá số",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "iching",
+                "bazi",
+                "ziwei",
+                "marriage"
+              ]
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Khóa bản ghi thành công"
+          }
+        }
+      }
+    },
+    "/api/admin/calculations/{type}/{id}/unlock": {
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Quản trị Hệ thống (Admin)"
+        ],
+        "summary": "Mở khóa bản ghi quẻ/lá số",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "iching",
+                "bazi",
+                "ziwei",
+                "marriage"
+              ]
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Mở khóa bản ghi thành công"
+          }
+        }
+      }
+    },
     "/api/admin/analytics": {
       "get": {
         "security": [
-          { "bearerAuth": [] }
+          {
+            "bearerAuth": []
+          }
         ],
-        "tags": ["Quản trị Hệ thống"],
-        "summary": "Báo cáo phân tích hệ thống (Analytics)",
+        "tags": [
+          "Quản trị Hệ thống (Admin)"
+        ],
+        "summary": "Báo cáo phân tích hệ thống (Analytics Dashboard)",
+        "description": "Truy xuất số liệu tổng quan, biểu đồ thời gian lượt truy cập, lượt lập quẻ theo ngày/giờ, tiêu thụ token và top 10 người dùng tiêu thụ tài nguyên nhiều nhất.",
+        "parameters": [
+          {
+            "name": "startDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "groupBy",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "day",
+                "hour"
+              ],
+              "default": "day"
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": "Thống kê lượt gọi, credit, lỗi máy chủ"
+            "description": "Dữ liệu tổng quan, timeline và top người dùng"
+          }
+        }
+      }
+    },
+    "/api/admin/notifications": {
+      "get": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Quản trị Hệ thống (Admin)"
+        ],
+        "summary": "Lấy danh sách cảnh báo hệ thống và danh sách đơn khiếu nại tài khoản đang chờ duyệt",
+        "responses": {
+          "200": {
+            "description": "Danh sách cảnh báo (alerts) và khiếu nại (appeals)",
+            "content": {
+              "application/json": {
+                "example": {
+                  "alerts": [],
+                  "appeals": []
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/notifications/{id}/read": {
+      "put": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Quản trị Hệ thống (Admin)"
+        ],
+        "summary": "Đánh dấu cảnh báo Admin là đã đọc",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Đã đánh dấu đọc thông báo"
+          }
+        }
+      }
+    },
+    "/api/admin/appeals/{id}/resolve": {
+      "post": {
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "Quản trị Hệ thống (Admin)"
+        ],
+        "summary": "Giải quyết đơn khiếu nại khóa tài khoản (approve để mở khóa, reject để bác bỏ)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminResolveAppealRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Giải quyết khiếu nại thành công"
           }
         }
       }
@@ -1363,23 +3030,27 @@
     "/api/admin/events": {
       "get": {
         "security": [
-          { "queryAuth": [] }
+          {
+            "queryAuth": []
+          }
         ],
-        "tags": ["Quản trị Hệ thống"],
-        "summary": "Xem Live Event Admin (Realtime SSE)",
-        "description": "Stream sự kiện admin thời gian thực.",
+        "tags": [
+          "Quản trị Hệ thống (Admin)"
+        ],
+        "summary": "Kênh realtime SSE cho Admin nhận sự kiện trực tiếp",
         "parameters": [
           {
             "name": "token",
             "in": "query",
             "required": true,
-            "schema": { "type": "string" },
-            "description": "JWT Token của admin"
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "Luồng sự kiện SSE được bắt đầu thành công",
+            "description": "Luồng sự kiện SSE text/event-stream",
             "content": {
               "text/event-stream": {}
             }

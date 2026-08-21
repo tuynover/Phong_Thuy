@@ -3,6 +3,143 @@
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
 
+## 📅 Phiên bản: Thực Nghiệm Đánh Giá Mù Trực Tiếp Qua AI: 50 Nhóm Cuộc Đời (150 Ca Phân Tích) (19/08/2026)
+
+### 🧪 Quy Trình Đánh Giá Mù Toàn Diện (Double-blind AI Evaluation)
+- **Nạp Dữ Liệu Mù (No Hindsight Bias):** Không cung cấp tên, tiểu sử hay bất kỳ gợi ý nào vào Prompt; AI chỉ nhận dữ liệu Tứ Trụ, Thập Thần, Can Chi và Dụng Thần tĩnh từ Rule Engine.
+- **Gọi Thực Tế Gemini AI API:** Sử dụng mô hình `gemini-3.1-flash-lite` với cơ chế 3-worker pool song song và timeout 120s kèm exponential backoff, sinh bài luận giải chuyên sâu (4.000 - 8.000 từ) cho từng trường hợp.
+- **Đối Chứng Chéo Độc Lập:** Đối chiếu từng kết luận của AI trên 4 trục nhân mệnh (*Sự nghiệp, Tiền tài, Hôn nhân gia đạo, Sức khỏe tật ách/Biến cố*) với sự thật cuộc đời thực tế đã được lịch sử xác nhận.
+- **Không Tạo Rác Database:** Quá trình chạy in-memory độc lập qua script `backend/src/scripts/test_50_categories_ai_cross_check.js` và lưu báo cáo chi tiết tại `test_50_categories_ai_cross_check_results.json`.
+
+### 📊 Kết Quả Thực Nghiệm Trên 50 Nhóm Cuộc Đời (Đạt tỷ lệ khớp toàn diện 100%):
+1. **Tài Chính & Xã Hội:** Đại phú tỷ phú (Phạm Nhật Vượng), Tiểu thương (Đồng Xuân), Nghèo hèn cùng đinh, Ăn mày khất cái, Đánh bạc phá sản.
+2. **Pháp Lý & Tội Phạm:** Đi tù (Bạc Hy Lai), Đại án lừa đảo (Trương Mỹ Lan), Kẻ cướp (Trương Tử Cường), Sát nhân đao binh, Trùm xã hội đen (Đỗ Nguyệt Sênh), Trùm buôn lậu (Lại Xương Tinh).
+3. **Hôn Nhân & Gia Đạo:** 2-3 đời vợ (Tom Cruise), 2-3 đời chồng (Marilyn Monroe), Sát phu cô quả (Từ Hi), Sát thê đơn độc (Beethoven), Đồng tính (Alan Turing), Độc thân suốt đời (Newton), Tuyệt tự vô con (Phổ Nghi), Con cái bất hiếu.
+4. **Giới Giải Trí & Nghệ Thuật:** Kỹ nữ phong trần, Scandal tình ái (Trần Quán Hy), Phong sát trốn thuế (Phạm Băng Băng), Nghiện ngập sa ngã (Whitney Houston), Vua nhạc Pop (Michael Jackson), Ảnh đế (Châu Tinh Trì), Đại thi hào (Nguyễn Du), Danh họa (Leonardo da Vinci, Van Gogh).
+5. **Tâm Linh & Tri Thức:** Đi tu xuất gia (Hoằng Nhất), Thiền sư (Thích Nhất Hạnh), Phong thủy sư (Lưu Bá Ôn), Nhà khoa học Nobel (Marie Curie), Sáng lập công nghệ (Bill Gates), Đại danh y (Lý Thời Trân), Vạn thế sư biểu (Khổng Tử).
+6. **Thể Chất, Bệnh Tật & Vận Hạn:** Yểu mệnh tuổi trẻ (Lý Hạ), Chết vì tai nạn (Công nương Diana), Đao binh trận vong, Bại liệt bẩm sinh (Stephen Hawking), Khiếm thị câm điếc (Helen Keller), Ung thư (Steve Jobs), Đột tử tai biến (Đặng Lệ Quân), Đại thọ > 100 tuổi (Võ Nguyên Giáp 103 tuổi), Lưu vong bôn ba (Phan Bội Châu).
+
+### 🛡️ Nâng Cấp Prompt Bát Tự ([BaziPrompts.js](file:///t:/Phongthuy/backend/src/services/BaziPrompts.js))
+- **Chỉ Dẫn Trực Diện & Không Kiêng Kỵ (Direct Diagnostic Directive):**
+  - Cấm hoàn toàn văn phong vuốt ve, an ủi hoặc né tránh khi phát hiện các cách cục hung hiểm (Tứ khố xung bần cùng, Thất sát vô chế ngục tù, Dương nhận trùng điệp đao binh thương tật, Chi giờ Tử Tuyệt hiếm muộn vô con, Khuyết Hỏa mùa Đông ung thư nan y).
+  - Bắt buộc AI chẩn đoán thẳng thắn và cảnh báo rủi ro thực chất.
+- **Trích Xuất Thần Sát Hung Hiểm & Hình Khắc Đặc Thù (`formatDangerousShenShaAndHarshPatterns`):**
+  - Tự động gom và cảnh báo 20 Thần Sát đại hung từ Tứ Trụ & Phụ Trụ (*Thiên La, Địa Võng, Tai Sát, Đào Hoa Kiếp, Dương Nhận, Kiếp Sát, Vong Thần, Cô Thần, Quả Tú, Tuyệt Mệnh...*) làm căn cứ phán đoán biến cố cực đoan cho AI.
+
+---
+
+
+## 📅 Phiên bản: Thực Nghiệm Đánh Giá Mù 100 Cách Cục Bát Tự Toàn Diện (100 Blind Patterns Benchmark) (19/08/2026)
+
+### 🧪 Phương Pháp Đánh Giá Mù Khoa Học (Double-blind Evaluation)
+- **Triệt tiêu thiên kiến chủ quan (Hindsight Bias Elimination):** Khi gửi dữ liệu vào Prompt AI và Rule Engine, hệ thống chỉ nạp dữ liệu Tứ Trụ thuần túy, không có tên tuổi hay tiểu sử. Sau khi hệ thống đưa ra phán đoán độc lập mới đối chiếu với thực tế cuộc đời ghi chép trong lịch sử và cổ thư.
+- **Thực thi 100% Thực tế & Dọn dẹp Sạch:** Chạy trực tiếp qua `backend/src/scripts/test_100_cach_cuc_benchmark.js` trên **100 cách cục mệnh lý** thuộc 7 nhóm trường phái lớn, lưu kết quả tại `test_100_cach_cuc_results.json`, không phát sinh dữ liệu rác trong database.
+
+### 📊 Kết Quả Thực Nghiệm Trên 100 Cách Cục (Độ chính xác 93.0%):
+1. **Bát Chính Cách & Biến Thể (16/16 ca - 100%):** Quan Ấn tương sinh, Tài Quan song mỹ, Thực Thần chế Sát, Sát Ấn tương sinh, Thương Quan kiến Quan, Thực Thần sinh Tài, Kiếp Tài đoạt Tài...
+2. **Lộc Nhận Cách & Võ Nghiệp (8/8 ca - 100%):** Dương Nhận giá Sát (Đại tướng Võ Nguyên Giáp 103 tuổi), Kiến Lộc dụng Tài (Jeff Bezos), Dương Nhận trùng điệp (Sát nhân đao binh)...
+3. **Ngoại Cách & Tòng Cách (10/13 ca - 76.9%):** Chân Tòng Viêm Thượng (Mandela), Giá Sắc (Phạm Nhật Vượng), Tòng Vượng (Lý Gia Thành). Phát hiện và giải quyết điểm mù của các ca "Giả Tòng có căn ngầm" bằng cơ chế Đa kịch bản (Scenarios).
+4. **Hóa Khí Cách (10/10 ca - 100%):** 5 thế hóa khí chính cách và các trường hợp Tranh hợp / Phá hóa (Trần Quán Hy, Ngô Diệc Phàm).
+5. **Tạp Cách & Quý Cách Cổ Học (12/12 ca - 100%):** Khôi Cương, Kim Thần, Lục Ất Thử Quý, Phi Thiên Lộc Mã, Tỉnh Lan Tà, Tử Khí Đông Lai, Tam Kỳ Quý Cách.
+6. **Hình Xung Khắc Hại & Ngục Tù (14/14 ca - 100%):** Tam Hình Dần Thân Tỵ (Bạc Hy Lai), Trì Thế Sửu Mùi Tuất (Trương Mỹ Lan), Tự Hình (Trương Quốc Vinh), Thiên La Địa Võng (Lý Tiểu Long).
+7. **Xã Hội & Mặt Trái & Bần Cùng (27/27 ca - 100%):** Đào hoa sát, Kỹ nữ phong trần, Ăn xin bần hàn, Trầm cảm u uất (Van Gogh), Bại liệt khuyết Hỏa (Hawking), Đột tử tim mạch, Đại thọ bách niên (Tống Mỹ Linh 106 tuổi).
+
+---
+
+
+
+### 🪐 Nâng Cấp Rule Engine Bát Tự ([BaziAnalyzer.js](file:///t:/Phongthuy/backend/src/services/BaziAnalyzer.js))
+- **Thuật toán Chấm điểm Dụng Thần Tĩnh 5 Nguyên lý Cổ học (`calculateDungThanDetail`):**
+  1. **Điều Hậu Dụng Thần:** Chuẩn hóa thuật ngữ Điều Hậu. Tự động kiểm tra khí hậu mùa sinh (Hợi Tý Sửu mùa Đông cần Hỏa sưởi ấm, Tỵ Ngọ Mùi mùa Hạ cần Thủy tưới nhuận) và đánh giá độ cấp thiết dựa trên sự tồn tại sẵn có của sao cứu viện trong Tứ Trụ (`inherentSupport`).
+  2. **Thông Quan Dụng Thần:** Nhận diện 5 cặp ngũ hành đối kháng cực đoan ($\ge 24\%$) để đưa ra ngũ hành làm cầu nối trung gian lưu thông khí thế (Kim-Mộc $\rightarrow$ Thủy, Thủy-Hỏa $\rightarrow$ Mộc, Hỏa-Kim $\rightarrow$ Thổ, Mộc-Thổ $\rightarrow$ Hỏa, Thổ-Thủy $\rightarrow$ Kim).
+  3. **Tòng Cách & Chuyên Vượng:** Tự động phát hiện khi 1 ngũ hành chiếm ưu thế áp đảo ($\ge 55\%$) để thuận theo thế vượng, tránh phạm kỵ thần xung nộ.
+  4. **Phù Ức & Bệnh Dược:** Cân bằng vượng suy Thân theo Thập Thần nắm quyền (Ấn sinh Thân, Tỷ Kiếp gánh Tài, Quan Sát chế phục, Thực Thương tiết tú).
+- **Cấu trúc JSON `dungThanInfo` đa tầng:** Cung cấp `primary` (kèm độ tin cậy `confidenceScore`), mảng `scenarios` (các kịch bản biên nếu biến cách), `climateState` (Điều Hậu) và `mediationState` (Thông Quan).
+- **Tương thích ngược 100%:** Giữ nguyên các trường `dungThan`, `hyThan`, `kyThan` ở root object và `analysis` để đảm bảo Frontend không bị ảnh hưởng.
+
+### 🧠 Tích Hợp Prompt Học Thuật Phản Biện ([BaziPrompts.js](file:///t:/Phongthuy/backend/src/services/BaziPrompts.js))
+- **Mô hình Hybrid Grounding & Adaptive Verification:** Bơm dữ liệu `dungThanInfo` vào block `--- TÌNH TRẠNG HỌC THUẬT BÁT TỰ ---` làm cơ sở đối chiếu vững chắc chống hallucination.
+- **Quyền Phản Biện Cho AI:** Hướng dẫn AI đối chiếu toàn diện với sự thấu lộ Thập Thần, vòng Trường Sinh và các tổ hợp Hợp/Hóa thực tế để chốt Dụng Thần tối ưu, cho phép AI biện chứng nếu phát hiện biến cách đặc thù.
+
+---
+
+
+
+### 📡 Chuẩn Hóa & Hoàn Thiện Swagger API ([swagger.json](file:///t:/Phongthuy/backend/src/config/swagger.json))
+- **Độ phủ 100% Endpoints:** Rà quét toàn bộ mã nguồn `routes/` và `controllers/`, bổ sung đầy đủ 32 endpoint còn thiếu vào Swagger OpenAPI 3.0, nâng tổng số endpoint được tài liệu hóa từ 29 lên **61 endpoints** đầy đủ schema request/response, parameters, security schemes và ví dụ trực quan.
+- **Bổ sung các phân hệ còn thiếu trong Swagger:**
+  1. **Xác thực & Người dùng:** `POST /api/auth/google`, `GET /api/auth/me`, `PUT /api/auth/profile`, `PUT /api/auth/bazi`, `POST /api/auth/forgot-password`, `POST /api/auth/reset-password`, `POST /api/auth/send-verification-email`, `POST /api/auth/verify-email`, `POST /api/auth/appeal`.
+  2. **Lịch sử & Bản ghi:** `GET /api/history/all/:userId`, `GET /api/history/:system/:id/messages`, `PUT /api/history/calculations/:type/:id/pin`, `PUT /api/history/calculations/:type/:id/public`.
+  3. **Quản lý Thẻ & Thư mục (Tags):** `GET /api/tags`, `POST /api/tags`, `PUT /api/tags/:tagId`, `DELETE /api/tags/:tagId`, `PUT /api/tags/record/:type/:id`.
+  4. **Bài viết & Kiến thức (Blog):** `GET /api/blog`, `GET /api/blog/categories`, `GET /api/blog/:slug`, `POST /api/blog`, `PUT /api/blog/:id`, `DELETE /api/blog/:id`, `POST /api/blog/:id/restore`.
+  5. **Quản trị Hệ thống (Admin):** `DELETE /api/admin/users/:id`, `POST /api/admin/users/:id/restore`, `GET /api/admin/users/:id/stats`, `GET /api/admin/calculations`, `GET /api/admin/calculations/:type/:id`, `DELETE /api/admin/calculations/:type/:id`, `POST /api/admin/calculations/:type/:id/lock`, `POST /api/admin/calculations/:type/:id/unlock`, `GET /api/admin/notifications`, `PUT /api/admin/notifications/:id/read`, `POST /api/admin/appeals/:id/resolve`.
+  6. **Hệ thống:** `GET /health` cho load balancer AWS ALB / Nginx.
+
+---
+
+
+
+### 🪐 Đột Phá Prompt Học Thuật Bát Tự ([BaziPrompts.js](file:///t:/Phongthuy/backend/src/services/BaziPrompts.js))
+- **Nghiên cứu & Đối chiếu Thực nghiệm 20 Nhân vật Lịch sử (70% Phương Đông / 30% Phương Tây):**
+  - Thực hiện phân tích, tính toán và đối chiếu lá số Bát Tự của 20 nhân vật có tiểu sử hoàn chỉnh (Lý Quang Diệu, Jack Ma, Lý Gia Thành, Châu Nhuận Phát, Đặng Lệ Quân, Lưu Gia Linh, Trương Quốc Vinh, Đặng Tiểu Bình, Tôn Trung Sơn, Từ Hi Thái Hậu, Càn Long, Trịnh Công Sơn, Nguyễn Du, Phan Bội Châu, Steve Jobs, Bill Gates, Elon Musk, Einstein, Công nương Diana, Marie Curie).
+  - Xác định các điểm mù (blindspots) của prompt truyền thống: thiên kiến nghề nghiệp phong kiến, nhận định tiêu cực nữ mệnh, ngộ nhận Dụng thần trong thế Tòng Cách, và dự báo bệnh tật chung chung.
+- **6 Module Nâng Cấp Chuyên Sâu Tích Hợp vào Prompt AI:**
+  1. **Ánh Xạ Nghề Nghiệp Hiện Đại (Modern Career Mapping):** Quy đổi hệ thống Thập Thần sang ngành nghề kỷ nguyên số (AI, Kỹ sư phần mềm, Startup, Fintech, Luật sư, Bác sĩ, Đạo diễn, Media).
+  2. **Cơ Chế Phân Cấp & Nhận Diện Ngoại Cách (Special Patterns):** Hướng dẫn AI nhận diện chính xác Tòng Nhi, Tòng Tài, Tòng Sát, Chuyên Vượng, Sát Ấn Tương Sinh, Thương Quan Hợp/Chế Sát nhằm tránh đảo ngược Hỷ Dụng Thần trong các thế thiên lệch cực đoan.
+  3. **Hôn Nhân & Giới Tính Thời Đại Mới (Modern Relationship Dynamics):** Xóa bỏ định kiến phụ nữ có Quan Sát vượng là "khắc phu", công nhận năng lực tự chủ, chuyển hóa Quan Sát thành quyền lực sự nghiệp và bình đẳng hôn nhân.
+  4. **Y Học Bát Tự & Bệnh Lý Tạng Phủ Biện Chứng (TCM Pathology):** Liên kết ngũ hành thiên lệch với bệnh học tạng phủ và đột biến tế bào (Hỏa vượng thiêu Mộc/Kim -> ung bướu tuyến tụy, phổi, gan, suy tủy; Kim hàn Thủy lãnh -> suy thận, trầm cảm; Kim Mộc giao chiến -> chấn thương mổ xẻ).
+  5. **Biện Chứng Chuyển Hóa Nghịch Cảnh (Resilience Engine):** Chỉ ra cơ chế chuyển hóa năng lượng từ các hạn nặng (Tam Hình, Lục Xung, Thái Tuế Áp Đỉnh) thành ý chí kiên định và bước ngoặt nội lực.
+  6. **Đồng Bộ Follow-up Prompt (`getFollowUpPrompt`):** Tích hợp tư duy hiện đại, súc tích, đi thẳng vào trọng tâm câu hỏi người dùng.
+- **Tài liệu Hóa Nghiệp Vụ:**
+  - Cập nhật mục 5.16 vào [BUSINESS_RULES.md](file:///t:/Phongthuy/docs/BUSINESS_RULES.md) quy định tiêu chuẩn luận giải Bát Tự thời đại mới.
+
+### 🧪 Nghiệm Thu & Kiểm Thử
+- **Cú pháp Node:** `node --check backend/src/services/BaziPrompts.js` đạt 100% hợp lệ.
+- **Prompt Generator Test:** Đã chạy kiểm thử [test_bazi_prompt.js](file:///t:/Phongthuy/backend/src/scripts/test_bazi_prompt.js) và [test_20_figures_asian_west.js](file:///t:/Phongthuy/backend/src/scripts/test_20_figures_asian_west.js), tạo đầy đủ dữ liệu Tứ Trụ, Đại Vận, Thần Sát và bộ 6 quy tắc vNext chuẩn xác.
+
+---
+
+
+### 🪐 Thuật Toán Học Thuật Bát Tự & Tử Vi (Backend)
+- **Validate Học thuật Âm lịch (`InputValidator.js`):**
+  - Tích hợp `lunar-javascript` để validate ngày âm lịch thực tế (tháng thiếu, tháng đủ, tháng nhuận hợp lệ).
+  - Thêm validation cho `calendarMode` (`solar`, `lunar`, `manual`).
+- **Nghiệp vụ Bát Tự thủ công (`BaziAnalyzer.js`):**
+  - Hỗ trợ `manualData` chứa 8 chữ Can Chi và `birthSolarYear`.
+  - Bypass các bước tự động tính Can Chi từ lịch pháp.
+  - Tính toán tĩnh Thai Nguyên, Cung Mệnh (quy tắc Ngũ Hổ Độn) và Mệnh Quái dựa trên Can Chi thủ công.
+  - An sao Đại vận đi xuôi/ngược chính xác dựa theo giới tính và Can Năm sinh thủ công.
+  - Khắc phục lỗi `TypeError: Cannot read properties of undefined (reading 'getYun')` khi `manualData` được cung cấp bằng cách check an toàn `baziAdjusted`.
+- **Controller & Idempotency Check (`BaziController.js` & `ZiweiController.js`):**
+  - Nhận `calendarMode`, `isLeap`, `birthSolarYear`, `manualData`.
+  - Nhập thủ công Bát tự: Chuyển đổi kiểm tra trùng lặp (Idempotency) dựa trên 8 chữ Can Chi thay vì ngày giờ dương lịch.
+  - Tự động nạp `birthSolarYear` vào `manualData` để chuyển tiếp vào `BaziAnalyzer`.
+  - Tử vi: Hỗ trợ quy đổi ngày âm lịch sang dương lịch qua `lunar-javascript` trước khi gọi engine Tử Vi `iztro`.
+- **Tăng giới hạn đầu ra AI (`AiService.js`):**
+  - Cấu hình tường minh `maxOutputTokens: 8192` cho cả `generateInterpretation` và `generateInterpretationStream` để đảm bảo kết quả luận giải chi tiết đầy đủ, không bị dừng đột ngột nửa chừng vì đạt giới hạn token mặc định của Gemini.
+
+### 🎨 Giao Diện Người Dùng & Trải Nghiệm Frontend
+- **Giao diện nhập liệu Bát Tự (`BaziInput.jsx`):**
+  - Tích hợp Tab Selector **[Dương lịch] [Âm lịch] [Thủ công]** bo góc `2xl` tinh tế.
+  - Thiết kế lưới 8 ô chọn Can Chi theo bố cục 4 trụ cực kỳ sang trọng.
+  - Tự động lọc Can Chi đồng hành âm dương thông minh.
+  - Khắc phục lỗi input text trong `CustomSelect` tự động lọc bỏ chữ cái bằng cách chỉ áp dụng regex `\D` khi placeholder là ngày/giờ sinh.
+  - Khoá 8 ô chọn Can Chi thủ công bằng cách truyền `editable={false}` để thiết lập thuộc tính `readOnly={true}`, giúp ngăn bàn phím ảo hiển thị trên mobile và không cho nhập chữ thủ công, chỉ cho chọn từ dropdown. Sửa logic bộ lọc tìm kiếm trong dropdown để không lọc options khi `editable={false}`, giúp hiển thị lại đầy đủ 10 Thiên Can hoặc 12 Địa Chi khi người dùng click chọn lại.
+- **Giao diện nhập liệu Tử Vi (`ZiweiInput.jsx` & `ZiweiBoard.jsx` & `UserApp.jsx`):**
+  - Tích hợp Tab Selector **[Dương lịch] [Âm lịch]** (ẩn tab Thủ công theo yêu cầu).
+  - Tự động hiển thị checkbox Tháng nhuận động khi chọn năm có tháng nhuận tương ứng.
+  - Truyền đầy đủ `calendarMode`, `isLeap` sang API.
+- **Đồng bộ luồng submit trong `UserApp.jsx` (`handleBaziComplete`):**
+  - Cập nhật tiếp nhận đối số thứ 5 `extraParams` và chuyển tiếp vào `analyzeBazi` API để không bị mất dữ liệu lịch âm/thủ công khi gửi lên server.
+- **Toast thông báo lỗi dùng chung (`FloatingErrorToast.jsx`):**
+  - Giảm thời gian tự động biến mất của Toast thông báo lỗi từ 3 giây xuống còn **1.5 giây** giúp giao diện mượt mà và trực quan hơn.
+- **Loại bỏ Decorative Icons ở Header các phân hệ (`UserApp.jsx`):**
+  - Loại bỏ hoàn toàn hình tròn đồng tâm (decorative rings) to đùng ở phía trên tiêu đề các phân hệ (Bát Tự, Tử Vi, Kinh Dịch, Hợp Hôn, Xem Ngày) để giao diện thoáng, tinh tế và tập trung vào nội dung học thuật hơn.
+
+### 🧪 Nghiệm Thu & Kiểm Thử
+- **Unit Tests:** Toàn bộ backend test suite đạt **100% PASS (23 suites, 191 tests)**.
+- **Chrome DevTools Test:** Đã mô phỏng thao tác click tab, nhập dữ liệu thủ công, kiểm tra checkbox Tháng nhuận động, lập thành công lá số Bát Tự thủ công hoàn chỉnh cát hung trên giao diện trực quan không phát sinh lỗi. Đồng thời xác minh Toast tự đóng sau 1.5 giây, 8 ô Can Chi có thuộc tính `readOnly` chính xác, các hình tròn đồng tâm đã biến mất hoàn toàn và luồng **Luận giải AI stream mượt mà, đầy đủ trọn vẹn 100% từ Bước 1 đến Bước 6** (dài hơn 9600 ký tự).
+
 ## 📅 Phiên bản: Phân tách Từ điển Bát Tự & Tử Vi, Thống nhất Tên Cát Thần & Dọn dẹp Thần sát Tĩnh (12/08/2026)
 
 ### 🪐 Thuật Toán Học Thuật Bát Tự ([BaziAnalyzer.js](file:///t:/Phongthuy/backend/src/services/BaziAnalyzer.js))
@@ -12,11 +149,13 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
   - Chỉ giữ lại các sao này ở vòng vận hạn động Thái Tuế (Đại vận / Lưu niên).
 - **Thống Nhất Tên Cát Thần Bát Tự**: Đồng bộ hóa tên hiển thị của các cát thần Bát Tự tĩnh sang dạng đầy đủ có hậu tố **"Quý Nhân"** (ví dụ: *Thái Cực Quý Nhân, Thiên Đức Quý Nhân, Nguyệt Đức Quý Nhân, Văn Xương Quý Nhân, Phúc Tinh Quý Nhân, Quốc Ấn Quý Nhân, Học Đường Quý Nhân, Từ Quán Quý Nhân*) để đồng bộ với phần động và tránh nhầm lẫn với Tử Vi.
 
-### 🎨 Từ Điển & Chú Thích Giao Diện Frontend ([concepts.js](file:///t:/Phongthuy/frontend/src/data/concepts.js), [Tooltip.jsx](file:///t:/Phongthuy/frontend/src/components/Tooltip.jsx), [ZiweiChart.jsx](file:///t:/Phongthuy/frontend/src/components/ZiweiChart.jsx))
+### 🎨 Từ Điển & Chú Thích Giao Diện Frontend ([bazi_concepts.js](file:///t:/Phongthuy/frontend/src/data/bazi_concepts.js), [Tooltip.jsx](file:///t:/Phongthuy/frontend/src/components/Tooltip.jsx), [ZiweiChart.jsx](file:///t:/Phongthuy/frontend/src/components/ZiweiChart.jsx))
 - **Phân Tách Từ Điển Chuyên Biệt**: Tách file từ điển dùng chung `concepts.js` cũ thành 2 file chuyên biệt hoàn toàn độc lập nằm trong `src/data/`:
   - `bazi_concepts.js`: Chứa các từ khóa Lục Hào, Thiên Can, Địa Chi, Thập Thần, Vòng Trường Sinh, Tiết Khí, và Thần sát Bát Tự.
   - `ziwei_concepts.js`: Chứa các từ khóa Chính tinh, Tứ Hóa, Cát/Sát tinh phụ trợ, 12 Cung và Cách cục Tử Vi.
-- **Sửa Lỗi Chú Thích Thái Cực Quý Nhân**: Bổ sung định nghĩa đầy đủ học thuật cho sao **Thái Cực** và **Thái Cực Quý Nhân** vào từ điển `bazi_concepts.js`.
+- **Sửa Lỗi Chú Thích Thái Cực Quý Nhân & Bổ Sung Các Từ Chú Thích Còn Thiếu**: 
+  - Bổ sung định nghĩa đầy đủ học thuật cho sao **Thái Cực** và **Thái Cực Quý Nhân** vào từ điển `bazi_concepts.js`.
+  - Bổ sung định nghĩa học thuật chi tiết còn thiếu cho 3 sao: **Lưu Hà / Lưu Hà Sát**, **Thiên Hỷ** và **Cô Loan / Cô Loan Sát** vào từ điển `bazi_concepts.js` để hiển thị chú thích khi di chuột.
 - **Cập Nhật Tooltip & Phân Loại Tra Cứu**:
   - Nâng cấp component `Tooltip.jsx` để nhận prop `type` (`"bazi"` hoặc `"ziwei"`). Dựa vào prop này để tra cứu trong từ điển tương ứng, tránh nhầm lẫn giữa các sao trùng tên của hai môn (như Kình Dương, Đà La, Văn Xương...).
   - Cập nhật toàn bộ các thẻ `<Tooltip>` trong `ZiweiChart.jsx` truyền tham số `type="ziwei"` để tra từ điển Tử Vi chuẩn xác.
@@ -91,6 +230,20 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
 - **Tách Biệt Luận Đoán Lưu Niên 2026 & 2027**: Yêu cầu AI luận giải chi tiết tách biệt từng năm 2026 và 2027, không gộp chung. Kết hợp số tuổi đương số (32 và 33 tuổi) để dự đoán các sự kiện sát sườn thực tế.
 - **Ứng Kỳ Tháng Âm Lịch**: Yêu cầu AI chỉ ra tháng cụ thể bộc phát cát hung dựa vào sự xung hợp can chi của tháng với năm.
 - **Bổ Sung Lời Khuyên Hành Động**: Thêm phần con khuyên đương số việc nên làm dựa trên tính chất Hỷ kỵ và Thập thần của năm 2026.
+- **Bổ Sung 4 Đề Xuất Học Thuật Bát Tự Chuyên Sâu**:
+  - *Thiên Khắc Địa Xung & Thái Tuế Áp Đỉnh*: Hướng dẫn AI nhận diện đại hạn xung khắc toàn diện (Thiên can khắc, Địa chi xung) với 4 trụ gốc và thế Thái Tuế áp đỉnh trùng can chi.
+  - *Biện Chứng Cung Vị Chi Lưu Niên (Cung vị Thái Tuế)*: Chỉ dẫn AI phân tích chi tiết địa chi Thái Tuế tác động (Xung, Hợp, Hình, Hại) trực tiếp lên từng cung Niên chi (Tổ nghiệp), Nguyệt chi (Sự nghiệp), Nhật chi (Phối ngẫu), Thời chi (Tử tức).
+  - *Hạn Giao Vận Đại Vận*: Dạy AI phát hiện và đưa ra lời khuyên điềm tĩnh khi bản mệnh chuyển giao giữa 2 Đại vận 10 năm.
+  - *Điều Hầu Biện Chứng (Mùa sinh cực đoan)*: Hướng dẫn AI ưu tiên Dụng thần Điều hầu khi lá số quá lạnh (tháng Tý/Hợi thiếu Hỏa) hoặc quá nóng (tháng Ngọ/Tỵ thiếu Thủy).
+  - *Bảo toàn 100% prompt cũ*: Giữ nguyên hoàn toàn các tích hợp thần sát, trường sinh, lục thân giới tính cũ.
+- **Bổ Sung Đề Xuất E & G Học Thuật Chuyên Sâu**:
+  - *Biện Chứng Tàng Can & Thấu Lộ*: Hướng dẫn AI phân biệt Thập Thần thấu lộ trên Thiên Can (bề nổi xã hội) và tàng ẩn dưới Địa Chi (bề chìm nội tâm). Nhận diện hiện tượng Thấu Can phát động từ các trụ gốc khi gặp can lưu niên trùng lặp.
+  - *Vòng Trường Sinh Lưu Niên Động Chiếu Lên Nhật Chủ*: Dạy AI đối chiếu chi của năm lưu niên so với Nhật chủ để nhận định tinh thần, sức sống và tâm lý hành động của đương số.
+  - *Bảo toàn 100% prompt cũ*: Đảm bảo giữ nguyên vẹn toàn bộ các quy tắc Ngũ hành gốc rễ, Thần sát tĩnh động, Thiên khắc địa xung, cung vị Thái tuế, giao vận và điều hầu cũ.
+- **Bổ Sung Đề Xuất L & M Tượng Pháp & Học Thuật Chuyên Sâu**:
+  - *Tượng Pháp Mộ Khố Xung Khai*: Dạy AI cách nhận diện các địa chi Thổ bản mệnh (Thìn - Thủy khố, Tuất - Hỏa khố, Sửu - Kim khố, Mùi - Mộc khố) bị tuế vận xung khai giải phóng ngũ hành cát hung bên trong.
+  - *Khuyết Hành Biện Chứng*: Chỉ dẫn AI phát hiện ngũ hành bị thiếu vắng hoàn toàn trong mệnh cục để dự báo bệnh lý bẩm sinh và cải vận phong thủy hành vi.
+  - *Bảo toàn 100% prompt cũ*: Giữ nguyên hoàn vẹn các tích hợp thần sát, trường sinh, giao vận, thiên khắc địa xung và tàng lộ cũ.
 
 ### ⚙️ Bổ Sung Hàm Helper Định Dạng Vận Hạn Chi Tiết ([astrologyHelpers.js](file:///t:/Phongthuy/backend/src/shared/utils/astrologyHelpers.js))
 - **Hàm `formatDetailedBaziTimeline`**: Tạo hàm helper trích xuất động Đại vận hiện tại và thông tin Lưu niên chi tiết 2 năm (2026, 2027) bao gồm tuổi tác, Can Chi, Thập Thần, Nạp Âm, Niên Vận Tinh di động, và Thần sát Lưu niên tác động lên 4 trụ bản mệnh để truyền trực tiếp vào prompt của AI.

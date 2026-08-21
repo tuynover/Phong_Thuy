@@ -81,35 +81,53 @@ class BaziController {
                 return res.status(400).json({ error: valResult.error });
             }
 
-            const { date, time, gender, name } = valResult.sanitized;
+            const { calendarMode = 'solar', name, gender } = valResult.sanitized;
             const { userId, dayBoundaryMode } = req.body;
 
             const uid = userId || 'guest';
             const idempotencyKey = req.headers['idempotency-key'] || req.headers['Idempotency-Key'];
 
-            // 1. Check by Idempotency Key header if provided
-            if (idempotencyKey) {
-                const dupRecord = await BaziRecord.findOne({ idempotencyKey, isDeleted: { $ne: true } });
-                if (dupRecord) {
-                    let updated = false;
-                    if (!dupRecord.baziData || !dupRecord.baziData.cungMenh || !dupRecord.baziData.cungMenh.gan || !dupRecord.baziData.tietKhiName || !dupRecord.baziData.tuLenhCan || !hasNewSchema(dupRecord.baziData)) {
-                        const freshResult = BaziAnalyzer.analyze(date, time, parseInt(gender), dayBoundaryMode || 'midnight');
-                        dupRecord.baziData = freshResult;
-                        dupRecord.solarTimeline = freshResult.solarTimeline;
-                        dupRecord.tietKhiTimeline = freshResult.tietKhiTimeline;
-                        dupRecord.markModified('baziData');
-                        updated = true;
-                    }
-                    if (!dupRecord.baziData.menhQuai) {
-                        const yearVal = getYearFromDateStr(date);
-                        dupRecord.baziData.menhQuai = calculateMenhQuai(yearVal, dupRecord.inputInfo.gender);
-                        dupRecord.markModified('baziData');
-                        updated = true;
-                    }
-                    if (updated) {
-                        await dupRecord.save();
-                    }
+            let date, time, manualData, birthSolarYear, isLeap, rawDate;
 
+            if (calendarMode === 'manual') {
+                manualData = valResult.sanitized.manualData;
+                birthSolarYear = valResult.sanitized.birthSolarYear;
+            } else {
+                date = valResult.sanitized.date;
+                rawDate = valResult.sanitized.rawDate;
+                time = valResult.sanitized.time;
+                isLeap = valResult.sanitized.isLeap;
+
+                if (calendarMode === 'lunar') {
+                    // Quy đổi ngày âm lịch sang dương lịch
+                    const { Lunar } = require('lunar-javascript');
+                    const parts = date.split('/');
+                    const dNum = parseInt(parts[0], 10);
+                    const mNum = parseInt(parts[1], 10);
+                    const yNum = parseInt(parts[2], 10);
+                    
+                    const lunarObj = Lunar.fromYmd(yNum, isLeap ? -mNum : mNum, dNum);
+                    const solarObj = lunarObj.getSolar();
+                    
+                    // Ghi đè date bằng ngày dương lịch quy đổi để thuật toán và DB hoạt động
+                    date = `${String(solarObj.getDay()).padStart(2, '0')}/${String(solarObj.getMonth()).padStart(2, '0')}/${solarObj.getYear()}`;
+                }
+            }
+
+            // 1. Check by Idempotency Key header if provided
+            let idempotencyKeyVal = idempotencyKey;
+            if (!idempotencyKeyVal) {
+                if (calendarMode === 'manual') {
+                    const mStr = `${manualData.yearGan}${manualData.yearZhi}_${manualData.monthGan}${manualData.monthZhi}_${manualData.dayGan}${manualData.dayZhi}_${manualData.hourGan}${manualData.hourZhi}`;
+                    idempotencyKeyVal = `${uid}:manual:${mStr}:${gender}:${birthSolarYear}`;
+                } else {
+                    idempotencyKeyVal = `${uid}:${date}:${time}:${gender}:${dayBoundaryMode || 'midnight'}`;
+                }
+            }
+
+            if (idempotencyKeyVal) {
+                const dupRecord = await BaziRecord.findOne({ idempotencyKey: idempotencyKeyVal, isDeleted: { $ne: true } });
+                if (dupRecord) {
                     const baziData = { ...dupRecord.baziData };
                     if (baziData.lunarDateStr) baziData.lunarDateStr = formatCanChiSpacing(baziData.lunarDateStr);
                     if (baziData.lunarYear) baziData.lunarYear = formatCanChiSpacing(baziData.lunarYear);
@@ -126,36 +144,36 @@ class BaziController {
             }
 
             // 2. Check for duplicate record by data parameters (Semantic Idempotency)
-            const existingRecord = await BaziRecord.findOne({
-                userId: uid,
-                'inputInfo.date': date,
-                'inputInfo.time': time,
-                'inputInfo.gender': parseInt(gender),
-                'inputInfo.dayBoundaryMode': dayBoundaryMode || 'midnight',
-                isDeleted: { $ne: true }
-            });
+            let existingRecord;
+            if (calendarMode === 'manual') {
+                existingRecord = await BaziRecord.findOne({
+                    userId: uid,
+                    'inputInfo.calendarMode': 'manual',
+                    'inputInfo.birthSolarYear': birthSolarYear,
+                    'inputInfo.gender': parseInt(gender),
+                    'inputInfo.manualData.yearGan': manualData.yearGan,
+                    'inputInfo.manualData.yearZhi': manualData.yearZhi,
+                    'inputInfo.manualData.monthGan': manualData.monthGan,
+                    'inputInfo.manualData.monthZhi': manualData.monthZhi,
+                    'inputInfo.manualData.dayGan': manualData.dayGan,
+                    'inputInfo.manualData.dayZhi': manualData.dayZhi,
+                    'inputInfo.manualData.hourGan': manualData.hourGan,
+                    'inputInfo.manualData.hourZhi': manualData.hourZhi,
+                    isDeleted: { $ne: true }
+                });
+            } else {
+                existingRecord = await BaziRecord.findOne({
+                    userId: uid,
+                    'inputInfo.date': date,
+                    'inputInfo.time': time,
+                    'inputInfo.gender': parseInt(gender),
+                    'inputInfo.dayBoundaryMode': dayBoundaryMode || 'midnight',
+                    'inputInfo.calendarMode': calendarMode,
+                    isDeleted: { $ne: true }
+                });
+            }
 
             if (existingRecord) {
-                let updated = false;
-                // Migrate legacy records dynamically if they don't have full cungMenh object calculated
-                if (!existingRecord.baziData || !existingRecord.baziData.cungMenh || !existingRecord.baziData.cungMenh.gan || !existingRecord.baziData.tietKhiName || !existingRecord.baziData.tuLenhCan || !hasNewSchema(existingRecord.baziData)) {
-                    const freshResult = BaziAnalyzer.analyze(date, time, parseInt(gender), dayBoundaryMode || 'midnight');
-                    existingRecord.baziData = freshResult;
-                    existingRecord.solarTimeline = freshResult.solarTimeline;
-                    existingRecord.tietKhiTimeline = freshResult.tietKhiTimeline;
-                    existingRecord.markModified('baziData');
-                    updated = true;
-                }
-                if (!existingRecord.baziData.menhQuai) {
-                    const yearVal = getYearFromDateStr(date);
-                    existingRecord.baziData.menhQuai = calculateMenhQuai(yearVal, existingRecord.inputInfo.gender);
-                    existingRecord.markModified('baziData');
-                    updated = true;
-                }
-                if (updated) {
-                    await existingRecord.save();
-                }
-
                 const baziData = { ...existingRecord.baziData };
                 if (baziData.lunarDateStr) baziData.lunarDateStr = formatCanChiSpacing(baziData.lunarDateStr);
                 if (baziData.lunarYear) baziData.lunarYear = formatCanChiSpacing(baziData.lunarYear);
@@ -170,18 +188,46 @@ class BaziController {
                 });
             }
 
-            const result = BaziAnalyzer.analyze(date, time, parseInt(gender), dayBoundaryMode || 'midnight');
-            const yearVal = getYearFromDateStr(date);
-            result.menhQuai = calculateMenhQuai(yearVal, parseInt(gender));
+            let result;
+            if (calendarMode === 'manual') {
+                manualData.birthSolarYear = parseInt(birthSolarYear, 10);
+                result = BaziAnalyzer.analyze(null, null, parseInt(gender), null, manualData);
+                result.menhQuai = calculateMenhQuai(birthSolarYear, parseInt(gender));
+            } else {
+                result = BaziAnalyzer.analyze(date, time, parseInt(gender), dayBoundaryMode || 'midnight');
+                const yearVal = getYearFromDateStr(date);
+                result.menhQuai = calculateMenhQuai(yearVal, parseInt(gender));
+            }
 
             const formattedName = name?.trim() || `Bát Tự - ${parseInt(gender) === 1 ? 'Nam Mệnh' : 'Nữ Mệnh'}`;
 
             // Save to DB
+            const inputInfo = {
+                name: formattedName,
+                gender: parseInt(gender),
+                calendarMode
+            };
+
+            if (calendarMode === 'manual') {
+                inputInfo.birthSolarYear = birthSolarYear;
+                inputInfo.manualData = manualData;
+                inputInfo.date = `Thủ công (${birthSolarYear})`;
+                inputInfo.time = `Thủ công`;
+            } else {
+                inputInfo.date = date;
+                inputInfo.time = time;
+                inputInfo.dayBoundaryMode = dayBoundaryMode || 'midnight';
+                if (calendarMode === 'lunar') {
+                    inputInfo.isLeap = isLeap;
+                    inputInfo.lunarDate = rawDate;
+                }
+            }
+
             const record = new BaziRecord({
                 userId: uid,
-                idempotencyKey: idempotencyKey || `${uid}:${date}:${time}:${gender}:${dayBoundaryMode || 'midnight'}`,
-                inputInfo: { name: formattedName, date, time, gender: parseInt(gender), dayBoundaryMode: dayBoundaryMode || 'midnight' },
-                solarTimeline: result.solarTimeline,
+                idempotencyKey: idempotencyKeyVal || `${uid}:${date}:${time}:${gender}:${dayBoundaryMode || 'midnight'}`,
+                inputInfo,
+                solarTimeline: result.solarTimeline || 'Nhập thủ công Bát tự',
                 tietKhiTimeline: result.tietKhiTimeline,
                 baziData: result,
                 aiInterpretation: {

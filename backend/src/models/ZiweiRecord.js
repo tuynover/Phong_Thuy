@@ -28,7 +28,10 @@ const ziweiRecordSchema = new mongoose.Schema({
     gender: String,      // "Nam" | "Nữ"
     timezone: { type: Number, default: 7 },
     school: { type: String, default: 'bac_phai' },
-    calendarType: { type: String, default: 'solar' }
+    calendarType: { type: String, default: 'solar' },
+    calendarMode: { type: String, default: 'solar' },
+    isLeap: { type: Boolean, default: false },
+    lunarDate: { type: String, default: "" }
   },
   chartHash: {
     type: String,

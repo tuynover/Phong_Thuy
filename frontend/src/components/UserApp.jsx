@@ -445,11 +445,11 @@ export default function UserApp({ onSwitchToAdmin }) {
   };
 
 
-  const handleBaziComplete = async (date, time, gender, name) => {
+  const handleBaziComplete = async (date, time, gender, name, extraParams = {}) => {
     setLoading(true);
     try {
       const userId = user ? (user.id || user._id) : 'guest';
-      const res = await analyzeBazi(date, time, gender, userId, name);
+      const res = await analyzeBazi(date, time, gender, userId, name, extraParams);
       setBaziResult(res.data);
       invalidateHistoryCache();
       if (userId === 'guest' && res.data.recordId) {
@@ -1169,11 +1169,6 @@ export default function UserApp({ onSwitchToAdmin }) {
           <>
             {appMode === 'iching' && !result ? (
           <header className="text-center mb-12 pt-2 animate-in fade-in duration-300 font-sans">
-            <div className="inline-block p-4 rounded-full bg-amber-100 border border-amber-200 mb-6">
-              <div className="w-16 h-16 rounded-full border-4 border-amber-800 flex items-center justify-center">
-                <div className="w-8 h-8 rounded-full bg-amber-800"></div>
-              </div>
-            </div>
             <h1 className="text-4xl md:text-6xl font-[Lora] font-bold text-amber-955 mb-4 drop-shadow-sm">Kinh Dịch Lục Hào</h1>
             <p className="text-amber-800/80 max-w-2xl mx-auto text-base md:text-lg font-medium mb-6">Hệ thống gieo quẻ và luận giải diễn biến sự việc dựa trên nền tảng Âm Dương Ngũ Hành cổ học.</p>
             
@@ -1187,41 +1182,21 @@ export default function UserApp({ onSwitchToAdmin }) {
           </header>
         ) : appMode === 'bazi' && !baziResult ? (
           <header className="text-center mb-16 pt-2 animate-in fade-in duration-300 font-sans">
-            <div className="inline-block p-4 rounded-full bg-blue-100 border border-blue-200 mb-6">
-              <div className="w-16 h-16 rounded-full border-4 border-blue-800 flex items-center justify-center">
-                <div className="w-8 h-8 rounded-full bg-blue-800"></div>
-              </div>
-            </div>
             <h1 className="text-4xl md:text-6xl font-[Lora] font-bold text-blue-955 mb-6 drop-shadow-sm">Khoa Học Tử Bình</h1>
             <p className="text-blue-800/80 max-w-2xl mx-auto text-base md:text-lg font-medium">Hệ thống phân tích Tứ Trụ, đo lường Ngũ Hành và định Dụng Thần cải vận.</p>
           </header>
         ) : appMode === 'ziwei' && !isZiweiResultLoaded ? (
           <header className="text-center mb-16 pt-2 animate-in fade-in duration-300 font-sans">
-            <div className="inline-block p-4 rounded-full bg-purple-100 border border-purple-200 mb-6">
-              <div className="w-16 h-16 rounded-full border-4 border-purple-800 flex items-center justify-center">
-                <div className="w-8 h-8 rounded-full bg-purple-800"></div>
-              </div>
-            </div>
             <h1 className="text-4xl md:text-6xl font-[Lora] font-bold text-purple-955 mb-6 drop-shadow-sm">Mệnh Số Tử Vi</h1>
             <p className="text-purple-800/80 max-w-2xl mx-auto text-base md:text-lg font-medium">Hệ thống lập lá số 12 Cung mệnh bàn, định hướng cát hung và luận giải Vận Hạn.</p>
           </header>
         ) : appMode === 'marriage' && !marriageResult ? (
           <header className="text-center mb-16 pt-2 animate-in fade-in duration-300 font-sans">
-            <div className="inline-block p-4 rounded-full bg-rose-100 border border-rose-200 mb-6">
-              <div className="w-16 h-16 rounded-full border-4 border-rose-800 flex items-center justify-center">
-                <div className="w-8 h-8 rounded-full bg-rose-800"></div>
-              </div>
-            </div>
             <h1 className="text-4xl md:text-6xl font-[Lora] font-bold text-rose-955 mb-6 drop-shadow-sm">Bát Tự Hợp Hôn</h1>
             <p className="text-rose-800/80 max-w-2xl mx-auto text-base md:text-lg font-medium">Hệ thống đối chiếu âm dương ngũ hành, cung phi bản mệnh của hai phối ngẫu.</p>
           </header>
         ) : appMode === 'xemngay' ? (
           <header className="text-center mb-16 pt-2 animate-in fade-in duration-300 font-sans">
-            <div className="inline-block p-4 rounded-full bg-emerald-100 border border-emerald-200 mb-6">
-              <div className="w-16 h-16 rounded-full border-4 border-emerald-800 flex items-center justify-center">
-                <div className="w-8 h-8 rounded-full bg-emerald-800"></div>
-              </div>
-            </div>
             <h1 className="text-4xl md:text-6xl font-[Lora] font-bold text-emerald-955 mb-6 drop-shadow-sm">XEM NGÀY ĐẸP</h1>
             <p className="text-emerald-800/80 max-w-2xl mx-auto text-base md:text-lg font-medium">Hệ thống chọn lựa ngày lành tháng tốt, xem cát hung giờ hoàng đạo cá nhân hóa theo phong thủy tuổi mệnh.</p>
           </header>

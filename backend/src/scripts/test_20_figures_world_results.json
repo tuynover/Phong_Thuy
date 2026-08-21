@@ -1,0 +1,450 @@
+[
+  {
+    "id": 1,
+    "name": "Napoléon Bonaparte",
+    "country": "Pháp (Châu Âu)",
+    "role": "Hoàng đế Pháp, Thiên tài quân sự",
+    "date": "15/08/1769",
+    "time": "11:30",
+    "tuTru": "Kỷ Sửu | Nhâm Thân | Giáp Ngọ | Canh Ngọ",
+    "nhatChu": "Giáp (N/A)",
+    "than": "vuong",
+    "cachCuc": "Thất Sát cách",
+    "dungThan": "Thổ",
+    "hyThan": "Hỏa",
+    "nguHanh": {},
+    "relations": {
+      "xung": [],
+      "hop": [],
+      "tamHop": [],
+      "hinh": []
+    }
+  },
+  {
+    "id": 2,
+    "name": "Leonardo da Vinci",
+    "country": "Ý (Châu Âu)",
+    "role": "Đại danh họa & Bách khoa toàn thư Phục hưng",
+    "date": "15/04/1452",
+    "time": "21:40",
+    "tuTru": "Nhâm Thân | Giáp Thìn | Kỷ Mùi | Ất Hợi",
+    "nhatChu": "Kỷ (N/A)",
+    "than": "rat_vuong",
+    "cachCuc": "Thất Sát cách",
+    "dungThan": "Hỏa",
+    "hyThan": "Mộc",
+    "nguHanh": {},
+    "relations": {
+      "xung": [],
+      "hop": [],
+      "tamHop": [],
+      "hinh": []
+    }
+  },
+  {
+    "id": 3,
+    "name": "Isaac Newton",
+    "country": "Anh (Châu Âu)",
+    "role": "Nhà vật lý, toán học vĩ đại",
+    "date": "04/01/1643",
+    "time": "01:00",
+    "tuTru": "Nhâm Ngọ | Nhâm Tý | Canh Tuất | Đinh Sửu",
+    "nhatChu": "Canh (N/A)",
+    "than": "tong_cach",
+    "cachCuc": "Thương Quan cách",
+    "dungThan": "Thủy",
+    "hyThan": "Kim",
+    "nguHanh": {},
+    "relations": {
+      "xung": [
+        "Tý-Ngọ"
+      ],
+      "hop": [],
+      "tamHop": [],
+      "hinh": []
+    }
+  },
+  {
+    "id": 4,
+    "name": "Winston Churchill",
+    "country": "Anh (Châu Âu)",
+    "role": "Thủ tướng Anh thời Thế chiến II",
+    "date": "30/11/1874",
+    "time": "01:30",
+    "tuTru": "Giáp Tuất | Ất Hợi | Tân Mão | Kỷ Sửu",
+    "nhatChu": "Tân (N/A)",
+    "than": "nhuoc",
+    "cachCuc": "Chính Tài cách",
+    "dungThan": "Hỏa",
+    "hyThan": "Mộc",
+    "nguHanh": {},
+    "relations": {
+      "xung": [],
+      "hop": [],
+      "tamHop": [],
+      "hinh": []
+    }
+  },
+  {
+    "id": 5,
+    "name": "Nelson Mandela",
+    "country": "Nam Phi (Châu Phi)",
+    "role": "Lãnh tụ chống Apartheid, Nobel Hòa Bình",
+    "date": "18/07/1918",
+    "time": "14:00",
+    "tuTru": "Mậu Ngọ | Kỷ Mùi | Bính Dần | Ất Mùi",
+    "nhatChu": "Bính (N/A)",
+    "than": "tong_cach",
+    "cachCuc": "Viêm Thượng cách (Hỏa độc vượng)",
+    "dungThan": "Thổ",
+    "hyThan": "Hỏa",
+    "nguHanh": {},
+    "relations": {
+      "xung": [],
+      "hop": [
+        "Ngọ-Mùi"
+      ],
+      "tamHop": [],
+      "hinh": []
+    }
+  },
+  {
+    "id": 6,
+    "name": "Mahatma Gandhi",
+    "country": "Ấn Độ (Châu Á)",
+    "role": "Lãnh tụ phong trào Bất bạo động",
+    "date": "02/10/1869",
+    "time": "07:11",
+    "tuTru": "Kỷ Tỵ | Quý Dậu | Bính Dần | Nhâm Thìn",
+    "nhatChu": "Bính (N/A)",
+    "than": "nhuoc",
+    "cachCuc": "Chính Tài cách",
+    "dungThan": "Mộc",
+    "hyThan": "Hỏa",
+    "nguHanh": {},
+    "relations": {
+      "xung": [],
+      "hop": [],
+      "tamHop": [],
+      "hinh": []
+    }
+  },
+  {
+    "id": 7,
+    "name": "Barack Obama",
+    "country": "Mỹ (Châu Mỹ)",
+    "role": "Tổng thống Mỹ thứ 44",
+    "date": "04/08/1961",
+    "time": "19:24",
+    "tuTru": "Tân Sửu | Ất Mùi | Kỷ Tỵ | Giáp Tuất",
+    "nhatChu": "Kỷ (N/A)",
+    "than": "vuong",
+    "cachCuc": "Thất Sát cách",
+    "dungThan": "Kim",
+    "hyThan": "Thổ",
+    "nguHanh": {},
+    "relations": {
+      "xung": [
+        "Sửu-Mùi"
+      ],
+      "hop": [],
+      "tamHop": [],
+      "hinh": []
+    }
+  },
+  {
+    "id": 8,
+    "name": "Warren Buffett",
+    "country": "Mỹ (Châu Mỹ)",
+    "role": "Huyền thoại đầu tư thế giới",
+    "date": "30/08/1930",
+    "time": "15:00",
+    "tuTru": "Canh Ngọ | Giáp Thân | Nhâm Tý | Mậu Thân",
+    "nhatChu": "Nhâm (N/A)",
+    "than": "vuong",
+    "cachCuc": "Thiên Ấn cách",
+    "dungThan": "Thổ",
+    "hyThan": "Hỏa",
+    "nguHanh": {},
+    "relations": {
+      "xung": [
+        "Tý-Ngọ"
+      ],
+      "hop": [],
+      "tamHop": [],
+      "hinh": []
+    }
+  },
+  {
+    "id": 9,
+    "name": "Walt Disney",
+    "country": "Mỹ (Châu Mỹ)",
+    "role": "Nhà sáng lập đế chế hoạt hình Disney",
+    "date": "05/12/1901",
+    "time": "00:35",
+    "tuTru": "Tân Sửu | Kỷ Hợi | Đinh Tỵ | Canh Tý",
+    "nhatChu": "Đinh (N/A)",
+    "than": "nhuoc",
+    "cachCuc": "Chính Quan cách",
+    "dungThan": "Mộc",
+    "hyThan": "Hỏa",
+    "nguHanh": {},
+    "relations": {
+      "xung": [
+        "Tỵ-Hợi"
+      ],
+      "hop": [],
+      "tamHop": [],
+      "hinh": []
+    }
+  },
+  {
+    "id": 10,
+    "name": "Hayao Miyazaki",
+    "country": "Nhật Bản (Châu Á)",
+    "role": "Đạo diễn huyền thoại Studio Ghibli",
+    "date": "05/01/1941",
+    "time": "04:30",
+    "tuTru": "Canh Thìn | Mậu Tý | Quý Sửu | Giáp Dần",
+    "nhatChu": "Quý (N/A)",
+    "than": "rat_vuong",
+    "cachCuc": "Tỷ Kiên cách",
+    "dungThan": "Thổ",
+    "hyThan": "Hỏa",
+    "nguHanh": {},
+    "relations": {
+      "xung": [],
+      "hop": [
+        "Tý-Sửu"
+      ],
+      "tamHop": [],
+      "hinh": []
+    }
+  },
+  {
+    "id": 11,
+    "name": "Akira Kurosawa",
+    "country": "Nhật Bản (Châu Á)",
+    "role": "Đạo diễn điện ảnh vĩ đại nhất châu Á",
+    "date": "23/03/1910",
+    "time": "06:00",
+    "tuTru": "Canh Tuất | Kỷ Mão | Đinh Hợi | Quý Mão",
+    "nhatChu": "Đinh (N/A)",
+    "than": "vuong",
+    "cachCuc": "Thiên Ấn cách",
+    "dungThan": "Kim",
+    "hyThan": "Thổ",
+    "nguHanh": {},
+    "relations": {
+      "xung": [],
+      "hop": [
+        "Tuất-Mão"
+      ],
+      "tamHop": [],
+      "hinh": []
+    }
+  },
+  {
+    "id": 12,
+    "name": "Bong Joon-ho",
+    "country": "Hàn Quốc (Châu Á)",
+    "role": "Đạo diễn đoạt Oscar phim Parasite",
+    "date": "14/09/1969",
+    "time": "10:00",
+    "tuTru": "Kỷ Dậu | Quý Dậu | Nhâm Thìn | Ất Tỵ",
+    "nhatChu": "Nhâm (N/A)",
+    "than": "rat_vuong",
+    "cachCuc": "Chính Ấn cách",
+    "dungThan": "Thổ",
+    "hyThan": "Hỏa",
+    "nguHanh": {},
+    "relations": {
+      "xung": [],
+      "hop": [
+        "Dậu-Thìn"
+      ],
+      "tamHop": [],
+      "hinh": []
+    }
+  },
+  {
+    "id": 13,
+    "name": "Đại tướng Võ Nguyên Giáp",
+    "country": "Việt Nam (Châu Á)",
+    "role": "Đại tướng Tổng tư lệnh QĐNDVN",
+    "date": "25/08/1911",
+    "time": "06:00",
+    "tuTru": "Tân Hợi | Bính Thân | Đinh Mão | Quý Mão",
+    "nhatChu": "Đinh (N/A)",
+    "than": "vuong",
+    "cachCuc": "Chính Tài cách",
+    "dungThan": "Kim",
+    "hyThan": "Thổ",
+    "nguHanh": {},
+    "relations": {
+      "xung": [],
+      "hop": [],
+      "tamHop": [],
+      "hinh": []
+    }
+  },
+  {
+    "id": 14,
+    "name": "Phan Chu Trinh",
+    "country": "Việt Nam (Châu Á)",
+    "role": "Nhà cải cách, chí sĩ yêu nước",
+    "date": "09/09/1872",
+    "time": "10:00",
+    "tuTru": "Nhâm Thân | Kỷ Dậu | Kỷ Mùi | Kỷ Tỵ",
+    "nhatChu": "Kỷ (N/A)",
+    "than": "vuong",
+    "cachCuc": "Thực Thần cách",
+    "dungThan": "Mộc",
+    "hyThan": "Thủy",
+    "nguHanh": {},
+    "relations": {
+      "xung": [],
+      "hop": [],
+      "tamHop": [],
+      "hinh": []
+    }
+  },
+  {
+    "id": 15,
+    "name": "Mark Zuckerberg",
+    "country": "Mỹ (Châu Mỹ)",
+    "role": "Nhà sáng lập Facebook / Meta",
+    "date": "14/05/1984",
+    "time": "14:39",
+    "tuTru": "Giáp Tý | Kỷ Tỵ | Mậu Thân | Kỷ Mùi",
+    "nhatChu": "Mậu (N/A)",
+    "than": "vuong",
+    "cachCuc": "Thiên Ấn cách",
+    "dungThan": "Thổ",
+    "hyThan": "Hỏa",
+    "nguHanh": {},
+    "relations": {
+      "xung": [],
+      "hop": [
+        "Tỵ-Thân"
+      ],
+      "tamHop": [],
+      "hinh": []
+    }
+  },
+  {
+    "id": 16,
+    "name": "Jeff Bezos",
+    "country": "Mỹ (Châu Mỹ)",
+    "role": "Nhà sáng lập tập đoàn Amazon",
+    "date": "12/01/1964",
+    "time": "10:30",
+    "tuTru": "Quý Mão | Ất Sửu | Canh Thân | Tân Tỵ",
+    "nhatChu": "Canh (N/A)",
+    "than": "nhuoc",
+    "cachCuc": "Thương Quan cách",
+    "dungThan": "Thủy",
+    "hyThan": "Kim",
+    "nguHanh": {},
+    "relations": {
+      "xung": [],
+      "hop": [
+        "Thân-Tỵ"
+      ],
+      "tamHop": [],
+      "hinh": []
+    }
+  },
+  {
+    "id": 17,
+    "name": "Ludwig van Beethoven",
+    "country": "Đức (Châu Âu)",
+    "role": "Nhà soạn nhạc thiên tài thế giới",
+    "date": "16/12/1770",
+    "time": "16:00",
+    "tuTru": "Canh Dần | Mậu Tý | Nhâm Dần | Mậu Thân",
+    "nhatChu": "Nhâm (N/A)",
+    "than": "rat_vuong",
+    "cachCuc": "Kiếp Tài cách",
+    "dungThan": "Thủy",
+    "hyThan": "Kim",
+    "nguHanh": {},
+    "relations": {
+      "xung": [
+        "Dần-Thân"
+      ],
+      "hop": [],
+      "tamHop": [],
+      "hinh": []
+    }
+  },
+  {
+    "id": 18,
+    "name": "Wolfgang Amadeus Mozart",
+    "country": "Áo (Châu Âu)",
+    "role": "Thần đồng & thiên tài âm nhạc cổ điển",
+    "date": "27/01/1756",
+    "time": "20:00",
+    "tuTru": "Ất Hợi | Kỷ Sửu | Ất Sửu | Bính Tuất",
+    "nhatChu": "Ất (N/A)",
+    "than": "tong_cach",
+    "cachCuc": "Thiên Tài cách",
+    "dungThan": "Thổ",
+    "hyThan": "Hỏa",
+    "nguHanh": {},
+    "relations": {
+      "xung": [],
+      "hop": [],
+      "tamHop": [],
+      "hinh": []
+    }
+  },
+  {
+    "id": 19,
+    "name": "Pelé",
+    "country": "Brazil (Châu Mỹ)",
+    "role": "Vua bóng đá thế giới (3 lần vô địch World Cup)",
+    "date": "23/10/1940",
+    "time": "03:00",
+    "tuTru": "Canh Thìn | Bính Tuất | Kỷ Hợi | Bính Dần",
+    "nhatChu": "Kỷ (N/A)",
+    "than": "vuong",
+    "cachCuc": "Kiếp Tài cách",
+    "dungThan": "Thổ",
+    "hyThan": "Hỏa",
+    "nguHanh": {},
+    "relations": {
+      "xung": [
+        "Thìn-Tuất"
+      ],
+      "hop": [
+        "Hợi-Dần"
+      ],
+      "tamHop": [],
+      "hinh": []
+    }
+  },
+  {
+    "id": 20,
+    "name": "Bruce Lee (Lý Tiểu Long)",
+    "country": "Mỹ / Hong Kong",
+    "role": "Huyền thoại võ thuật & điện ảnh thế giới",
+    "date": "27/11/1940",
+    "time": "07:12",
+    "tuTru": "Canh Thìn | Đinh Hợi | Giáp Tuất | Mậu Thìn",
+    "nhatChu": "Giáp (N/A)",
+    "than": "vuong",
+    "cachCuc": "Thiên Ấn cách",
+    "dungThan": "Hỏa",
+    "hyThan": "Mộc",
+    "nguHanh": {},
+    "relations": {
+      "xung": [
+        "Thìn-Tuất"
+      ],
+      "hop": [],
+      "tamHop": [],
+      "hinh": []
+    }
+  }
+]
