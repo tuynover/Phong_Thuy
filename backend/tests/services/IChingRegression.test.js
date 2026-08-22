@@ -17,10 +17,10 @@ describe('IChing Hồi Quy & Snapshot Testing (32 Ca)', () => {
                 [{type: 0, moving: true}, {type: 0, moving: true}, {type: 1, moving: true}, {type: 1, moving: true}, {type: 0, moving: true}, {type: 0, moving: true}]
             ];
 
-            // 32 ngày sinh/giờ sinh khác nhau để bao phủ Can Chi
+            // 32 ngày sinh/giờ sinh khác nhau để bao phủ Can Chi (Khóa múi giờ Việt Nam +07:00 để tránh sai lệch trên các môi trường)
             const baseDates = [
-                '1995-03-12T08:30:00', '1998-07-21T14:45:00', '2001-11-05T20:15:00', '2005-01-28T02:00:00',
-                '2010-05-14T11:00:00', '2015-09-09T17:30:00', '2020-12-22T23:59:00', '2023-04-04T05:00:00'
+                '1995-03-12T08:30:00+07:00', '1998-07-21T14:45:00+07:00', '2001-11-05T20:15:00+07:00', '2005-01-28T02:00:00+07:00',
+                '2010-05-14T11:00:00+07:00', '2015-09-09T17:30:00+07:00', '2020-12-22T23:59:00+07:00', '2023-04-04T05:00:00+07:00'
             ];
 
             let rotator = 0;
