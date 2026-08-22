@@ -2148,7 +2148,7 @@ class BaziAnalyzer {
         const applyNaYinAndTruongSinh = (pillar) => {
             const comb = `${pillar.gan} ${pillar.zhi}`;
             pillar.naYin = NAYIN_MAP[comb] || '';
-            pillar.truongSinh = TRUONG_SINH_MAP[dmGan]?.[pillar.zhi] || '';
+            pillar.truongSinh = TRUONG_SINH_MAP[pillar.gan]?.[context.monthZhi] || '';
         };
 
         applyNaYinAndTruongSinh(canChi.year);
@@ -2156,7 +2156,7 @@ class BaziAnalyzer {
         applyNaYinAndTruongSinh(canChi.day);
         applyNaYinAndTruongSinh(canChi.hour);
 
-        const buildExtraPillar = (gan, zhi, calcShenSha = true) => {
+        const buildExtraPillar = (gan, zhi, calcShenSha = true, isVanhHan = false) => {
             if (!gan || !zhi) return { gan: '', zhi: '', canChi: '', thapThanGan: '', tangCan: [], naYin: '', truongSinh: '', shenSha: [] };
             
             const stemToElement = {
@@ -2207,7 +2207,7 @@ class BaziAnalyzer {
             const thapThanGan = getRelation(dmGan, gan);
             const comb = `${gan} ${zhi}`;
             const naYin = NAYIN_MAP[comb] || '';
-            const truongSinh = TRUONG_SINH_MAP[dmGan]?.[zhi] || '';
+            const truongSinh = isVanhHan ? (TRUONG_SINH_MAP[dmGan]?.[zhi] || '') : (TRUONG_SINH_MAP[gan]?.[context.monthZhi] || '');
             const shenSha = calcShenSha ? getShenSha(gan, zhi, context) : [];
 
             return {
@@ -2263,7 +2263,7 @@ class BaziAnalyzer {
                 const startAge = startAgeDefault + i * 10;
                 const startYear = birthSolarYear + startAge;
 
-                const pillar = buildExtraPillar(dyGan, dyZhi, true);
+                const pillar = buildExtraPillar(dyGan, dyZhi, true, true);
 
                 // Build 10 Flowing Years (Lưu Niên)
                 const liuNian = [];
@@ -2275,7 +2275,7 @@ class BaziAnalyzer {
                     const yrGan = toVi(lun.getYearGan());
                     const yrZhi = toVi(lun.getYearZhi());
                     
-                    const lnPillar = buildExtraPillar(yrGan, yrZhi, true);
+                    const lnPillar = buildExtraPillar(yrGan, yrZhi, true, true);
                     
                     const annualShenSha = {
                         year: getLuuNienShenShaForPillar(canChi.year.zhi, canChi.year.gan, yrGan, yrZhi, context),
@@ -2361,7 +2361,7 @@ class BaziAnalyzer {
             rawDaYunData = yun.getDaYun().map(d => {
                 const gan = toVi(d.getGanZhi().substring(0, 1));
                 const zhi = toVi(d.getGanZhi().substring(1, 2));
-                const pillar = buildExtraPillar(gan, zhi, true);
+                const pillar = buildExtraPillar(gan, zhi, true, true);
                 
                 const startYear = d.getStartYear();
                 const startAge = d.getStartAge();
@@ -2380,7 +2380,7 @@ class BaziAnalyzer {
                         const yrGan = toVi(baziYear.getYearGan());
                         const yrZhi = toVi(baziYear.getYearZhi());
                         
-                        const lnPillar = buildExtraPillar(yrGan, yrZhi, true);
+                        const lnPillar = buildExtraPillar(yrGan, yrZhi, true, true);
                         
                         const annualShenSha = {
                             year: getLuuNienShenShaForPillar(canChi.year.zhi, canChi.year.gan, yrGan, yrZhi, context),

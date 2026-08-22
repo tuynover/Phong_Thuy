@@ -943,6 +943,40 @@ describe('BaziAnalyzer Comprehensive Unit Test Suite', () => {
                 expect(resCombo.canChi.hour.shenSha).toContain('Cách Giác');
                 expect(resCombo.canChi.year.shenSha).toContain('Ngũ Quỷ');
             });
+
+            test('Should correctly calculate Chang Sheng stages based on the upgraded rules (stems vs month branch for pillars/extra pillars, Day Master vs zhi for Da Yun/Liu Nian)', () => {
+                // Test chart: 27/10/1993 06:00 (Male, Yin Metal Day Master, Tuất Month Branch)
+                const res = BaziAnalyzer.analyze('27/10/1993', '06:00', 1);
+
+                // 1. Check 4 main pillars: stem vs monthZhi (Tuất)
+                // Year stem: Quý -> TRUONG_SINH_MAP['Quý']['Tuất'] = 'Suy'
+                expect(res.canChi.year.truongSinh).toBe('Suy');
+                // Month stem: Nhâm -> TRUONG_SINH_MAP['Nhâm']['Tuất'] = 'Quan Đới'
+                expect(res.canChi.month.truongSinh).toBe('Quan Đới');
+                // Day stem: Tân -> TRUONG_SINH_MAP['Tân']['Tuất'] = 'Quan Đới'
+                expect(res.canChi.day.truongSinh).toBe('Quan Đới');
+                // Hour stem: Tân -> TRUONG_SINH_MAP['Tân']['Tuất'] = 'Quan Đới'
+                expect(res.canChi.hour.truongSinh).toBe('Quan Đới');
+
+                // 2. Check Extra pillars: stem vs monthZhi (Tuất)
+                // Cung Mệnh: Bính Thìn -> stem Bính -> TRUONG_SINH_MAP['Bính']['Tuất'] = 'Mộ'
+                expect(res.cungMenh.truongSinh).toBe('Mộ');
+                // Thai Nguyên: Quý Sửu -> stem Quý -> TRUONG_SINH_MAP['Quý']['Tuất'] = 'Suy'
+                expect(res.taiNguyen.truongSinh).toBe('Suy');
+
+                // 3. Check Da Yun (Đại Vận) / Liu Nian (Lưu Niên): dmGan (Tân) vs that pillar's branch
+                // 1st Da Yun: Tân Dậu. zhi = 'Dậu'
+                // Lookup should be: TRUONG_SINH_MAP['Tân']['Dậu'] = 'Lâm Quan'
+                const firstYun = res.daYun[0];
+                expect(firstYun.zhi).toBe('Dậu');
+                expect(firstYun.truongSinh).toBe('Lâm Quan');
+
+                // Year 2000 Liu Nian (Canh Thìn) within that Da Yun. zhi = 'Thìn'
+                // Lookup should be: TRUONG_SINH_MAP['Tân']['Thìn'] = 'Mộ'
+                const targetLuuNien = firstYun.liuNian.find(ln => ln.year === 2000);
+                expect(targetLuuNien).toBeDefined();
+                expect(targetLuuNien.truongSinh).toBe('Mộ');
+            });
         });
     });
 });

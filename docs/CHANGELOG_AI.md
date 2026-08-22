@@ -4,6 +4,18 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
 
 
 
+
+## 📅 Phiên bản: Cải Tiến Thuật Toán Vòng Trường Sinh Thập Thiên Can Bát Tự (22/08/2026)
+
+### 🪐 Nâng Cấp Logic Vòng Trường Sinh ([BaziAnalyzer.js](file:///t:/Phongthuy/backend/src/services/BaziAnalyzer.js))
+- **Đổi Công Thức Tính Vòng Trường Sinh 4 Trụ:**
+  - Thay đổi cách tính vòng Trường Sinh từ *"đối chiếu Địa chi của trụ so với Nhật Chủ"* sang *"đối chiếu Thiên can của trụ so với Địa chi Lệnh Tháng (tháng sinh)"*.
+  - Công thức mới: Trụ Năm = `TRUONG_SINH_MAP[yearGan][monthZhi]`, Trụ Tháng = `TRUONG_SINH_MAP[monthGan][monthZhi]`, Trụ Ngày = `TRUONG_SINH_MAP[dayGan][monthZhi]`, Trụ Giờ = `TRUONG_SINH_MAP[hourGan][monthZhi]`.
+  - Phản ánh chính xác sức sống, trạng thái thịnh suy của từng Can trong tháng sinh (e.g., Thiên can Giáp gặp chi tháng Dần nằm ở trạng thái Lâm Quan).
+- **Đồng Bộ Hóa Cung Mệnh & Thai Nguyên (Extra Pillars):**
+  - Cập nhật hàm `buildExtraPillar` để tự động tính trạng thái Trường Sinh của Thiên Can cung mệnh/thai nguyên so với Địa Chi Lệnh Tháng thay vì Nhật Chủ (`TRUONG_SINH_MAP[gan][monthZhi]`).
+- **Độ ổn định:** Chạy thành công toàn bộ **208/208 tests PASS 100%**.
+
 ## 📅 Phiên bản: Khắc Phục Điểm Mù Cách Cục Ngoại Cách & Tối Ưu Phản Khắc Bát Tự (21/08/2026)
 
 ### 🪐 Nâng Cấp Logic Cách Cục & Phù Ức Bát Tự ([BaziAnalyzer.js](file:///t:/Phongthuy/backend/src/services/BaziAnalyzer.js))
@@ -17,10 +29,17 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
 - **Mở Rộng Điều Kiện Chọn Dụng Thần Thân Nhược:**
   - Bổ sung điều kiện kiểm tra khi Tài tinh quá vượng (`scTaKhac > 30%`): Tự động ưu tiên chọn Ấn tinh (`sinhChoTa`) làm Dụng Thần và Tỷ Kiếp (`cungHanh`) làm Hỷ Thần nhằm cân bằng sinh phù bản mệnh và kiềm chế tài tinh, đồng bộ học thuật cổ học.
 
-### 🧪 Hoàn Thiện Bộ Unit Tests ([BaziAnalyzer.test.js](file:///t:/Phongthuy/backend/tests/services/BaziAnalyzer.test.js))
+### 🧪 Hoàn Thiện Bộ Unit Tests & Hệ thống Regression Tests Diện Rộng
 - **Đồng Bộ Hóa Ngôn Ngữ Dụng Thần:**
-  - Cập nhật các khẳng định (assertions) của bộ unit test Dụng Thần/Hỷ Thần sang dạng tiếng Việt có dấu (`'Hỏa'`, `'Thổ'`, `'Kim'`, `'Thủy'`, `'Mộc'`) thay vì ký hiệu không dấu cũ, tương thích 100% với cấu trúc dữ liệu hiển thị thực tế trên Frontend.
-  - Chạy `npm test` thành công toàn diện **205/205 tests PASS 100%**.
+  - Cập nhật các khẳng định (assertions) của bộ unit test Dụng Thần/Hỷ Thần sang dạng tiếng Việt có dấu (`'Hỏa'`, `'Thổ'`, `'Kim'`, `'Thủy'`, `'Mộc'`) tương thích 100% với cấu trúc dữ liệu thực tế trên Frontend.
+- **Hệ thống Kiểm thử Hồi quy Bát Tự (264 Ca):**
+  - Xây dựng [`BaziRegression.test.js`](file:///t:/Phongthuy/backend/tests/services/BaziRegression.test.js) tự động chạy kiểm thử trên 264 tổ hợp ngày giờ sinh đại diện cho 10 Nhật Chủ, 12 Lệnh Tháng, 8 múi giờ và giới tính trong chu kỳ 11 năm.
+  - Sử dụng Jest Snapshot để so sánh chéo điểm số Ngũ Hành, cách cục, Dụng/Hỷ/Kỵ Thần và Thần Sát.
+- **Hệ thống Kiểm thử Hồi quy Tử Vi (60+ Ca):**
+  - Xây dựng [`ZiweiRegression.test.js`](file:///t:/Phongthuy/backend/tests/services/ZiweiRegression.test.js) chạy trên 60+ cấu hình Tử Vi đại diện, lưu snapshot so sánh cấu trúc 12 cung, vị trí chính tinh, phụ tinh, độ sáng và Tứ Hóa.
+- **Hệ thống Kiểm thử Hồi quy Kinh Dịch (32 Ca):**
+  - Xây dựng [`IChingRegression.test.js`](file:///t:/Phongthuy/backend/tests/services/IChingRegression.test.js) chạy trên 32 kịch bản gieo quẻ (các quẻ thuần, quẻ biến, quẻ có nhiều hào động) kết hợp với các thiên can địa chi ngày gieo khác nhau để kiểm tra độ ổn định của Lục Thú, Quái Thân, Vượng Suy và Tuần Không.
+- **Kết quả:** Toàn bộ hệ thống test suite đã nâng lên thành **208 tests**, chạy thành công **208/208 PASS 100%** (trong đó có 3 snapshot regression tests diện rộng).
 
 ## 📅 Phiên bản: Thực Nghiệm Đánh Giá Mù Trực Tiếp Qua AI: 50 Nhóm Cuộc Đời (150 Ca Phân Tích) (19/08/2026)
 
