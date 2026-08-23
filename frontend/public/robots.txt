@@ -1,4 +1,8 @@
 User-agent: *
 Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /history
+Disallow: /profile
 
 Sitemap: https://tuynover.ddns.net/sitemap.xml

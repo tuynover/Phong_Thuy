@@ -5,6 +5,22 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
 
 
 
+## 📅 Phiên bản: Tối Ưu SEO, GA4 Tracking, Custom 404 Page & Modal Cảm Ơn (23/08/2026)
+
+### 🚀 Tối Ưu SEO & Crawlers ([robots.txt](file:///t:/Phongthuy/frontend/public/robots.txt), [index.html](file:///t:/Phongthuy/frontend/index.html))
+- **Chặn Route Riêng Tư Trong `robots.txt`**: Thêm chỉ thị `Disallow` bảo vệ các tuyền đường `/api/`, `/admin/`, `/history`, `/profile`.
+- **Cấu Trúc JSON-LD Schema.org**: Khai báo Schema `Organization` và `SoftwareApplication` bên cạnh Schema `WebSite` hiện có giúp nâng cao điểm chất lượng và hiển thị Rich Snippets trên kết quả tìm kiếm Google.
+
+### 📊 Meta Description Động & GA4 Tracking ([analytics.js](file:///t:/Phongthuy/frontend/src/utils/analytics.js), [UserApp.jsx](file:///t:/Phongthuy/frontend/src/components/UserApp.jsx))
+- **Google Analytics 4 Utility (`analytics.js`)**: Quản lý nạp script GA4, tự động theo dõi `page_view` trong SPA và đo lường sự kiện tương tác (`trackEvent`).
+- **Meta Description & Dynamic SEO (`UserApp.jsx`)**: Tự động đồng bộ các thẻ Meta Description, Open Graph Description, Twitter Description và Canonical URL theo từng phân hệ (`home`, `iching`, `bazi`, `ziwei`, `marriage`, `xemngay`, `blog`, `history`, `profile`, `about`, `privacy`, `terms`, `404`).
+
+### 🎨 Custom 404 Page & Modal Phản Hồi ([NotFoundPage.jsx](file:///t:/Phongthuy/frontend/src/components/NotFoundPage.jsx), [ThankYouModal.jsx](file:///t:/Phongthuy/frontend/src/components/ThankYouModal.jsx))
+- **Custom 404 Page (`NotFoundPage.jsx`)**: Thiết kế màn hình lỗi phong cách phong thủy cổ học (*"404 - Phương Vi Vô Định"*), họa tiết Bát Quái xoay nhẹ và các nút điều hướng nhanh về Trang Chủ hoặc các phân hệ học thuật. Đồng bộ chuyển tuyến tự động qua listener `popstate`.
+- **Modal Cảm Ơn (`ThankYouModal.jsx`)**: Thiết kế Modal xác nhận thao tác thành công với icon hoa sen / checkmark phát sáng, hiệu ứng backdrop blur và animation Framer Motion.
+
+---
+
 ## 📅 Phiên bản: Cải Tiến Thuật Toán Vòng Trường Sinh Thập Thiên Can Bát Tự (22/08/2026)
 
 ### 🪐 Nâng Cấp Logic Vòng Trường Sinh ([BaziAnalyzer.js](file:///t:/Phongthuy/backend/src/services/BaziAnalyzer.js))
@@ -1814,3 +1830,14 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
 - **Tài liệu Kỹ thuật ([DATABASE.md](file:///t:/Phongthuy/docs/DATABASE.md), [API.md](file:///t:/Phongthuy/docs/API.md)):**
   - Đồng bộ cấu trúc schema `BlogPost.category` mới trong tài liệu database.
   - Cập nhật tài liệu API chi tiết cho endpoint `GET /api/blog/categories` mới cùng các bộ lọc tham số category động của API blog.
+
+---
+
+## 📅 Phiên bản: Cập nhật đường dẫn ảnh Blog sang Cloudinary
+
+### 1. Database & Seeding
+- **Blog Seeding ([BlogSeedService.js](file:///t:/Phongthuy/backend/src/services/BlogSeedService.js)):**
+  - Cập nhật toàn bộ các link ảnh cũ từ Supabase sang các link CDN Cloudinary mới chất lượng cao cho các bài viết "Thiên Ất Quý Nhân" và "Thiên Nguyệt Đức Quý Nhân" (cả ảnh bìa và các ảnh đồ hình inline).
+- **Database Migration:**
+  - Viết và thực thi thành công script cập nhật `updateBlogImages.js` để tự động chuyển đổi toàn bộ URL ảnh cũ trong cơ sở dữ liệu MongoDB Atlas sang Cloudinary của các bài viết hiện tại, sau đó tự động dọn dẹp file script tạm.
+

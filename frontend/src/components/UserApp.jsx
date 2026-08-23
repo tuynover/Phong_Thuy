@@ -38,6 +38,9 @@ import DateSelectionBoard from './DateSelectionBoard';
 import BlogBoard from './BlogBoard';
 import Footer from './Footer';
 import { AboutUs, PrivacyPolicy, TermsOfService } from './InfoBoards';
+import NotFoundPage from './NotFoundPage';
+import ThankYouModal from './ThankYouModal';
+import { initGA, trackPageView, trackEvent } from '../utils/analytics';
 
 export default function UserApp({ onSwitchToAdmin }) {
   // Parse URL query parameter for deep-linking blog posts
@@ -57,28 +60,40 @@ export default function UserApp({ onSwitchToAdmin }) {
   const [loadingShared, setLoadingShared] = useState(false);
   const [sharedError, setSharedError] = useState(null);
 
+  const parsePathToAppMode = (pathname) => {
+    if (!pathname || pathname === '/') return 'home';
+    if (pathname.startsWith('/bazi/record/') || pathname === '/bazi') return 'bazi';
+    if (pathname.startsWith('/ziwei/record/') || pathname === '/ziwei') return 'ziwei';
+    if (pathname.startsWith('/iching/record/') || pathname === '/iching') return 'iching';
+    if (pathname.startsWith('/marriage/record/') || pathname === '/marriage') return 'marriage';
+    if (pathname === '/xemngay') return 'xemngay';
+    if (pathname === '/blog' || pathname.startsWith('/blog/')) return 'blog';
+    if (pathname === '/about') return 'about';
+    if (pathname === '/privacy') return 'privacy';
+    if (pathname === '/terms') return 'terms';
+    if (pathname === '/history') return 'history';
+    if (pathname === '/profile') return 'profile';
+    if (initialUrlSlug) return 'blog';
+    return '404';
+  };
+
   const [appMode, setAppMode] = useState(() => {
     if (typeof window !== 'undefined') {
-      const path = window.location.pathname;
-      if (path.startsWith('/bazi/record/')) return 'bazi';
-      if (path.startsWith('/ziwei/record/')) return 'ziwei';
-      if (path.startsWith('/iching/record/')) return 'iching';
-      if (path.startsWith('/marriage/record/')) return 'marriage';
-      if (path === '/bazi') return 'bazi';
-      if (path === '/iching') return 'iching';
-      if (path === '/ziwei') return 'ziwei';
-      if (path === '/marriage') return 'marriage';
-      if (path === '/xemngay') return 'xemngay';
-      if (path === '/blog') return 'blog';
-      if (path.startsWith('/blog/')) return 'blog';
-      if (path === '/about') return 'about';
-      if (path === '/privacy') return 'privacy';
-      if (path === '/terms') return 'terms';
+      return parsePathToAppMode(window.location.pathname);
     }
-    if (initialUrlSlug) return 'blog';
     const saved = localStorage.getItem('appMode');
     return saved === 'tuvi' ? 'ziwei' : (saved || 'home');
-  }); // 'home' | 'iching' | 'bazi' | 'ziwei' | 'marriage' | 'xemngay' | 'history' | 'profile' | 'blog'
+  });
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const handlePopState = () => {
+      const mode = parsePathToAppMode(window.location.pathname);
+      setAppMode(mode);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
   
   const [blogSlug, setBlogSlug] = useState(initialUrlSlug);
   const [previousMode, setPreviousMode] = useState('home');
@@ -152,7 +167,12 @@ export default function UserApp({ onSwitchToAdmin }) {
     fetchSharedData();
   }, []);
 
-  // Cập nhật canonical link & title động theo phân hệ để tối ưu SEO
+  // Khởi tạo GA4 khi ứng dụng nạp
+  useEffect(() => {
+    initGA();
+  }, []);
+
+  // Cập nhật canonical link, title động & meta description theo phân hệ để tối ưu SEO
   useEffect(() => {
     if (typeof window === 'undefined') return;
     
@@ -179,11 +199,48 @@ export default function UserApp({ onSwitchToAdmin }) {
       terms: "Điều Khoản Sử Dụng - Phong Thủy Luận Giải AI",
       blog: "Kiến Thức Phong Thủy & Chiêm Nghiệm Học Thuật",
       history: "Lịch Sử Luận Giải Phong Thủy & Quẻ Dịch - Phong Thủy AI",
-      profile: "Thông Tin Cá Nhân & Hồ Sơ Bát Tự - Phong Thủy AI"
+      profile: "Thông Tin Cá Nhân & Hồ Sơ Bát Tự - Phong Thủy AI",
+      404: "Phương Vi Không Tồn Tại (404) - Phong Thủy Luận Giải AI"
     };
-    if (titleMap[appMode]) {
-      document.title = titleMap[appMode];
+    const currentTitle = titleMap[appMode] || 'Phong Thủy Luận Giải';
+    document.title = currentTitle;
+
+    // 3. Cập nhật Meta Description động & Open Graph / Twitter Description
+    const metaDescriptionMap = {
+      home: "Hệ thống Phong Thủy cổ học kết hợp AI hàng đầu: Gieo quẻ Kinh Dịch Lục Hào, Lập lá số Bát Tự Tứ Trụ, Tử Vi Đẩu Số, Xem ngày tốt hoàng đạo và Xem tuổi hợp hôn gia đạo.",
+      iching: "Gieo quẻ Kinh Dịch Lục Hào & Mai Hoa Dịch Số luận giải bằng AI. Tra cứu quẻ quái, hào động, quái thân và cát hung công danh sự nghiệp.",
+      bazi: "Lập lá số Tứ Trụ Bát Tự chính xác theo giờ sinh. Phân tích ngũ hành vượng suy, Dụng thần, Hỷ thần, Thần sát và vận hạn cuộc đời.",
+      ziwei: "Lập mệnh bàn Tử Vi Đẩu Số 12 cung chi tiết. An sao chính tinh, phụ tinh, Tứ Hóa, Đại Vận, Tiểu Vận và luận giải tử vi chuyên sâu.",
+      marriage: "Xem tuổi kết hôn, luận giải Bát Tự Hợp Hôn gia đạo. Phân tích xung hợp Thiên Can Địa Chi, Cung Mệnh và giải pháp cải vận gia đạo.",
+      xemngay: "Tra cứu ngày tốt hoàng đạo, chọn ngày đẹp khai trương, động thổ, cưới hỏi, xuất hành theo lịch pháp Âm Dương và Cát Thần.",
+      blog: "Tổng hợp bài viết chiêm nghiệm, kiến thức phong thủy cổ học, Kinh Dịch, Bát Tự và hướng dẫn ứng dụng phong thủy trong cuộc sống.",
+      history: "Quản lý và tra cứu lịch sử luận giải Kinh Dịch, lá số Bát Tự, Tử Vi Đẩu Số và Hợp Hôn cá nhân.",
+      profile: "Quản lý thông tin tài khoản, kết nối lá số bản thân Bát Tự - Tử Vi và quản lý lượt credit luận giải AI.",
+      about: "Tìm hiểu về đội ngũ phát triển Phong Thủy Luận Giải AI, sứ mệnh kết hợp trí tuệ nhân tạo và học thuật phương Đông.",
+      privacy: "Chính sách bảo mật thông tin người dùng và cam kết an toàn dữ liệu cá nhân tại Phong Thủy Luận Giải.",
+      terms: "Điều khoản dịch vụ và quy định sử dụng hệ thống Phong Thủy Luận Giải AI.",
+      404: "Phương vi quý khách đang tìm kiếm không tồn tại trên hệ thống Phong Thủy Luận Giải AI."
+    };
+
+    const currentDesc = metaDescriptionMap[appMode] || metaDescriptionMap.home;
+    let metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', currentDesc);
+    } else {
+      metaDesc = document.createElement('meta');
+      metaDesc.name = 'description';
+      metaDesc.content = currentDesc;
+      document.head.appendChild(metaDesc);
     }
+
+    let ogDesc = document.querySelector('meta[property="og:description"]');
+    if (ogDesc) ogDesc.setAttribute('content', currentDesc);
+
+    let twDesc = document.querySelector('meta[property="twitter:description"]');
+    if (twDesc) twDesc.setAttribute('content', currentDesc);
+
+    // 4. Ghi nhận Lượt xem trang (GA4 Page View)
+    trackPageView(window.location.pathname, currentTitle);
   }, [appMode]);
   
   const handleSelectModule = (mode, slug = null) => {
@@ -346,6 +403,18 @@ export default function UserApp({ onSwitchToAdmin }) {
   const [isMyFoldersOpen, setIsMyFoldersOpen] = useState(false);
   const [isZiweiResultLoaded, setIsZiweiResultLoaded] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
+  const [isThankYouOpen, setIsThankYouOpen] = useState(false);
+  const [thankYouConfig, setThankYouConfig] = useState({
+    title: 'Cảm Ơn Quý Khách!',
+    message: 'Thao tác của quý khách đã được hệ thống ghi nhận thành công.',
+    subtext: '',
+    actionLabel: 'Đã Hiểu & Đóng'
+  });
+
+  const showThankYou = (title, message, subtext = '', actionLabel = 'Đã Hiểu & Đóng') => {
+    setThankYouConfig({ title, message, subtext, actionLabel });
+    setIsThankYouOpen(true);
+  };
 
   const showToast = (msg, duration = 3000) => {
     setToastMessage(msg);
@@ -406,6 +475,7 @@ export default function UserApp({ onSwitchToAdmin }) {
       const res = await calculateDivination(lines, userId, actualQuestion, customDate);
       setResult(res.data);
       invalidateHistoryCache();
+      trackEvent('gieo_que_iching', 'Divination', mode);
       if (userId === 'guest' && res.data.recordId) {
         setCurrentRecordId(res.data.recordId);
       }
@@ -1529,6 +1599,11 @@ export default function UserApp({ onSwitchToAdmin }) {
           <TermsOfService onBack={() => handleSelectModule(previousMode)} />
         )}
 
+        {/* SYSTEM 7: 404 CUSTOM NOT FOUND PAGE */}
+        {appMode === '404' && (
+          <NotFoundPage onGoHome={() => handleSelectModule('home')} onSelectModule={handleSelectModule} />
+        )}
+
           </>
         )}
       </div>
@@ -1554,6 +1629,14 @@ export default function UserApp({ onSwitchToAdmin }) {
         onViewBazi={handleViewHistoricalBazi}
         onViewZiwei={handleViewHistoricalZiwei}
         onViewMarriage={handleViewHistoricalMarriage}
+      />
+      <ThankYouModal
+        isOpen={isThankYouOpen}
+        onClose={() => setIsThankYouOpen(false)}
+        title={thankYouConfig.title}
+        message={thankYouConfig.message}
+        subtext={thankYouConfig.subtext}
+        actionLabel={thankYouConfig.actionLabel}
       />
 
       {shouldShowScrollButtons && (

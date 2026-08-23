@@ -237,7 +237,7 @@ Bạn và bạn đời có thể sử dụng phân hệ **Bát Tự Hợp Hôn**
     summary: 'Tìm hiểu ý nghĩa Thiên Ất Quý Nhân - thần sát cát lợi hàng đầu trong Bát Tự, cách tra cứu Quý Nhân theo Nhật Chủ và ứng dụng hướng Quý Nhân để tăng tài lộc, bình an.',
     category: 'bazi',
     tags: ['Bát Tự', 'Tứ Trụ', 'Thần Sát', 'Thiên Ất Quý Nhân', 'Cải Vận'],
-    thumbnailUrl: 'https://esxuanrakvoddxlmlbpp.supabase.co/storage/v1/object/public/blog_phong_thuy/bat-tu/thien-at.png',
+    thumbnailUrl: 'https://res.cloudinary.com/cirkgoqs/image/upload/v1787501363/thien-at_1.png',
     author: 'Chuyên gia Bát Tự',
     content: `# Đệ Nhất Cát Thần Thiên Ất Quý Nhân: Cách Tìm Và Ứng Dụng Để Gặp Dữ Hóa Lành
 
@@ -352,7 +352,7 @@ Nếu bạn muốn biết trên lá số Bát Tự của mình có bao nhiêu v�
     summary: 'Khám phá ý nghĩa Thiên Đức và Nguyệt Đức Quý Nhân - bộ đôi cát thần giải ách trừ tai bậc nhất trong Tứ Trụ Bát Tự, cách tra cứu theo tháng sinh và ứng dụng cải vận.',
     category: 'bazi',
     tags: ['Bát Tự', 'Tứ Trụ', 'Thần Sát', 'Thiên Đức', 'Nguyệt Đức', 'Cải Vận'],
-    thumbnailUrl: 'https://esxuanrakvoddxlmlbpp.supabase.co/storage/v1/object/public/blog_phong_thuy/bat-tu/thansat/thiennguyetduc.png',
+    thumbnailUrl: 'https://res.cloudinary.com/cirkgoqs/image/upload/v1787501495/thiennguyetduc_1.png',
     author: 'Chuyên gia Bát Tự',
     content: `# Bí Mật Thiên Nguyệt Đức Quý Nhân: Bộ Đôi Cát Thần Hộ Mệnh Gặp Dữ Hóa Lành Trong Bát Tự
 
@@ -378,7 +378,7 @@ Nếu lá số Bát Tự của bạn sở hữu bộ đôi quý nhân này tọa
 
 Khác với Thiên Ất Quý Nhân tìm theo Can Ngày/Can Năm sinh, **Thiên Đức Quý Nhân** được xác định dựa trên **Địa Chi của Tháng sinh (Nguyệt Lệnh)** để tra cứu các Thiên Can hoặc Địa Chi xuất hiện ở 4 trụ (Giờ, Ngày, Tháng, Năm).
 
-![Thiên Đức Quý Nhân](https://esxuanrakvoddxlmlbpp.supabase.co/storage/v1/object/public/blog_phong_thuy/bat-tu/thansat/thien-duc.png)
+![Thiên Đức Quý Nhân](https://res.cloudinary.com/cirkgoqs/image/upload/v1787501496/thien-duc_1.png)
 
 ### Bảng Tra Cứu Thiên Đức Quý Nhân:
 
@@ -405,7 +405,7 @@ Khác với Thiên Ất Quý Nhân tìm theo Can Ngày/Can Năm sinh, **Thiên �
 
 Tương tự Thiên Đức, **Nguyệt Đức Quý Nhân** cũng lấy **Tháng sinh** làm gốc để tra cứu. Tuy nhiên, công thức tra Nguyệt Đức đơn giản hơn và chỉ tra theo 4 Thiên Can Dương (**Giáp, Bính, Canh, Nhâm**) dựa vào tam hợp cục của tháng sinh:
 
-![Nguyệt Đức Quý Nhân](https://esxuanrakvoddxlmlbpp.supabase.co/storage/v1/object/public/blog_phong_thuy/bat-tu/thansat/nguyetduc.png)
+![Nguyệt Đức Quý Nhân](https://res.cloudinary.com/cirkgoqs/image/upload/v1787501337/nguyetduc_1.png)
 
 ### Bảng Tra Cứu Nguyệt Đức Quý Nhân:
 
