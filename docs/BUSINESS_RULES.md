@@ -246,11 +246,39 @@ Hệ thống tự động tính toán và hiển thị 35 Thần Sát đặc th�
 34. **Tuế Phá:** Thần sát động vận hạn chỉ hiển thị tại bảng Niên Vận Tinh động bên trái khi Địa Chi của năm Lưu Niên đối xung trực tiếp với Địa Chi năm sinh bản mệnh.
 
 ### 5.16 Quy Chuẩn Luận Giải Bát Tự vNext (Hiện Đại Hóa & Y Học Biện Chứng)
-- **Ánh xạ Ngành nghề Hiện đại (Modern Career Mapping):** Quy đổi Thập Thần sang nền kinh tế tri thức (Thực Thương = AI, Công nghệ số, Startup; Quan Sát = CEO, Quản trị cấp cao, Pháp lý; Tài Tinh = Fintech, Đầu tư quỹ).
+- **Ánh xạ Ngành nghề Hiện đại & Đỉnh cao Sự nghiệp:** Quy đổi Thập Thần sang nền kinh tế tri thức (Thực Thương = AI, Công nghệ số, Startup; Quan Sát = CEO, Quản trị cấp cao, Pháp lý; Tài Tinh = Fintech, Đầu tư quỹ). Luôn chỉ ra độ tuổi/giai đoạn phát triển rực rỡ nhất trong sự nghiệp.
+- **Bộ Ba Bản Thể & Sứ Mệnh Cuộc Đời (Bước 1):** Đúc kết Điểm mạnh trời sinh, Điểm mù bản năng cần khắc phục, cùng Sứ mệnh cuộc đời & Bài học tâm tính lớn nhất dựa trên Dụng Thần và Khuyết Hành.
+- **Chu Kỳ Tài Vận Thịnh - Suy (Bước 3):** Phân định rõ các pha Gieo hạt tích lũy, Pha bùng nổ thu hoạch và Pha phòng thủ tài chính tránh thất thoát.
+- **Chân Dung Bạn Đời & Gia Đạo Hậu Vận (Bước 3):** Khắc họa tính cách bạn đời phù hợp, nhóm tuổi/ngũ hành tương sinh và phúc đức con cái hậu vận dựa trên tương quan Cung Tử Tức (Trụ Giờ).
+- **Y học Bát Tự & Mốc Tuổi Tật Ách (Bước 3):** Dự báo bệnh lý tạng phủ Đông y (Hỏa vượng ung bướu/đột quỵ, Kim hàn Thủy lãnh thận suy/trầm cảm) và chỉ rõ các mốc tuổi có hạn sức khỏe đáng lưu tâm.
+- **3 Bước Ngoặt Lớn Nhất Cuộc Đời (Bước 5):** Bắt buộc chỉ ra 3 mốc tuổi/giai đoạn then chốt làm thay đổi hoàn toàn sự nghiệp, tài vận và vận mệnh đương số.
 - **Nhận diện Ngoại Cách (Special Patterns):** Tự động nhận diện Tòng Nhi, Tòng Tài, Tòng Sát, Chuyên Vượng, Sát Ấn Tương Sinh, Thương Quan Hợp/Chế Sát nhằm tránh đảo ngược Dụng Thần trong các thế cực đoan.
-- **Hôn nhân & Bình đẳng giới Thời đại Mới:** Nữ mệnh có Quan Sát vượng không phán "khắc chồng", phân tích năng lực tự chủ và chuyển hóa Quan Sát thành sự nghiệp độc lập.
-- **Y học Bát Tự & Bệnh học Đông Y (TCM Pathology):** Liên kết ngũ hành thiên lệch với bệnh học tạng phủ hiện đại (Hỏa vượng thiêu Mộc/Kim -> tế bào đột biến/ung bướu tụy, phổi, gan; Kim hàn Thủy lãnh -> thận suy, trầm cảm).
-- **Chuyển hóa Nghịch cảnh (Resilience):** Phân tích các năm hạn Tam Hình, Lục Xung, Thái Tuế Áp Đỉnh theo hướng nhận diện cơ chế biến áp lực thành bàn đạp phát triển nội lực.
+
+### 5.17 Quy Chuẩn Luận Giải Tử Vi Đẩu Số v4 (15 Phân Đoạn Luận Giải Chuyên Sâu & Cải Vận Thực Tế)
+Bộ Prompt Tử Vi (`ZiweiPrompts.js`) được nâng cấp lên phiên bản `v4_15_sections_deep_analysis` phân bổ thành **15 phân đoạn Markdown** có cấu trúc rõ ràng:
+1. **Mệnh & Khí Chất Cốt Lõi (Mục 1):** Luận giải ngoại hình, chỉ số IQ, học vấn, tư chất và ma trận **3 Điểm mạnh vượt trội**, **3 Điểm yếu tâm lý** và **Tiềm năng cốt lõi chưa khai phá**.
+2. **Hôn Nhân & Tình Duyên (Mục 2):** Tính cách người phối ngẫu, chỉ rõ **Mẫu người phù hợp nhất**, **Tuổi hợp / Ngũ hành tương sinh** và **Các biến cố tình cảm lớn**.
+3. **Tài Lộc & Quản Lý Tiền Bạc (Mục 3):** Đánh giá rủi ro hao tài, khả năng giữ tiền, các chu kỳ tài vận thịnh - suy.
+4. **Phụ Mẫu & Gia Thế (Mục 4):** Học vấn kinh tế cha mẹ, sự nâng đỡ từ gia đình.
+5. **Thiên Di & Xuất Hành (Mục 5):** Khả năng ứng biến ngoại giao, cơ hội đi xa/xuất ngoại, thử thách.
+6. **Sức Khỏe & Hạn Cần Chú Ý (Mục 6):** Nguy cơ bệnh tật theo ngũ hành sao tọa thủ và các mốc độ tuổi có hạn ách.
+7. **Nô Bộc & Mối Quan Hệ (Mục 7):** Quan hệ bạn bè, đồng nghiệp, hợp tác làm ăn, kiểu sếp tương hợp.
+8. **Công Danh & Sự Nghiệp (Mục 8):** Ngành nghề hợp nhất, xu hướng làm chủ/làm thuê, thời điểm phát triển rực rỡ nhất.
+9. **Điền Trạch & Bất Động Sản (Mục 9):** Khả năng sở hữu nhà đất, tư vấn đầu tư bất động sản, xu hướng định cư.
+10. **Tử Tức & Hậu Duệ (Mục 10):** Số lượng, xu hướng gái/trai, sự hiếu thảo và mối quan hệ với con cái.
+11. **Huynh Đệ & Mối Tương Quan (Mục 11):** Sự hòa thuận giữa anh chị em, hỗ trợ hoặc nhờ vả.
+12. **Phúc Đức & Sứ Mệnh Cuộc Đời (Mục 12):** Phúc phần dòng họ, gia tiên và **Bài học nghiệp duyên (Karmic Lesson)** đương số phải vượt qua.
+13. **Đại Vận & Vận Hạn Năm Hiện Tại (Mục 13):** Đánh giá đại vận hiện tại và dự báo chi tiết năm hiện tại (Công việc, Tài chính, Tình duyên, Sức khỏe).
+14. **3 Bước Ngoặt Cuộc Đời & Tổng Luận (Mục 14):** Dự đoán **3 thời điểm chuyển biến vận mệnh lớn nhất** (Sự nghiệp, Tài chính, Tình cảm) và các giai đoạn hoàng kim/thách thức.
+15. **Chiến Lược Cải Vận & Thu Hút May Mắn (Mục 15):** Đưa ra chiến lược 4 trụ cột thực tế: **Tâm** (nhận thức), **Hành** (hành động), **Cảnh** (phong thủy/phương vị/màu sắc), **Tín** (tích đức hành thiện).
+
+### 5.18 Quy Chuẩn Luận Giải Hợp Hôn v2.0 (Marriage v2.0 Advanced)
+Bộ Prompt Hợp Hôn (`MarriagePrompts.js`) được nâng cấp lên phiên bản `v2_0_marriage_advanced` với 5 trụ cột học thuật nghiêm ngặt:
+1. **Quy Tắc Khóa Trần Điểm Số (Anti-Whitewashing):** Tuyệt đối cấm lạm dụng việc "Dụng Thần bù trừ" để phán các cuộc hôn nhân có Tam Hình (Sửu-Mùi-Tuất, Dần-Thân-Tỵ), Lục Xung Cung Phu Thê hoặc Thất Sát áp đỉnh là "hậu vận bình an". Điểm số tương thích bắt buộc bị **khóa trần dưới 5.5/10** (dao động 3.0 - 5.0/10 tùy mức độ phá hoại). Phải cảnh báo trực diện nguy cơ bạo lực lạnh, áp chế tinh thần, phản bội, tranh chấp pháp lý hoặc ly tán.
+2. **Phân Bổ Quản Trị Tài Chính Theo Thập Thần (Xóa Bỏ Định Kiến Giới):** Chỉ định người giữ tiền phải căn cứ 100% vào cấu trúc Thập Thần (Chính Tài/Chính Ấn cẩn trọng giữ tiền; Kiếp Tài/Thương Quan phiêu lưu không được cầm tiền lớn), triệt tiêu văn mẫu "người vợ auto là tay hòm chìa khóa".
+3. **Thống Nhất Trọng Số Bát Tự (Gốc 80%) & Bát Trạch (Ngọn 20%):** Bát Tự Tử Bình quyết định Nhân duyên và Cát Hung cốt lõi (80%). Cung Phi Bát Trạch chỉ phản ánh Môi trường sống (20%), phạm Tuyệt Mệnh/Lục Sát không phá vỡ được nhân duyên Bát Tự mà chỉ cần hóa giải bằng hướng phòng ngủ, hướng bếp.
+4. **Định Danh 4 Mô Hình Hôn Nhân Hiện Đại (Marriage Archetypes):** *Song Mã Cùng Tiến (Power Couple)*, *Thử Thách & Tôi Luyện (Karmic Crucible)*, *Hậu Phương & Tiền Tuyến*, và *Tri Kỷ Tâm Giao*.
+5. **Chiến Lược Hóa Giải Thực Chiến & Tâm Lý Học Hành Vi:** Đưa ra quy tắc ứng xử khi xung đột (hạ hỏa, quyền im lặng), quản trị tài chính minh bạch và phong thủy bổ trợ.
 
 ---
 

@@ -1039,7 +1039,7 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
             </div>
 
             <div className="space-y-4">
-                {activeTab === 'iching' && hexagrams.length === 0 && <p className="text-center text-gray-500">Chưa có quẻ nào được gieo.</p>}
+                {activeTab === 'iching' && hexagrams.length === 0 && <p className="text-center text-gray-500">Không có</p>}
                 {activeTab === 'iching' && paginatedList.map((record) => (
                     <div 
                         key={record._id} 
@@ -1160,7 +1160,7 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                       </div>
                   ))}
   
-                  {activeTab === 'bazi' && bazis.length === 0 && <p className="text-center text-gray-500">Chưa có lá số nào được lập.</p>}
+                  {activeTab === 'bazi' && bazis.length === 0 && <p className="text-center text-gray-500">Không có</p>}
                   {activeTab === 'bazi' && paginatedList.map((record) => (
                       <div 
                           key={record._id} 
@@ -1287,7 +1287,7 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                       </div>
                   ))}
   
-                  {activeTab === 'ziwei' && ziweis.length === 0 && <p className="text-center text-gray-500">Chưa có lá số Tử Vi nào được lập.</p>}
+                  {activeTab === 'ziwei' && ziweis.length === 0 && <p className="text-center text-gray-500">Không có</p>}
                   {activeTab === 'ziwei' && paginatedList.map((record) => (
                       <div 
                           key={record._id} 
@@ -1402,7 +1402,7 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                       </div>
                   ))}
 
-                  {activeTab === 'marriage' && marriages.length === 0 && <p className="text-center text-gray-500">Chưa có bản ghi hợp hôn nào.</p>}
+                  {activeTab === 'marriage' && marriages.length === 0 && <p className="text-center text-gray-500">Không có</p>}
                   {activeTab === 'marriage' && paginatedList.map((record) => (
                       <div 
                           key={record._id} 

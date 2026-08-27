@@ -51,14 +51,16 @@ export const forgotPassword = (email) => axios.post(`${API_URL}/auth/forgot-pass
 export const resetPassword = (email, otp, newPassword) => axios.post(`${API_URL}/auth/reset-password`, { email, otp, newPassword });
 
 export const getInterpretationStreamUrl = (type, id) => {
-  if (type === 'tu_vi' || type === 'ziwei') return `${API_URL}/ziwei/${id}/interpret`;
-  if (type === 'hexagrams' || type === 'iching') return `${API_URL}/history/iching/${id}/interpret`;
-  return `${API_URL}/history/${type}/${id}/interpret`;
+  if (type === 'tu_vi' || type === 'ziwei') return `${API_URL}/ai/ziwei/${id}/interpret`;
+  if (type === 'hexagrams' || type === 'iching') return `${API_URL}/ai/iching/${id}/interpret`;
+  if (type === 'marriage') return `${API_URL}/ai/marriage/${id}/interpret`;
+  return `${API_URL}/ai/${type}/${id}/interpret`;
 };
 export const getChatStreamUrl = (type, id) => {
-  if (type === 'tu_vi' || type === 'ziwei') return `${API_URL}/ziwei/${id}/chat`;
-  if (type === 'hexagrams' || type === 'iching') return `${API_URL}/history/iching/${id}/chat`;
-  return `${API_URL}/history/${type}/${id}/chat`;
+  if (type === 'tu_vi' || type === 'ziwei') return `${API_URL}/ai/ziwei/${id}/chat`;
+  if (type === 'hexagrams' || type === 'iching') return `${API_URL}/ai/iching/${id}/chat`;
+  if (type === 'marriage') return `${API_URL}/ai/marriage/${id}/chat`;
+  return `${API_URL}/ai/${type}/${id}/chat`;
 };
 
 // Admin API Endpoints

@@ -59,10 +59,14 @@ class LoggerService {
 
     formatContext(context) {
         if (!context) return "";
+        let reqIdStr = "";
         let userStr = "";
         let actionStr = "";
         let extraStr = "";
 
+        if (context.requestId) {
+            reqIdStr = ` [ReqID: ${context.requestId}]`;
+        }
         if (context.user) {
             userStr = ` [User: ${context.user}]`;
         }
@@ -76,7 +80,7 @@ class LoggerService {
             extraStr += ` [Duration: ${context.duration}ms]`;
         }
 
-        return `${userStr}${actionStr}${extraStr}`;
+        return `${reqIdStr}${userStr}${actionStr}${extraStr}`;
     }
 
     writeToFiles(level, formattedMsg) {

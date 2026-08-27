@@ -8,6 +8,8 @@ const redisPort = parseInt(process.env.REDIS_PORT || '6379', 10);
 const redisPassword = process.env.REDIS_PASSWORD || undefined;
 const redisTls = process.env.REDIS_TLS === 'true' || (process.env.REDIS_URL && process.env.REDIS_URL.startsWith('rediss://'));
 
+const isTestEnv = process.env.NODE_ENV === 'test';
+
 const redisOptions = {
     host: redisHost,
     port: redisPort,
@@ -16,9 +18,10 @@ const redisOptions = {
     connectTimeout: 2000,      // Fast fail (2s max connection timeout instead of 10s default)
     commandTimeout: 1500,      // Max command timeout
     enableOfflineQueue: false, // Fail fast if offline so app can fallback to memory cache immediately
-    lazyConnect: false,
+    lazyConnect: isTestEnv,
     keepAlive: 5000,           // Heartbeat keep-alive to prevent AWS VPC NAT Gateway from killing idle socket after 350s
     retryStrategy(times) {
+        if (isTestEnv && times > 1) return null; // Stop infinite reconnect loops in test runner
         const delay = Math.min(times * 500, 5000);
         return delay;
     },
@@ -50,9 +53,13 @@ redisClient.on('ready', () => {
 redisClient.on('error', (err) => {
     isConnected = false;
     if (err.code === 'ECONNREFUSED' || err.code === 'ENOTFOUND') {
-        logger.warn(`[Redis] Redis server unavailable at ${redisHost}:${redisPort}. Falling back to in-memory cache.`);
+        if (!isTestEnv) {
+            logger.warn(`[Redis] Redis server unavailable at ${redisHost}:${redisPort}. Falling back to in-memory cache.`);
+        }
     } else {
-        logger.error(`[Redis] Redis error: ${err.message}`);
+        if (!isTestEnv) {
+            logger.error(`[Redis] Redis error: ${err.message}`);
+        }
     }
 });
 
@@ -62,7 +69,9 @@ redisClient.on('close', () => {
 
 redisClient.on('reconnecting', () => {
     isConnected = false;
-    logger.info('[Redis] Reconnecting to Redis...');
+    if (!isTestEnv) {
+        logger.info('[Redis] Reconnecting to Redis...');
+    }
 });
 
 /**
@@ -95,11 +104,16 @@ const withTimeout = (promise, ms = 500, fallbackValue = null) => {
 
 // --- Local L1 RAM Cache for User Profiles (Sub-millisecond access) ---
 const userProfileRamCache = new Map();
+// --- Local L1 RAM Cache for OTP (Dual-Storage Fallback when Redis is offline) ---
+const otpRamCache = new Map();
 
 setInterval(() => {
     const now = Date.now();
     for (const [k, v] of userProfileRamCache.entries()) {
         if (now > v.expiresAt) userProfileRamCache.delete(k);
+    }
+    for (const [k, v] of otpRamCache.entries()) {
+        if (now > v.expiresAt) otpRamCache.delete(k);
     }
 }, 5 * 60 * 1000);
 
@@ -181,34 +195,53 @@ const clearUserProfileCache = async (userId) => {
     }
 };
 
-// --- Helper 2: Redis OTP Management (No OTP in MongoDB) ---
+// --- Helper 2: OTP Dual-Storage (Redis L2 + RAM L1 Fallback) ---
 const setOtpRedis = async (otpKey, otpCode, ttlSec = 900) => {
-    if (!isRedisConnected()) return false;
-    try {
-        const res = await withTimeout(redisClient.setex(`otp:${otpKey}`, ttlSec, otpCode), 500, null);
-        return res !== null;
-    } catch (err) {
-        logger.warn(`[Redis] Failed to set OTP for key [${otpKey}]: ${err.message}`);
-        return false;
+    // Write to RAM L1 Cache (always active as fallback)
+    otpRamCache.set(`otp:${otpKey}`, {
+        code: String(otpCode),
+        expiresAt: Date.now() + (ttlSec * 1000)
+    });
+
+    if (isRedisConnected()) {
+        try {
+            await withTimeout(redisClient.setex(`otp:${otpKey}`, ttlSec, otpCode), 500, null);
+        } catch (err) {
+            logger.warn(`[Redis] Failed to set OTP in Redis for key [${otpKey}]: ${err.message}`);
+        }
     }
+    return true;
 };
 
 const getOtpRedis = async (otpKey) => {
-    if (!isRedisConnected()) return null;
-    try {
-        return await withTimeout(redisClient.get(`otp:${otpKey}`), 500, null);
-    } catch (err) {
-        logger.warn(`[Redis] Failed to get OTP for key [${otpKey}]: ${err.message}`);
-        return null;
+    const key = `otp:${otpKey}`;
+    // 1. Check RAM L1 Cache
+    const ramItem = otpRamCache.get(key);
+    if (ramItem && Date.now() < ramItem.expiresAt) {
+        return ramItem.code;
     }
+
+    // 2. Fallback to Redis L2
+    if (isRedisConnected()) {
+        try {
+            const redisVal = await withTimeout(redisClient.get(key), 500, null);
+            if (redisVal) return redisVal;
+        } catch (err) {
+            logger.warn(`[Redis] Failed to get OTP from Redis for key [${otpKey}]: ${err.message}`);
+        }
+    }
+    return null;
 };
 
 const deleteOtpRedis = async (otpKey) => {
-    if (!isRedisConnected()) return;
-    try {
-        await withTimeout(redisClient.del(`otp:${otpKey}`), 500, null);
-    } catch (err) {
-        logger.warn(`[Redis] Failed to delete OTP for key [${otpKey}]: ${err.message}`);
+    const key = `otp:${otpKey}`;
+    otpRamCache.delete(key);
+    if (isRedisConnected()) {
+        try {
+            await withTimeout(redisClient.del(key), 500, null);
+        } catch (err) {
+            logger.warn(`[Redis] Failed to delete OTP from Redis for key [${otpKey}]: ${err.message}`);
+        }
     }
 };
 

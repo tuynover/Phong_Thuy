@@ -4,6 +4,7 @@ import {
     User, AlertCircle, RefreshCw, Maximize2, Minimize2 
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import rehypeSanitize from 'rehype-sanitize';
 import { getChatStreamUrl, getHexagramChatMessages, getBaziChatMessages, getTuViChatMessages, getMarriageChatMessages } from '../services/api';
 import { AuthContext } from '../context/AuthContext';
 
@@ -453,7 +454,7 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
         return (
             <div className="space-y-3 text-neutral-800 text-sm">
                 <div className="markdown-content text-neutral-800 text-sm leading-relaxed">
-                    <ReactMarkdown>{sc.answer}</ReactMarkdown>
+                    <ReactMarkdown rehypePlugins={[rehypeSanitize]}>{sc.answer}</ReactMarkdown>
                 </div>
 
                 {/* Render timing / risk if meaningful */}
@@ -484,7 +485,7 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
                         <div>
                             <div className="text-[11px] font-bold text-emerald-800 uppercase tracking-wider">Khuyên nên làm</div>
                             <div className="text-xs text-emerald-900 font-medium mt-0.5 whitespace-pre-line leading-relaxed markdown-content">
-                                <ReactMarkdown>{formatFieldSafe(sc.dos)}</ReactMarkdown>
+                                <ReactMarkdown rehypePlugins={[rehypeSanitize]}>{formatFieldSafe(sc.dos)}</ReactMarkdown>
                             </div>
                         </div>
                     </div>
@@ -496,7 +497,7 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
                         <div>
                             <div className="text-[11px] font-bold text-rose-800 uppercase tracking-wider">Tránh làm</div>
                             <div className="text-xs text-rose-900 font-medium mt-0.5 whitespace-pre-line leading-relaxed markdown-content">
-                                <ReactMarkdown>{formatFieldSafe(sc.donts)}</ReactMarkdown>
+                                <ReactMarkdown rehypePlugins={[rehypeSanitize]}>{formatFieldSafe(sc.donts)}</ReactMarkdown>
                             </div>
                         </div>
                     </div>
@@ -640,7 +641,7 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
                                 <div className="p-3.5 rounded-2xl bg-white border border-gray-100 shadow-sm rounded-tl-none space-y-2">
                                     {streamAnswer ? (
                                         <div className="markdown-content text-sm text-neutral-800 leading-relaxed">
-                                            <ReactMarkdown>{streamAnswer}</ReactMarkdown>
+                                            <ReactMarkdown rehypePlugins={[rehypeSanitize]}>{streamAnswer}</ReactMarkdown>
                                         </div>
                                     ) : (
                                         <div className="flex items-center gap-2 text-xs text-gray-500 font-medium py-1">

@@ -220,7 +220,8 @@ const login = async (req, res) => {
 };
 
 const updateBaziInfo = async (req, res) => {
-  const { userId, day, month, year, hour, minute, ownBaziRecordId, ownZiweiRecordId } = req.body;
+  const userId = req.dbUser ? (req.dbUser.id || req.dbUser._id.toString()) : req.body.userId;
+  const { day, month, year, hour, minute, ownBaziRecordId, ownZiweiRecordId } = req.body;
   try {
     let user = await User.findById(userId);
     if (!user || user.isDeleted) {
@@ -346,7 +347,8 @@ const googleLogin = async (req, res) => {
 };
 
 const updateProfile = async (req, res) => {
-  const { userId, name, gender, phone, day, month, year, hour, minute } = req.body;
+  const userId = req.dbUser ? (req.dbUser.id || req.dbUser._id.toString()) : req.body.userId;
+  const { name, gender, phone, day, month, year, hour, minute } = req.body;
   try {
     let user = await User.findById(userId);
     if (!user || user.isDeleted) {

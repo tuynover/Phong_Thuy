@@ -18,20 +18,17 @@ import {
     formatElement
 } from '../utils/astrologyHelpers';
 
-const getSeasonColorClass = (tietKhi) => {
-    if (!tietKhi) return 'text-amber-800';
-    const cleanName = tietKhi.replace('Tiết ', '').trim();
-    const spring = ['Lập Xuân', 'Vũ Thủy', 'Kinh Trập', 'Xuân Phân', 'Thanh Minh', 'Cốc Vũ'];
-    const summer = ['Lập Hạ', 'Tiểu Mãn', 'Mang Chủng', 'Hạ Chí', 'Tiểu Thử', 'Đại Thử'];
-    const autumn = ['Lập Thu', 'Xử Thử', 'Bạch Lộ', 'Thu Phân', 'Hàn Lộ', 'Sương Giáng'];
-    const winter = ['Lập Đông', 'Tiểu Tuyết', 'Đại Tuyết', 'Đông Chí', 'Tiểu Hàn', 'Đại Hàn'];
-
-    if (spring.includes(cleanName)) return 'text-emerald-600';
-    if (summer.includes(cleanName)) return 'text-rose-600';
-    if (autumn.includes(cleanName)) return 'text-amber-700';
-    if (winter.includes(cleanName)) return 'text-blue-600';
-    return 'text-amber-800';
-};
+import {
+    getSeasonColorClass,
+    getRemedyData,
+    renderCanChiSpans,
+    getNaYinTextColorClass,
+    cleanLunarDate,
+    getNaYinColorClass,
+    getAbbreviatedTruongSinh,
+    getAbbreviatedThapThan,
+    SHEN_SHA_COLORS
+} from './bazi/baziConstants.jsx';
 
 const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHistory }) => {
     const { user, setUser, token } = useContext(AuthContext);
@@ -71,6 +68,43 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
 
     const [selectedYunIndex, setSelectedYunIndex] = useState(0);
     const [selectedLuuNianYear, setSelectedLuuNianYear] = useState(null);
+
+    // Mouse drag-to-scroll & touchpad scroll for DaYun timeline
+    const daYunScrollRef = useRef(null);
+    const [isDaYunDragging, setIsDaYunDragging] = useState(false);
+    const [daYunStartX, setDaYunStartX] = useState(0);
+    const [daYunScrollLeft, setDaYunScrollLeft] = useState(0);
+    const [daYunHasDragged, setDaYunHasDragged] = useState(false);
+
+    const handleDaYunMouseDown = (e) => {
+        if (!daYunScrollRef.current) return;
+        setIsDaYunDragging(true);
+        setDaYunHasDragged(false);
+        setDaYunStartX(e.pageX - daYunScrollRef.current.offsetLeft);
+        setDaYunScrollLeft(daYunScrollRef.current.scrollLeft);
+    };
+
+    const handleDaYunMouseLeaveOrUp = () => {
+        setIsDaYunDragging(false);
+    };
+
+    const handleDaYunMouseMove = (e) => {
+        if (!isDaYunDragging || !daYunScrollRef.current) return;
+        e.preventDefault();
+        const x = e.pageX - daYunScrollRef.current.offsetLeft;
+        const walk = (x - daYunStartX) * 1.8;
+        if (Math.abs(walk) > 5) {
+            setDaYunHasDragged(true);
+        }
+        daYunScrollRef.current.scrollLeft = daYunScrollLeft - walk;
+    };
+
+    const handleDaYunWheel = (e) => {
+        if (!daYunScrollRef.current) return;
+        if (e.deltaY !== 0 && Math.abs(e.deltaX) < Math.abs(e.deltaY)) {
+            daYunScrollRef.current.scrollLeft += e.deltaY * 0.8;
+        }
+    };
 
     // Tự động chọn Đại Vận và Lưu Niên phù hợp với năm hiện tại (2026) khi dữ liệu Bát Tự thay đổi
     useEffect(() => {
@@ -215,243 +249,7 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
     const effectiveDungThan = dungThan || data.dungThanInfo?.primary?.dungThan || analysis?.dungThan || data.dungThanInfo?.primary?.dungThan || '';
     const effectiveHyThan = hyThan || data.dungThanInfo?.primary?.hyThan || analysis?.hyThan || data.dungThanInfo?.primary?.hyThan || '';
 
-    const getRemedyData = (element) => {
-        if (!element) return null;
-        const normalizedKey = {
-            'Mộc': 'Moc', 'Moc': 'Moc', 'mộc': 'Moc', 'moc': 'Moc',
-            'Hỏa': 'Hoa', 'Hoa': 'Hoa', 'hỏa': 'Hoa', 'hoa': 'Hoa',
-            'Thổ': 'Tho', 'Tho': 'Tho', 'thổ': 'Tho', 'tho': 'Tho',
-            'Kim': 'Kim', 'kim': 'Kim',
-            'Thủy': 'Thuy', 'Thuy': 'Thuy', 'thủy': 'Thuy', 'thuy': 'Thuy'
-        }[element] || element;
-
-        const remedies = {
-            'Moc': {
-                colors: "Xanh lá cây, xanh lục, xanh ngọc, xanh bộ đội.",
-                directions: "Đông, Đông Nam (tương ứng cung Chấn, Tốn).",
-                careers: "Lâm nghiệp, chế biến gỗ, nông nghiệp, giáo dục, viết lách, y dược, dệt may, thiết kế thời trang.",
-                items: "Vòng dâu tằm, trang sức đá Thạch Anh Xanh (Aventurine), Ngọc Cẩm Thạch, Ngọc Bích, trồng nhiều cây xanh."
-            },
-            'Hoa': {
-                colors: "Đỏ, hồng, tím, cam, đỏ rực.",
-                directions: "Nam (tương ứng cung Ly).",
-                careers: "Công nghệ thông tin, điện tử, viễn thông, ẩm thực, năng lượng, nhà hàng, mỹ phẩm, nghệ thuật, nhiếp ảnh.",
-                items: "Trang sức đá Thạch Anh Hồng, đá Ruby, Thạch Anh Tím, đá Mắt Hổ Đỏ, dùng nến thơm hoặc đèn ấm trong nhà."
-            },
-            'Tho': {
-                colors: "Vàng, nâu đất, cam đất, vàng cát.",
-                directions: "Trung cung (trung tâm), Đông Bắc, Tây Nam.",
-                careers: "Bất động sản, xây dựng, kiến trúc, khai khoáng, gốm sứ, nông nghiệp sạch, quản trị nhân sự, luật pháp.",
-                items: "Trang sức đá Thạch Anh Vàng (Citrine), Thạch Anh Tóc Vàng, đá Mắt Hổ Vàng Nâu, bài trí đồ gốm sứ thủ công."
-            },
-            'Kim': {
-                colors: "Trắng, xám, ghi, vàng ánh kim, bạc.",
-                directions: "Tây, Tây Bắc (tương ứng cung Đoài, Càn).",
-                careers: "Cơ khí, kim khí, tài chính, ngân hàng, trang sức, công nghệ cao, hành chính công, quân sự, thiết bị y tế.",
-                items: "Trang sức bạc, vàng trắng, đá Thạch Anh Trắng, Thạch Anh Khói, đá Mặt Trăng (Moonstone), trang sức kim loại."
-            },
-            'Thuy': {
-                colors: "Đen, xanh dương, xanh nước biển, xanh navy.",
-                directions: "Bắc (tương ứng cung Khảm).",
-                careers: "Vận tải, du lịch, thủy hải sản, ngoại giao, báo chí, truyền thông, dịch vụ khách hàng, hóa chất, giặt ủi.",
-                items: "Trang sức đá Obsidian Đen, Thạch Anh Tóc Đen, Aquamarine, đặt bể cá cảnh hoặc thác nước phong thủy mini."
-            }
-        };
-        return remedies[normalizedKey] || null;
-    };
-
     const remedyData = getRemedyData(effectiveDungThan);
-
-    const renderCanChiSpans = (canChiStr) => {
-        if (!canChiStr) return '';
-        const parts = canChiStr.trim().split(/\s+/);
-        if (parts.length !== 2) return <span className="font-extrabold">{canChiStr}</span>;
-        const [gan, zhi] = parts;
-        const ganElem = stemElements[gan];
-        const zhiElem = branchElements[zhi];
-        return (
-            <span className="font-extrabold inline-flex items-center">
-                <Tooltip term={gan} unstyled={true}>
-                    <span className={`hover:scale-105 transition-transform inline-block ${getColorClass(ganElem)}`}>{gan}</span>
-                </Tooltip>
-                <span className="text-slate-400 font-normal mx-0.5">&nbsp;</span>
-                <Tooltip term={zhi} unstyled={true}>
-                    <span className={`hover:scale-105 transition-transform inline-block ${getColorClass(zhiElem)}`}>{zhi}</span>
-                </Tooltip>
-            </span>
-        );
-    };
-
-    const getNaYinTextColorClass = (naYinText) => {
-        if (!naYinText) return 'text-slate-800';
-        const cleanText = naYinText.trim();
-        const words = cleanText.split(/\s+/);
-        const lastWord = words[words.length - 1];
-        
-        if (lastWord.includes('Kim')) return 'text-slate-500 font-extrabold';
-        if (lastWord.includes('Mộc') || lastWord.includes('Moc') || lastWord.includes('Lâm')) return 'text-emerald-600 font-extrabold';
-        if (lastWord.includes('Thủy') || lastWord.includes('Thuỷ') || lastWord.includes('Hải')) return 'text-blue-600 font-extrabold';
-        if (lastWord.includes('Hỏa') || lastWord.includes('Hoả')) return 'text-red-600 font-extrabold';
-        if (lastWord.includes('Thổ') || lastWord.includes('Thô')) return 'text-amber-800 font-extrabold';
-        
-        if (cleanText.includes('Kim')) return 'text-slate-500 font-extrabold';
-        if (cleanText.includes('Mộc') || cleanText.includes('Moc')) return 'text-emerald-600 font-extrabold';
-        if (cleanText.includes('Thủy') || cleanText.includes('Thuỷ')) return 'text-blue-600 font-extrabold';
-        if (cleanText.includes('Hỏa') || cleanText.includes('Hoả')) return 'text-red-600 font-extrabold';
-        if (cleanText.includes('Thổ') || cleanText.includes('Thô')) return 'text-amber-800 font-extrabold';
-        return 'text-slate-800';
-    };
-
-    const cleanLunarDate = (lunarStr) => {
-        if (!lunarStr) return '';
-        return lunarStr
-            .replace(/ngày\s+/i, '')
-            .replace(/\s*tháng\s*/i, '/')
-            .replace(/\s*năm\s*/i, '/')
-            .replace(/\s*Âm\s+lịch/i, '')
-            .trim();
-    };
-
-    const getNaYinColorClass = (naYinText) => {
-        if (!naYinText) return 'text-slate-500 bg-slate-100/80 border-slate-200/40';
-        if (naYinText.includes('Kim')) return 'text-slate-700 bg-slate-100 border-slate-350';
-        if (naYinText.includes('Mộc')) return 'text-emerald-700 bg-emerald-50 border-emerald-250/30';
-        if (naYinText.includes('Thủy')) return 'text-blue-700 bg-blue-50 border-blue-200/40';
-        if (naYinText.includes('Hỏa')) return 'text-red-700 bg-red-50 border-red-200/40';
-        if (naYinText.includes('Thổ')) return 'text-amber-800 bg-amber-50/60 border-amber-250/30';
-        return 'text-slate-500 bg-slate-100/80 border-slate-200/40';
-    };
-
-    const getAbbreviatedTruongSinh = (name) => {
-        if (!name) return '';
-        const abbrev = {
-            'Trường Sinh': 'T.Sinh',
-            'Mộc Dục': 'M.Dục',
-            'Quan Đới': 'Q.Đới',
-            'Lâm Quan': 'L.Quan',
-            'Đế Vượng': 'Đ.Vượng',
-            'Suy': 'Suy',
-            'Bệnh': 'Bệnh',
-            'Tử': 'Tử',
-            'Mộ': 'Mộ',
-            'Tuyệt': 'Tuyệt',
-            'Thai': 'Thai',
-            'Dưỡng': 'Dưỡng'
-        };
-        return abbrev[name] || name;
-    };
-
-    const getAbbreviatedThapThan = (name) => {
-        if (!name) return '';
-        const trimmed = name.trim();
-        const map = {
-            'Tỷ Kiên': 'Tỷ',
-            'Kiếp Tài': 'Kiếp',
-            'Thực Thần': 'Thực',
-            'Thương Quan': 'Thương',
-            'Thiên Tài': 'T.Tài',
-            'Chính Tài': 'Tài',
-            'Thất Sát': 'Sát',
-            'Chính Quan': 'Quan',
-            'Thiên Ấn': 'Kiêu',
-            'Chính Ấn': 'Ấn'
-        };
-        return map[trimmed] || trimmed;
-    };
-
-    const SHEN_SHA_COLORS = {
-        // --- 1. NHÓM CÁT THẦN (MÀU XANH - Emerald) ---
-        'Thiên Ất': 'text-emerald-600',
-        'Thiên Ất Quý Nhân': 'text-emerald-600',
-        'Thái Cực': 'text-emerald-600',
-        'Thái Cực Quý Nhân': 'text-emerald-600',
-        'Thiên Đức': 'text-emerald-600',
-        'Thiên Đức Quý Nhân': 'text-emerald-600',
-        'Nguyệt Đức': 'text-emerald-600',
-        'Nguyệt Đức Quý Nhân': 'text-emerald-600',
-        'Lộc Thần': 'text-emerald-600',
-        'Tuế Lộc': 'text-emerald-600',
-        'Kiến Lộc': 'text-emerald-600',
-        'Chuyên Lộc': 'text-emerald-600',
-        'Quy Lộc': 'text-emerald-600',
-        'Văn Xương': 'text-emerald-600',
-        'Văn Xương Quý Nhân': 'text-emerald-600',
-        'Học Đường': 'text-emerald-600',
-        'Học Đường Quý Nhân': 'text-emerald-600',
-        'Từ Quán': 'text-emerald-600',
-        'Từ Quán Quý Nhân': 'text-emerald-600',
-        'Tướng Tinh': 'text-emerald-600',
-        'Phúc Tinh': 'text-emerald-600',
-        'Phúc Tinh Quý Nhân': 'text-emerald-600',
-        'Thiên Y': 'text-emerald-600',
-        'Quốc Ấn': 'text-emerald-600',
-        'Quốc Ấn Quý Nhân': 'text-emerald-600',
-        'Thiên Trù': 'text-emerald-600',
-        'Thiên Trù Quý Nhân': 'text-emerald-600',
-        'Đường Phù': 'text-emerald-600',
-        'Thiên Hỷ': 'text-emerald-600',
-        'Thiên Hỷ Quý Nhân': 'text-emerald-600',
-        'Kim Dư': 'text-emerald-600',
-        'Kim Dư Quý Nhân': 'text-emerald-600',
-        'Thiên Xá': 'text-emerald-600',
-        'Âm Chú Dương Thụ': 'text-emerald-600',
-        'Thiên Thượng Tam Kỳ': 'text-emerald-600',
-        'Địa Thượng Tam Kỳ': 'text-emerald-600',
-        'Nhân Gian Tam Kỳ': 'text-emerald-600',
-        'Thiếu Dương': 'text-emerald-600',
-        'Thiếu Âm': 'text-emerald-600',
-        'Long Đức': 'text-emerald-600',
-        'Phúc Đức': 'text-emerald-600',
-
-        // --- 2. NHÓM HUNG SÁT (MÀU ĐỎ - Rose) ---
-        'Kình Dương': 'text-rose-600',
-        'Đà La': 'text-rose-600',
-        'Kiếp Sát': 'text-rose-600',
-        'Vong Thần': 'text-rose-600',
-        'Vong Sát': 'text-rose-600',
-        'Cô Thần': 'text-rose-600',
-        'Quả Tú': 'text-rose-600',
-        'Đại Hao': 'text-rose-600',
-        'Tiểu Hao': 'text-rose-600',
-        'Tai Sát': 'text-rose-600',
-        'Nguyên Thần': 'text-rose-600',
-        'Huyết Nhận': 'text-rose-600',
-        'Huyết Nhận Sát': 'text-rose-600',
-        'Tử Phù': 'text-rose-600',
-        'Bệnh Phù': 'text-rose-600',
-        'Thương Quan Kiến Quan': 'text-rose-600',
-        'Thiên La': 'text-rose-600',
-        'Địa Võng': 'text-rose-600',
-        'Cô Loan Sát': 'text-rose-600',
-        'Lưu Hà': 'text-rose-600',
-        'Lưu Hà Sát': 'text-rose-600',
-        'Quan Phù': 'text-rose-600',
-        'Thập Ác Đại Bại': 'text-rose-600',
-        'Tỷ Kiên Cô Quả': 'text-rose-600',
-        'Phi Nhẫn': 'text-rose-600',
-        'Tứ Phế': 'text-rose-600',
-        'Câu Sát': 'text-rose-600',
-        'Giảo Sát': 'text-rose-600',
-        'Ngũ Quỷ': 'text-rose-600',
-        'Cách Giác': 'text-rose-600',
-        'Tang Môn': 'text-rose-600',
-        'Điếu Khách': 'text-rose-600',
-        'Bạch Hổ': 'text-rose-600',
-        'Tuế Phá': 'text-rose-600',
-        'Trực Phù': 'text-rose-600',
-
-        // --- 3. NHÓM TRUNG TÍNH / CÁT HUNG LẪN LỘN (MÀU ĐEN - Slate) ---
-        'Đào Hoa': 'text-slate-800',
-        'Hồng Loan': 'text-slate-800',
-        'Hồng Diễm Sát': 'text-slate-800',
-        'Không Vong': 'text-slate-800',
-        'Dịch Mã': 'text-slate-800',
-        'Hoa Cái': 'text-slate-800',
-        'Khôi Cương': 'text-slate-800',
-        'Âm Dương Sai Thác': 'text-slate-800',
-        'Kim Thần': 'text-slate-800',
-        'Thái Tuế': 'text-slate-800'
-    };
 
     const getShenShaColorClass = (ss) => {
         if (!ss) return 'text-slate-800';
@@ -1152,14 +950,25 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
                 <div className="space-y-6">
                     <div>
                         <h3 className="text-xl font-bold text-gray-800 border-l-4 border-purple-500 pl-4 mb-6 uppercase">Hành Trình Đại Vận (10 Năm)</h3>
-                        <div className="flex overflow-x-auto p-3 -m-3 gap-3 hide-scrollbar">
+                        <div 
+                            ref={daYunScrollRef}
+                            onMouseDown={handleDaYunMouseDown}
+                            onMouseLeave={handleDaYunMouseLeaveOrUp}
+                            onMouseUp={handleDaYunMouseLeaveOrUp}
+                            onMouseMove={handleDaYunMouseMove}
+                            onWheel={handleDaYunWheel}
+                            className="flex overflow-x-auto p-3 -m-3 gap-3 hide-scrollbar select-none cursor-grab active:cursor-grabbing"
+                        >
                             {daYun.map((yun, idx) => {
                                 const yunElem = stemElements[yun.gan];
                                 const isSelected = selectedYunIndex === idx;
                                 return (
                                     <div 
                                         key={idx} 
-                                        onClick={() => handleSelectYun(idx)}
+                                        onClick={() => {
+                                            if (daYunHasDragged) return;
+                                            handleSelectYun(idx);
+                                        }}
                                         className={`flex-shrink-0 flex flex-col items-center p-3.5 rounded-xl border-2 min-w-[115px] transition-all hover:scale-105 shadow-sm cursor-pointer ${
                                             isSelected 
                                                 ? 'border-purple-600 bg-purple-50/55 ring-4 ring-purple-100 scale-105' 

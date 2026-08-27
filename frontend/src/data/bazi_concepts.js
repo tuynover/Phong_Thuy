@@ -1325,5 +1325,10 @@ export const baziConcepts = {
         "term": "Cô Loan Sát",
         "short_description": "Hung sát cô độc tình cảm, trắc trở duyên nợ.",
         "full_detail": "▸ Bản chất: Hung sát chủ về sự cô đơn, xa cách trong các mối quan hệ tình cảm và gia đình (Cô Loan quả nhạn).\n▸ Ảnh hưởng: Vợ chồng dễ gặp cảnh bất hòa, lạnh nhạt, xa cách vì công việc hoặc khó chia sẻ tâm tư, phòng khuê đơn chiếc.\n▸ Hóa giải: Hôn nhân muộn màng, kết hôn với người từng trải hoặc sống bao dung, nhường nhịn nhau sẽ giảm bớt tác hại."
+    },
+    "Hồng Loan": {
+        "term": "Hồng Loan",
+        "short_description": "Cát tinh đào hoa, nhân duyên cát tường, vẻ đẹp và hỷ sự.",
+        "full_detail": "▸ Bản chất: Cát tinh chủ về tình duyên, vẻ đẹp dung mạo, sự vui vẻ, và các sự kiện mừng vui cưới hỏi.\n▸ Ảnh hưởng: Đương số có Hồng Loan tại mệnh cục chủ về dung mạo thanh tú, phong thái thu hút, dễ mến. Gặp ở vận hạn chủ về cơ hội kết duyên lành, hỷ sự gia đình cát tường.\n▸ Sự khác biệt: Khác với Đào Hoa Sát dễ dẫn đến rắc rối tình cảm, Hồng Loan là chính đào hoa mang tính lành mạnh, đoan trang và hướng tới hôn nhân gia đình."
     }
 };

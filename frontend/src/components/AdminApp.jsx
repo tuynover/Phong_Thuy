@@ -3,6 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { EventSourcePolyfill } from 'event-source-polyfill';
 import { AuthContext } from '../context/AuthContext';
+import AdminConfirmModal from './admin/AdminConfirmModal';
 import {
   getAdminUsers,
   updateAdminUserRole,
@@ -400,7 +401,7 @@ export default function AdminApp({ onSwitchToUser }) {
     if (activeTab === 'users') {
       const last = lastFetchedUsersParams.current;
       if (
-        users.length === 0 ||
+        (users.length === 0 && last.page === null) ||
         isUsersDirty.current ||
         userPage !== last.page ||
         userRoleFilter !== last.role ||
@@ -432,7 +433,7 @@ export default function AdminApp({ onSwitchToUser }) {
         calcType === 'ziwei' ? isZiweiDirty.current : 
         isMarriageDirty.current;
       if (
-        activeCalcs.length === 0 ||
+        (activeCalcs.length === 0 && last.page === null) ||
         isDirty ||
         activeCalcPage !== last.page ||
         calcStatusFilter !== last.status
@@ -470,7 +471,7 @@ export default function AdminApp({ onSwitchToUser }) {
     if (activeTab === 'blog') {
       const last = lastFetchedBlogParams.current;
       if (
-        blogPosts.length === 0 ||
+        (blogPosts.length === 0 && last.page === null) ||
         isBlogDirty.current ||
         blogPage !== last.page ||
         blogCategory !== last.category ||
@@ -2561,6 +2562,24 @@ export default function AdminApp({ onSwitchToUser }) {
                     </div>
                   )}
 
+                  {/* AI Interpretation Content Display */}
+                  <div className="bg-slate-950/50 p-4 rounded-2xl border border-slate-800 space-y-3">
+                    <span className="text-amber-400 font-extrabold text-xs uppercase tracking-widest flex items-center gap-2">
+                      <BookOpen size={16} /> Nội Dung Luận Giải AI (Dịch Bản / Lá Số):
+                    </span>
+                    {selectedCalc.aiInterpretation?.content ? (
+                      <div className="text-slate-300 text-xs sm:text-sm leading-relaxed max-h-[350px] overflow-y-auto pr-2 prose prose-invert max-w-none border-t border-slate-850 pt-3">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                          {selectedCalc.aiInterpretation.content}
+                        </ReactMarkdown>
+                      </div>
+                    ) : (
+                      <span className="text-slate-500 italic block text-xs">
+                        Bản ghi này chưa có nội dung luận giải AI (hoặc chưa tạo dịch bản).
+                      </span>
+                    )}
+                  </div>
+
                   {/* AI Interpretation & Chat Token Metadata */}
                   <div className="bg-slate-950/50 p-4 rounded-2xl border border-slate-800 space-y-3">
                     <span className="text-purple-400 block font-extrabold text-xs uppercase tracking-widest">Chi Tiết Tiêu Thụ Token AI:</span>
@@ -3311,76 +3330,7 @@ export default function AdminApp({ onSwitchToUser }) {
       )}
 
       {/* CUSTOM CONFIRMATION AND NOTIFICATION DIALOG */}
-      {notification && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md p-6 relative shadow-2xl space-y-4">
-            <button
-              type="button"
-              onClick={() => setNotification(null)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-200 transition-colors"
-            >
-              <X size={20} />
-            </button>
-            
-            <h3 className={`text-lg font-serif font-bold flex items-center gap-2 ${notification.type === 'confirm' ? 'text-amber-500' : notification.type === 'error' ? 'text-red-500' : 'text-emerald-500'}`}>
-              {notification.type === 'confirm' ? (
-                <>
-                  <Info size={20} />
-                  Xác Nhận Hành Động
-                </>
-              ) : notification.type === 'error' ? (
-                <>
-                  <AlertTriangle size={20} />
-                  Lỗi Hệ Thống
-                </>
-              ) : (
-                <>
-                  <Check size={20} />
-                  Thông Báo
-                </>
-              )}
-            </h3>
-
-            <p className="text-sm text-slate-350 leading-relaxed">
-              {notification.message}
-            </p>
-
-            <div className="flex gap-2 justify-end pt-2">
-              {notification.type === 'confirm' ? (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => setNotification(null)}
-                    className="px-4 py-2 bg-slate-800 hover:bg-slate-750 text-slate-200 font-bold rounded-xl transition-colors text-xs"
-                  >
-                    Hủy bỏ
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (notification.onConfirm) {
-                        notification.onConfirm();
-                      }
-                      setNotification(null);
-                    }}
-                    className="px-5 py-2 bg-amber-800 hover:bg-amber-750 text-white font-bold rounded-xl transition-colors text-xs shadow-lg shadow-amber-950/40"
-                  >
-                    Xác nhận
-                  </button>
-                </>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setNotification(null)}
-                  className="px-5 py-2 bg-slate-800 hover:bg-slate-750 text-slate-200 font-bold rounded-xl transition-colors text-xs"
-                >
-                  Đóng
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      <AdminConfirmModal notification={notification} onClose={() => setNotification(null)} />
 
     </div>
   );

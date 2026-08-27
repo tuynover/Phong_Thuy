@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import rehypeSanitize from 'rehype-sanitize';
 import { 
   getBlogPosts, 
   getBlogPost,
@@ -493,6 +494,7 @@ export default function BlogBoard({ onSelectModule, initialSlug, onClearSlug, on
               <article className="prose max-w-none text-slate-700 leading-relaxed text-sm md:text-base font-sans pb-10 border-b border-slate-100">
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
+                  rehypePlugins={[rehypeSanitize]}
                   components={{
                     p: ({ children }) => <p className="mb-6 last:mb-0 leading-relaxed font-sans">{children}</p>,
                     h1: ({ children }) => <h1 className="text-xl md:text-2xl font-extrabold font-[Montserrat] text-slate-900 mt-10 mb-4">{children}</h1>,

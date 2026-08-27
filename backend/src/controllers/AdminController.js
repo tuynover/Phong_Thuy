@@ -380,21 +380,17 @@ class AdminController {
 
       if (normType === 'iching') {
         Model = IChingRecord;
-        selectFields = '_id userId createdAt status isDeleted question primaryHexagram.name primaryHexagram.ungKy transformedHexagram.name primary.name primary.ungKy secondary.name aiInterpretation.model aiInterpretation.promptVersion aiInterpretation.promptTokens aiInterpretation.completionTokens aiInterpretation.tokensUsed chatTokens';
       } else if (normType === 'bazi') {
         Model = BaziRecord;
-        selectFields = '_id userId createdAt status isDeleted baziData.canChi.year baziData.canChi.month baziData.canChi.day baziData.canChi.hour aiInterpretation.model aiInterpretation.promptVersion aiInterpretation.promptTokens aiInterpretation.completionTokens aiInterpretation.tokensUsed chatTokens';
       } else if (normType === 'ziwei') {
         Model = ZiweiRecord;
-        selectFields = '_id userId createdAt status isDeleted chartData.fiveElementsClass chartData.zodiac chartData.chineseDate chartData.soul chartData.body chartData.palaces.isBodyPalace chartData.palaces.name aiInterpretation.model aiInterpretation.promptVersion aiInterpretation.promptTokens aiInterpretation.completionTokens aiInterpretation.tokensUsed chatTokens';
       } else if (normType === 'marriage') {
         Model = MarriageRecord;
-        selectFields = '_id userId createdAt status isDeleted inputInfo maleBaziData.solarTimeline femaleBaziData.solarTimeline maleBaziData.canChi femaleBaziData.canChi aiInterpretation.model aiInterpretation.promptVersion aiInterpretation.promptTokens aiInterpretation.completionTokens aiInterpretation.tokensUsed chatTokens';
       } else {
         return res.status(400).json({ error: 'Loại học thuật không hợp lệ.' });
       }
 
-      const record = await Model.findById(id).select(selectFields).lean();
+      const record = await Model.findById(id).lean();
       if (!record) {
         return res.status(404).json({ error: 'Không tìm thấy bản ghi.' });
       }
@@ -407,6 +403,7 @@ class AdminController {
 
       return res.json({
         ...record,
+        type: normType,
         user: user || { name: 'Khách', email: 'guest' }
       });
     } catch (error) {

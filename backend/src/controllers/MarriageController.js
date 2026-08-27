@@ -96,6 +96,7 @@ class MarriageController {
                 const maleBazi = formatBaziData(existingRecord.maleBaziData);
                 const femaleBazi = formatBaziData(existingRecord.femaleBaziData);
                 return res.json({
+                    _id: existingRecord._id,
                     recordId: existingRecord._id,
                     maleBaziData: maleBazi,
                     femaleBaziData: femaleBazi,
@@ -146,6 +147,7 @@ class MarriageController {
             sseService.sendToAdmins('new_calculation', { type: 'marriage', userId: uid, recordId: record._id });
 
             return res.json({
+                _id: record._id,
                 recordId: record._id,
                 maleBaziData: formatBaziData(maleResult),
                 femaleBaziData: formatBaziData(femaleResult),

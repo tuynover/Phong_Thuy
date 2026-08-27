@@ -3,7 +3,116 @@
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
 
+## 📅 Phiên bản: Tăng Cường Bảo Mật & Nâng Cấp 6 Hạng Mục Trước Khi Ra Mắt (Launch Hardening) (26/08/2026)
 
+### 🔒 Nâng Cấp Bảo Mật & Phân Quyền Backend ([auth.js](file:///t:/Phongthuy/backend/src/routes/auth.js), [AuthController.js](file:///t:/Phongthuy/backend/src/controllers/AuthController.js))
+- **Bắt buộc Xác thực Phía Server**: Gắn middleware `auth` bắt buộc cho 2 tuyến đường `PUT /api/auth/profile` và `PUT /api/auth/bazi`.
+- **Cưỡng chế Định danh Tài khoản**: Chuyển đổi hàm `updateProfile` và `updateBaziInfo` trong `AuthController.js` để đọc `req.dbUser.id` từ JWT token thay vì chấp nhận `userId` tùy ý truyền từ `req.body` của phía Client.
+
+### 🛡️ Chống Tiêm Lệnh NoSQL & Header Bảo Mật ([index.js](file:///t:/Phongthuy/backend/src/index.js))
+- **Tiêm Lệnh NoSQL (`express-mongo-sanitize`)**: Tích hợp middleware `mongoSanitize()` để lọc sạch các ký tự toán tử MongoDB (`$`, `.`) gửi từ client.
+- **Tùy biến Content Security Policy (CSP)**: Bổ sung cấu hình CSP chi tiết cho Helmet, kiểm soát nguồn nạp script, font và hình ảnh an toàn.
+- **Bảo vệ Trang Tài liệu Swagger**: Ẩn đường dẫn `/api-docs` khi môi trường ứng dụng chạy ở chế độ Production (`NODE_ENV === 'production'`).
+- **Bảo mật Lỗi Hệ thống (Global Error Masking)**: Chuẩn hóa Global Error Handler để ẩn chi tiết lỗi stack trace nội bộ khi ở môi trường Production.
+
+### 🧪 Làm Sạch Dữ Liệu Markdown & Chống XSS ([BlogBoard.jsx](file:///t:/Phongthuy/frontend/src/components/BlogBoard.jsx), [AiChatWidget.jsx](file:///t:/Phongthuy/frontend/src/components/AiChatWidget.jsx))
+- **Tích hợp `rehype-sanitize`**: Bổ sung plugin `rehype-sanitize` vào tất cả các component `ReactMarkdown` hiển thị bài viết Blog và câu trả lời AI để vô hiệu hóa mã độc XSS.
+
+### 📋 Mẫu Cấu Hình Biến Môi Trường & Script Quét Bảo Mật ([env.js](file:///t:/Phongthuy/backend/src/config/env.js), [.env.example](file:///t:/Phongthuy/backend/.env.example), [package.json](file:///t:/Phongthuy/backend/package.json))
+- **Kiểm Tra Biến Môi Trường Nghiêm Ngặt (`env.js`)**: Kiểm tra bắt buộc các biến `JWT_SECRET` và `MONGODB_URI` khi khởi chạy server, đưa ra cảnh báo rõ ràng nếu thiếu `REDIS_HOST`, `GEMINI_API_KEY`, `EMAIL_USER`.
+- **Tạo Tệp Mẫu Cấu Hình**: Tạo tệp mẫu `.env.example` chuẩn hóa cho cả Backend và Frontend.
+- **Script Quét Lỗ Hổng Depedencies**: Thêm lệnh `"security:audit": "npm audit --audit-level=high"` vào `package.json` của Backend và Frontend.
+
+---
+
+## 📅 Phiên bản: Bổ Sung Từ Điển Chú Giải Hồng Loan Bát Tự (24/08/2026)
+
+### 🎨 Từ Điển & Chú Thích Giao Diện Frontend ([bazi_concepts.js](file:///t:/Phongthuy/frontend/src/data/bazi_concepts.js))
+- **Bổ Sung Giải Nghĩa Hồng Loan**: Thêm định nghĩa học thuật chi tiết cho cát tinh **Hồng Loan** vào từ điển Bát Tự chuyên biệt `bazi_concepts.js` để hiển thị chú giải hoàn chỉnh khi di chuột trên giao diện.
+
+---
+
+## 📅 Phiên bản: Bổ Sung Định Danh Yêu Cầu Tự Động Request ID (`X-Request-ID`) Cho Hệ Thống Logging (24/08/2026)
+
+### 🆔 Định Danh & Truy Vết Request ID ([logging.js](file:///t:/Phongthuy/backend/src/middleware/logging.js), [LoggerService.js](file:///t:/Phongthuy/backend/src/services/LoggerService.js), [SystemLog.js](file:///t:/Phongthuy/backend/src/models/SystemLog.js))
+- **Sinh & Lan Truyền Request ID (UUIDv7)**: Tự động khởi tạo hoặc lan truyền `req.requestId` (ưu tiên header `X-Request-ID` từ Gateway hoặc sinh mới chuỗi UUIDv7). Đính kèm header `X-Request-ID` vào mọi phản hồi HTTP Client.
+- **Tích hợp Request ID vào Console & Log File (`LoggerService.js`)**: Bổ sung cờ `[ReqID: <uuid>]` vào chuỗi định dạng Log Console, file nhật ký hàng ngày (`app-YYYY-MM-DD.log`) và file log lỗi (`errors-YYYY-MM-DD.log`). Giúp lập trình viên và Admin truy vết chính xác toàn bộ luồng xử lý của một HTTP Request từ lúc bắt đầu đến khi hoàn tất.
+- **Cơ sở Dữ liệu (`SystemLog.js`)**: Bổ sung trường `requestId` có đánh chỉ mục (`index: true`) trong Mongoose Schema `SystemLog`, hỗ trợ truy vấn siêu tốc toàn bộ nhật ký theo ID yêu cầu.
+
+---
+
+## 📅 Phiên bản: Nâng Cấp Toàn Diện Prompt Hợp Hôn (Marriage v2.0 - 5 Trụ Cột, Khóa Trần Điểm Số & Chống Tô Hồng Bi Kịch) (24/08/2026)
+
+### 💍 Đột Phá Ngữ Nghĩa & Chiều Sâu Luận Giải Hợp Hôn ([MarriagePrompts.js](file:///t:/Phongthuy/backend/src/services/MarriagePrompts.js))
+- **Nâng cấp phiên bản Prompt:** Chuyển `MARRIAGE_PROMPT_VERSION` sang `v2_0_marriage_advanced` trong [ai.js](file:///t:/Phongthuy/backend/src/config/ai.js).
+- **5 Trụ Cột Nâng Cấp Học Thuật & Logic Hôn Nhân Thời Đại Mới:**
+  1. **Quy Tắc Khóa Trần Điểm Số & Chống "Tô Hồng Bi Kịch" (Anti-Whitewashing):** Tuyệt đối cấm lạm dụng việc "Dụng Thần bù trừ" để phán các cuộc hôn nhân có Tam Hình (Sửu-Mùi-Tuất, Dần-Thân-Tỵ), Lục Xung Cung Phu Thê hoặc Thất Sát áp đỉnh là "hậu vận bình an". Điểm số tương thích bắt buộc bị **khóa trần dưới 5.5/10**.
+  2. **Xóa Bỏ Định Kiến Giới Trong Quản Trị Tài Chính:** Phân bổ người giữ tiền dựa trên Thập Thần thực tế (Chính Tài/Chính Ấn cẩn trọng giữ tiền; Kiếp Tài/Thương Quan phiêu lưu không được cầm tiền lớn), triệt tiêu văn mẫu "người vợ auto giữ tiền".
+  3. **Thống Nhất Trọng Số Bát Tự (Gốc 80%) & Bát Trạch (Ngọn 20%):** Làm rõ Cung Phi phạm Tuyệt Mệnh/Lục Sát không phá vỡ được nhân duyên Bát Tự mà chỉ là yếu tố môi trường sống cần hóa giải bằng hướng phòng ngủ/bếp.
+  4. **Định Danh 4 Mô Hình Hôn Nhân Hiện Đại (Marriage Archetypes):** *Song Mã Cùng Tiến (Power Couple)*, *Thử Thách & Tôi Luyện (Karmic Crucible)*, *Hậu Phương & Tiền Tuyến*, và *Tri Kỷ Tâm Giao*.
+  5. **Chiến Lược Hóa Giải Thực Chiến & Tâm Lý Học Hành Vi:** Đưa ra quy tắc ứng xử khi xung đột (hạ hỏa, quyền im lặng), quản trị tài chính minh bạch và phong thủy bổ trợ.
+- **Đăng ký đầy đủ Routes Hợp Hôn SSE:** Đăng ký các route còn thiếu trong [ai.js](file:///t:/Phongthuy/backend/src/routes/ai.js) (`POST /api/ai/marriage/:id/interpret` và `POST /api/ai/marriage/:id/chat`).
+- **Kiểm Thử Hộp Đen (Black Box Testing):** Đã kiểm thử trực tiếp trên 5 cặp đôi nổi tiếng với kết quả thực tế (Barack & Michelle Obama, Bill & Melinda Gates, King Charles & Princess Diana, Lương Triều Vỹ & Lưu Gia Linh, Brad Pitt & Angelina Jolie).
+
+---
+
+### 🔮 Nâng Cấp Ngữ Nghĩa & Chiều Sâu Luận Giải Tử Vi ([ZiweiPrompts.js](file:///t:/Phongthuy/backend/src/services/ZiweiPrompts.js))
+- **Nâng cấp phiên bản Prompt:** Chuyển `ZIWEI_PROMPT_VERSION` sang `v4_15_sections_deep_analysis` trong [ai.js](file:///t:/Phongthuy/backend/src/config/ai.js) và [AiInterpretationController.js](file:///t:/Phongthuy/backend/src/controllers/AiInterpretationController.js).
+- **Phân bổ 15 Mục Luận Giải Chuyên Sâu:** Tích hợp đầy đủ các yêu cầu luận mệnh cao cấp vào từng phân đoạn:
+  1. **Bản Mệnh (Mục 1):** Ma trận 3 Điểm mạnh vượt trội, 3 Điểm yếu tâm lý & Tiềm năng cốt lõi chưa khai phá.
+  2. **Hôn Nhân (Mục 2):** Tính cách bạn đời, Mẫu người phù hợp nhất, Tuổi hợp/Ngũ hành tương sinh & Biến cố tình cảm lớn.
+  3. **Tài Lộc (Mục 3):** Rủi ro hao tài, khả năng giữ tiền & Chu kỳ tài vận thịnh - suy.
+  4. **Công Danh (Mục 8):** Ngành nghề hợp nhất, xu hướng làm chủ/làm thuê & Thời điểm bùng nổ sự nghiệp.
+  5. **Phúc Đức & Nghiệp Duyên (Mục 12):** Gia tiên phù hộ & **Sứ mệnh cuộc đời / Bài học nghiệp duyên (Karmic Lesson)**.
+  6. **Bước Ngoặt Cuộc Đời (Mục 14):** Dự đoán **3 Bước ngoặt lớn nhất cuộc đời** và thời điểm dễ thay đổi vận mệnh.
+  7. **Chiến Lược Cải Vận (Mục 15 Mới):** Đưa ra chiến lược 4 trụ cột thực tế: **Tâm - Hành - Cảnh - Tín** để đón cát tránh hung.
+- **Cập nhật Giao diện Frontend ([SectionRenderer.jsx](file:///t:/Phongthuy/frontend/src/components/SectionRenderer.jsx)):** Đăng ký icon và dải màu gradient dành riêng cho phân đoạn 15 `tu_vi_15` / `cai_van_phong_thuy`.
+- **Kiểm Thử Backend:** `node --check` và kịch bản test [test_ziwei_v4_prompt.js](file:///t:/Phongthuy/backend/src/scripts/test_ziwei_v4_prompt.js) kiểm tra 100% thành công với tất cả 15 phân đoạn.
+- **Cập nhật Tài liệu Nghiệp vụ:** Bổ sung mục 5.17 trong [BUSINESS_RULES.md](file:///t:/Phongthuy/docs/BUSINESS_RULES.md).
+
+---
+
+
+## 📅 Phiên bản: Bổ sung 6 Điểm Chạm Chiến Lược vào Bộ Prompt Bát Tự Chuẩn 6 Bước ([BaziPrompts.js](file:///t:/Phongthuy/backend/src/services/BaziPrompts.js)) (24/08/2026)
+
+### 🪐 Đột Phá Ngữ Nghĩa & Chiều Sâu Luận Giải Bát Tự
+- **Bảo toàn 100% Cấu trúc 6 Bước & Tương thích Giao diện:** Không thay đổi cấu trúc Markdown H2 hay các thẻ phân đoạn in đậm, bổ sung trực tiếp các nội dung chiều sâu vào đúng từng bước chuyên trách:
+  1. **Bước 1 (Nhật Chủ & Bản Thể):** Đúc kết bộ ba *Điểm mạnh trời sinh*, *Điểm mù bản năng/tật xấu cốt lõi*, cùng *Sứ mệnh cuộc đời & Bài học tâm tính lớn nhất* dựa trên Dụng Thần và Khuyết Hành.
+  2. **Bước 3.1 (Sự Nghiệp):** Bổ sung dự báo *Giai đoạn / Độ tuổi phát triển đỉnh cao rực rỡ nhất* trong sự nghiệp.
+  3. **Bước 3.2 (Tài Chính):** Phân tích *Chu kỳ Tài vận thịnh - suy* (pha gieo hạt tích lũy vs pha bùng nổ thu hoạch vs pha phòng thủ giữ của).
+  4. **Bước 3.3 (Hôn Nhân):** Bổ sung *Chân dung & tính cách mẫu bạn đời phù hợp*, *Nhóm tuổi/ngũ hành tương sinh* và *Phúc đức con cái hậu vận* dựa trên Trụ Giờ.
+  5. **Bước 3.4 (Sức Khỏe):** Bổ sung dự báo *Các mốc độ tuổi có hạn bệnh tật/mổ xẻ đáng chú ý* trong đời.
+  6. **Bước 5.1 (Đại Vận):** Bắt buộc chỉ ra **3 Bước Ngoặt Lớn Nhất Cuộc Đời** (3 mốc tuổi thay đổi hoàn toàn sự nghiệp, tài vận và số mệnh).
+- **Kiểm Thử Backend:** `node --check backend/src/services/BaziPrompts.js` và kịch bản kiểm thử [test_augmented_prompt.js](file:///t:/Phongthuy/backend/src/scripts/test_augmented_prompt.js) chạy thành công 100%.
+- **Tài liệu Hóa Nghiệp Vụ:** Cập nhật mục 5.16 trong [BUSINESS_RULES.md](file:///t:/Phongthuy/docs/BUSINESS_RULES.md).
+
+---
+
+## 📅 Phiên bản: Khắc phục lỗi tải vô hạn trong trang quản trị khi danh sách trống (24/08/2026)
+
+### 🎨 Tối Ưu Render & Sửa Lỗi Tải Vô Hạn ([AdminApp.jsx](file:///t:/Phongthuy/frontend/src/components/AdminApp.jsx))
+- **Khắc phục lỗi tải vô hạn (Infinite Loading/Rendering Loop) ở trang Quản trị**:
+  - Phát hiện và giải quyết lỗi lặp vô hạn xảy ra khi truy cập các tab có 0 bản ghi (như danh sách Thành viên trống, danh sách bài viết Blog trống, hoặc các loại Lá số/Quẻ dịch có số lượng bằng 0).
+  - Thay đổi điều kiện kiểm tra trong các hook `useEffect`: Thay vì so khớp độ dài danh sách bằng 0 (`users.length === 0`, `activeCalcs.length === 0`, `blogPosts.length === 0`), bổ sung kiểm tra cờ chỉ số trang chưa được nạp (`last.page === null`). Điều này đảm bảo danh sách chỉ được nạp ban đầu duy nhất một lần và hiển thị giá trị 0 bản ghi một cách bình thường thay vì liên tục gọi API.
+- **Kiểm thử giao diện (Chrome DevTools Test)**:
+  - Thao tác trực quan qua trình duyệt trên các tab khác nhau của phân hệ Admin & User.
+  - Xác nhận tab "Hôn Nhân" (có 0 bản ghi) và các tab khác hoạt động mượt mà, hiển thị chuẩn xác thông báo không có bản ghi (số lượng 0) mà hoàn toàn không kích hoạt lại các API lịch sử trong vòng lặp vô hạn.
+
+---
+
+## 📅 Phiên bản: Kiểm Toán Toàn Diện Hệ Thống & Lưu Trữ OTP Dual-Storage (24/08/2026)
+
+### 🔒 Nâng Cấp Bảo Mật & Luồng OTP Dual-Storage ([redis.js](file:///t:/Phongthuy/backend/src/config/redis.js), [AuthController.js](file:///t:/Phongthuy/backend/src/controllers/AuthController.js))
+- **Cơ chế OTP Dual-Storage (Redis L2 + RAM L1 Fallback)**: Tích hợp RAM Local Cache (`otpRamCache` với TTL 15 phút và tự động dọn dẹp) làm phương án dự phòng an toàn tuyệt đối khi Redis gặp sự cố hoặc offline. Đảm bảo luồng Quên mật khẩu & Xác thực email hoạt động 100% không bị gián đoạn hay treo không gửi được.
+- **Tối ưu Socket Redis cho Môi trường Test Jest**: Bổ sung cờ guard `isTestEnv` (`process.env.NODE_ENV === 'test'`) giúp ngắt vòng lặp retry kết nối socket vô hạn của `ioredis` khi chạy Jest unit tests, triệt tiêu hoàn toàn cảnh báo rò rỉ log async post-test execution (`Cannot log after tests are done`).
+- **Bộ Kiểm thử OTP Dual-Storage (`OtpDualStorage.test.js`)**: Viết mới test suite riêng biệt kiểm tra khả năng lưu, đọc và xóa mã OTP từ RAM L1 fallback khi Redis không khả dụng. Chạy thành công **PASS 100%**.
+
+### 🎨 Tái Cấu Trúc Monolithic Components Frontend ([BaziBoard.jsx](file:///t:/Phongthuy/frontend/src/components/BaziBoard.jsx), [AdminApp.jsx](file:///t:/Phongthuy/frontend/src/components/AdminApp.jsx))
+- **Tách Hằng Số & Helper Bát Tự (`baziConstants.jsx`)**: Trích xuất các bảng tra cứu màu sắc Thần Sát (`SHEN_SHA_COLORS`), dữ liệu Dụng Thần phương thuốc (`getRemedyData`), định dạng Can Chi và các hàm viết tắt Trường Sinh / Thập Thần ra tệp `baziConstants.jsx` độc lập. Giúp giảm độ phức tạp của `BaziBoard.jsx` và duy trì **100% giao diện & trải nghiệm**.
+- **Tách Component Modal Quản Trị (`AdminConfirmModal.jsx`)**: Trích xuất component Modal thông báo / xác nhận hành động quản trị ra tệp riêng `AdminConfirmModal.jsx` trong thư mục `components/admin/`.
+- **Kiểm tra Biên dịch Vite Build**: Chạy `npm run build` thành công xuất sắc trong **1.96 giây**.
+
+---
 
 ## 📅 Phiên bản: Tối Ưu SEO, GA4 Tracking, Custom 404 Page & Modal Cảm Ơn (23/08/2026)
 

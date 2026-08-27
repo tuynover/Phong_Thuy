@@ -60,6 +60,7 @@ process.on('SIGINT', () => {
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
 const compression = require('compression');
 const connectDB = require('./config/db');
 const routes = require('./routes');
@@ -72,7 +73,16 @@ const app = express();
 // Security HTTP Headers Middleware
 app.use(helmet({
   crossOriginResourcePolicy: false,
-  contentSecurityPolicy: false
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://accounts.google.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'", "https:", "wss:"]
+    }
+  }
 }));
 
 // Connect to Database
@@ -108,6 +118,9 @@ app.use(compression({
 
 app.use(express.json());
 
+// Sanitize user inputs against NoSQL Injection ($ and .)
+app.use(mongoSanitize());
+
 // Premium Audit Logger Middleware (logs User, Time, Action, Parameters, and Performance)
 app.use(auditLogger);
 
@@ -116,10 +129,12 @@ app.get('/health', (req, res) => {
   res.status(200).send('ok');
 });
 
-// Swagger UI Documentation Route
-const swaggerUi = require('swagger-ui-express');
-const swaggerDocument = require('./config/swagger.json');
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+// Swagger UI Documentation Route (Only enabled outside production or when explicit)
+if (process.env.NODE_ENV !== 'production') {
+  const swaggerUi = require('swagger-ui-express');
+  const swaggerDocument = require('./config/swagger.json');
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+}
 
 app.use('/', seoRouter);
 app.use('/api', routes);
@@ -131,8 +146,13 @@ app.use((err, req, res, next) => {
     return next(err);
   }
   const statusCode = err.status || err.statusCode || 500;
+  const isProd = process.env.NODE_ENV === 'production';
+  const errorMessage = (isProd && statusCode === 500)
+    ? 'Đã xảy ra lỗi hệ thống nội bộ. Vui lòng thử lại sau.'
+    : (err.message || 'Đã xảy ra lỗi hệ thống nội bộ. Vui lòng thử lại sau.');
+
   res.status(statusCode).json({
-    error: err.message || 'Đã xảy ra lỗi hệ thống nội bộ. Vui lòng thử lại sau.'
+    error: errorMessage
   });
 });
 

@@ -34,6 +34,7 @@ const sectionIcons = {
   tu_vi_12: Zap,         // Phúc Đức & Tổ Nghiệp
   tu_vi_13: Zap,         // Đại Vận & Vận Hạn Năm 2026
   tu_vi_14: TrendingUp,  // Tổng Kết Vận Hạn Cuộc Đời
+  tu_vi_15: Sparkles,    // Chiến Lược Cải Vận & Thu Hút May Mắn
 
   // Tử Vi - JSON keys
   menh: Sparkles,
@@ -50,6 +51,7 @@ const sectionIcons = {
   phuc_duc: Zap,
   dai_van_2026: Zap,
   tong_ket_van_han: TrendingUp,
+  cai_van_phong_thuy: Sparkles,
 
   // Bát Tự (parsed from markdown sections using prefix 'bazi')
   bazi_1: User,          // Nhật Chủ
@@ -106,6 +108,7 @@ const sectionColors = {
   tu_vi_12: "from-violet-500 to-purple-600",
   tu_vi_13: "from-orange-500 to-red-600",
   tu_vi_14: "from-slate-700 to-slate-900",
+  tu_vi_15: "from-purple-600 to-amber-600",
 
   // Tử Vi - JSON keys
   menh: "from-purple-500 to-indigo-600",
@@ -122,6 +125,7 @@ const sectionColors = {
   phuc_duc: "from-violet-500 to-purple-600",
   dai_van_2026: "from-orange-500 to-red-600",
   tong_ket_van_han: "from-slate-700 to-slate-900",
+  cai_van_phong_thuy: "from-purple-600 to-amber-600",
 
   // Bát Tự
   bazi_1: "from-blue-500 to-indigo-600",

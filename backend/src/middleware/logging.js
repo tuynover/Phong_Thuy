@@ -112,7 +112,14 @@ function getActionName(req) {
     return `${method} ${path}`;
 }
 
+const { v7: uuidv7 } = require('uuid');
+
 const auditLogger = async (req, res, next) => {
+    // Generate or propagate X-Request-ID header (UUIDv7)
+    const requestId = req.headers['x-request-id'] || uuidv7();
+    req.requestId = requestId;
+    res.setHeader('X-Request-ID', requestId);
+
     // Skip logging for lightweight health check endpoint to keep logs clean
     if (req.path === '/health' || req.originalUrl === '/health') {
         return next();
@@ -130,6 +137,7 @@ const auditLogger = async (req, res, next) => {
     }
 
     const context = {
+        requestId: requestId,
         user: userDetails.display,
         action: action,
         ip: ip
@@ -154,6 +162,7 @@ const auditLogger = async (req, res, next) => {
 
         // Asynchronously save log entry to MongoDB
         SystemLog.create({
+            requestId: requestId,
             userId: userDetails.id || 'anonymous',
             email: userDetails.email || '',
             name: userDetails.name || '',

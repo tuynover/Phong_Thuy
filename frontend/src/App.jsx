@@ -9,6 +9,8 @@ function App() {
 
   const [isAdminMode, setIsAdminMode] = useState(() => {
     try {
+      const savedMode = localStorage.getItem('adminMode');
+      if (savedMode !== null) return savedMode === 'true';
       const saved = localStorage.getItem('user');
       if (saved) {
         const u = JSON.parse(saved);
@@ -20,13 +22,26 @@ function App() {
 
   useEffect(() => {
     if (!authLoading) {
-      if (user && (user.role === 'admin' || user.role === 'co-admin')) {
-        setIsAdminMode(true);
-      } else {
-        setIsAdminMode(false);
+      const savedMode = localStorage.getItem('adminMode');
+      if (savedMode === null) {
+        if (user && (user.role === 'admin' || user.role === 'co-admin')) {
+          setIsAdminMode(true);
+        } else {
+          setIsAdminMode(false);
+        }
       }
     }
   }, [user, authLoading]);
+
+  const handleSwitchToUser = () => {
+    localStorage.setItem('adminMode', 'false');
+    setIsAdminMode(false);
+  };
+
+  const handleSwitchToAdmin = () => {
+    localStorage.setItem('adminMode', 'true');
+    setIsAdminMode(true);
+  };
 
   return (
     <React.Suspense fallback={
@@ -38,9 +53,9 @@ function App() {
       </div>
     }>
       {isAdminMode ? (
-        <AdminApp onSwitchToUser={() => setIsAdminMode(false)} />
+        <AdminApp onSwitchToUser={handleSwitchToUser} />
       ) : (
-        <UserApp onSwitchToAdmin={() => setIsAdminMode(true)} />
+        <UserApp onSwitchToAdmin={handleSwitchToAdmin} />
       )}
     </React.Suspense>
   );

@@ -506,7 +506,6 @@ class AiInterpretationController {
                 }
             }, 15000);
 
-            const ZIWEI_PROMPT_VERSION = "v3_14_palaces";
             const ZIWEI_KNOWLEDGE_VERSION = "tv_know_v2";
 
             // Invalidate Cache check
