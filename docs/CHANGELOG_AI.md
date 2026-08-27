@@ -10,7 +10,7 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
 - **Cưỡng chế Định danh Tài khoản**: Chuyển đổi hàm `updateProfile` và `updateBaziInfo` trong `AuthController.js` để đọc `req.dbUser.id` từ JWT token thay vì chấp nhận `userId` tùy ý truyền từ `req.body` của phía Client.
 
 ### 🛡️ Chống Tiêm Lệnh NoSQL & Header Bảo Mật ([index.js](file:///t:/Phongthuy/backend/src/index.js))
-- **Tiêm Lệnh NoSQL (`express-mongo-sanitize`)**: Tích hợp middleware `mongoSanitize()` để lọc sạch các ký tự toán tử MongoDB (`$`, `.`) gửi từ client.
+- **Tiêm Lệnh NoSQL (`express-mongo-sanitize`)**: Tích hợp middleware NoSQL Injection Sanitizer tương thích Express 5 (`in-place mutation` trên `req.body`, `req.params`, `req.query`), triệt tiêu triệt để lỗi `TypeError: Cannot set property query of #<IncomingMessage> which has only a getter` do thuộc tính `req.query` dạng read-only getter trên Express 5.
 - **Tùy biến Content Security Policy (CSP)**: Bổ sung cấu hình CSP chi tiết cho Helmet, kiểm soát nguồn nạp script, font và hình ảnh an toàn.
 - **Bảo vệ Trang Tài liệu Swagger**: Ẩn đường dẫn `/api-docs` khi môi trường ứng dụng chạy ở chế độ Production (`NODE_ENV === 'production'`).
 - **Bảo mật Lỗi Hệ thống (Global Error Masking)**: Chuẩn hóa Global Error Handler để ẩn chi tiết lỗi stack trace nội bộ khi ở môi trường Production.

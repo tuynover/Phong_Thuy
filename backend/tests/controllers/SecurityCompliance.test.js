@@ -46,4 +46,29 @@ describe('Security & SSE Compliance Tests', () => {
             expect(otp.length).toBe(6);
         }
     });
+
+    test('Express 5 mongoSanitize middleware should sanitize body, params, and query in-place without throwing TypeError on req.query getter', () => {
+        const mongoSanitize = require('express-mongo-sanitize');
+        const req = {
+            body: { username: 'admin', pass: { '$gt': '' } },
+            params: { id: '123' },
+            get query() {
+                return this._query || (this._query = { search: { '$where': 'bad' } });
+            }
+        };
+        const res = {};
+        const next = jest.fn();
+
+        const middleware = (req, res, next) => {
+            if (req.body) mongoSanitize.sanitize(req.body);
+            if (req.params) mongoSanitize.sanitize(req.params);
+            if (req.query) mongoSanitize.sanitize(req.query);
+            next();
+        };
+
+        expect(() => middleware(req, res, next)).not.toThrow();
+        expect(req.body.pass).toEqual({});
+        expect(req.query.search).toEqual({});
+        expect(next).toHaveBeenCalled();
+    });
 });

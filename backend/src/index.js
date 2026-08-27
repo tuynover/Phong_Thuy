@@ -118,8 +118,13 @@ app.use(compression({
 
 app.use(express.json());
 
-// Sanitize user inputs against NoSQL Injection ($ and .)
-app.use(mongoSanitize());
+// Sanitize user inputs against NoSQL Injection ($ and .) in Express 5 (in-place mutation to bypass read-only req.query getter)
+app.use((req, res, next) => {
+  if (req.body) mongoSanitize.sanitize(req.body);
+  if (req.params) mongoSanitize.sanitize(req.params);
+  if (req.query) mongoSanitize.sanitize(req.query);
+  next();
+});
 
 // Premium Audit Logger Middleware (logs User, Time, Action, Parameters, and Performance)
 app.use(auditLogger);
