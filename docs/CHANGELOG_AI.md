@@ -3,6 +3,30 @@
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
 
+## 📅 Phiên bản: Tối Ưu UI/UX Header Mobile, Đồng Bộ Thông Tin Bát Tự & Thêm Từ Điển Tooltip Tứ Trụ (30/08/2026)
+
+### 🎨 Tái Cấu Trúc Header Mobile & Drawer Menu ([UserApp.jsx](file:///t:/Phongthuy/frontend/src/components/UserApp.jsx))
+- **Rút gọn Credits Pill trên Top Header Mobile**: Ẩn Badge Credits khỏi thanh Header Mobile trên thiết bị di động (chuyển sang `hidden md:flex`) giúp giải phóng ~70px chiều rộng.
+- **Đưa Credits vào Mobile Drawer Menu**: Hiển thị số dư Credits (`user.credits 🪙`) nổi bật ở dòng thông tin người dùng trong Drawer Menu khi nhấn nút Menu.
+- **Bảo toàn 100% Top Sticky Header**: Giữ nguyên toàn bộ các icon điều hướng (Trang chủ, Kiến thức, Compass, Bell, History) và cấu trúc Top Header. Nút Menu Hamburger (`=`) nằm trọn vẹn 100% bên trong khung Header Section mà không bị văng hay gây cuộn ngang.
+
+### 🔮 Tối Ưu Hiển Thị Bát Tự Mobile & Đồng Bộ Các Trụ ([BaziBoard.jsx](file:///t:/Phongthuy/frontend/src/components/BaziBoard.jsx))
+- **Khắc Phục Đè Chữ Niên Biểu Thần Sát**: Thay thế `whitespace-nowrap` bằng `break-words text-center leading-tight max-w-full block`, giúp tên Thần Sát dài tự động xuống dòng gọn gàng, triệt tiêu lỗi đè chữ sang cột bên cạnh trên Mobile.
+- **Bổ Sung Trọn Vẹn Dữ Liệu Đối Chiếu Trụ Vận Hạn**: Truyền `hideTruongSinh={false}` và `hideNaYin={false}` cho các trụ `mergedYear`, `mergedMonth`, `mergedDay`, `mergedHour`, giúp cả 6 thẻ (Đại Vận, Lưu Niên, Trụ Năm, Trụ Tháng, Trụ Ngày, Trụ Giờ) hiển thị đầy đủ Thập Thần, Vòng Trường Sinh (xoay 90 độ), Nạp Âm, Tàng Can và Thần Sát đồng bộ 100% với Cấu Trúc Bản Mệnh.
+
+### 📚 Từ Điển Tooltip & Chuẩn Hóa Khớp Từ ([bazi_concepts.js](file:///t:/Phongthuy/frontend/src/data/bazi_concepts.js), [Tooltip.jsx](file:///t:/Phongthuy/frontend/src/components/Tooltip.jsx))
+- **Bổ sung 16 Định nghĩa Chuyên sâu**: Thêm định nghĩa học thuật chi tiết cho `Đại Vận`, `Lưu Niên`, `Trụ Năm`, `Trụ Tháng`, `Trụ Ngày`, `Trụ Giờ`, `Nhật Chủ`, `Nguyệt Lệnh`, `Trụ Vận Hạn`, `Cách Cục`, `Trạng Thái Nhật Chủ`, `Dụng Thần`, `Hỷ Thần`, `Kỵ Thần` vào [bazi_concepts.js](file:///t:/Phongthuy/frontend/src/data/bazi_concepts.js).
+- **Chuẩn hóa Khớp Từ gốc (`Tooltip.jsx`)**: Tự động lọc bỏ các hậu tố số (như `Lưu Niên 2026` -> `Lưu Niên`) để khớp từ điển chính xác, triệt tiêu triệt để thông báo *"Chưa có thông tin."* khi người dùng chạm/di chuột vào tiêu đề các thẻ.
+
+---
+
+## 📅 Phiên bản: Bổ Sung Từ Điển Chú Giải Không Vong Bát Tự (29/08/2026)
+
+### 🎨 Từ Điển & Chú Thích Giao Diện Frontend ([bazi_concepts.js](file:///t:/Phongthuy/frontend/src/data/bazi_concepts.js))
+- **Bổ Sung Giải Nghĩa Không Vong / Tuần Không**: Thêm định nghĩa học thuật chi tiết cho thần sát **Không Vong** (và alias **Tuần Không**) vào từ điển Bát Tự chuyên biệt `bazi_concepts.js` để hiển thị chú giải hoàn chỉnh khi di chuột trên giao diện.
+
+---
+
 ## 📅 Phiên bản: Tăng Cường Bảo Mật & Nâng Cấp 6 Hạng Mục Trước Khi Ra Mắt (Launch Hardening) (26/08/2026)
 
 ### 🔒 Nâng Cấp Bảo Mật & Phân Quyền Backend ([auth.js](file:///t:/Phongthuy/backend/src/routes/auth.js), [AuthController.js](file:///t:/Phongthuy/backend/src/controllers/AuthController.js))

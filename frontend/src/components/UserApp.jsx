@@ -979,9 +979,9 @@ export default function UserApp({ onSwitchToAdmin }) {
               {/* Notification Bell */}
               <NotificationBell onNotificationClick={handleNotificationClick} />
 
-              {/* Credits Display */}
+              {/* Credits Display (Desktop Only in Header) */}
               {user && (
-                <div className="flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 bg-indigo-50 text-indigo-850 rounded-full border border-indigo-200/50 text-[10px] sm:text-xs font-extrabold font-[Montserrat] shrink-0 select-none shadow-xs">
+                <div className="hidden md:flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 bg-indigo-50 text-indigo-850 rounded-full border border-indigo-200/50 text-[10px] sm:text-xs font-extrabold font-[Montserrat] shrink-0 select-none shadow-xs">
                   <span>{user.credits !== undefined ? user.credits : 0} 🪙</span>
                 </div>
               )}
@@ -1023,6 +1023,19 @@ export default function UserApp({ onSwitchToAdmin }) {
                 className="absolute top-full left-0 w-full bg-white border-b border-slate-100 shadow-xl p-4 grid grid-cols-2 gap-3 md:hidden z-40"
               >
                 <div className="grid grid-cols-2 gap-3 col-span-2">
+                  {/* USER CREDITS & INFO ROW IN MOBILE DRAWER */}
+                  {user && (
+                    <div className="col-span-2 flex items-center justify-between bg-indigo-50/70 p-3 rounded-2xl border border-indigo-100 mb-1">
+                      <div className="flex items-center gap-2">
+                        <UserCircle size={20} className="text-indigo-600" />
+                        <span className="font-extrabold text-xs text-slate-800 truncate max-w-[150px]">{user.name}</span>
+                      </div>
+                      <div className="flex items-center gap-1 px-2.5 py-1 bg-white text-indigo-850 rounded-full border border-indigo-200/60 text-xs font-black shadow-xs">
+                        <span>{user.credits !== undefined ? user.credits : 0} 🪙</span>
+                      </div>
+                    </div>
+                  )}
+
                   {/* TRANG CHỦ */}
                   <button 
                     onClick={() => { handleSelectModule('home'); setIsMobileMenuOpen(false); }}

@@ -1174,7 +1174,7 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
                                                                                 const displayName = ss.replace(/ Quý Nhân/g, '').replace(/\(\s+/g, '(').replace(/\s+\)/g, ')');
                                                                                 return (
                                                                                     <Tooltip key={`static-${idx}`} term={baseTerm} unstyled={true}>
-                                                                                        <span className={`${colorClass} font-black text-[9.5px] sm:text-[12.5px] leading-tight hover:scale-105 transition-transform cursor-help block text-center whitespace-nowrap`}>
+                                                                                        <span className={`${colorClass} font-black text-[9.5px] sm:text-[12.5px] leading-tight hover:scale-105 transition-transform cursor-help block text-center break-words max-w-full`}>
                                                                                             {displayName}
                                                                                         </span>
                                                                                     </Tooltip>
@@ -1196,7 +1196,7 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
                                                                                 const displayName = ss.replace(/ Quý Nhân/g, '').replace(/\(\s+/g, '(').replace(/\s+\)/g, ')');
                                                                                 return (
                                                                                     <Tooltip key={`dynamic-${idx}`} term={baseTerm} unstyled={true}>
-                                                                                        <span className={`${colorClass} font-black text-[9.5px] sm:text-[12.5px] leading-tight hover:scale-105 transition-transform cursor-help block text-center whitespace-nowrap`}>
+                                                                                        <span className={`${colorClass} font-black text-[9.5px] sm:text-[12.5px] leading-tight hover:scale-105 transition-transform cursor-help block text-center break-words max-w-full`}>
                                                                                             {displayName}
                                                                                         </span>
                                                                                     </Tooltip>
@@ -1223,20 +1223,20 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
                                     <div className="hidden md:flex flex-row justify-center items-stretch gap-2 lg:gap-4 w-full flex-nowrap">
                                         <Pillar title="Đại Vận" pillarData={daYun[selectedYunIndex]} hideTruongSinh={false} hideNaYin={false} minShenShaLines={maxVanhHanShenSha} />
                                         <Pillar title={`Lưu Niên ${selectedLuuNianYear}`} pillarData={activeLuuNianPillar} hideTruongSinh={false} hideNaYin={false} minShenShaLines={maxVanhHanShenSha} />
-                                        <Pillar title="Trụ Năm" pillarData={mergedYear} minShenShaLines={maxVanhHanShenSha} />
-                                        <Pillar title="Trụ Tháng" pillarData={mergedMonth} minShenShaLines={maxVanhHanShenSha} />
-                                        <Pillar title="Trụ Ngày" pillarData={mergedDay} isDayMaster={true} minShenShaLines={maxVanhHanShenSha} />
-                                        <Pillar title="Trụ Giờ" pillarData={mergedHour} minShenShaLines={maxVanhHanShenSha} />
+                                        <Pillar title="Trụ Năm" pillarData={mergedYear} hideTruongSinh={false} hideNaYin={false} minShenShaLines={maxVanhHanShenSha} />
+                                        <Pillar title="Trụ Tháng" pillarData={mergedMonth} hideTruongSinh={false} hideNaYin={false} minShenShaLines={maxVanhHanShenSha} />
+                                        <Pillar title="Trụ Ngày" pillarData={mergedDay} isDayMaster={true} hideTruongSinh={false} hideNaYin={false} minShenShaLines={maxVanhHanShenSha} />
+                                        <Pillar title="Trụ Giờ" pillarData={mergedHour} hideTruongSinh={false} hideNaYin={false} minShenShaLines={maxVanhHanShenSha} />
                                     </div>
 
                                     {/* Layout Mobile: Grid 2 cột x 3 hàng đồng đều chiều cao (items-stretch, equal height cards) */}
                                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:hidden w-full items-stretch">
                                         <Pillar title="Đại Vận" pillarData={daYun[selectedYunIndex]} hideTruongSinh={false} hideNaYin={false} minShenShaLines={maxVanhHanShenSha} />
                                         <Pillar title={`Lưu Niên ${selectedLuuNianYear}`} pillarData={activeLuuNianPillar} hideTruongSinh={false} hideNaYin={false} minShenShaLines={maxVanhHanShenSha} />
-                                        <Pillar title="Trụ Ngày" pillarData={mergedDay} isDayMaster={true} minShenShaLines={maxVanhHanShenSha} />
-                                        <Pillar title="Trụ Giờ" pillarData={mergedHour} minShenShaLines={maxVanhHanShenSha} />
-                                        <Pillar title="Trụ Năm" pillarData={mergedYear} minShenShaLines={maxVanhHanShenSha} />
-                                        <Pillar title="Trụ Tháng" pillarData={mergedMonth} minShenShaLines={maxVanhHanShenSha} />
+                                        <Pillar title="Trụ Ngày" pillarData={mergedDay} isDayMaster={true} hideTruongSinh={false} hideNaYin={false} minShenShaLines={maxVanhHanShenSha} />
+                                        <Pillar title="Trụ Giờ" pillarData={mergedHour} hideTruongSinh={false} hideNaYin={false} minShenShaLines={maxVanhHanShenSha} />
+                                        <Pillar title="Trụ Năm" pillarData={mergedYear} hideTruongSinh={false} hideNaYin={false} minShenShaLines={maxVanhHanShenSha} />
+                                        <Pillar title="Trụ Tháng" pillarData={mergedMonth} hideTruongSinh={false} hideNaYin={false} minShenShaLines={maxVanhHanShenSha} />
                                     </div>
                                 </div>
                             </div>

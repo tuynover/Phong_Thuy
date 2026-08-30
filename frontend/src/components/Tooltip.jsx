@@ -97,8 +97,14 @@ const Tooltip = ({ term, children, className, placement = 'top', unstyled = fals
         if (!info && termStr) {
             const trimmedTerm = termStr.trim();
             const dict = type === 'ziwei' ? ziweiConcepts : baziConcepts;
+            
+            // Normalize term (strip numbers like 'Lưu Niên 2026' -> 'Lưu Niên')
+            const baseTerm = trimmedTerm.replace(/\s+\d+$/, '').trim();
+
             if (dict[trimmedTerm]) {
                 setInfo(dict[trimmedTerm]);
+            } else if (dict[baseTerm]) {
+                setInfo(dict[baseTerm]);
             } else {
                 setLoading(true);
                 try {
@@ -107,8 +113,6 @@ const Tooltip = ({ term, children, className, placement = 'top', unstyled = fals
                 } catch {
                     setInfo({ short_description: 'Chưa có thông tin.' });
                 }
-
-
                 setLoading(false);
             }
         }

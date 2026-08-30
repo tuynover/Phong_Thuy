@@ -1,4 +1,100 @@
 export const baziConcepts = {
+    "Đại Vận": {
+        "term": "Đại Vận",
+        "category": "Tứ Trụ Vận Hạn",
+        "short_description": "Chu kỳ 10 năm chuyển biến vận trình bản mệnh.",
+        "full_detail": "▸ Bản chất: Khí thế vận hạn kéo dài trong 10 năm theo chiều thuận/nghịch âm dương nam nữ.\n▸ Ý nghĩa: Đại Vận điều phối vượng suy, kích hoạt hoặc hóa giải các thế xung hợp trong 4 trụ gốc."
+    },
+    "Lưu Niên": {
+        "term": "Lưu Niên",
+        "category": "Tứ Trụ Vận Hạn",
+        "short_description": "Vận khí cụ thể từng năm trong đại vận.",
+        "full_detail": "▸ Bản chất: Can Chi của năm hiện tại tác động trực tiếp lên Đại Vận và Tứ Trụ.\n▸ Ý nghĩa: Định hình sự kiện cát hung thực tế phát sinh trong năm."
+    },
+    "Trụ Năm": {
+        "term": "Trụ Năm",
+        "category": "Tứ Trụ Bát Tự",
+        "short_description": "Đại diện cho căn cơ, gốc rễ, gia tiên và tuổi thơ (0-16 tuổi).",
+        "full_detail": "▸ Bản chất: Thiên can địa chi năm sinh.\n▸ Ý nghĩa: Phản ánh gia thế, mối quan hệ với tổ tiên, ông bà, nền tảng thể chất lúc nhỏ."
+    },
+    "Năm Sinh": {
+        "term": "Năm Sinh",
+        "category": "Tứ Trụ Bát Tự",
+        "short_description": "Đại diện cho căn cơ, gốc rễ, gia tiên và tuổi thơ (0-16 tuổi).",
+        "full_detail": "▸ Bản chất: Thiên can địa chi năm sinh.\n▸ Ý nghĩa: Phản ánh gia thế, mối quan hệ với tổ tiên, ông bà, nền tảng thể chất lúc nhỏ."
+    },
+    "Trụ Tháng": {
+        "term": "Trụ Tháng",
+        "category": "Tứ Trụ Bát Tự",
+        "short_description": "Nguồn khí vượng suy chính, đại diện cho cha mẹ và sự nghiệp (17-32 tuổi).",
+        "full_detail": "▸ Bản chất: Thiên can địa chi tháng sinh, quyết định thời tiết tiết khí vượng suy.\n▸ Ý nghĩa: Chìa khóa định dạng Cách Cục, phản ánh quan hệ với cha mẹ, anh em và môi trường công việc."
+    },
+    "Nguyệt Lệnh": {
+        "term": "Nguyệt Lệnh",
+        "category": "Tứ Trụ Bát Tự",
+        "short_description": "Nguồn khí vượng suy chính, đại diện cho cha mẹ và sự nghiệp (17-32 tuổi).",
+        "full_detail": "▸ Bản chất: Thiên can địa chi tháng sinh, quyết định thời tiết tiết khí vượng suy.\n▸ Ý nghĩa: Chìa khóa định dạng Cách Cục, phản ánh quan hệ với cha mẹ, anh em và môi trường công việc."
+    },
+    "Trụ Ngày": {
+        "term": "Trụ Ngày",
+        "category": "Tứ Trụ Bát Tự",
+        "short_description": "Đại diện cho bản thân (Thiên can) và hôn nhân (Cung Phu Thê ở Địa chi) (33-48 tuổi).",
+        "full_detail": "▸ Bản chất: Thiên can đại diện cho bản mệnh (Nhật Chủ), Địa chi đại diện cho Cung Phu Thê.\n▸ Ý nghĩa: Trung tâm phân tích vượng suy ngũ hành, sức khỏe và hôn nhân."
+    },
+    "Nhật Chủ": {
+        "term": "Nhật Chủ",
+        "category": "Tứ Trụ Bát Tự",
+        "short_description": "Thiên can ngày sinh - Đại diện cho bản mệnh người xem.",
+        "full_detail": "▸ Bản chất: Thiên can đại diện cho bản mệnh (Nhật Chủ).\n▸ Ý nghĩa: Trung tâm phân tích vượng suy ngũ hành, sức khỏe và đời sống."
+    },
+    "Trụ Giờ": {
+        "term": "Trụ Giờ",
+        "category": "Tứ Trụ Bát Tự",
+        "short_description": "Đại diện cho con cái, hậu vận, kết quả công việc (49 tuổi trở đi).",
+        "full_detail": "▸ Bản chất: Thiên can địa chi giờ sinh.\n▸ Ý nghĩa: Phản ánh thành quả cuộc sống lúc về già, năng lực lãnh đạo và nhân duyên với con cháu."
+    },
+    "Giờ Sinh": {
+        "term": "Giờ Sinh",
+        "category": "Tứ Trụ Bát Tự",
+        "short_description": "Đại diện cho con cái, hậu vận, kết quả công việc (49 tuổi trở đi).",
+        "full_detail": "▸ Bản chất: Thiên can địa chi giờ sinh.\n▸ Ý nghĩa: Phản ánh thành quả cuộc sống lúc về già, năng lực lãnh đạo và nhân duyên với con cháu."
+    },
+    "Trụ Vận Hạn": {
+        "term": "Trụ Vận Hạn",
+        "category": "Tứ Trụ Vận Hạn",
+        "short_description": "Bảng đối chiếu tổng hợp vận trình Đại Vận và Lưu Niên.",
+        "full_detail": "▸ Ý nghĩa: So sánh tương quan ngũ hành nạp âm, trường sinh, thần sát giữa Đại Vận và Lưu Niên với 4 trụ bản mệnh."
+    },
+    "Cách Cục": {
+        "term": "Cách Cục",
+        "category": "Tứ Trụ Bát Tự",
+        "short_description": "Cấu trúc định dạng năng lượng chủ đạo của lá số Bát Tự.",
+        "full_detail": "▸ Ý nghĩa: Xác định mô hình lá số (Chính quan cách, Thiên tài cách, Ấn thụ cách, Tòng cách...) để định hướng phát triển."
+    },
+    "Trạng Thái Nhật Chủ": {
+        "term": "Trạng Thái Nhật Chủ",
+        "category": "Tứ Trụ Bát Tự",
+        "short_description": "Mức độ vượng suy năng lượng của bản mệnh.",
+        "full_detail": "▸ Ý nghĩa: Đo lường Nhật Chủ ở trạng thái Thân Vượng, Thân Nhược, hay Tòng Cách để lựa chọn Dụng Thần điều hòa."
+    },
+    "Dụng Thần": {
+        "term": "Dụng Thần",
+        "category": "Tứ Trụ Bát Tự",
+        "short_description": "Ngũ hành quan trọng nhất giúp cân bằng lá số cải vận.",
+        "full_detail": "▸ Ý nghĩa: Yếu tố ngũ hành trung hòa mộc/hỏa/thổ/kim/thủy giúp hóa giải xung đột và nâng cao vận thế."
+    },
+    "Hỷ Thần": {
+        "term": "Hỷ Thần",
+        "category": "Tứ Trụ Bát Tự",
+        "short_description": "Ngũ hành trợ giúp và bảo vệ cho Dụng Thần.",
+        "full_detail": "▸ Ý nghĩa: Ngũ hành sinh cho Dụng Thần hoặc khắc chế Kỵ Thần, mang lại sự hanh thông."
+    },
+    "Kỵ Thần": {
+        "term": "Kỵ Thần",
+        "category": "Tứ Trụ Bát Tự",
+        "short_description": "Ngũ hành gây mất cân bằng hoặc phá hoại Dụng Thần.",
+        "full_detail": "▸ Ý nghĩa: Ngũ hành gây bất lợi, xung khắc cần hạn chế hoặc hóa giải."
+    },
     "Phụ Mẫu": {
         "term": "Phụ Mẫu",
         "category": "Lục Thân",
@@ -1330,5 +1426,15 @@ export const baziConcepts = {
         "term": "Hồng Loan",
         "short_description": "Cát tinh đào hoa, nhân duyên cát tường, vẻ đẹp và hỷ sự.",
         "full_detail": "▸ Bản chất: Cát tinh chủ về tình duyên, vẻ đẹp dung mạo, sự vui vẻ, và các sự kiện mừng vui cưới hỏi.\n▸ Ảnh hưởng: Đương số có Hồng Loan tại mệnh cục chủ về dung mạo thanh tú, phong thái thu hút, dễ mến. Gặp ở vận hạn chủ về cơ hội kết duyên lành, hỷ sự gia đình cát tường.\n▸ Sự khác biệt: Khác với Đào Hoa Sát dễ dẫn đến rắc rối tình cảm, Hồng Loan là chính đào hoa mang tính lành mạnh, đoan trang và hướng tới hôn nhân gia đình."
+    },
+    "Không Vong": {
+        "term": "Không Vong",
+        "short_description": "Trạng thái trống rỗng của Địa Chi trong tuần. Giảm cát, giảm hung, duyên mỏng.",
+        "full_detail": "▸ Bản chất: Còn gọi là Tuần Không, đại diện cho trạng thái khuyết thiếu, trống rỗng khi 10 Thiên Can phối hợp với 12 Địa Chi dư ra 2 địa chi không có can phối.\n▸ Ảnh hưởng: Khi một cung hoặc Thần Sát lâm Không Vong, lực tác động của nó (dù cát hay hung) đều bị suy giảm đáng kể (cát tinh gặp thì giảm cát, hung tinh gặp thì bớt hung).\n▸ Nhân duyên: Biểu thị sự duyên mỏng, khó nương tựa hoặc cảm giác trống trải đối với lục thân thuộc trụ lâm Không Vong (ví dụ: Trụ Năm lâm Không Vong khó đắc lực từ tổ nghiệp/cha mẹ; Trụ Giờ lâm Không Vong duyên con cái mỏng)."
+    },
+    "Tuần Không": {
+        "term": "Tuần Không",
+        "short_description": "Trạng thái trống rỗng của Địa Chi trong tuần. Giảm cát, giảm hung, duyên mỏng.",
+        "full_detail": "▸ Bản chất: Còn gọi là Tuần Không, đại diện cho trạng thái khuyết thiếu, trống rỗng khi 10 Thiên Can phối hợp với 12 Địa Chi dư ra 2 địa chi không có can phối.\n▸ Ảnh hưởng: Khi một cung hoặc Thần Sát lâm Không Vong, lực tác động của nó (dù cát hay hung) đều bị suy giảm đáng kể (cát tinh gặp thì giảm cát, hung tinh gặp thì bớt hung).\n▸ Nhân duyên: Biểu thị sự duyên mỏng, khó nương tựa hoặc cảm giác trống trải đối với lục thân thuộc trụ lâm Không Vong (ví dụ: Trụ Năm lâm Không Vong khó đắc lực từ tổ nghiệp/cha mẹ; Trụ Giờ lâm Không Vong duyên con cái mỏng)."
     }
 };
