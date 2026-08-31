@@ -3,6 +3,15 @@
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
 
+## 📅 Phiên bản: Tích Hợp Khóa Cứng Nhật Chủ (Hard Guard Anchor) & Triệt Tiêu Ảo Giác AI (31/08/2026)
+
+### 🛡️ Khóa Cứng Nhật Chủ Trong Prompt Bát Tự ([BaziPrompts.js](file:///t:/Phongthuy/backend/src/services/BaziPrompts.js), [ai.js](file:///t:/Phongthuy/backend/src/config/ai.js))
+- **Bổ Sung Khối Lệnh Cưỡng Chế Nhật Chủ (`HARD GUARD ANCHOR`)**: Tự động tra cứu chính xác Ngũ Hành Can Ngày (sử dụng `stemElementMap`) và gắn khối lệnh an toàn nghiêm ngặt ngay đầu Prompt: `‼️ NGUYÊN TẮC KHÓA CỨNG NHẬT CHỦ`. Nghiêm cấm tuyệt đối việc LLM nhầm lẫn Can Ngày (Ất Mộc) với các Can Tháng/Giờ/Năm (Đinh Hỏa/Bính Hỏa...) khi Tứ trụ xuất hiện nhiều Can cùng ngũ hành khác.
+- **Nâng Phiên Bản `BAZI_PROMPT_VERSION`**: Chuyển `BAZI_PROMPT_VERSION` sang `v3_1_daymaster_lock` trong [ai.js](file:///t:/Phongthuy/backend/src/config/ai.js) để tự động vô hiệu hóa toàn bộ cache luận giải cũ từng bị sai lệch trên hệ thống.
+- **Làm Sạch Dữ Liệu & Tái Tạo Bản Luận Giải ([fix_invalid_bazi_records.js](file:///t:/Phongthuy/backend/src/scripts/fix_invalid_bazi_records.js))**: Đã quét và dọn dẹp 19 bản ghi cũ bị lỗi ảo giác Nhật Chủ trong MongoDB, đồng thời tái tạo bản luận giải mới chuẩn xác 100% Nhật Chủ Ất Mộc cho tài khoản `cobatuoc@gmail.com` (sinh 19/8/1966 Âm lịch, 21:10).
+
+---
+
 ## 📅 Phiên bản: Tối Ưu UI/UX Header Mobile, Đồng Bộ Thông Tin Bát Tự & Thêm Từ Điển Tooltip Tứ Trụ (30/08/2026)
 
 ### 🎨 Tái Cấu Trúc Header Mobile & Drawer Menu ([UserApp.jsx](file:///t:/Phongthuy/frontend/src/components/UserApp.jsx))
