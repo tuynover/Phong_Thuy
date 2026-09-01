@@ -473,7 +473,7 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
     };
 
     return (
-        <div className="bg-white px-4 md:px-12 py-6 md:py-10 max-w-[1240px] mx-auto my-4 md:my-10 font-sans text-gray-900 shadow-2xl rounded-2xl border-t-8 border-t-red-800 relative">
+        <div className="bg-white px-4 md:px-12 py-6 md:py-10 max-w-6xl mx-auto my-4 md:my-10 font-sans text-gray-900 shadow-2xl rounded-3xl border-t-8 border-t-amber-800 relative">
             
             <h1 className="text-3xl font-black mb-6 tracking-wide text-gray-800 uppercase">TRANG DỊCH QUÁI</h1>
             

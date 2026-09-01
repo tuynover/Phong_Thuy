@@ -2,8 +2,30 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Bổ Sung Từ Điển Chú Giải Địa Chi Thân Bát Tự (31/08/2026)
 
-## 📅 Phiên bản: Tích Hợp Khóa Cứng Nhật Chủ (Hard Guard Anchor) & Triệt Tiêu Ảo Giác AI (31/08/2026)
+### 🎨 Từ Điển & Chú Thích Giao Diện Frontend ([bazi_concepts.js](file:///t:/Phongthuy/frontend/src/data/bazi_concepts.js))
+- **Bổ Sung Giải Nghĩa Địa Chi Thân**: Thêm định nghĩa học thuật chi tiết cho Địa Chi **Thân** (Thân Kim) vào từ điển Bát Tự chuyên biệt `bazi_concepts.js` để hiển thị chú giải hoàn chỉnh khi di chuột trên giao diện.
+
+---
+
+## 📅 Phiên bản: Nâng Cấp Giao Diện Design System 2.0 & Tối Ưu Màu Nền Ambient Phân Hệ (31/08/2026)
+
+### 🌌 Tối Ưu Màu Nền Ambient Không Gian Phân Hệ ([UserApp.jsx](file:///t:/Phongthuy/frontend/src/components/UserApp.jsx))
+- **Hàm `getAmbientBgClass()`**: Tự động chuyển đổi lớp nền Ambient Radial Glow tinh tế theo từng phân hệ: Bát Tự (Sapphire Blue), Tử Vi (Amethyst Purple), Hôn Nhân (Quartz Rose), Trạch Cát (Emerald Jade), Kinh Dịch (Ancient Slate-Ink), mang lại chiều sâu không gian huyền ảo và bảo tồn 100% đa bản sắc màu sắc.
+
+### 📐 Chuẩn Hóa Khung Chứa & Form Nhập Liệu 3D Gradient ([BaziInput.jsx](file:///t:/Phongthuy/frontend/src/components/BaziInput.jsx), [ZiweiInput.jsx](file:///t:/Phongthuy/frontend/src/components/ZiweiInput.jsx), [BaziBoard.jsx](file:///t:/Phongthuy/frontend/src/components/BaziBoard.jsx), [ZiweiBoard.jsx](file:///t:/Phongthuy/frontend/src/components/ZiweiBoard.jsx), [MarriageBoard.jsx](file:///t:/Phongthuy/frontend/src/components/MarriageBoard.jsx), [IChingBoard.jsx](file:///t:/Phongthuy/frontend/src/components/IChingBoard.jsx))
+- **Khung chứa `max-w-6xl`**: Đồng bộ 100% độ rộng tất cả các phân hệ về `1152px` trên Desktop, triệt tiêu hoàn toàn sự cố giật co bóp khung hình khi người dùng chuyển Tab.
+- **Form Card Glassmorphism & Nút CTA 3D**: Thiết kế lại Form Card nhập liệu nổi bo góc `rounded-3xl` và các Nút *"Xem Lá Số Bản Thân"*, *"Lập Lá Số & Phân Tích"* với hiệu ứng Gradient 3D bóng đổ cao cấp.
+- **Nút Floating AI Aura Glow**: Nâng cấp nút *"Thầy Luận Giải AI"* nổi ở góc màn hình thành Nút Floating Hào Quang phát sáng xoay linh hoạt theo màu bản sắc của từng phân hệ.
+
+---
+
+## 📅 Phiên bản: Tự Động Cuộn Mượt Đến Cấu Trúc Lá Số Trên Mobile & Tích Hợp Khóa Cứng Nhật Chủ (31/08/2026)
+
+### 📱 Tối Ưu UX Trải Nghiệm Lập Lá Số Mobile ([BaziBoard.jsx](file:///t:/Phongthuy/frontend/src/components/BaziBoard.jsx), [ZiweiBoard.jsx](file:///t:/Phongthuy/frontend/src/components/ZiweiBoard.jsx), [UserApp.jsx](file:///t:/Phongthuy/frontend/src/components/UserApp.jsx))
+- **Tự động cuộn mượt đến Cấu Trúc Tứ Trụ / Mệnh Bàn**: Sau khi người dùng ấn nút tạo lá số trên di động, trang web tự động thực thi hiệu ứng `scrollIntoView({ behavior: 'smooth', block: 'start' })` đưa tầm mắt người dùng đến đúng đầu khu vực **CẤU TRÚC TỨ TRỤ (MỆNH CỤC)** / **MỆNH BÀN TỬ VI** ngay dưới thanh Header, khắc phục hoàn toàn sự cố bị mắc kẹt vị trí cuộn ở cuối trang.
+- **Bổ sung `scroll-mt-24`**: Đảm bảo khoảng cách lề trên tiêu đề không bị che bởi thanh điều hướng Sticky Top Header.
 
 ### 🛡️ Khóa Cứng Nhật Chủ Trong Prompt Bát Tự ([BaziPrompts.js](file:///t:/Phongthuy/backend/src/services/BaziPrompts.js), [ai.js](file:///t:/Phongthuy/backend/src/config/ai.js))
 - **Bổ Sung Khối Lệnh Cưỡng Chế Nhật Chủ (`HARD GUARD ANCHOR`)**: Tự động tra cứu chính xác Ngũ Hành Can Ngày (sử dụng `stemElementMap`) và gắn khối lệnh an toàn nghiêm ngặt ngay đầu Prompt: `‼️ NGUYÊN TẮC KHÓA CỨNG NHẬT CHỦ`. Nghiêm cấm tuyệt đối việc LLM nhầm lẫn Can Ngày (Ất Mộc) với các Can Tháng/Giờ/Năm (Đinh Hỏa/Bính Hỏa...) khi Tứ trụ xuất hiện nhiều Can cùng ngũ hành khác.

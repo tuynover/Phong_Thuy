@@ -301,9 +301,9 @@ const BaziInput = ({ onComplete }) => {
     return (
         <>
             <FloatingErrorToast message={errorMsg} onClose={() => setErrorMsg('')} />
-            <div className="flex flex-col items-center bg-white p-5 md:p-8 rounded-2xl md:rounded-[2rem] shadow-xl border border-gray-100 max-w-3xl mx-auto font-sans">
-                <h3 id="bazi-input-header" className="text-2xl font-bold text-slate-800 mb-6 uppercase tracking-wide">Nhập Thông Tin Bát Tự</h3>
-                <p className="text-gray-500 mb-8 text-center text-[15px]">Hệ thống phân tích Tứ Trụ Tử Bình hỗ trợ cả Dương lịch, Âm lịch và nhập thủ công 8 chữ Can Chi để an sao cải vận.</p>
+            <div className="flex flex-col items-center bg-white/95 backdrop-blur-md p-6 md:p-10 rounded-3xl shadow-xl shadow-blue-900/5 border border-slate-200/80 max-w-3xl mx-auto font-sans">
+                <h3 id="bazi-input-header" className="text-2xl font-black text-slate-900 mb-4 uppercase tracking-tight">Nhập Thông Tin Bát Tự</h3>
+                <p className="text-slate-500 mb-8 text-center text-sm md:text-base leading-relaxed">Hệ thống phân tích Tứ Trụ Tử Bình hỗ trợ cả Dương lịch, Âm lịch và nhập thủ công 8 chữ Can Chi để an sao cải vận.</p>
 
                 {/* TAB SELECTOR */}
                 <div className="flex bg-slate-100/80 p-1.5 rounded-2xl w-full max-w-md mx-auto mb-8 border border-slate-200/50 shadow-inner">
@@ -596,7 +596,7 @@ const BaziInput = ({ onComplete }) => {
                     <button 
                         type="submit"
                         disabled={isSubmitDisabled()}
-                        className="w-full flex justify-center items-center py-4 px-6 border border-transparent rounded-2xl shadow-md text-lg font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none transition-all hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
+                        className="w-full flex justify-center items-center py-4 px-6 rounded-2xl shadow-lg shadow-blue-600/25 text-lg font-extrabold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none cursor-pointer"
                     >
                         Lập Lá Số & Phân Tích
                     </button>

@@ -480,7 +480,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
   return (
     <>
       <FloatingErrorToast message={error} onClose={() => setError('')} />
-      <div className="w-full max-w-5xl mx-auto px-4 pb-24 font-sans">
+      <div className="w-full max-w-6xl mx-auto px-4 pb-24 font-sans">
       
       {/* 1. DEDICATED ZIWEI INPUT COMPONENT */}
       {!result && !loading && (
@@ -685,26 +685,26 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
             <button
               onClick={handleAILuanGiaiClick}
               disabled={isInterpreting}
-              className={`fixed bottom-4 md:bottom-8 right-4 md:right-8 z-50 flex items-center gap-2 px-5 py-3 rounded-full shadow-2xl transition-all duration-300 font-bold border ${isInterpreting ? 'bg-purple-100 border-purple-200 text-purple-500 cursor-not-allowed scale-95' : 'bg-gradient-to-r from-purple-800 to-indigo-900 hover:from-purple-900 hover:to-stone-900 text-white border-purple-700 hover:scale-105 hover:shadow-purple-900/40'}`}
+              className={`fixed bottom-4 md:bottom-8 right-4 md:right-8 z-50 flex items-center gap-2.5 px-6 py-4 rounded-full shadow-2xl transition-all duration-300 font-extrabold border ${isInterpreting ? 'bg-purple-100 border-purple-200 text-purple-500 cursor-not-allowed scale-95' : 'bg-gradient-to-r from-purple-950 via-indigo-900 to-slate-950 hover:from-purple-900 hover:to-indigo-950 text-amber-300 border-amber-400/40 shadow-purple-950/30 hover:scale-105 active:scale-95 text-xs sm:text-sm tracking-wider uppercase ring-4 ring-purple-500/20'}`}
             >
               {isInterpreting ? (
                 <>
-                  <div className="w-5 h-5 border-2 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
-                  <span className="text-sm">Thầy giải nghĩa...</span>
+                  <div className="w-5 h-5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin"></div>
+                  <span className="text-sm text-amber-300">Thầy giải nghĩa...</span>
                 </>
               ) : (
                 <>
-                  <ScrollText className="animate-pulse" size={20} />
-                  <span className="hidden sm:inline">Thầy Luận Giải</span>
+                  <ScrollText className="animate-pulse text-amber-400" size={20} />
+                  <span className="hidden sm:inline">Thầy Luận Giải Tử Vi</span>
                 </>
               )}
             </button>
           ) : !isChatOpen && activeUser && (
             <button
               onClick={() => setIsChatOpen(true)}
-              className="fixed bottom-4 md:bottom-8 right-4 md:right-8 z-50 flex items-center gap-2 px-6 py-3.5 rounded-full shadow-2xl transition-all duration-300 font-extrabold border bg-gradient-to-r from-purple-800 to-indigo-950 hover:from-purple-900 hover:to-stone-900 text-white border-purple-700 hover:scale-105 hover:shadow-purple-900/40 uppercase text-xs tracking-wider animate-pulse"
+              className="fixed bottom-4 md:bottom-8 right-4 md:right-8 z-50 flex items-center gap-2.5 px-6 py-4 rounded-full shadow-2xl transition-all duration-300 font-extrabold border bg-gradient-to-r from-purple-950 via-indigo-900 to-slate-950 hover:from-purple-900 hover:to-indigo-950 text-amber-300 border-amber-400/40 shadow-purple-950/30 hover:scale-105 active:scale-95 text-xs sm:text-sm tracking-wider uppercase ring-4 ring-purple-500/20"
             >
-              <MessageCircle className="animate-bounce shrink-0" size={18} />
+              <MessageCircle className="animate-bounce text-amber-400 shrink-0" size={18} />
               <span>Hỏi Thêm Thầy</span>
             </button>
           )}

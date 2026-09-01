@@ -729,7 +729,7 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
     };
 
     return (
-        <div className="space-y-6 md:space-y-8 pb-20 font-sans relative">
+        <div className="max-w-6xl mx-auto space-y-6 md:space-y-8 pb-20 font-sans relative">
 
             {/* Công tắc chia sẻ công khai kết quả Hợp Hôn */}
             {(!window.location.pathname.includes('/record/') || (user && (result?.userId === user.id || result?.userId === user._id))) && (

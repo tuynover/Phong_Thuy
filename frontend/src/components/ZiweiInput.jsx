@@ -126,27 +126,28 @@ export default function ZiweiInput({
     return (
         <>
             <FloatingErrorToast message={errorMsg} onClose={() => setErrorMsg('')} />
-            <div className="w-full max-w-5xl mx-auto px-4 pb-12 font-sans">
+            <div className="w-full max-w-6xl mx-auto px-4 pb-12 font-sans">
                 {/* Xem lá số của bản thân */}
                 {activeUser && (
                     <div className="max-w-xl mx-auto mb-10 text-center animate-in fade-in duration-300">
                         <button 
                             type="button"
                             onClick={handleViewOwnZiwei}
-                            className="bg-[#faf6f0] border-2 border-amber-200/60 text-amber-900 px-8 py-4 rounded-2xl font-bold shadow-md transition-all hover:bg-purple-600 hover:border-purple-600 hover:text-white hover:shadow-lg hover:shadow-purple-600/20 active:bg-purple-700 hover:-translate-y-0.5 active:translate-y-0 text-lg w-full mb-4 cursor-pointer"
+                            className="bg-gradient-to-r from-purple-950 via-indigo-900 to-slate-900 border border-amber-400/40 text-amber-300 px-8 py-4 rounded-2xl font-extrabold shadow-lg shadow-purple-950/20 hover:shadow-purple-900/40 hover:scale-[1.01] active:scale-[0.99] transition-all text-lg w-full mb-4 cursor-pointer flex items-center justify-center gap-2"
                         >
+                            <Sparkles size={20} className="text-amber-400" />
                             Xem Lá Số Của Bản Thân
                         </button>
                         <div className="flex items-center gap-4 py-2">
-                            <div className="h-px bg-purple-100 flex-1"></div>
-                            <span className="text-purple-400 font-bold text-xs uppercase tracking-wider">Hoặc lập lá số mới</span>
-                            <div className="h-px bg-purple-100 flex-1"></div>
+                            <div className="h-px bg-purple-200/60 flex-1"></div>
+                            <span className="text-purple-600 font-extrabold text-xs uppercase tracking-wider">Hoặc lập lá số mới</span>
+                            <div className="h-px bg-purple-200/60 flex-1"></div>
                         </div>
                     </div>
                 )}
 
                 {/* INPUT FORM */}
-                <div className="bg-white/80 backdrop-blur-xl p-5 md:p-10 rounded-2xl md:rounded-[2rem] shadow-xl border border-purple-100 max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-6 duration-300">
+                <div className="bg-white/95 backdrop-blur-md p-6 md:p-10 rounded-3xl shadow-xl shadow-purple-900/5 border border-purple-100 max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-6 duration-300">
                     <div className="flex items-center gap-3 justify-center mb-6">
                         <div className="p-2 rounded-xl bg-purple-500 text-white shadow-md shadow-purple-500/20">
                             <Sparkles size={20} />

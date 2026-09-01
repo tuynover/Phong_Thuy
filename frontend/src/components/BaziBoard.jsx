@@ -71,6 +71,7 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
 
     // Mouse drag-to-scroll & touchpad scroll for DaYun timeline
     const daYunScrollRef = useRef(null);
+    const structureSectionRef = useRef(null);
     const [isDaYunDragging, setIsDaYunDragging] = useState(false);
     const [daYunStartX, setDaYunStartX] = useState(0);
     const [daYunScrollLeft, setDaYunScrollLeft] = useState(0);
@@ -134,12 +135,22 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
 
     const prevIdRef = useRef(null);
 
-    // Set initial interpretation and rating if cached in data
+    // Set initial interpretation and rating if cached in data & auto scroll to structure section
     useEffect(() => {
         const currentId = data?.recordId || data?._id;
-        if (currentId !== prevIdRef.current) {
+        if (currentId && currentId !== prevIdRef.current) {
             setJustRated(false);
             prevIdRef.current = currentId;
+            
+            // Auto-scroll to structure section on mobile & desktop
+            setTimeout(() => {
+                if (structureSectionRef.current) {
+                    structureSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } else {
+                    const el = document.getElementById('bazi-structure-section');
+                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 150);
         }
         if (data?.aiInterpretation && data.aiInterpretation.content) {
             setInterpretation(data.aiInterpretation.content);
@@ -906,7 +917,7 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
             <div className="p-4 md:p-12 space-y-8 md:space-y-12">
                 
                 {/* Tứ Trụ */}
-                <div>
+                <div id="bazi-structure-section" ref={structureSectionRef} className="scroll-mt-24">
                     <h3 className="text-xl font-bold text-gray-800 border-l-4 border-blue-600 pl-4 mb-6 uppercase flex items-center justify-between flex-wrap gap-4">
                         <span>Cấu Trúc Tứ Trụ (Mệnh Cục)</span>
                         {data.lunarYear && (
@@ -1479,26 +1490,26 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
                 <button
                     onClick={handleAILuanGiai}
                     disabled={isInterpreting}
-                    className={`fixed bottom-4 md:bottom-8 right-4 md:right-8 z-50 flex items-center gap-2 px-5 py-3 rounded-full shadow-2xl transition-all duration-300 font-bold border ${isInterpreting ? 'bg-blue-100 border-blue-200 text-blue-500 cursor-not-allowed scale-95' : 'bg-gradient-to-r from-blue-800 to-slate-900 hover:from-blue-900 hover:to-stone-900 text-white border-blue-700 hover:scale-105 hover:shadow-blue-900/40'}`}
+                    className={`fixed bottom-4 md:bottom-8 right-4 md:right-8 z-50 flex items-center gap-2.5 px-6 py-4 rounded-full shadow-2xl transition-all duration-300 font-extrabold border ${isInterpreting ? 'bg-blue-100 border-blue-200 text-blue-500 cursor-not-allowed scale-95' : 'bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-950 hover:from-blue-950 hover:to-indigo-950 text-amber-300 border-amber-400/40 shadow-blue-900/30 hover:scale-105 active:scale-95 text-xs sm:text-sm tracking-wider uppercase ring-4 ring-blue-500/20'}`}
                 >
                     {isInterpreting ? (
                         <>
-                            <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                            <span className="text-sm">{loadingTexts[loadingStep]}</span>
+                            <div className="w-5 h-5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin"></div>
+                            <span className="text-sm text-amber-300">{loadingTexts[loadingStep]}</span>
                         </>
                     ) : (
                         <>
-                            <ScrollText className="animate-pulse" size={20} />
-                            <span className="hidden sm:inline">Thầy Luận Giải</span>
+                            <ScrollText className="animate-pulse text-amber-400" size={20} />
+                            <span className="hidden sm:inline">Thầy Luận Giải Bát Tự</span>
                         </>
                     )}
                 </button>
             ) : !isChatOpen && user && (
                 <button
                     onClick={() => setIsChatOpen(true)}
-                    className="fixed bottom-4 md:bottom-8 right-4 md:right-8 z-50 flex items-center gap-2 px-6 py-3.5 rounded-full shadow-2xl transition-all duration-300 font-extrabold border bg-gradient-to-r from-blue-800 to-cyan-950 hover:from-blue-900 hover:to-stone-900 text-white border-blue-700 hover:scale-105 hover:shadow-blue-900/40 uppercase text-xs tracking-wider animate-pulse"
+                    className="fixed bottom-4 md:bottom-8 right-4 md:right-8 z-50 flex items-center gap-2.5 px-6 py-4 rounded-full shadow-2xl transition-all duration-300 font-extrabold border bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-950 hover:from-blue-950 hover:to-indigo-950 text-amber-300 border-amber-400/40 shadow-blue-900/30 hover:scale-105 active:scale-95 text-xs sm:text-sm tracking-wider uppercase ring-4 ring-blue-500/20"
                 >
-                    <MessageCircle className="animate-bounce shrink-0" size={18} />
+                    <MessageCircle className="animate-bounce text-amber-400 shrink-0" size={18} />
                     <span>Hỏi Thêm Thầy</span>
                 </button>
             )}

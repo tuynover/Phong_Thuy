@@ -299,6 +299,12 @@ export const baziConcepts = {
         "short_description": "Mùi Thổ (Âm Thổ - Thổ khô chứa Hỏa Mộc).",
         "full_detail": "▸ Hình tượng: Con dê hiền lành, đất đai cuối hạ khô cằn, mộ kho của Mộc.\n▸ Đại diện: Sự đồng cảm nhân ái, năng khiếu nghệ thuật, chịu đựng thầm lặng.\n▸ Tốt: Giàu lòng nhân ái, có khiếu nghệ thuật, chu đáo, nhẫn nại.\n▸ Xấu: Dễ u sầu vu vơ, bướng bỉnh ngầm khó bảo, thiếu tính đột phá.\n▸ Tính cách: Ôn hòa, nội tâm phong phú, thích sự yên bình."
     },
+    "Thân": {
+        "term": "Thân",
+        "category": "Địa Chi",
+        "short_description": "Thân Kim (Dương Kim) - Đầu mùa thu trĩu quả.",
+        "full_detail": "▸ Hình tượng: Con khỉ nhanh nhẹn khéo léo, kim loại quặng mỏ cứng rắn, gió thu chớm lạnh đầu mùa.\n▸ Đại diện: Sự nhạy bén sắc sảo, tính nguyên tắc kỷ luật, giao thương buôn bán, sự dịch chuyển du ngoạn.\n▸ Tốt: Quyết đoán, có khả năng thích nghi cao, năng lực thực thi hành động rất mạnh.\n▸ Xấu: Dễ thay đổi thất thường, thiếu kiên trì chiều sâu, có tính hiếu thắng tranh giành.\n▸ Tính cách: Năng động, ham học hỏi, thích khám phá cái mới, giỏi ứng biến linh hoạt."
+    },
     "Dậu": {
         "term": "Dậu",
         "category": "Địa Chi",

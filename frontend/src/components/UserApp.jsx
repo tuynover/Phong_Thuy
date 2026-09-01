@@ -525,6 +525,12 @@ export default function UserApp({ onSwitchToAdmin }) {
       if (userId === 'guest' && res.data.recordId) {
         setGuestBaziId(res.data.recordId);
       }
+      setTimeout(() => {
+        const el = document.getElementById('bazi-structure-section');
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 200);
     } catch (err) {
       console.error(err);
       alert('Lỗi kết nối tới server phân tích Bát Tự.');
@@ -736,8 +742,27 @@ export default function UserApp({ onSwitchToAdmin }) {
     (appMode === 'marriage' && !marriageResult) ||
     appMode === 'ziwei';
 
+  const getAmbientBgClass = () => {
+    switch (appMode) {
+      case 'bazi':
+        return 'bg-gradient-to-b from-blue-50/70 via-slate-50 to-indigo-50/30';
+      case 'ziwei':
+        return 'bg-gradient-to-b from-purple-50/70 via-slate-50 to-indigo-50/30';
+      case 'marriage':
+        return 'bg-gradient-to-b from-rose-50/70 via-slate-50 to-pink-50/30';
+      case 'xemngay':
+        return 'bg-gradient-to-b from-emerald-50/70 via-slate-50 to-teal-50/30';
+      case 'iching':
+        return 'bg-gradient-to-b from-slate-100/70 via-slate-50 to-indigo-950/5';
+      case 'home':
+        return 'bg-slate-50';
+      default:
+        return 'bg-slate-50';
+    }
+  };
+
   return (
-    <div className={`min-h-screen font-sans text-neutral-800 flex flex-col relative z-0 ${appMode === 'home' ? 'bg-slate-50' : 'bg-[#f8f5f0] lg:bg-transparent non-home-layout'}`}>
+    <div className={`min-h-screen font-sans text-neutral-800 flex flex-col relative z-0 transition-colors duration-500 ${getAmbientBgClass()}`}>
       {appMode !== 'home' && <div className="hidden lg:block desktop-mystic-bg"></div>}
       {/* Toast Notification */}
       <AnimatePresence>
