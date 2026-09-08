@@ -58,31 +58,14 @@ describe('IChingController Unit Tests', () => {
     });
 
     test('calculate: valid 6-line input should create record and return 200', async () => {
-        IChingRecord.findOne.mockResolvedValue(null);
         const mockSavedRecord = { _id: 'record-123', save: jest.fn().mockResolvedValue(true) };
         IChingRecord.mockImplementation(() => mockSavedRecord);
 
         await IChingController.calculate(req, res);
 
-        expect(IChingRecord.findOne).toHaveBeenCalled();
         expect(res.json).toHaveBeenCalled();
         const response = res.json.mock.calls[0][0];
         expect(response.recordId).toBe('record-123');
-    });
-
-    test('calculate: duplicate record should return existing without creating new', async () => {
-        const existingRecord = {
-            _id: 'existing-123',
-            aiInterpretation: { content: 'Luận giải cũ' }
-        };
-        IChingRecord.findOne.mockResolvedValue(existingRecord);
-
-        await IChingController.calculate(req, res);
-
-        expect(res.json).toHaveBeenCalled();
-        const response = res.json.mock.calls[0][0];
-        expect(response.recordId).toBe('existing-123');
-        expect(response.interpretation).toBe('Luận giải cũ');
     });
 
     test('calculate: missing lines should return 400', async () => {

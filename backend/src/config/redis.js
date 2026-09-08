@@ -107,7 +107,7 @@ const userProfileRamCache = new Map();
 // --- Local L1 RAM Cache for OTP (Dual-Storage Fallback when Redis is offline) ---
 const otpRamCache = new Map();
 
-setInterval(() => {
+const cacheCleanupTimer = setInterval(() => {
     const now = Date.now();
     for (const [k, v] of userProfileRamCache.entries()) {
         if (now > v.expiresAt) userProfileRamCache.delete(k);
@@ -116,6 +116,7 @@ setInterval(() => {
         if (now > v.expiresAt) otpRamCache.delete(k);
     }
 }, 5 * 60 * 1000);
+if (cacheCleanupTimer.unref) cacheCleanupTimer.unref();
 
 // --- Helper 1: User Profile Cache (Auth & Session Optimization - Hybrid L1 RAM + L2 Redis) ---
 const setUserProfileCache = async (userId, userObj, ttlSec = 86400) => {

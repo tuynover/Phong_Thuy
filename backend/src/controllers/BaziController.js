@@ -75,6 +75,7 @@ const InputValidator = require('../services/InputValidator');
 
 class BaziController {
     static async analyze(req, res) {
+        let lockKey = null;
         try {
             const valResult = InputValidator.validateBaziInput(req.body);
             if (!valResult.isValid) {
@@ -119,7 +120,7 @@ class BaziController {
             const payloadKey = calendarMode === 'manual'
                 ? `${uid}:manual:${manualData.yearGan}${manualData.yearZhi}_${manualData.monthGan}${manualData.monthZhi}_${manualData.dayGan}${manualData.dayZhi}_${manualData.hourGan}${manualData.hourZhi}:${gender}:${birthSolarYear}`
                 : `${uid}:${date}:${time}:${gender}:${dayBoundaryMode || 'midnight'}`;
-            const lockKey = `inflight:bazi:${payloadKey}`;
+            lockKey = `inflight:bazi:${payloadKey}`;
 
             const acquired = await acquireRedisLock(lockKey, 2500);
             if (!acquired) {
@@ -127,9 +128,11 @@ class BaziController {
                     error: 'Yêu cầu của bạn đang được hệ thống xử lý, vui lòng không nhấn gửi liên tục.'
                 });
             }
-            res.on('finish', () => {
-                releaseRedisLock(lockKey);
-            });
+            if (typeof res.on === 'function') {
+                res.on('finish', () => {
+                    releaseRedisLock(lockKey);
+                });
+            }
 
             let result;
             if (calendarMode === 'manual') {
@@ -194,6 +197,7 @@ class BaziController {
             const sseService = require('../services/SseService');
             sseService.sendToAdmins('new_calculation', { type: 'bazi', userId: uid, recordId: record._id });
 
+            releaseRedisLock(lockKey);
             return res.json({ 
                 ...result, 
                 gender: parseInt(gender),
@@ -203,6 +207,10 @@ class BaziController {
                 aiInterpretation: record.aiInterpretation 
             });
         } catch (error) {
+            if (lockKey) {
+                const { releaseRedisLock } = require('../config/redis');
+                releaseRedisLock(lockKey);
+            }
             console.error('Bazi Analyze Error:', error);
             return res.status(500).json({ error: 'Internal Server Error' });
         }

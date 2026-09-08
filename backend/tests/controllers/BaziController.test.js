@@ -61,7 +61,6 @@ describe('BaziController Comprehensive Unit Tests', () => {
     });
 
     test('analyze: valid date/time/gender should create record and return 200', async () => {
-        BaziRecord.findOne.mockResolvedValue(null);
         const mockRecord = {
             _id: 'bazi-123',
             inputInfo: { name: 'Nguyễn Văn A', date: '05/09/2004', time: '14:30', gender: 1 },
@@ -78,25 +77,6 @@ describe('BaziController Comprehensive Unit Tests', () => {
         expect(response.recordId).toBe('bazi-123');
     });
 
-    test('analyze: duplicate idempotency header key should return existing record', async () => {
-        req.headers['idempotency-key'] = 'dup-key-123';
-        const existingRecord = {
-            _id: 'existing-bazi-456',
-            inputInfo: { name: 'Test', gender: 1 },
-            baziData: { ...mockBaziResult, menhQuai: { cung: 'Khảm' } },
-            aiInterpretation: { content: 'Luận giải cũ' },
-            save: jest.fn().mockResolvedValue(true),
-            markModified: jest.fn()
-        };
-        BaziRecord.findOne.mockResolvedValue(existingRecord);
-
-        await BaziController.analyze(req, res);
-
-        expect(res.json).toHaveBeenCalled();
-        const response = res.json.mock.calls[0][0];
-        expect(response.recordId).toBe('existing-bazi-456');
-    });
-
     test('analyze: invalid input should return 400', async () => {
         InputValidator.validateBaziInput.mockReturnValue({
             isValid: false,
@@ -110,7 +90,9 @@ describe('BaziController Comprehensive Unit Tests', () => {
     });
 
     test('analyze: database exception should return 500 error', async () => {
-        BaziRecord.findOne.mockRejectedValue(new Error('Internal Mongo Error'));
+        BaziRecord.mockImplementation(() => ({
+            save: jest.fn().mockRejectedValue(new Error('Internal Mongo Error'))
+        }));
 
         await BaziController.analyze(req, res);
 

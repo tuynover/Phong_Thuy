@@ -98,7 +98,7 @@ Sử dụng phương pháp Tử Vi Bắc Phái định vị Mệnh - Thân:
 
 ### 4.7 Quy tắc Tạo Lá số Độc lập & Khóa Tranh chấp Tức thời (Concurrency Lock 2.5s)
 - **Bỏ kiểm tra trùng lặp cũ:** Mọi thao tác lập lá số Bát Tự, Tử Vi, Hợp Hôn hoặc gieo quẻ Kinh Dịch hợp lệ đều được tạo thành bản ghi mới độc lập nhằm phục vụ chiêm nghiệm đa thời điểm của người dùng.
-- **Chống spam đồng thời (In-Flight Concurrency Lock):** Để ngăn chặn trường hợp gửi đồng loạt 10 requests cùng lúc với cùng một bộ dữ liệu, hệ thống tích hợp Mutex Lock ngắn hạn trên Redis/RAM (`inflight:<type>:<hash>`) với thời gian khóa là **2.5 giây**. Request gửi sau trong cùng thời điểm sẽ nhận cảnh báo `409 Conflict` an toàn.
+- **Chống spam đồng thời (In-Flight Concurrency Lock):** Để ngăn chặn trường hợp gửi đồng loạt 10 requests cùng lúc với cùng một bộ dữ liệu, hệ thống tích hợp Mutex Lock ngắn hạn trên Redis/RAM (`inflight:<type>:<hash>`) với thời gian khóa là **2.5 giây**. Request gửi sau trong cùng thời điểm sẽ nhận cảnh báo `429 Too Many Requests` an toàn.
 
 ### 4.8 Quy tắc Trình Diễn Luận Giải Chuyên Sâu & Bảng GFM (UI Presentation Standard)
 - **Phân tách Khung Card Độc Lập:** Phân tích Nhật Chủ và mỗi Chương trong 6 Chương chuyên sâu bắt buộc phải được tách biệt thành từng Card riêng biệt có Icon đại diện, thanh tiêu đề gập/mở (Accordion) và viền bóng đổ thẩm mỹ.

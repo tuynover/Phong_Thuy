@@ -2,6 +2,21 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Bỏ Kiểm Tra Trùng Lặp Cũ - Khởi Tạo Bản Ghi Độc Lập Mỗi Lần Lập Số / Gieo Quẻ (08/09/2026)
+
+### 🚀 1. Quyết Định Kiến Trúc & Nghiệp Vụ
+- **Bỏ kiểm tra trùng lặp bản ghi cũ (Semantic Duplicate / Idempotency Check)**:
+  - Trước đây: Khi người dùng lập lá số Bát Tự, Tử Vi, Hợp Hôn hoặc gieo quẻ Kinh Dịch với cùng dữ liệu ngày giờ, hệ thống tìm bản ghi cũ (`findOne`) và trả về kết quả cũ.
+  - Cập nhật mới: Loại bỏ hoàn toàn logic `findOne` duplicate check và `ZiweiCache.getChart` memory check khi lập lá số/gieo quẻ. Mỗi lần người dùng nhấn Lập lá số / Gieo quẻ, hệ thống **luôn tính toán mới** và **tạo bản ghi mới độc lập** với UUIDv7 `_id` mới và `idempotencyKey` gắn `${Date.now()}`.
+  - Phục vụ trọn vẹn nhu cầu chiêm nghiệm, gieo quẻ và lập lá số đa thời điểm của người dùng mà không bị ép dùng lại bản ghi quá khứ.
+- **Bảo toàn In-Flight Concurrency Lock (2.5s)**:
+  - Duy trì khóa Mutex ngắn hạn 2.5 giây (`acquireRedisLock(lockKey, 2500)`) trên cả 4 Controllers (`MarriageController`, `BaziController`, `IChingController`, `ZiweiController`) để chống spam double-click liên tục trong 2.5s.
+  - Cơ chế giải phóng lock an toàn: Sử dụng `if (typeof res.on === 'function')`, đồng thời gọi `releaseRedisLock(lockKey)` tường minh trước `res.json` và trong khối `catch`.
+- **Cập nhật Toàn Bộ Unit Test Controllers**:
+  - Cập nhật 4 file test controller (`MarriageController.test.js`, `BaziController.test.js`, `IChingController.test.js`, `ZiweiController.test.js`), loại bỏ các test case mong đợi trả về bản ghi cũ, đảm bảo 100% test case (47/47 tests) PASS.
+
+
+
 ## 📅 Phiên bản: Toàn Diện Blackbox Testing & Kiểm Định Hệ Thống VIP Bát Tự (08/09/2026)
 
 ### 🧪 1. Ma Trận Blackbox Testing 7 Kịch Bản (TC-BB01 -> TC-BB07)

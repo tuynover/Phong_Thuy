@@ -46,7 +46,6 @@ describe('MarriageController Unit Tests', () => {
     });
 
     test('analyze: valid male + female input should create record and return 200', async () => {
-        MarriageRecord.findOne.mockResolvedValue(null);
         const mockRecord = {
             _id: 'marriage-123',
             inputInfo: { male: { date: '27/08/2004', time: '07:30' }, female: { date: '02/01/2001', time: '03:02' } },
@@ -63,23 +62,6 @@ describe('MarriageController Unit Tests', () => {
         expect(res.json).toHaveBeenCalled();
         const response = res.json.mock.calls[0][0];
         expect(response.recordId).toBe('marriage-123');
-    });
-
-    test('analyze: semantic duplicate should return existing record', async () => {
-        const existingRecord = {
-            _id: 'existing-marriage-456',
-            maleBaziData: mockBaziResult,
-            femaleBaziData: mockBaziResult,
-            aiInterpretation: { content: 'Luận giải hợp hôn' }
-        };
-        MarriageRecord.findOne.mockResolvedValue(existingRecord);
-
-        await MarriageController.analyze(req, res);
-
-        expect(BaziAnalyzer.analyze).not.toHaveBeenCalled(); // Should NOT recalculate
-        expect(res.json).toHaveBeenCalled();
-        const response = res.json.mock.calls[0][0];
-        expect(response.recordId).toBe('existing-marriage-456');
     });
 
     test('analyze: missing required fields should return 400', async () => {

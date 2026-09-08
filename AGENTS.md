@@ -21,9 +21,9 @@ AI Agent có vai trò:
 - **Tách biệt Logic và AI:** 
   - Phải tính toán học thuật tĩnh (như Vượng Suy, Quái Thân, Can Chi, Sao...) trước bằng Rule Engine (`RuleEngineService.js`) hoặc thư viện `lunar-javascript` / `iztro`.
   - Snapshot kết quả tính toán (`analysisSnapshot`) được lưu vào record tương ứng trước khi truyền sang Prompt gửi cho AI. AI không trực tiếp tính toán học thuật.
-- **Xem Lá số Bản thân & Kiểm tra trùng lặp (Idempotency & Linkage):**
+- **Xem Lá số Bản thân & Quản lý Bản ghi Độc lập (Record Creation & Linkage):**
   - Trong `User.baziInfo`, lưu trữ `ownBaziRecordId` và `ownZiweiRecordId` để liên kết trực tiếp tới lá số bản thân của người dùng.
-  - Khi kiểm tra trùng lặp bản ghi (Idempotency) trong các controller (`BaziController`, `ZiweiController`, `IChingController`, `MarriageController`), bắt buộc loại trừ các bản ghi đã xóa mềm bằng điều kiện `isDeleted: { $ne: true }`.
+  - Các controller lập lá số/gieo quẻ (`BaziController`, `ZiweiController`, `IChingController`, `MarriageController`) luôn khởi tạo bản ghi mới độc lập mỗi lần phân tích (kèm UUIDv7 và timestamp mới), không tái sử dụng bản ghi cũ. Để chống spam thao tác kép (double-click race condition), bắt buộc áp dụng **In-Flight Concurrency Lock (2.5s)** qua Redis (`acquireRedisLock` / `releaseRedisLock`).
   - Khi thực hiện xóa lịch sử trong `HistoryController.deleteCalculation`, nếu bản ghi bị xóa trùng với lá số bản thân đã liên kết, bắt buộc phải cập nhật hủy liên kết (`ownBaziRecordId` hoặc `ownZiweiRecordId` đặt về `null`).
 - **SSE Keepalive:** Tất cả các luồng SSE stream (luận giải và chat) phải được tích hợp Heartbeat Ping gửi gói tin rỗng mỗi 15 giây để chống ngắt kết nối rác.
 - **Quy tắc Hiệu năng Redis & Caching (Hybrid L1 RAM + L2 Redis & Pipeline):**

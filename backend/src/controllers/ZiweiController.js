@@ -11,6 +11,7 @@ class ZiweiController {
    * Tạo đồ hình lá số thô (Deterministic)
    */
   static async createChart(req, res) {
+    let lockKey = null;
     try {
       const valResult = InputValidator.validateZiweiInput(req.body);
       if (!valResult.isValid) {
@@ -39,7 +40,7 @@ class ZiweiController {
       // Chống spam 10 request đồng thời cùng bộ dữ liệu (In-Flight Concurrency Protection 2.5s)
       const { acquireRedisLock, releaseRedisLock } = require('../config/redis');
       const chartHash = ZiweiCache.generateChartHash({ date, hour, gender, timezone, school, calendarType });
-      const lockKey = `inflight:ziwei:${userId}:${chartHash}`;
+      lockKey = `inflight:ziwei:${userId}:${chartHash}`;
 
       const acquired = await acquireRedisLock(lockKey, 2500);
       if (!acquired) {
@@ -47,9 +48,11 @@ class ZiweiController {
           error: 'Yêu cầu của bạn đang được hệ thống xử lý, vui lòng không nhấn gửi liên tục.'
         });
       }
-      res.on('finish', () => {
-        releaseRedisLock(lockKey);
-      });
+      if (typeof res.on === 'function') {
+        res.on('finish', () => {
+          releaseRedisLock(lockKey);
+        });
+      }
 
       // 3. Chạy bộ máy tính toán an sao thô độc lập
       const rawAstrolabe = AstrologyEngine.generate('tu_vi', { date, hour, gender, lang: 'vi-VN' });
@@ -80,15 +83,12 @@ class ZiweiController {
         _id: recordId,
         userId,
         system: 'ziwei',
-        idempotencyKey: idempotencyKey || `${userId}:${chartHash}`,
+        idempotencyKey: idempotencyKey || `${userId}:${chartHash}:${Date.now()}`,
         inputInfo,
         chartHash,
         chartData: formattedOutput.chart_data,
         aiInterpretation: { summary: "", sections: [] }
       });
-
-      // 5. Thiết lập cache và trả về
-      ZiweiCache.setChart(chartHash, newRecord);
 
       // Increment user ziwei record count O(1)
       const UserStatsService = require('../services/UserStatsService');
@@ -101,8 +101,13 @@ class ZiweiController {
       const sseService = require('../services/SseService');
       sseService.sendToAdmins('new_calculation', { type: 'ziwei', userId, recordId: newRecord._id });
 
+      releaseRedisLock(lockKey);
       return res.json(newRecord);
     } catch (error) {
+      if (lockKey) {
+        const { releaseRedisLock } = require('../config/redis');
+        releaseRedisLock(lockKey);
+      }
       console.error("[ZiweiController.createChart] Error:", error);
       return res.status(500).json({ error: error.message || 'Lỗi xảy ra khi tính toán lá số Tử Vi.' });
     }

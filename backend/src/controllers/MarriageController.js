@@ -70,6 +70,7 @@ const InputValidator = require('../services/InputValidator');
 
 class MarriageController {
     static async analyze(req, res) {
+        let lockKey = null;
         try {
             const valResult = InputValidator.validateMarriageInput(req.body);
             if (!valResult.isValid) {
@@ -84,7 +85,7 @@ class MarriageController {
 
             // Chống spam 10 request đồng thời cùng bộ dữ liệu (In-Flight Concurrency Protection 2.5s)
             const { acquireRedisLock, releaseRedisLock } = require('../config/redis');
-            const lockKey = `inflight:marriage:${uid}:${male.date}:${male.time}:${female.date}:${female.time}`;
+            lockKey = `inflight:marriage:${uid}:${male.date}:${male.time}:${female.date}:${female.time}`;
 
             const acquired = await acquireRedisLock(lockKey, 2500);
             if (!acquired) {
@@ -92,9 +93,11 @@ class MarriageController {
                     error: 'Yêu cầu của bạn đang được hệ thống xử lý, vui lòng không nhấn gửi liên tục.'
                 });
             }
-            res.on('finish', () => {
-                releaseRedisLock(lockKey);
-            });
+            if (typeof res.on === 'function') {
+                res.on('finish', () => {
+                    releaseRedisLock(lockKey);
+                });
+            }
 
             // Analyze Male (gender = 1)
             const maleResult = BaziAnalyzer.analyze(male.date, male.time, 1, dayMode);
@@ -109,7 +112,7 @@ class MarriageController {
             // Create record
             const record = new MarriageRecord({
                 userId: uid,
-                idempotencyKey: `${uid}:marriage:${male.date}:${male.time}:${female.date}:${female.time}`,
+                idempotencyKey: `${uid}:marriage:${male.date}:${male.time}:${female.date}:${female.time}:${Date.now()}`,
                 inputInfo: {
                     male: { date: male.date, time: male.time },
                     female: { date: female.date, time: female.time }
@@ -138,6 +141,7 @@ class MarriageController {
             const sseService = require('../services/SseService');
             sseService.sendToAdmins('new_calculation', { type: 'marriage', userId: uid, recordId: record._id });
 
+            releaseRedisLock(lockKey);
             return res.json({
                 _id: record._id,
                 recordId: record._id,
@@ -147,6 +151,10 @@ class MarriageController {
             });
 
         } catch (error) {
+            if (lockKey) {
+                const { releaseRedisLock } = require('../config/redis');
+                releaseRedisLock(lockKey);
+            }
             console.error('Marriage Analyze Error:', error);
             return res.status(500).json({ error: 'Lỗi máy chủ khi lập lá số hợp hôn.' });
         }

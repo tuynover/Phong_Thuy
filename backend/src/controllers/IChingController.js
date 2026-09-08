@@ -5,6 +5,7 @@ const InputValidator = require('../services/InputValidator');
 
 class IChingController {
     static async calculate(req, res) {
+        let lockKey = null;
         try {
             const validation = InputValidator.validateIChingInput(req.body);
             if (!validation.isValid) {
@@ -23,7 +24,7 @@ class IChingController {
             
             // Chống spam 10 request đồng thời cùng bộ dữ liệu (In-Flight Concurrency Protection 2.5s)
             const { acquireRedisLock, releaseRedisLock } = require('../config/redis');
-            const lockKey = `inflight:iching:${userId}:${resultPayload.primary.binary_code}:${movingLinesArray.join('-')}:${question}`;
+            lockKey = `inflight:iching:${userId}:${resultPayload.primary.binary_code}:${movingLinesArray.join('-')}:${question}`;
 
             const acquired = await acquireRedisLock(lockKey, 2500);
             if (!acquired) {
@@ -31,9 +32,11 @@ class IChingController {
                     error: 'Yêu cầu của bạn đang được hệ thống xử lý, vui lòng không nhấn gửi liên tục.'
                 });
             }
-            res.on('finish', () => {
-                releaseRedisLock(lockKey);
-            });
+            if (typeof res.on === 'function') {
+                res.on('finish', () => {
+                    releaseRedisLock(lockKey);
+                });
+            }
 
             // Save to database (WITHOUT primaryLines and secondaryLines)
             const record = new IChingRecord({
@@ -57,8 +60,13 @@ class IChingController {
             const sseService = require('../services/SseService');
             sseService.sendToAdmins('new_calculation', { type: 'iching', userId, recordId: record._id });
 
+            releaseRedisLock(lockKey);
             return res.json({ ...resultPayload, recordId: record._id });
         } catch (error) {
+            if (lockKey) {
+                const { releaseRedisLock } = require('../config/redis');
+                releaseRedisLock(lockKey);
+            }
             console.error(error);
             return res.status(500).json({ error: error.message || 'Server error' });
         }

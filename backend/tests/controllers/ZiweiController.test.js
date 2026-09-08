@@ -77,7 +77,6 @@ describe('ZiweiController Comprehensive Unit Tests', () => {
     });
 
     test('createChart: valid input should create record and return 200', async () => {
-        ZiweiRecord.findOne.mockResolvedValue(null);
         const mockCreated = {
             _id: 'ziwei-new-id',
             chartData: { formatted: true },
@@ -89,27 +88,6 @@ describe('ZiweiController Comprehensive Unit Tests', () => {
 
         expect(ZiweiRecord.create).toHaveBeenCalled();
         expect(res.json).toHaveBeenCalledWith(mockCreated);
-    });
-
-    test('createChart: duplicate idempotencyKey should return existing record', async () => {
-        req.headers['idempotency-key'] = 'dup-ziwei-key';
-        const existingRecord = { _id: 'existing-ziwei-456', chartData: { old: true } };
-        ZiweiRecord.findOne.mockResolvedValue(existingRecord);
-
-        await ZiweiController.createChart(req, res);
-
-        expect(res.json).toHaveBeenCalledWith(existingRecord);
-        expect(ZiweiRecord.create).not.toHaveBeenCalled();
-    });
-
-    test('createChart: cache hit should return cached record immediately', async () => {
-        const cachedRecord = { _id: 'cached-ziwei-789', chartData: { cached: true } };
-        ZiweiCache.getChart.mockReturnValue(cachedRecord);
-
-        await ZiweiController.createChart(req, res);
-
-        expect(res.json).toHaveBeenCalledWith(cachedRecord);
-        expect(AstrologyEngine.generate).not.toHaveBeenCalled();
     });
 
     test('createChart: invalid input should return 400 with error message', async () => {
@@ -125,7 +103,7 @@ describe('ZiweiController Comprehensive Unit Tests', () => {
     });
 
     test('createChart: server exception should return 500 error', async () => {
-        ZiweiRecord.findOne.mockRejectedValue(new Error('Database Connection Error'));
+        ZiweiRecord.create.mockRejectedValue(new Error('Database Connection Error'));
 
         await ZiweiController.createChart(req, res);
 
