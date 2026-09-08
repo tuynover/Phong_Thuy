@@ -17,6 +17,7 @@ const ConversationContextService = require('../services/ConversationContextServi
 const MemoryCacheService = require('../services/MemoryCacheService');
 const SymbolicAnalyzer = require('../shared/knowledge-engine/SymbolicAnalyzer');
 const ZiweiFormatter = require('../services/ZiweiFormatter');
+const MultiAgentPipelineService = require('../services/MultiAgentPipelineService');
 const mongoose = require('mongoose');
 
 const {
@@ -99,11 +100,11 @@ class AiInterpretationController {
             }, 15000);
 
             // Invalidate Cache check
+            const isVipMode = req.body?.mode === 'vip' || req.query?.mode === 'vip';
             const hasValidCache = 
                 record.aiInterpretation &&
                 record.aiInterpretation.content &&
-                record.aiInterpretation.promptVersion === ICHING_PROMPT_VERSION &&
-                record.aiInterpretation.model === ACTIVE_MODEL;
+                (isVipMode ? record.aiInterpretation.mode === 'vip' : true);
 
             if (hasValidCache) {
                 if (req.refundCredit) await req.refundCredit();
@@ -150,19 +151,34 @@ class AiInterpretationController {
             const prompt = IChingPrompts.getInterpretationPrompt(fullRecord, analyzedData);
 
             // 3. Call AI Service and stream chunks
-            const resultStream = await AiService.generateInterpretationStream(prompt, { model: ACTIVE_MODEL });
             let accumulatedText = "";
             let usageMetadata = null;
 
-            for await (const chunk of resultStream.stream) {
-                if (!isConnectionOpen) {
-                    console.log(`[SSE] Client closed connection, stopping IChing stream.`);
-                    break;
+            if (isVipMode) {
+                const vipResult = await MultiAgentPipelineService.runVipPipelineStream(prompt, null, {
+                    onProgress: (progress) => sendSSE(progress)
+                });
+                for await (const chunk of vipResult.stream) {
+                    if (!isConnectionOpen) {
+                        console.log(`[SSE] Client closed connection, stopping IChing VIP stream.`);
+                        break;
+                    }
+                    const chunkText = typeof chunk === 'string' ? chunk : new TextDecoder().decode(chunk);
+                    accumulatedText += chunkText;
+                    sendSSE({ chunk: chunkText });
                 }
-                if (chunk.usageMetadata) usageMetadata = chunk.usageMetadata;
-                const chunkText = chunk.text();
-                accumulatedText += chunkText;
-                sendSSE({ chunk: chunkText });
+            } else {
+                const resultStream = await AiService.generateInterpretationStream(prompt, { model: ACTIVE_MODEL });
+                for await (const chunk of resultStream.stream) {
+                    if (!isConnectionOpen) {
+                        console.log(`[SSE] Client closed connection, stopping IChing stream.`);
+                        break;
+                    }
+                    if (chunk.usageMetadata) usageMetadata = chunk.usageMetadata;
+                    const chunkText = chunk.text();
+                    accumulatedText += chunkText;
+                    sendSSE({ chunk: chunkText });
+                }
             }
 
             if (!isConnectionOpen) {
@@ -182,8 +198,9 @@ class AiInterpretationController {
             await updateByIdFlex(IChingRecord, id, {
                 aiInterpretation: {
                     content: cleanedContent,
+                    mode: isVipMode ? 'vip' : 'standard',
                     generatedAt: new Date(),
-                    model: ACTIVE_MODEL,
+                    model: isVipMode ? 'Multi-Agent VIP Pipeline (Qwen Plus + Gemini 3.1 Flash Lite)' : ACTIVE_MODEL,
                     promptVersion: ICHING_PROMPT_VERSION,
                     promptTokens: promptTokens,
                     completionTokens: completionTokens,
@@ -256,11 +273,11 @@ class AiInterpretationController {
             }, 15000);
 
             // Invalidate Cache check
+            const isVipMode = req.body?.mode === 'vip' || req.query?.mode === 'vip';
             const hasValidCache = 
                 record.aiInterpretation &&
                 record.aiInterpretation.content &&
-                record.aiInterpretation.promptVersion === BAZI_PROMPT_VERSION &&
-                record.aiInterpretation.model === ACTIVE_MODEL;
+                (isVipMode ? record.aiInterpretation.mode === 'vip' : true);
 
             if (hasValidCache) {
                 if (req.refundCredit) await req.refundCredit();
@@ -275,23 +292,41 @@ class AiInterpretationController {
             // Lock the record
             await updateByIdFlex(BaziRecord, id, { isGeneratingInterpretation: true });
 
-            // 1. Generate Prompt using analyzed Bazi data
-            const prompt = BaziPrompts.getInterpretationPrompt(record.toObject());
+            // 1. Generate Prompt using analyzed Bazi data (Tách biệt Cơ Bản vs Chuyên Sâu)
+            const prompt = isVipMode 
+                ? BaziPrompts.getDeepPrompt(record.toObject())
+                : BaziPrompts.getStandardPrompt(record.toObject());
 
             // 2. Call AI Service and stream chunks
-            const resultStream = await AiService.generateInterpretationStream(prompt, { model: ACTIVE_MODEL });
             let accumulatedText = "";
             let usageMetadata = null;
 
-            for await (const chunk of resultStream.stream) {
-                if (!isConnectionOpen) {
-                    console.log(`[SSE] Client closed connection, stopping Bazi stream.`);
-                    break;
+            if (isVipMode) {
+                const birthYear = record.inputInfo?.birthSolarYear || record.inputInfo?.date?.split('/')?.[2];
+                const vipResult = await MultiAgentPipelineService.runVipPipelineStream(prompt, birthYear, {
+                    onProgress: (progress) => sendSSE(progress)
+                });
+                for await (const chunk of vipResult.stream) {
+                    if (!isConnectionOpen) {
+                        console.log(`[SSE] Client closed connection, stopping Bazi VIP stream.`);
+                        break;
+                    }
+                    const chunkText = typeof chunk === 'string' ? chunk : new TextDecoder().decode(chunk);
+                    accumulatedText += chunkText;
+                    sendSSE({ chunk: chunkText });
                 }
-                if (chunk.usageMetadata) usageMetadata = chunk.usageMetadata;
-                const chunkText = chunk.text();
-                accumulatedText += chunkText;
-                sendSSE({ chunk: chunkText });
+            } else {
+                const resultStream = await AiService.generateInterpretationStream(prompt, { model: ACTIVE_MODEL });
+                for await (const chunk of resultStream.stream) {
+                    if (!isConnectionOpen) {
+                        console.log(`[SSE] Client closed connection, stopping Bazi stream.`);
+                        break;
+                    }
+                    if (chunk.usageMetadata) usageMetadata = chunk.usageMetadata;
+                    const chunkText = chunk.text();
+                    accumulatedText += chunkText;
+                    sendSSE({ chunk: chunkText });
+                }
             }
 
             if (!isConnectionOpen) {
@@ -308,8 +343,9 @@ class AiInterpretationController {
             await updateByIdFlex(BaziRecord, id, {
                 aiInterpretation: {
                     content: cleanedContent,
+                    mode: isVipMode ? 'vip' : 'standard',
                     generatedAt: new Date(),
-                    model: ACTIVE_MODEL,
+                    model: isVipMode ? 'Multi-Agent VIP Pipeline (Qwen Plus + Gemini 3.1 Flash Lite)' : ACTIVE_MODEL,
                     promptVersion: BAZI_PROMPT_VERSION,
                     promptTokens: promptTokens,
                     completionTokens: completionTokens,
@@ -381,11 +417,11 @@ class AiInterpretationController {
             }, 15000);
 
             // Invalidate Cache check
+            const isVipMode = req.body?.mode === 'vip' || req.query?.mode === 'vip';
             const hasValidCache = 
                 record.aiInterpretation &&
                 record.aiInterpretation.content &&
-                record.aiInterpretation.promptVersion === MARRIAGE_PROMPT_VERSION &&
-                record.aiInterpretation.model === ACTIVE_MODEL;
+                (isVipMode ? record.aiInterpretation.mode === 'vip' : true);
 
             if (hasValidCache) {
                 if (req.refundCredit) await req.refundCredit();
@@ -404,19 +440,35 @@ class AiInterpretationController {
             const prompt = MarriagePrompts.getInterpretationPrompt(record.toObject());
 
             // 2. Call AI Service and stream chunks
-            const resultStream = await AiService.generateInterpretationStream(prompt, { model: ACTIVE_MODEL });
             let accumulatedText = "";
             let usageMetadata = null;
 
-            for await (const chunk of resultStream.stream) {
-                if (!isConnectionOpen) {
-                    console.log(`[SSE] Client closed connection, stopping Marriage stream.`);
-                    break;
+            if (isVipMode) {
+                const birthYear = record.inputInfo?.male?.date?.split('/')?.[2];
+                const vipResult = await MultiAgentPipelineService.runVipPipelineStream(prompt, birthYear, {
+                    onProgress: (progress) => sendSSE(progress)
+                });
+                for await (const chunk of vipResult.stream) {
+                    if (!isConnectionOpen) {
+                        console.log(`[SSE] Client closed connection, stopping Marriage VIP stream.`);
+                        break;
+                    }
+                    const chunkText = typeof chunk === 'string' ? chunk : new TextDecoder().decode(chunk);
+                    accumulatedText += chunkText;
+                    sendSSE({ chunk: chunkText });
                 }
-                if (chunk.usageMetadata) usageMetadata = chunk.usageMetadata;
-                const chunkText = chunk.text();
-                accumulatedText += chunkText;
-                sendSSE({ chunk: chunkText });
+            } else {
+                const resultStream = await AiService.generateInterpretationStream(prompt, { model: ACTIVE_MODEL });
+                for await (const chunk of resultStream.stream) {
+                    if (!isConnectionOpen) {
+                        console.log(`[SSE] Client closed connection, stopping Marriage stream.`);
+                        break;
+                    }
+                    if (chunk.usageMetadata) usageMetadata = chunk.usageMetadata;
+                    const chunkText = chunk.text();
+                    accumulatedText += chunkText;
+                    sendSSE({ chunk: chunkText });
+                }
             }
 
             if (!isConnectionOpen) {
@@ -433,8 +485,9 @@ class AiInterpretationController {
             await updateByIdFlex(MarriageRecord, id, {
                 aiInterpretation: {
                     content: cleanedContent,
+                    mode: isVipMode ? 'vip' : 'standard',
                     generatedAt: new Date(),
-                    model: ACTIVE_MODEL,
+                    model: isVipMode ? 'Multi-Agent VIP Pipeline (Qwen Plus + Gemini 3.1 Flash Lite)' : ACTIVE_MODEL,
                     promptVersion: MARRIAGE_PROMPT_VERSION,
                     promptTokens: promptTokens,
                     completionTokens: completionTokens,
@@ -509,11 +562,11 @@ class AiInterpretationController {
             const ZIWEI_KNOWLEDGE_VERSION = "tv_know_v2";
 
             // Invalidate Cache check
+            const isVipMode = req.body?.mode === 'vip' || req.query?.mode === 'vip';
             const hasValidCache = 
                 record.aiInterpretation &&
                 record.aiInterpretation.content &&
-                record.aiInterpretation.promptVersion === ZIWEI_PROMPT_VERSION &&
-                record.aiInterpretation.model === ACTIVE_MODEL;
+                (isVipMode ? record.aiInterpretation.mode === 'vip' : true);
 
             if (hasValidCache) {
                 if (req.refundCredit) await req.refundCredit();
@@ -538,19 +591,35 @@ class AiInterpretationController {
             const prompt = ZiweiPrompts.buildMarkdownPrompt(compressed, symbolicAnalysis);
 
             // 4. Call AI Service and stream chunks
-            const resultStream = await AiService.generateInterpretationStream(prompt, { model: ACTIVE_MODEL });
             let accumulatedText = "";
             let usageMetadata = null;
 
-            for await (const chunk of resultStream.stream) {
-                if (!isConnectionOpen) {
-                    console.log(`[SSE] Client closed connection, stopping Ziwei stream.`);
-                    break;
+            if (isVipMode) {
+                const birthYear = record.inputInfo?.date?.split('-')?.[0] || record.inputInfo?.date?.split('/')?.[2];
+                const vipResult = await MultiAgentPipelineService.runVipPipelineStream(prompt, birthYear, {
+                    onProgress: (progress) => sendSSE(progress)
+                });
+                for await (const chunk of vipResult.stream) {
+                    if (!isConnectionOpen) {
+                        console.log(`[SSE] Client closed connection, stopping Ziwei VIP stream.`);
+                        break;
+                    }
+                    const chunkText = typeof chunk === 'string' ? chunk : new TextDecoder().decode(chunk);
+                    accumulatedText += chunkText;
+                    sendSSE({ chunk: chunkText });
                 }
-                if (chunk.usageMetadata) usageMetadata = chunk.usageMetadata;
-                const chunkText = chunk.text();
-                accumulatedText += chunkText;
-                sendSSE({ chunk: chunkText });
+            } else {
+                const resultStream = await AiService.generateInterpretationStream(prompt, { model: ACTIVE_MODEL });
+                for await (const chunk of resultStream.stream) {
+                    if (!isConnectionOpen) {
+                        console.log(`[SSE] Client closed connection, stopping Ziwei stream.`);
+                        break;
+                    }
+                    if (chunk.usageMetadata) usageMetadata = chunk.usageMetadata;
+                    const chunkText = chunk.text();
+                    accumulatedText += chunkText;
+                    sendSSE({ chunk: chunkText });
+                }
             }
 
             if (!isConnectionOpen) {
@@ -568,10 +637,11 @@ class AiInterpretationController {
             await updateByIdFlex(ZiweiRecord, id, {
                 aiInterpretation: {
                     content: cleanedContent,
+                    mode: isVipMode ? 'vip' : 'standard',
                     summary: "", 
                     sections: [], 
                     generatedAt: new Date(),
-                    model: ACTIVE_MODEL,
+                    model: isVipMode ? 'Multi-Agent VIP Pipeline (Qwen Plus + Gemini 3.1 Flash Lite)' : ACTIVE_MODEL,
                     promptVersion: ZIWEI_PROMPT_VERSION,
                     knowledgeVersion: ZIWEI_KNOWLEDGE_VERSION,
                     promptTokens,

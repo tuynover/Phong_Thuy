@@ -259,9 +259,10 @@ class InputValidator {
 
         // Validate Gender
         let genderStr;
-        if (gender === 'Nam' || gender === 1 || gender === '1') {
+        const gTrim = String(gender || '').trim().toLowerCase();
+        if (gTrim === 'nam' || gTrim === '1' || gender === 1) {
             genderStr = 'Nam';
-        } else if (gender === 'Nữ' || gender === 'Nu' || gender === 0 || gender === '0') {
+        } else if (gTrim === 'nữ' || gTrim === 'nu' || gTrim === '0' || gender === 0) {
             genderStr = 'Nữ';
         } else {
             return { isValid: false, error: "Giới tính phải là 'Nam' hoặc 'Nữ'." };

@@ -21,22 +21,19 @@ class IChingController {
 
             const movingLinesArray = lines.map((l, i) => l.moving ? i + 1 : -1).filter(i => i !== -1);
             
-            // Check for duplicate record
-            const existingRecord = await IChingRecord.findOne({
-                userId,
-                question,
-                'primaryHexagram.binary_code': resultPayload.primary.binary_code,
-                movingLines: movingLinesArray,
-                isDeleted: { $ne: true }
-            });
+            // Chống spam 10 request đồng thời cùng bộ dữ liệu (In-Flight Concurrency Protection 2.5s)
+            const { acquireRedisLock, releaseRedisLock } = require('../config/redis');
+            const lockKey = `inflight:iching:${userId}:${resultPayload.primary.binary_code}:${movingLinesArray.join('-')}:${question}`;
 
-            if (existingRecord) {
-                return res.json({ 
-                    ...resultPayload, 
-                    recordId: existingRecord._id, 
-                    interpretation: existingRecord.aiInterpretation?.content || '' 
+            const acquired = await acquireRedisLock(lockKey, 2500);
+            if (!acquired) {
+                return res.status(429).json({
+                    error: 'Yêu cầu của bạn đang được hệ thống xử lý, vui lòng không nhấn gửi liên tục.'
                 });
             }
+            res.on('finish', () => {
+                releaseRedisLock(lockKey);
+            });
 
             // Save to database (WITHOUT primaryLines and secondaryLines)
             const record = new IChingRecord({

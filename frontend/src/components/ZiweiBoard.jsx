@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
-import { Calendar, Clock, User, Sparkles, MessageCircle, RefreshCw, Star, ShieldAlert, ScrollText, ArrowUp, ArrowDown, ChevronDown, HelpCircle } from 'lucide-react';
+import { Calendar, Clock, User, Sparkles, MessageCircle, RefreshCw, Star, ShieldAlert, ScrollText, ArrowUp, ArrowDown, ChevronDown, HelpCircle, Zap, Crown } from 'lucide-react';
 import { createZiweiChart, getZiweiRecord, rateZiwei, getInterpretationStreamUrl, updateBaziInfo, togglePublicCalculation } from '../services/api';
 import ChartRenderer from './ChartRenderer';
 import FloatingNotificationToast from './FloatingNotificationToast';
 import SectionRenderer from './SectionRenderer';
 import AiChatWidget from './AiChatWidget';
 import UpdateBaziModal from './UpdateBaziModal';
+import InterpretationTierModal from './InterpretationTierModal';
+import VipUpgradeBanner from './VipUpgradeBanner';
+import VipProgressTracker from './VipProgressTracker';
 import { AuthContext } from '../context/AuthContext';
 import { parseMarkdownSections } from '../utils/markdownParser';
 import { validateInputDate, getMaxDaysInMonth } from '../utils/dateValidator';
@@ -63,10 +66,29 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
 
   // AI Interpretation States
   const [interpretation, setInterpretation] = useState('');
+  const [interpretationMode, setInterpretationMode] = useState(result?.aiInterpretation?.mode || 'standard');
   const [isInterpreting, setIsInterpreting] = useState(false);
+  const [showTierModal, setShowTierModal] = useState(false);
+  const [isUpgradeModal, setIsUpgradeModal] = useState(false);
+  const [vipChapter, setVipChapter] = useState(1);
+  const [vipCompletedChapters, setVipCompletedChapters] = useState([]);
+  const [vipActiveChapters, setVipActiveChapters] = useState([]);
+  const [vipStreamingChapter, setVipStreamingChapter] = useState(null);
+  const [vipStatusMessage, setVipStatusMessage] = useState('');
+  const [isVipCompleted, setIsVipCompleted] = useState(false);
   const [abortController, setAbortController] = useState(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (result?.aiInterpretation?.content) {
+      setInterpretation(result.aiInterpretation.content);
+      setInterpretationMode(result.aiInterpretation.mode || 'standard');
+    } else {
+      setInterpretation('');
+      setInterpretationMode('standard');
+    }
+  }, [result]);
 
   // Auto-clamp Day when Month or Year changes (e.g. 29/02/2023 -> automatically pushes to 28)
   useEffect(() => {
@@ -349,15 +371,29 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
     }
   };
 
-  const handleTriggerInterpretation = async () => {
+  const handleTriggerInterpretation = async (tier = 'standard') => {
     if (!activeUser) {
       if (onRequireLogin) onRequireLogin();
       return;
     }
     if (!result || !result._id) return;
+    setShowTierModal(false);
     setIsInterpreting(true);
     setError('');
+
+    const isVip = tier === 'vip';
+    const isUpgrade = isUpgradeModal || (isVip && !!(interpretation || result.aiInterpretation?.content));
+    const costToDeduct = isUpgrade ? 4 : (isVip ? 5 : 1);
+
+    // 0ms Instant Reset
     setInterpretation('');
+    setInterpretationMode(isVip ? 'vip' : 'standard');
+    setVipChapter(1);
+    setVipCompletedChapters([]);
+    setVipActiveChapters([]);
+    setVipStreamingChapter(null);
+    setVipStatusMessage(isVip ? 'Đang khởi động hệ thống phân tích...' : '');
+    setIsVipCompleted(false);
 
     const abortCtrl = new AbortController();
     setAbortController(abortCtrl);
@@ -374,7 +410,10 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
       const response = await fetch(url, {
         method: 'POST',
         headers,
-        body: JSON.stringify({ userId: activeUser.id || activeUser._id || 'guest' }),
+        body: JSON.stringify({ 
+          userId: activeUser.id || activeUser._id || 'guest',
+          mode: isVip ? 'vip' : 'standard'
+        }),
         signal: abortCtrl.signal
       });
 
@@ -386,13 +425,15 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
       const reader = response.body.getReader();
       const decoder = new TextDecoder('utf-8');
       let done = false;
+      let buffer = '';
 
       while (!done) {
         const { value, done: doneReading } = await reader.read();
         done = doneReading;
         if (value) {
-          const chunk = decoder.decode(value, { stream: !done });
-          const lines = chunk.split('\n');
+          buffer += decoder.decode(value, { stream: !done });
+          const lines = buffer.split('\n');
+          buffer = lines.pop();
           for (const line of lines) {
             const trimmed = line.trim();
             if (trimmed.startsWith('data: ')) {
@@ -405,6 +446,24 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
                 const parsed = JSON.parse(dataStr);
                 if (parsed.error) {
                   throw new Error(parsed.error);
+                }
+                if (parsed.message) {
+                  setVipStatusMessage(parsed.message);
+                }
+                if (parsed.stage === 'streaming' && parsed.streamingChapterId) {
+                  setVipStreamingChapter(parsed.streamingChapterId);
+                }
+                if (parsed.chapterId) {
+                  setVipChapter(parsed.chapterId);
+                  if (parsed.status === 'completed') {
+                    setVipCompletedChapters(prev => prev.includes(parsed.chapterId) ? prev : [...prev, parsed.chapterId]);
+                    setVipActiveChapters(prev => prev.filter(id => id !== parsed.chapterId));
+                  } else if (parsed.status === 'in_progress') {
+                    setVipActiveChapters(prev => prev.includes(parsed.chapterId) ? prev : [...prev, parsed.chapterId]);
+                  }
+                }
+                if (parsed.isCompleted || (parsed.stage === 'completed')) {
+                  setIsVipCompleted(true);
                 }
                 if (parsed.chunk) {
                   const isFirstChunk = !currentText;
@@ -436,16 +495,25 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
     } finally {
       setIsInterpreting(false);
       setAbortController(null);
+      if (isVip) setIsVipCompleted(true);
 
       if (currentText) {
         setResult(prev => ({
           ...prev,
           aiInterpretation: {
             ...prev.aiInterpretation,
-            content: currentText
+            content: currentText,
+            mode: isVip ? 'vip' : 'standard'
           }
         }));
-        decrementCreditLocally();
+        if (activeUser && activeUser.role !== 'admin' && activeUser.role !== 'co-admin') {
+          setUser(prev => {
+            if (!prev) return prev;
+            const updated = { ...prev, credits: Math.max(0, prev.credits - costToDeduct) };
+            localStorage.setItem('user', JSON.stringify(updated));
+            return updated;
+          });
+        }
       }
     }
   };
@@ -462,7 +530,8 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
       if (onRequireLogin) onRequireLogin();
       return;
     }
-    setShowConfirmModal(true);
+    setIsUpgradeModal(false);
+    setShowTierModal(true);
   };
 
   const handleRatingSubmit = async (e) => {
@@ -589,22 +658,52 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
           />
 
           {/* Render các Accordion phân tích AI thông qua SectionRenderer */}
-          {(interpretation || result.aiInterpretation?.content || (result.aiInterpretation?.sections?.length > 0)) && (
+          {(interpretation || result.aiInterpretation?.content || (result.aiInterpretation?.sections?.length > 0) || isInterpreting) && (
             <div id="ziwei-interpretation-section" className="max-w-4xl mx-auto">
               <div className="flex items-center gap-2 mb-6 ml-1">
                 <Sparkles className="text-purple-500" size={20} />
-                <h2 className="font-extrabold text-slate-800 text-lg md:text-xl">Luận Giải Chuyên Sâu Cát Hung</h2>
+                <h2 className="font-extrabold text-slate-800 text-lg md:text-xl">
+                  {interpretationMode === 'vip' ? 'Luận Giải Chuyên Sâu (6 Chương)' : 'Luận Giải Chuyên Sâu Cát Hung'}
+                </h2>
               </div>
-              <SectionRenderer 
-                sections={
-                  interpretation 
-                    ? parseMarkdownSections(interpretation, 'tu_vi') 
-                    : (result.aiInterpretation?.content 
-                        ? parseMarkdownSections(result.aiInterpretation.content, 'tu_vi')
-                        : result.aiInterpretation?.sections || [])
-                } 
-                theme="tu_vi"
-              />
+
+              {/* Tracker 6 Chương */}
+              {interpretationMode === 'vip' && (
+                <VipProgressTracker
+                  completedChapters={vipCompletedChapters}
+                  activeChapters={vipActiveChapters}
+                  streamingChapter={vipStreamingChapter}
+                  currentChapter={vipChapter}
+                  isCompleted={isVipCompleted || !isInterpreting}
+                  statusMessage={vipStatusMessage}
+                />
+              )}
+
+              {(interpretation || result.aiInterpretation?.content || (result.aiInterpretation?.sections?.length > 0)) && (
+                <SectionRenderer 
+                  sections={
+                    interpretation 
+                      ? parseMarkdownSections(interpretation, 'tu_vi') 
+                      : (result.aiInterpretation?.content 
+                          ? parseMarkdownSections(result.aiInterpretation.content, 'tu_vi')
+                          : result.aiInterpretation?.sections || [])
+                  } 
+                  theme="tu_vi"
+                />
+              )}
+
+              {/* Banner Nâng Cấp VIP ở cuối bài luận giải thường */}
+              {(interpretation || result.aiInterpretation?.content) && interpretationMode !== 'vip' && !isInterpreting && (
+                <div className="mt-8">
+                  <VipUpgradeBanner
+                    userCredits={activeUser?.credits || 0}
+                    onUpgradeClick={() => {
+                      setIsUpgradeModal(true);
+                      setShowTierModal(true);
+                    }}
+                  />
+                </div>
+              )}
             </div>
           )}
 
@@ -690,7 +789,9 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
               {isInterpreting ? (
                 <>
                   <div className="w-5 h-5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin"></div>
-                  <span className="text-sm text-amber-300">Thầy giải nghĩa...</span>
+                  <span className="text-sm text-amber-300">
+                    {interpretationMode === 'vip' ? `Đang Phân Tích C${vipChapter}...` : 'Thầy giải nghĩa...'}
+                  </span>
                 </>
               ) : (
                 <>
@@ -700,13 +801,31 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
               )}
             </button>
           ) : !isChatOpen && activeUser && (
-            <button
-              onClick={() => setIsChatOpen(true)}
-              className="fixed bottom-4 md:bottom-8 right-4 md:right-8 z-50 flex items-center gap-2.5 px-6 py-4 rounded-full shadow-2xl transition-all duration-300 font-extrabold border bg-gradient-to-r from-purple-950 via-indigo-900 to-slate-950 hover:from-purple-900 hover:to-indigo-950 text-amber-300 border-amber-400/40 shadow-purple-950/30 hover:scale-105 active:scale-95 text-xs sm:text-sm tracking-wider uppercase ring-4 ring-purple-500/20"
-            >
-              <MessageCircle className="animate-bounce text-amber-400 shrink-0" size={18} />
-              <span>Hỏi Thêm Thầy</span>
-            </button>
+            <div className="fixed bottom-4 md:bottom-8 right-4 md:right-8 z-50 flex flex-col items-end gap-2.5">
+              {/* Nút "Nâng Cấp Luận Giải" nằm ngay PHÍA TRÊN nút "Hỏi Thêm Thầy" nếu chưa có bản VIP */}
+              {interpretationMode !== 'vip' && (
+                <button
+                  onClick={() => {
+                    setIsUpgradeModal(true);
+                    setShowTierModal(true);
+                  }}
+                  disabled={isInterpreting}
+                  className="flex items-center gap-2 px-5 py-3 rounded-full shadow-2xl transition-all duration-300 font-extrabold border bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 hover:from-amber-400 hover:to-amber-500 text-slate-950 border-amber-300/60 shadow-amber-500/30 hover:scale-105 active:scale-95 text-xs sm:text-sm uppercase tracking-wider ring-4 ring-amber-500/20"
+                >
+                  <Crown className="w-4 h-4 fill-current animate-pulse text-slate-950" />
+                  <span>Nâng Cấp Luận Giải</span>
+                </button>
+              )}
+
+              {/* Nút "Hỏi Thêm Thầy" */}
+              <button
+                onClick={() => setIsChatOpen(true)}
+                className="flex items-center gap-2.5 px-6 py-4 rounded-full shadow-2xl transition-all duration-300 font-extrabold border bg-gradient-to-r from-purple-950 via-indigo-900 to-slate-950 hover:from-purple-900 hover:to-indigo-950 text-amber-300 border-amber-400/40 shadow-purple-950/30 hover:scale-105 active:scale-95 text-xs sm:text-sm tracking-wider uppercase ring-4 ring-purple-500/20"
+              >
+                <MessageCircle className="animate-bounce text-amber-400 shrink-0" size={18} />
+                <span>Hỏi Thêm Thầy</span>
+              </button>
+            </div>
           )}
 
           {/* Unified chat widget với type="tu_vi" */}
@@ -722,90 +841,14 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
         </>
       )}
 
-      {/* CONFIRMATION MODAL */}
-      {showConfirmModal && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[99999] flex justify-center items-center p-4">
-          <div className="bg-white max-w-md w-full rounded-2xl shadow-2xl p-6 relative overflow-hidden animate-in fade-in zoom-in-95 duration-200 border-t-8 border-t-purple-800">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-purple-800 opacity-5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-            <h3 className="text-xl font-bold text-purple-950 mb-3 flex items-center gap-2">
-              <ScrollText className="text-purple-850" size={24} />
-              Thầy Luận Giải Tử Vi
-            </h3>
-            {(() => {
-              const isStaff = activeUser?.role === 'admin' || activeUser?.role === 'co-admin';
-              const hasCredits = isStaff || (activeUser?.credits > 0);
-
-              if (isStaff) {
-                return (
-                  <>
-                    <p className="text-gray-600 mb-6 leading-relaxed text-sm">
-                      Tài khoản quản trị viên có quyền luận giải không giới hạn. Bạn có chắc chắn muốn khởi động luận giải chi tiết lá số Tử Vi này không?
-                    </p>
-                    <div className="flex justify-end gap-3">
-                      <button 
-                        onClick={() => setShowConfirmModal(false)}
-                        className="px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 font-semibold text-sm transition-colors"
-                      >
-                        Hủy bỏ
-                      </button>
-                      <button 
-                        onClick={() => {
-                          setShowConfirmModal(false);
-                          handleTriggerInterpretation();
-                        }}
-                        className="px-5 py-2 bg-purple-800 text-white rounded-xl hover:bg-purple-900 font-semibold text-sm transition-colors shadow-md hover:shadow-lg"
-                      >
-                        Bắt đầu luận giải
-                      </button>
-                    </div>
-                  </>
-                );
-              } else if (hasCredits) {
-                return (
-                  <>
-                    <p className="text-gray-600 mb-6 leading-relaxed text-sm">
-                      Bạn còn <span className="font-extrabold text-purple-800">{activeUser?.credits}</span> lượt sử dụng. Mỗi lần luận giải AI sẽ tiêu thụ <span className="font-bold">1 credit</span>. Bạn có chắc chắn muốn khởi động luận giải chi tiết lá số Tử Vi này không?
-                    </p>
-                    <div className="flex justify-end gap-3">
-                      <button 
-                        onClick={() => setShowConfirmModal(false)}
-                        className="px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 font-semibold text-sm transition-colors"
-                      >
-                        Hủy bỏ
-                      </button>
-                      <button 
-                        onClick={() => {
-                          setShowConfirmModal(false);
-                          handleTriggerInterpretation();
-                        }}
-                        className="px-5 py-2 bg-purple-800 text-white rounded-xl hover:bg-purple-900 font-semibold text-sm transition-colors shadow-md hover:shadow-lg"
-                      >
-                        Bắt đầu luận giải
-                      </button>
-                    </div>
-                  </>
-                );
-              } else {
-                return (
-                  <>
-                    <p className="text-red-700 bg-red-50 border border-red-100 p-3.5 rounded-xl mb-6 leading-relaxed text-xs sm:text-sm font-medium">
-                      ⚠️ Bạn đã hết lượt luận giải (0 credits). Mỗi ngày hệ thống sẽ tự động tặng bạn +1 credit. Hãy liên hệ Ban Quản Trị hoặc nâng cấp để tiếp tục sử dụng AI luận giải chi tiết Tử Vi.
-                    </p>
-                    <div className="flex justify-end">
-                      <button 
-                        onClick={() => setShowConfirmModal(false)}
-                        className="px-5 py-2 bg-gray-800 text-white rounded-xl hover:bg-gray-900 font-semibold text-sm transition-colors shadow-md"
-                      >
-                        Đóng
-                      </button>
-                    </div>
-                  </>
-                );
-              }
-            })()}
-          </div>
-        </div>
-      )}
+      {/* TIER SELECTION / UPGRADE MODAL */}
+      <InterpretationTierModal
+        isOpen={showTierModal}
+        onClose={() => setShowTierModal(false)}
+        onConfirm={handleTriggerInterpretation}
+        userCredits={activeUser?.credits || 0}
+        isUpgrade={isUpgradeModal}
+      />
 
       {/* Modal Cập nhật thông tin sinh thần Bát tự / Tử vi dùng chung */}
       <UpdateBaziModal 

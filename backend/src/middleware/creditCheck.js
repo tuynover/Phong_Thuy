@@ -49,6 +49,60 @@ const creditCheck = async (req, res, next) => {
       });
     }
 
+    // Determine requested mode (standard vs vip)
+    const isVipMode = req.body?.mode === 'vip' || req.query?.mode === 'vip';
+
+    // Fetch record if not already loaded by ownership middleware
+    let record = req.record;
+    if (!record && req.params?.id) {
+      const path = req.originalUrl || '';
+      let Model = null;
+      if (path.includes('/iching') || path.includes('/hexagrams')) {
+        const IChingRecord = require('../models/IChingRecord');
+        Model = IChingRecord;
+      } else if (path.includes('/bazi')) {
+        const BaziRecord = require('../models/BaziRecord');
+        Model = BaziRecord;
+      } else if (path.includes('/ziwei') || path.includes('/tu-vi')) {
+        const ZiweiRecord = require('../models/ZiweiRecord');
+        Model = ZiweiRecord;
+      } else if (path.includes('/marriage')) {
+        const MarriageRecord = require('../models/MarriageRecord');
+        Model = MarriageRecord;
+      }
+      if (Model) {
+        record = await Model.findById(req.params.id);
+        if (record) req.record = record;
+      }
+    }
+
+    // 1. Trạng thái: Đã có bài luận giải chuyên sâu (VIP)
+    if (record?.aiInterpretation?.mode === 'vip' && record.aiInterpretation?.content) {
+      return res.status(400).json({
+        error: 'Lá số / quẻ này đã có bài luận giải chuyên sâu VIP hoàn chỉnh. Không thể gửi thêm yêu cầu luận giải.'
+      });
+    }
+
+    // 2. Trạng thái: Đã có bài luận giải thường, và client chỉ yêu cầu bản thường -> Trả về cache ngay ở 0ms, không gọi AI, không trừ credit
+    if (!isVipMode && record?.aiInterpretation?.content) {
+      return res.json({
+        content: record.aiInterpretation.content,
+        mode: record.aiInterpretation.mode || 'standard',
+        fromCache: true
+      });
+    }
+
+    // 3. Tính toán chi phí credit:
+    // - Luận giải thường mới: 1 credit
+    // - Nâng cấp từ thường lên VIP: 4 credits (chênh lệch 5 - 1 = 4)
+    // - Luận giải VIP mới từ đầu: 5 credits
+    let requiredCost = 1;
+    if (isVipMode) {
+      const hasStandard = !!(record?.aiInterpretation?.content);
+      requiredCost = hasStandard ? 4 : 5;
+    }
+    req.creditCost = requiredCost;
+
     // Attach helper to refund credit if request fails or reads from cache
     req.creditDecremented = false;
     req.refundCredit = async () => {
@@ -56,7 +110,7 @@ const creditCheck = async (req, res, next) => {
         try {
           const refundedUser = await User.findByIdAndUpdate(
             req.user._id,
-            { $inc: { credits: 1 } },
+            { $inc: { credits: requiredCost } },
             { new: true }
           );
           if (refundedUser) {
@@ -77,14 +131,14 @@ const creditCheck = async (req, res, next) => {
 
     // Atomic credit decrement check
     const updatedUser = await User.findOneAndUpdate(
-      { _id: userId, credits: { $gt: 0 } },
-      { $inc: { credits: -1 } },
+      { _id: userId, credits: { $gte: requiredCost } },
+      { $inc: { credits: -requiredCost } },
       { new: true }
     );
 
     if (!updatedUser) {
       return res.status(402).json({ 
-        error: 'Lượt sử dụng của bạn = 0. Hãy chờ qua ngày mới để +1 lượt sử dụng hoặc nạp thêm tiền để có thể sử dụng luận giải ngay nhé.' 
+        error: `Bạn không đủ lượt sử dụng (cần ${requiredCost} credits, hiện có ${user.credits || 0} credits). Vui lòng nạp thêm lượt sử dụng để tiếp tục.` 
       });
     }
 

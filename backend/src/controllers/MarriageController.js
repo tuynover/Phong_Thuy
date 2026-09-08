@@ -82,27 +82,19 @@ class MarriageController {
             const uid = userId || 'guest';
             const dayMode = dayBoundaryMode || 'midnight';
 
-            // Check duplicate to prevent redundant calculations (Semantic Idempotency)
-            const existingRecord = await MarriageRecord.findOne({
-                userId: uid,
-                'inputInfo.male.date': male.date,
-                'inputInfo.male.time': male.time,
-                'inputInfo.female.date': female.date,
-                'inputInfo.female.time': female.time,
-                isDeleted: { $ne: true }
-            });
+            // Chống spam 10 request đồng thời cùng bộ dữ liệu (In-Flight Concurrency Protection 2.5s)
+            const { acquireRedisLock, releaseRedisLock } = require('../config/redis');
+            const lockKey = `inflight:marriage:${uid}:${male.date}:${male.time}:${female.date}:${female.time}`;
 
-            if (existingRecord) {
-                const maleBazi = formatBaziData(existingRecord.maleBaziData);
-                const femaleBazi = formatBaziData(existingRecord.femaleBaziData);
-                return res.json({
-                    _id: existingRecord._id,
-                    recordId: existingRecord._id,
-                    maleBaziData: maleBazi,
-                    femaleBaziData: femaleBazi,
-                    aiInterpretation: existingRecord.aiInterpretation
+            const acquired = await acquireRedisLock(lockKey, 2500);
+            if (!acquired) {
+                return res.status(429).json({
+                    error: 'Yêu cầu của bạn đang được hệ thống xử lý, vui lòng không nhấn gửi liên tục.'
                 });
             }
+            res.on('finish', () => {
+                releaseRedisLock(lockKey);
+            });
 
             // Analyze Male (gender = 1)
             const maleResult = BaziAnalyzer.analyze(male.date, male.time, 1, dayMode);

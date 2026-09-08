@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { setUserProfileCache } = require('../config/redis');
 
 module.exports = async (req, res, next) => {
   try {
@@ -57,6 +58,8 @@ module.exports = async (req, res, next) => {
         error: 'Số credit của bạn không đủ để tiếp tục trò chuyện (cần tối thiểu 0.5 credit). Vui lòng quay lại vào hôm sau hoặc nạp thêm credit.' 
       });
     }
+
+    setUserProfileCache(userId, updatedUser);
 
     req.user = decoded.user || updatedUser;
     req.dbUser = updatedUser;

@@ -23,6 +23,10 @@ class AiService {
         cleaned = cleaned.replace(/^```[a-z]*\s*/i, '');
         // Loại bỏ ``` ở cuối chuỗi
         cleaned = cleaned.replace(/\s*```$/, '');
+        // Khử các ký tự Hán tự thô nếu LLM như Llama/Qwen lỡ sinh ra
+        cleaned = cleaned.replace(/沟通/g, 'lắng nghe và chia sẻ');
+        cleaned = cleaned.replace(/夫妻/g, 'vợ chồng');
+        cleaned = cleaned.replace(/[\u4e00-\u9fa5]+/g, '');
         return cleaned.trim();
     }
 

@@ -36,35 +36,27 @@ class ZiweiController {
         date = `${solarObj.getYear()}-${String(solarObj.getMonth()).padStart(2, '0')}-${String(solarObj.getDay()).padStart(2, '0')}`;
       }
 
-      // 1. Kiểm tra bằng Idempotency Key header nếu được cung cấp
-      if (idempotencyKey) {
-        const dupRecord = await ZiweiRecord.findOne({ idempotencyKey, isDeleted: { $ne: true } });
-        if (dupRecord) {
-          return res.json(dupRecord);
-        }
-      }
-
-      // 2. Tạo mã băm lá số thô để kiểm tra cache & database (Semantic Idempotency)
+      // Chống spam 10 request đồng thời cùng bộ dữ liệu (In-Flight Concurrency Protection 2.5s)
+      const { acquireRedisLock, releaseRedisLock } = require('../config/redis');
       const chartHash = ZiweiCache.generateChartHash({ date, hour, gender, timezone, school, calendarType });
-      
-      // A. Kiểm tra Memory Cache trước
-      const cachedChart = ZiweiCache.getChart(chartHash);
-      if (cachedChart) {
-        return res.json(cachedChart);
-      }
+      const lockKey = `inflight:ziwei:${userId}:${chartHash}`;
 
-      // B. Kiểm tra Database xem đã tồn tại lá số này cho user chưa (Database Idempotency)
-      const existingRecord = await ZiweiRecord.findOne({ userId, chartHash, isDeleted: { $ne: true } });
-      if (existingRecord) {
-        ZiweiCache.setChart(chartHash, existingRecord);
-        return res.json(existingRecord);
+      const acquired = await acquireRedisLock(lockKey, 2500);
+      if (!acquired) {
+        return res.status(429).json({
+          error: 'Yêu cầu của bạn đang được hệ thống xử lý, vui lòng không nhấn gửi liên tục.'
+        });
       }
+      res.on('finish', () => {
+        releaseRedisLock(lockKey);
+      });
 
       // 3. Chạy bộ máy tính toán an sao thô độc lập
       const rawAstrolabe = AstrologyEngine.generate('tu_vi', { date, hour, gender, lang: 'vi-VN' });
       
       // 4. Tạo ID mới và chuẩn hóa dữ liệu Standard Output
-      const recordId = new mongoose.Types.ObjectId().toString();
+      const { v7: uuidv7 } = require('uuid');
+      const recordId = uuidv7();
       const metadata = { engine_version: "1.0.0", prompt_version: "tv_prompt_v1", knowledge_version: "tv_know_v1", calendar_type: calendarType, school, timezone };
       const formattedOutput = ZiweiFormatter.toStandardOutput(rawAstrolabe, recordId, metadata);
 

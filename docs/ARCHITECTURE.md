@@ -26,6 +26,9 @@ graph TD
         IChingB & BaziB & ZiweiB & MarriageB --> ChatW[AiChatWidget.jsx]
         IChingB & BaziB & ZiweiB & MarriageB --> FloatT[FloatingErrorToast.jsx]
         IChingB & BaziB & ZiweiB & MarriageB --> Tooltip[Tooltip.jsx]
+        IChingB & BaziB & ZiweiB & MarriageB --> TierM[InterpretationTierModal.jsx]
+        IChingB & BaziB & ZiweiB & MarriageB --> VipB[VipUpgradeBanner.jsx]
+        IChingB & BaziB & ZiweiB & MarriageB --> VipT[VipProgressTracker.jsx]
         ChatW --> SecR[SectionRenderer.jsx]
         
         UserApp --> NotifB[NotificationBell.jsx]
@@ -59,6 +62,7 @@ graph TD
         Services --> BaziAna[BaziAnalyzer.js]
         Services --> ZiweiF[ZiweiFormatter.js]
         Services --> AiS[AiService.js]
+        Services --> MultiAgent[MultiAgentPipelineService.js]
         Services --> SseS[SseService.js]
         Services --> SchedS[NotificationScheduler.js]
         Services --> ConvCtxS[ConversationContextService.js]
@@ -117,6 +121,49 @@ sequenceDiagram
 
 ### 2.2 Đồng bộ hóa hoàn toàn các Luồng Luận giải AI
 Tất cả các phân hệ Kinh Dịch, Bát Tự, Tử Vi và Hợp Hôn hiện nay đều đã chuyển sang chạy trực tiếp và phát dòng dữ liệu (SSE Stream) thời gian thực. Hạ tầng hàng đợi bất đồng bộ trước đây (`JobQueueService.js` và bảng dữ liệu `AstrologyJob`) đã bị **xóa bỏ hoàn toàn** để làm sạch dự án và tránh các mã nguồn dư thừa.
+
+### 2.3 Luồng Multi-Agent VIP Pipeline (3 Tầng Phân Tích Chuyên Sâu với Gemini Chief Editor)
+Phân hệ Luận giải Chuyên sâu VIP áp dụng kiến trúc 3 Tầng Multi-Agent Pipeline nhằm tạo ra công trình nghiên cứu mệnh lý toàn diện 6.500+ từ (~34.000 ký tự) qua 6 Chương học thuật và chuyên đề Điều Hòa Chiến Lược:
+
+```mermaid
+sequenceDiagram
+    participant User as Người dùng (Frontend)
+    participant Ctrl as AiInterpretationController
+    participant Pipeline as MultiAgentPipelineService
+    participant Tier1 as Tầng 1: CoT & Master Timeline (Gemini + Qwen Plus)
+    participant Tier2 as Tầng 2: 6 Replicas Parallel (Qwen Plus / Gemini Flash Lite)
+    participant Tier3 as Tầng 3: Gemini Chief Editor & Strategic Harmonizer
+
+    User->>Ctrl: POST /api/ai/:system/:id/interpret (mode: 'vip')
+    Ctrl->>Pipeline: runVipPipelineStream(prompt, birthYear)
+    
+    rect rgb(240, 245, 255)
+    Note over Pipeline,Tier1: TẦNG 1: Phân Tích Cốt Lõi Song Song & Khóa Master Timeline (~20s)
+    Pipeline->>Tier1: Gọi đồng thời Qwen Plus (Mệnh Cách CoT + Timeline) + Gemini (Dụng Thần)
+    Tier1-->>Pipeline: Trả về 2 bản phân tích xương sống & mốc niên biểu vàng
+    end
+
+    rect rgb(255, 250, 240)
+    Note over Pipeline,Tier2: TẦNG 2: 6 Replicas Chuyên Sâu Song Song (~35s)
+    Pipeline->>Tier2: Kích hoạt đồng thời 6 Replicas cho 6 Chương
+    Note over Tier2: Ch1, Ch2 (Qwen Plus); Ch3, Ch4, Ch5, Ch6 (Gemini SDK trực tiếp)
+    Tier2-->>Pipeline: 6 bài phân tích chi tiết của 6 Chương (~32.000 ký tự)
+    end
+
+    rect rgb(240, 255, 240)
+    Note over Pipeline,Tier3: TẦNG 3: Gemini Tổng Biên Tập Thẩm Định & Điều Hòa (~8s)
+    Pipeline->>Tier3: Gửi TOÀN BỘ 6 Chương + CoT Tầng 1 vào Gemini 1M Context Window
+    Tier3-->>Pipeline: 1. Dẫn nhập & SWOT thực chiến 100% chiết xuất từ 6 chương
+    Tier3-->>Pipeline: 2. Chiến lược điều hòa đa mục tiêu & Master Action Roadmap
+    
+    loop Phát dòng toàn văn 100% không nén
+        Pipeline-->>User: Phát dòng Dẫn nhập SWOT
+        Pipeline-->>User: Phát dòng 100% nguyên bản Chương 1 -> Chương 6
+        Pipeline-->>User: Phát dòng Chiến lược Điều hòa Đa mục tiêu & Đúc kết
+    end
+    Pipeline-->>User: data: [DONE]
+    end
+```
 
 ---
 

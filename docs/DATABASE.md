@@ -80,6 +80,7 @@ Lưu trữ thông tin câu hỏi, quẻ chính/quẻ biến được gieo, snaps
     feedback: { type: String, default: '' },
     aiInterpretation: {
       content: { type: String, default: "" },
+      mode: { type: String, enum: ['standard', 'vip'], default: 'standard' },
       generatedAt: { type: Date, default: null },
       model: { type: String, default: "" },
       tokensUsed: { type: Number, default: 0 }
@@ -135,7 +136,7 @@ Lưu trữ thông tin lá số Tứ Trụ học thuật và các bài phân tíc
     tietKhiTimeline: { type: String, required: true },
     baziData: { type: Object, required: true },
     rating: { type: Number, default: null },
-    aiInterpretation: { content: String, generatedAt: Date, tokensUsed: Number },
+    aiInterpretation: { content: String, mode: { type: String, enum: ['standard', 'vip'], default: 'standard' }, generatedAt: Date, tokensUsed: Number },
     analysisSnapshot: { type: Object, default: null },
     status: { type: String, enum: ['active', 'locked'], default: 'active' },
     isPublic: { type: Boolean, default: false },
@@ -168,6 +169,7 @@ Lưu trữ thông số bản mệnh Tử Vi thô lập từ thư viện iztro v�
     rating: { type: Number, default: null },
     aiInterpretation: {
       content: String,
+      mode: { type: String, enum: ['standard', 'vip'], default: 'standard' },
       summary: String,
       sections: Array,
       generatedAt: Date
@@ -194,7 +196,7 @@ Lưu trữ kết quả so sánh Bát Tự và độ hòa hợp của hai đối 
     maleBaziData: { type: Object, required: true },
     femaleBaziData: { type: Object, required: true },
     rating: { type: Number, default: null },
-    aiInterpretation: { content: String, generatedAt: Date },
+    aiInterpretation: { content: String, mode: { type: String, enum: ['standard', 'vip'], default: 'standard' }, generatedAt: Date },
     status: { type: String, enum: ['active', 'locked'], default: 'active' },
     isPublic: { type: Boolean, default: false },
     isDeleted: { type: Boolean, default: false }

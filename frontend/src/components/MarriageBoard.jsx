@@ -2,9 +2,12 @@ import React, { useState, useEffect, useContext, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { AuthContext } from '../context/AuthContext';
 import { getInterpretationStreamUrl, rateMarriage, togglePublicCalculation } from '../services/api';
-import { AlertCircle, BookOpen, ScrollText, Heart, X, ArrowUp, ArrowDown, MessageCircle, Star } from 'lucide-react';
+import { AlertCircle, BookOpen, ScrollText, Heart, X, ArrowUp, ArrowDown, MessageCircle, Star, Zap, Crown } from 'lucide-react';
 import Tooltip from './Tooltip';
 import SectionRenderer from './SectionRenderer';
+import InterpretationTierModal from './InterpretationTierModal';
+import VipUpgradeBanner from './VipUpgradeBanner';
+import VipProgressTracker from './VipProgressTracker';
 import { parseMarkdownSections } from '../utils/markdownParser';
 import AiChatWidget from './AiChatWidget';
 import FloatingNotificationToast from './FloatingNotificationToast';
@@ -40,11 +43,19 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
 
     // AI Interpretation States
     const [interpretation, setInterpretation] = useState('');
+    const [interpretationMode, setInterpretationMode] = useState(data?.aiInterpretation?.mode || 'standard');
     const [isInterpreting, setIsInterpreting] = useState(false);
+    const [showTierModal, setShowTierModal] = useState(false);
+    const [isUpgradeModal, setIsUpgradeModal] = useState(false);
+    const [vipChapter, setVipChapter] = useState(1);
+    const [vipCompletedChapters, setVipCompletedChapters] = useState([]);
+    const [vipActiveChapters, setVipActiveChapters] = useState([]);
+    const [vipStreamingChapter, setVipStreamingChapter] = useState(null);
+    const [vipStatusMessage, setVipStatusMessage] = useState('');
+    const [isVipCompleted, setIsVipCompleted] = useState(false);
     const [error, setError] = useState('');
     const [loadingStep, setLoadingStep] = useState(0);
     const [abortController, setAbortController] = useState(null);
-    const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [isChatOpen, setIsChatOpen] = useState(false);
 
     const [rating, setRating] = useState(0);
@@ -62,8 +73,10 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
         }
         if (data?.aiInterpretation && data.aiInterpretation.content) {
             setInterpretation(data.aiInterpretation.content);
+            setInterpretationMode(data.aiInterpretation.mode || 'standard');
         } else {
             setInterpretation('');
+            setInterpretationMode('standard');
         }
         setRating(data?.rating || 0);
         setFeedback(data?.feedback || '');
@@ -367,14 +380,28 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
             return;
         }
 
-        setShowConfirmModal(true);
+        setIsUpgradeModal(false);
+        setShowTierModal(true);
     };
 
-    const triggerLuanGiai = async () => {
-        setShowConfirmModal(false);
+    const triggerLuanGiai = async (tier = 'standard') => {
+        setShowTierModal(false);
         setIsInterpreting(true);
         setError('');
+
+        const isVip = tier === 'vip';
+        const isUpgrade = isUpgradeModal || (isVip && !!interpretation);
+        const costToDeduct = isUpgrade ? 4 : (isVip ? 5 : 1);
+
+        // 0ms Instant Reset
         setInterpretation('');
+        setInterpretationMode(isVip ? 'vip' : 'standard');
+        setVipChapter(1);
+        setVipCompletedChapters([]);
+        setVipActiveChapters([]);
+        setVipStreamingChapter(null);
+        setVipStatusMessage(isVip ? 'Đang khởi động hệ thống phân tích...' : '');
+        setIsVipCompleted(false);
 
         const controller = new AbortController();
         setAbortController(controller);
@@ -391,12 +418,15 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
             const response = await fetch(streamUrl, {
                 method: 'POST',
                 headers,
-                body: JSON.stringify({ userId: user?.id || user?._id || 'guest' }),
+                body: JSON.stringify({ 
+                    userId: user?.id || user?._id || 'guest',
+                    mode: isVip ? 'vip' : 'standard'
+                }),
                 signal: controller.signal
             });
 
             if (!response.ok) {
-                const errData = await response.json();
+                const errData = await response.json().catch(() => ({}));
                 throw new Error(errData.error || 'Lỗi khi gọi dịch vụ giải đoán.');
             }
 
@@ -420,6 +450,27 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
                         }
                         try {
                             const parsed = JSON.parse(dataStr);
+                            if (parsed.error) {
+                                throw new Error(parsed.error);
+                            }
+                            if (parsed.message) {
+                                setVipStatusMessage(parsed.message);
+                            }
+                            if (parsed.stage === 'streaming' && parsed.streamingChapterId) {
+                                setVipStreamingChapter(parsed.streamingChapterId);
+                            }
+                            if (parsed.chapterId) {
+                                setVipChapter(parsed.chapterId);
+                                if (parsed.status === 'completed') {
+                                    setVipCompletedChapters(prev => prev.includes(parsed.chapterId) ? prev : [...prev, parsed.chapterId]);
+                                    setVipActiveChapters(prev => prev.filter(id => id !== parsed.chapterId));
+                                } else if (parsed.status === 'in_progress') {
+                                    setVipActiveChapters(prev => prev.includes(parsed.chapterId) ? prev : [...prev, parsed.chapterId]);
+                                }
+                            }
+                            if (parsed.isCompleted || (parsed.stage === 'completed')) {
+                                setIsVipCompleted(true);
+                            }
                             if (parsed.chunk) {
                                 const isFirstChunk = !currentText;
                                 currentText += parsed.chunk;
@@ -447,6 +498,7 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
                     ...prev,
                     aiInterpretation: {
                         content: currentText,
+                        mode: isVip ? 'vip' : 'standard',
                         generatedAt: new Date()
                     }
                 }));
@@ -456,20 +508,23 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
             if (user && user.role !== 'admin' && user.role !== 'co-admin') {
                 setUser(prev => {
                     if (!prev) return prev;
-                    const updated = { ...prev, credits: Math.max(0, prev.credits - 1) };
+                    const updated = { ...prev, credits: Math.max(0, prev.credits - costToDeduct) };
                     localStorage.setItem('user', JSON.stringify(updated));
                     return updated;
                 });
             }
 
         } catch (err) {
-            if (err.name !== 'AbortError') {
+            if (err.name === 'AbortError') {
+                console.log("Interpretation aborted.");
+            } else {
                 console.error(err);
-                setError(err.message || 'Lỗi kết nối hoặc đứt quãng luồng giải đoán.');
+                setError(err.message || "Hệ thống luận giải đang bận hoặc gặp lỗi. Vui lòng thử lại sau.");
             }
         } finally {
             setIsInterpreting(false);
             setAbortController(null);
+            if (isVip) setIsVipCompleted(true);
         }
     };
 
@@ -851,15 +906,45 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
                 </div>
             </div>
 
-            {interpretation && (
+            {(interpretation || isInterpreting) && (
                 <div id="marriage-interpretation-section" className="bg-transparent space-y-6">
                     <div className="flex items-center gap-3 mb-6 ml-1">
                         <div className="w-8 h-8 bg-rose-800 rounded-lg flex items-center justify-center shadow-md">
                             <BookOpen className="text-white" size={16} />
                         </div>
-                        <h3 className="text-xl font-extrabold text-slate-800 tracking-tight">Thầy Luận Giải Bát Tự Hợp Hôn</h3>
+                        <h3 className="text-xl font-extrabold text-slate-800 tracking-tight">
+                            {interpretationMode === 'vip' ? 'Luận Giải Hợp Hôn Chuyên Sâu (6 Chương)' : 'Thầy Luận Giải Bát Tự Hợp Hôn'}
+                        </h3>
                     </div>
-                    <SectionRenderer sections={parseMarkdownSections(interpretation, 'marriage')} theme="marriage" />
+
+                    {/* Tracker 6 Chương */}
+                    {interpretationMode === 'vip' && (
+                        <VipProgressTracker
+                            completedChapters={vipCompletedChapters}
+                            activeChapters={vipActiveChapters}
+                            streamingChapter={vipStreamingChapter}
+                            currentChapter={vipChapter}
+                            isCompleted={isVipCompleted || !isInterpreting}
+                            statusMessage={vipStatusMessage}
+                        />
+                    )}
+
+                    {interpretation && (
+                        <SectionRenderer sections={parseMarkdownSections(interpretation, 'marriage')} theme="marriage" />
+                    )}
+
+                    {/* Banner Nâng Cấp VIP ở cuối bài luận giải thường */}
+                    {interpretation && interpretationMode !== 'vip' && !isInterpreting && (
+                        <div className="mt-8">
+                            <VipUpgradeBanner
+                                userCredits={user?.credits || 0}
+                                onUpgradeClick={() => {
+                                    setIsUpgradeModal(true);
+                                    setShowTierModal(true);
+                                }}
+                            />
+                        </div>
+                    )}
 
                     {/* ĐÁNH GIÁ PHẢN HỒI */}
                     {(!data?.rating || justRated) && (
@@ -914,7 +999,9 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
             {isInterpreting && !interpretation && (
                 <div className="bg-[#faf6f0] p-10 md:p-20 rounded-[2rem] border border-amber-200/50 shadow-sm text-center space-y-4">
                     <div className="w-12 h-12 border-4 border-amber-200 border-t-amber-800 rounded-full animate-spin mx-auto"></div>
-                    <p className="text-amber-900 font-bold text-base animate-pulse">{loadingTexts[loadingStep]}</p>
+                    <p className="text-amber-900 font-bold text-base animate-pulse">
+                        {interpretationMode === 'vip' ? `Đang Phân Tích C${vipChapter}...` : loadingTexts[loadingStep]}
+                    </p>
                 </div>
             )}
 
@@ -945,7 +1032,9 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
                     {isInterpreting ? (
                         <>
                             <div className="w-5 h-5 border-2 border-rose-600 border-t-transparent rounded-full animate-spin"></div>
-                            <span className="text-sm">{loadingTexts[loadingStep]}</span>
+                            <span className="text-sm">
+                                {interpretationMode === 'vip' ? `Đang Phân Tích C${vipChapter}...` : loadingTexts[loadingStep]}
+                            </span>
                         </>
                     ) : (
                         <>
@@ -955,13 +1044,31 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
                     )}
                 </button>
             ) : !isChatOpen && user && (
-                <button
-                    onClick={() => setIsChatOpen(true)}
-                    className="fixed bottom-4 md:bottom-8 right-4 md:right-8 z-50 flex items-center gap-2 px-6 py-3.5 rounded-full shadow-2xl transition-all duration-300 font-extrabold border bg-gradient-to-r from-rose-800 to-rose-950 hover:from-rose-900 hover:to-rose-950 text-white border-rose-700 hover:scale-105 hover:shadow-rose-900/40 uppercase text-xs tracking-wider animate-pulse"
-                >
-                    <MessageCircle size={20} />
-                    <span>Hỏi Đáp AI</span>
-                </button>
+                <div className="fixed bottom-4 md:bottom-8 right-4 md:right-8 z-50 flex flex-col items-end gap-2.5">
+                    {/* Nút "Nâng Cấp Luận Giải" nằm ngay PHÍA TRÊN nút "Hỏi Đáp AI" nếu chưa có bản VIP */}
+                    {interpretationMode !== 'vip' && (
+                        <button
+                            onClick={() => {
+                                setIsUpgradeModal(true);
+                                setShowTierModal(true);
+                            }}
+                            disabled={isInterpreting}
+                            className="flex items-center gap-2 px-5 py-3 rounded-full shadow-2xl transition-all duration-300 font-extrabold border bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 hover:from-amber-400 hover:to-amber-500 text-slate-950 border-amber-300/60 shadow-amber-500/30 hover:scale-105 active:scale-95 text-xs sm:text-sm uppercase tracking-wider ring-4 ring-amber-500/20"
+                        >
+                            <Crown className="w-4 h-4 fill-current animate-pulse text-slate-950" />
+                            <span>Nâng Cấp Luận Giải</span>
+                        </button>
+                    )}
+
+                    {/* Nút "Hỏi Đáp AI" */}
+                    <button
+                        onClick={() => setIsChatOpen(true)}
+                        className="flex items-center gap-2 px-6 py-3.5 rounded-full shadow-2xl transition-all duration-300 font-extrabold border bg-gradient-to-r from-rose-800 to-rose-950 hover:from-rose-900 hover:to-rose-950 text-white border-rose-700 hover:scale-105 hover:shadow-rose-900/40 uppercase text-xs tracking-wider animate-pulse"
+                    >
+                        <MessageCircle size={20} />
+                        <span>Hỏi Đáp AI</span>
+                    </button>
+                </div>
             )}
 
             {interpretation && resolvedRecordId && user && (
@@ -974,81 +1081,14 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
                 />
             )}
 
-            {/* CONFIRMATION MODAL */}
-            {showConfirmModal && (
-                <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-                    <div className="bg-white border border-gray-200 rounded-3xl w-full max-w-md p-6 relative shadow-2xl space-y-4 font-sans text-left">
-                        <button
-                            type="button"
-                            onClick={() => setShowConfirmModal(false)}
-                            className="absolute top-4 right-4 text-gray-400 hover:text-gray-650 transition-colors"
-                        >
-                            <X size={20} />
-                        </button>
-                        
-                        <h3 className="text-lg font-bold text-rose-900 flex items-center gap-2">
-                            <Heart size={20} className="text-rose-600" />
-                            Xác Nhận Luận Giải AI
-                        </h3>
-
-                        {user?.role === 'admin' || user?.role === 'co-admin' ? (
-                            <>
-                                <p className="text-gray-600 mb-6 leading-relaxed text-sm">
-                                    Tài khoản quản trị viên có quyền luận giải không giới hạn. Bạn có chắc chắn muốn khởi động luận giải hợp hôn chi tiết của cặp đôi này không?
-                                </p>
-                                <div className="flex justify-end gap-3">
-                                    <button 
-                                        onClick={() => setShowConfirmModal(false)}
-                                        className="px-4 py-2 text-gray-500 hover:bg-gray-150 rounded-lg font-bold text-sm transition-colors"
-                                    >
-                                        Hủy bỏ
-                                    </button>
-                                    <button 
-                                        onClick={triggerLuanGiai}
-                                        className="px-5 py-2 bg-rose-800 hover:bg-rose-900 text-white rounded-lg font-bold text-sm shadow transition-colors"
-                                    >
-                                        Đồng ý
-                                    </button>
-                                </div>
-                            </>
-                        ) : user?.credits > 0 ? (
-                            <>
-                                <p className="text-gray-600 mb-6 leading-relaxed text-sm">
-                                    Bạn còn <span className="font-extrabold text-rose-850">{user?.credits}</span> lượt sử dụng. Mỗi lần luận giải AI sẽ tiêu thụ <span className="font-bold">1 credit</span>. Bạn có chắc chắn muốn khởi động luận giải hợp hôn chi tiết của cặp đôi này không?
-                                </p>
-                                <div className="flex justify-end gap-3">
-                                    <button 
-                                        onClick={() => setShowConfirmModal(false)}
-                                        className="px-4 py-2 text-gray-505 hover:bg-gray-100 rounded-lg font-bold text-sm transition-colors"
-                                    >
-                                        Hủy bỏ
-                                    </button>
-                                    <button 
-                                        onClick={triggerLuanGiai}
-                                        className="px-5 py-2 bg-rose-800 hover:bg-rose-900 text-white rounded-lg font-bold text-sm shadow transition-colors"
-                                    >
-                                        Đồng ý
-                                    </button>
-                                </div>
-                            </>
-                        ) : (
-                            <>
-                                <p className="text-red-750 bg-red-50 border border-red-100 p-3.5 rounded-xl mb-6 leading-relaxed text-xs sm:text-sm font-medium">
-                                    ⚠️ Bạn đã hết lượt luận giải (0 credits). Mỗi ngày hệ thống sẽ tự động tặng bạn +1 credit. Hãy liên hệ Ban Quản Trị hoặc nâng cấp để tiếp tục sử dụng.
-                                </p>
-                                <div className="flex justify-end">
-                                    <button 
-                                        onClick={() => setShowConfirmModal(false)}
-                                        className="px-5 py-2 bg-gray-800 text-white rounded-lg font-bold text-sm transition-colors shadow"
-                                    >
-                                        Đóng
-                                    </button>
-                                </div>
-                            </>
-                        )}
-                    </div>
-                </div>
-            )}
+            {/* TIER SELECTION / UPGRADE MODAL */}
+            <InterpretationTierModal
+                isOpen={showTierModal}
+                onClose={() => setShowTierModal(false)}
+                onConfirm={triggerLuanGiai}
+                userCredits={user?.credits || 0}
+                isUpgrade={isUpgradeModal}
+            />
 
             {/* FLOATING SCROLL BUTTONS */}
             <div className="fixed bottom-4 md:bottom-8 left-4 md:left-8 z-40 flex flex-col gap-1 pointer-events-auto bg-transparent border-none shadow-none">

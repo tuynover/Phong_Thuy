@@ -54,6 +54,7 @@ const ziweiRecordSchema = new mongoose.Schema({
   },
   aiInterpretation: {
     content: { type: String, default: "" },
+    mode: { type: String, enum: ['standard', 'vip'], default: 'standard' },
     summary: { type: String, default: "" },
     sections: { type: Array, default: [] },
     generatedAt: { type: Date, default: null },
@@ -98,6 +99,7 @@ const ziweiRecordSchema = new mongoose.Schema({
   timestamps: true
 });
 
+ziweiRecordSchema.index({ userId: 1, isDeleted: 1, isPinned: -1, createdAt: -1 }); // Compound index tối ưu cho sort { isPinned: -1, createdAt: -1 }
 ziweiRecordSchema.index({ userId: 1, tags: 1 });
 ziweiRecordSchema.index({ userId: 1, isDeleted: 1, createdAt: -1 }); // Compound index cho query lịch sử: { userId, isDeleted: { $ne: true } } sort createdAt: -1
 ziweiRecordSchema.index({ userId: 1, createdAt: -1 });

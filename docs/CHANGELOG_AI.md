@@ -2,7 +2,453 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
-## 📅 Phiên bản: Bổ Sung Từ Điển Chú Giải Địa Chi Thân Bát Tự (31/08/2026)
+## 📅 Phiên bản: Toàn Diện Blackbox Testing & Kiểm Định Hệ Thống VIP Bát Tự (08/09/2026)
+
+### 🧪 1. Ma Trận Blackbox Testing 7 Kịch Bản (TC-BB01 -> TC-BB07)
+Đã thực hiện kiểm thử hộp đen (Blackbox Testing) toàn diện trên hệ thống luận giải Bát Tự VIP, bao gồm phân tích giá trị biên (BVA), lớp tương đương (Equivalence Partitioning), kiểm soát đồng thời (Concurrency Lock), ranh giới bảo mật IDOR và khả năng thích ứng giao diện thiết bị di động (Responsive UI):
+- **TC-BB01 (Boundary - Form Trống & Thiếu Dữ Liệu)**:
+  - *Input*: Submit form khi chưa điền ngày sinh hoặc can chi.
+  - *Kết quả*: Client-side `BaziInput.jsx` chặn submit, kích hoạt banner thông báo lỗi; Backend API trả mã 400 Bad Request (`Vui lòng cung cấp ngày sinh`). **[PASS]**
+- **TC-BB02 (BVA - Ngày Không Tồn Tại Trên Thực Tế: 31/02/2000)**:
+  - *Input*: Ngày 31, Tháng 02, Năm 2000 (năm nhuận chỉ có tối đa 29 ngày).
+  - *Kết quả*: `validateInputDate` phát hiện $31 > 29$, disable nút submit ngay lập tức; Backend API `InputValidator.isValidRealDate` từ chối với status 400 (`Ngày sinh 31/02/2000 không tồn tại trên thực tế hoặc nằm ngoài khoảng hợp lệ`). **[PASS]**
+- **TC-BB03 (Boundary - Ngày Sinh Ở Tương Lai: 15/08/2030)**:
+  - *Input*: 15/08/2030.
+  - *Kết quả*: Client-side kiểm tra `dateObj.getTime() > Date.now()` và hiển thị cảnh báo `Ngày sinh không thể nằm ở tương lai`, khóa nút submit; Backend API trả 400. **[PASS]**
+- **TC-BB04 (Metaphysics Boundary - Giờ Tý Dạ Tý vs Tý Sơ Hoán Nhật: 27/08/2004 lúc 23:30)**:
+  - *Input*: Ngày 27/08/2004, 23:30 với 2 chế độ biên ngày: `midnight` vs `zi_hour`.
+  - *Kết quả*: 
+    + Chế độ `midnight` (Dạ Tý): Trụ Ngày giữ nguyên là `Mậu Dần`, Trụ Giờ là `Giáp Tý`, Nhật Chủ là `Mậu`, Thập Thần giờ sinh là `Thất Sát`.
+    + Chế độ `zi_hour` (Tý sơ hoán nhật): Trụ Ngày nhảy sang ngày mới `Kỷ Mão`, Trụ Giờ là `Giáp Tý`, Nhật Chủ đổi thành `Kỷ`, Thập Thần giờ sinh chuyển hóa thành `Chính Quan`.
+    + Cả 2 trường phái học thuật đều vận hành chính xác 100% về mặt toán học và lịch pháp cổ. **[PASS]**
+- **TC-BB05 (Security & Stress - In-Flight Concurrency Mutex Chống Spam)**:
+  - *Input*: Bắn đồng thời 3 request POST `/api/bazi/analyze` cùng bộ payload trong vòng 10ms.
+  - *Kết quả*: Request 1 giành được Redis Mutex Lock (`inflight:bazi:...`) xử lý thành công 200 OK; Request 2 và 3 lập tức bị chặn với mã 429 Too Many Requests (`Yêu cầu của bạn đang được hệ thống xử lý, vui lòng không nhấn gửi liên tục`). **[PASS]**
+- **TC-BB06 (Responsive Mobile Viewport - iPhone 14 390x844)**:
+  - *Môi trường*: Chrome DevTools MCP resize viewport 390x844 px.
+  - *Kết quả*: Header tự động co thành thanh điều hướng di động gọn gàng; Lưới 4 Trụ tự điều chỉnh thành dạng 2x2; Các bảng biểu Thập Thần và bảng Markdown "Master Action Roadmap" 4 cột tự bọc trong khung trượt ngang mượt mà, không vỡ layout, không tràn chữ ngang; Nút chat "Hỏi Thêm Thầy" ghim nổi góc dưới không che khuất nội dung. Console: 0 lỗi. **[PASS]**
+- **TC-BB07 (Data Privacy Boundary - Chống Xem Chéo IDOR)**:
+  - *Input*: Truy cập bản ghi Bát Tự riêng tư (`isPublic: false`) thuộc User A bằng khách vãng lai và bằng token của User B (Attacker).
+  - *Kết quả*: Middleware `checkRecordOwnership` chặn đứng cả 2 trường hợp với mã 403 Forbidden (`Bạn không có quyền truy cập bản ghi này`). Khi chủ sở hữu bật `isPublic: true`, bản ghi được cấp quyền xem công khai 200 OK. **[PASS]**
+
+
+
+## 📅 Phiên bản: Nâng Cấp Tầng 3 Thành "Gemini Chief Editor & Strategic Harmonizer" & Kiểm Thử Mệnh Người Nổi Tiếng (08/09/2026)
+
+### 🎯 1. Đột Phá Kiến Trúc Tầng 3: Tổng Biên Tập & Điều Hòa Chiến Lược Đa Mục Tiêu
+- **Khắc phục triệt để điểm mù phân tán (Cross-Domain Blind Spot)**:
+  - Trước đây: Tầng 3 chỉ nhận CoT của Tầng 1 và nối chuỗi cơ học các chương, khiến 6 phân hệ chạy song song có nguy cơ "lệch pha chiến lược" (ví dụ: Ch2 khuyên dốc tiền làm giàu nhưng Ch4 cảnh báo tạng phủ suy kiệt).
+  - Nâng cấp: Tận dụng cửa sổ ngữ cảnh khổng lồ (1.000.000 tokens) của Gemini, Tầng 3 nạp **TOÀN BỘ 100% văn bản của 6 chương (~32.000 ký tự)** vào prompt để thực hiện thẩm định chéo (Cross-Domain Audit).
+- **Ma Trận SWOT Thực Chiến 100% (Grounded SWOT)**:
+  - Bảng SWOT ở đầu bài không còn suy đoán chung chung mà trích dẫn trực tiếp những phát hiện cụ thể nhất từ 6 chương (Kho Tài của Ch2, thế Quan Lộc Ch1, Cung Phối Ngẫu Ch3, Tạng Phủ Ch4).
+- **Mục Kết Luận Đột Phá: "CHIẾN LƯỢC ĐIỀU HÒA ĐA MỤC TIÊU & HÓA GIẢI XUNG KHẮC BẢN MỆNH"**:
+  - `### 1. Cân Bằng Giữa Dòng Tiền & Tạng Phủ (Tài Chính vs Sức Khỏe)`: Định rõ nhịp điệu khi nào dấn thân kiếm tiền mà không làm kiệt quệ thể chất.
+  - `### 2. Cân Bằng Giữa Danh Vọng & Hạnh Phúc Gia Đạo (Sự Nghiệp vs Hôn Nhân)`: Nghệ thuật phân bổ thời gian và chuyển hóa năng lượng xung khắc (Lục Xung, Tương Hình).
+  - `### 3. Bảng Lộ Trình Đồng Bộ Hành Động Theo Chu Kỳ (Master Action Roadmap)`: Bảng Markdown 4 cột tổng hợp các mốc niên biểu vàng và chiến lược phòng thủ.
+- **Bảo Toàn Dung Lượng Nguyên Bản**:
+  - Không nén, không cắt cụt; 100% nội dung 6 chương nguyên bản được giữ nguyên ở giữa. Dung lượng toàn bài đạt kỷ lục **34.000 - 34.500 ký tự (~6.800 - 6.900 từ)**.
+- **Frontend Parser ([markdownParser.js](file:///t:/Phongthuy/frontend/src/utils/markdownParser.js))**:
+  - Thêm `summaryRegex` nhận diện `CHIẾN LƯỢC ĐIỀU HÒA` / `ĐÚC KẾT NHÂN SINH` tạo thành một Tab/Accordion riêng biệt mang tiêu đề `Điều Hòa Chiến Lược & Đúc Kết`.
+
+### 🧪 2. Kiểm Thử Nghiệm Thu Trên Lá Số Người Nổi Tiếng
+- **Lá số 1: Bill Gates (28/10/1955 21:30 - Nhâm Tuất)**:
+  - Thời gian sinh: **110.1s**. Độ dài: **34.055 ký tự**.
+  - Kết quả: SWOT xác thực kho tài kép Tuất Thổ, Quý Nhân Thiên Đức/Nguyệt Đức; Điều hòa thành công giữa tài chính tỷ phú/cho đi và sự cô tịch Hoa Cái, xung phá hôn nhân Mùi - Tuất.
+- **Lá số 2: Steve Jobs (24/02/1955 19:15 - Bính Thìn)**:
+  - Thời gian sinh: **100.0s**. Độ dài: **34.517 ký tự**.
+  - Kết quả: Phân tích sâu sắc cách cục quý hiếm "Thực Thần Phối Ấn" (Thực Thần 113.7 điểm Độc Vượng, Ấn Tinh 24%), mở kho sáng tạo Thìn - Tuất tương xung; Điều hòa trực diện giữa ngọn lửa sáng tạo bùng cháy của Bính Hỏa với nguy cơ "hỏa vượng thủy kiệt" (ung thư tuyến tụy) và Master Action Roadmap.
+- **Nghiệm thu Chrome DevTools MCP**:
+  - Mở trực tiếp cả 2 bản ghi trên trình duyệt, chuyển tab mượt mà, render sắc nét toàn bộ các bảng Markdown, 0 lỗi console.
+
+## 📅 Phiên bản: Benchmark Đa Mô Hình & Tối Ưu Hóa Phân Bổ 6 Chương Bát Tự VIP (05/09/2026)
+
+### 🎯 1. Giải Quyết Triệt Để Các Lỗi Học Thuật Cốt Lõi
+- **Mộ Khố & Tài Khố Xác Thực Tiền Định ([astrologyHelpers.js](file:///t:/Phongthuy/backend/src/shared/utils/astrologyHelpers.js), [BaziPrompts.js](file:///t:/Phongthuy/backend/src/services/BaziPrompts.js))**:
+  - Triển khai hàm `getMoKhoAndTaiKhoAnalysis(canChi, dayCan)` quét 4 trụ để xác định chính xác Mộ Khố và ánh xạ Tài Khố (Mậu Thổ $\rightarrow$ Thìn Thủy Khố = Kho Tài). Xác định trạng thái kho đóng/mở và địa chi xung khai (Tuất).
+  - Tiêm trực tiếp kết quả vào prompt chuyên sâu, xóa bỏ hoàn toàn hiện tượng AI chối bỏ sự tồn tại của Mộ Khố ("không có Thìn, Tuất, Sửu, Mùi").
+- **Khóa Cứng Thập Thần Hiện Diện & Triệt Tiêu Thần Sát Ngoại Lai**:
+  - Triển khai `getActualPresentTenGodsSummary` khóa danh sách Thập Thần thực tế, ngăn chặn lỗi nhận nhầm Đinh Hỏa Chính Ấn ở Chương 1.
+  - Loại bỏ hoàn toàn 'Đà La' khỏi danh sách Thần Sát Bát Tự trong `BaziPrompts.js` và cấm triệt để các sao Tử Vi ngoại lai (Kình Dương, Đà La, Không Kiếp).
+- **Phân Định Ranh Giới Độc Quyền 6 Chương & Chuẩn Hóa Bảng Đại Vận 100 Năm ([MultiAgentPipelineService.js](file:///t:/Phongthuy/backend/src/services/MultiAgentPipelineService.js))**:
+  - Thiết lập ranh giới độc quyền không lấn sân giữa các chương (Ch1: Sự nghiệp kỷ nguyên số; Ch2: Dòng tiền & Kho Tài; Ch3: Cung Phối Ngẫu & Dần - Thân; Ch4: Hoàng Đế Nội Kinh; Ch5: Cải vận Dụng Thần; Ch6: Bảng Đại Vận 100 năm).
+  - Khắc phục triệt để lỗi copy-paste nhãn "Thiên Tài" cho mọi đại vận ở Chương 6: Bảng Markdown 9 đại vận tính đúng từng Thập Thần (Ất Mùi Chính Quan, Giáp Tuất Thất Sát, Quý Dậu Chính Tài, Nhâm Thân Thiên Tài...).
+
+### 🚀 2. Nghiên Cứu Benchmark Đa Mô Hình & Phân Bổ Tối Ưu
+- **Đo lường thực nghiệm độc lập từng chương**:
+  + *Qwen Plus (OpenRouter)*: Đạt điểm cao nhất về chiều sâu tư duy kinh tế tri thức và ngôn ngữ phong thủy thực chiến ("Tài nhập kho", "cắt - cân - tái cấu trúc rủi ro phi tuyến"). Phù hợp tối ưu cho **Chương 1 (Sự nghiệp)** và **Chương 2 (Tài chính)**.
+  + *Gemini 3.1 Flash Lite (Google SDK)*: Đạt điểm tuyệt đối về tuân thủ cấu trúc bảng biểu Markdown (100% không vỡ bảng), độ trễ siêu tốc (4 - 8s) và tuân thủ kỷ luật âm dương. Phù hợp hoàn hảo cho **Chương 3 (Hôn nhân)**, **Chương 4 (Sức khỏe)**, **Chương 5 (Phong thủy)**, **Chương 6 (Đại vận 100 năm)** và **Stage 3 (SWOT & Đúc kết)**.
+  + *Loại bỏ 100% DeepSeek khỏi hệ thống*: DeepSeek V3 trên OpenRouter thường xuyên bị treo (hanging 60-90s) hoặc dính lỗi 429 rate limit upstream, gây nghẽn thắt nút cổ chai cho pipeline VIP. Đã loại bỏ hoàn toàn DeepSeek khỏi Stage 1 (chuyển sang Qwen Plus cho Tử Bình CoT), loại bỏ các cấu hình backup/provider DeepSeek, và cập nhật định danh mô hình trên 4 controller thành `Multi-Agent VIP Pipeline (Qwen Plus + Gemini 3.1 Flash Lite)`.
+- **Hiệu năng Hybrid Pipeline**: Toàn bộ luồng phân tích chạy song song ổn định, thời gian Tầng 1 rút ngắn từ 75-90s xuống ~20s, Tầng 2 chỉ mất **35 giây**, tổng độ dài bài luận đạt **30.980 ký tự** (~6.000 từ).
+
+### 🧪 3. Kiểm Thử Giao Diện Trên Chrome DevTools MCP
+- Đã kiểm thử live trên lá số Trịnh Văn Tuyến (`01a06da0-fbc0-74e9-a780-7963cc5ff987`).
+- Render thành công 4 bảng Markdown chuẩn (SWOT, Niên biểu Sự nghiệp, Niên biểu Tài chính, Bảng Đại Vận 100 năm). 0 lỗi console.
+
+## 📅 Phiên bản: Kiến Trúc Prompt Thích Ứng Động (Universal Adaptive System) & Tích Hợp Ma Trận SWOT Mệnh Lý 4 Chiều (05/09/2026)
+
+### 🎯 1. Nguyên Tắc Cốt Lõi: "Có Thì Luận, Không Có Thì Bỏ Qua" (Pragmatic Presence Rule)
+- **Bối Cảnh & Vấn Đề**: Khi áp dụng cho nhiều người dùng với đa dạng lá số khác nhau (Thân vượng, Thân nhược, Tòng cách, khuyết hành, không có Mộ Khố, không có Kiếp Tài, ngũ hành bình hòa...), hệ thống cũ gán cứng `subtopics` bắt buộc khiến AI bị ép "trả bài" hoặc "vẽ việc", dông dài lý thuyết sách vở hoặc dọa dẫm bệnh tật nguy hiểm.
+- **Giải Pháp Triển Khai ([astrologyHelpers.js](file:///t:/Phongthuy/backend/src/shared/utils/astrologyHelpers.js), [BaziPrompts.js](file:///t:/Phongthuy/backend/src/services/BaziPrompts.js), [MultiAgentPipelineService.js](file:///t:/Phongthuy/backend/src/services/MultiAgentPipelineService.js))**:
+  1. **Tách Biệt Internal System Guardrails với Client-Facing Output**:
+     - Các bảng quy tắc Thập Thần (`getTenGodsLockTable`) và Lục Xung/Mộ Khố (`getBranchRelationsRuleTable`) được gắn chỉ dẫn kiểm soát tư duy nội bộ (System Cognitive Guardrails), nghiêm cấm sao chép nguyên văn, cấm trích dẫn cụm từ "Theo quy tắc Tử Bình chuẩn xác...", "Thìn không xung Dần, Mão...".
+  2. **Ban Hành Bộ Quy Tắc Vàng Thích Ứng Động**:
+     - *Mộ Khố*: Nếu có thì luận sức chứa và thời điểm xung khai mở kho; nếu **không có** thì tuyệt đối không nhắc từ "Mộ Khố" hay "kho tài", mà chuyển 100% sang chiến lược tích sản cứng (đất đai, vàng, tài sản cố định) để tụ tài bền vững.
+     - *Kiếp Tài*: Nếu có thì luận nguy cơ đoạt tài, tranh chấp; nếu **không có** thì từ "Kiếp Tài" biến mất hoàn toàn, chỉ luận rủi ro thực tế từ sự mất cân bằng năng lượng.
+     - *Thần Sát*: Chỉ luận sao có mặt thực tế, tuyệt đối cấm liệt kê các sao vắng mặt.
+     - *Bệnh tật / Tai nạn (Chương 4)*: Tuyệt đối cấm dọa nạt ung u bướu, tế bào lạ nếu lá số bình hòa. Chỉ cảnh báo mổ xẻ khi có Lục Xung kẹp, Kình Dương, Huyết Nhận thực tế. Chuyển trọng tâm sang dưỡng sinh tạng phủ và nhịp điệu sinh học.
+     - *Xung khắc (Chương 6)*: Chỉ cảnh báo Thiên Khắc Địa Xung khi có cặp can chi xung trực diện trong bảng vận, cấm suy diễn gượng ép.
+
+### 🌟 2. Tích Hợp Ma Trận Định Vị Bản Mệnh SWOT 4 Chiều (Stage 3 Synthesis)
+- **Nâng cấp phần Dẫn Nhập ([MultiAgentPipelineService.js](file:///t:/Phongthuy/backend/src/services/MultiAgentPipelineService.js))**:
+  - Tại Stage 3 (Gemini Synthesis), mở đầu bài luận giải chuyên sâu bằng tiêu đề: `## ĐỊNH VỊ BẢN MỆNH: BẢN ĐỒ CHIẾN LƯỢC NHÂN SINH & MA TRẬN SWOT`.
+  - Tích hợp 2 phần đắt giá:
+    + `### 1. Bản Thể & Chân Dung Cốt Cách Nhật Chủ`: Phân tích căn cơ, bản tính, năng lượng ngũ hành và sứ mệnh gốc rễ.
+    + `### 2. Ma Trận Định Vị Bản Mệnh SWOT (4 Chiều Thực Chiến)`: Bảng Markdown chuẩn gồm 3 cột (Chiều phân tích | Yếu tố mệnh lý biện chứng | Ý nghĩa thực tế & Lời khuyên hành động) định vị rõ:
+      - **S - Strengths**: Thế mạnh cốt lõi, Dụng Thần đắc lực, quý nhân hỗ trợ.
+      - **W - Weaknesses**: Tử huyệt cần khắc phục, điểm mù bản năng, ngũ hành khuyết hãm.
+      - **O - Opportunities**: Cửa sổ vàng, thời cơ thiên thời, chặng vận bứt phá.
+      - **T - Threats**: Cạm bẫy cần đề phòng, vận hạn xung phá, điểm gãy rủi ro.
+
+### 🧪 3. Kiểm Thử Giao Diện Người Dùng Bằng Chrome DevTools (100% Đạt Yêu Cầu)
+- **Quy trình nghiệm thu trực tiếp trên Chrome DevTools MCP**:
+  - Đăng nhập tài khoản người dùng thực tế (`cobatuoc@gmail.com`), mở lá số Mậu Dần (Trịnh Văn Tuyến).
+  - Kích hoạt Luận Giải Chuyên Sâu (5 Credits) qua hệ thống 3 Tầng Multi-Agent VIP Pipeline.
+  - Kiểm tra thanh tiến trình: C4 & C5 (Gemini SDK direct) hoàn thành siêu tốc (~3-4s); C1, C2, C3, C6 chạy song song qua OpenRouter xoay tua key; thanh tiến trình hiển thị mượt mà, tuần tự, không bị nhảy trạng thái hay reset về C1.
+  - Kiểm tra giao diện hiển thị: Ma Trận SWOT được render dạng bảng Markdown chuẩn, sắc nét, bo góc hài hòa theo phong cách học thuật hiện đại.
+  - Kiểm tra văn phong toàn văn: 100% xưng hô "bạn", không có bất kỳ câu giảng giải lý thuyết suông ("Theo quy tắc...", "Thìn không xung Dần..."), không có lỗi nhầm Thập Thần (Canh Kim là Thực Thần, không bị gọi là Kiếp Tài), không có dọa dẫm bệnh tật vô cớ. Console log trình duyệt ghi nhận 0 lỗi Javascript.
+
+### 🎯 1. Giải Thích Nguyên Nhân & Tinh Chỉnh Triệt Để Prompt
+- **Phân Tích Nguyên Nhân Gốc Rễ**:
+  1. *Tại sao AI lại viết về Kiếp Tài khi lá số không có?* Do đề mục cũ trong Prompt gán cứng tên là `'Rủi ro Kiếp Tài: Cảnh báo hao tài, lừa gạt, thất thoát'`. Khi bị ép một đề mục mang tên "Kiếp Tài", mô hình AI buộc phải "trả bài" bằng cách viết nguyên một đoạn dài dòng để giải thích rằng *"nguyên cục không có Kiếp Tài"*.
+  2. *Tại sao AI viết câu dông dài "Theo quy tắc Tử Bình chuẩn xác: Thìn chỉ bị xung khai bởi Tuất, không bởi Dần, không bởi Mão..."?* Do Prompt trước đó đưa các câu phủ định đối chiếu kỹ thuật (`"Thìn CHỈ XUNG Tuất, Dần KHÔNG xung Thìn..."`). Mô hình LLM (Qwen) đã học vẹt lại thành câu văn thanh minh lý thuyết như học sinh làm bài thi.
+  3. *Lá số không có Mộ Khố thì sao?* Nếu đề mục cố định là `"Kho Tài mở hay khóa"`, những lá số không có Thìn, Tuất, Sửu, Mùi sẽ bị AI ép gượng ép hoặc viết dông dài phân bua.
+- **Giải Pháp Triển Khai ([MultiAgentPipelineService.js](file:///t:/Phongthuy/backend/src/services/MultiAgentPipelineService.js))**:
+  - Đổi tên đề mục Chương 2 thành chuẩn thực chiến:
+    + `Chính Tài vs Thiên Tài: Nguồn thu chủ lực và bản chất dòng tiền`
+    + `Khả năng tích lũy và chiến lược bảo toàn của cải (Mộ Khố / Tụ Tài)`: Đi thẳng vào khả năng giữ tiền. Nếu có Mộ Khố thì luận sức chứa và thời điểm mở kho; nếu **KHÔNG CÓ Mộ Khố** thì luận thẳng đặc tính dòng tiền lưu động nhanh và hướng dẫn giải pháp giữ của thực tế (chuyển sang tài sản hữu hình, đất đai, vàng), **tuyệt đối cấm viết câu 'lá số bạn không có kho tài'**.
+    + `Cảnh báo rủi ro dòng tiền và cạm bẫy tài chính`: **Nếu không có Kiếp Tài thì TUYỆT ĐỐI KHÔNG NHẮC TỚI TỪ "KIẾP TÀI"**, chỉ tập trung 100% vào các rủi ro có thật trong lá số.
+  - Ban hành **Quy tắc 5: ĐI THẲNG TRỌNG TÂM - CẤM VĂN PHONG "TRẢ BÀI / GIẢNG GIẢI LÝ THUYẾT"**: Cấm triệt để các câu dông dài sách vở như *"Theo quy tắc Tử Bình chuẩn xác...", "Thìn không xung cái này cái kia..."*. Văn phong phải trực diện, sắc bén như một bậc thầy thực chiến.
+
+### 📸 2. Nghiệm Thu Thực Nghiệm (Live Test)
+- **Số lần xuất hiện từ "Kiếp Tài" trong Chương 2**: **0 lần**.
+- **Số lần câu lý thuyết giáo điều "Theo quy tắc Tử Bình chuẩn xác..."**: **0 lần**.
+- Bài viết đi thẳng vào việc Quý Thủy tàng trong Thìn, Thiên Tài Nhâm Thủy vượng, khả năng giữ tiền và các rủi ro thực tế từ Dịch Mã, Không Vong và Âm Dương Sai Thác.
+
+### 🌿 1. Khóa Cứng Quy Tắc Quan Hệ Địa Chi Chuẩn Tử Bình (`getBranchRelationsRuleTable`)
+- **Vấn Đề Phát Hiện**: Mô hình Qwen ở Chương 2 nhầm lẫn nghiêm trọng quan hệ Địa Chi, tự suy đoán sai lệch: *"Thìn bị xung bởi Dần và hình bởi Tuất"*. Trong học thuyết Tử Bình cổ điển:
+  - **Dần chỉ xung Thân** (Lục Xung Dần - Thân). Dần TUYỆT ĐỐI KHÔNG xung Thìn và KHÔNG xung Tuất (Dần - Ngọ - Tuất là Tam Hợp Hỏa Cục, Dần - Tuất là Bán Tam Hợp).
+  - **Thìn chỉ xung Tuất** (Lục Xung Thìn - Tuất). Thìn - Tuất là Lục Xung mở kho Tài, Tuất TUYỆT ĐỐI KHÔNG hình Thìn (Thìn nằm trong Tự Hình Thìn - Thìn; Tam Hình là Dần - Tỵ - Thân và Sửu - Mùi - Tuất).
+- **Giải Pháp Thực Hiện ([astrologyHelpers.js](file:///t:/Phongthuy/backend/src/shared/utils/astrologyHelpers.js), [BaziPrompts.js](file:///t:/Phongthuy/backend/src/services/BaziPrompts.js), [MultiAgentPipelineService.js](file:///t:/Phongthuy/backend/src/services/MultiAgentPipelineService.js))**:
+  - Xây dựng hàm `getBranchRelationsRuleTable()` kết xuất bảng quy chuẩn bất biến của 6 cặp Lục Xung, 3 nhóm Tam Hợp, 4 cục Tam Hội, và các thế Tam Hình / Tự Hình.
+  - Cảnh báo phủ định rõ ràng: Dần chỉ xung Thân; Thìn chỉ xung Tuất mở kho tài.
+  - Tích hợp trực tiếp vào Prompt Tầng 1, Tầng 2, Tầng 3.
+  - **Nghiệm thu thực tế**: Bản luận giải mới ở Chương 2 phân tích chuẩn xác 100%: *"Theo quy tắc Tử Bình chuẩn xác: Thìn chỉ bị xung khai bởi Tuất, không bởi Dần, không bởi Mão, không bởi Sửu. Trong nguyên cục, Thìn không gặp Tuất — do đó kho này đang đóng. Đại vận Giáp Tuất tạo thành Thìn – Tuất Lục Xung, khai mở kho tài..."*
+
+### 🚫 2. Xóa Bỏ Triệt Để Lộ Thuật Ngữ Kỹ Thuật (Anti-Prompt Leakage)
+- **Vấn Đề Phát Hiện**: AI lặp lại cụm từ hệ thống *"Theo Bảng Thập Thần Khóa Cứng cho Nhật Chủ Mậu Thổ..."* vào bài luận giải của người dùng, tạo cảm giác máy móc, lộ prompt kỹ thuật.
+- **Giải Pháp Thực Hiện ([astrologyHelpers.js](file:///t:/Phongthuy/backend/src/shared/utils/astrologyHelpers.js), [MultiAgentPipelineService.js](file:///t:/Phongthuy/backend/src/services/MultiAgentPipelineService.js))**:
+  - Đổi tiêu đề kỹ thuật từ `"BẢNG QUAN HỆ THẬP THẦN & SINH KHẮC KHÓA CỨNG"` thành `"HỆ THỐNG THẬP THẦN & QUAN HỆ SINH KHẮC CHUẨN XÁC CỦA NHẬT CHỦ..."`.
+  - Bổ sung quy tắc cấm lộ thuật ngữ: *"TUYỆT ĐỐI CẤM trích dẫn các cụm từ nội bộ như 'Theo Bảng Thập Thần Khóa Cứng', 'Theo bảng khóa', 'Theo dữ liệu được cung cấp'... Văn phong phải tự nhiên, chuyên nghiệp như một bậc thầy mệnh lý uyên bác."*
+  - **Nghiệm thu thực tế**: Kiểm tra toàn văn bản luận giải mới ghi nhận **0 lần xuất hiện** cụm từ "khóa cứng" hay "Bảng Thập Thần Khóa Cứng". Toàn bộ luận giải Kiếp Tài diễn đạt văn phong học thuật tự nhiên, tinh tế.
+
+### 🌟 3. Cấm Liệt Kê Thần Sát Vắng Mặt Ghi "Không Xuất Hiện" / "Không Có"
+- **Vấn Đề Phát Hiện**: Llama ở Chương 3 liệt kê hàng loạt gạch đầu dòng các sao vắng mặt: *"• Đào Hoa: Không xuất hiện trong lá số của bạn. • Hồng Loan: Không xuất hiện trong lá số của bạn."* gây phản cảm cho người đọc.
+- **Giải Pháp Thực Hiện ([BaziPrompts.js](file:///t:/Phongthuy/backend/src/services/BaziPrompts.js), [MultiAgentPipelineService.js](file:///t:/Phongthuy/backend/src/services/MultiAgentPipelineService.js))**:
+  - Loại bỏ khối danh sách `absentStars` thô trong văn bản Prompt để tránh mô hình LLM bị "gợi ý từ khóa" (keyword reflection).
+  - Áp dụng chỉ thị cấm: *"CHỈ LUẬN GIẢI các Thần Sát CÓ MẶT THỰC TẾ trong lá số. TUYỆT ĐỐI CẤM liệt kê các sao không có để ghi 'Không xuất hiện' hay 'Không có' (như CẤM viết '- Đào Hoa: Không xuất hiện', '- Hồng Loan: Không có'...)."*
+  - **Nghiệm thu thực tế**: Kiểm tra Chương 3 trong bản ghi mới: Biến mất 100% các gạch đầu dòng liệt kê sao vắng mặt; chỉ luận giải những yếu tố liên quan cung phối ngẫu, ngũ hành bản mệnh và môi trường gia đạo.
+
+### 🇻🇳 4. Bộ Lọc Ngôn Ngữ Thuần Việt & Khử Hán Tự Rác (`AiService.cleanMarkdown`)
+- Bổ sung bộ lọc tự động khử các từ vựng tiếng Trung thô do mô hình LLM quốc tế sinh ra (như `沟通` ➡️ `lắng nghe và chia sẻ`, `夫妻` ➡️ `vợ chồng`, loại bỏ triệt để các ký tự `[\u4e00-\u9fa5]`).
+
+---
+
+## 📅 Phiên bản: Chuẩn Hóa Ma Trận Thần Sát Tĩnh/Động, Khóa Logic Thập Thần 10 Nhật Can, Chuẩn Hóa Xưng Hô "Bạn" & Sửa Triệt Để Thanh Tiến Trình (04/09/2026)
+
+### 🌟 1. Cô Lập Ma Trận Thần Sát Tĩnh & Động & Tự Động Hóa Ràng Buộc Phủ Định Cứng (Dynamic Hard Negative Constraints Cho 100% Mọi Lá Số)
+- **Cơ Chế Tính Toán Động Cho Mọi Lá Số ([BaziPrompts.js](file:///t:/Phongthuy/backend/src/services/BaziPrompts.js))**:
+  - Không hardcode danh sách sao cho bất kỳ lá số đơn lẻ nào. Hệ thống thiết lập danh mục đầy đủ các Thần Sát kinh điển (`MAJOR_CLASSICAL_SHEN_SHA`).
+  - Đối với **bất kỳ lá số nào** được gửi lên, hàm `formatDeepShenShaMatrix` tự động phân tách:
+    1. `presentStars`: Các sao hiện diện thực tế trong 4 trụ và Thai Mệnh của lá số đó.
+    2. `absentStars`: Toàn bộ các sao kinh điển **hoàn toàn vắng mặt** trong lá số đó (`MAJOR_CLASSICAL_SHEN_SHA` loại trừ `presentStars`).
+  - Tự động sinh khối chỉ thị **Ràng Buộc Phủ Định Cứng (Hard Negative Constraints)**: Cung cấp danh sách `absentStars` cho chính lá số đó, ra lệnh cấm tuyệt đối AI nhắc tới hoặc gán cho đương số bất kỳ sao nào trong danh sách vắng mặt.
+- **Tổng Quát Hóa Toàn Bộ Chỉ Dẫn Chuyên Đề ([MultiAgentPipelineService.js](file:///t:/Phongthuy/backend/src/services/MultiAgentPipelineService.js))**:
+  - Loại bỏ hoàn toàn các ví dụ cố định đơn lẻ (như Mậu Thổ, Canh Kim, Kỷ Thổ) trong hướng dẫn của Chương 2.
+  - Toàn bộ 6 chương và 6 replicas tham chiếu trực tiếp đến `BẢNG KHÓA THẬP THẦN & SINH KHẮC` (được sinh động từ `getTenGodsLockTable(dayCan)`) và danh sách Thần Sát Hiện Diện / Vắng Mặt riêng của lá số đang xét. Tương thích 100% cho toàn bộ 10 Nhật Can (Giáp, Ất, Bính, Đinh, Mậu, Kỷ, Canh, Tân, Nhâm, Quý).
+
+### 🔒 2. Khóa Logic Thập Thần & Ngũ Hành Cho 10 Nhật Can (`getTenGodsLockTable`)
+- **Bảng Khóa Thập Thần Bất Biến ([astrologyHelpers.js](file:///t:/Phongthuy/backend/src/shared/utils/astrologyHelpers.js))**:
+  - Tạo hàm `getTenGodsLockTable(dayCan)`: Tự động kết xuất bảng tra cứu Thập Thần và quan hệ sinh/khắc tuyệt đối chuẩn xác cho bất kỳ Nhật Can nào.
+  - Sửa dứt điểm sai sót cơ bản ở Chương 2: Đối với **Mậu Thổ**, Kiếp Tài bắt buộc là **Kỷ Thổ**, Canh Kim là **Thực Thần** (Thổ sinh Kim - Thân tiết khí), Mộc khắc Thổ (Kim TUYỆT ĐỐI KHÔNG KHẮC Thổ).
+  - Nạp bảng khóa này trực tiếp vào System Prompt và User Prompt của Tầng 2 và Tầng 3 trong [MultiAgentPipelineService.js](file:///t:/Phongthuy/backend/src/services/MultiAgentPipelineService.js) và [BaziPrompts.js](file:///t:/Phongthuy/backend/src/services/BaziPrompts.js).
+
+### 🗣️ 3. Chuẩn Hóa Đại Từ Xưng Hô Tuyệt Đối: 100% "Bạn", Tuyệt Đối Không Dùng "Ngươi"
+- **Ràng Buộc Kỷ Luật Ngôn Ngữ**:
+  - Ra lệnh nghiêm ngặt cho toàn bộ các mô hình (Gemini, DeepSeek, Qwen, Llama): Mệnh chủ là người đương đại tìm kiếm định hướng học thuật, bắt buộc xưng hô tôn trọng là **"bạn"**, tự xưng là **"tôi"** hoặc dùng giọng văn học thuật khách quan ("mệnh chủ", "đương số").
+  - **Cấm Tuyệt Đối "Ngươi"**: Ngăn chặn hoàn toàn việc dịch máy theo phong cách tiểu thuyết huyền huyễn/cổ trang Trung Quốc.
+  - Nghiệm thu thực tế trên lá số `cobatuoc@gmail.com`: Quét toàn văn bản ghi nhận **0 lần "ngươi"**, **110 lần "bạn"**.
+
+### ⚡ 4. Sửa Triệt Để Lỗi Thanh Tiến Trình Nhấp Nháy & Reset Trạng Thái
+- **Nguyên Nhân Gốc Rễ**:
+  - Ở Tầng 3, khi bắt đầu stream từng chương, Backend gửi sự kiện `status: 'in_progress'` kèm `chapterId`. Do Frontend trước đây chỉ dùng 1 biến số nguyên `currentChapter` và tính `isDone = currentChapter > ch.id`, khi stream quay lại Chương 1 hay Chương 2, toàn bộ dấu tick xanh `Xong` của các chương trước đó bị xóa trắng, gây ra hiện tượng giao diện nhấp nháy, lộn xộn.
+- **Tái Cấu Trúc Trạng Thái Tích Lũy Bất Biến ([VipProgressTracker.jsx](file:///t:/Phongthuy/frontend/src/components/VipProgressTracker.jsx), [BaziBoard.jsx](file:///t:/Phongthuy/frontend/src/components/BaziBoard.jsx))**:
+  - Thay thế biến đơn lẻ bằng các mảng trạng thái tích lũy:
+    - `completedChapters`: Mảng lưu các ID chương đã hoàn tất. Một khi đã hoàn tất, chương đó giữ nguyên trạng thái xanh "Xong", không bao giờ bị xóa lùi.
+    - `activeChapters`: Mảng các chương đang được tính toán đồng thời ở Tầng 2.
+    - `streamingChapter`: ID chương đang được truyền tải trực tiếp ra màn hình ở Tầng 3.
+    - `statusMessage`: Dòng thông báo tiến độ chi tiết theo thời gian thực kèm hiệu ứng pulsing.
+  - Đồng bộ cấu trúc chuẩn này sang toàn bộ các board khác: [ZiweiBoard.jsx](file:///t:/Phongthuy/frontend/src/components/ZiweiBoard.jsx), [IChingBoard.jsx](file:///t:/Phongthuy/frontend/src/components/IChingBoard.jsx), [MarriageBoard.jsx](file:///t:/Phongthuy/frontend/src/components/MarriageBoard.jsx).
+
+### 🎨 5. Chuẩn Hóa Markdown GFM & Loại Bỏ Hoàn Toàn Chữ "VIP"
+- **Trình Diễn Markdown Chuẩn Mực**:
+  - Nghiêm cấm bôi đậm tùy tiện giữa các câu văn thông thường ("không bôi đen linh tinh").
+  - Bắt buộc các tiêu đề mục con dùng chuẩn H3 `###` để hệ thống tự động render to hơn văn bản 1 cấp và in đậm trang nhã.
+  - Bảng Ma Trận Đại Vận 100 Năm ở Chương 6 kết xuất theo chuẩn GFM hoàn chỉnh, có đầy đủ căn lề và đường viền sắc nét.
+- **Xóa Bỏ 100% Chữ "VIP" Trên UI**:
+  - Toàn bộ giao diện người dùng chuyển hẳn sang tên gọi trang trọng: **"Luận Giải Chuyên Sâu"**.
+
+---
+
+
+
+### 🔄 Hoán Đổi Định Tuyến Mô Hình Chuyên Môn ([MultiAgentPipelineService.js](file:///t:/Phongthuy/backend/src/services/MultiAgentPipelineService.js))
+- **Chương 3 (Hôn Nhân & Gia Đạo) ➡️ `meta-llama/llama-3.3-70b-instruct`**:
+  - Tận dụng tốc độ sinh phản hồi siêu tốc của Llama 3.3 70B, phân tích góc nhìn khách quan về tâm lý học hành vi phối ngẫu, hòa khí gia đạo và giải pháp cân bằng năng lượng phòng ngủ.
+- **Chương 6 (Mốc Đại Vận 100 Năm) ➡️ `deepseek/deepseek-chat`**:
+  - Phát huy tối đa năng lực suy luận sâu (Chain-of-Thought) cổ học Tử Bình Chân Thuyên của DeepSeek V3 để thiết lập Bảng Ma Trận Đại Vận 100 Năm (chu kỳ 10 bước đại vận, phân tích cát hung, điểm gãy Thiên Khắc Địa Xung và chiến lược công thủ).
+
+### 🔑 Chuẩn Hóa Toàn Diện Google API Key Cho Gemini
+- **100% Độc Lập Với OpenRouter**: Toàn bộ các luồng sử dụng Gemini (Bản 1 Tầng 1, Replica 4 & 5 Tầng 2, Tầng 3 Integrator) đều kích hoạt thông qua SDK chính thức `@google/generative-ai` với `GEMINI_API_KEY` / `GEMINI_API_KEY_2`.
+- **Cơ chế Retry Tự Động**: Bổ sung vòng lặp retry 2 lần với thời gian chờ cấp số nhân nếu gặp mã lỗi `503 Service Unavailable` khi Google Cloud bị biến động lưu lượng (Spikes in demand).
+
+### ⚡ Bản Chất Thời Gian Thực Thi Tầng 2 & Cập Nhật Tiến Độ Real-time
+- **Giải Thích Thời Gian Thực Thi (~47s - 50s)**:
+  - 6 Replicas ở Tầng 2 hoàn toàn **chạy song song đồng thời qua `Promise.all`** chứ KHÔNG hề chạy tuần tự.
+  - Tổng thời gian kết thúc của Tầng 2 bị chi phối bởi mô hình suy luận sâu nhất (**Bottleneck là DeepSeek V3** với thời gian sinh văn bản học thuật 3.000+ ký tự ~ 45s - 49s, trong khi Llama chỉ mất ~20s, Qwen ~4s, Gemini ~4s).
+- **Cập Nhật Tiến Độ Tức Thời (Real-time SSE Notification)**:
+  - Chuyển lệnh phát tín hiệu `onProgress({ chapterId, status: 'completed' })` vào ngay bên trong Promise của từng Replica.
+  - Ngay khi một mô hình chạy xong (Gemini Ch4, Ch5 xong trong 4s, Qwen Ch2 xong trong 5s...), thẻ tương ứng trên giao diện người dùng lập tức sáng đèn xanh `Done` theo thời gian thực mà không cần đợi cả tầng kết thúc.
+
+---
+
+## 📅 Phiên bản: Đo Lường Thực Nghiệm Độ Trễ AI, Tối Ưu Hóa Multi-Model Pipeline (2 Gemini Đẩy Thẳng + 4 OpenRouter Siêu Tốc) & Kiểm Thử Toàn Diện (04/09/2026)
+
+### ⚡ Benchmark Thực Nghiệm Độ Trễ & Dung Lượng Phản Hồi (Empirical Latency Benchmark)
+- **Đo lường trực tiếp trên hệ sinh thái OpenRouter và Google Gemini SDK**:
+  - `direct:gemini-3.1-flash-lite`: **4.55s**, 2.493 ký tự (~530 từ). Độ ổn định 100%, không dính rate limit proxy, hoàn hảo cho các phân tích Ngũ hành, Sức khỏe tạng phủ & Phong thủy Dụng thần.
+  - `meta-llama/llama-3.3-70b-instruct` (OpenRouter): **1.06s**, 3.676 ký tự. Tốc độ nhanh nhất lịch sử kiểm thử, định dạng Bảng Ma Trận GFM Đại Vận 100 năm hoàn hảo không lỗi cú pháp.
+  - `qwen/qwen-plus` (OpenRouter): **1.15s - 3.7s**, 1.078 ký tự. Phản hồi cực nhanh, sắc bén, lập luận tài chính và dòng tiền mạch lạc.
+  - `deepseek/deepseek-chat` (OpenRouter): **1.96s - 5.6s**, 1.837 - 3.615 ký tự. Độ sâu học thuật cổ học Tử Bình Chân Thuyên, Thập Thần và Cung Phối Ngẫu hàng đầu thế giới.
+  - *Sàng lọc loại bỏ các endpoint lỗi/không khả dụng trên OpenRouter*: `qwen/qwen-2.5-72b-instruct` (báo lỗi 400 do nhà cung cấp đóng endpoint hoàn thành -> thay thế bằng `qwen/qwen-plus`), `google/gemini-2.0-flash-001` (404 no endpoints).
+
+### 🏛️ Tái Cấu Trúc Định Tuyến Tầng 2: Giảm Tải 33% Cho OpenRouter & Cắt Giảm 58% Độ Trễ
+- **Đẩy Thẳng 2 Replica Sang Google Gemini SDK (`GEMINI_API_KEY` & `GEMINI_API_KEY_2`) ([MultiAgentPipelineService.js](file:///t:/Phongthuy/backend/src/services/MultiAgentPipelineService.js))**:
+  - **Chương 4 (Sức Khỏe & Tạng Phủ)** và **Chương 5 (Phong Thủy & Cải Vận)** được đẩy trực tiếp tới Google Gemini SDK mà không đi qua OpenRouter trung gian.
+  - Loại bỏ hoàn toàn độ trễ proxy, triệt tiêu nguy cơ dính nghẽn 429 khi gửi đồng thời nhiều yêu cầu lên OpenRouter.
+- **Phân Bổ 4 Replica Còn Lại Qua OpenRouter Với Mô Hình Độ Trễ Nhỏ Nhất**:
+  - **Chương 1 (Sự Nghiệp)**: `deepseek/deepseek-chat`.
+  - **Chương 2 (Tài Chính)**: `qwen/qwen-plus`.
+  - **Chương 3 (Hôn Nhân)**: `deepseek/deepseek-chat`.
+  - **Chương 6 (Đại Vận 100 Năm)**: `meta-llama/llama-3.3-70b-instruct`.
+- **Hiệu Năng Vượt Bậc**:
+  - Thời gian hoàn tất toàn bộ 6 Replicas Tầng 2 rút ngắn từ **112 giây xuống chỉ còn 47 giây** (giảm hơn 58% tổng thời gian chờ).
+
+### 🧪 Nghiệm Thu Thực Tế Trên Chrome DevTools MCP
+- Thực hiện phiên luận giải trọn vẹn cho lá số Nguyễn Đức Anh (15/12/1998, Mậu Dần):
+  - Luồng streaming hiển thị mượt mà từng thẻ từ C1 đến C6 chuyển trạng thái Done.
+  - Toàn bộ nội dung kết xuất chuẩn xác: nền trắng thanh lịch, các tiêu đề mục con bôi đậm lớn hơn văn bản 1 cấp (`text-lg font-bold`), không lẫn văn bản kỹ thuật hệ thống, bảng Markdown GFM hiển thị chuẩn mực trên mọi độ phân giải.
+  - Console log trình duyệt: 0 lỗi, 0 cảnh báo rò rỉ bộ nhớ.
+
+---
+
+## 📅 Phiên bản: Tái Thiết Kế Nút Xác Nhận Luxury, Nổi Bật Badge Khuyên Dùng, Xoay Tua Đa Key OpenRouter & Hoàn Thiện Pipeline 3 Tầng Thực Tế (04/09/2026)
+
+### 🎨 Tinh Chỉnh Giao Diện Người Dùng (UI/UX)
+- **Nổi Bật Badge "KHUYÊN DÙNG" ([InterpretationTierModal.jsx](file:///t:/Phongthuy/frontend/src/components/InterpretationTierModal.jsx))**:
+  - Khắc phục triệt để lỗi thẻ bị cắt nửa trên do vùng cuộn `overflow-y-auto`: Thêm `pt-3.5 pb-1 px-1` cho container, đặt badge nổi bật với `z-10 ring-2 ring-white shadow-md shadow-amber-500/30`, định vị `-top-3 right-3.5 sm:right-5`.
+- **Tái Thiết Kế Nút Xác Nhận Nâng Cấp & Luận Giải Phong Cách Luxury ([InterpretationTierModal.jsx](file:///t:/Phongthuy/frontend/src/components/InterpretationTierModal.jsx))**:
+  - Thay thế màu cam nâu tối màu trước đây bằng dải Gradient Vàng Ánh Kim - Hổ Phách cao cấp (`bg-gradient-to-r from-amber-500 via-amber-600 to-orange-500 hover:from-amber-400 hover:to-orange-500`).
+  - Tích hợp hiệu ứng viền ánh kim mờ (`border border-amber-400/30 ring-1 ring-white/20 shadow-lg shadow-amber-500/25`), icon tia sét/vương miện đặt trong khung kính mờ bo tròn sang trọng.
+  - Tinh chỉnh nút "Hủy Bỏ" cân xứng với viền slate thanh lịch và bo góc đồng bộ `rounded-xl sm:rounded-2xl`.
+
+### ⚙️ Cấu Hình Đa Tài Khoản Xoay Tua OpenRouter & Khắc Phục Nghẽn Đa Luồng 429 ([MultiAgentPipelineService.js](file:///t:/Phongthuy/backend/src/services/MultiAgentPipelineService.js))
+- **Cơ Chế Xoay Tua Tự Động (Round-Robin & Fault-Tolerant)**:
+  - Class `OpenRouterRotator` hỗ trợ nạp linh hoạt `OPENROUTER_API_KEY`, `OPENROUTER_API_KEY_2` hoặc chuỗi phân tách `OPENROUTER_API_KEYS`.
+  - Tự động luân chuyển key theo vòng quay Round-Robin để san sẻ tải trọng cho từng replica trong Tầng 2.
+- **Triệt Tiêu Hoàn Toàn Rate Limit Upstream 429 & Tải Đột Biến (Burst Concurrency)**:
+  - **Giãn cách phát lệnh Replica (Stagger Delay 350ms)**: Thay vì bắn đồng thời 6 request vào cùng 1 mili-giây khiến server OpenRouter/DeepSeek trả mã 429, hệ thống phân bổ mỗi replica cách nhau 350ms, trải đều lưu lượng và triệt tiêu xung đột kết nối.
+  - **Tự Động Retry Backoff**: Khi gặp lỗi 429/502/503 từ OpenRouter, hệ thống tự động tạm dừng với thời gian tăng dần (`1500ms * attempt`) và luân chuyển tài khoản kế tiếp để gọi lại tự động lên tới `maxAttempts = keys.length * 2`.
+  - **Dự Phòng Thông Minh (Dual-Model Failover)**: Nếu model chính của chương (`deepseek/deepseek-chat`) bị OpenRouter giới hạn, hệ thống tự động chuyển sang mô hình đối trọng (`qwen/qwen-2.5-72b-instruct`) ngay trên OpenRouter trước khi chuyển tiếp về các provider phụ trợ.
+- **Cơ Chế Tự Động Chọn Mô Hình vs Tùy Chọn Chỉ Định (Auto-Select & Manual Override)**:
+  - Hệ thống mặc định tự động kích hoạt các mô hình tinh hoa đã được kiểm chứng hoạt động tốt nhất cho từng phân môn học thuật (`deepseek/deepseek-chat` cho sự nghiệp/hôn nhân/sức khỏe/đại vận; `qwen/qwen-2.5-72b-instruct` cho tài chính/cải vận).
+  - Cung cấp các biến môi trường linh hoạt (`OPENROUTER_MODEL_CH1`, `OPENROUTER_MODEL_CH2`...) nếu người quản trị muốn ghi đè model theo ý muốn mà không cần sửa code.
+
+### 🏛️ Hoàn Thiện Kiến Trúc Pipeline 3 Tầng Chuẩn Xác (Đã Kiểm Thử Trực Tiếp Trên Trình Duyệt Thực Tế)
+- **TẦNG 1 - Dual Pre-Analysis Song Song**:
+  - Chạy đồng thời `Promise.all`:
+    - Bản 1 (Google Gemini): Khảo sát hệ thống Ngũ hành, Vượng suy Nhật chủ, Dụng/Hỷ/Kỵ Thần và thể trạng tạng phủ.
+    - Bản 2 (DeepSeek qua OpenRouter): Biện chứng Cổ học Tử Bình, Chain-of-Thought (CoT) giải mã tương tác sinh khắc, ma trận Thần Sát và định vị điểm gãy vận hạn.
+- **TẦNG 2 - 6 Replicas Chuyên Biệt Song Song (Staggered)**:
+  - 6 chuyên đề (Sự nghiệp, Tài chính, Hôn nhân, Sức khỏe, Cải vận, Mốc đại vận 100 năm) được xử lý đồng thời qua OpenRouter Gateway luân phiên giữa 2 key `sk-or-v1-c...076d` và `sk-or-v1-c...4a63`.
+- **TẦNG 3 - Tích Hợp & Dẫn Nhập Toàn Văn (Tuyệt Đối Không Nén)**:
+  - 1 Google Gemini tiếp nhận toàn bộ 6 chương từ Tầng 2, khởi tạo lời Dẫn Nhập ("PHÂN TÍCH NHẬT CHỦ: GỐC RỄ BẢN THỂ") và lời Đúc Kết ("ĐÚC KẾT NHÂN SINH & LỜI KHUYÊN HÀNH ĐỘNG").
+  - Bảo toàn 100% dung lượng học thuật chi tiết nguyên bản của 6 chương (đạt hơn 30.000 ký tự ~ 6.000 từ), không tóm tắt hay cắt xén bất kỳ luận cứ nào.
+- **Kết Quả Kiểm Thử Thực Tế & Nghiệm Thu UI DevTools**:
+  - Đã thực hiện trọn vẹn quy trình người dùng thật trên Chrome DevTools: Nhập lá số mới Trịnh Văn Tuyến (27/12/2004) -> Mở modal chọn gói -> Bấm "Xác Nhận Luận Giải (5 Credits)" -> Luồng SSE stream hiển thị trạng thái C1...C6 -> Toàn bộ 6 chương kết xuất trọn vẹn trong các khung riêng biệt, tiêu đề cấp 3 in đậm lớn hơn văn bản 1 cấp, bảng ma trận đại vận 100 năm hiển thị hoàn hảo. Console log ghi nhận 0 lỗi.
+
+---
+
+## 📅 Phiên bản: Gói Gọn Modal Không Cuộn, Triệt Tiêu Nhãn VIP, Tối Ưu Mobile, Tách Prompt Thần Sát & Tích Hợp OpenRouter (04/09/2026)
+
+### 🎨 Tối Ưu Giao Diện & Trải Nghiệm Người Dùng (UI/UX)
+- **Gói Gọn Modal Chọn Gói Luận Giải ([InterpretationTierModal.jsx](file:///t:/Phongthuy/frontend/src/components/InterpretationTierModal.jsx))**:
+  - Tối ưu hóa triệt để margin, padding và chiều cao dòng giúp Modal 2 cột nằm gọn trong một khung hình duy nhất trên màn hình Desktop (không phát sinh thanh cuộn dọc ngoài ý muốn).
+  - Tối ưu Responsive Native Mobile: Bọc danh sách thẻ trong `overflow-y-auto flex-1 min-h-0`, đảm bảo trên màn hình di động nhỏ, phần Header và các nút hành động ("Hủy Bỏ", "Xác Nhận Luận Giải") luôn hiển thị cố định, rõ ràng và không bao giờ bị cắt xén.
+- **Triệt Tiêu Hoàn Toàn Thuật Ngữ "(VIP)" Trên UI**:
+  - Đổi toàn bộ nhãn từ "(VIP)" thành tên gọi học thuật trang trọng **"Luận Giải Chuyên Sâu"** ở Modal Chọn Gói, Modal Nâng Cấp và Banner Giới Thiệu.
+- **Tinh Gọn Nút Hành Động Nổi (Floating Action Button)**:
+  - Cập nhật trên 4 phân hệ ([BaziBoard.jsx](file:///t:/Phongthuy/frontend/src/components/BaziBoard.jsx), [ZiweiBoard.jsx](file:///t:/Phongthuy/frontend/src/components/ZiweiBoard.jsx), [IChingBoard.jsx](file:///t:/Phongthuy/frontend/src/components/IChingBoard.jsx), [MarriageBoard.jsx](file:///t:/Phongthuy/frontend/src/components/MarriageBoard.jsx)): Bỏ hiển thị số credits `(4 CR)` và chữ `VIP`, chuyển thành nút tối giản: **`Nâng Cấp Luận Giải`**.
+
+### 🧠 Tối Ưu Cấu Trúc Code & Prompt Học Thuật Kèm Ma Trận Thần Sát
+- **Quy Hoạch Prompt 2 Tầng Trong Cùng Tệp ([BaziPrompts.js](file:///t:/Phongthuy/backend/src/services/BaziPrompts.js))**:
+  - Không phân rã nhiều tệp tin con gây phân mảnh, mà tổ chức rõ ràng 2 phương thức prompt độc lập:
+    - `getStandardPrompt(record)`: Dành riêng cho luận giải cơ bản (1 Credit, cấu trúc 6 bước truyền thống).
+    - `getDeepPrompt(record)`: Dành riêng cho luận giải chuyên sâu (5 Credits / 4 Credits bù), chỉ cung cấp dữ liệu số học sạch và ma trận Thần Sát, tuyệt đối không bị lẫn chỉ dẫn định dạng 6 bước của bài cơ bản.
+- **Tích Hợp Ma Trận Thần Sát Trực Quan Toàn Diện (`formatDeepShenShaMatrix`)**:
+  - Phân bổ Thần Sát theo từng trụ: Trụ Năm (tổ nghiệp, tiền vận), Trụ Tháng (công danh, học nghiệp), Trụ Ngày (bản thân, hôn phối), Trụ Giờ (tử tức, hậu vận).
+  - Bổ sung Thần Sát tại Thai Nguyên & Cung Mệnh.
+  - Phân loại trực quan Cát Thần (Thiên Ất, Văn Xương, Lộc Thần, Phúc Tinh...) và Hung Sát (Kình Dương, Kiếp Sát, Vong Thần, Cô Loan, Không Vong...).
+  - Ánh xạ rõ ràng từng Thần Sát vào chuyên đề luận giải tương ứng (ví dụ: Đào Hoa/Cô Loan sát vào Chương Hôn Nhân, Dịch Mã/Lộc Thần vào Chương Sự Nghiệp & Tài Vận).
+
+### 🌐 Tích Hợp Cổng Đa Mô Hình OpenRouter Gateway ([MultiAgentPipelineService.js](file:///t:/Phongthuy/backend/src/services/MultiAgentPipelineService.js))
+- **Hỗ Trợ OpenRouter Endpoint Đa Năng (`callOpenRouterEndpoint`)**:
+  - Tích hợp chuẩn OpenAI-compatible gọi trực tiếp tới `https://openrouter.ai/api/v1/chat/completions` kèm theo headers định danh `HTTP-Referer` và `X-Title`.
+  - Tự động ưu tiên định tuyến các mô hình AI đỉnh cao về Huyền học Phương Đông khi cấu hình `OPENROUTER_API_KEY`:
+    - Tiền phân tích CoT & Chương 1 (Sự Nghiệp): `deepseek/deepseek-chat`
+    - Chương 2 (Tài Chính): `qwen/qwen-2.5-72b-instruct`
+    - Chương 3 (Hôn Nhân): `anthropic/claude-3.5-sonnet`
+    - Chương 4 (Sức Khỏe Đông Y): `deepseek/deepseek-chat`
+    - Chương 5 (Cải Vận): `anthropic/claude-3.5-sonnet`
+    - Chương 6 (Đại Vận 100 Năm): `deepseek/deepseek-chat`
+  - Fallback an toàn 100%: Nếu chưa cấu hình `OPENROUTER_API_KEY`, hệ thống tự động sử dụng nhà cung cấp độc lập hoặc fallback mượt mà về Google Gemini.
+
+---
+
+## 📅 Phiên bản: Tối Ưu UX Chọn Gói Luận Giải, Tinh Gọn Badge 4 Credits & Nâng Cấp Prompt VIP Đa AI (04/09/2026)
+
+### 🎨 Tối Ưu UX/UI Giao Diện
+- **Cơ Chế Chọn Gói Luận Giải 2 Bước ([InterpretationTierModal.jsx](file:///t:/Phongthuy/frontend/src/components/InterpretationTierModal.jsx))**:
+  - Chuyển đổi từ cơ chế "click 1 lần kích hoạt ngay lập tức" sang luồng UX chuẩn mực: Người dùng nhấp chuột vào Card để chọn gói (có radio indicator hiển thị trạng thái `✓ Đang chọn gói này`), sau đó nhấp nút **"Xác Nhận Luận Giải"** độc lập ở thanh điều hướng dưới đáy.
+  - Viền Card và nút xác nhận đổi màu động theo gói được chọn: Luận Giải Cơ Bản (Đen/Slate-900, 1 Credit), Luận Giải Chuyên Sâu VIP (Vàng Ánh Kim/Amber, 5 Credits).
+- **Tinh Gọn Badge Chi Phí Nâng Cấp ([InterpretationTierModal.jsx](file:///t:/Phongthuy/frontend/src/components/InterpretationTierModal.jsx))**:
+  - Tại Modal Nâng cấp VIP (Trường hợp bản ghi đã có luận giải cơ bản), thay thế nội dung dài dòng `Bù 4 Credits (Đã trừ 1 Cr cũ)` bằng badge súc tích, chuyên nghiệp: **`Chi phí: 4 Credits`**.
+
+### 🧠 Nâng Cấp Prompt Luận Giải Chuyên Sâu Học Thuật ([MultiAgentPipelineService.js](file:///t:/Phongthuy/backend/src/services/MultiAgentPipelineService.js))
+- **Triệt Tiêu Ô Nhiễm Ngữ Cảnh (Context Decontamination)**: Hàm `cleanContextForVip` tự động loại bỏ phần hướng dẫn cấu trúc 6 bước của bài cơ bản khỏi dữ liệu thô, ngăn chặn tình trạng LLM bị mâu thuẫn giữa cấu trúc bài thường và cấu trúc chuyên sâu 6 chương.
+- **Bổ Sung Khung Lý Luận Cổ Học Đặc Thù Từng Chương (`getChapterSpecificInstructions`)**:
+  - *Chương 1 (Sự nghiệp)*: Căn cứ "Tử Bình Chân Thuyên" về Định Cách & Cứu Ứng, tương tác Quan Sát vs Thực Thương, vai trò Ấn Tinh, chuyển đổi ngành nghề số hiện đại.
+  - *Chương 2 (Tài chính)*: Phân biệt Chính Tài vs Thiên Tài, khảo sát Khố Tài (Thìn Tuất Sửu Mùi) khai/bế, nhận diện rủi ro "Kiếp Tài đoạt Tài".
+  - *Chương 3 (Hôn nhân)*: Cung Phối Ngẫu kết hợp Thê Tinh/Phu Tinh, tương tác Hình-Xung-Hại, Thần Sát tình duyên, mẫu bạn đời tương hợp theo Dụng Thần.
+  - *Chương 4 (Sức khỏe)*: "Hoàng Đế Nội Kinh" quy chiếu ngũ hành 5 tạng (Can, Tâm, Tỳ, Phế, Thận), xung kích mổ xẻ huyết quang, phác đồ dưỡng sinh Đông Y.
+  - *Chương 5 (Phong thủy cải vận)*: Lấy Dụng Thần & Hỷ Thần làm tọa độ trung tâm, 4 trụ cột cải vận (Phương vị/không gian, màu sắc/chất liệu, tâm thức/hành vi, quý nhân).
+  - *Chương 6 (Đại vận 100 năm)*: Bắt buộc lập **Bảng Markdown Ma Trận Vận Hạn** chuẩn GFM (Giai đoạn tuổi, Can Chi đại vận, tương tác học thuật, cát/hung, chiến lược hành động), chỉ rõ 10 năm hoàng kim và điểm gãy Thiên Khắc Địa Xung.
+
+### 🔍 Giải Trình & Xác Minh Thực Tế Đa Mô Hình AI (Multi-AI Runtime Verification)
+- **Kiến Trúc Multi-Agent**: Thiết kế ban đầu phân vai chuyên biệt: Chương 1 & 6 (DeepSeek), Chương 3 & 5 (xAI Grok), Chương 2 & 4 (Google Gemini).
+- **Thực Tế Vận Hành Hiện Tại**:
+  - `DEEPSEEK_API_KEY`: Trả về `402 Insufficient Balance` (tài khoản hết số dư).
+  - `GROK_API_KEY`: Trả về `403 permission-denied` (chưa kích hoạt thanh toán/quota).
+  - `GEMINI_API_KEY`: Hoạt động 100% hoàn hảo (~1.1s).
+  - **Kết luận**: Nhờ cơ chế Fallback tự động (`try/catch` bọc ở từng Replica), hệ thống tự động chuyển giao 100% tác vụ sang Google Gemini để phục vụ người dùng liền mạch không bị lỗi.
+
+---
+
+
+
+### 🎨 Tối Ưu Giao Diện VIP Nền Trắng & Tách Khung Chuyên Sâu
+- **Giao Diện VIP Progress Tracker Nền Trắng ([VipProgressTracker.jsx](file:///t:/Phongthuy/frontend/src/components/VipProgressTracker.jsx))**:
+  - Chuyển đổi toàn bộ nền đen `bg-slate-900` sang nền trắng thanh lịch `bg-white border-amber-200/80 shadow-sm`.
+  - Thiết kế các badge chương hoàn thành màu xanh ngọc sang trọng (`bg-emerald-50 text-emerald-900 border-emerald-200`), chương đang chạy hiệu ứng hổ phách mềm mại (`bg-amber-50 text-amber-950 border-amber-300 animate-pulse`).
+- **Phân Tách Khung Card Độc Lập Cho Phân Tích Nhật Chủ & 6 Chương ([markdownParser.js](file:///t:/Phongthuy/frontend/src/utils/markdownParser.js))**:
+  - Viết lại hàm `parseMarkdownSections` hỗ trợ nhận diện các mẫu tiêu đề `## CHƯƠNG \d+`, `CHƯƠNG \d+:`, `## BƯỚC \d+`, `PHÂN TÍCH NHẬT CHỦ`.
+  - Triệt để xóa bỏ tình trạng dồn toàn bộ 6 chương vào một khung duy nhất ("Tổng Quan Luận Giải"). Mỗi chương học thuật hiển thị trong một Card riêng biệt có Icon phân hệ tương ứng.
+  - Ngăn chặn việc ngắt gãy thẻ tiêu đề con cấp 3 (`### 1. Năng lực...`), giữ trọn vẹn các tiểu mục nằm trong chương cha.
+- **Thứ Bậc Tiêu Đề Đề Mục & Loại Bỏ In Đậm Tùy Tiện ([SectionRenderer.jsx](file:///t:/Phongthuy/frontend/src/components/SectionRenderer.jsx))**:
+  - Tiêu đề đề mục con khía cạnh trong chương (`###`) được định dạng chữ in đậm `font-bold text-slate-900` và lớn hơn văn bản thường 1 cấp (`text-base md:text-lg` so với `text-sm md:text-base`).
+  - Toàn bộ đoạn văn phân tích viết bằng chữ thường chuẩn mực, cấm in đậm tùy tiện các cụm từ ngữ rải rác trong câu.
+- **Sửa Lỗi Hiển Thị Bảng Markdown GFM ([SectionRenderer.jsx](file:///t:/Phongthuy/frontend/src/components/SectionRenderer.jsx))**:
+  - Tích hợp plugin `remarkGfm` vào `ReactMarkdown` trong `SectionRenderer`.
+  - Bổ sung hàm tiền xử lý `cleanAndNormalizeMarkdown` giải quyết triệt để lỗi bảng Markdown bị dính liền thành chuỗi ký tự thô `| Col 1 | ... |`: Tách các hàng dính nhau `| |`, loại bỏ dòng trống nội bộ làm vỡ bảng, tự động chèn dòng trống phân cách trước và sau bảng.
+  - Tùy biến component bảng `table`, `thead`, `tbody`, `tr`, `th`, `td` phong cách hiện đại, có bo góc, nền header và cuộn ngang trên thiết bị di động.
+- **Tái Thiết Kế Modal Chọn Gói Luận Giải & Modal Nâng Cấp ([InterpretationTierModal.jsx](file:///t:/Phongthuy/frontend/src/components/InterpretationTierModal.jsx))**:
+  - Chuyển đổi toàn bộ sang nền trắng sang trọng (`bg-white border-slate-200 shadow-2xl`).
+  - Loại bỏ hoàn toàn các thuật ngữ kỹ thuật hệ thống (Multi-Agent 3 tầng, DeepSeek + Grok + Gemini, F5 không mất, tốc độ phản hồi tức thì...).
+  - Tập trung 100% vào giá trị học thuật cổ học: 6 chuyên đề luận giải, dung lượng 5.000+ từ, giải mã điểm gãy vận hạn, bảng lộ trình Đại Vận và bộ giải pháp Phong Thủy cải vận.
+
+### 🧠 Cập Nhật Prompt Multi-Agent Pipeline ([MultiAgentPipelineService.js](file:///t:/Phongthuy/backend/src/services/MultiAgentPipelineService.js))
+- **Gỡ Bỏ Rào Cản Dung Lượng Tiền Xử Lý (Pre-Analysis)**: Cho phép Gemini và DeepSeek phân tích toàn diện, sâu sắc ma trận số học tĩnh và suy luận CoT điểm gãy vận hạn mà không bị bó hẹp trong giới hạn 200 từ.
+- **Chỉ Dẫn Bố Cục & Ngắt In Đậm**: Thêm yêu cầu rõ ràng cấm AI in đậm tùy tiện các từ ngữ trong câu, bắt buộc dùng tiêu đề cấp 3 (`### Tên Mục In Đậm`) cho từng đề mục con, khía cạnh trong chương.
+
+### 🧪 Kiểm Thử Giao Diện Trình Duyệt (Chrome DevTools MCP)
+- Kiểm tra trực quan toàn bộ 4 khu vực giao diện theo yêu cầu của người dùng.
+- Thao tác thực tế: Mở Modal chọn gói, kích hoạt bản cơ bản, nâng cấp lên VIP qua Modal Nâng cấp, theo dõi `VipProgressTracker` realtime và kiểm tra hiển thị 6 Card chương cùng bảng lộ trình Đại Vận.
+- Kết quả: Đạt 100% yêu cầu, 0 console errors.
+
+---
+
+## 📅 Phiên bản: Kiểm Thử Hồi Quy Toàn Bộ Hệ Thống & Tối Ưu Mutex Concurrency (04/09/2026)
+
+### 🧪 Kiểm Thử Hồi Quy Toàn Diện (Full System Regression Testing)
+- **11 Test Suites Tự Động (24/24 Test Cases Pass 100%)**:
+  - Hệ thống Health Check (`GET /health`)
+  - Luồng Xác thực, Profile, Quota Credits (`/api/auth/*`)
+  - Bát Tự (Dương lịch, Âm lịch, Nhập thủ công Can Chi, Khóa Mutex 2.5s)
+  - Tử Vi (An sao 12 cung mệnh bàn, Cát tinh / Hung tinh)
+  - Kinh Dịch (Gieo quẻ Lục Hào, Lục Thú, Vượng Suy)
+  - Hợp Hôn (Bát Tự đôi bên, Cung Phi, Mệnh Quái, Điểm số tương hợp)
+  - Trạch Cát (Tra cứu ngày giờ hoàng đạo, Tư vấn ngày tốt theo tuổi)
+  - Kiến thức Blog (Danh sách bài viết, Danh mục chủ đề)
+  - Thẻ & Thư mục (Tạo, Liệt kê, Xóa thẻ)
+  - Lịch sử & Thao tác bản ghi (Lấy danh sách, Đánh giá sao, Bật/tắt công khai, Xóa mềm)
+  - Bộ lọc Ngữ cảnh AI Chat (Lọc câu hỏi lạc đề, 400 Guard)
+- **Kiểm Thử Luồng Credit & AI Multi-Agent Tích Hợp**:
+  - Bản Thường trừ chính xác 1 Credit
+  - Nâng cấp VIP trừ chính xác 4 Credits (chênh lệch 5 - 1)
+  - Tái kích hoạt VIP kích hoạt Idempotent Cache, trừ 0 Credit
+
+### 🛡️ Tối Ưu Backend & Tự Sửa Lỗi Hồi Quy (Self-Healing Fixes)
+- **Hybrid L1 RAM Mutex Lock ([redis.js](file:///t:/Phongthuy/backend/src/config/redis.js))**: Tích hợp `lockRamCache` vào `acquireRedisLock` và `releaseRedisLock`, bảo đảm khóa chống spam 2.5s hoạt động bền bỉ 100% ngay cả khi Redis chạy ở chế độ fallback trong môi trường phát triển cục bộ.
+- **Tối Ưu Parser Giờ Sinh Trạch Cát ([DateService.js](file:///t:/Phongthuy/backend/src/services/DateService.js))**: Sửa lỗi `TypeError` khi tham số `solarHour` được truyền dạng số nguyên, tự động ép kiểu chuỗi an toàn.
+- **Linh Hoạt Chuỗi Giới Tính Tử Vi ([InputValidator.js](file:///t:/Phongthuy/backend/src/services/InputValidator.js))**: Chuẩn hóa `toLowerCase()` và hỗ trợ các chuỗi `'nam'`, `'nu'`, `'Nam'`, `'Nữ'`, `1`, `0` để tương thích toàn diện giữa các API client.
+- **Đồng Bộ Bộ Nhớ Đệm Khi Chat ([chatCreditCheck.js](file:///t:/Phongthuy/backend/src/middleware/chatCreditCheck.js))**: Tự động gọi `setUserProfileCache` ngay sau khi trừ 0.5 Credit, giữ trạng thái đồng nhất tuyệt đối giữa MongoDB, Redis và RAM L1 Cache.
+
+### 🌐 Kiểm Thử Trực Quan Giao Diện Trình Duyệt (Chrome DevTools MCP)
+- Kiểm tra toàn bộ 7 màn hình giao diện: Trang Chủ, Kiến Thức, Kinh Dịch, Bát Tự, Tử Vi, Hôn Nhân, Xem Ngày, Lịch Sử.
+- Console Errors: 0 lỗi Uncaught Error trên toàn bộ phiên làm việc.
+
+---
+
+## 📅 Phiên bản: Triển Khai Hệ Thống Luận Giải Chuyên Sâu VIP (Multi-Agent Pipeline 3 Tầng & Giao Diện Đa Tầng) (03/09/2026)
+
+### 🌟 Kiến Trúc Multi-Agent Pipeline 3 Tầng ([MultiAgentPipelineService.js](file:///t:/Phongthuy/backend/src/services/MultiAgentPipelineService.js))
+- **Tầng 1 (Dual Pre-Analysis)**: Kích hoạt song song DeepSeek và Gemini phân tích xương sống mệnh cách, vượng suy, dụng thần trong ~3 giây.
+- **Tầng 2 (6 Replicas Parallel Execution)**: Thực thi đồng thời 6 Replicas phân tích 6 Chương học thuật riêng biệt (Sự Nghiệp, Tài Chính, Hôn Nhân, Sức Khỏe, Cải Vận, Mốc Đại Vận 100 Năm) qua DeepSeek, Grok và Gemini với cơ chế tự động Fallback an toàn sang Gemini nếu gặp lỗi API/hạn mức.
+- **Tầng 3 (Master Synthesis & SSE Streaming)**: Tổng hợp công trình nghiên cứu 5.000+ từ, phát dòng SSE theo từng chương thời gian thực kèm metadata tiến độ `{ chapterId, status, title }`.
+
+### 🛡️ Quản Trị Quota Credits & Mutex Lock Concurrency ([creditCheck.js](file:///t:/Phongthuy/backend/src/middleware/creditCheck.js), [BaziController.js](file:///t:/Phongthuy/backend/src/controllers/BaziController.js), [ZiweiController.js](file:///t:/Phongthuy/backend/src/controllers/ZiweiController.js), [IChingController.js](file:///t:/Phongthuy/backend/src/controllers/IChingController.js), [MarriageController.js](file:///t:/Phongthuy/backend/src/controllers/MarriageController.js))
+- **Atomic Credit Decrement**: Phân tách rõ ràng: Luận giải cơ bản trừ 1 Credit, Luận giải chuyên sâu VIP mới trừ 5 Credits, Nâng cấp từ cơ bản lên VIP chỉ trừ 4 Credits (bù chênh lệch `5 - 1 = 4 credits`).
+- **Loại bỏ Cronjob Tặng Credit**: Xóa bỏ `DAILY_CREDIT_INCREMENT` trong [NotificationScheduler.js](file:///t:/Phongthuy/backend/src/services/NotificationScheduler.js) để bảo toàn giá trị Credit.
+- **Bỏ Semantic Duplicate Check & Khóa Concurrency 2.5s**: Mỗi request tạo mới lá số độc lập, tích hợp Mutex Lock ngắn hạn `inflight:...` 2.5s trên Redis/RAM ngăn chặn hoàn toàn spam 10 request đồng thời.
+- **Tối Ưu Compound Index**: Bổ sung B-Tree index `{ userId: 1, isDeleted: 1, isPinned: -1, createdAt: -1 }` trên cả 4 bảng bản ghi.
+
+### 🎨 Giao Diện Người Dùng & Trải Nghiệm Đa Tầng ([InterpretationTierModal.jsx](file:///t:/Phongthuy/frontend/src/components/InterpretationTierModal.jsx), [VipUpgradeBanner.jsx](file:///t:/Phongthuy/frontend/src/components/VipUpgradeBanner.jsx), [VipProgressTracker.jsx](file:///t:/Phongthuy/frontend/src/components/VipProgressTracker.jsx), [BaziBoard.jsx](file:///t:/Phongthuy/frontend/src/components/BaziBoard.jsx), [ZiweiBoard.jsx](file:///t:/Phongthuy/frontend/src/components/ZiweiBoard.jsx), [IChingBoard.jsx](file:///t:/Phongthuy/frontend/src/components/IChingBoard.jsx), [MarriageBoard.jsx](file:///t:/Phongthuy/frontend/src/components/MarriageBoard.jsx))
+- **Modal Chọn Gói 2 Cột**: Hiển thị bảng chọn 2 cột sang trọng (Cơ bản 1 Cr vs VIP 5 Cr viền vàng hoàng gia, huy hiệu Khuyên Dùng).
+- **Banner Nâng Cấp VIP**: Hiển thị cuối bài luận giải thường gợi ý nâng cấp VIP 4 Credits.
+- **Vị Trí Nút Floating Nâng Cấp**: Đặt nút "Nâng Cấp VIP (4 Cr)" ở góc dưới bên phải, nằm ngay **PHÍA TRÊN** nút "Hỏi Thêm Thầy".
+- **0ms Instant State Reset**: Xóa bài cũ ngay trên state khi nhấn xác nhận nâng cấp, kích hoạt thanh tiến độ thời gian thực 6 Chương (`VipProgressTracker.jsx`).
+- **Ẩn Triệt Để Khi Hoàn Thành VIP**: Khi đã có bài VIP, toàn bộ nút nâng cấp và banner VIP được ẩn hoàn toàn, chỉ giữ lại nút "Hỏi Thêm Thầy".
+
+---
 
 ### 🎨 Từ Điển & Chú Thích Giao Diện Frontend ([bazi_concepts.js](file:///t:/Phongthuy/frontend/src/data/bazi_concepts.js))
 - **Bổ Sung Giải Nghĩa Địa Chi Thân**: Thêm định nghĩa học thuật chi tiết cho Địa Chi **Thân** (Thân Kim) vào từ điển Bát Tự chuyên biệt `bazi_concepts.js` để hiển thị chú giải hoàn chỉnh khi di chuột trên giao diện.

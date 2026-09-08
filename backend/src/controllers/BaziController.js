@@ -114,79 +114,22 @@ class BaziController {
                 }
             }
 
-            // 1. Check by Idempotency Key header if provided
-            let idempotencyKeyVal = idempotencyKey;
-            if (!idempotencyKeyVal) {
-                if (calendarMode === 'manual') {
-                    const mStr = `${manualData.yearGan}${manualData.yearZhi}_${manualData.monthGan}${manualData.monthZhi}_${manualData.dayGan}${manualData.dayZhi}_${manualData.hourGan}${manualData.hourZhi}`;
-                    idempotencyKeyVal = `${uid}:manual:${mStr}:${gender}:${birthSolarYear}`;
-                } else {
-                    idempotencyKeyVal = `${uid}:${date}:${time}:${gender}:${dayBoundaryMode || 'midnight'}`;
-                }
-            }
+            // Chống spam 10 request đồng thời cùng bộ dữ liệu (In-Flight Concurrency Protection 2.5s)
+            const { acquireRedisLock, releaseRedisLock } = require('../config/redis');
+            const payloadKey = calendarMode === 'manual'
+                ? `${uid}:manual:${manualData.yearGan}${manualData.yearZhi}_${manualData.monthGan}${manualData.monthZhi}_${manualData.dayGan}${manualData.dayZhi}_${manualData.hourGan}${manualData.hourZhi}:${gender}:${birthSolarYear}`
+                : `${uid}:${date}:${time}:${gender}:${dayBoundaryMode || 'midnight'}`;
+            const lockKey = `inflight:bazi:${payloadKey}`;
 
-            if (idempotencyKeyVal) {
-                const dupRecord = await BaziRecord.findOne({ idempotencyKey: idempotencyKeyVal, isDeleted: { $ne: true } });
-                if (dupRecord) {
-                    const baziData = { ...dupRecord.baziData };
-                    if (baziData.lunarDateStr) baziData.lunarDateStr = formatCanChiSpacing(baziData.lunarDateStr);
-                    if (baziData.lunarYear) baziData.lunarYear = formatCanChiSpacing(baziData.lunarYear);
-                    if (baziData.tietKhiTimeline) baziData.tietKhiTimeline = formatCanChiSpacing(baziData.tietKhiTimeline);
-                    return res.json({ 
-                        ...baziData, 
-                        gender: dupRecord.inputInfo.gender,
-                        recordId: dupRecord._id, 
-                        name: dupRecord.inputInfo.name,
-                        inputInfo: dupRecord.inputInfo,
-                        aiInterpretation: dupRecord.aiInterpretation 
-                    });
-                }
-            }
-
-            // 2. Check for duplicate record by data parameters (Semantic Idempotency)
-            let existingRecord;
-            if (calendarMode === 'manual') {
-                existingRecord = await BaziRecord.findOne({
-                    userId: uid,
-                    'inputInfo.calendarMode': 'manual',
-                    'inputInfo.birthSolarYear': birthSolarYear,
-                    'inputInfo.gender': parseInt(gender),
-                    'inputInfo.manualData.yearGan': manualData.yearGan,
-                    'inputInfo.manualData.yearZhi': manualData.yearZhi,
-                    'inputInfo.manualData.monthGan': manualData.monthGan,
-                    'inputInfo.manualData.monthZhi': manualData.monthZhi,
-                    'inputInfo.manualData.dayGan': manualData.dayGan,
-                    'inputInfo.manualData.dayZhi': manualData.dayZhi,
-                    'inputInfo.manualData.hourGan': manualData.hourGan,
-                    'inputInfo.manualData.hourZhi': manualData.hourZhi,
-                    isDeleted: { $ne: true }
-                });
-            } else {
-                existingRecord = await BaziRecord.findOne({
-                    userId: uid,
-                    'inputInfo.date': date,
-                    'inputInfo.time': time,
-                    'inputInfo.gender': parseInt(gender),
-                    'inputInfo.dayBoundaryMode': dayBoundaryMode || 'midnight',
-                    'inputInfo.calendarMode': calendarMode,
-                    isDeleted: { $ne: true }
+            const acquired = await acquireRedisLock(lockKey, 2500);
+            if (!acquired) {
+                return res.status(429).json({
+                    error: 'Yêu cầu của bạn đang được hệ thống xử lý, vui lòng không nhấn gửi liên tục.'
                 });
             }
-
-            if (existingRecord) {
-                const baziData = { ...existingRecord.baziData };
-                if (baziData.lunarDateStr) baziData.lunarDateStr = formatCanChiSpacing(baziData.lunarDateStr);
-                if (baziData.lunarYear) baziData.lunarYear = formatCanChiSpacing(baziData.lunarYear);
-                if (baziData.tietKhiTimeline) baziData.tietKhiTimeline = formatCanChiSpacing(baziData.tietKhiTimeline);
-                return res.json({ 
-                    ...baziData, 
-                    gender: existingRecord.inputInfo.gender,
-                    recordId: existingRecord._id, 
-                    name: existingRecord.inputInfo.name,
-                    inputInfo: existingRecord.inputInfo,
-                    aiInterpretation: existingRecord.aiInterpretation 
-                });
-            }
+            res.on('finish', () => {
+                releaseRedisLock(lockKey);
+            });
 
             let result;
             if (calendarMode === 'manual') {
@@ -225,7 +168,7 @@ class BaziController {
 
             const record = new BaziRecord({
                 userId: uid,
-                idempotencyKey: idempotencyKeyVal || `${uid}:${date}:${time}:${gender}:${dayBoundaryMode || 'midnight'}`,
+                idempotencyKey: `${uid}:${date}:${time}:${gender}:${dayBoundaryMode || 'midnight'}:${Date.now()}`,
                 inputInfo,
                 solarTimeline: result.solarTimeline || 'Nhập thủ công Bát tự',
                 tietKhiTimeline: result.tietKhiTimeline,

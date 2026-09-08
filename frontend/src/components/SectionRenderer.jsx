@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { 
   User, 
   Briefcase, 
@@ -35,6 +36,16 @@ const sectionIcons = {
   tu_vi_13: Zap,         // Đại Vận & Vận Hạn Năm 2026
   tu_vi_14: TrendingUp,  // Tổng Kết Vận Hạn Cuộc Đời
   tu_vi_15: Sparkles,    // Chiến Lược Cải Vận & Thu Hút May Mắn
+
+  // Bát Tự VIP Chapters & Nhật Chủ
+  bazi_ch_1: Award,       // Sự Nghiệp & Công Danh
+  bazi_ch_2: Briefcase,   // Tài Chính & Dòng Tiền
+  bazi_ch_3: Heart,       // Hôn Nhân & Gia Đạo
+  bazi_ch_4: ShieldAlert, // Sức Khỏe & Tạng Phủ
+  bazi_ch_5: Sparkles,    // Phong Thủy & Cải Vận
+  bazi_ch_6: TrendingUp,  // Mốc Đại Vận 100 Năm
+  bazi_nhat_chu: User,    // Phân Tích Nhật Chủ
+  bazi_intro: BookOpen,   // Tổng Quan Bản Mệnh
 
   // Tử Vi - JSON keys
   menh: Sparkles,
@@ -127,6 +138,16 @@ const sectionColors = {
   tong_ket_van_han: "from-slate-700 to-slate-900",
   cai_van_phong_thuy: "from-purple-600 to-amber-600",
 
+  // Bát Tự VIP Chapters & Nhật Chủ
+  bazi_ch_1: "from-blue-600 to-indigo-700",
+  bazi_ch_2: "from-emerald-500 to-teal-600",
+  bazi_ch_3: "from-rose-500 to-pink-600",
+  bazi_ch_4: "from-amber-500 to-red-600",
+  bazi_ch_5: "from-purple-500 to-indigo-600",
+  bazi_ch_6: "from-indigo-600 to-slate-800",
+  bazi_nhat_chu: "from-cyan-600 to-blue-700",
+  bazi_intro: "from-amber-500 to-indigo-600",
+
   // Bát Tự
   bazi_1: "from-blue-500 to-indigo-600",
   bazi_2: "from-indigo-500 to-blue-600",
@@ -197,6 +218,41 @@ const themeStyles = {
   }
 };
 
+const cleanAndNormalizeMarkdown = (content) => {
+  if (!content || typeof content !== 'string') return '';
+  let text = content;
+
+  // 1. Replace double pipe row separators: "| |" -> "|\n|"
+  text = text.replace(/\|\s*\|\s*/g, '|\n|');
+
+  // 2. Fix lines that have an orphaned row start like "|9 - 18\n| Tân Tỵ"
+  text = text.replace(/\|\s*(\d+\s*-\s*\d+)\s*\n\s*\|\s*/g, '| $1 | ');
+
+  // 3. Fix broken delimiter row like "|:---\n| :--- | :--- | :--- |"
+  text = text.replace(/\|:---\s*\n\s*\|\s*:---/g, '| :---');
+
+  // 4. Remove blank lines BETWEEN table rows (lines with pipes)
+  for (let pass = 0; pass < 5; pass++) {
+    text = text.replace(/(\|[^\n]+)\n\s*\n+(\s*\|)/g, '$1\n$2');
+  }
+
+  // 5. Ensure blank line BEFORE the start of a table (if preceded by a non-pipe line)
+  text = text.replace(/([^\n|])\n*(\|[^\n]+\|\n\|[\s:-]+\|)/g, '$1\n\n$2');
+
+  // 6. Ensure blank line AFTER the end of a table (if followed by a non-pipe line)
+  text = text.replace(/(\|[^\n]+\|)\n+([^|\n#\s])/g, '$1\n\n$2');
+
+  // 7. Ensure bold headings on standalone lines become h3 subtopics
+  text = text.replace(/(?:^|\n)\s*\*\*(Phân Tích|Lộ Trình|Dự Báo|Chiến Lược|Đặc Trưng|Bước Ngoặt|Năng Lực|Định Vị|Môi Trường|Tiểu Nhân|Thời Điểm|Chính Tài|Kho Tài|Rủi Ro|Phong Cách|Mô Hình|Chân Dung|Đào Hoa|Đường Con|Bí Quyết|Mất Cân Bằng|Cảnh Báo|Nguy Cơ|Hạn Mổ|Phương Pháp|Persona|Màu Sắc|Cải Vận|Khung Giờ|Bố Trí|Chu Kỳ|Điểm Gãy|Hoàng Kim)[^:\n]*:\*\*/gi, (match) => {
+    return `\n\n### ${match.trim()}`;
+  });
+
+  // 8. Ensure clean double newlines outside tables
+  text = text.replace(/\n{3,}/g, '\n\n').trim();
+
+  return text;
+};
+
 const SectionCard = ({ section, theme }) => {
   const [isOpen, setIsOpen] = useState(true);
   const IconComponent = sectionIcons[section.id] || Bookmark;
@@ -241,18 +297,38 @@ const SectionCard = ({ section, theme }) => {
       {/* Accordion Content Panel */}
       <div 
         className={`transition-all duration-300 ease-in-out overflow-hidden ${
-          isOpen ? 'max-h-[3000px] border-t border-slate-100 opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
+          isOpen ? 'max-h-[5000px] border-t border-slate-100 opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
         }`}
       >
-        <div className={`px-6 pt-3 pb-5 md:px-8 md:pt-4 md:pb-6 text-slate-700 leading-relaxed text-sm md:text-base prose max-w-none ${styles.prose}`}>
+        <div className={`px-6 pt-4 pb-6 md:px-8 md:pt-5 md:pb-7 text-slate-700 leading-relaxed text-sm md:text-base prose max-w-none ${styles.prose}`}>
           <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
             components={{
-              p: ({ children }) => <p className="mb-7 last:mb-0 leading-relaxed">{children}</p>
+              p: ({ children }) => <p className="mb-5 last:mb-0 leading-relaxed font-normal text-slate-700">{children}</p>,
+              h1: ({ children }) => <h1 className="text-xl md:text-2xl font-bold text-slate-900 mt-6 mb-3 tracking-wide">{children}</h1>,
+              h2: ({ children }) => <h2 className="text-lg md:text-xl font-bold text-slate-900 mt-6 mb-3 tracking-wide">{children}</h2>,
+              h3: ({ children }) => <h3 className="text-base md:text-lg font-bold text-slate-900 mt-6 mb-2.5 tracking-wide">{children}</h3>,
+              h4: ({ children }) => <h4 className="text-sm md:text-base font-bold text-slate-900 mt-4 mb-2 tracking-wide">{children}</h4>,
+              strong: ({ children }) => <strong className="font-bold text-slate-900">{children}</strong>,
+              ul: ({ children }) => <ul className="list-disc pl-5 mb-5 space-y-2 text-slate-700 font-normal">{children}</ul>,
+              ol: ({ children }) => <ol className="list-decimal pl-5 mb-5 space-y-2 text-slate-700 font-normal">{children}</ol>,
+              li: ({ children }) => <li className="leading-relaxed font-normal">{children}</li>,
+              blockquote: ({ children }) => <blockquote className="pl-4 border-l-4 border-amber-400 italic text-slate-600 bg-amber-50/40 p-3.5 rounded-r-xl my-5 font-normal">{children}</blockquote>,
+              table: ({ children }) => (
+                <div className="overflow-x-auto my-6 rounded-2xl border border-slate-200/90 shadow-2xs bg-white">
+                  <table className="min-w-full divide-y divide-slate-200 text-left text-xs md:text-sm">
+                    {children}
+                  </table>
+                </div>
+              ),
+              thead: ({ children }) => <thead className="bg-slate-100/90 font-bold text-slate-900 font-sans">{children}</thead>,
+              tbody: ({ children }) => <tbody className="divide-y divide-slate-100 bg-white">{children}</tbody>,
+              tr: ({ children }) => <tr className="hover:bg-slate-50/80 transition-colors">{children}</tr>,
+              th: ({ children }) => <th className="px-4 py-3 font-bold uppercase tracking-wider text-[11px] md:text-xs text-slate-800 border-b border-slate-200">{children}</th>,
+              td: ({ children }) => <td className="px-4 py-3 text-slate-700 font-normal leading-relaxed border-b border-slate-100">{children}</td>,
             }}
           >
-            {section.content 
-              ? section.content.replace(/\s*\*\*(Phân Tích|Lộ Trình|Dự Báo)/g, '\n\n**$1').replace(/\n{3,}/g, '\n\n').trim() 
-              : ''}
+            {cleanAndNormalizeMarkdown(section.content)}
           </ReactMarkdown>
         </div>
       </div>

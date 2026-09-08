@@ -64,9 +64,8 @@ Sử dụng phương pháp Tử Vi Bắc Phái định vị Mệnh - Thân:
 - **Giới hạn số câu hỏi chat:** Tối đa **10 câu/giờ** (CHAT_LIMIT_PER_HOUR) đối với mỗi tài khoản nhằm hạn chế tình trạng spam chi phí API.
 - **Lọc chủ đề chat (`isDivinationRelated`):** Dịch vụ phân tích ý định sẽ từ chối trả lời nếu người dùng hỏi lệch hướng (ví dụ: hỏi viết code, làm toán, lập trình...). Ngoại trừ việc hỏi về thời tiết và chọn ngày cát lành được phép thông qua.
 
-### 4.2 Cấp phát Credits hàng ngày & Xóa tài khoản soft-delete
-Tác vụ chạy định kỳ lúc nửa đêm của `NotificationScheduler.js` thực hiện:
-- **Cấp credit:** Tự động cộng **+1 credit** cho toàn bộ người dùng active có role là `user` hoặc `vip`.
+### 4.2 Cấp phát Credits & Xóa tài khoản soft-delete
+- **Quản trị Credit:** Đã loại bỏ hoàn toàn cơ chế tự động tặng credit miễn phí hàng ngày (`DAILY_CREDIT_INCREMENT`) để đảm bảo giá trị của Credits và duy trì kiểm soát tài nguyên chặt chẽ.
 - **Dọn dẹp database:** Tìm kiếm những tài khoản bị xóa mềm (`isDeleted: true`) quá **30 ngày** và thực hiện xóa vĩnh viễn (Hard Delete) tài khoản đó cùng toàn bộ lịch sử Bát Tự, Tử Vi, Kinh Dịch, Kết Hôn, Chat liên quan để tối ưu tài nguyên lưu trữ.
 
 ### 4.3 Quét lịch thông báo Ứng Kỳ
@@ -90,6 +89,24 @@ Tác vụ chạy định kỳ lúc nửa đêm của `NotificationScheduler.js` 
 - **Gửi Email OTP:** Máy chủ gửi một email định dạng HTML chứa mã OTP nổi bật đến email của người dùng.
 - **Xác thực đặt lại mật khẩu (`POST /reset-password`):** Người dùng nhập đúng mã OTP còn hiệu lực kèm mật khẩu mới (độ dài tối thiểu 6 ký tự). Sau khi cập nhật thành công mật khẩu mới (mã hóa bcrypt), hệ thống sẽ tăng `tokenVersion` lên 1 để tự động đăng xuất tất cả phiên đăng nhập cũ của tài khoản.
 - **Rate Limit:** Cả hai endpoint quên mật khẩu và khôi phục mật khẩu đều được bảo vệ bởi middleware `authLimiter` nhằm chống brute-force và spam email.
+
+### 4.6 Quy tắc Luận giải Cơ bản (1 Credit) & Chuyên sâu VIP (5 Credits / 4 Credits Upgrade)
+- **Luận giải Cơ bản (`mode: standard`):** Tiêu thụ **1 Credit**. Phân tích tổng quan ngắn gọn (800 - 1.200 từ), phản hồi nhanh.
+- **Luận giải Chuyên sâu VIP (`mode: vip`):** Tiêu thụ **5 Credits**. Chạy qua Multi-Agent VIP Pipeline 3 Tầng với 6 Replicas song song, xuất ra 5.000+ từ trải dài qua 6 Chương chuyên sâu (Sự Nghiệp, Tài Chính, Hôn Nhân, Sức Khỏe, Cải Vận, Mốc Đại Vận 100 Năm).
+- **Nâng Cấp từ Cơ Bản lên VIP:** Người dùng chỉ cần thanh toán chênh lệch **4 Credits** (`5 - 1 = 4 credits`). Hệ thống áp dụng 0ms Instant Reset trên giao diện người dùng, làm mới bài viết cũ và phát dòng bản VIP.
+- **Bảo toàn Bản quyền VIP:** Một khi lá số đã có luận giải VIP hoàn chỉnh, hệ thống ẩn vĩnh viễn banner và nút nâng cấp, đồng thời chặn việc gọi trừ credit thừa.
+
+### 4.7 Quy tắc Tạo Lá số Độc lập & Khóa Tranh chấp Tức thời (Concurrency Lock 2.5s)
+- **Bỏ kiểm tra trùng lặp cũ:** Mọi thao tác lập lá số Bát Tự, Tử Vi, Hợp Hôn hoặc gieo quẻ Kinh Dịch hợp lệ đều được tạo thành bản ghi mới độc lập nhằm phục vụ chiêm nghiệm đa thời điểm của người dùng.
+- **Chống spam đồng thời (In-Flight Concurrency Lock):** Để ngăn chặn trường hợp gửi đồng loạt 10 requests cùng lúc với cùng một bộ dữ liệu, hệ thống tích hợp Mutex Lock ngắn hạn trên Redis/RAM (`inflight:<type>:<hash>`) với thời gian khóa là **2.5 giây**. Request gửi sau trong cùng thời điểm sẽ nhận cảnh báo `409 Conflict` an toàn.
+
+### 4.8 Quy tắc Trình Diễn Luận Giải Chuyên Sâu & Bảng GFM (UI Presentation Standard)
+- **Phân tách Khung Card Độc Lập:** Phân tích Nhật Chủ và mỗi Chương trong 6 Chương chuyên sâu bắt buộc phải được tách biệt thành từng Card riêng biệt có Icon đại diện, thanh tiêu đề gập/mở (Accordion) và viền bóng đổ thẩm mỹ.
+- **Thứ Bậc Tiêu Đề Đề Mục & Chặn In Đậm Linh Tinh:**
+  - Tiêu đề đề mục con trong chương sử dụng định dạng H3 (`###`), hiển thị **chữ in đậm** (`font-bold text-slate-900`) và **lớn hơn văn bản thường đúng 1 cấp** (`text-base md:text-lg` so với `text-sm md:text-base`).
+  - Toàn bộ đoạn văn phân tích viết bằng chữ thường chuẩn mực, cấm in đậm rải rác các từ ngữ trong câu nhằm giữ độ thanh thoát, trang nhã của trang viết.
+- **Chuẩn Hóa Bảng Markdown GFM:** Bảng Markdown (`| Col | ... |`) phải đi qua bộ tiền xử lý `cleanAndNormalizeMarkdown` tự động khắc phục hiện tượng dính hàng `| |`, xóa các dòng trống nội bộ làm vỡ bảng và bọc trong container bảng có bo góc, nền header và cuộn ngang linh hoạt.
+- **Giao Diện Nền Trắng Sang Trọng (Luxury Light Theme):** Modal Chọn Gói Luận Giải, Modal Nâng Cấp và Bảng Theo Dõi Tiến Độ VIP (`VipProgressTracker`) bắt buộc sử dụng nền trắng (`bg-white`), viền amber/slate tinh tế, và tuyệt đối không hiển thị các thông tin kỹ thuật hạ tầng hệ thống mà chỉ trình bày giá trị học thuật cổ học.
 
 ---
 

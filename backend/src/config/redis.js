@@ -246,11 +246,24 @@ const deleteOtpRedis = async (otpKey) => {
 };
 
 // --- Helper 3: Distributed Mutex Lock (Anti-Spam & Race Condition Protection) ---
+const lockRamCache = new Map();
+
 const acquireRedisLock = async (lockKey, ttlMs = 3000) => {
-    if (!isRedisConnected()) return true; // Fallback allow if Redis offline
+    const now = Date.now();
+    const existingExpiry = lockRamCache.get(lockKey);
+    if (existingExpiry && existingExpiry > now) {
+        return false; // Lock active in RAM
+    }
+    lockRamCache.set(lockKey, now + ttlMs);
+
+    if (!isRedisConnected()) return true;
     try {
         const result = await withTimeout(redisClient.set(`lock:${lockKey}`, '1', 'PX', ttlMs, 'NX'), 500, 'OK');
-        return result === 'OK';
+        if (result !== 'OK') {
+            lockRamCache.delete(lockKey);
+            return false;
+        }
+        return true;
     } catch (err) {
         logger.warn(`[Redis] Failed to acquire lock [${lockKey}]: ${err.message}`);
         return true;
@@ -258,6 +271,7 @@ const acquireRedisLock = async (lockKey, ttlMs = 3000) => {
 };
 
 const releaseRedisLock = async (lockKey) => {
+    lockRamCache.delete(lockKey);
     if (!isRedisConnected()) return;
     try {
         await withTimeout(redisClient.del(`lock:${lockKey}`), 500, null);

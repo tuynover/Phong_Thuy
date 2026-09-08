@@ -481,8 +481,9 @@ class DateService {
         }
 
         let hourVal = 12; 
-        if (hourStr) {
-            hourVal = parseInt(hourStr.split(':')[0]);
+        if (hourStr !== undefined && hourStr !== null && hourStr !== '') {
+            hourVal = parseInt(String(hourStr).split(':')[0], 10);
+            if (isNaN(hourVal)) hourVal = 12;
         }
 
         const solar = Solar.fromYmdHms(year, month, day, hourVal, 0, 0);

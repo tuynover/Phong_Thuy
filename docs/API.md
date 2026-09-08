@@ -264,15 +264,41 @@ Lấy thông tin chi tiết (Lục Thân, Lục Thú, Hào Thế/Ứng) để hi
 
 ## 🤖 3. Luận Giải AI & Trò chuyện Chat (`/api/ai`)
 
-*Lưu ý: Tất cả API interpret của AI đều kiểm tra và trừ credit (ngoại trừ Admin).*
+*Lưu ý: Tất cả API interpret của AI đều kiểm tra và trừ credit nguyên tử (Atomic decrement qua `creditCheck.js`), ngoại trừ Admin/Co-Admin.*
 
 ### 3.1 Kích hoạt Luận giải AI (Kinh Dịch / Bát Tự / Tử Vi / Kết Hôn) (SSE Stream)
 - **Endpoint:** `POST /api/ai/iching/:id/interpret` (hoặc `/bazi/:id/interpret`, `/ziwei/:id/interpret`, `/marriage/:id/interpret`)
-- **Headers:** `Authorization: Bearer <token>`
+- **Headers:** `Authorization: Bearer <token>`, `Content-Type: application/json`
+- **Body:**
+  ```json
+  {
+    "userId": "uuid-v7...",
+    "mode": "standard" // Hoặc "vip" cho luận giải chuyên sâu 6 Chương
+  }
+  ```
+- **Chính sách Trừ Credit:**
+  - **Bản Cơ Bản (`mode: "standard"`):** Trừ **1 Credit**. Dung lượng 800 - 1.200 từ, luận giải tổng quan tức thời.
+  - **Bản Chuyên Sâu VIP (`mode: "vip"`):** Trừ **5 Credits**. Kiến trúc Multi-Agent 3 Tầng (Qwen Plus + Gemini 3.1 Flash Lite tích hợp Gemini Chief Editor & Strategic Harmonizer), dung lượng 6.500+ từ (~34.000 ký tự), giải mã chi tiết qua 6 Chương học thuật, Ma Trận SWOT thực chiến và chuyên đề Điều Hòa Chiến Lược Đa Mục Tiêu.
+  - **Nâng Cấp từ Cơ Bản lên VIP (`isUpgrade: true`):** Chỉ trừ **4 Credits** (bù chênh lệch `5 - 1 = 4 credits`). Hệ thống thực hiện 0ms Instant Reset, xóa bài cũ và stream bản VIP mới.
+  - **Chặn trùng lặp (Idempotent Guard):** Nếu bản ghi đã có bài VIP hoàn chỉnh (`aiInterpretation.mode === 'vip'`), hệ thống chặn 0ms, không trừ thêm credit và stream trực tiếp từ bản lưu cache.
 - **Định dạng stream:** `text/event-stream`
-- **Sự kiện phát:**
-  - `message`: Chứa text chunk dạng raw markdown.
-  - `done`: Tín hiệu kết thúc stream từ AI.
+- **Các gói tin SSE phát:**
+  - **Tiến độ Chương VIP (Progress Event):**
+    ```json
+    data: {"chapterId": 1, "status": "in_progress", "title": "Sự Nghiệp & Công Danh"}
+    ```
+    ```json
+    data: {"chapterId": 1, "status": "completed", "title": "Sự Nghiệp & Công Danh"}
+    ```
+  - **Nội dung văn bản (Text Chunks):**
+    ```json
+    data: {"chunk": "Nhật chủ Canh Kim sinh tháng Tý..."}
+    ```
+  - **Hoàn thành (Done Signal):**
+    ```
+    data: [DONE]
+    ```
+  - **Heartbeat Ping:** Gửi `:\n\n` định kỳ mỗi 15 giây để chống drop socket rác.
 
 ### 3.2 Chat Hỏi đáp sâu (Follow-up Chat - SSE Stream)
 - **Endpoint:** `POST /api/ai/iching/:id/chat` (hoặc `/bazi/:id/chat`, `/ziwei/:id/chat`, `/marriage/:id/chat`)

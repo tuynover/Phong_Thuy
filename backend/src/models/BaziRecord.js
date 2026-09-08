@@ -60,6 +60,7 @@ const baziRecordSchema = new mongoose.Schema({
   },
   aiInterpretation: {
     content: { type: String, default: "" },
+    mode: { type: String, enum: ['standard', 'vip'], default: 'standard' },
     generatedAt: { type: Date, default: null },
     model: { type: String, default: "" },
     promptVersion: { type: String, default: "" },
@@ -100,6 +101,7 @@ const baziRecordSchema = new mongoose.Schema({
   timestamps: true,
 });
 
+baziRecordSchema.index({ userId: 1, isDeleted: 1, isPinned: -1, createdAt: -1 }); // Compound index tối ưu cho sort { isPinned: -1, createdAt: -1 }
 baziRecordSchema.index({ userId: 1, tags: 1 });
 baziRecordSchema.index({ userId: 1, isDeleted: 1, createdAt: -1 }); // Compound index cho query lịch sử: { userId, isDeleted: { $ne: true } } sort createdAt: -1
 baziRecordSchema.index({ userId: 1, createdAt: -1 });

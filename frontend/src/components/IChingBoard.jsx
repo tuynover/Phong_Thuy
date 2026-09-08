@@ -5,8 +5,11 @@ import FloatingNotificationToast from './FloatingNotificationToast';
 import { hexagramDictionary } from '../data/hexagrams';
 import ReactMarkdown from 'react-markdown';
 import { getInterpretationStreamUrl, rateIChing, togglePublicCalculation } from '../services/api';
-import { AlertCircle, BookOpen, ScrollText, MessageCircle, ArrowUp, ArrowDown, Star } from 'lucide-react';
+import { AlertCircle, BookOpen, ScrollText, MessageCircle, ArrowUp, ArrowDown, Star, Zap, Crown } from 'lucide-react';
 import AiChatWidget from './AiChatWidget';
+import InterpretationTierModal from './InterpretationTierModal';
+import VipUpgradeBanner from './VipUpgradeBanner';
+import VipProgressTracker from './VipProgressTracker';
 import { parseMarkdownSections } from '../utils/markdownParser';
 import SectionRenderer from './SectionRenderer';
 import { getColorClass, getBgColorClass, HAO_VI_MEANING, getChiOnly } from '../utils/astrologyHelpers';
@@ -208,7 +211,14 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
     const [selectedHex, setSelectedHex] = useState(null);
     const [isChatOpen, setIsChatOpen] = useState(false);
     const [isInterpreting, setIsInterpreting] = useState(false);
-    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [showTierModal, setShowTierModal] = useState(false);
+    const [isUpgradeModal, setIsUpgradeModal] = useState(false);
+    const [vipChapter, setVipChapter] = useState(1);
+    const [vipCompletedChapters, setVipCompletedChapters] = useState([]);
+    const [vipActiveChapters, setVipActiveChapters] = useState([]);
+    const [vipStreamingChapter, setVipStreamingChapter] = useState(null);
+    const [vipStatusMessage, setVipStatusMessage] = useState('');
+    const [isVipCompleted, setIsVipCompleted] = useState(false);
     const [abortController, setAbortController] = useState(null);
     
     // Help parse legacy and structured interpretations cleanly
@@ -219,6 +229,7 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
     };
 
     const [interpretation, setInterpretation] = useState(getInitialInterpretationText(result?.aiInterpretation));
+    const [interpretationMode, setInterpretationMode] = useState(result?.aiInterpretation?.mode || 'standard');
     const [error, setError] = useState('');
     const [loadingStep, setLoadingStep] = useState(0);
 
@@ -236,6 +247,7 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
             prevIdRef.current = currentId;
         }
         setInterpretation(getInitialInterpretationText(result?.aiInterpretation));
+        setInterpretationMode(result?.aiInterpretation?.mode || 'standard');
         setRating(result?.rating || 0);
         setFeedback(result?.feedback || '');
     }, [result]);
@@ -315,11 +327,24 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
         }
     };
 
-    const triggerLuanGiai = async () => {
-        setShowConfirmModal(false);
+    const triggerLuanGiai = async (tier = 'standard') => {
+        setShowTierModal(false);
         setIsInterpreting(true);
         setError('');
+
+        const isVip = tier === 'vip';
+        const isUpgrade = isUpgradeModal || (isVip && !!interpretation);
+        const costToDeduct = isUpgrade ? 4 : (isVip ? 5 : 1);
+
+        // 0ms Instant Reset
         setInterpretation('');
+        setInterpretationMode(isVip ? 'vip' : 'standard');
+        setVipChapter(1);
+        setVipCompletedChapters([]);
+        setVipActiveChapters([]);
+        setVipStreamingChapter(null);
+        setVipStatusMessage(isVip ? 'Đang khởi động hệ thống phân tích...' : '');
+        setIsVipCompleted(false);
 
         const abortCtrl = new AbortController();
         setAbortController(abortCtrl);
@@ -336,7 +361,10 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
             const response = await fetch(url, {
                 method: 'POST',
                 headers,
-                body: JSON.stringify({ userId: user?.id || user?._id || 'guest' }),
+                body: JSON.stringify({ 
+                    userId: user?.id || user?._id || 'guest',
+                    mode: isVip ? 'vip' : 'standard'
+                }),
                 signal: abortCtrl.signal
             });
 
@@ -348,13 +376,15 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
             const reader = response.body.getReader();
             const decoder = new TextDecoder('utf-8');
             let done = false;
+            let buffer = '';
 
             while (!done) {
                 const { value, done: doneReading } = await reader.read();
                 done = doneReading;
                 if (value) {
-                    const chunk = decoder.decode(value, { stream: !done });
-                    const lines = chunk.split('\n');
+                    buffer += decoder.decode(value, { stream: !done });
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop();
                     for (const line of lines) {
                         const trimmed = line.trim();
                         if (trimmed.startsWith('data: ')) {
@@ -367,6 +397,24 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
                                 const parsed = JSON.parse(dataStr);
                                 if (parsed.error) {
                                     throw new Error(parsed.error);
+                                }
+                                if (parsed.message) {
+                                    setVipStatusMessage(parsed.message);
+                                }
+                                if (parsed.stage === 'streaming' && parsed.streamingChapterId) {
+                                    setVipStreamingChapter(parsed.streamingChapterId);
+                                }
+                                if (parsed.chapterId) {
+                                    setVipChapter(parsed.chapterId);
+                                    if (parsed.status === 'completed') {
+                                        setVipCompletedChapters(prev => prev.includes(parsed.chapterId) ? prev : [...prev, parsed.chapterId]);
+                                        setVipActiveChapters(prev => prev.filter(id => id !== parsed.chapterId));
+                                    } else if (parsed.status === 'in_progress') {
+                                        setVipActiveChapters(prev => prev.includes(parsed.chapterId) ? prev : [...prev, parsed.chapterId]);
+                                    }
+                                }
+                                if (parsed.isCompleted || (parsed.stage === 'completed')) {
+                                    setIsVipCompleted(true);
                                 }
                                 if (parsed.chunk) {
                                     const isFirstChunk = !currentText;
@@ -398,13 +446,15 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
         } finally {
             setIsInterpreting(false);
             setAbortController(null);
+            if (isVip) setIsVipCompleted(true);
 
             if (currentText && onUpdateResult) {
                 onUpdateResult({
                     ...result,
                     aiInterpretation: {
                         ...result.aiInterpretation,
-                        content: currentText
+                        content: currentText,
+                        mode: isVip ? 'vip' : 'standard'
                     }
                 });
 
@@ -412,7 +462,7 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
                 if (user && user.role !== 'admin' && user.role !== 'co-admin') {
                     setUser(prev => {
                         if (!prev) return prev;
-                        const updated = { ...prev, credits: Math.max(0, prev.credits - 1) };
+                        const updated = { ...prev, credits: Math.max(0, prev.credits - costToDeduct) };
                         localStorage.setItem('user', JSON.stringify(updated));
                         return updated;
                     });
@@ -432,7 +482,8 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
             return;
         }
 
-        setShowConfirmModal(true);
+        setIsUpgradeModal(false);
+        setShowTierModal(true);
     };
 
     if (!result) return null;
@@ -803,15 +854,45 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
                 </div>
             </div>
 
-            {interpretation && (
+            {(interpretation || isInterpreting) && (
                 <div id="iching-interpretation-section" className="w-full mt-4 mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <div className="flex items-center gap-3 mb-6 ml-1">
                         <div className="w-8 h-8 bg-amber-800 rounded-lg flex items-center justify-center shadow-md">
                             <BookOpen className="text-white" size={16} />
                         </div>
-                        <h3 className="text-xl font-extrabold text-slate-800 tracking-tight">Thầy Dịch Giải Chi Tiết</h3>
+                        <h3 className="text-xl font-extrabold text-slate-800 tracking-tight">
+                            {interpretationMode === 'vip' ? 'Dịch Giải Chuyên Sâu (6 Chương)' : 'Thầy Dịch Giải Chi Tiết'}
+                        </h3>
                     </div>
-                    <SectionRenderer sections={parseMarkdownSections(interpretation, 'iching')} theme="iching" />
+
+                    {/* Tracker 6 Chương */}
+                    {interpretationMode === 'vip' && (
+                        <VipProgressTracker
+                            completedChapters={vipCompletedChapters}
+                            activeChapters={vipActiveChapters}
+                            streamingChapter={vipStreamingChapter}
+                            currentChapter={vipChapter}
+                            isCompleted={isVipCompleted || !isInterpreting}
+                            statusMessage={vipStatusMessage}
+                        />
+                    )}
+
+                    {interpretation && (
+                        <SectionRenderer sections={parseMarkdownSections(interpretation, 'iching')} theme="iching" />
+                    )}
+
+                    {/* Banner Nâng Cấp VIP ở cuối bài luận giải thường */}
+                    {interpretation && interpretationMode !== 'vip' && !isInterpreting && (
+                        <div className="mt-8">
+                            <VipUpgradeBanner
+                                userCredits={user?.credits || 0}
+                                onUpgradeClick={() => {
+                                    setIsUpgradeModal(true);
+                                    setShowTierModal(true);
+                                }}
+                            />
+                        </div>
+                    )}
 
                     {/* ĐÁNH GIÁ PHẢN HỒI */}
                     {(!result?.rating || justRated) && (
@@ -880,7 +961,9 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
                     {isInterpreting ? (
                         <>
                             <div className="w-5 h-5 border-2 border-amber-600 border-t-transparent rounded-full animate-spin"></div>
-                            <span className="text-sm">{loadingTexts[loadingStep]}</span>
+                            <span className="text-sm">
+                                {interpretationMode === 'vip' ? `Đang Phân Tích C${vipChapter}...` : loadingTexts[loadingStep]}
+                            </span>
                         </>
                     ) : (
                         <>
@@ -890,13 +973,31 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
                     )}
                 </button>
             ) : !isChatOpen && activeUser && (
-                <button
-                    onClick={() => setIsChatOpen(true)}
-                    className="fixed bottom-4 md:bottom-8 right-4 md:right-8 z-50 flex items-center gap-2 px-6 py-3.5 rounded-full shadow-2xl transition-all duration-300 font-extrabold border bg-gradient-to-r from-amber-800 to-amber-950 hover:from-amber-900 hover:to-stone-900 text-white border-amber-700 hover:scale-105 hover:shadow-amber-900/40 uppercase text-xs tracking-wider animate-pulse"
-                >
-                    <MessageCircle className="animate-bounce shrink-0" size={18} />
-                    <span>Hỏi Thêm Thầy</span>
-                </button>
+                <div className="fixed bottom-4 md:bottom-8 right-4 md:right-8 z-50 flex flex-col items-end gap-2.5">
+                    {/* Nút "Nâng Cấp Luận Giải" nằm ngay PHÍA TRÊN nút "Hỏi Thêm Thầy" nếu chưa có bản chuyên sâu */}
+                    {interpretationMode !== 'vip' && (
+                        <button
+                            onClick={() => {
+                                setIsUpgradeModal(true);
+                                setShowTierModal(true);
+                            }}
+                            disabled={isInterpreting}
+                            className="flex items-center gap-2 px-5 py-3 rounded-full shadow-2xl transition-all duration-300 font-extrabold border bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 hover:from-amber-400 hover:to-amber-500 text-slate-950 border-amber-300/60 shadow-amber-500/30 hover:scale-105 active:scale-95 text-xs sm:text-sm uppercase tracking-wider ring-4 ring-amber-500/20"
+                        >
+                            <Crown className="w-4 h-4 fill-current animate-pulse text-slate-950" />
+                            <span>Nâng Cấp Luận Giải</span>
+                        </button>
+                    )}
+
+                    {/* Nút "Hỏi Thêm Thầy" */}
+                    <button
+                        onClick={() => setIsChatOpen(true)}
+                        className="flex items-center gap-2 px-6 py-3.5 rounded-full shadow-2xl transition-all duration-300 font-extrabold border bg-gradient-to-r from-amber-800 to-amber-950 hover:from-amber-900 hover:to-stone-900 text-white border-amber-700 hover:scale-105 hover:shadow-amber-900/40 uppercase text-xs tracking-wider animate-pulse"
+                    >
+                        <MessageCircle className="animate-bounce shrink-0" size={18} />
+                        <span>Hỏi Thêm Thầy</span>
+                    </button>
+                </div>
             )}
 
             {interpretation && result?.recordId && activeUser && (
@@ -909,90 +1010,14 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
                 />
             )}
 
-            {/* CONFIRMATION MODAL */}
-            {showConfirmModal && (
-                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[99999] flex justify-center items-center p-4">
-                    <div className="bg-white max-w-md w-full rounded-2xl shadow-2xl p-6 relative overflow-hidden animate-in fade-in zoom-in-95 duration-200 border-t-8 border-t-amber-800">
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-amber-800 opacity-5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                        <h3 className="text-xl font-bold text-amber-950 mb-3 flex items-center gap-2">
-                            <ScrollText className="text-amber-800" size={24} />
-                            Thầy Dịch Giải Chi Tiết
-                        </h3>
-                        {(() => {
-                            const isStaff = user?.role === 'admin' || user?.role === 'co-admin';
-                            const hasCredits = isStaff || (user?.credits > 0);
-
-                            if (isStaff) {
-                                return (
-                                    <>
-                                        <p className="text-gray-600 mb-6 leading-relaxed text-sm">
-                                            Tài khoản quản trị viên có quyền luận giải không giới hạn. Bạn có chắc chắn muốn bắt đầu dịch giải chi tiết quẻ này không?
-                                        </p>
-                                        <div className="flex justify-end gap-3">
-                                            <button 
-                                                onClick={() => setShowConfirmModal(false)}
-                                                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 font-semibold text-sm transition-colors"
-                                            >
-                                                Hủy bỏ
-                                            </button>
-                                            <button 
-                                                onClick={() => {
-                                                    setShowConfirmModal(false);
-                                                    triggerLuanGiai();
-                                                }}
-                                                className="px-5 py-2 bg-amber-800 text-white rounded-xl hover:bg-amber-900 font-semibold text-sm transition-colors shadow-md hover:shadow-lg"
-                                            >
-                                                Bắt đầu dịch giải
-                                            </button>
-                                        </div>
-                                    </>
-                                );
-                            } else if (hasCredits) {
-                                return (
-                                    <>
-                                        <p className="text-gray-600 mb-6 leading-relaxed text-sm">
-                                            Bạn còn <span className="font-extrabold text-amber-800">{user?.credits}</span> lượt sử dụng. Mỗi lần luận giải AI sẽ tiêu thụ <span className="font-bold">1 credit</span>. Bạn có chắc chắn muốn bắt đầu dịch giải chi tiết quẻ này không?
-                                        </p>
-                                        <div className="flex justify-end gap-3">
-                                            <button 
-                                                onClick={() => setShowConfirmModal(false)}
-                                                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 font-semibold text-sm transition-colors"
-                                            >
-                                                Hủy bỏ
-                                            </button>
-                                            <button 
-                                                onClick={() => {
-                                                    setShowConfirmModal(false);
-                                                    triggerLuanGiai();
-                                                }}
-                                                className="px-5 py-2 bg-amber-800 text-white rounded-xl hover:bg-amber-900 font-semibold text-sm transition-colors shadow-md hover:shadow-lg"
-                                            >
-                                                Bắt đầu dịch giải
-                                            </button>
-                                        </div>
-                                    </>
-                                );
-                            } else {
-                                return (
-                                    <>
-                                        <p className="text-red-700 bg-red-50 border border-red-100 p-3.5 rounded-xl mb-6 leading-relaxed text-xs sm:text-sm font-medium">
-                                            ⚠️ Bạn đã hết lượt luận giải (0 credits). Mỗi ngày hệ thống sẽ tự động tặng bạn +1 credit. Hãy liên hệ Ban Quản Trị hoặc nâng cấp để tiếp tục sử dụng AI luận giải chi tiết.
-                                        </p>
-                                        <div className="flex justify-end">
-                                            <button 
-                                                onClick={() => setShowConfirmModal(false)}
-                                                className="px-5 py-2 bg-gray-800 text-white rounded-xl hover:bg-gray-900 font-semibold text-sm transition-colors shadow-md"
-                                            >
-                                                Đóng
-                                            </button>
-                                        </div>
-                                    </>
-                                );
-                            }
-                        })()}
-                    </div>
-                </div>
-            )}
+            {/* TIER SELECTION / UPGRADE MODAL */}
+            <InterpretationTierModal
+                isOpen={showTierModal}
+                onClose={() => setShowTierModal(false)}
+                onConfirm={triggerLuanGiai}
+                userCredits={user?.credits || 0}
+                isUpgrade={isUpgradeModal}
+            />
 
             {/* HEXAGRAM DETAIL MODAL */}
             {selectedHex && (
