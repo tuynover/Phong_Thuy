@@ -5,13 +5,14 @@ import FloatingNotificationToast from './FloatingNotificationToast';
 import { hexagramDictionary } from '../data/hexagrams';
 import ReactMarkdown from 'react-markdown';
 import { getInterpretationStreamUrl, rateIChing, togglePublicCalculation } from '../services/api';
-import { AlertCircle, BookOpen, ScrollText, MessageCircle, ArrowUp, ArrowDown, Star, Zap, Crown } from 'lucide-react';
+import { AlertCircle, BookOpen, ScrollText, MessageCircle, ArrowUp, ArrowDown, Star, Zap, Crown, FileDown } from 'lucide-react';
 import AiChatWidget from './AiChatWidget';
 import InterpretationTierModal from './InterpretationTierModal';
 import VipUpgradeBanner from './VipUpgradeBanner';
 import VipProgressTracker from './VipProgressTracker';
 import { parseMarkdownSections } from '../utils/markdownParser';
 import SectionRenderer from './SectionRenderer';
+import PdfExportModal from './PdfExportModal';
 import { getColorClass, getBgColorClass, HAO_VI_MEANING, getChiOnly } from '../utils/astrologyHelpers';
 import { AuthContext } from '../context/AuthContext';
 
@@ -236,6 +237,7 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
     const [rating, setRating] = useState(0);
     const [feedback, setFeedback] = useState('');
     const [justRated, setJustRated] = useState(false);
+    const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
 
     const prevIdRef = useRef(null);
 
@@ -556,39 +558,65 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
                         </div>
                     </div>
 
-                    {/* Cột phải: Toggle Share */}
-                    {(!window.location.pathname.includes('/record/') || (activeUser && (result?.userId === activeUser.id || result?.userId === activeUser._id))) && (
-                        <div className="flex flex-col justify-start md:border-l md:border-amber-200/50 md:pl-6 space-y-3 pt-4 md:pt-0">
-                            <div className="flex flex-col">
-                                <span className="text-sm font-extrabold text-slate-800">Chia sẻ công khai quẻ dịch này</span>
-                                <span className="text-[11px] text-gray-500 font-medium leading-relaxed">Bật để cho phép người khác xem chi tiết quẻ này qua liên kết công khai</span>
-                            </div>
-                            <div className="flex items-center gap-3 pt-1">
-                                <button
-                                    type="button"
-                                    onClick={handleTogglePublic}
-                                    className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${isPublicState ? 'bg-amber-800' : 'bg-gray-300'}`}
-                                >
-                                    <span
-                                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${isPublicState ? 'translate-x-5' : 'translate-x-0'}`}
-                                    />
-                                </button>
-                                {isPublicState && (
+                    {/* Cột phải: Toggle Share & Xuất PDF */}
+                    <div className="flex flex-col justify-start md:border-l md:border-amber-200/50 md:pl-6 space-y-3 pt-4 md:pt-0">
+                        {(!window.location.pathname.includes('/record/') || (activeUser && (result?.userId === activeUser.id || result?.userId === activeUser._id))) ? (
+                            <>
+                                <div className="flex flex-col">
+                                    <span className="text-sm font-extrabold text-slate-800">Chia sẻ công khai quẻ dịch này</span>
+                                    <span className="text-[11px] text-gray-500 font-medium leading-relaxed">Bật để cho phép người khác xem chi tiết quẻ này qua liên kết công khai</span>
+                                </div>
+                                <div className="flex items-center gap-3 pt-1 flex-wrap">
                                     <button
                                         type="button"
-                                        onClick={() => {
-                                            const shareUrl = `${window.location.origin}/iching/record/${result._id || result.recordId}`;
-                                            navigator.clipboard.writeText(shareUrl);
-                                            setToastMsg('Đã sao chép liên kết chia sẻ công khai quẻ dịch!');
-                                        }}
-                                        className="px-3 py-1 bg-amber-100 text-amber-800 border border-amber-200 hover:bg-amber-200 rounded-full text-xs font-bold transition-all active:scale-95 cursor-pointer"
+                                        onClick={handleTogglePublic}
+                                        className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${isPublicState ? 'bg-amber-800' : 'bg-gray-300'}`}
                                     >
-                                        Sao chép liên kết
+                                        <span
+                                            className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${isPublicState ? 'translate-x-5' : 'translate-x-0'}`}
+                                        />
                                     </button>
-                                )}
-                            </div>
-                        </div>
-                    )}
+                                    {isPublicState && (
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const shareUrl = `${window.location.origin}/iching/record/${result._id || result.recordId}`;
+                                                navigator.clipboard.writeText(shareUrl);
+                                                setToastMsg('Đã sao chép liên kết chia sẻ công khai quẻ dịch!');
+                                            }}
+                                            className="px-3 py-1 bg-amber-100 text-amber-800 border border-amber-200 hover:bg-amber-200 rounded-full text-xs font-bold transition-all active:scale-95 cursor-pointer"
+                                        >
+                                            Sao chép liên kết
+                                        </button>
+                                    )}
+                                    {(result._id || result.recordId) && (
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsPdfModalOpen(true)}
+                                            className="px-3.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300/80 rounded-full text-xs font-extrabold transition-all active:scale-95 cursor-pointer flex items-center gap-1.5 shadow-sm"
+                                        >
+                                            <FileDown size={14} className="text-amber-700" />
+                                            <span>Xuất PDF</span>
+                                        </button>
+                                    )}
+                                </div>
+                            </>
+                        ) : (
+                            (result._id || result.recordId) && (
+                                <div className="flex flex-col gap-2">
+                                    <span className="text-sm font-extrabold text-slate-800">Tài liệu học thuật</span>
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsPdfModalOpen(true)}
+                                        className="w-fit px-4 py-1.5 bg-amber-700 hover:bg-amber-800 text-white rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer flex items-center gap-2 shadow-md shadow-amber-800/20"
+                                    >
+                                        <FileDown size={15} />
+                                        <span>Tải Tệp PDF</span>
+                                    </button>
+                                </div>
+                            )
+                        )}
+                    </div>
                 </div>
             )}
 
@@ -1078,6 +1106,17 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
                     <ArrowDown size={24} />
                 </button>
             </div>
+            {/* PDF EXPORT MODAL */}
+            <PdfExportModal
+                isOpen={isPdfModalOpen}
+                onClose={() => setIsPdfModalOpen(false)}
+                system="iching"
+                recordId={result?._id || result?.recordId}
+                recordData={result}
+                hasInterpretation={Boolean(interpretation || result?.aiInterpretation?.content)}
+                interpretationMode={interpretationMode}
+                rawInterpretation={interpretation || result?.aiInterpretation?.content || ''}
+            />
             {toastMsg && <FloatingNotificationToast message={toastMsg} onClose={() => setToastMsg('')} />}
 
             <style jsx="true">{`

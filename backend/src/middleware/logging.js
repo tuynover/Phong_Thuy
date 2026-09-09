@@ -108,6 +108,7 @@ function getActionName(req) {
     if (path.includes('/tu-vi') && path.includes('/chat') && method === 'POST') return 'Trò Chuyện Tử Vi AI';
     
     if (path.includes('/concept/')) return 'Tra Cứu Học Thuật Phong Thủy';
+    if (path.includes('/export/pdf')) return 'Xuất Tệp PDF Học Thuật';
 
     return `${method} ${path}`;
 }

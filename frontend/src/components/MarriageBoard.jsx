@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { AuthContext } from '../context/AuthContext';
 import { getInterpretationStreamUrl, rateMarriage, togglePublicCalculation } from '../services/api';
-import { AlertCircle, BookOpen, ScrollText, Heart, X, ArrowUp, ArrowDown, MessageCircle, Star, Zap, Crown } from 'lucide-react';
+import { AlertCircle, BookOpen, ScrollText, Heart, X, ArrowUp, ArrowDown, MessageCircle, Star, Zap, Crown, FileDown } from 'lucide-react';
 import Tooltip from './Tooltip';
 import SectionRenderer from './SectionRenderer';
 import InterpretationTierModal from './InterpretationTierModal';
@@ -11,6 +11,7 @@ import VipProgressTracker from './VipProgressTracker';
 import { parseMarkdownSections } from '../utils/markdownParser';
 import AiChatWidget from './AiChatWidget';
 import FloatingNotificationToast from './FloatingNotificationToast';
+import PdfExportModal from './PdfExportModal';
 
 import {
     stemElements,
@@ -61,6 +62,7 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
     const [rating, setRating] = useState(0);
     const [feedback, setFeedback] = useState('');
     const [justRated, setJustRated] = useState(false);
+    const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
 
     const prevIdRef = useRef(null);
 
@@ -787,13 +789,24 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
         <div className="max-w-6xl mx-auto space-y-6 md:space-y-8 pb-20 font-sans relative">
 
             {/* Công tắc chia sẻ công khai kết quả Hợp Hôn */}
-            {(!window.location.pathname.includes('/record/') || (user && (result?.userId === user.id || result?.userId === user._id))) && (
+            {(!window.location.pathname.includes('/record/') || (user && (result?.userId === user.id || result?.userId === user._id))) ? (
                 <div className="p-5 bg-rose-50/40 border border-rose-100 rounded-3xl flex flex-wrap items-center justify-between gap-4 shadow-sm">
                     <div className="flex flex-col">
                         <span className="text-sm font-extrabold text-slate-800">Chia sẻ công khai kết quả hợp hôn</span>
                         <span className="text-[11px] text-gray-500 font-medium">Bật để cho phép người khác truy cập xem kết quả so hợp tuổi này qua liên kết công khai</span>
                     </div>
                     <div className="flex items-center gap-3">
+                        {(data?._id || data?.recordId) && (
+                            <button
+                                type="button"
+                                onClick={() => setIsPdfModalOpen(true)}
+                                className="px-3.5 py-1.5 bg-white hover:bg-rose-50 text-rose-700 border border-rose-200 rounded-full text-xs font-extrabold transition-all active:scale-95 cursor-pointer flex items-center gap-1.5 shadow-sm"
+                                title="Xuất tệp PDF học thuật lá số và luận giải"
+                            >
+                                <FileDown size={14} className="text-rose-600" />
+                                <span>Xuất PDF</span>
+                            </button>
+                        )}
                         {isPublicState && (
                             <button
                                 type="button"
@@ -818,6 +831,20 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
                         </button>
                     </div>
                 </div>
+            ) : (
+                (data?._id || data?.recordId) && (
+                    <div className="p-4 bg-rose-50/40 border border-rose-100 rounded-2xl flex items-center justify-between shadow-sm">
+                        <span className="text-sm font-bold text-slate-700">Tài liệu học thuật Hợp Hôn</span>
+                        <button
+                            type="button"
+                            onClick={() => setIsPdfModalOpen(true)}
+                            className="px-4 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer flex items-center gap-1.5 shadow-md shadow-rose-600/20"
+                        >
+                            <FileDown size={14} />
+                            <span>Tải Tệp PDF</span>
+                        </button>
+                    </div>
+                )
             )}
             
             {/* SECTION 1: BASIC INFO DIVIDED IN HALF */}
@@ -1107,6 +1134,20 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
                     <ArrowDown size={24} />
                 </button>
             </div>
+            {/* PDF EXPORT MODAL */}
+            {(data?._id || data?.recordId) && (
+                <PdfExportModal
+                    isOpen={isPdfModalOpen}
+                    onClose={() => setIsPdfModalOpen(false)}
+                    recordId={data?.recordId || data?._id}
+                    recordData={data}
+                    system="marriage"
+                    hasInterpretation={Boolean(interpretation || data?.aiInterpretation?.content || data?.aiInterpretation)}
+                    interpretationMode={interpretationMode}
+                    rawInterpretation={interpretation || data?.aiInterpretation?.content || ''}
+                />
+            )}
+
             {toastMsg && <FloatingNotificationToast message={toastMsg} onClose={() => setToastMsg('')} />}
         </div>
     );

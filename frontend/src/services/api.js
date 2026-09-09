@@ -98,6 +98,19 @@ export const updateTag = (tagId, name) => axios.put(`${API_URL}/tags/${tagId}`, 
 export const deleteTag = (tagId) => axios.delete(`${API_URL}/tags/${tagId}`);
 export const updateRecordTags = (type, id, tags) => axios.put(`${API_URL}/tags/record/${type}/${id}`, { tags });
 
+// PDF Export API Endpoint
+export const exportPdf = (type, id, scope = []) => {
+  const token = localStorage.getItem('token');
+  const headers = {};
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  return axios.post(`${API_URL}/export/pdf/${type}/${id}`, { scope }, {
+    headers,
+    responseType: 'blob'
+  });
+};
+
 // Blog API Endpoints
 export const getBlogPosts = (params) => axios.get(`${API_URL}/blog`, { params });
 export const getBlogPost = (slug) => axios.get(`${API_URL}/blog/${slug}`);

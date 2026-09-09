@@ -13,6 +13,7 @@ const notificationRoutes = require('./notifications');
 const adminRoutes = require('./admin');
 const blogRoutes = require('./blog');
 const tagRoutes = require('./tag');
+const exportRoutes = require('./export');
 const rateLimiter = require('../middleware/rateLimiter');
 
 // Giới hạn 30 lượt lập số lý/quẻ dịch trong 15 phút
@@ -31,6 +32,7 @@ router.use('/notifications', notificationRoutes);
 router.use('/admin', adminRoutes);
 router.use('/blog', blogRoutes);
 router.use('/tags', tagRoutes);
+router.use('/export', exportRoutes);
 
 // Support both unified and legacy namespaces for calculate
 router.post('/iching/calculate', calcLimiter, IChingController.calculate);

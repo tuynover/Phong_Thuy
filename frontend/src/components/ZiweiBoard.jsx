@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
-import { Calendar, Clock, User, Sparkles, MessageCircle, RefreshCw, Star, ShieldAlert, ScrollText, ArrowUp, ArrowDown, ChevronDown, HelpCircle, Zap, Crown } from 'lucide-react';
+import { Calendar, Clock, User, Sparkles, MessageCircle, RefreshCw, Star, ShieldAlert, ScrollText, ArrowUp, ArrowDown, ChevronDown, HelpCircle, Zap, Crown, FileDown } from 'lucide-react';
 import { createZiweiChart, getZiweiRecord, rateZiwei, getInterpretationStreamUrl, updateBaziInfo, togglePublicCalculation } from '../services/api';
 import ChartRenderer from './ChartRenderer';
 import FloatingNotificationToast from './FloatingNotificationToast';
@@ -15,6 +15,7 @@ import { validateInputDate, getMaxDaysInMonth } from '../utils/dateValidator';
 import FloatingErrorToast from './FloatingErrorToast';
 import CustomSelect from './CustomSelect';
 import ZiweiInput from './ZiweiInput';
+import PdfExportModal from './PdfExportModal';
 
 // 12 Can Chi Giờ Sinh trong Tử Vi
 const LUNAR_HOURS = [
@@ -79,6 +80,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
   const [abortController, setAbortController] = useState(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [error, setError] = useState('');
+  const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
 
   useEffect(() => {
     if (result?.aiInterpretation?.content) {
@@ -613,14 +615,14 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
       {/* 3. COMPLETED RESULT BOARD PANEL */}
       {result && !loading && (
         <div className="space-y-12 animate-in fade-in duration-500">
-          {/* Công tắc chia sẻ công khai lá số Tử Vi */}
-          {(!window.location.pathname.includes('/record/') || (activeUser && (result?.userId === activeUser.id || result?.userId === activeUser._id))) && (
+          {/* Công tắc chia sẻ công khai & Xuất PDF lá số Tử Vi */}
+          {(!window.location.pathname.includes('/record/') || (activeUser && (result?.userId === activeUser.id || result?.userId === activeUser._id))) ? (
             <div className="max-w-4xl mx-auto p-5 bg-purple-50/40 border border-purple-100 rounded-3xl flex flex-wrap items-center justify-between gap-4 shadow-sm mb-6">
               <div className="flex flex-col">
                 <span className="text-sm font-extrabold text-slate-800">Chia sẻ công khai lá số Tử Vi</span>
                 <span className="text-[11px] text-gray-500 font-medium">Bật công khai để cho phép người khác truy cập xem bản đồ mệnh bàn này</span>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 flex-wrap">
                 {isPublicState && (
                   <button
                     type="button"
@@ -634,6 +636,16 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
                     Sao chép liên kết
                   </button>
                 )}
+                {(result._id || result.id) && (
+                  <button
+                    type="button"
+                    onClick={() => setIsPdfModalOpen(true)}
+                    className="px-3.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300/80 rounded-full text-xs font-extrabold transition-all active:scale-95 cursor-pointer flex items-center gap-1.5 shadow-sm"
+                  >
+                    <FileDown size={14} className="text-amber-700" />
+                    <span>Xuất PDF</span>
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={handleTogglePublic}
@@ -645,6 +657,20 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
                 </button>
               </div>
             </div>
+          ) : (
+            (result._id || result.id) && (
+              <div className="max-w-4xl mx-auto p-4 bg-purple-50/30 border border-purple-100 rounded-2xl flex items-center justify-between shadow-sm mb-6">
+                <span className="text-sm font-extrabold text-slate-800">Tài liệu học thuật Tử Vi</span>
+                <button
+                  type="button"
+                  onClick={() => setIsPdfModalOpen(true)}
+                  className="px-4 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer flex items-center gap-2 shadow-md shadow-amber-600/20"
+                >
+                  <FileDown size={15} />
+                  <span>Tải Tệp PDF</span>
+                </button>
+              </div>
+            )
           )}
 
           {/* Ép Vẽ lá số 12 cung truyền thống thông qua Registry ChartRenderer */}
@@ -860,6 +886,18 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
           const genderStr = updatedUser.gender === 0 ? 'Nữ' : 'Nam';
           await handleZiweiComplete(formattedDate, String(h), genderStr, updatedUser.name);
         }} 
+      />
+
+      {/* PDF EXPORT MODAL */}
+      <PdfExportModal
+        isOpen={isPdfModalOpen}
+        onClose={() => setIsPdfModalOpen(false)}
+        system="ziwei"
+        recordId={result?._id || result?.id}
+        recordData={result}
+        hasInterpretation={Boolean(interpretation || result?.aiInterpretation?.content)}
+        interpretationMode={interpretationMode}
+        rawInterpretation={interpretation || result?.aiInterpretation?.content || ''}
       />
 
       {toastMsg && <FloatingNotificationToast message={toastMsg} onClose={() => setToastMsg('')} />}

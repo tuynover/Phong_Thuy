@@ -2,6 +2,291 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Chuẩn Hóa Thần Sát 3 Màu Chữ, Trường Sinh & Nạp Âm Text-Only, Bỏ Ma Trận Cũ & Tối Ưu Xuất PDF Bát Tự Cơ Bản/Chuyên Sâu (09/09/2026)
+
+### 🌟 1. Chuẩn Hóa Hiển Thị Thần Sát, Trường Sinh & Nạp Âm Tứ Trụ
+- **Thần Sát 3 Trạng Thái (Chỉ Màu Chữ, Không Viền, Không Màu Nền):**
+  - Xây dựng hàm phân loại học thuật `classifyShenSha(ss)` trong `PdfTemplateService.js`:
+    - **Cát Thần:** Màu chữ xanh lục `#047857`, nền và viền trong suốt (`.shensha-line.cat`).
+    - **Hung Sát:** Màu chữ đỏ chu sa `#dc2626`, nền và viền trong suốt (`.shensha-line.hung`).
+    - **Lưỡng Tính / Trung Tính:** Màu chữ đen `#0f172a`, nền và viền trong suốt (`.shensha-line.luong-tinh`).
+- **Trường Sinh & Nạp Âm Text-Only:**
+  - Loại bỏ hoàn toàn khung viền (border) và màu nền (background) cho thẻ Trường Sinh (`.truong-sinh-tag: background: transparent; border: none; color: #9a3412;`).
+  - Loại bỏ hoàn toàn khung viền và màu nền cho thẻ Nạp Âm (`.nayin-badge: background: transparent; border: none; color: #334155;`).
+- **Loại Bỏ Hoàn Toàn Bảng Ma Trận Thần Sát (Hình 3):**
+  - Bỏ toàn bộ khối bảng Section II Ma Trận Thần Sát Bản Mệnh cũ.
+  - Tối ưu và đánh số lại Section II thành: `II. Hành Trình Đại Vận 100 Năm & Vận Trình Lưu Niên` để hiển thị trọn vẹn, thoáng đãng ở chân Trang 1.
+- **Đồng Bộ Màu Ngũ Hành Cho Dụng Thần, Hỷ Thần & Kỵ Thần:**
+  - Thay thế toàn bộ mã màu cố định trước đây (gán đỏ cứng nhắc cho Hỷ Thần và xám cho Kỵ Thần) bằng hàm phân giải màu ngũ hành động `renderElementText(elem)` và `getElemTextColor(elem)`.
+  - Tên hành của Dụng Thần, Hỷ Thần, Kỵ Thần hiển thị chính xác theo màu ngũ hành cổ pháp: Kim (`#475569`), Mộc (`#047857`), Thủy (`#1e3a8a`), Hỏa (`#b91c1c`), Thổ (`#b45309`).
+  - Hỗ trợ hiển thị đúng màu ngũ hành ngay cả khi có nhiều hành kết hợp (ví dụ: "Mộc, Hỏa" hoặc "Kim - Thủy").
+
+### 🌟 2. Tối Ưu & Xuất Bản Hoàn Hảo Cho Cả Luận Giải Cơ Bản & Chuyên Sâu
+- **Sửa Lỗi Bản Luận Giải Cơ Bản Không Xuất Được PDF:**
+  - Khắc phục điều kiện lọc `filteredSections` trong `PdfTemplateService.js` khi người dùng chọn mục `intro` từ frontend modal.
+  - Tự động trích xuất nội dung bài luận giải từ đa nguồn an toàn: `record.aiInterpretation?.content`, `record.aiInterpretation`, `record.analysis`, `record.analysisSnapshot`.
+  - Tự động nhận diện cấu trúc bài luận giải:
+    - **Cơ Bản (Tiêu chuẩn):** Nhận diện đủ 6 Bước (`BƯỚC 1` $\rightarrow$ `BƯỚC 6`). Header trang: `Hồ Sơ Luận Giải Mệnh Lý Bát Tự (Tiêu Chuẩn)`, tiêu đề: `BẢN LUẬN GIẢI BÁT TỰ TIÊU CHUẨN`.
+    - **Chuyên Sâu (VIP):** Nhận diện 6 Chương chuyên sâu, Phân Tích Nhật Chủ Ma Trận SWOT và Chuyên Đề Điều Hòa Chiến Lược Đa Mục Tiêu. Header trang: `Hồ Sơ Luận Giải Mệnh Lý Bát Tự (Chuyên Sâu)`, tiêu đề: `TOÀN VĂN LUẬN GIẢI CHUYÊN SÂU`.
+- **Nâng Cấp Modal Xuất PDF Granular (`PdfExportModal.jsx`):**
+  - Tự động hiển thị 6 bước chi tiết cho bản Tiêu Chuẩn (`step_1` $\rightarrow$ `step_6`) hoặc 6 chương cho bản VIP.
+  - Cập nhật mô tả Thần Sát: *"Thần Sát phân loại Cát / Hung / Lưỡng tính theo từng trụ"*.
+- **Làm Sạch Tiêu Đề:**
+  - Xử lý triệt để lỗi dấu hai chấm lặp (`: :`) trong `cleanRawTitle`, mang lại tiêu đề in ấn sạch đẹp, chuẩn mực.
+
+### 🌟 3. Kiểm Thử Hệ Thống & Nghiệm Thu
+- **Jest Unit Tests:** 20/20 test cases liên quan đến PDF PASS (`PdfTemplateService.test.js` & `ExportController.test.js`). Toàn bộ test suite 226/226 PASS.
+- **Render PDF Thực Nghiệm:** Sinh tệp `test_bazi_standard.pdf` (1,008,735 bytes) và chụp ảnh màn hình kiểm chứng (`scratch/bazi_p1.png`, `scratch/bazi_p2.png`).
+- **Chrome DevTools MCP:** Thao tác trên trình duyệt thật `http://localhost:5173/bazi`, mở modal PDF, kiểm tra danh mục checklist, tải thành công tệp `La_So_BAZI_1788950428518.pdf` (1,789,462 bytes), 0 lỗi console.
+
+## 📅 Phiên bản: Hoàn Thiện Chuẩn Mực Hoàng Gia Cho Phân Hệ Hợp Hôn (Marriage PDF Perfection) (09/09/2026)
+
+### 🌟 1. Nâng Cấp Toàn Diện Bản In PDF Hợp Hôn Chuẩn In Ấn A4
+- **Thiết Kế Trang 1 Vừa Vặn Hoàn Hảo (Zero Spillover):** Tinh chỉnh kích thước và padding để tích hợp đầy đủ 3 khối học thuật cốt lõi kèm thẻ Header hồ sơ đối chiếu song song trong đúng 1 trang A4:
+  - *Header Hồ Sơ Đôi Bên:* Hai thẻ độc lập Nam Mệnh (Dương Cương viền xanh `#bfdbfe`) và Nữ Mệnh (Âm Nhu viền đỏ mận `#fecdd3`) với đầy đủ Ngày sinh Dương Lịch, Âm Lịch, Nạp Âm bản mệnh, Cung Phi Mệnh Quái (Cung, Ngũ Hành, Nhóm Đông/Tây tứ mệnh).
+  - *Khối I - Bảng Đối Chiếu 5 Tiêu Chí Cổ Học Cốt Lõi:*
+    1. **Bản Mệnh Nạp Âm:** Tương sinh, Tỷ hòa, Tương khắc kèm diễn giải học thuật.
+    2. **Thiên Can Bản Thể (Nhật Can):** Tư tưởng, thế giới quan; Thiên can hợp hóa (Đại Cát), đồng khí, tương sinh, tương khắc.
+    3. **Địa Chi Phu Thê (Nhật Chi):** Cung Phu Thê gia đạo; Lục hợp, Tam hợp, Lục xung, Lục hại, Tự hình/Đồng chi.
+    4. **Cung Phi Bát Trạch Phối Cung:** Ghép Mệnh Quái 8x8 ra 4 Cung Cát (Sinh Khí, Diên Niên, Thiên Y, Phục Vị) hoặc 4 Cung Hung (Tuyệt Mệnh, Ngũ Quỷ, Lục Sát, Họa Hại) kèm giải pháp chế hóa.
+    5. **Dụng Thần & Thần Sát Bổ Khuyết:** Bù trừ khí vận, cân bằng năng lượng đa chiều.
+  - *Khối II - Đánh Giá Cân Bằng Tỷ Lệ Ngũ Hành (Nam & Nữ):* Thước đo so sánh 5 hành (Kim, Mộc, Thủy, Hỏa, Thổ) với tỷ lệ % trực quan.
+  - *Khối III - Cấu Trúc Tứ Trụ Can Chi Đối Chiếu Song Song:* Bảng 4 trụ (Năm, Tháng, Ngày, Giờ) đặt song song 2 bên Chồng và Vợ gồm Thập Thần, Can to, Chi to, Nạp Âm, Tàng Can 3 tầng có Thập Thần phụ, Thần Sát top 2.
+- **Trang 2+: Toàn Văn Bài Luận Giải Hôn Nhân:**
+  - Tiêu đề đỏ mận uy nghi, Header hồ sơ trang nhã.
+  - Ứng dụng `.chapter-block` tự nhiên, triệt tiêu hoàn toàn hiện tượng ngắt trang cưỡng bức gây lãng phí giấy.
+
+### 🌟 2. Nâng Cấp Frontend & Modal Xuất PDF
+- Cập nhật `PdfExportModal.jsx` với các tùy chọn granular cho Hợp Hôn:
+  - `marriage_compare`: Đối Chiếu 5 Tiêu Chí Cổ Học & Tỷ Lệ Ngũ Hành.
+  - `marriage_pillars`: Cấu Trúc Tứ Trụ Can Chi Đối Chiếu Song Song.
+  - `intro`: Toàn Văn Luận Giải Hợp Hôn & Hòa Hợp Gia Đạo.
+- Cập nhật `MarriageBoard.jsx` truyền đầy đủ props `recordData`, `interpretationMode`, `rawInterpretation` vào `PdfExportModal`.
+
+### 🌟 3. Kiểm Thử Hệ Thống & Nghiệm Thu Toàn Diện
+- **Jest Unit Tests:** 18/18 tests PASS (`PdfTemplateService.test.js`: 10/10 PASS; `ExportController.test.js`: 8/8 PASS).
+- **Chrome DevTools MCP:** Mở modal xuất PDF trên giao diện web, kiểm tra danh mục checklist, tải tệp PDF thực tế mã HTTP 200, dung lượng ~1.2MB.
+- **Visual Inspection:** Ảnh chụp trang in thực tế (`marriage_pdf_view_p1.png` và `media_0.png` bước 3470) hiển thị chuẩn mực 100%, chữ `Đ` hoa và ký tự tiếng Việt sắc nét.
+
+## 📅 Phiên bản: Khôi Phục Bảng Lục Hào Đối Chiếu Song Song Chuẩn Ảnh 1 & Bổ Sung Khối Trạng Thái Vượng Suy Các Hào Chuẩn Hình 2 (09/09/2026)
+
+### 🌟 1. Bám Sát Yêu Cầu Người Dùng: Bố Cục Bảng Lục Hào Nạp Giáp Chuẩn Ảnh 1
+- **Khôi Phục Bảng Đối Chiếu 2 Bên Quẻ Chủ & Quẻ Biến:**
+  - Loại bỏ bảng gộp 8 cột, khôi phục cấu trúc đối chiếu song song 1:1 chuẩn xác theo giao diện web và tài liệu ảnh 1 (`media_1788944200095.png`).
+  - *Quẻ Chủ (Trái):* `Hào` (vạch âm/dương đỏ/xanh) | `T/Ứ` (Thế/Ứng màu xanh đậm) | `Lục Thân` | `Địa Chi` (chi + ngũ hành tô màu tương ứng) | `PT` (Phục Thần) | `TK` (Tuần Không đỏ). Ngăn cách bằng đường nét đứt dọc `border-right: 1.5px dashed #cbd5e1`.
+  - *Quẻ Biến (Phải):* `Lục Thân` | `Địa Chi` (tô màu ngũ hành) | `TK` | `Lục Thú` | `Hào` (vạch biến âm/dương đỏ/xanh).
+  - Quẻ tĩnh tự động tinh gọn sang bảng 7 cột thanh lịch.
+
+### 🌟 2. Bổ Sung Khối Trạng Thái Vượng Suy Các Hào Chuẩn Hình 2
+- **Tiêu Đề Học Thuật:** In hoa đậm nét có gạch chân đỏ mận (`border-bottom: 2px solid #881337`): `TRẠNG THÁI VƯỢNG SUY CÁC HÀO`.
+- **Phù Hiệu Quái Thân Góc Phải:** Badge viên thuốc tím nhã nhặn `Quái Thân: [Chi]` (`background: #f3e8ff; color: #6b21a8;`) ở góc trên bên phải của từng bảng.
+- **Hai Bảng Song Song (Quẻ Chính & Quẻ Biến):**
+  - Gồm 4 cột: `HÀO / CAN CHI` | `VƯỢNG SUY` | `TS NGÀY` | `TS THÁNG`.
+  - Can Chi phân màu ngũ hành (kèm nhãn tím `QT` nếu là Quái Thân hào).
+  - Vượng Suy nổi bật với pill đỏ viền hồng cho Vượng, Tướng (`#dc2626`, `#fff1f2`).
+  - TS Ngày màu xanh dương (`#1e40af`), TS Tháng màu cam hổ phách (`#b45309`).
+
+### 🌟 3. Tối Ưu Bố Cục Vừa Khít 100% Trang 1 (A4 Layout Perfection)
+- Tách khối `.no-break` linh hoạt cho từng bảng, tinh chỉnh khoảng đệm (padding) để trọn vẹn:
+  1. Header hồ sơ quẻ dịch.
+  2. I. Đồ hình 3 quẻ (Chủ - Hỗ - Biến).
+  3. Bảng Lục Hào Nạp Giáp đối chiếu.
+  4. Trạng Thái Vượng Suy Các Hào.
+  Nằm hoàn toàn vừa vặn trong Trang 1 khổ A4 mà không bị cắt dòng, không tràn sang trang 2.
+- Trang 2 bắt đầu trang trọng với Phần II: Phân Tích Dịch Lý Cốt Lõi & Niên Lịch Ứng Kỳ.
+
+### 🌟 4. Kiểm Thử Hệ Thống & Nghiệm Thu Trực Quan
+- **Jest Unit Tests:** 17/17 tests PASS (`PdfTemplateService.test.js`, `ExportController.test.js`).
+- **Chrome DevTools MCP:** Mở modal xuất PDF từ giao diện web, kiểm tra và tải file PDF thực tế thành công mã phản hồi HTTP 200, dung lượng ~934KB.
+- **Visual Inspection:** Ảnh chụp màn hình trang in thực tế (`pdf_page_view_v3.png`) chuẩn xác 100% so với ảnh mẫu người dùng gửi.
+
+## 📅 Phiên bản: Chuẩn Hóa Bảng Lục Hào Kinh Dịch 8 Cột, In Toàn Văn Luận Giải Đa Phân Hệ & Khắc Phục Lỗi Phông Chữ Tiếng Việt (09/09/2026)
+
+### 🌟 1. Khắc Phục Triệt Để Lỗi Phông Chữ Tiếng Việt Cho Ký Tự `Đ` Hoa Toàn Hệ Thống PDF
+- **Nguyên nhân gốc rễ:** Bộ phông `Cinzel` tải qua Google Fonts thiếu hoàn toàn glyph ký tự tiếng Việt `Đ` in hoa, khiến Chromium engine tự động ghép `D` + macron lơ lửng (`D̄`), gây mất thẩm mỹ ở toàn bộ các tiêu đề hoàng gia như `ĐỒ HÌNH`, `ĐẮC HÃM`, `ĐẠI VẬN`, `HỒ SƠ QUẺ DỊCH & DỰ ĐOÁN ỨNG KỲ`.
+- **Giải pháp dứt điểm:** Loại bỏ `Cinzel`, thay thế 100% bằng phông chữ serif học thuật chuẩn mực **`Noto Serif`** (`font-family: 'Noto Serif', Georgia, 'Times New Roman', serif;`) được nhúng trực tiếp qua Google Fonts với đầy đủ bảng mã tiếng Việt UTF-8.
+- **Nghiệm thu:** Ký tự `Đ`, `Ơ`, `Ư`, `Ê`, `Â`, `Ă` hiển thị sắc nét, thẳng hàng và chuẩn mỹ thuật cổ điển trên toàn bộ 4 phân hệ (Bát Tự, Tử Vi, Kinh Dịch, Hợp Hôn).
+
+### 🌟 2. Chuẩn Hóa Trung Cung Thiên Bàn Tử Vi Đẩu Số
+- **Lược Bỏ Text Thử Nghiệm:** Xóa bỏ hoàn toàn chuỗi chữ test `ZIWEI CHART TEST` tại Trung Cung của Mệnh Bàn Tử Vi trong cả tệp kết xuất PDF (`PdfTemplateService.js`) lẫn component giao diện Web (`ZiweiChart.jsx`).
+- **Thay Bằng Tiêu Đề Hoàng Gia:** Đặt tên chính thức thanh nhã `THIÊN BÀN TỬ VI ĐẨU SỐ` hoặc tên đương số theo chuẩn học thuật cổ điển.
+
+### 🌟 3. Bổ Sung Bảng Lục Hào Lạc Giáp Cổ Pháp Đối Chiếu Song Song 8 Cột Trong PDF Kinh Dịch (Hình 2)
+- **Cấu Trúc 8 Cột Học Thuật Chuẩn Cổ Pháp:**
+  - `Hào Vị`: Đánh số và phân vị chuẩn từ Hào 6 (Thượng Hào) ở trên cùng xuống Hào 1 (Sơ Hào) ở dưới cùng.
+  - `Đồ Hình`: Vạch hào âm (đoạn) / dương (liền) đồ họa mini; đối với hào động hiển thị huy hiệu `• Động` đỏ rực rỡ và tô nền dòng hào màu hồng phấn nhạt `#fff1f2`.
+  - `Lục Thú`: Tra cứu chuẩn xác theo Thiên Can Ngày gieo quẻ (Thanh Long, Chu Tước, Câu Trần, Đằng Xà, Bạch Hổ, Huyền Vũ).
+  - `Lục Thân`: Phụ Mẫu, Huynh Đệ, Tử Tôn, Thê Tài, Quan Quỷ; tự động hiển thị Phục Thần nếu hào bị ẩn.
+  - `Nạp Giáp Can Chi`: Ghép đôi Can Chi nạp giáp kèm pill badge tô màu theo ngũ hành cổ pháp (Mộc xanh lá, Hỏa đỏ, Thổ hổ phách, Kim xám bạc, Thủy xanh lam).
+  - `Thế / Ứng / Thân`: Huy hiệu Thế `[Thế]` (xanh), Ứng `[Ứng]` (tím), và Quái Thân `[Thân]`.
+  - `Vượng Suy / Tuần Không`: Đối chiếu Nguyệt Lệnh (`Vượng`, `Tướng`, `Hưu`, `Tù`, `Tử`) và huy hiệu Tuần Không `[Không]` màu đỏ cảnh báo.
+  - `Hào Biến Đối Chiếu`: Hiển thị rõ ràng chiều biến hóa (`→ Tử Tôn`, `Tân Mão (Mộc)`) hoặc `- Tĩnh -` cho hào không động.
+- **Bảo Toàn Bố Cục 3 Quẻ:** Giữ nguyên 3 quẻ Chủ - Hỗ - Biến ở phần trên với nền trắng thanh nhã, phân màu xanh dương cho hào tĩnh và đỏ chu sa cho hào động.
+
+### 🌟 4. Phân Lập Triệt Để Prompt AI & Ngăn Chặn Rò Rỉ Luận Giải Đa Phân Hệ
+- **Nguyên nhân gốc rễ phát hiện:** Trong `AiInterpretationController.js`, các hàm `interpretHexagram`, `interpretZiwei` và `interpretMarriage` có nhánh `if (isVipMode)` gọi nhầm sang `MultiAgentPipelineService.runVipPipelineStream`. Pipeline này được thiết kế chuyên sâu 100% cho Bát Tự (chứa các quy tắc Tử Bình, Thập Thần, cấm an sao Tử Vi), dẫn đến nguy cơ các thuật ngữ Bát Tự xâm nhập vào luận giải Kinh Dịch và Tử Vi.
+- **Giải pháp dứt điểm:** Loại bỏ hoàn toàn lệnh gọi chéo sang pipeline Bát Tự. Mỗi phân hệ giờ đây chạy độc lập 100% qua bộ Prompt chuyên môn cổ điển tương ứng:
+  - Kinh Dịch: `IChingPrompts` + `AiService.generateInterpretationStream`.
+  - Tử Vi: `ZiweiPrompts` + `AiService.generateInterpretationStream`.
+  - Hợp Hôn: `MarriagePrompts` + `AiService.generateInterpretationStream`.
+  - Bát Tự: Tiếp tục sử dụng Multi-Agent Pipeline chuyên sâu cho gói VIP.
+
+### 🌟 5. Hỗ Trợ Xuất & In Toàn Văn Bài Luận Giải Thông Thường (Standard Interpretation)
+- **Đồng Bộ Scope Phân Đoạn Backend (`PdfTemplateService.js`):**
+  - Nâng cấp hàm `parseInterpretationSections` để chuẩn hóa unicode NFC và nhận diện linh hoạt các cấu trúc đề mục `### 1. ...` của Tử Vi/Kinh Dịch cũng như các chương lớn.
+  - Mở rộng phạm vi in ấn: Khi người dùng chọn mục bài luận giải tổng thể (`scope: intro` hoặc `scope: all_interpretation`), toàn bộ nội dung luận giải AI được in trọn vẹn và tự nhiên qua các khối `.chapter-block` mà không bị bỏ sót.
+- **Tối Ưu Modal Xuất PDF Phía Frontend (`PdfExportModal.jsx`):**
+  - Tách biệt cấu hình danh sách mục xuất cho từng phân hệ (Tử Vi, Kinh Dịch, Hôn Nhân, Bát Tự), loại bỏ việc hiển thị thuật ngữ "Nhật Chủ" ở Tử Vi và Kinh Dịch.
+  - Sửa lỗi truyền cờ `hasInterpretation` và `rawInterpretation` trong component `IChingBoard.jsx`.
+
+### 🌟 6. Kiểm Thử Toàn Diện (Jest & Chrome DevTools MCP)
+- **Unit Tests:** 17/17 test suites PASS (`PdfTemplateService.test.js`, `ExportController.test.js`).
+- **Frontend Build:** `npm run build` thành công không lỗi (24.47s).
+- **Chrome DevTools MCP:**
+  - Kiểm thử trực tiếp xuất PDF Kinh Dịch có kèm toàn văn bài luận giải: HTTP 200, dung lượng ~1.085KB.
+  - Kiểm thử trực tiếp xuất PDF Tử Vi có kèm toàn văn bài luận giải: HTTP 200, dung lượng ~490KB.
+  - Kiểm tra đồ hình trực quan qua ảnh chụp screenshot: Chữ `Đ` chuẩn nét, bảng 8 cột cân đối, không có nhãn thử nghiệm.
+
+## 📅 Phiên bản: Nâng Cấp Bản In PDF Tử Vi Đẩu Số Chuẩn Đồ Hình 4x4 Cổ Học (09/09/2026)
+
+### 🌟 1. Chuẩn Hóa Mệnh Bàn Tử Vi Đẩu Số (Đồ Hình 4x4)
+- **Đồ Hình 16 Ô Chuẩn Cổ Học (Lưới 4x4):** Sắp xếp 12 cung xung quanh 4 cạnh đúng chuẩn vị trí 12 Địa Chi:
+  - *Hàng 1:* Tỵ (1,1) $\rightarrow$ Ngọ (1,2) $\rightarrow$ Mùi (1,3) $\rightarrow$ Thân (1,4).
+  - *Cột phải:* Dậu (2,4) $\rightarrow$ Tuất (3,4).
+  - *Hàng 4:* Hợi (4,4) $\leftarrow$ Tý (4,3) $\leftarrow$ Sửu (4,2) $\leftarrow$ Dần (4,1).
+  - *Cột trái:* Mão (3,1) $\leftarrow$ Thìn (2,1).
+- **Trung Cung (Thiên Bàn Tử Vi Đẩu Số):** Chiếm trọn 4 ô trung tâm (2x2) với viền tím nét đôi (`#a855f7`), nền tím nhạt thanh nhã (`#faf5ff`), hiển thị tên đương số, Bản Mệnh Cục, Tứ Trụ Can Chi, Mệnh/Thân Chủ, Ngày giờ sinh Âm/Dương và thanh tiêu điểm Cung Mệnh / Thân Cư.
+- **Bố Cục Từng Cung Vị Đồng Bộ Giao Diện Web:**
+  - *Đỉnh Cung:* Can Chi viết tắt (`Ấ.Tỵ`, `B.Ngọ`...), Tên Cung tô màu theo ngũ hành của bản cung, Tuổi Đại Hạn. Cung Mệnh có viền hổ phách `#d97706`, Cung Thân có viền tím đậm `#6366f1`.
+  - *Chính Tinh:* Tên sao in to đậm căn giữa, tô màu theo ngũ hành của sao (Kim, Mộc, Thủy, Hỏa, Thổ), ký hiệu Đắc Hãm `(M)`, `(V)`, `(Đ)`, `(B)`, `(H)`, Tứ Hóa (`[LỘC]`, `[QUYỀN]`, `[KHOA]`, `[KỴ]`), hoặc `VÔ CHÍNH DIỆU`.
+  - *Phụ Tinh 2 Cột Đối Xứng:* Cột trái (Cát tinh) và cột phải (Sát tinh) với màu ngũ hành riêng từng sao, giới hạn 5 sao mỗi cột chống tràn layout.
+  - *Đáy Cung:* Địa Chi Tiểu Hạn (tô màu ngũ hành), Vòng 12 Trường Sinh, Chỉ số Nguyệt Hạn (`Th.1` $\rightarrow$ `Th.12`).
+- **Thanh Chú Giải Đắc Hãm & Ngũ Hành (Legend Bar):** Đặt ngay chân Mệnh Bàn, giải nghĩa ký hiệu `(M)`, `(V)`, `(Đ)`, `(B)`, `(H)` và các mẫu màu Kim, Mộc, Thủy, Hỏa, Thổ.
+- **Giãn Cách Chương Tự Nhiên:** Chuyển đổi sang `.chapter-block` có khoảng cách vừa vặn (~20px), loại bỏ ngắt trang cưỡng bức gây lãng phí giấy.
+- **Kiểm Thử Toàn Diện (Jest & Chrome DevTools MCP):**
+  - Jest Unit Tests: 17/17 test suites PASS 100%.
+  - Chrome DevTools MCP: Mở modal xuất PDF từ trang chi tiết lá số Tử Vi, click tải PDF thành công HTTP 200, dung lượng file ~504KB.
+
+## 📅 Phiên bản: Tinh Chỉnh Bản In PDF Kinh Dịch Chuẩn Giao Diện Web (Hình 4) (09/09/2026)
+
+
+### 🌟 1. Tinh Chỉnh Bản In PDF Kinh Dịch Đồng Bộ Giao Diện Web
+- **Bỏ Nền 3 Thẻ Quẻ:** Chuyển nền của Quẻ Chủ, Quẻ Hỗ, Quẻ Biến sang màu trắng thanh lịch (`#ffffff`), viền mỏng (`#cbd5e1`), loại bỏ nền màu cũ giúp tiết kiệm mực in và tăng tính trang nhã.
+- **Tối Ưu Màu Sắc Hào Đồ Họa:** Sử dụng duy nhất màu **Đỏ chu sa** (`#dc2626`) để đánh dấu các hào động/biến và màu **Xanh dương cổ điển** (`#1e40af`) cho toàn bộ hào tĩnh trên cả 3 quẻ và bảng Lục Hào; Quẻ Hỗ 100% vạch hào giữ màu xanh.
+- **Tái Cấu Trúc Bảng Lục Hào Nạp Giáp Giống Web 100% (Hình 4):**
+  - Thiết kế bảng song song 2 bên Quẻ Chủ & Quẻ Biến với đường phân cách dọc nét đứt (`border-right: 1.5px dashed #cbd5e1`):
+    - *Quẻ Chủ (trái):* Cột `Hào` | `T/Ứ` (Thế/Ứng) | `Lục Thân` | `Địa Chi` (chi + hành tô màu ngũ hành: Mộc `#059669`, Hỏa `#dc2626`, Thổ `#b45309`, Kim `#64748b`, Thủy `#2563eb`) | `PT` (Phục Thần) | `TK` (Tuần Không).
+    - *Quẻ Biến (phải):* Cột `Lục Thân` | `Địa Chi` | `TK` | `Lục Thú` | `Hào` (vạch biến đỏ/xanh).
+  - Sắp xếp chuẩn từ Hào 6 (Thượng Hào) ở trên xuống Hào 1 (Sơ Hào) ở dưới.
+  - Tự động chuyển đổi sang bảng 7 cột thanh lịch (`Hào`, `T/Ứ`, `Lục Thân`, `Địa Chi`, `Phục Thần`, `TK`, `Lục Thú`) đối với quẻ tĩnh không có hào động.
+- **Lược Bỏ Tứ Trụ Thời Gian:** Loại bỏ dòng chữ "Tứ Trụ Thời Gian" trong khối thông tin meta quẻ (`iching-meta-grid`) để phần đầu tài liệu cô đọng và trọng tâm.
+- **Kiểm Thử Nghiệm Thu Trực Quan & Trình Duyệt:**
+  - Kết xuất ảnh chụp trực quan `iching_preview_v2.png` đạt 100% yêu cầu so khớp với ảnh tham chiếu người dùng cung cấp (`media_1788887623962.png`).
+  - Unit tests: 16/16 tests PASS.
+  - Chrome DevTools MCP: Tải PDF thực tế thành công qua modal web, mã phản hồi 200 OK, dung lượng 576KB.
+
+## 📅 Phiên bản: Nâng Cấp Toàn Diện Bản In PDF Kinh Dịch & Lục Hào Lạc Giáp Cổ Pháp (09/09/2026)
+
+### 🌟 1. Tối Ưu Bố Cục & Đồ Hình Kinh Dịch (I Ching Layout Standards)
+- **Tiêu Điểm Chiêm Đoán & Trục Thời Gian Tứ Trụ:** Khối tiêu điểm câu hỏi chiêm bốc trang trọng trong viền vàng hoàng gia (`#fffbeb`), đi kèm bảng thông số Thiên Can Địa Chi 4 trụ giờ/ngày/tháng/năm, Nhật Thần, Nguyệt Lệnh, Tuần Không (Không Vong), Quái Thân bản quẻ và phương pháp gieo quẻ.
+- **Đồ Hình 3 Quẻ Đồng Thời (Quẻ Chủ - Quẻ Hỗ - Quẻ Biến):**
+  - *Quẻ Chủ:* Tên quẻ, cung quái, ngũ hành bản cung, 6 vạch hào thị giác xanh thẫm (`#1e3a8a`) kèm chấm đỏ `●` tại các hào động.
+  - *Quẻ Hỗ (Nuclear Hexagram):* Tự động tính toán chuẩn xác từ 4 hào giữa (Hào 2, 3, 4, 5) của quẻ chủ theo công thức Hỗ Thượng (hào 5-4-3) và Hỗ Hạ (hào 4-3-2), phối màu hổ phách (`#b45309`).
+  - *Quẻ Biến:* Hiển thị tượng quẻ biến chuyển khi có hào động, phối màu đỏ chu sa (`#b91c1c`); trường hợp quẻ tĩnh hiển thị trạng thái "Quẻ Tĩnh Thuần Nhất".
+- **Bảng Lục Hào Lạc Giáp Cổ Pháp Đối Chiếu Song Song:**
+  - Sắp xếp thứ tự từ **Hào 6 (Thượng)** ở trên cùng xuống **Hào 1 (Sơ)** ở dưới cùng.
+  - Tích hợp vạch hào đồ họa âm/dương mini kèm huy hiệu `● Động` và tô nền hồng nhạt `#fff1f2` tại dòng hào động.
+  - Lục Thú tra cứu chính xác theo Can Ngày (Thanh Long, Chu Tước, Câu Trần, Đằng Xà, Bạch Hổ, Huyền Vũ).
+  - Lục Thân cùng nạp giáp Can Chi & Ngũ Hành phân màu chuẩn ngũ hành cổ pháp, hiển thị Phục Thần nếu có.
+  - Vị trí Thế (`[Thế]`), Ứng (`[Ứng]`), Quái Thân (`[Quái Thân]`).
+  - Vượng Suy theo Nguyệt lệnh (Vượng/Tướng/Hưu/Tù/Tử), Tuần Không (`[Không]`), vòng 12 Trường Sinh.
+  - Cột đối chiếu hào biến: chỉ rõ chiều chuyển hóa Lục Thân và Can Chi mới (`→ Quan Quỷ`, `Canh Thìn (Thổ)`).
+- **Khối Phân Tích Dịch Lý Cốt Lõi (Lưới 2x2 Highlight):**
+  - *Thẻ 1 - Dụng Thần:* Xác định đúng tâm điểm câu hỏi theo Rule Engine, đánh giá khí lực ngũ hành (Vượng Tướng / Hưu Tù Tử), cảnh báo nếu phạm Tuần Không.
+  - *Thẻ 2 - Tương Quan Thế - Ứng:* Phân tích tương quan giữa đương số (Thế) và đối phương/hoàn cảnh (Ứng), chỉ rõ sinh khắc tương trợ.
+  - *Thẻ 3 - Hào Động & Biến Hóa:* Liệt kê từng hào động kèm tác động dịch lý (Hóa Tiến, Hóa Thoái, Hóa Sinh, Hóa Khắc).
+  - *Thẻ 4 - Cách Cục & Độ Ứng Nghiệm:* Tổng kết các trạng thái đặc biệt, Quái Thân bảo trợ, độ tin cậy toán học (%) và lời khuyên dịch học cô đọng.
+- **Bảng Niên Lịch Ứng Kỳ Dự Báo Cát Hung:** Hiển thị thời điểm dự báo sự việc biến chuyển theo lịch âm, dương và dự đoán diễn biến.
+- **Toàn Văn Luận Giải Chu Dịch:** Sử dụng khoảng cách tự nhiên giữa các chương (`.chapter-block`), không ngắt trang cưỡng bức, hỗ trợ lựa chọn xuất theo từng chương (`ch1` - Ý nghĩa quái tượng, `ch2` - Hào động, `ch3` - Lời khuyên, `ch4` - Ứng kỳ).
+- **Nâng Cấp Checklist Modal Xuất PDF (`PdfExportModal.jsx`):**
+  - Bổ sung tùy chọn chi tiết cho Kinh Dịch: `iching_table` (Bảng Lục Hào Lạc Giáp & Đồ Hình 3 Quẻ), `iching_analysis` (Khối Phân Tích Dịch Lý Cốt Lõi), `iching_ungky` (Bảng Niên Lịch Ứng Kỳ) và các phân đoạn luận giải AI.
+- **Kiểm Thử Trình Duyệt Chrome DevTools:** Kiểm thử trực tiếp tương tác click "Xuất PDF", kiểm tra 0-item guard, tải tệp PDF 604KB với mã phản hồi HTTP 200 và ghi nhận đầy đủ audit log có `requestId` UUIDv7.
+
+## 📅 Phiên bản: Tối Ưu Bố Cục Bản In PDF Bát Tự Chuẩn Cổ Học (08/09/2026)
+
+### 🌟 1. Tối Ưu Bố Cục & Hiển Thị Học Thuật Bát Tự (Bazi Layout v3)
+- **Đảo Ngược Thứ Tự Tứ Trụ:** Điều chỉnh thứ tự các cột trụ theo đúng mạch thời gian mệnh lý cổ điển: **TRỤ NĂM (Tổ Tiên / Căn Cơ) $\rightarrow$ NGUYỆT LỆNH (Cha Mẹ / Sự Nghiệp) $\rightarrow$ NHẬT CHỦ (Bản Thân / Vợ Chồng) $\rightarrow$ TRỤ GIỜ (Tử Tức / Hậu Vận)**.
+- **Hàng Lối Ngay Ngắn Chuẩn Mực:** Sắp xếp mỗi yếu tố trên một hàng ngang độc lập (Thập Thần $\rightarrow$ Can $\rightarrow$ Chi & Nạp Âm $\rightarrow$ Tàng Can $\rightarrow$ Thần Sát), căn lề và định dạng kích thước đồng nhất.
+- **Tàng Can Chia Đều & Viết Tắt Thập Thần:** Bỏ dòng nhãn "Tàng Can:", chia đều 3 hàng cố định cho mỗi trụ, kết hợp viết tắt Thập Thần (`Tỷ`, `Kiếp`, `Thực`, `Thương`, `T.Tài`, `Tài`, `Sát`, `Quan`, `Kiêu`, `Ấn`) tăng tính gọn gàng và khoa học.
+- **Phân Biệt Cát Thần & Hung Sát:** Thần Sát trong trụ và Ma Trận Thần Sát bản mệnh được hiển thị tách biệt: Cát Thần / Quý Nhân viền xanh lục (`#047857`), Hung Sát / Hình Hại viền đỏ trầm (`#b91c1c`).
+- **Khắc Phục Tỷ Lệ Ngũ Hành:** Sửa lỗi hiển thị 0% do không khớp key có dấu/không dấu giữa model và template, hiển thị chính xác % thực tế tính bởi BaziAnalyzer (`Kim`, `Mộc`, `Thủy`, `Hỏa`, `Thổ`).
+- **Khối Dụng Thần & Phương Án Bổ Mệnh:** Bổ sung thẻ Dụng Thần - Hỷ Thần kèm 4 khối thông tin ứng dụng thực tế: Nghề nghiệp bổ trợ, Màu sắc cát tường, Phương vị tương hỗ, Vật phẩm phong thủy trợ mệnh.
+- **10 Đại Vận & Bảng 100 Năm Lưu Niên:** Ngoài lưới thẻ 10 Đại Vận (2x5), bổ sung **Bảng Tra Cứu Chi Tiết 100 Năm Lưu Niên** liệt kê đầy đủ 10 năm kèm Can Chi cho từng đại vận.
+- **Giãn Cách Vừa Đủ Giữa Các Chương Luận Giải:** Tinh chỉnh khoảng cách giữa 2 chương khi kết thúc về mức vừa vặn tự nhiên (~20-22px: `margin-top: 12px`, `padding-top: 8px`), nét đứt 1px thanh mảnh, lược bỏ `page-break-inside: avoid` để tránh việc Chromium đẩy nguyên chương dài sang trang mới gây khoảng trắng thừa ở cuối trang, kết hợp `page-break-after: avoid` trên tiêu đề chương chống mồ côi dòng tiêu đề.
+- **Biên Dịch Hoàn Chỉnh Bảng Markdown GFM:** Nâng cấp parser Markdown sang cơ chế line-by-line, khắc phục triệt để lỗi rớt dòng cuối cùng của bảng ma trận SWOT (`| T - Threats | ...`).
+- **Trạng Thái 12 Trường Sinh Dưới Thiên Can:** Loại bỏ các nhãn chữ thô `(Hành Mộc)`, `(Hành Thổ)`... ở cả Thiên Can và Địa Chi. Dưới mỗi Thiên Can hiển thị huy hiệu Trạng thái 12 Trường Sinh so với Nguyệt Chi (VD: `[Trường Sinh]`, `[Tử]`, `[Đế Vượng]`, `[Tuyệt]`...) được tra cứu tự động qua bảng `TRUONG_SINH_MAP` đối chiếu Can Trụ với Chi Nguyệt Lệnh. Dưới mỗi Địa Chi chỉ giữ lại tên Chi và huy hiệu Nạp Âm bản mệnh.
+- **Chuẩn Hóa Dữ Liệu Hiển Thị & Mệnh Quái:** Xây dựng hàm `formatMenhQuai` xử lý triệt để dữ liệu Mệnh Quái cả ở dạng chuỗi, đối tượng (`{ cung, element, group }`) hay JSON chuỗi hóa, khắc phục hoàn toàn lỗi `Mệnh Quái: [object Object] (Đông/Tây Tứ Mệnh)`. Chuẩn hóa `formatThanDegree` xử lý an toàn `Tòng Cách`, `Cân Bằng`, `Thân Vượng`, `Thân Nhược`.
+- **Nâng Cấp Phiên Bản Cache PDF:** Nâng khóa cache Redis từ `v4` lên `v5` (`pdf:cache:v5:...`) nhằm vô hiệu hóa tức thời các bản in cũ đã lưu vết trong cache.
+
+## 📅 Phiên bản: Xây Dựng Hệ Thống Xuất Tệp PDF Lá Số & Luận Giải Đa Phân Hệ (08/09/2026)
+
+### 🚀 1. Quyết Định Kiến Trúc & Thiết Kế Bố Cục
+- **Tách Biệt Phân Đoạn Nội Dung (Granular Selection per Domain)**:
+  - Cho phép người dùng linh hoạt chọn tải độc lập hoặc kết hợp: Chỉ tải Lá số/Đồ hình, Chỉ tải Luận giải AI, hoặc Tải toàn bộ cả hai.
+  - Phân hệ Bát Tự (Bazi): Hỗ trợ chọn lọc chi tiết từng phần (Thông tin Tứ Trụ, Điểm Ngũ Hành & Thập Thần, Ma trận Đại Vận 100 năm) và từng chương riêng lẻ của bản luận giải VIP (Chương 1 đến Chương 6 + Phần Điều Hòa Chiến Lược & Đúc Kết).
+  - Phân hệ Tử Vi (Ziwei): Chọn lọc giữa Mệnh bàn 12 Cung Vị truyền thống và Luận giải AI.
+  - Phân hệ Kinh Dịch (IChing): Chọn lọc giữa Quẻ Chính / Quẻ Biến / Bảng 6 Hào chi tiết và Luận giải quẻ.
+  - Phân hệ Hợp Hôn (Marriage): Chọn lọc giữa Bảng phân tích ngũ hành Cung Phi Nam - Nữ và Luận giải chi tiết.
+- **Chốt An Toàn 0 Mục (0-Item Guard) & Disabled Button State**:
+  - Khi `selectedCount === 0` (người dùng bỏ chọn tất cả các ô), nút bấm "Tải tệp PDF ngay" bị **vô hiệu hóa hoàn toàn** (`disabled`), chuyển sang màu xám mờ và chặn mọi tương tác chuột.
+  - Hiển thị banner cảnh báo nổi bật: `⚠️ Vui lòng chọn ít nhất 1 mục nội dung phía trên để hệ thống tạo tệp PDF.`.
+- **Kiểm Tra Hiện Diện Luận Giải (Interpretation Presence Guard)**:
+  - Tự động phát hiện nếu bản ghi chưa có bài luận giải AI để khóa toàn bộ checkbox nhóm Luận giải kèm thông báo giải thích rõ ràng.
+- **Bố Cục In Ấn Khoa Học & Thẩm Mỹ Hoàng Gia Á Đông**:
+  - Palette màu Imperial Eastern Luxury (`#8B1D1D` Đỏ Chu Sa, `#D4AF37` Vàng Hoàng Gia, `#FDFBF7` Nền Giấy Cổ).
+  - Ma trận Đại Vận Bát Tự 2 hàng x 5 cột (100 năm) với Can Chi, Thập Thần và huy hiệu Cát / Bình / Hung đối chiếu tự động với Dụng Thần.
+  - Chuẩn hóa và biên dịch bảng biểu Markdown GFM chống vỡ layout trên trang in A4.
+- **Phân Quyền & Ranh Giới Quyền Riêng Tư (Strict Access Boundary)**:
+  - Lá số công khai (`isPublic: true`): Mọi người dùng và khách vãng lai đều được tải.
+  - Lá số riêng tư (`isPublic: false`): **Chỉ chính chủ sở hữu** (`record.userId === req.user.id`) mới được tải. Khách vãng lai bị từ chối với `401 Unauthorized`, người dùng khác bị từ chối với `403 Forbidden`.
+- **Tối Ưu Hiệu Năng & Kiểm Soát Tài Nguyên**:
+  - Headless Chromium Singleton Pool (`maxConcurrent = 2`, tự đóng sau 5 phút idle).
+  - Redis Binary Base64 Cache 24 giờ cho các file PDF đã render.
+  - Rate limiting nghiêm ngặt 5 lượt/phút/IP (`pdfExportLimiter`).
+  - Ghi vết kiểm toán (Audit Logging) với UUIDv7 `requestId` trên cả `LoggerService` và `SystemLog`.
+
+### 🛠️ 2. Các Tệp Tin Mã Nguồn Đã Xây Dựng & Tích Hợp
+- **Backend:**
+  - `backend/src/services/PdfTemplateService.js`: Dịch vụ sinh template HTML/CSS in ấn cho 4 phân hệ, xử lý unwrapping linh hoạt (`analysisSnapshot`, `baziData`, `chartData`, `maleBaziData`), biên dịch GFM table, ma trận 2x5 Đại Vận.
+  - `backend/src/services/PdfGeneratorService.js`: Dịch vụ điều phối Puppeteer singleton, quản lý hàng đợi, idle timeout 5m và Redis binary cache.
+  - `backend/src/controllers/ExportController.js`: Controller xử lý `exportPdf` với kiểm soát quyền sở hữu, định danh `requestId`, xử lý header `Content-Disposition` và ghi audit log.
+  - `backend/src/routes/export.js`: Router `/api/export/pdf/:type/:id` kèm `pdfExportLimiter` và `optionalAuth`.
+  - `backend/src/routes/index.js`: Đăng ký router `/api/export`.
+  - `backend/src/middleware/optionalAuth.js`: Middleware giải mã JWT mềm (không chặn request nếu thiếu token).
+- **Frontend:**
+  - `frontend/src/services/api.js`: Thêm phương thức `exportPdf(type, id, scope)`.
+  - `frontend/src/components/PdfExportModal.jsx`: Modal xuất PDF Hoàng Gia với checklist phân đoạn, Select/Deselect All, 0-item guard, warning banner, trạng thái tải và kích hoạt tải blob tự động.
+  - Tích hợp nút "Xuất PDF" và modal vào:
+    - `frontend/src/components/BaziBoard.jsx`
+    - `frontend/src/components/ZiweiBoard.jsx`
+    - `frontend/src/components/IChingBoard.jsx`
+    - `frontend/src/components/MarriageBoard.jsx`
+
+### 🧪 3. Kiểm Thử Đảm Bảo Chất Lượng (QA & Verification)
+- **Kiểm tra cú pháp Node.js**: `node --check` vượt qua 100% trên toàn bộ các tệp backend mới và chỉnh sửa.
+- **Frontend Production Build**: `npm run build` hoàn thành thành công 0 lỗi.
+- **Jest Unit Tests (14/14 Tests PASSED)**:
+  - `backend/tests/controllers/ExportController.test.js`: 8/8 tests passed (kiểm tra private owner 200, non-owner 403, unauthenticated private 401, public guest 200, 404 not found, 400 invalid type, cache hit, 0-item 400).
+  - `backend/tests/services/PdfTemplateService.test.js`: 6/6 tests passed (template Bazi, Ziwei, IChing, Marriage, Dai Van 2x5 matrix, GFM table conversion).
+- **Kiểm Thử Trình Duyệt Thực Tế Trên Chrome DevTools MCP**:
+  - Kiểm tra tương tác mở Modal, chọn/bỏ chọn checkbox trên cả 4 phân hệ.
+  - Kiểm tra trạng thái vô hiệu hóa nút xuất và hiển thị banner cảnh báo khi bỏ chọn hết (`selectedCount === 0`) qua ảnh chụp màn hình thực tế.
+  - Tải tệp PDF thực tế thành công:
+    - Kinh Dịch: `Que_Dich_Thuy_Hoa_Ky_Te.pdf` (143.952 bytes) - HTTP 200 OK.
+    - Bát Tự: `La_So_Bat_Tu_Bat_Tu_-_Nam_Menh.pdf` (1.487.225 bytes) - HTTP 200 OK.
+    - Hợp Hôn: `Hop_Hon_Nam_Nu.pdf` (161.370 bytes) - HTTP 200 OK.
+  - Console log trình duyệt: 0 lỗi.
+
 ## 📅 Phiên bản: Bỏ Kiểm Tra Trùng Lặp Cũ - Khởi Tạo Bản Ghi Độc Lập Mỗi Lần Lập Số / Gieo Quẻ (08/09/2026)
 
 ### 🚀 1. Quyết Định Kiến Trúc & Nghiệp Vụ

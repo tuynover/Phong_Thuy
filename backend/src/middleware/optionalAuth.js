@@ -7,6 +7,8 @@ module.exports = async (req, res, next) => {
   const authHeader = req.header('Authorization');
   if (authHeader) {
     token = authHeader.replace('Bearer ', '');
+  } else if (req.query && req.query.token) {
+    token = req.query.token;
   }
 
   if (!token) {

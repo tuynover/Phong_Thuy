@@ -81,8 +81,10 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
 * **Tạo Lá số Độc lập & Concurrency Mutex Lock:** Bỏ kiểm tra trùng lặp cũ khi tạo lá số/quẻ. Mỗi lần gửi yêu cầu hợp lệ đều tạo lá số mới độc lập, đồng thời trang bị Mutex Lock 2.5s trên Redis/RAM ngăn chặn spam 10 request đồng thời.
 * **Xóa mềm (Soft Delete) & Hủy liên kết:** Danh sách lịch sử gieo quẻ/lá số được xóa dưới dạng xóa mềm (`isDeleted: true`). Nếu bản ghi bị xóa trùng khớp với liên kết lá số bản thân của người dùng, hệ thống sẽ tự động hủy liên kết đó trong hồ sơ cá nhân (`ownBaziRecordId`/`ownZiweiRecordId` đặt về `null`).
 * **Kiểm soát Dữ liệu Đầu vào 2 Bước & Real-time Auto-Clamp:** Tích hợp dịch vụ [`InputValidator.js`](file:///t:/Phongthuy/backend/src/services/InputValidator.js) phía Backend và component [`CustomSelect`](file:///t:/Phongthuy/frontend/src/components/MaiHoaInput.jsx#L54) Combobox Dropdown + [`FloatingErrorToast.jsx`](file:///t:/Phongthuy/frontend/src/components/FloatingErrorToast.jsx) cố định ở đỉnh màn hình phía Frontend. Tự động ép ngày hợp lệ (auto-clamp Ngày 29/02 sang 28 ở năm không nhuận, ngày 31 sang 30 ở tháng 30 ngày), tự động ép ngưỡng khi gõ tay (gõ $>31 \rightarrow 31$, gõ $>12 \rightarrow 12$), lọc triệt tiêu toàn bộ ký tự chữ cái (A-Z) và vô hiệu hóa nút bấm khi dữ liệu không hợp lệ.
+* **Xuất Tệp PDF Học Thuật & Chốt An Toàn 0 Mục (`PdfExportModal.jsx`):** Modal thiết kế theo phong cách Hoàng Gia Á Đông (Imperial Luxury) cho phép người dùng linh hoạt chọn lọc tải riêng hoặc kết hợp giữa Lá số / Đồ hình và bài Luận giải AI (hỗ trợ in toàn văn bài luận giải thông thường cho cả Tử Vi, Kinh Dịch, Hôn Nhân, cũng như chọn lẻ từng chương 1-6 & Điều hòa của bản VIP Bát Tự). Sử dụng phông chữ **`Noto Serif`** hiển thị chuẩn nét 100% tiếng Việt UTF-8 (đặc biệt là ký tự `Đ` hoa). Bảng Lục Hào Lạc Giáp Kinh Dịch chuẩn cổ học 8 cột đối chiếu song song và Mệnh bàn Tử Vi 4x4 chuẩn xác. Tích hợp chốt an toàn vô hiệu hóa nút bấm và hiển thị banner cảnh báo khi chưa chọn mục nào (`selectedCount === 0`), tự động khóa nhóm luận giải nếu chưa có dữ liệu AI.
+* **Phân Lập Tuyệt Đối Luồng AI Luận Giải:** Đảm bảo tính toàn vẹn học thuật cho từng phân hệ; phân tách độc lập các bộ Prompt Kinh Dịch (`IChingPrompts`), Tử Vi (`ZiweiPrompts`), Hôn Nhân (`MarriagePrompts`) và Bát Tự, ngăn chặn triệt để hiện tượng rò rỉ thuật ngữ Tử Bình / Nhật Chủ sang Kinh Dịch và Tử Vi.
 * **Grid Selector:** Thay thế dropdown chọn giờ sinh bằng bảng chọn Can Chi 3 cột trực quan.
-* Tệp tin liên quan: [InterpretationTierModal.jsx](file:///t:/Phongthuy/frontend/src/components/InterpretationTierModal.jsx), [VipUpgradeBanner.jsx](file:///t:/Phongthuy/frontend/src/components/VipUpgradeBanner.jsx), [VipProgressTracker.jsx](file:///t:/Phongthuy/frontend/src/components/VipProgressTracker.jsx), [AiChatWidget.jsx](file:///t:/Phongthuy/frontend/src/components/AiChatWidget.jsx), [FloatingErrorToast.jsx](file:///t:/Phongthuy/frontend/src/components/FloatingErrorToast.jsx), [HistoryBoard.jsx](file:///t:/Phongthuy/frontend/src/components/HistoryBoard.jsx), [NotificationBell.jsx](file:///t:/Phongthuy/frontend/src/components/NotificationBell.jsx).
+* Tệp tin liên quan: [InterpretationTierModal.jsx](file:///t:/Phongthuy/frontend/src/components/InterpretationTierModal.jsx), [VipUpgradeBanner.jsx](file:///t:/Phongthuy/frontend/src/components/VipUpgradeBanner.jsx), [VipProgressTracker.jsx](file:///t:/Phongthuy/frontend/src/components/VipProgressTracker.jsx), [AiChatWidget.jsx](file:///t:/Phongthuy/frontend/src/components/AiChatWidget.jsx), [FloatingErrorToast.jsx](file:///t:/Phongthuy/frontend/src/components/FloatingErrorToast.jsx), [PdfExportModal.jsx](file:///t:/Phongthuy/frontend/src/components/PdfExportModal.jsx), [HistoryBoard.jsx](file:///t:/Phongthuy/frontend/src/components/HistoryBoard.jsx), [NotificationBell.jsx](file:///t:/Phongthuy/frontend/src/components/NotificationBell.jsx).
 
 ---
 
@@ -91,6 +93,7 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
 ### 🛠️ Công nghệ sử dụng
 - **Core:** Node.js, Express.js (v5).
 - **Database & Cache:** MongoDB (Mongoose v9), Redis (`ioredis`, Redis Alpine).
+- **PDF Engine:** Puppeteer (Headless Chromium pool, auto idle close 5m, Redis Base64 24h cache).
 - **Security:** JWT, bcryptjs, CORS, creditCheck Middleware, antiSpamLock Middleware (Distributed Mutex Lock).
 - **AI Engine:** Google Gemini API (`@google/generative-ai` model `gemini-1.5-pro`).
 - **Phong thủy Logic:** `lunar-javascript` (Lịch pháp âm dương, Can Chi, Bát Tự).
@@ -130,6 +133,12 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
     * **Tách Form Tử Vi (`ZiweiInput.jsx`):** Đóng gói form nhập Tử Vi thành component độc lập theo chuẩn của `BaziInput.jsx`, hỗ trợ Combobox vừa nhập vừa chọn, không nhập sẵn giá trị mặc định cho Ngày, Tháng, Năm, Giờ, Phút (khởi tạo rỗng `''`), tích hợp component lịch tùy chỉnh `CustomDatePicker`.
     * **Đồng Bộ Nút Thẻ Thư Mục (Tags):** Bổ sung đầy đủ Badge nhãn thẻ `🏷️ [Tên thẻ]` và nút Icon Tag 🏷️ cho cả 4 phân hệ (Kinh Dịch, Bát Tự, Tử Vi, Hôn Nhân) trên thẻ danh sách `HistoryBoard.jsx` và modal `MyFoldersModal.jsx`.
     * **Tự Động Tải Chi Tiết Lá Số (Full-Detail Fetching):** Xử lý tự động bóc tách dữ liệu lồng `baziData`/`marriageData`/`analysisSnapshot` ở `BaziBoard.jsx` và `MarriageBoard.jsx`. Tự động kích hoạt gọi API `getBaziRecord(id)` và `getMarriageRecord(id)` khi bấm xem chi tiết từ Lịch sử / Lá số của tôi, khắc phục triệt để lỗi màn hình trắng hay trống trơn dữ liệu.
+12. **Xuất Tệp PDF Học Thuật Đa Phân Hệ (`PdfGeneratorService.js`, `PdfTemplateService.js`, `ExportController.js`):**
+    * Tự động dàn trang HTML/CSS in ấn theo bảng màu Hoàng Gia Á Đông (Imperial Luxury) cho cả 4 phân hệ (Bát Tự, Tử Vi, Kinh Dịch, Hợp Hôn).
+    * Bố cục ma trận Đại Vận 2 hàng x 5 cột (100 năm) kèm huy hiệu Cát/Hung đối chiếu Dụng Thần; tự động định dạng bảng Markdown GFM chống vỡ trang in.
+    * Hỗ trợ bộ chọn phân đoạn granular (chọn từng phần lá số / từng chương luận giải), tích hợp chốt an toàn vô hiệu hóa nút xuất khi chưa chọn mục (`selectedCount === 0`).
+    * Quản trị phiên Chromium Headless Singleton với cơ chế giới hạn tải song song (`maxConcurrent = 2`), tự giải phóng RAM sau 5 phút không hoạt động và bộ đệm Redis Base64 24 giờ.
+    * Ranh giới bảo mật nghiêm ngặt: Lá số công khai (`isPublic: true`) cho phép tải tự do, lá số riêng tư (`isPublic: false`) chỉ chính chủ sở hữu mới có quyền tải về; audit logging với UUIDv7 `requestId`.
 
 ---
 
@@ -195,6 +204,9 @@ Hệ thống API Backend sử dụng tiền tố `/api` và phân chia thành c�
 * `GET /api/notifications`: Lấy danh sách thông báo nhắc nhở Ứng Kỳ của người dùng hiện tại.
 * `PUT /api/notifications/read-all`: Đánh dấu đọc tất cả thông báo.
 * `PUT /api/notifications/:id/read`: Đánh dấu đọc một thông báo cụ thể.
+
+### 📄 Xuất Tệp PDF (`/api/export`)
+* `POST /api/export/pdf/:type/:id`: Xuất tệp PDF lá số và luận giải AI theo cấu hình phân đoạn (scope). Áp dụng rate limit 5 req/min, Redis cache 24h, bảo vệ quyền sở hữu nghiêm ngặt và theo dõi kiểm toán qua `X-Request-ID`.
 
 ---
 

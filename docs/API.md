@@ -598,4 +598,44 @@ Lấy sơ đồ trang web động phục vụ Googlebot lập chỉ mục.
 - **Endpoint:** `GET /sitemap.xml` (ở root level của website)
 - **Phản hồi (200):** Nội dung XML sitemap chuẩn UTF-8 (`Content-Type: application/xml; charset=utf-8`). Tự động gom các URL tĩnh chính, các bài viết Blog đã phát hành, và toàn bộ quẻ dịch/lá số đã được người dùng bật chế độ chia sẻ công khai (`isPublic: true`).
 
+---
+
+## 9. Xuất Bản Tệp PDF Học Thuật (Export PDF API)
+
+Hỗ trợ kết xuất tài liệu PDF chuẩn A4 (Eastern Imperial Luxury) cho 4 phân hệ: Bát Tự (`bazi`), Tử Vi (`ziwei`), Kinh Dịch (`iching`), và Hợp Hôn (`marriage`).
+
+### 9.1 Xuất tệp PDF theo phân hệ và phạm vi (Scope)
+- **Endpoint:** 
+  - `GET /api/export/pdf/:type/:id?scope=...&token=...`
+  - `POST /api/export/pdf/:type/:id`
+- **Rate Limit:** Tối đa 5 lượt xuất PDF / phút / IP hoặc tài khoản (`pdfExportLimiter`).
+- **Xác thực & Phân quyền:**
+  - Lá số công khai (`isPublic: true`): Cho phép khách vãng lai và mọi người dùng tải về không cần đăng nhập.
+  - Lá số riêng tư (`isPublic: false`): **Nghiêm ngặt chỉ chính chủ sở hữu** (`currentUserId === record.userId`) mới được tải. Từ chối người dùng khác với mã lỗi `403 Forbidden` (hoặc `401 Unauthorized` nếu chưa đăng nhập).
+- **Tham số Đường dẫn (Params):**
+  - `type`: `bazi` | `ziwei` | `iching` | `marriage`
+  - `id`: UUIDv7 của bản ghi cần xuất
+- **Tham số Phân đoạn (Scope):**
+  - Qua Query: `?scope=bazi_pillars,bazi_dayun` (chuỗi phân cách dấu phẩy) hoặc `?scope=all`
+  - Qua Body (POST): `{ "scope": ["bazi_pillars", "bazi_dayun", "ch1", "ch2"] }`
+  - **Quy tắc Kiểm tra Rỗng:** Nếu danh sách `scope` rỗng hoặc không chọn mục nào, API từ chối với mã lỗi `400 Bad Request` (`Vui lòng chọn ít nhất 1 mục nội dung cần xuất PDF`).
+- **Phạm vi Phân đoạn Hợp lệ Theo Phân hệ:**
+  - **Bát Tự:** `bazi_pillars`, `bazi_dayun`, `bazi_wuxing`, `bazi_shensha`, `nhat_chu`, `ch1`..`ch6`, `harmonizer`, `intro`, `all_interpretation`
+  - **Tử Vi:** `ziwei_grid`, `ch1`..`ch15`, `intro`, `all_interpretation`
+  - **Kinh Dịch:** `iching_hexagram`, `iching_table`, `iching_analysis`, `iching_ungky`, `ch1`..`ch4`, `intro`, `all_interpretation`
+  - **Hợp Hôn:** `marriage_compare`, `intro`, `all_interpretation`
+- **Phản hồi Thành công (200):**
+  - `Content-Type: application/pdf`
+  - `Content-Disposition: attachment; filename="<Ten_Tep>.pdf"`
+  - `X-Request-ID: <UUIDv7>`
+  - `X-PDF-Cache: HIT | MISS`
+  - Binary Stream của tệp PDF chuẩn in ấn A4.
+- **Phản hồi Lỗi:**
+  - `400 Bad Request`: Hệ thống không hợp lệ hoặc `scope` rỗng.
+  - `401 Unauthorized`: Bản ghi riêng tư nhưng người dùng chưa đăng nhập.
+  - `403 Forbidden`: Người dùng không phải chủ sở hữu của bản ghi riêng tư.
+  - `404 Not Found`: Không tìm thấy bản ghi tương ứng hoặc bản ghi đã bị xóa mềm.
+  - `429 Too Many Requests`: Vượt quá hạn mức 5 request/phút.
+
+
 

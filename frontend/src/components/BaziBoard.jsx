@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { AuthContext } from '../context/AuthContext';
 import { getInterpretationStreamUrl, rateBazi, togglePublicCalculation } from '../services/api';
-import { AlertCircle, BookOpen, ScrollText, MessageCircle, ArrowDown, ArrowUp, Star, Zap, Crown } from 'lucide-react';
+import { AlertCircle, BookOpen, ScrollText, MessageCircle, ArrowDown, ArrowUp, Star, Zap, Crown, FileDown } from 'lucide-react';
 import AiChatWidget from './AiChatWidget';
 import InterpretationTierModal from './InterpretationTierModal';
 import VipUpgradeBanner from './VipUpgradeBanner';
@@ -11,6 +11,7 @@ import { parseMarkdownSections } from '../utils/markdownParser';
 import SectionRenderer from './SectionRenderer';
 import Tooltip from './Tooltip';
 import FloatingNotificationToast from './FloatingNotificationToast';
+import PdfExportModal from './PdfExportModal';
 
 import {
     stemElements,
@@ -76,6 +77,7 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
     const [rating, setRating] = useState(0);
     const [feedback, setFeedback] = useState('');
     const [justRated, setJustRated] = useState(false);
+    const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
 
     const [selectedYunIndex, setSelectedYunIndex] = useState(0);
     const [selectedLuuNianYear, setSelectedLuuNianYear] = useState(null);
@@ -929,39 +931,65 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
                             )}
                         </div>
 
-                        {/* Cột phải: Toggle Share */}
-                        {(!window.location.pathname.includes('/record/') || (user && (result?.userId === user.id || result?.userId === user._id))) && (
-                            <div className="flex flex-col justify-start md:border-l md:border-slate-200/60 md:pl-6 space-y-3 pt-4 md:pt-0">
-                                <div className="flex flex-col">
-                                    <span className="text-sm font-extrabold text-slate-800">Chia sẻ công khai lá số</span>
-                                    <span className="text-[11px] text-slate-400 font-bold leading-relaxed">Bật công khai để cho phép người khác xem lá số này qua liên kết chia sẻ</span>
-                                </div>
-                                <div className="flex items-center gap-3 pt-1">
-                                    <button
-                                        type="button"
-                                        onClick={handleTogglePublic}
-                                        className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${isPublicState ? 'bg-emerald-600' : 'bg-gray-300'}`}
-                                    >
-                                        <span
-                                            className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${isPublicState ? 'translate-x-5' : 'translate-x-0'}`}
-                                        />
-                                    </button>
-                                    {isPublicState && (
+                        {/* Cột phải: Thao tác & Xuất PDF */}
+                        <div className="flex flex-col justify-start md:border-l md:border-slate-200/60 md:pl-6 space-y-3 pt-4 md:pt-0">
+                            {(!window.location.pathname.includes('/record/') || (user && (result?.userId === user.id || result?.userId === user._id))) ? (
+                                <>
+                                    <div className="flex flex-col">
+                                        <span className="text-sm font-extrabold text-slate-800">Chia sẻ công khai lá số</span>
+                                        <span className="text-[11px] text-slate-400 font-bold leading-relaxed">Bật công khai để cho phép người khác xem lá số này qua liên kết chia sẻ</span>
+                                    </div>
+                                    <div className="flex items-center gap-3 pt-1 flex-wrap">
                                         <button
                                             type="button"
-                                            onClick={() => {
-                                                const shareUrl = `${window.location.origin}/bazi/record/${data.recordId || data._id}`;
-                                                navigator.clipboard.writeText(shareUrl);
-                                                setToastMsg('Đã sao chép liên kết chia sẻ công khai Bát Tự!');
-                                            }}
-                                            className="px-3 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 rounded-full text-xs font-bold transition-all active:scale-95 cursor-pointer"
+                                            onClick={handleTogglePublic}
+                                            className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${isPublicState ? 'bg-emerald-600' : 'bg-gray-300'}`}
                                         >
-                                            Sao chép liên kết
+                                            <span
+                                                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${isPublicState ? 'translate-x-5' : 'translate-x-0'}`}
+                                            />
                                         </button>
-                                    )}
-                                </div>
-                            </div>
-                        )}
+                                        {isPublicState && (
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    const shareUrl = `${window.location.origin}/bazi/record/${data.recordId || data._id}`;
+                                                    navigator.clipboard.writeText(shareUrl);
+                                                    setToastMsg('Đã sao chép liên kết chia sẻ công khai Bát Tự!');
+                                                }}
+                                                className="px-3 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 rounded-full text-xs font-bold transition-all active:scale-95 cursor-pointer"
+                                            >
+                                                Sao chép liên kết
+                                            </button>
+                                        )}
+                                        {(data.recordId || data._id) && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setIsPdfModalOpen(true)}
+                                                className="px-3.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300/80 rounded-full text-xs font-extrabold transition-all active:scale-95 cursor-pointer flex items-center gap-1.5 shadow-sm"
+                                            >
+                                                <FileDown size={14} className="text-amber-700" />
+                                                <span>Xuất PDF</span>
+                                            </button>
+                                        )}
+                                    </div>
+                                </>
+                            ) : (
+                                (data.recordId || data._id) && (
+                                    <div className="flex flex-col gap-2">
+                                        <span className="text-sm font-extrabold text-slate-800">Tài liệu học thuật</span>
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsPdfModalOpen(true)}
+                                            className="w-fit px-4 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer flex items-center gap-2 shadow-md shadow-amber-600/20"
+                                        >
+                                            <FileDown size={15} />
+                                            <span>Tải Tệp PDF</span>
+                                        </button>
+                                    </div>
+                                )
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1651,6 +1679,17 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
                 onConfirm={triggerLuanGiai}
                 userCredits={user?.credits || 0}
                 isUpgrade={isUpgradeModal}
+            />
+            {/* PDF EXPORT MODAL */}
+            <PdfExportModal
+                isOpen={isPdfModalOpen}
+                onClose={() => setIsPdfModalOpen(false)}
+                system="bazi"
+                recordId={data.recordId || data._id}
+                recordData={data}
+                hasInterpretation={Boolean(interpretation)}
+                interpretationMode={interpretationMode}
+                rawInterpretation={interpretation}
             />
             {toastMsg && <FloatingNotificationToast message={toastMsg} onClose={() => setToastMsg('')} />}
             

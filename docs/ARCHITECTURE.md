@@ -295,3 +295,38 @@ sequenceDiagram
 - **Tốc độ build siêu nhanh (Layer Caching):** Việc tận dụng `setup-buildx-action` với `cache-from: type=gha` cho phép bỏ qua quá trình tải lại node_modules nếu `package.json` không thay đổi.
 - **Thay ở đâu sửa ở đó (In-place Rolling Update):** Cơ chế thông minh của `docker compose up -d` đảm bảo chỉ những container bị thay đổi mã nguồn (image mới) mới bị khởi động lại, các container còn lại (DB, Redis) đạt trạng thái Zero-downtime.
 - **Quản lý cấu hình tập trung (Single Source of Truth):** Sử dụng Github Secrets để nạp biến môi trường `${DOCKERHUB_USERNAME}` vào trực tiếp script deploy, giúp mã nguồn `docker-compose.yml` sạch sẽ, linh động.
+
+---
+
+## 7. Kiến Trúc Xuất Bản Tệp PDF Học Thuật (PDF Engine Architecture)
+
+Nhằm đáp ứng nhu cầu in ấn và lưu trữ tài liệu luận giải cao cấp của người dùng mà không làm cạn kiệt tài nguyên máy chủ EC2 (1GB RAM), hệ thống thiết kế cơ chế **Headless Chromium Worker Singleton Pool** kết hợp **Redis Binary Caching (24h)**:
+
+```mermaid
+graph TD
+    User([Người Dùng / Khách]) -->|Click 'Xuất PDF'| Modal[PdfExportModal.jsx]
+    Modal -->|Checklist Scope > 0| API[/POST /api/export/pdf/:type/:id/]
+    API --> RateLimit[RateLimiter: 5 req/min]
+    RateLimit --> AuthCheck{Kiểm Tra Quyền}
+    AuthCheck -->|Private & Not Owner| Deny[403 Forbidden]
+    AuthCheck -->|Public OR Owner| CacheCheck{Redis Cache Check}
+    CacheCheck -->|Cache HIT| ReturnCached[Gửi PDF Buffer từ Redis < 30ms]
+    CacheCheck -->|Cache MISS| TemplateEngine[PdfTemplateService.js]
+    TemplateEngine -->|HTML + CSS A4 Imperial| WorkerPool[PdfGeneratorService.js]
+    WorkerPool -->|Queue Max 2 Concurrent| Chromium[Puppeteer Singleton]
+    Chromium -->|Render PDF Buffer| CacheSave[Redis SETEX 24h Base64]
+    CacheSave --> AuditLog[LoggerService + SystemLog reqId]
+    AuditLog --> SendPDF[Phản Hồi File Stream A4]
+```
+
+### 7.1 Bộ Điều Phối Tài Nguyên Puppeteer (Resource Optimization)
+- **Singleton Browser Worker:** Không tạo instance trình duyệt mới cho mỗi request. Sử dụng chung 1 instance Chromium headless duy nhất với các cờ tối ưu hóa RAM (`--no-sandbox`, `--disable-setuid-sandbox`, `--disable-dev-shm-usage`, `--disable-gpu`).
+- **Concurrent Limiter (Semaphore):** Giới hạn tối đa 2 tác vụ render song song (`maxConcurrent = 2`). Các request đến sau sẽ xếp hàng trong bộ đệm đợi thay vì ép máy chủ chạy tràn RAM.
+- **Idle Auto-Close (5 phút):** Khi không có yêu cầu render mới trong vòng 5 phút, worker tự động đóng Chromium (`browser.close()`) để giải phóng 100-200MB RAM cho các tiến trình khác.
+- **Redis Binary Cache (24h):** Lưu trữ kết quả PDF dưới dạng base64 trong Redis với khóa cache `pdf:cache:<type>:<id>:<scopeKey>:<recordUpdatedMs>`. Các lần tải lại cùng nội dung phản hồi trong < 30ms và bỏ qua hoàn toàn Chromium.
+
+### 7.2 Định Dạng Bố Cục In Ấn A4 (Eastern Imperial Luxury Print)
+- **Chuẩn In Ấn A4:** Khổ A4 đứng (Portrait, margin: `10mm 12mm 12mm 12mm`). Sử dụng `@page` CSS và font chữ hoàng gia Phương Đông (`Cinzel`, `Noto Serif`, `Inter`).
+- **Phân Tách Trang Thông Minh:** Các thẻ `no-break` (`page-break-inside: avoid`) giữ nguyên đồ hình tứ trụ, bảng đối chiếu hợp hôn hoặc đồ hình 6 hào trên cùng một trang giấy, tránh việc bị cắt đứt giữa chừng.
+- **Ma Trận Đại Vận 2 Hàng x 5 Cột:** Thay thế thanh trượt ngang trên web bằng lưới 2x5 cố định (hàng trên 50 năm tiền vận, hàng dưới 50 năm hậu vận) kèm huy hiệu Cát/Hung theo Dụng Thần.
+

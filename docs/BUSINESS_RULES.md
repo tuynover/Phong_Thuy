@@ -108,6 +108,28 @@ Sử dụng phương pháp Tử Vi Bắc Phái định vị Mệnh - Thân:
 - **Chuẩn Hóa Bảng Markdown GFM:** Bảng Markdown (`| Col | ... |`) phải đi qua bộ tiền xử lý `cleanAndNormalizeMarkdown` tự động khắc phục hiện tượng dính hàng `| |`, xóa các dòng trống nội bộ làm vỡ bảng và bọc trong container bảng có bo góc, nền header và cuộn ngang linh hoạt.
 - **Giao Diện Nền Trắng Sang Trọng (Luxury Light Theme):** Modal Chọn Gói Luận Giải, Modal Nâng Cấp và Bảng Theo Dõi Tiến Độ VIP (`VipProgressTracker`) bắt buộc sử dụng nền trắng (`bg-white`), viền amber/slate tinh tế, và tuyệt đối không hiển thị các thông tin kỹ thuật hạ tầng hệ thống mà chỉ trình bày giá trị học thuật cổ học.
 
+### 4.9 Phân Lập Triệt Để Prompt Luận Giải AI & Ngăn Chặn Rò Rỉ Thuật Ngữ Đa Phân Hệ
+- **Quy tắc Phân lập Luồng AI:** Multi-Agent VIP Pipeline (`MultiAgentPipelineService.runVipPipelineStream`) là kiến trúc độc quyền dành riêng cho Mệnh Số Bát Tự (Tử Bình).
+- **Tuyệt đối không dùng chung Pipeline:** Nghiêm cấm định tuyến các phân hệ Kinh Dịch, Tử Vi Đẩu Số và Hợp Hôn qua pipeline Bát Tự. Mỗi phân hệ bắt buộc sử dụng bộ Prompt chuyên môn cổ điển độc lập (`IChingPrompts`, `ZiweiPrompts`, `MarriagePrompts`) chạy qua `AiService.generateInterpretationStream`.
+- **Bảo toàn Bản sắc Học thuật Cổ học:**
+  - *Kinh Dịch:* Bám sát Chu Dịch, Thoán Từ, Hào Từ, Dụng Thần Lục Hào, Lục Thân, Lục Thú, Sinh Khắc Hóa Thoái/Tiến, Tuyệt đối không chứa thuật ngữ Nhật Chủ, Can Tháng hay Thập Thần Bát Tự.
+  - *Tử Vi:* Bám sát 12 Cung Vị, Chính Tinh, Phụ Tinh, Tứ Hóa, Đắc Hãm, Tam Hợp Chiếu, Vòng Trường Sinh, Tuyệt đối không an sao sai lệch hay dùng thuật ngữ ngoại lai.
+  - *Hợp Hôn:* Bám sát Bản Mệnh Ngũ Hành, Cung Phi Bát Trạch, Can Chi Tương Phối.
+
+### 4.10 Chuẩn Mực Bố Cục & Phông Chữ Tài Liệu PDF Học Thuật
+- **Chuẩn Phông Chữ Tiếng Việt Hoàng Gia:** Toàn bộ văn bản tiêu đề in hoa phong cách cổ điển phải sử dụng phông chữ serif **`Noto Serif`** (`font-family: 'Noto Serif', Georgia, 'Times New Roman', serif;`), đảm bảo 100% hiển thị hoàn hảo các ký tự tiếng Việt đặc thù (đặc biệt là ký tự `Đ` in hoa không bị tách thanh ngang hay vỡ nét glyph).
+- **Chuẩn Đồ Hình 3 Quẻ, Bảng Lục Hào Nạp Giáp & Trạng Thái Vượng Suy Các Hào (Hình 1 & Hình 2):**
+  - Giữ nguyên 3 quẻ Chủ - Hỗ - Biến ở phần trên với nền trắng trang nhã, phân màu xanh dương (`#1e40af`) cho hào tĩnh và đỏ chu sa (`#dc2626`) cho hào động.
+  - Bảng Lục Hào Nạp Giáp đối chiếu song song chuẩn 1:1 theo web: Quẻ Chủ (trái) và Quẻ Biến (phải) ngăn cách bởi đường nét đứt (`border-right: 1.5px dashed #cbd5e1`).
+  - Khối Trạng Thái Vượng Suy Các Hào (Hình 2): Đặt ngay dưới Bảng Lục Hào, gồm tiêu đề in hoa gạch chân đỏ mận, 2 bảng song song cho Quẻ Chính và Quẻ Biến, huy hiệu `Quái Thân` góc phải, 4 cột `HÀO / CAN CHI`, `VƯỢNG SUY`, `TS NGÀY`, `TS THÁNG`.
+  - Tối ưu độ cao và ngắt trang để toàn bộ: Header + Đồ hình 3 quẻ + Bảng Lục Hào nạp giáp + Trạng thái vượng suy nằm trọn vẹn và vừa khít 100% trong Trang 1 khổ A4.
+- **Chuẩn Mệnh Bàn Tử Vi 4x4:**
+  - 12 Cung Vị phân bố xung quanh 4 cạnh theo đúng vị trí 12 Địa Chi.
+  - Trung Cung Thiên Bàn mang tiêu đề chính thức `THIÊN BÀN TỬ VI ĐẨU SỐ`, tuyệt đối không chứa các chuỗi văn bản thử nghiệm.
+- **In Toàn Văn Luận Giải (Standard & VIP):**
+  - Hệ thống hỗ trợ xuất và in toàn văn bài luận giải tổng thể thông qua scope `intro` hoặc `all_interpretation` ở cả Tử Vi, Kinh Dịch, Hôn Nhân và Bát Tự.
+  - Bố cục các phân đoạn luận giải được hiển thị trang nhã qua `.chapter-block` với khoảng cách tự nhiên (~20px), tránh ngắt trang cưỡng bức gây lãng phí giấy.
+
 ---
 
 ## 🌌 5. Quy tắc Học thuật Bát tự Ngũ hành (Bazi) - Phiên bản 5.0 (Toán Học Cân Bằng Động)
@@ -355,9 +377,172 @@ Hệ thống triển khai cơ chế kiểm soát dữ liệu đầu vào nghiêm
 - **Cơ chế tải xem trước (Lightweight Preview):** Danh sách lịch sử và danh sách lá số trong thư mục chỉ tải thông tin tóm tắt (`inputInfo`, `tags`, `isPublic`, `createdAt`) để cuộn nhanh.
 - **Tự động tải chi tiết (Lazy Full Fetching):** Khi bấm "Xem chi tiết", hệ thống tự động kiểm tra sự tồn tại của dữ liệu chi tiết (`canChi`, `baziData`, `maleBaziData`, `femaleBaziData`). Nếu thiếu (do dữ liệu trả về từ xem trước), hệ thống bắt buộc kích hoạt gọi API `getBaziRecord(id)` hoặc `getMarriageRecord(id)` để nạp 100% dữ liệu trước khi chuyển tab, triệt tiêu hoàn toàn hiện tượng vỡ giao diện hay trống trơn thông tin.
 
+---
 
+## 📄 8. Quy Tắc Nghiệp Vụ Xuất Bản Tệp PDF (Lá Số & Luận Giải)
 
+### 8.1 Cấu Trúc Lựa Chọn Phân Đoạn Linh Hoạt (Granular Selection per Domain)
+Người dùng có toàn quyền chọn tải độc lập hoặc kết hợp giữa **Lá số / Đồ hình** và **Luận giải AI**:
+- **Bát Tự (Bazi):**
+  - *Nhóm Lá Số:* Thông tin bản mệnh & Tứ Trụ, Điểm Ngũ Hành & Thập Thần, Đại Vận 100 Năm (Bố cục ma trận 2 hàng x 5 cột).
+  - *Nhóm Luận Giải:* Chọn tải toàn bộ hoặc chọn lọc từng chương trong bản VIP (Tổng Quan SWOT, Chương 1: Sự Nghiệp, Chương 2: Tài Chính & Kho Tài, Chương 3: Hôn Nhân, Chương 4: Sức Khỏe, Chương 5: Cải Vận, Chương 6: Đại Vận 100 Năm, Điều Hòa Chiến Lược & Đúc Kết).
+- **Tử Vi (Ziwei):**
+  - *Nhóm Lá Số:* Thông tin Mệnh bàn & Cung Mệnh/Thân, Đồ hình 12 Cung Vị truyền thống (Chính tinh Miếu Hãm, Phụ tinh Cát/Sát, Tam Phương Tứ Chính, Vòng Trường Sinh, Đại Hạn).
+  - *Nhóm Luận Giải:* Toàn bộ bài luận giải Tử Vi AI.
+- **Kinh Dịch (IChing):**
+  - *Nhóm Quẻ Dịch:* Quẻ Chính & Quẻ Biến, Bảng 6 Hào chi tiết (Thế/Ứng, Lục Thân, Lục Thú, Vượng Suy, Hào Động, Biến Quái).
+  - *Nhóm Luận Giải:* Lời giải đoán quẻ Kinh Dịch từ AI.
+- **Hợp Hôn (Marriage):**
+  - *Nhóm Đồ Hình:* Thông tin bản mệnh Nam - Nữ, Bảng so sánh ngũ hành & Cung Phi Bát Trạch, Bảng điểm tương hợp 5 tiêu chí.
+  - *Nhóm Luận Giải:* Chi tiết phân tích hôn nhân, ưu nhược điểm gia đạo và phương án hóa giải xung khắc từ AI.
 
+### 8.2 Chốt An Toàn Vô Hiệu Hóa Nút Xuất Khi Chưa Chọn Mục (0-Item Guard)
+- **Vô hiệu hóa nút bấm (`disabled`):** Khi người dùng bỏ chọn toàn bộ các ô (`selectedCount === 0`), nút bấm "Tải tệp PDF ngay" **bắt buộc phải bị vô hiệu hóa hoàn toàn** (`disabled`), chuyển sang màu xám mờ (`bg-stone-300 text-stone-500 cursor-not-allowed`) và chặn triệt để mọi sự kiện click chuột.
+- **Banner cảnh báo trực quan (Floating Warning Banner):** Xuất hiện ngay phía trên nút bấm một banner cảnh báo viền vàng cam nổi bật: `⚠️ Vui lòng chọn ít nhất 1 mục nội dung phía trên để hệ thống tạo tệp PDF.`.
 
+### 8.3 Kiểm Tra Tồn Tại Luận Giải (Interpretation Presence Guard)
+- Khi bản ghi chưa được luận giải bởi AI (chưa có dữ liệu `interpretation` hoặc `aiInterpretation`), hệ thống:
+  - Tự động khóa (disabled) toàn bộ checkbox của nhóm Luận giải.
+  - Hiển thị thông báo hướng dẫn: *"Bản ghi này chưa có bài luận giải từ AI. Bạn chỉ có thể xuất phần Lá số / Đồ hình hoặc hãy quay lại yêu cầu Thầy luận giải trước khi xuất PDF."*.
 
+### 8.4 Thiết Kế Bố Cục In Ấn Khoa Học (Scientific Print Layout & Typography)
+- **Palette Màu Hoàng Gia Á Đông:** Kết hợp hài hòa giữa màu Đỏ Chu Sa trầm (`#8B1D1D`), Vàng Hoàng Gia (`#D4AF37`), Vàng Kim Cổ Điển (`#B8860B`) và Nền Giấy Cổ Á Đông (`#FDFBF7`) với phông chữ serif học thuật sang trọng, tạo cảm giác như một bản thư tịch phong thủy cổ truyền giá trị cao.
+- **Ma Trận Đại Vận Bát Tự 2x5 (100 Năm):** Được dàn dựng dưới dạng lưới 2 hàng x 5 cột (10 thập kỷ) khoa học, hiển thị rõ ràng Can Chi đại vận, độ tuổi, Thập Thần chủ quản và huy hiệu Cát / Bình / Hung được đối chiếu tự động với Dụng Thần của bản mệnh.
+- **Bảng Biểu Markdown Chuẩn GFM:** Tự động chuẩn hóa và biên dịch toàn bộ các bảng SWOT, Niên biểu Tài chính/Sự nghiệp, Lộ trình Master Roadmap thành bảng in có đường viền thanh mảnh, chống tràn trang in (`page-break-inside: avoid`).
 
+### 8.5 Phân Quyền & Ranh Giới Bảo Mật Dữ Liệu (Strict Access Control Boundary)
+- **Lá số công khai (`isPublic: true`):** Cho phép bất kỳ ai (bao gồm cả khách vãng lai chưa đăng nhập) tải tệp PDF về để lưu trữ hoặc chia sẻ học thuật.
+- **Lá số riêng tư (`isPublic: false`):**
+  - **TUYỆT ĐỐI CHỈ CHỦ SỞ HỮU MỚI ĐƯỢP PHÉP TẢI VỀ** (`record.userId === req.user.id`).
+  - Nếu khách vãng lai (chưa đăng nhập) cố tình gọi API tải PDF của bản ghi riêng tư $\rightarrow$ Hệ thống phản hồi ngay lập tức mã lỗi `401 Unauthorized` (`Vui lòng đăng nhập để xuất tệp PDF bản ghi riêng tư này`).
+  - Nếu người dùng đã đăng nhập nhưng không phải là chủ sở hữu bản ghi riêng tư $\rightarrow$ Hệ thống lập tức chặn đứng với mã lỗi `403 Forbidden` (`Bạn không có quyền xuất tệp PDF của bản ghi riêng tư này`).
+
+### 8.6 Kiểm Soát Tải & Tối Ưu Tài Nguyên Máy Chủ (Resource Guard & Rate Limiting)
+- **Rate Limit Khắt Khe (`pdfExportLimiter`):** Giới hạn tối đa **5 lượt xuất PDF / phút** trên mỗi địa chỉ IP hoặc tài khoản người dùng. Nếu vượt ngưỡng, trả về mã lỗi `429 Too Many Requests`.
+- **Chromium Singleton Pool & Idle Cleanup:**
+  - Tái sử dụng một instance Chromium duy nhất qua Puppeteer singleton, cắm các cờ tối ưu hóa bộ nhớ VPS (`--no-sandbox`, `--disable-setuid-sandbox`, `--disable-dev-shm-usage`, `--disable-gpu`).
+  - Giới hạn tối đa 2 tác vụ render PDF đồng thời (`maxConcurrent = 2`), hàng đợi tự động xếp lịch xử lý.
+  - Tự động đóng trình duyệt giải phóng 100% RAM sau **5 phút không có yêu cầu** (`idleTimeoutMs = 300000`).
+- **Redis Binary Cache (24 Giờ):** Tệp PDF sinh ra được mã hóa Base64 và lưu trữ đệm trên Redis với khóa `pdf_cache:{type}:{id}:{scopeHash}` trong thời hạn 24 giờ. Các lượt tải cùng phạm vi dữ liệu sẽ được phản hồi ngay lập tức từ bộ nhớ đệm trong $<50$ms mà không tốn CPU render lại.
+
+### 8.7 Ghi Nhật Ký Kiểm Toán (Audit Logging with UUIDv7 Request ID)
+Mọi lượt gửi yêu cầu tải PDF đều được hệ thống gắn một định danh `requestId` duy nhất theo chuẩn UUIDv7, ghi nhận đầy đủ vào cả `LoggerService` và bảng `SystemLog` với các trường:
+- `requestId`: Mã định danh duy nhất của request.
+- `userId` / `ip`: Người thực hiện (hoặc địa chỉ IP nếu là khách).
+- `type` / `id`: Loại bản ghi và ID bản ghi được xuất.
+- `scope`: Danh sách các phân đoạn nội dung được chọn.
+- `fileSize`: Kích thước tệp PDF sinh ra (bytes).
+- `duration`: Thời gian máy chủ xử lý tác vụ (ms).
+- `cacheHit`: Trạng thái lấy từ Redis Cache hay render mới qua Chromium.
+
+### 8.8 Chuẩn Hóa Bố Cục Chuyên Biệt Cho Bát Tự Tứ Trụ (Bazi Layout v3 Standards)
+Nhằm mang lại trải nghiệm xem tài liệu học thuật tối ưu, bản in PDF của phân hệ Bát Tự được chuẩn hóa theo các nguyên tắc đặc thù:
+- **Thứ Tự Tứ Trụ Cổ Pháp:** Trụ được sắp xếp theo đúng dòng thời gian mệnh lý: **TRỤ NĂM $\rightarrow$ NGUYỆT LỆNH $\rightarrow$ NHẬT CHỦ $\rightarrow$ TRỤ GIỜ**, tạo sự liền mạch từ Tiền Vận (Tổ Tiên/Căn Cơ) đến Hậu Vận (Tử Tức).
+- **Hàng Lối Ngay Ngắn Chuẩn Mực:** Cấu trúc bảng tứ trụ được chia thành các hàng độc lập (Thập Thần, Can, Chi & Nạp Âm, Tàng Can, Thần Sát) với chiều cao đồng nhất, đảm bảo tính thẩm mỹ cao nhất trên khổ giấy in A4.
+- **Trạng Thái 12 Trường Sinh So Với Nguyệt Chi:** Loại bỏ hoàn toàn các dòng nhãn thô như `(Hành Mộc)`, `(Hành Thổ)` ở cả Thiên Can và Địa Chi. Dưới mỗi Thiên Can hiển thị huy hiệu Trạng thái 12 Trường Sinh so với Nguyệt Chi (`[Trường Sinh]`, `[Lâm Quan]`, `[Đế Vượng]`, `[Tử]`, `[Tuyệt]`...) được tính toán chính xác theo chuẩn Cổ học Bát Tự. Dưới mỗi Địa Chi chỉ giữ lại tên Chi và huy hiệu Nạp Âm bản mệnh.
+- **Tàng Can Chia Đều & Viết Tắt Thập Thần:** Loại bỏ nhãn "Tàng Can:", chia đều 3 dòng cố định cho mỗi trụ, can tàng đi kèm tên Thập Thần viết tắt chuẩn (`Tỷ`, `Kiếp`, `Thực`, `Thương`, `T.Tài`, `Tài`, `Sát`, `Quan`, `Kiêu`, `Ấn`).
+- **Phân Định Thần Sát Trực Quan:** Thần Sát trong trụ và Ma Trận Thần Sát bản mệnh được phân màu học thuật rõ ràng: Cát Thần / Quý Nhân viền xanh lục (`#047857`), Hung Sát / Hình Hại viền đỏ trầm (`#b91c1c`).
+- **Hiển Thị Chính Xác Tỷ Lệ Ngũ Hành:** Đọc trực tiếp từ bộ điểm phần trăm phân bổ ngũ hành thực tế (`Kim`, `Mộc`, `Thủy`, `Hỏa`, `Thổ`) do Rule Engine Bát Tự 4.0 tính toán.
+- **Khối Dụng Thần & Phương Án Bổ Mệnh Toàn Diện:** Cung cấp giải pháp bổ cứu phong thủy thực tiễn gồm 4 phương diện: Nghề nghiệp bổ trợ, Màu sắc cát tường, Phương vị tương hỗ và Vật phẩm phong thủy trợ mệnh.
+- **10 Đại Vận & 100 Năm Lưu Niên:** Ngoài lưới 10 thẻ Đại Vận (2x5), tài liệu tích hợp Bảng Tra Cứu Chi Tiết 100 Năm Lưu Niên (mỗi đại vận liệt kê đủ 10 năm kèm Can Chi tương ứng) giúp đương số và người luận dễ dàng đối chiếu vận hạn từng năm.
+- **Khoảng Cách Vừa Đủ Giữa Các Chương Luận Giải:** Giữa các chương luận giải AI áp dụng khoảng giãn cách vừa vặn (~20-22px: margin-top 12px, padding-top 8px) kèm đường nét đứt thanh nhã 1px (`.chapter-block`), loại bỏ hoàn toàn `page-break-inside: avoid` để tránh việc trình duyệt đẩy nguyên chương dài sang trang mới gây khoảng trắng thừa ở chân trang, kết hợp `page-break-after: avoid` trên tiêu đề chương để chống rớt tiêu đề mồ côi.
+- **Biên Dịch Bảng GFM Toàn Vẹn & Định Dạng Mệnh Quái:** Parser Markdown xử lý theo từng dòng độc lập, bảo toàn 100% các hàng của bảng ma trận SWOT và lộ trình tài chính; bộ chuyển đổi `formatMenhQuai` và `formatThanDegree` xử lý an toàn dữ liệu dạng đối tượng hoặc chuỗi mã hóa (`Tòng Cách`, `Thân Cân Bằng`, `Cung Chấn (Mộc) - Đông tứ mệnh`), tuyệt đối không để lọt lỗi `[object Object]` ra bản in.
+
+### 8.9 Chuẩn Hóa Bố Cục Chuyên Biệt Cho Kinh Dịch & Lục Hào Nạp Giáp (I Ching Layout Standards v2)
+Nhằm mang lại bản in tài liệu chiêm bốc cổ học trực quan, trang nhã và đồng bộ tuyệt đối với giao diện web, phân hệ Kinh Dịch được chuẩn hóa thiết kế theo các nguyên tắc:
+- **Khối Tiêu Điểm Chiêm Đoán & Tối Ưu Thông Tin Đầu Hồ Sơ:** Nổi bật tâm điểm câu hỏi chiêm bốc trong khung viền vàng hoàng gia (`#fffbeb`), đi kèm bảng thông số: thời gian lập quẻ, phương pháp gieo quẻ, Nhật Thần & Nguyệt Lệnh kèm ngũ hành, Tuần Không (Không Vong) và Quái Thân bản quẻ. Lược bỏ dòng chữ "Tứ Trụ Thời Gian" để phần đầu hồ sơ cô đọng, sắc nét.
+- **Đồ Hình 3 Quẻ Nền Trắng Tinh Tế (Chủ - Hỗ - Biến):** Hiển thị song song trên 3 thẻ độc lập với nền trắng tinh khôi (`#ffffff`), viền mỏng `#cbd5e1`:
+  - *Quẻ Chủ:* Tên quẻ, cung quái, ngũ hành bản cung, 6 vạch hào mini (hào tĩnh màu xanh dương `#1e40af`, hào động đổi sang màu đỏ chu sa `#dc2626`).
+  - *Quẻ Hỗ (Nuclear Hexagram):* Tự động tính toán chuẩn xác từ 4 hào giữa (Hào 2, 3, 4, 5) của quẻ chủ theo nguyên tắc Hỗ Thượng (hào 5-4-3) và Hỗ Hạ (hào 4-3-2), 100% vạch hào giữ màu xanh dương thuần tĩnh `#1e40af`.
+  - *Quẻ Biến:* Tên quẻ biến, cung quái, ngũ hành bản cung; vạch hào biến đổi màu đỏ chu sa `#dc2626`, hào tĩnh màu xanh `#1e40af`. Trường hợp quẻ tĩnh hiển thị trạng thái "Quẻ Tĩnh Thuần Nhất".
+- **Bảng Lục Hào Nạp Giáp Chuẩn 1:1 Theo Giao Diện Web (Hình 1):**
+  - Thiết kế bố cục song song 2 bên Quẻ Chủ & Quẻ Biến với vách ngăn nét đứt tinh tế (`border-right: 1.5px dashed #cbd5e1`):
+    - *Bên trái (Quẻ Chủ):* Cột `Hào` (vạch âm/dương đỏ/xanh) | `T/Ứ` (Thế/Ứng màu xanh đậm) | `Lục Thân` | `Địa Chi` (chi kèm hành tô màu ngũ hành: Mộc `#059669`, Hỏa `#dc2626`, Thổ `#b45309`, Kim `#64748b`, Thủy `#2563eb`) | `PT` (Phục Thần) | `TK` (Tuần Không).
+    - *Bên phải (Quẻ Biến):* Cột `Lục Thân` | `Địa Chi` | `TK` | `Lục Thú` (Thanh Long, Chu Tước, Câu Trần, Đằng Xà, Bạch Hổ, Huyền Vũ) | `Hào` (vạch biến âm/dương đỏ/xanh).
+  - Sắp xếp thứ tự chuẩn từ **Hào 6 (Thượng)** ở trên cùng xuống **Hào 1 (Sơ)** ở dưới cùng.
+  - Tự động chuyển đổi sang bảng 7 cột thanh lịch (`Hào`, `T/Ứ`, `Lục Thân`, `Địa Chi`, `Phục Thần`, `TK`, `Lục Thú`) đối với các quẻ tĩnh không có hào động.
+- **Khối Trạng Thái Vượng Suy Các Hào Chuẩn Hình 2:**
+  - Tiêu đề in hoa gạch chân đỏ mận đậm nét: `TRẠNG THÁI VƯỢNG SUY CÁC HÀO` (`border-bottom: 2px solid #881337`).
+  - Phù hiệu Quái Thân góc phải: `Quái Thân: [Chi]` viền tím trang nhã (`#f3e8ff`, `#6b21a8`).
+  - Hai bảng song song Quẻ Chính & Quẻ Biến với 4 cột chuẩn: `HÀO / CAN CHI`, `VƯỢNG SUY`, `TS NGÀY`, `TS THÁNG`.
+  - Can Chi phân màu ngũ hành (kèm tag `QT` nếu là Quái Thân), Vượng Suy nổi bật với pill đỏ viền hồng cho Vượng/Tướng, TS Ngày màu xanh dương, TS Tháng màu cam/nâu.
+  - Tối ưu độ nén để trọn vẹn 3 khối (Đồ hình 3 quẻ, Bảng Lục Hào nạp giáp, Trạng thái vượng suy) vừa vặn hoàn hảo trong Trang 1 của tài liệu PDF A4.
+- **Khối Phân Tích Dịch Lý Cốt Lõi (Lưới 2x2 Highlight):**
+  - *Thẻ 1 - Dụng Thần:* Xác định đúng tâm điểm câu hỏi theo Rule Engine, đánh giá khí lực ngũ hành (Vượng Tướng / Hưu Tù Tử), kiểm tra Tuần Không.
+  - *Thẻ 2 - Tương Quan Thế - Ứng:* Phân tích tương quan giữa đương số (Thế) và đối phương/hoàn cảnh (Ứng), chỉ rõ tương phối âm dương sinh khắc.
+  - *Thẻ 3 - Hào Động & Biến Hóa:* Liệt kê từng hào động kèm tác động dịch lý (Hóa Tiến, Hóa Thoái, Hóa Sinh, Hóa Khắc).
+  - *Thẻ 4 - Cách Cục & Độ Ứng Nghiệm:* Tổng kết các trạng thái đặc biệt, Quái Thân bảo trợ, độ tin cậy toán học (%) và lời khuyên dịch học cô đọng.
+- **Bảng Niên Lịch Ứng Kỳ Dự Báo Cát Hung:** Hiển thị thời điểm dự báo sự việc biến chuyển theo lịch âm, dương quy chiếu và dự đoán cát hung.
+- **Toàn Văn Luận Giải Chu Dịch:** Sử dụng khoảng cách tự nhiên giữa các chương (`.chapter-block`), không ngắt trang cưỡng bức, hỗ trợ lựa chọn xuất theo từng chương (`ch1` - Ý nghĩa quái tượng, `ch2` - Hào động, `ch3` - Lời khuyên, `ch4` - Ứng kỳ).
+
+---
+
+## 8. Chuẩn Hóa Bản In PDF Tử Vi Đẩu Số (Thiên Bàn & Mệnh Bàn 12 Cung 4x4)
+
+Nhằm mang lại bản in PDF Tử Vi Đẩu Số chuẩn mực cổ học phương Đông, đồng bộ trải nghiệm với giao diện web và tối ưu tính thẩm mỹ học thuật, phân hệ Tử Vi được chuẩn hóa các quy tắc:
+- **Đồ Hình Mệnh Bàn 12 Cung Số (Lưới 4x4 - 16 Ô):**
+  - Phân bổ 12 Cung xung quanh 4 cạnh theo đúng chuẩn vị trí 12 Địa Chi cổ truyền:
+    - *Hàng 1 (Đỉnh):* Tỵ (1,1) $\rightarrow$ Ngọ (1,2) $\rightarrow$ Mùi (1,3) $\rightarrow$ Thân (1,4).
+    - *Cột phải:* Dậu (2,4) $\rightarrow$ Tuất (3,4).
+    - *Hàng 4 (Đáy):* Hợi (4,4) $\leftarrow$ Tý (4,3) $\leftarrow$ Sửu (4,2) $\leftarrow$ Dần (4,1).
+    - *Cột trái:* Mão (3,1) $\leftarrow$ Thìn (2,1).
+  - Chiều cao lưới thẻ 640px cố định, chống xô lệch trang in, tự động phân bố không gian cân đối cho 1 trang A4 trọn vẹn.
+- **Trung Cung (Thiên Bàn Tử Vi Đẩu Số - 2x2 Ô Trung Tâm):**
+  - Chiếm trọn 4 ô trung tâm (`grid-column: 2 / span 2; grid-row: 2 / span 2;`).
+  - Viền tím hoàng gia nét đôi (`border: 2px solid #a855f7`), nền chuyển sắc nhẹ (`#faf5ff`).
+  - Hiển thị đầy đủ thông tin định danh đương số: Tên đương số in hoa đậm, giới tính (Nam/Nữ Mệnh), Bản Mệnh Cục (ví dụ: Mộc Tam Cục, Kim Tứ Cục...), Mệnh Chủ / Thân Chủ, Tứ Trụ Can Chi (Năm - Tháng - Ngày - Giờ), Ngày sinh Dương Lịch / Âm Lịch, Giờ sinh chính xác.
+  - Thanh tiêu điểm nổi bật chân Thiên Bàn: Cung Mệnh an tại đâu, Thân cư cung nào.
+- **Chi Tiết Bố Cục Từng Cung Vị (Palace Cell):**
+  - *Đỉnh Cung:* Can Chi viết tắt (`Ấ.Tỵ`, `B.Ngọ`, `G.Thìn`...), Tên Cung viết hoa đậm tô màu theo ngũ hành của bản cung, Tuổi Đại Hạn khởi đầu (ví dụ: `43t`, `53t`...). Cung Mệnh có viền hổ phách `#d97706`, Cung Thân có viền tím đậm `#6366f1`.
+  - *Chính Tinh:* Tên sao to đậm căn giữa, tô màu theo ngũ hành của sao (Kim: `#475569`, Mộc: `#059669`, Thủy: `#0f172a`, Hỏa: `#dc2626`, Thổ: `#b45309`), Đắc Hãm `(M)`, `(V)`, `(Đ)`, `(B)`, `(H)`, huy hiệu Tứ Hóa (`[LỘC]`, `[QUYỀN]`, `[KHOA]`, `[KỴ]`), hoặc nhãn `VÔ CHÍNH DIỆU`.
+  - *Phụ Tinh 2 Cột Đối Xứng:*
+    - Cột Trái: Cát tinh (Văn Xương, Văn Khúc, Tả Phù, Hữu Bật, Thiên Khôi, Thiên Việt, Hóa Lộc, Hóa Quyền, Hóa Khoa, Lộc Tồn, Long Trì, Phượng Các...) với màu ngũ hành riêng từng sao.
+    - Cột Phải: Sát tinh (Kình Dương, Đà La, Hỏa Tinh, Linh Tinh, Địa Không, Địa Kiếp, Hóa Kỵ, Thiên Hình, Đại Hao, Tang Môn...) hiển thị màu sắc học thuật.
+    - Giới hạn 5 sao mỗi bên để đảm bảo không bị cắt xén hay tràn khung.
+  - *Đáy Cung:* Địa Chi Tiểu Hạn (tô màu ngũ hành tương ứng), Vòng 12 Trường Sinh (Trường Sinh, Mộc Dục, Quan Đới, Lâm Quan, Đế Vượng, Suy, Bệnh, Tử, Mộ, Tuyệt, Thai, Dưỡng), Chỉ số Nguyệt Hạn (`Th.1` $\rightarrow$ `Th.12`).
+- **Thanh Chú Giải Đắc Hãm & Ngũ Hành (Legend Bar):** Đặt ngay chân Mệnh Bàn, giải nghĩa ký hiệu `(M)`, `(V)`, `(Đ)`, `(B)`, `(H)` cùng bảng mẫu màu sắc 5 hành Kim, Mộc, Thủy, Hỏa, Thổ.
+- **Khoảng Cách Tự Nhiên Giữa Các Chương Luận Giải:** Thay thế ngắt trang cưỡng bức bằng `.chapter-block` có khoảng cách vừa đủ (~20px), tránh trang trắng thừa khi xuất toàn bộ các chương luận giải AI.
+
+## 8.11 Chuẩn Hóa Bản In PDF Hợp Hôn (Bát Tự & Bát Trạch Phối Cung Cổ Pháp)
+
+Nhằm hoàn thiện bộ tứ ấn phẩm học thuật hoàng gia (Bát Tự, Tử Vi, Kinh Dịch, Hợp Hôn), phân hệ Hợp Hôn (Hôn Nhân) được chuẩn hóa theo các quy tắc thiết kế và học thuật kinh điển:
+- **Bố Cục Trang 1 Vừa Vặn Trọn Vẹn Khổ A4:** Tối ưu hóa kích thước và khoảng đệm (padding/margin) để 3 khối dữ liệu cốt lõi cùng thẻ Header hồ sơ hiển thị hoàn chỉnh trong 1 trang duy nhất, không tràn sang trang thứ 2:
+  - *Header Hồ Sơ Đôi Bên:* Thiết kế 2 thẻ thông tin song song Nam Mệnh (Dương Cương viền xanh dương `#1e40af`) và Nữ Mệnh (Âm Nhu viền đỏ mận `#be123c`), bao gồm Ngày sinh Dương Lịch, Âm Lịch, Nạp Âm Bản Mệnh và Cung Phi Mệnh Quái (Cung, Ngũ Hành, Nhóm Đông/Tây tứ mệnh).
+  - *Khối I - Bảng Đối Chiếu 5 Tiêu Chí Cổ Học:*
+    1. **Bản Mệnh Nạp Âm:** Đánh giá tương quan Tương Sinh (Nam sinh Nữ / Nữ sinh Nam - Thượng Cát), Tỷ Hòa (Đồng khí - Cát lợi), Tương Khắc (Nam khắc Nữ / Nữ khắc Nam).
+    2. **Thiên Can Bản Thể (Nhật Can):** Tư tưởng, cốt cách, thế giới quan. Đánh giá Thiên Can Hợp Hóa (Giáp-Kỷ, Ất-Canh, Bính-Tân, Đinh-Nhâm, Mậu-Quý - Đại Cát), Đồng Khí, Tương Sinh, Tương Khắc.
+    3. **Địa Chi Phu Thê (Nhật Chi):** Cung Phu Thê gia đạo, tình cảm gắn kết. Đánh giá Lục Hợp (Đại Cát), Tam Hợp (Thượng Cát), Lục Xung (Đại Kỵ), Lục Hại (Thứ Hung), Tự Hình / Đồng Chi.
+    4. **Cung Phi Bát Trạch Phối Cung:** Kết hợp Mệnh Quái Nam và Nữ theo ma trận 8x8 ra 4 Cung Cát (Sinh Khí, Diên Niên, Thiên Y, Phục Vị) hoặc 4 Cung Hung (Tuyệt Mệnh, Ngũ Quỷ, Lục Sát, Họa Hại) kèm mức độ cát hung và phương pháp hóa giải thực tế.
+    5. **Dụng Thần & Thần Sát Bổ Khuyết:** Đánh giá mức độ bù trừ Dụng Thần / Hỷ Thần giữa hai bên để điều hòa khí vận gia đình.
+  - *Khối II - Đánh Giá Cân Bằng Tỷ Lệ Ngũ Hành (Nam & Nữ):* Bảng so sánh 5 hành (Kim, Mộc, Thủy, Hỏa, Thổ) với giá trị % cụ thể, cho thấy rõ đương số nào khuyết hành nào và được đối phương trợ lực ra sao.
+  - *Khối III - Cấu Trúc Tứ Trụ Can Chi Đối Chiếu Song Song:* Bảng 4 trụ (Năm, Nguyệt Lệnh, Nhật Chủ, Giờ) đặt song song 2 bên Chồng & Vợ với đầy đủ: Thập Thần, Can to (màu ngũ hành), Chi to (màu ngũ hành), Nạp Âm trụ, Tàng Can 3 tầng có Thập Thần phụ, Thần Sát top 2 mỗi trụ.
+- **Trang 2+: Toàn Văn Bản Luận Giải Hôn Nhân & Chiến Lược Hòa Hợp:**
+  - Bắt đầu sạch đẹp từ trang 2 với Header hồ sơ và tiêu đề đỏ mận uy nghi.
+  - Áp dụng cấu trúc `.chapter-block` tự nhiên, phân tách bằng đường nét đứt thanh lịch, triệt tiêu hoàn toàn hiện tượng ngắt trang cưỡng bức gây lãng phí trang in.
+- **Tùy Chọn Xuất Granular Phân Hệ Hợp Hôn:**
+  - `marriage_compare`: Bảng Đối Chiếu 5 Tiêu Chí Cổ Học & Tỷ Lệ Ngũ Hành.
+  - `marriage_pillars`: Cấu Trúc Tứ Trụ Can Chi Đối Chiếu Song Song.
+  - `intro` / `all_interpretation`: Toàn Văn Luận Giải Hợp Hôn & Hòa Hợp Gia Đạo.
+- **Chuẩn Mực Phông Chữ & Thẩm Mỹ Hoàng Gia:**
+  - 100% sử dụng phông chữ serif `Noto Serif` kết hợp `Inter`, hiển thị sắc nét chữ `Đ` hoa và tiếng Việt có dấu.
+
+## 8.12 Chuẩn Hóa Bản In PDF Bát Tự (Tứ Trụ Mệnh Lý Tinh Hoa & Tối Ưu Thần Sát, Luận Giải)
+
+Nhằm tối ưu hóa trải nghiệm in ấn tài liệu Tứ Trụ Bát Tự đạt chuẩn mực thư phòng cổ học thanh nhã, phân hệ Bát Tự được chuẩn hóa các quy tắc trình bày:
+- **Chuẩn Hóa Hiển Thị Thần Sát Tứ Trụ (Chỉ Màu Chữ, Không Viền, Không Nền):**
+  - Thần Sát phân chia chính xác 3 trạng thái tính chất học thuật:
+    - *Cát Thần (Thiên Ất, Thái Cực, Thiên Đức, Nguyệt Đức, Lộc Thần, Văn Xương, Tướng Tinh, Phúc Tinh, Quốc Ấn, Thiên Y, Kim Dư, Tam Kỳ...):* Màu chữ xanh lục `#047857`, nền trong suốt, không viền.
+    - *Hung Sát (Kình Dương, Kiếp Sát, Vong Thần, Cô Thần, Quả Tú, Cô Loan, Thập Ác Đại Bại, Lưu Hà, Huyết Nhận, Đà La, Tai Sát, Phi Nhẫn...):* Màu chữ đỏ chu sa `#dc2626`, nền trong suốt, không viền.
+    - *Lưỡng Tính / Trung Tính (Hoa Cái, Dịch Mã, Không Vong, Tuần Không, Triệt Không, Đào Hoa, Hàm Trì, Hồng Loan, Hồng Diễm, Thiên La, Địa Võng, Khôi Cương, Kim Thần...):* Màu chữ đen `#0f172a`, nền trong suốt, không viền.
+- **Trường Sinh & Nạp Âm Tối Giản (Text-Only):**
+  - Trạng thái Vòng 12 Trường Sinh: Chỉ hiển thị chữ màu cam đất/đồng cổ `#9a3412`, loại bỏ hoàn toàn viền đóng khung và màu nền.
+  - Nạp Âm Can Chi các trụ: Chỉ hiển thị chữ màu xám than `#334155`, loại bỏ hoàn toàn viền đóng khung và màu nền.
+- **Loại Bỏ Hoàn Toàn Bảng Ma Trận Thần Sát Bản Mệnh:**
+  - Lược bỏ Section II Ma Trận Thần Sát cũ để loại trừ thông tin dư thừa, tạo không gian thoáng đãng cho Bảng Hành Trình Đại Vận 100 Năm & Lưu Niên hiển thị trọn vẹn ở chân Trang 1.
+- **Tối Ưu & Xuất Bản Hoàn Hảo Cho Cả Luận Giải Cơ Bản & Chuyên Sâu:**
+  - *Bản Luận Giải Tiêu Chuẩn (Standard):* Hỗ trợ xuất trọn vẹn 6 Bước cốt lõi (`BƯỚC 1: Phân Tích Nhật Chủ` $\rightarrow$ `BƯỚC 6: Tổng Kết & Chiến Lược`). Header trang trọng `Hồ Sơ Luận Giải Mệnh Lý Bát Tự (Tiêu Chuẩn)`.
+  - *Bản Luận Giải Chuyên Sâu (VIP):* Hỗ trợ xuất đầy đủ 6 Chương chuyên sâu, Phân Tích Nhật Chủ Ma Trận SWOT và Chuyên Đề Điều Hòa Chiến Lược Đa Mục Tiêu. Header hoàng gia `Hồ Sơ Luận Giải Mệnh Lý Bát Tự (Chuyên Sâu)`.
+  - *Lọc Granular Trong Modal Xuất PDF:* Modal PDF tự động nhận diện chế độ luận giải của bản ghi, cung cấp tùy chọn chọn toàn bài hoặc chọn chi tiết từng bước/từng chương.
+  - *Làm Sạch Tiêu Đề:* Khử triệt để lỗi dấu hai chấm lặp (`: :`), chuẩn hóa phân cấp tiêu đề rõ ràng, ngắt đoạn tự nhiên giữa các chương mục mà không bị ngắt trang cưỡng bức gây lãng phí giấy in.
+- **Đồng Bộ Màu Sắc Ngũ Hành Cho Dụng Thần, Hỷ Thần & Kỵ Thần:**
+  - Tên ngũ hành của Dụng Thần, Hỷ Thần và Kỵ Thần hiển thị chính xác theo màu ngũ hành cổ pháp tương ứng (Kim: xám chì `#475569`, Mộc: xanh lục `#047857`, Thủy: xanh dương `#1e3a8a`, Hỏa: đỏ chu sa `#b91c1c`, Thổ: vàng đất/hổ phách `#b45309`), triệt tiêu việc gán màu cứng nhắc (như gán đỏ cho Hỷ Thần gây nhầm lẫn khi Hỷ Thần là Thủy, Mộc hay Kim).

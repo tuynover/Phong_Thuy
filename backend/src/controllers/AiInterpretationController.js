@@ -154,31 +154,16 @@ class AiInterpretationController {
             let accumulatedText = "";
             let usageMetadata = null;
 
-            if (isVipMode) {
-                const vipResult = await MultiAgentPipelineService.runVipPipelineStream(prompt, null, {
-                    onProgress: (progress) => sendSSE(progress)
-                });
-                for await (const chunk of vipResult.stream) {
-                    if (!isConnectionOpen) {
-                        console.log(`[SSE] Client closed connection, stopping IChing VIP stream.`);
-                        break;
-                    }
-                    const chunkText = typeof chunk === 'string' ? chunk : new TextDecoder().decode(chunk);
-                    accumulatedText += chunkText;
-                    sendSSE({ chunk: chunkText });
+            const resultStream = await AiService.generateInterpretationStream(prompt, { model: ACTIVE_MODEL });
+            for await (const chunk of resultStream.stream) {
+                if (!isConnectionOpen) {
+                    console.log(`[SSE] Client closed connection, stopping IChing stream.`);
+                    break;
                 }
-            } else {
-                const resultStream = await AiService.generateInterpretationStream(prompt, { model: ACTIVE_MODEL });
-                for await (const chunk of resultStream.stream) {
-                    if (!isConnectionOpen) {
-                        console.log(`[SSE] Client closed connection, stopping IChing stream.`);
-                        break;
-                    }
-                    if (chunk.usageMetadata) usageMetadata = chunk.usageMetadata;
-                    const chunkText = chunk.text();
-                    accumulatedText += chunkText;
-                    sendSSE({ chunk: chunkText });
-                }
+                if (chunk.usageMetadata) usageMetadata = chunk.usageMetadata;
+                const chunkText = chunk.text();
+                accumulatedText += chunkText;
+                sendSSE({ chunk: chunkText });
             }
 
             if (!isConnectionOpen) {
@@ -443,32 +428,16 @@ class AiInterpretationController {
             let accumulatedText = "";
             let usageMetadata = null;
 
-            if (isVipMode) {
-                const birthYear = record.inputInfo?.male?.date?.split('/')?.[2];
-                const vipResult = await MultiAgentPipelineService.runVipPipelineStream(prompt, birthYear, {
-                    onProgress: (progress) => sendSSE(progress)
-                });
-                for await (const chunk of vipResult.stream) {
-                    if (!isConnectionOpen) {
-                        console.log(`[SSE] Client closed connection, stopping Marriage VIP stream.`);
-                        break;
-                    }
-                    const chunkText = typeof chunk === 'string' ? chunk : new TextDecoder().decode(chunk);
-                    accumulatedText += chunkText;
-                    sendSSE({ chunk: chunkText });
+            const resultStream = await AiService.generateInterpretationStream(prompt, { model: ACTIVE_MODEL });
+            for await (const chunk of resultStream.stream) {
+                if (!isConnectionOpen) {
+                    console.log(`[SSE] Client closed connection, stopping Marriage stream.`);
+                    break;
                 }
-            } else {
-                const resultStream = await AiService.generateInterpretationStream(prompt, { model: ACTIVE_MODEL });
-                for await (const chunk of resultStream.stream) {
-                    if (!isConnectionOpen) {
-                        console.log(`[SSE] Client closed connection, stopping Marriage stream.`);
-                        break;
-                    }
-                    if (chunk.usageMetadata) usageMetadata = chunk.usageMetadata;
-                    const chunkText = chunk.text();
-                    accumulatedText += chunkText;
-                    sendSSE({ chunk: chunkText });
-                }
+                if (chunk.usageMetadata) usageMetadata = chunk.usageMetadata;
+                const chunkText = chunk.text();
+                accumulatedText += chunkText;
+                sendSSE({ chunk: chunkText });
             }
 
             if (!isConnectionOpen) {
@@ -594,32 +563,16 @@ class AiInterpretationController {
             let accumulatedText = "";
             let usageMetadata = null;
 
-            if (isVipMode) {
-                const birthYear = record.inputInfo?.date?.split('-')?.[0] || record.inputInfo?.date?.split('/')?.[2];
-                const vipResult = await MultiAgentPipelineService.runVipPipelineStream(prompt, birthYear, {
-                    onProgress: (progress) => sendSSE(progress)
-                });
-                for await (const chunk of vipResult.stream) {
-                    if (!isConnectionOpen) {
-                        console.log(`[SSE] Client closed connection, stopping Ziwei VIP stream.`);
-                        break;
-                    }
-                    const chunkText = typeof chunk === 'string' ? chunk : new TextDecoder().decode(chunk);
-                    accumulatedText += chunkText;
-                    sendSSE({ chunk: chunkText });
+            const resultStream = await AiService.generateInterpretationStream(prompt, { model: ACTIVE_MODEL });
+            for await (const chunk of resultStream.stream) {
+                if (!isConnectionOpen) {
+                    console.log(`[SSE] Client closed connection, stopping Ziwei stream.`);
+                    break;
                 }
-            } else {
-                const resultStream = await AiService.generateInterpretationStream(prompt, { model: ACTIVE_MODEL });
-                for await (const chunk of resultStream.stream) {
-                    if (!isConnectionOpen) {
-                        console.log(`[SSE] Client closed connection, stopping Ziwei stream.`);
-                        break;
-                    }
-                    if (chunk.usageMetadata) usageMetadata = chunk.usageMetadata;
-                    const chunkText = chunk.text();
-                    accumulatedText += chunkText;
-                    sendSSE({ chunk: chunkText });
-                }
+                if (chunk.usageMetadata) usageMetadata = chunk.usageMetadata;
+                const chunkText = chunk.text();
+                accumulatedText += chunkText;
+                sendSSE({ chunk: chunkText });
             }
 
             if (!isConnectionOpen) {
