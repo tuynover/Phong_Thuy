@@ -546,3 +546,19 @@ Nhằm tối ưu hóa trải nghiệm in ấn tài liệu Tứ Trụ Bát Tự �
   - *Làm Sạch Tiêu Đề:* Khử triệt để lỗi dấu hai chấm lặp (`: :`), chuẩn hóa phân cấp tiêu đề rõ ràng, ngắt đoạn tự nhiên giữa các chương mục mà không bị ngắt trang cưỡng bức gây lãng phí giấy in.
 - **Đồng Bộ Màu Sắc Ngũ Hành Cho Dụng Thần, Hỷ Thần & Kỵ Thần:**
   - Tên ngũ hành của Dụng Thần, Hỷ Thần và Kỵ Thần hiển thị chính xác theo màu ngũ hành cổ pháp tương ứng (Kim: xám chì `#475569`, Mộc: xanh lục `#047857`, Thủy: xanh dương `#1e3a8a`, Hỏa: đỏ chu sa `#b91c1c`, Thổ: vàng đất/hổ phách `#b45309`), triệt tiêu việc gán màu cứng nhắc (như gán đỏ cho Hỷ Thần gây nhầm lẫn khi Hỷ Thần là Thủy, Mộc hay Kim).
+
+## 8.13 Tối Ưu Bố Cục Bản In PDF Hợp Hôn (Bố Cục Nam Trên - Nữ Dưới & Hiển Thị Hỷ Kỵ Dụng Thần)
+
+Nhằm nâng cao tính thẩm mỹ và độ chính xác học thuật trong bản in PDF Hồ Sơ Hợp Hôn Cổ Pháp, hệ thống chuẩn hóa các quy tắc trình bày:
+- **Hiển Thị Đầy Đủ Hỷ Kỵ Dụng Thần Kèm Màu Ngũ Hành (Mục 5 - Bảng 5 Tiêu Chí Cốt Lõi):**
+  - Trích xuất linh hoạt cả 3 yếu tố: Dụng Thần, Hỷ Thần, Kỵ Thần từ cấu trúc dữ liệu Bát Tự (`dungThan`, `hyThan`, `kyThan`, `analysis`, `dungThanInfo`).
+  - Hiển thị trực quan theo định dạng: `Dụng: [Màu] | Hỷ: [Màu] | Kỵ: [Màu]` cho cả Nam Mệnh và Nữ Mệnh.
+  - Tên ngũ hành được áp màu chuẩn xác theo ngũ hành cổ pháp (Kim: `#475569`, Mộc: `#047857`, Thủy: `#1e3a8a`, Hỏa: `#b91c1c`, Thổ: `#b45309`).
+- **Tái Cấu Trúc Section III Tứ Trụ Can Chi (Bố Cục Nam Trên - Nữ Dưới & Tối Giản Nền Header, Lược Bỏ Thần Sát):**
+  - Chuyển đổi từ dạng cột song song ngang (8 cột chật hẹp, dễ tràn viền và che khuất thông tin) sang dạng 2 bảng xếp chồng trên - dưới:
+    - *Bảng trên (Nam Mệnh - Chồng):* Tiêu đề `♂ TỨ TRỤ NAM MỆNH (CHỒNG)`, viền `#bfdbfe`.
+    - *Bảng dưới (Nữ Mệnh - Vợ):* Tiêu đề `♀ TỨ TRỤ NỮ MỆNH (VỢ)`, viền `#fecdd3`.
+  - **Bỏ hoàn toàn màu nền ở hàng Header:** Hàng tiêu đề 4 trụ (`TRỤ NĂM`, `NGUYỆT LỆNH`, `NHẬT CHỦ`, `TRỤ GIỜ`) chuyển sang dạng chữ thanh lịch có màu nhận diện học thuật (`#1e3a8a` cho Nam và `#be123c` cho Nữ) trên nền trắng thuần khiết, loại bỏ hoàn toàn dải màu nền đặc (solid background), phân tách với thân bảng bằng đường viền đáy tinh tế.
+  - **Lược bỏ hoàn toàn hàng Thần Sát:** Nhằm tinh giản thông tin, tránh phân tán và quá tải chi tiết tại bảng Tứ Trụ Hợp Hôn, hàng Thần Sát được lược bỏ triệt để khỏi bảng mini, tập trung toàn bộ sự chú ý vào Thập Thần, Can Chi lớn (13pt bold màu ngũ hành), Nạp Âm và Tàng Can.
+  - Bảng áp dụng thuộc tính `table-layout: fixed; width: 100%;`, mỗi trụ (Năm, Nguyệt Lệnh, Nhật Chủ, Giờ) chiếm trọn 25% chiều ngang khổ giấy A4 (~45mm/cột).
+  - Chiều cao Trang 1 được tính toán vi mô (~540px) đảm bảo luôn nằm trọn vẹn trong 1 trang in A4 duy nhất, luận giải AI chuyển tiếp êm ả sang Trang 2.

@@ -324,7 +324,7 @@ describe('PdfTemplateService Unit Tests', () => {
                 },
                 nguHanh: { Kim: 30, Moc: 20, Thuy: 10, Hoa: 25, Tho: 15 },
                 menhQuai: { cung: 'Khảm', element: 'Thủy', group: 'Đông tứ mệnh' },
-                dungThan: { dungThan: 'Thủy', hyThan: 'Mộc' }
+                dungThan: { dungThan: 'Thủy', hyThan: 'Mộc', kyThan: 'Hỏa' }
             },
             femaleBaziData: {
                 canChi: {
@@ -335,7 +335,7 @@ describe('PdfTemplateService Unit Tests', () => {
                 },
                 nguHanh: { Kim: 25, Moc: 15, Thuy: 35, Hoa: 15, Tho: 10 },
                 menhQuai: { cung: 'Đoài', element: 'Kim', group: 'Tây tứ mệnh' },
-                dungThan: { dungThan: 'Hỏa', hyThan: 'Thổ' }
+                dungThan: { dungThan: 'Hỏa', hyThan: 'Thổ', kyThan: 'Kim' }
             },
             aiInterpretation: {
                 content: '## Chương 1: Đánh giá tương quan bản mệnh\nHai tuổi tương sinh hỗ trợ đắc lực.\n\n## Chương 2: Luận giải gia đạo và con cái\nCung phu thê hòa thuận, phát triển bền vững.'
@@ -348,10 +348,14 @@ describe('PdfTemplateService Unit Tests', () => {
             expect(html).toContain('Nguyễn Văn A');
             expect(html).toContain('Trần Thị B');
             expect(html).toContain('I. BẢNG ĐỐI CHIẾU 5 TIÊU CHÍ HỢP HÔN CỔ PHÁP');
+            expect(html).toContain('5. Hỷ Kỵ Dụng Thần');
+            expect(html).toContain('Dụng: <strong><span style="color: #1e3a8a; font-weight: 800;">Thủy</span></strong>');
+            expect(html).toContain('Hỷ: <strong><span style="color: #047857; font-weight: 800;">Mộc</span></strong>');
+            expect(html).toContain('Kỵ: <strong><span style="color: #b91c1c; font-weight: 800;">Hỏa</span></strong>');
             expect(html).toContain('II. ĐÁNH GIÁ CÂN BẰNG TỶ LỆ NGŨ HÀNH');
-            expect(html).toContain('III. CẤU TRÚC TỨ TRỤ CAN CHI (ĐỐI CHIẾU SONG SONG)');
-            expect(html).toContain('TỨ TRỤ NAM MỆNH (CHỒNG)');
-            expect(html).toContain('TỨ TRỤ NỮ MỆNH (VỢ)');
+            expect(html).toContain('III. CẤU TRÚC TỨ TRỤ CAN CHI (ĐỐI CHIẾU NAM TRÊN - NỮ DƯỚI)');
+            expect(html).toContain('♂ TỨ TRỤ NAM MỆNH (CHỒNG)');
+            expect(html).toContain('♀ TỨ TRỤ NỮ MỆNH (VỢ)');
             expect(html).toContain('Lộ Bàng Thổ');
             expect(html).toContain('Kiếm Phong Kim');
             expect(html).toContain('TOÀN VĂN BẢN LUẬN GIẢI HÔN NHÂN');
@@ -364,18 +368,18 @@ describe('PdfTemplateService Unit Tests', () => {
             const onlyCompare = pdfTemplateService.generateMarriageHtml(mockMarriageRecord, ['marriage_compare']);
             expect(onlyCompare).toContain('I. BẢNG ĐỐI CHIẾU 5 TIÊU CHÍ HỢP HÔN CỔ PHÁP');
             expect(onlyCompare).toContain('II. ĐÁNH GIÁ CÂN BẰNG TỶ LỆ NGŨ HÀNH');
-            expect(onlyCompare).not.toContain('III. CẤU TRÚC TỨ TRỤ CAN CHI (ĐỐI CHIẾU SONG SONG)');
+            expect(onlyCompare).not.toContain('III. CẤU TRÚC TỨ TRỤ CAN CHI (ĐỐI CHIẾU NAM TRÊN - NỮ DƯỚI)');
             expect(onlyCompare).not.toContain('TOÀN VĂN BẢN LUẬN GIẢI HÔN NHÂN');
 
             const onlyPillars = pdfTemplateService.generateMarriageHtml(mockMarriageRecord, ['marriage_pillars']);
-            expect(onlyPillars).toContain('III. CẤU TRÚC TỨ TRỤ CAN CHI (ĐỐI CHIẾU SONG SONG)');
+            expect(onlyPillars).toContain('III. CẤU TRÚC TỨ TRỤ CAN CHI (ĐỐI CHIẾU NAM TRÊN - NỮ DƯỚI)');
             expect(onlyPillars).not.toContain('I. BẢNG ĐỐI CHIẾU 5 TIÊU CHÍ HỢP HÔN CỔ PHÁP');
             expect(onlyPillars).not.toContain('TOÀN VĂN BẢN LUẬN GIẢI HÔN NHÂN');
 
             const onlyInterp = pdfTemplateService.generateMarriageHtml(mockMarriageRecord, ['intro']);
             expect(onlyInterp).toContain('TOÀN VĂN BẢN LUẬN GIẢI HÔN NHÂN');
             expect(onlyInterp).not.toContain('I. BẢNG ĐỐI CHIẾU 5 TIÊU CHÍ HỢP HÔN CỔ PHÁP');
-            expect(onlyInterp).not.toContain('III. CẤU TRÚC TỨ TRỤ CAN CHI (ĐỐI CHIẾU SONG SONG)');
+            expect(onlyInterp).not.toContain('III. CẤU TRÚC TỨ TRỤ CAN CHI (ĐỐI CHIẾU NAM TRÊN - NỮ DƯỚI)');
         });
     });
 });

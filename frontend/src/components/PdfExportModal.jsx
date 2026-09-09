@@ -36,8 +36,8 @@ export default function PdfExportModal({
       );
     } else if (system === 'marriage') {
       chartSections.push(
-        { id: 'marriage_compare', label: 'Đối Chiếu 5 Tiêu Chí Cổ Học & Tỷ Lệ Ngũ Hành', desc: 'Nạp Âm, Thiên Can, Địa Chi Phu Thê, Cung Phi Bát Trạch, Thần Sát & Tỷ lệ 5 hành' },
-        { id: 'marriage_pillars', label: 'Cấu Trúc Tứ Trụ Can Chi Đối Chiếu Song Song', desc: 'Tứ Trụ Chồng & Vợ: Thập Thần, Can Chi, Nạp Âm, Tàng Can, Thần Sát' }
+        { id: 'marriage_compare', label: 'Đối Chiếu 5 Tiêu Chí Cổ Học & Tỷ Lệ Ngũ Hành', desc: 'Nạp Âm, Thiên Can, Địa Chi Phu Thê, Cung Phi Bát Trạch, Hỷ Kỵ Dụng Thần & Tỷ lệ 5 hành' },
+        { id: 'marriage_pillars', label: 'Cấu Trúc Tứ Trụ Can Chi (Nam Trên - Nữ Dưới)', desc: 'Tứ Trụ Chồng & Vợ: Thập Thần, Can Chi, Nạp Âm, Tàng Can' }
       );
     }
 

@@ -3019,7 +3019,71 @@ function generateIChingHtml(record, scope = []) {
 }
 
 /**
- * Render bảng Tứ Trụ Can Chi mini đối chiếu (cho Trang 1 Hợp Hôn)
+ * Trích xuất Hỷ, Kỵ, Dụng Thần linh hoạt từ cấu trúc dữ liệu Bát Tự
+ */
+function extractDungHyKy(data) {
+  if (!data) return { dungThan: '-', hyThan: '-', kyThan: '-' };
+
+  // 1. Dụng Thần
+  let dungThan = '';
+  if (typeof data.dungThan === 'string' && data.dungThan.trim()) {
+    dungThan = data.dungThan.trim();
+  } else if (data.dungThan && typeof data.dungThan === 'object') {
+    dungThan = data.dungThan.dungThan || data.dungThan.primary || data.dungThan.name || data.dungThan.element || '';
+  }
+  if (!dungThan && data.analysis) {
+    dungThan = typeof data.analysis.dungThan === 'string' ? data.analysis.dungThan : (data.analysis.dungThan?.dungThan || '');
+  }
+  if (!dungThan && data.dungThanInfo?.primary) {
+    dungThan = data.dungThanInfo.primary.dungThan || '';
+  }
+  if (!dungThan && data.analysisSnapshot?.dungThan) {
+    dungThan = typeof data.analysisSnapshot.dungThan === 'string' ? data.analysisSnapshot.dungThan : (data.analysisSnapshot.dungThan?.dungThan || '');
+  }
+
+  // 2. Hỷ Thần
+  let hyThan = '';
+  if (typeof data.hyThan === 'string' && data.hyThan.trim()) {
+    hyThan = data.hyThan.trim();
+  } else if (data.dungThan && typeof data.dungThan === 'object' && data.dungThan.hyThan) {
+    hyThan = data.dungThan.hyThan;
+  }
+  if (!hyThan && data.analysis) {
+    hyThan = typeof data.analysis.hyThan === 'string' ? data.analysis.hyThan : (data.analysis.hyThan?.hyThan || '');
+  }
+  if (!hyThan && data.dungThanInfo?.primary) {
+    hyThan = data.dungThanInfo.primary.hyThan || '';
+  }
+  if (!hyThan && data.analysisSnapshot?.hyThan) {
+    hyThan = typeof data.analysisSnapshot.hyThan === 'string' ? data.analysisSnapshot.hyThan : (data.analysisSnapshot.hyThan?.hyThan || '');
+  }
+
+  // 3. Kỵ Thần
+  let kyThan = '';
+  if (typeof data.kyThan === 'string' && data.kyThan.trim()) {
+    kyThan = data.kyThan.trim();
+  } else if (data.dungThan && typeof data.dungThan === 'object' && data.dungThan.kyThan) {
+    kyThan = data.dungThan.kyThan;
+  }
+  if (!kyThan && data.analysis) {
+    kyThan = typeof data.analysis.kyThan === 'string' ? data.analysis.kyThan : (data.analysis.kyThan?.kyThan || '');
+  }
+  if (!kyThan && data.dungThanInfo?.primary) {
+    kyThan = data.dungThanInfo.primary.kyThan || '';
+  }
+  if (!kyThan && data.analysisSnapshot?.kyThan) {
+    kyThan = typeof data.analysisSnapshot.kyThan === 'string' ? data.analysisSnapshot.kyThan : (data.analysisSnapshot.kyThan?.kyThan || '');
+  }
+
+  return {
+    dungThan: dungThan || '-',
+    hyThan: hyThan || '-',
+    kyThan: kyThan || '-'
+  };
+}
+
+/**
+ * Render bảng Tứ Trụ Can Chi đối chiếu (cho Trang 1 Hợp Hôn: 4 cột rộng rãi 100% chiều ngang)
  */
 function renderMarriagePillarsMiniTable(canChi, isFemale) {
   const safeCanChi = {
@@ -3035,14 +3099,14 @@ function renderMarriagePillarsMiniTable(canChi, isFemale) {
     { key: 'hour', label: 'TRỤ GIỜ', data: safeCanChi.hour }
   ];
 
-  const headerBg = isFemale ? '#be123c' : '#1e3a8a';
+  const headerColor = isFemale ? '#be123c' : '#1e3a8a';
   const tableBorder = isFemale ? '#fecdd3' : '#bfdbfe';
 
   return `
-    <table style="width: 100%; border-collapse: collapse; font-size: 7.2pt; text-align: center; border: 1px solid ${tableBorder}; border-radius: 5px; overflow: hidden; background: #ffffff;">
+    <table style="width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 7.2pt; text-align: center; border: 1.5px solid ${tableBorder}; border-radius: 6px; overflow: hidden; background: #ffffff; margin-bottom: 2px;">
       <thead>
-        <tr style="background: ${headerBg}; color: #ffffff; font-size: 7pt; font-weight: 800; text-transform: uppercase;">
-          ${pillars.map(p => `<th style="padding: 4px 2px; width: 25%;">${p.label}</th>`).join('')}
+        <tr style="color: ${headerColor}; font-size: 7.2pt; font-weight: 900; text-transform: uppercase; border-bottom: 1.5px solid ${tableBorder};">
+          ${pillars.map(p => `<th style="padding: 4px 2px; width: 25%; letter-spacing: 0.3px;">${p.label}</th>`).join('')}
         </tr>
       </thead>
       <tbody>
@@ -3060,7 +3124,7 @@ function renderMarriagePillarsMiniTable(canChi, isFemale) {
             const gan = p.data?.gan || '-';
             const elem = STEM_ELEMENTS[gan] || '';
             const color = ELEMENT_COLORS[elem]?.text || '#0f172a';
-            return `<td style="font-size: 13pt; font-weight: 900; color: ${color}; line-height: 1.1;">${gan}</td>`;
+            return `<td style="font-size: 13pt; font-weight: 900; color: ${color}; line-height: 1;">${gan}</td>`;
           }).join('')}
         </tr>
         <!-- Địa Chi -->
@@ -3069,27 +3133,30 @@ function renderMarriagePillarsMiniTable(canChi, isFemale) {
             const zhi = p.data?.zhi || '-';
             const elem = BRANCH_ELEMENTS[zhi] || '';
             const color = ELEMENT_COLORS[elem]?.text || '#0f172a';
-            return `<td style="font-size: 13pt; font-weight: 900; color: ${color}; line-height: 1.1;">${zhi}</td>`;
+            return `<td style="font-size: 13pt; font-weight: 900; color: ${color}; line-height: 1;">${zhi}</td>`;
           }).join('')}
         </tr>
         <!-- Nạp Âm -->
-        <tr style="height: 18px; border-bottom: 1px solid #f1f5f9; background: #fdfdfd;">
+        <tr style="height: 17px; border-bottom: 1px solid #f1f5f9; background: #fdfdfd;">
           ${pillars.map(p => {
             const naYin = p.data?.naYin || '-';
-            return `<td style="font-size: 6.5pt; color: #334155; font-weight: 600; padding: 1px 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${naYin}</td>`;
+            return `<td style="font-size: 6.6pt; color: #334155; font-weight: 600; padding: 1px 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${naYin}</td>`;
           }).join('')}
         </tr>
         <!-- Tàng Can -->
-        <tr style="border-bottom: 1px solid #f1f5f9; background: #fafbfc;">
+        <tr style="background: #fafbfc;">
           ${pillars.map(p => {
             const tcList = p.data?.tangCan || [];
+            if (!tcList || tcList.length === 0) {
+              return `<td style="padding: 2px; font-size: 6.2pt; color: #94a3b8;">-</td>`;
+            }
             return `
-              <td style="padding: 2px 2px; vertical-align: top;">
-                <div style="display: flex; flex-direction: column; gap: 1px;">
+              <td style="padding: 2px 4px; vertical-align: top;">
+                <div style="display: flex; flex-direction: column; gap: 1.5px;">
                   ${tcList.slice(0, 3).map(tc => {
                     const color = ELEMENT_COLORS[STEM_ELEMENTS[tc.gan]]?.text || '#334155';
                     return `
-                      <div style="display: flex; justify-content: space-between; font-size: 6.2pt; padding: 0 2px; background: #ffffff; border: 1px solid #f1f5f9; border-radius: 2px;">
+                      <div style="display: flex; justify-content: space-between; font-size: 6.2pt; padding: 0 4px; background: #ffffff; border: 1px solid #f1f5f9; border-radius: 2px;">
                         <span style="font-weight: 800; color: ${color};">${tc.gan}</span>
                         <span style="color: #64748b; font-size: 5.8pt;">${tc.thapThan || ''}</span>
                       </div>
@@ -3098,14 +3165,6 @@ function renderMarriagePillarsMiniTable(canChi, isFemale) {
                 </div>
               </td>
             `;
-          }).join('')}
-        </tr>
-        <!-- Thần Sát (top 2) -->
-        <tr style="height: 18px; background: #ffffff;">
-          ${pillars.map(p => {
-            const ssList = p.data?.shenSha || [];
-            const topSS = ssList.slice(0, 2).map(s => s.split(' (')[0]).join(', ');
-            return `<td style="font-size: 6pt; color: ${isFemale ? '#be123c' : '#1e40af'}; font-weight: 700; padding: 1px 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${topSS || '-'}</td>`;
           }).join('')}
         </tr>
       </tbody>
@@ -3163,6 +3222,9 @@ function generateMarriageHtml(record, scope = []) {
   const fGua = femaleData.menhQuai?.cung || '';
   const batTrachName = BAT_TRACH_PAIRS[mGua]?.[fGua] || '';
   const batTrachInfo = BAT_TRACH_NATURE[batTrachName] || { color: '#475569', bg: '#f8fafc', desc: 'Chưa xác định', type: 'bình' };
+
+  const mDHK = extractDungHyKy(maleData);
+  const fDHK = extractDungHyKy(femaleData);
 
   let contentHtml = '';
 
@@ -3269,11 +3331,11 @@ function generateMarriageHtml(record, scope = []) {
                   <div style="font-size: 6.5pt; color: #64748b;">${batTrachInfo.desc}</div>
                 </td>
               </tr>
-              <!-- 5. Thần Sát & Bù Trừ Dụng Thần -->
+              <!-- 5. Hỷ Kỵ Dụng Thần -->
               <tr>
-                <td><strong>5. Dụng Thần & Thần Sát</strong><br><span style="font-size: 6.2pt; color: #64748b;">Trợ lực bổ khuyết năng lượng</span></td>
-                <td>Dụng: <strong>${renderElementText(maleData.dungThan?.dungThan || '-')}</strong> | Hỷ: ${renderElementText(maleData.dungThan?.hyThan || '-')}</td>
-                <td>Dụng: <strong>${renderElementText(femaleData.dungThan?.dungThan || '-')}</strong> | Hỷ: ${renderElementText(femaleData.dungThan?.hyThan || '-')}</td>
+                <td><strong>5. Hỷ Kỵ Dụng Thần</strong><br><span style="font-size: 6.2pt; color: #64748b;">Trợ lực bổ khuyết năng lượng</span></td>
+                <td>Dụng: <strong>${renderElementText(mDHK.dungThan)}</strong> | Hỷ: <strong>${renderElementText(mDHK.hyThan)}</strong> | Kỵ: <strong>${renderElementText(mDHK.kyThan)}</strong></td>
+                <td>Dụng: <strong>${renderElementText(fDHK.dungThan)}</strong> | Hỷ: <strong>${renderElementText(fDHK.hyThan)}</strong> | Kỵ: <strong>${renderElementText(fDHK.kyThan)}</strong></td>
                 <td>
                   <span style="font-weight: 700; color: #047857; background: #ecfdf5; padding: 1px 6px; border-radius: 3px; display: inline-block;">Cân bằng đa chiều</span>
                   <div style="font-size: 6.5pt; color: #64748b;">Khí lực hỗ trợ bổ khuyết cho nhau</div>
@@ -3328,24 +3390,34 @@ function generateMarriageHtml(record, scope = []) {
     if (includePillars) {
       contentHtml += `
         <!-- III. CẤU TRÚC TỨ TRỤ CAN CHI NAM - NỮ -->
-        <div class="no-break" style="margin-bottom: 8px;">
-          <div style="display: align-items: center; gap: 6px; margin-bottom: 4px;">
-            <span style="display: inline-block; width: 3.5px; height: 13px; background-color: #1e3a8a; border-radius: 2px; vertical-align: middle; margin-right: 6px;"></span>
-            <span class="serif-title" style="font-size: 9pt; font-weight: 900; color: #1e293b; text-transform: uppercase; letter-spacing: 0.3px; vertical-align: middle;">
-              III. CẤU TRÚC TỨ TRỤ CAN CHI (ĐỐI CHIẾU SONG SONG)
+        <div class="no-break" style="margin-bottom: 6px;">
+          <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+            <span style="display: inline-block; width: 3.5px; height: 13px; background-color: #881337; border-radius: 2px; vertical-align: middle; margin-right: 6px;"></span>
+            <span class="serif-title" style="font-size: 8.8pt; font-weight: 900; color: #1e293b; text-transform: uppercase; letter-spacing: 0.3px; vertical-align: middle;">
+              III. CẤU TRÚC TỨ TRỤ CAN CHI (ĐỐI CHIẾU NAM TRÊN - NỮ DƯỚI)
             </span>
           </div>
 
-          <div style="display: flex; gap: 10px;">
-            <div style="flex: 1; min-width: 0;">
-              <div style="font-size: 7.2pt; font-weight: 800; color: #1e40af; margin-bottom: 2px;">TỨ TRỤ NAM MỆNH (CHỒNG)</div>
-              ${renderMarriagePillarsMiniTable(maleData.canChi, false)}
+          <!-- BẢNG 1: NAM MỆNH (CHỒNG) -->
+          <div style="margin-bottom: 5px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+              <span style="font-size: 7.2pt; font-weight: 900; color: #1e40af; text-transform: uppercase;">
+                ♂ TỨ TRỤ NAM MỆNH (CHỒNG): ${male.name || 'Gia Chủ Nam'}
+              </span>
+              <span style="font-size: 6.2pt; color: #64748b;">(Trụ Năm - Nguyệt Lệnh - Nhật Chủ - Trụ Giờ)</span>
             </div>
-            <div style="flex: 1; min-width: 0;">
-              <div style="font-size: 7.2pt; font-weight: 800; color: #be123c; margin-bottom: 2px;">TỨ TRỤ NỮ MỆNH (VỢ)</div>
-              ${renderMarriagePillarsMiniTable(femaleData.canChi, true)}
-            </div>
+            ${renderMarriagePillarsMiniTable(maleData.canChi, false)}
           </div>
+
+          <!-- BẢNG 2: NỮ MỆNH (VỢ) -->
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+              <span style="font-size: 7.2pt; font-weight: 900; color: #be123c; text-transform: uppercase;">
+                ♀ TỨ TRỤ NỮ MỆNH (VỢ): ${female.name || 'Gia Chủ Nữ'}
+              </span>
+              <span style="font-size: 6.2pt; color: #64748b;">(Trụ Năm - Nguyệt Lệnh - Nhật Chủ - Trụ Giờ)</span>
+            </div>
+            ${renderMarriagePillarsMiniTable(femaleData.canChi, true)}
         </div>
       `;
     }

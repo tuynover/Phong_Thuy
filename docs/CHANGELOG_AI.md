@@ -2,6 +2,39 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Tối Ưu Bố Cục Tứ Trụ Nam Trên - Nữ Dưới & Hiển Thị Đầy Đủ Hỷ Kỵ Dụng Thần Trong Bản In PDF Hợp Hôn (09/09/2026)
+
+### 🌟 1. Hiển Thị Đầy Đủ Hỷ Kỵ Dụng Thần (Hình 1 - Mục 5 Bảng Đối Chiếu)
+- **Khắc phục triệt để lỗi rỗng dữ liệu:**
+  - Nguyên nhân: Trước đây mã nguồn gọi `.dungThan` trên chuỗi ký tự (`maleData.dungThan?.dungThan`), trả về `undefined` và fallback về `-`.
+  - Giải pháp: Xây dựng hàm helper `extractDungHyKy(data)` trích xuất linh hoạt cả 3 yếu tố: Dụng Thần, Hỷ Thần, Kỵ Thần từ đa dạng cấu trúc dữ liệu Bát Tự (`dungThan`, `hyThan`, `kyThan`, `analysis`, `dungThanInfo`, `analysisSnapshot`).
+- **Hiển thị trực quan theo màu ngũ hành cổ pháp:**
+  - Cột Nam: `Dụng: [Màu] | Hỷ: [Màu] | Kỵ: [Màu]`.
+  - Cột Nữ: `Dụng: [Màu] | Hỷ: [Màu] | Kỵ: [Màu]`.
+  - Tên hành của Dụng Thần, Hỷ Thần, Kỵ Thần hiển thị chính xác theo màu ngũ hành tương ứng (Kim: `#475569`, Mộc: `#047857`, Thủy: `#1e3a8a`, Hỏa: `#b91c1c`, Thổ: `#b45309`).
+
+### 🌟 2. Tái Cấu Trúc Section III Tứ Trụ Can Chi (Hình 2 - Nam Trên, Nữ Dưới & Tối Giản Nền Header, Bỏ Thần Sát)
+- **Chuyển đổi bố cục xếp chồng trên - dưới:**
+  - Thay thế bố cục song song ngang 8 cột chật hẹp, dễ tràn viền và bị che khuất chữ bằng 2 bảng xếp chồng trên - dưới rộng rãi:
+    - **Bảng 1 (Nam Mệnh - Chồng):** Đặt ở trên, viền xanh thanh lịch `#bfdbfe`, tiêu đề `♂ TỨ TRỤ NAM MỆNH (CHỒNG): [HỌ TÊN]`.
+    - **Bảng 2 (Nữ Mệnh - Vợ):** Đặt ở dưới, viền đỏ mận duyên dáng `#fecdd3`, tiêu đề `♀ TỨ TRỤ NỮ MỆNH (VỢ): [HỌ TÊN]`.
+  - Mỗi bảng chiếm trọn 100% chiều ngang khổ giấy A4, thiết lập `table-layout: fixed;`, chia đều 4 cột 25% (~45mm/cột).
+- **Bỏ hoàn toàn dải màu nền Header 4 Trụ:**
+  - Hàng tiêu đề 4 trụ (`TRỤ NĂM`, `NGUYỆT LỆNH`, `NHẬT CHỦ`, `TRỤ GIỜ`) loại bỏ dải màu nền xanh/đỏ đặc; chuyển sang chữ in hoa thanh nhã có màu sắc học thuật (`#1e3a8a` cho Nam và `#be123c` cho Nữ) trên nền trắng thuần khiết kèm đường kẻ đáy tinh tế.
+- **Lược bỏ hoàn toàn hàng Thần Sát:**
+  - Bỏ triệt để hàng Thần Sát khỏi bảng Tứ Trụ Hợp Hôn nhằm tinh giản thị giác, dồn trọng tâm vào Thập Thần, Can Chi lớn (13pt bold màu ngũ hành), Nạp Âm và Tàng Can.
+- **Trình bày dữ liệu học thuật thoáng đãng, sắc nét:**
+  - Can Chi hiển thị cỡ lớn nổi bật (13pt bold) kèm màu ngũ hành chuẩn hóa.
+  - Nạp Âm hiển thị đầy đủ, không bị cắt xén.
+  - Tàng Can hiển thị rộng rãi, cân đối cả Can và Thập Thần.
+- **Trang 1 vừa vặn 100% khổ A4:**
+  - Tổng chiều cao Trang 1 (~540px) nằm trọn trong 1000px khả dụng của trang A4, hoàn toàn không bị tràn trang (Zero Spillover). Luận giải AI tự động phân trang sang Trang 2.
+
+### 🌟 3. Cập Nhật Frontend Modal & Kiểm Thử Hệ Thống
+- **Cập nhật `PdfExportModal.jsx`:** Điều chỉnh nhãn hiển thị mục xuất `marriage_pillars` thành: *"Cấu Trúc Tứ Trụ Can Chi (Nam Trên - Nữ Dưới)"* và mô tả *"Tứ Trụ Chồng & Vợ: Thập Thần, Can Chi, Nạp Âm, Tàng Can"* (lược bỏ Thần Sát).
+- **Unit Tests (`PdfTemplateService.test.js`):** 13/13 test cases PASS 100%.
+- **Nghiệm thu Chrome DevTools MCP:** Xuất thực tế tệp `La_So_MARRIAGE_1788964235203.pdf` trên trình duyệt `http://localhost:5173/marriage`, mở file trực tiếp trên trình duyệt kiểm tra visual đạt 100% yêu cầu.
+
 ## 📅 Phiên bản: Chuẩn Hóa Thần Sát 3 Màu Chữ, Trường Sinh & Nạp Âm Text-Only, Bỏ Ma Trận Cũ & Tối Ưu Xuất PDF Bát Tự Cơ Bản/Chuyên Sâu (09/09/2026)
 
 ### 🌟 1. Chuẩn Hóa Hiển Thị Thần Sát, Trường Sinh & Nạp Âm Tứ Trụ
