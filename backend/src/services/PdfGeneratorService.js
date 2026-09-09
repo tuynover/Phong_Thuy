@@ -24,8 +24,32 @@ class PdfGeneratorService {
     }
 
     logger.info('[PdfGeneratorService] Khởi tạo Chromium singleton worker...');
+
+    // Tự động tìm kiếm đường dẫn executable phù hợp trên Linux / Docker hoặc từ biến môi trường
+    let executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+    if (!executablePath && process.platform === 'linux') {
+      const fs = require('fs');
+      const candidatePaths = [
+        '/usr/bin/chromium',
+        '/usr/bin/chromium-browser',
+        '/usr/bin/google-chrome-stable',
+        '/usr/bin/google-chrome'
+      ];
+      for (const p of candidatePaths) {
+        if (fs.existsSync(p)) {
+          executablePath = p;
+          break;
+        }
+      }
+    }
+
+    if (executablePath) {
+      logger.info(`[PdfGeneratorService] Sử dụng browser executable tại: ${executablePath}`);
+    }
+
     this.browser = await puppeteer.launch({
       headless: 'new',
+      ...(executablePath ? { executablePath } : {}),
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',

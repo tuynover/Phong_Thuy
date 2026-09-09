@@ -168,4 +168,36 @@ describe('ExportController Unit Tests', () => {
         expect(PdfGeneratorService.renderHtmlToPdf).toHaveBeenCalled();
         expect(res.send).toHaveBeenCalled();
     });
+
+    test('should succeed when guest-created record (userId === "guest") is accessed by an unauthenticated user', async () => {
+        BaziRecord.findById = jest.fn().mockResolvedValue({
+            _id: 'bazi-guest-123',
+            userId: 'guest',
+            isPublic: false,
+            name: 'Khach Vang Lai'
+        });
+
+        req.user = null;
+        req.dbUser = null;
+        await ExportController.exportPdf(req, res);
+
+        expect(PdfGeneratorService.renderHtmlToPdf).toHaveBeenCalled();
+        expect(res.send).toHaveBeenCalled();
+    });
+
+    test('should succeed when private record is accessed by an admin user', async () => {
+        BaziRecord.findById = jest.fn().mockResolvedValue({
+            _id: 'bazi-private-123',
+            userId: 'another-user-id',
+            isPublic: false,
+            name: 'Nguyen Van C'
+        });
+
+        req.user = { id: 'admin-id', role: 'admin' };
+        req.dbUser = { id: 'admin-id', role: 'admin' };
+        await ExportController.exportPdf(req, res);
+
+        expect(PdfGeneratorService.renderHtmlToPdf).toHaveBeenCalled();
+        expect(res.send).toHaveBeenCalled();
+    });
 });

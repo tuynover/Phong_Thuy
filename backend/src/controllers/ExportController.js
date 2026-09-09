@@ -58,11 +58,13 @@ class ExportController {
       }
 
       // 3. Phân quyền truy cập nghiêm ngặt
-      // Quy tắc: Nếu public -> cho phép tải; Nếu private -> CHỈ CHÍNH CHỦ SỞ HỮU MỚI ĐƯỢC TẢI
-      const isPublic = record.isPublic === true;
+      // Quy tắc: Nếu public hoặc là bản ghi khách vãng lai (guest) -> cho phép tải (đồng bộ với checkRecordOwnership);
+      // Nếu là bản ghi riêng tư của tài khoản thành viên -> CHỈ CHÍNH CHỦ SỞ HỮU HOẶC ADMIN MỚI ĐƯỢC TẢI
+      const isPublic = record.isPublic === true || record.userId === 'guest';
       const currentUser = req.dbUser || req.user;
       const currentUserId = currentUser ? String(currentUser.id || currentUser._id) : null;
       const recordOwnerId = String(record.userId);
+      const isAdmin = currentUser && (currentUser.role === 'admin' || currentUser.role === 'co-admin');
 
       if (!isPublic) {
         if (!currentUser) {
@@ -75,7 +77,7 @@ class ExportController {
         }
 
         const isOwner = currentUserId === recordOwnerId;
-        if (!isOwner) {
+        if (!isOwner && !isAdmin) {
           logger.warn(`[PDF_EXPORT_DENIED] Người dùng ${currentUserId} không phải chủ sở hữu của bản ghi private ${recordOwnerId}`, {
             requestId,
             user: currentUserId,

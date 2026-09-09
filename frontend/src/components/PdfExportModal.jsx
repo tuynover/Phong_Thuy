@@ -170,12 +170,25 @@ export default function PdfExportModal({
       console.error('Lỗi khi tải PDF:', err);
 
       if (err.response) {
-        if (err.response.status === 403) {
+        let serverError = '';
+        if (err.response.data instanceof Blob) {
+          try {
+            const errorText = await err.response.data.text();
+            const parsed = JSON.parse(errorText);
+            serverError = parsed.error || parsed.message;
+          } catch (_) {}
+        } else if (err.response.data && err.response.data.error) {
+          serverError = err.response.data.error;
+        }
+
+        if (serverError) {
+          setErrorMessage(serverError);
+        } else if (err.response.status === 401) {
+          setErrorMessage('Vui lòng đăng nhập để tải bản ghi riêng tư này.');
+        } else if (err.response.status === 403) {
           setErrorMessage('Bản ghi này ở chế độ riêng tư. Chỉ chính chủ sở hữu mới có quyền tải tệp PDF.');
         } else if (err.response.status === 429) {
           setErrorMessage('Bạn đã yêu cầu xuất tệp PDF quá nhanh (giới hạn 5 lượt/phút). Vui lòng đợi 1 phút trước khi thử lại.');
-        } else if (err.response.data && err.response.data.error) {
-          setErrorMessage(err.response.data.error);
         } else {
           setErrorMessage('Không thể xuất tệp PDF vào lúc này. Vui lòng kiểm tra lại quyền truy cập hoặc thử lại sau.');
         }
