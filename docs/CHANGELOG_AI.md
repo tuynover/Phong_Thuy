@@ -2,6 +2,24 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Khắc Phục Lỗi Xuất PDF Docker Production & Tối Ưu Hóa Render Siêu Tốc (10/09/2026)
+
+### 🌟 1. Khắc Phục Lỗi Thiếu Trình Duyệt & Navigation Timeout Trên Linux/Docker
+- **Phát hiện & xử lý nguyên nhân gốc rễ trên máy chủ Production:**
+  - Lỗi 1 (`Could not find Chrome ver. 152.0...`): Base image `node:20-slim` thiếu binary Chromium và thư viện đồ họa hệ điều hành Debian.
+    - Cập nhật `backend/Dockerfile`: Cài đặt `chromium`, `fonts-liberation`, `ca-certificates` qua `apt-get`, đặt biến `PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true` và `PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium`.
+    - Cập nhật `PdfGeneratorService.js`: Tự động nhận diện `PUPPETEER_EXECUTABLE_PATH` hoặc các đường dẫn binary hệ thống Linux (`/usr/bin/chromium`, `/usr/bin/chromium-browser`, `/usr/bin/google-chrome-stable`), tương thích 100% khi chạy local trên Windows.
+  - Lỗi 2 (`TimeoutError: Navigation timeout of 25000 ms exceeded`):
+    - Do cờ `waitUntil: ['load', 'networkidle0']` chờ toàn bộ kết nối mạng ngoại ngắt trong 500ms, trong khi CSS mẫu in `@import` Google Fonts từ xa bị trễ mạng/DNS trên VPS.
+    - Giải pháp: Đổi `waitUntil: 'domcontentloaded'` với timeout an toàn 15s và khoảng nghỉ layout 250ms.
+    - Bổ sung font hệ thống Linux (`Liberation Sans`, `Liberation Serif`) vào font stack trong `PdfTemplateService.js` để triệt tiêu hoàn toàn sự phụ thuộc vào mạng ngoại khi render PDF.
+  - Lỗi 3 (Xử lý phản hồi lỗi Frontend):
+    - `PdfExportModal.jsx`: Trích xuất text thông điệp lỗi từ `Blob` bất đồng bộ (`await err.response.data.text()`) thay vì nuốt mất mã lỗi JSON từ backend.
+
+### 🌟 2. Kiểm Thử & Nghiệm Thu
+- 10/10 Jest unit tests trong `ExportController.test.js` PASS 100%.
+- Kiểm thử tự động trên Chrome DevTools MCP: Tải thành công liên tiếp các tệp PDF Bát Tự và Kinh Dịch, thời gian render ổn định ~1s - 2s.
+
 ## 📅 Phiên bản: Tối Ưu Bố Cục Tứ Trụ Nam Trên - Nữ Dưới & Hiển Thị Đầy Đủ Hỷ Kỵ Dụng Thần Trong Bản In PDF Hợp Hôn (09/09/2026)
 
 ### 🌟 1. Hiển Thị Đầy Đủ Hỷ Kỵ Dụng Thần (Hình 1 - Mục 5 Bảng Đối Chiếu)

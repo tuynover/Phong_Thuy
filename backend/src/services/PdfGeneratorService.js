@@ -134,11 +134,14 @@ class PdfGeneratorService {
       // Đặt timeout 25s
       page.setDefaultNavigationTimeout(25000);
 
-      // Nạp nội dung HTML và đợi network ổn định để tải font Google
+      // Nạp nội dung HTML - chỉ đợi DOM nạp xong, không chờ networkidle0 để tránh treo khi tải font ngoại
       await page.setContent(htmlContent, {
-        waitUntil: ['load', 'networkidle0'],
-        timeout: 25000
+        waitUntil: 'domcontentloaded',
+        timeout: 15000
       });
+
+      // Khoảng nghỉ ngắn 250ms để CSS và font hệ thống ổn định trước khi in
+      await new Promise(resolve => setTimeout(resolve, 250));
 
       // Tạo PDF Buffer chuẩn A4
       const pdfBuffer = await page.pdf({

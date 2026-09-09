@@ -635,7 +635,7 @@ function getCorePrintStyles() {
     }
 
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, 'Liberation Sans', sans-serif;
       color: #0f172a;
       background-color: #ffffff;
       margin: 0;
@@ -645,12 +645,12 @@ function getCorePrintStyles() {
     }
 
     .serif-title {
-      font-family: 'Noto Serif', Georgia, 'Times New Roman', serif;
+      font-family: 'Noto Serif', Georgia, 'Liberation Serif', 'Times New Roman', serif;
       letter-spacing: 0.3px;
     }
 
     .serif-body {
-      font-family: 'Noto Serif', Georgia, serif;
+      font-family: 'Noto Serif', Georgia, 'Liberation Serif', serif;
     }
 
     .page-break {
