@@ -325,17 +325,32 @@ Lấy thông tin chi tiết (Lục Thân, Lục Thú, Hào Thế/Ứng) để hi
     "activeSectionId": "bazi_ch_1" // Tùy chọn: ID của Cụm/Chương đang đàm đạo (ví dụ: bazi_ch_1, tu_vi_ch_2, marriage_ch_1, iching_ch_2)
   }
   ```
-- **Chính sách Trừ Credit:**
-  - Trừ **0.5 Credit** cho mỗi lượt hỏi đáp (áp dụng cho tài khoản người dùng thông thường, Admin/Co-Admin được miễn phí).
-- **Cơ chế Đồng Bộ Ngữ Cảnh VIP (VIP Context Memory):**
-  - Khi bản ghi đã có bài luận giải VIP (4.000 - 7.000 từ), hệ thống áp dụng cơ chế **Hybrid Active-Chapter Awareness + Semantic Keyword Intent Routing**:
-    + Nếu `activeSectionId` được chỉ định: Trích xuất chính xác nội dung của Cụm/Chương tương ứng (~800 - 1.200 từ, tối đa 5.000 ký tự).
-    + Nếu `activeSectionId` là `null`: Tự động phân tích từ khóa câu hỏi (`message`) qua từ điển `TOPIC_ROUTING` để trích xuất Cụm liên quan nhất.
-    + Fallback: Trích xuất phần Cốt cách Tổng quan / SWOT hoặc Điều Hòa Chiến Lược.
+- **Chính sách Trừ Credit & Kiểm soát Ý định (Weighted Intent Scoring):**
+  - Trừ **0.5 Credit** cho mỗi lượt hỏi đáp hợp lệ (áp dụng cho tài khoản người dùng thông thường, Admin/Co-Admin được miễn phí).
+  - Áp dụng **Weighted Intent Scoring Guardrail**:
+    + Chặn đứng 100% yêu cầu viết code, lập trình, giải bài tập hoặc jailbreak công nghệ lồng từ khóa phong thủy (Trả về HTTP 400 và thông báo từ chối, **không trừ credits**).
+    + Chấp nhận các câu hỏi trăn trở đời sống, bế tắc, khủng hoảng cảm xúc, định hướng tương lai, thỉnh giáo đàm đạo và thời tiết.
+- **Cơ chế Đồng Bộ Ngữ Cảnh VIP & Động Cơ BM25 In-Memory:**
+  - Khi bản ghi đã có bài luận giải VIP (4.000 - 7.000 từ), hệ thống áp dụng cơ chế **Okapi BM25 Paragraph Ranking + Semantic Chunking**:
+    + Nếu `activeSectionId` được chỉ định: Ghim Cụm đang đứng và xếp hạng BM25 nội bộ trong Cụm, tự động mở rộng quét liên Cụm nếu câu hỏi có liên quan mật thiết (score > 3.5).
+    + Nếu `activeSectionId` là `null`: Chạy thuật toán Okapi BM25 trên toàn bộ bài luận giải VIP, xếp hạng và gom các đoạn văn phù hợp nhất từ nhiều Cụm (Multi-Intent Retrieval) cho câu hỏi đa chủ đề.
+    + Fallback an toàn: Trích xuất phần Cốt cách Tổng quan / SWOT hoặc Điều Hòa Chiến Lược qua Topic Routing.
   - Ngữ cảnh lát cắt được tiêm trực tiếp vào Follow-up Prompt với chỉ thị bắt buộc AI duy trì tính nhất quán 100% với bài luận VIP đã xuất bản.
 - **Định dạng stream:** `text/event-stream`
 - **Sự kiện phát:**
-  - `message`: Chứa văn bản stream thời gian thực từ AI.
+  - `context_meta`: Sự kiện metadata ngữ cảnh phát ở đầu luồng stream:
+    ```json
+    {
+      "type": "context_meta",
+      "activeSectionId": "tu_vi_ch_2",
+      "activeSectionTitle": "QUAN LỘC - TÀI BẠCH - ĐIỀN TRẠCH",
+      "matchedSections": [
+        { "id": "tu_vi_ch_2", "title": "QUAN LỘC - TÀI BẠCH...", "score": 4.2 },
+        { "id": "tu_vi_ch_1", "title": "MỆNH - THÂN - PHÚC...", "score": 3.8 }
+      ]
+    }
+    ```
+  - `chunk`: Chứa văn bản stream thời gian thực từ AI (`{ "chunk": "..." }`).
   - `structured`: Sự kiện cuối cùng trả về đối tượng JSON chứa thông số phân tích sâu:
     ```json
     {

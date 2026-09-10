@@ -138,6 +138,7 @@ const AiChatWidget = ({
     const [streamText, setStreamText] = useState('');
     const [error, setError] = useState('');
     const [cooldown, setCooldown] = useState(0);
+    const [detectedContext, setDetectedContext] = useState(null);
 
     // Pagination & Lazy Loading States
     const [page, setPage] = useState(1);
@@ -329,6 +330,9 @@ const AiChatWidget = ({
                                 const parsed = JSON.parse(dataStr);
                                 if (parsed.error) {
                                     throw new Error(parsed.error);
+                                }
+                                if (parsed.type === 'context_meta') {
+                                    setDetectedContext(parsed);
                                 }
                                 if (parsed.chunk) {
                                     currentText += parsed.chunk;
@@ -583,19 +587,42 @@ const AiChatWidget = ({
                     </div>
 
                     {/* ACTIVE VIP CONTEXT BANNER */}
-                    {activeSection && (
+                    {(activeSection || (detectedContext && (detectedContext.activeSectionTitle || (detectedContext.matchedSections && detectedContext.matchedSections.length > 0)))) && (
                         <div className="px-3.5 py-2 bg-gradient-to-r from-amber-50/80 via-purple-50/80 to-blue-50/80 border-b border-purple-100 flex items-center justify-between text-xs animate-in fade-in duration-200">
-                            <div className="flex items-center gap-1.5 min-w-0 pr-2">
+                            <div className="flex items-center gap-1.5 min-w-0 pr-2 flex-wrap">
                                 <span className="w-2 h-2 rounded-full bg-purple-600 animate-pulse shrink-0" />
-                                <span className="font-bold text-slate-800 shrink-0">Ngữ cảnh:</span>
-                                <span className="truncate font-semibold text-purple-700" title={activeSection.title}>
-                                    {activeSection.title}
+                                <span className="font-bold text-slate-800 shrink-0">
+                                    {detectedContext?.matchedSections?.length > 1 && !activeSection ? 'Ngữ cảnh đa chiều:' : 'Ngữ cảnh:'}
                                 </span>
+                                {activeSection ? (
+                                    <span className="truncate font-semibold text-purple-700" title={activeSection.title}>
+                                        {activeSection.title}
+                                    </span>
+                                ) : detectedContext?.matchedSections?.length > 1 ? (
+                                    <div className="flex items-center gap-1 flex-wrap">
+                                        {detectedContext.matchedSections.map((sec, idx) => (
+                                            <span 
+                                                key={sec.id || idx} 
+                                                className="inline-block bg-purple-100/90 text-purple-800 border border-purple-200 text-[10px] font-bold px-2 py-0.5 rounded-full truncate max-w-[130px]" 
+                                                title={sec.title}
+                                            >
+                                                {sec.title.replace(/^Cụm \d+:\s*/i, '')}
+                                            </span>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <span className="truncate font-semibold text-purple-700" title={detectedContext?.activeSectionTitle}>
+                                        {detectedContext?.activeSectionTitle}
+                                    </span>
+                                )}
                             </div>
                             <button
                                 type="button"
-                                onClick={() => setActiveSection && setActiveSection(null)}
-                                className="p-1 rounded-full text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors shrink-0"
+                                onClick={() => {
+                                    if (setActiveSection) setActiveSection(null);
+                                    setDetectedContext(null);
+                                }}
+                                className="p-1 rounded-full text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors shrink-0 ml-1"
                                 title="Xóa ngữ cảnh (quay về đàm đạo toàn cảnh lá số)"
                             >
                                 <X size={13} />

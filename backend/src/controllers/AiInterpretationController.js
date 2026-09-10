@@ -811,6 +811,16 @@ class AiInterpretationController {
             })) || {};
             const prompt = IChingPrompts.getFollowUpPrompt(fullRecord, analyzedData, context, question, "v2.0-followup", vipContext.contextText || "");
 
+            // Gửi metadata ngữ cảnh cho client (nếu có)
+            if (vipContext.matchedSections && vipContext.matchedSections.length > 0) {
+                sendSSE({
+                    type: 'context_meta',
+                    activeSectionId: vipContext.activeSectionId,
+                    activeSectionTitle: vipContext.activeSectionTitle,
+                    matchedSections: vipContext.matchedSections
+                });
+            }
+
             // Lưu tin nhắn của User vào Database
             const userTokens = Math.ceil((question || '').length / 4);
             await Message.create({
@@ -1028,6 +1038,16 @@ class AiInterpretationController {
             })) || {};
             const prompt = BaziPrompts.getFollowUpPrompt(record.toObject(), context, question, vipContext.contextText || "");
 
+            // Gửi metadata ngữ cảnh cho client (nếu có)
+            if (vipContext.matchedSections && vipContext.matchedSections.length > 0) {
+                sendSSE({
+                    type: 'context_meta',
+                    activeSectionId: vipContext.activeSectionId,
+                    activeSectionTitle: vipContext.activeSectionTitle,
+                    matchedSections: vipContext.matchedSections
+                });
+            }
+
             // Lưu tin nhắn User vào DB
             const userTokens = Math.ceil((question || '').length / 4);
             await Message.create({
@@ -1236,6 +1256,16 @@ class AiInterpretationController {
                 userQuestion: question
             })) || {};
             const prompt = MarriagePrompts.getFollowUpPrompt(record.toObject(), context, question, "v2.0-followup", vipContext.contextText || "");
+
+            // Gửi metadata ngữ cảnh cho client (nếu có)
+            if (vipContext.matchedSections && vipContext.matchedSections.length > 0) {
+                sendSSE({
+                    type: 'context_meta',
+                    activeSectionId: vipContext.activeSectionId,
+                    activeSectionTitle: vipContext.activeSectionTitle,
+                    matchedSections: vipContext.matchedSections
+                });
+            }
 
             // Lưu tin nhắn User vào DB
             const userTokens = Math.ceil((question || '').length / 4);
@@ -1473,6 +1503,16 @@ class AiInterpretationController {
                     res.write(":\n\n");
                 }
             }, 15000);
+
+            // Gửi metadata ngữ cảnh cho client (nếu có)
+            if (vipContext.matchedSections && vipContext.matchedSections.length > 0) {
+                sendSSE({
+                    type: 'context_meta',
+                    activeSectionId: vipContext.activeSectionId,
+                    activeSectionTitle: vipContext.activeSectionTitle,
+                    matchedSections: vipContext.matchedSections
+                });
+            }
 
             const resultStream = await AiService.generateInterpretationStream(prompt, { model: ACTIVE_MODEL });
             let accumulatedText = "";

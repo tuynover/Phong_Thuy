@@ -238,32 +238,42 @@ Tổ chức biện chứng Lục Hào cổ điển kết hợp dự phóng đa k
   + Khối 3: Mốc Thời Gian Ứng Kỳ & Chiến Lược Hành Động (Địa Chi tháng/ngày ứng nghiệm, diệu kế hành động theo Đạo Dịch).
 - **Tầng 3 (Gemini Chief Editor & Strategic Harmonizer):** Tổng kết ma trận SWOT, phân định cơ hội/thách thức và đúc kết lời khuyên trí tuệ Dịch học.
 
-### 2.4 Cơ Chế Đồng Bộ Ngữ Cảnh VIP Chat Follow-up (Hybrid VIP Context Memory)
-Để hỗ trợ người dùng hỏi đáp chuyên sâu (Follow-up Chat) trên các bài luận giải VIP có độ dài từ 4.000 - 7.000 từ mà không làm quá tải token context window (~11.000 tokens) và tránh AI bị loãng thông tin, hệ thống triển khai kiến trúc **Hybrid Active-Chapter Awareness + Semantic Keyword Intent Routing** tại `ConversationContextService.js`:
+### 2.4 Cơ Chế Đồng Bộ Ngữ Cảnh VIP Chat Follow-up & Động Cơ Ngữ Nghĩa BM25 In-Memory (Hybrid VIP Context Memory)
+Để hỗ trợ người dùng hỏi đáp chuyên sâu (Follow-up Chat) trên các bài luận giải VIP có độ dài từ 4.000 - 7.000 từ mà không làm quá tải token context window (~11.000 tokens) và tránh AI bị loãng thông tin, hệ thống triển khai kiến trúc **Native In-Memory Semantic Engine** tại `ConversationContextService.js` gồm 3 thành phần chính:
 
 ```mermaid
 flowchart TD
     Client[Client Frontend] -->|Gửi câu hỏi + activeSectionId| Ctrl[AiInterpretationController]
-    Ctrl --> ConvSvc[ConversationContextService.extractVipContext]
+    Ctrl --> IntentFilter{Weighted Intent Scoring Guardrail}
+    IntentFilter -->|Trọng số < 1.5 hoặc Mẫu Code/Jailbreak| Reject[HTTP 400: Từ chối lịch thiệp, không trừ credit]
+    IntentFilter -->|Trọng số >= 1.5| ConvSvc[ConversationContextService.extractVipContext]
     
-    subgraph ContextEngine [Động Cơ Cắt Lát Ngữ Cảnh Thông Minh]
+    subgraph SemanticEngine [Động Cơ Xếp Hạng Ngữ Nghĩa BM25 In-Memory Node.js]
         ConvSvc --> CheckActive{Có activeSectionId?}
-        CheckActive -->|Có| ExtractActive[Trích xuất đúng Cụm/Chương được chọn]
-        CheckActive -->|Không| IntentRoute[Phân loại Semantic Keyword qua TOPIC_ROUTING]
-        IntentRoute -->|Khớp chủ đề| ExtractTopic[Trích xuất Cụm tương ứng: Sự nghiệp / Tài chính / Hôn nhân...]
-        IntentRoute -->|Không khớp| ExtractFallback[Fallback: Trích xuất Cốt cách Mệnh Bàn / SWOT / Điều Hòa]
+        CheckActive -->|Có: Ghim Cụm| InSectionBM25[BM25 trong nội bộ Cụm + Quét liên Cụm nếu score > 3.5]
+        CheckActive -->|Không: Toàn Cảnh| GlobalBM25[BM25 toàn cảnh trên tất cả Chunks ~150-400 từ]
+        GlobalBM25 --> MultiIntent[Multi-Intent Retrieval: Lấy Top 2-3 Chunks đa chủ đề]
     end
 
-    ExtractActive --> Slice[Cắt lát an toàn tối đa 1.200 từ ~ 5.000 ký tự]
-    ExtractTopic --> Slice
-    ExtractFallback --> Slice
-
+    InSectionBM25 --> Slice[Đóng gói trích lục bối cảnh có trích dẫn nguồn]
+    MultiIntent --> Slice
+    Slice --> SSEMeta[Gửi sự kiện SSE 'context_meta' cho Frontend hiển thị Badge]
     Slice --> PromptInject[Tiêm vipContextText vào Follow-up Prompt]
     PromptInject --> SystemDirective["Chỉ thị AI: Duy trì tính nhất quán 100% với bài luận VIP đã xuất bản"]
     SystemDirective --> GeminiStream[Gemini SSE Stream]
     GeminiStream --> Client
 ```
 
+- **Weighted Intent Scoring Guardrail:**
+  + Quét và chặn đứng tuyệt đối mẫu câu lập trình, code, công nghệ hoặc jailbreak lồng từ khóa phong thủy (-5.0 điểm).
+  + Tính điểm trọng số dương: Thuật ngữ cổ học (+3.0), Quyết định đời sống (+2.0), Bế tắc & Trăn trở nhân sinh (+1.5), Thỉnh giáo hội thoại (+1.5), Thời tiết (+1.5).
+  + Ngưỡng duyệt `score >= 1.5`: Vừa an toàn tuyệt đối trước jailbreak vừa thấu hiểu trăn trở nhân sinh tự nhiên.
+- **Okapi BM25 In-Memory ($k_1=1.2, b=0.75$):**
+  + Tách đoạn văn thành các khối ngữ nghĩa (Semantic Chunks ~150-400 từ).
+  + Tách từ tiếng Việt Unigram + Bigram (`tokenize`).
+  + Tính toán trực tiếp trên RAM Node.js Heap với độ trễ < 2ms, độ phức tạp $O(N)$, không phụ thuộc API ngoài.
+- **Multi-Intent Context Banner:**
+  + Phát sự kiện `context_meta` qua SSE để hiển thị huy hiệu đa ngữ cảnh (`🏷️ Ngữ cảnh đa chiều: ... + ...`) trên giao diện người dùng `AiChatWidget.jsx`.
 - **Tiết kiệm tài nguyên:** Giảm kích thước prompt từ ~11.000 tokens xuống chỉ còn ~1.500 tokens/lượt chat, tăng tốc độ phản hồi ban đầu (Time-to-First-Token) xuống dưới 1.2s.
 - **Tính nhất quán tuyệt đối:** AI follow-up bám sát và kế thừa toàn bộ phân tích thần sát, cách cục, đại vận và lời khuyên đã được tổng hợp ở bài luận chính, loại bỏ hiện tượng mâu thuẫn câu trả lời.
 

@@ -21,6 +21,7 @@ router.post('/bazi/:id/chat', chatCreditCheck, checkRecordOwnership, AiInterpret
 
 // Ziwei (Tử Vi) endpoints
 router.post('/ziwei/:id/interpret', optionalAuth, checkRecordOwnership, antiSpamLock(), creditCheck, AiInterpretationController.interpretZiwei);
+router.post('/ziwei/:id/chat', chatCreditCheck, checkRecordOwnership, AiInterpretationController.chatZiwei);
 // Marriage (Hợp Hôn) endpoints
 router.post('/marriage/:id/interpret', optionalAuth, checkRecordOwnership, antiSpamLock(), creditCheck, AiInterpretationController.interpretMarriage);
 router.post('/marriage/:id/chat', chatCreditCheck, checkRecordOwnership, AiInterpretationController.chatMarriage);

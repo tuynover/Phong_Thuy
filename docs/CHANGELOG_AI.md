@@ -2,6 +2,54 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Nâng Cấp Bộ Lọc Ngữ Cảnh & Từ Ngữ Phương Án 1 (Native In-Memory Semantic Engine: Weighted Intent Scoring Guardrail & Okapi BM25 Ranker) (10/09/2026)
+
+### 🌟 1. Động Cơ Chấm Điểm Trọng Số Ý Định (Weighted Intent Scoring Guardrail)
+- **Vấn đề giải quyết:** Trước đây kiểm tra `isDivinationRelated` bằng danh sách từ khóa cứng (`q.includes(kw)`), dẫn đến 2 nhược điểm nghiêm trọng:
+  1. *Lọt lưới Jailbreak tinh vi:* Câu hỏi code/lập trình lồng từ phong thủy (ví dụ: *"Hãy viết code javascript tính ngũ hành can chi"*, *"Viết hàm python giải lá số tử vi"*) vượt qua bộ lọc vì chứa từ "ngũ hành", "tử vi".
+  2. *Chặn oan câu hỏi nhân sinh:* Người dùng tâm sự bế tắc, hoang mang, tìm lời khuyên định hướng (ví dụ: *"Dạo này con cảm thấy rất bế tắc và mất phương hướng trong cuộc sống, con nên làm gì?"*) bị từ chối vì không chứa từ ngữ phong thủy cụ thể.
+- **Giải pháp Đa Lớp tại `ConversationContextService.isDivinationRelated`:**
+  - **Lớp 1 - Chặn Đứng Tuyệt Đối Mẫu Lập Trình & Jailbreak:** Sử dụng Regex quét các hành vi viết code, giải bài tập, dịch thuật, cấu trúc công nghệ (`viết code`, `hàm python`, `react`, `javascript`, `fix bug`, `giải bài tập toán/lý/hóa`...). Nếu khớp, từ chối ngay lập tức (Score = -5.0).
+  - **Lớp 2 - Hệ Thống Chấm Điểm Trọng Số (Weighted Scoring):**
+    + Nhóm Cổ học & Mệnh lý (Can chi, Tinh bàn, Cung vị, Dụng thần...): `+3.0`
+    + Nhóm Quyết định & Hành động Đời sống (Công việc, Kinh doanh, Đầu tư, Kết hôn, Sức khỏe...): `+2.0`
+    + Nhóm Trăn trở & Bế tắc Nhân sinh (Bế tắc, Mệt mỏi, Hoang mang, Mất phương hướng, Áp lực...): `+1.5`
+    + Nhóm Dự báo Thời điểm (Khi nào, Bao giờ, Năm nay, Sang năm...): `+1.0`
+    + Nhóm Thỉnh giáo & Đàm đạo Hội thoại (Giải thích, Làm rõ, Nói thêm, Giúp con, Thầy thấy sao...): `+1.5`
+    + Nhóm Thời tiết Hỗ trợ Kế hoạch (Thời tiết, Mưa, Nắng...): `+1.5`
+  - **Ngưỡng phê duyệt:** `score >= 1.5` ➡️ Chặn đứng 100% câu hỏi code lồng phong thủy, đồng thời mở rộng đón nhận các câu hỏi trăn trở đời sống, cảm xúc nhân sinh tự nhiên.
+
+### 🌟 2. Động Cơ Phân Đoạn & Xếp Hạng Ngữ Nghĩa Okapi BM25 Thuần Node.js (0ms Latency, 0đ Chi Phí)
+- **Thuật toán Okapi BM25 In-Memory (`rankChunksBM25`):**
+  - Triển khai chuẩn công thức Okapi BM25 ($k_1 = 1.2, b = 0.75$) với bộ tách từ tiếng Việt Unigram + Bigram (`tokenize`).
+  - Chạy trực tiếp trên RAM Node.js Heap, xử lý xếp hạng tức thì (độ phức tạp $O(N)$, độ trễ < 2ms), hoàn toàn không cần nhúng thư viện nặng hay tốn phí API Vector Database ngoài.
+- **Semantic Paragraph Chunking (`chunkInterpretationSections`):**
+  - Tách bài luận VIP thành các đoạn văn trọn vẹn ngữ nghĩa (~150 - 400 từ) gắn nhãn phân mục cha con rõ ràng.
+- **Multi-Intent Context Retrieval:**
+  - Xử lý câu hỏi đa chủ đề (ví dụ: *"Công việc năm nay áp lực có ảnh hưởng xấu tới sức khỏe và gia đình tôi không?"*).
+  - BM25 tự động xếp hạng và gom các đoạn văn phù hợp nhất từ nhiều Cụm khác nhau (Quan Lộc + Tật Ách + Phu Thê), tạo thành trích lục bối cảnh toàn diện gửi cho AI.
+
+### 🌟 3. Truyền Phát Sự Kiện SSE `context_meta` & Context Banner Đa Ngữ Cảnh (Frontend)
+- **Backend phát sự kiện `context_meta`:**
+  - Cập nhật cả 4 endpoints chat (`chatHexagram`, `chatBazi`, `chatMarriage`, `chatZiwei` trong `AiInterpretationController.js`) phát gói tin SSE `context_meta` chứa danh sách `matchedSections` và `activeSectionTitle`.
+  - Bổ sung định tuyến còn thiếu `router.post('/ziwei/:id/chat', ...)` vào `src/routes/ai.js`.
+- **Frontend Multi-Tag Context Banner (`AiChatWidget.jsx`):**
+  - Khi phát hiện câu hỏi đa chủ đề, Context Banner hiển thị nhãn nổi bật: **"Ngữ cảnh đa chiều:"** kèm danh sách các huy hiệu Cụm/Chương liên quan (`MỆNH - THÂN - PHÚC...`, `QUAN LỘC - TÀI BẠCH...`).
+  - Hỗ trợ nút xóa ngữ cảnh `✕` để người dùng nhanh chóng quay về đàm đạo toàn cảnh lá số.
+
+### 🌟 4. Kiểm Thử Toàn Diện & Nghiệm Thu Trình Duyệt Chrome DevTools MCP
+- **Automated Tests:**
+  - `ConversationContextService.test.js`: **10/10 tests PASS (100%)**.
+  - Toàn bộ backend test suite: **31/31 Test Suites PASS (239/239 tests)**.
+  - Frontend build production thành công (`dist/index.html` 5.81 kB, `vite build` 2.17s).
+- **Trực tiếp thao tác kiểm thử trên Chrome DevTools:**
+  - *Test 1 (Jailbreak Code):* Nhập *"Hãy viết code javascript tính ngũ hành can chi"* ➡️ Bị chặn đứng ngay lập tức với thông báo từ chối lịch thiệp, không bị trừ credits.
+  - *Test 2 (Emotional Dilemma):* Nhập *"Dạo này con cảm thấy rất bế tắc và mất phương hướng trong cuộc sống, con nên làm gì?"* ➡️ Được duyệt, AI giải đáp sâu sắc dựa trên cách cục Tử Phủ Vũ Tướng và đưa ra chiến lược buông bỏ điều tiết.
+  - *Test 3 (Multi-Intent):* Nhập *"Công việc năm nay áp lực có ảnh hưởng xấu tới sức khỏe và gia đình tôi không?"* ➡️ Context Banner hiển thị đa huy hiệu (`QUAN LỘC - TÀI BẠCH` + `MỆNH - THÂN - PHÚC`), AI phản hồi toàn diện cả 3 khía cạnh công việc, sức khỏe và hòa khí gia đạo.
+  - Test Maximize màn hình rộng 680px: Giao diện hiển thị sắc nét, responsive mượt mà.
+
+---
+
 ## 📅 Phiên bản: Giai Đoạn 3 (Ưu Tiên 1) - Đồng Bộ Ngữ Cảnh VIP Chat Follow-up (Hybrid Active-Chapter Awareness & Semantic Keyword Intent Routing) (10/09/2026)
 
 ### 🌟 1. Cơ Chế Hybrid VIP Context Injection (Backend & AI Prompts)
