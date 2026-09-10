@@ -66,7 +66,6 @@ const blogPostSchema = new mongoose.Schema({
 });
 
 // Indexes for performance and sorting
-blogPostSchema.index({ slug: 1 });
 blogPostSchema.index({ isDeleted: 1, isPublished: 1, createdAt: -1 });
 
 module.exports = mongoose.model('BlogPost', blogPostSchema);

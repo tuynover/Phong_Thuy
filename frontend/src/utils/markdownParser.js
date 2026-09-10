@@ -14,7 +14,7 @@ export const parseMarkdownSections = (text, prefix = 'sec') => {
   // - "## CHƯƠNG 1: SỰ NGHIỆP & CÔNG DANH"
   // - "CHƯƠNG 1: SỰ NGHIỆP & CÔNG DANH"
   // - "### CHƯƠNG 1: SỰ NGHIỆP & CÔNG DANH"
-  const chapterRegex = /^(?:#{1,3}\s*)?(?:CHƯƠNG|Chương|CHAPTER|Chapter)\s*(\d+)\s*(?::|-|–|\.)\s*(.*)$/i;
+  const chapterRegex = /^(?:#{1,3}\s*)?(?:CHƯƠNG|Chương|CHAPTER|Chapter|CỤM|Cụm|TRỤ CỘT|Trụ cột|TRỤ|Trụ|KỊCH BẢN|Kịch bản|KHỐI|Khối)\s*(\d+)\s*(?::|-|–|\.)\s*(.*)$/i;
 
   // 2. Bước / Phần / Step regex:
   // Matches:
@@ -32,7 +32,13 @@ export const parseMarkdownSections = (text, prefix = 'sec') => {
   // 5. Numbered H2 or H3 with general step numbers (like in Tu Vi or IChing, e.g. "## 1. Bản Mệnh" or "### 1. Title"):
   // Note: Only match if prefix is NOT bazi OR if the title has a major indicator, to avoid matching subtopics
   const numberedStepRegex = /^(#{2,3})\s*(\d+(?:\.\d+)?)\s*(?::|-|–|\.)\s*(.*)$/;
-  
+  const hasChapters = lines.some(l => chapterRegex.test(l.trim()));
+  const isZiwei = prefix === 'ziwei' || prefix === 'tu_vi';
+  const isMarriage = prefix === 'marriage';
+  const isIChing = prefix === 'iching';
+  const isBazi = prefix === 'bazi';
+  const prefixLabel = isZiwei ? 'Cụm' : isMarriage ? 'Trụ Cột' : isIChing ? 'Kịch Bản' : 'Chương';
+
   for (let i = 0; i < lines.length; i++) {
     const rawLine = lines[i];
     const trimmed = rawLine.trim();
@@ -47,20 +53,10 @@ export const parseMarkdownSections = (text, prefix = 'sec') => {
     const nhatChuMatch = trimmed.match(nhatChuRegex);
     const summaryMatch = trimmed.match(summaryRegex);
     
-    // Only match generic numbered steps if it's not a VIP Bazi chapter subtopic (subtopics like "### 1. Năng lực...")
+    // Only match generic numbered steps if NOT in a chapter-based report (VIP reports have subheadings ### 1. inside chapters)
     let numberedStepMatch = null;
-    if (!chapterMatch && !buocMatch && !nhatChuMatch && !summaryMatch) {
-      const candidateMatch = rawLine.match(numberedStepRegex);
-      if (candidateMatch) {
-        // If current section is already a chapter (e.g. bazi_ch_1), do NOT treat "### 1. Subtopic" as a new section!
-        const isInsideChapter = currentSection && currentSection.id.includes('_ch_');
-        if (!isInsideChapter) {
-          // If H2 (##) or non-bazi prefix (e.g. tu_vi, iching, marriage), allow step splitting
-          if (candidateMatch[1] === '##' || prefix !== 'bazi') {
-            numberedStepMatch = candidateMatch;
-          }
-        }
-      }
+    if (!hasChapters && !chapterMatch && !buocMatch && !nhatChuMatch && !summaryMatch) {
+      numberedStepMatch = rawLine.match(numberedStepRegex);
     }
     
     if (chapterMatch) {
@@ -73,17 +69,21 @@ export const parseMarkdownSections = (text, prefix = 'sec') => {
       }
       
       const num = chapterMatch[1];
-      const rawTitle = chapterMatch[2]
+      let rawTitle = chapterMatch[2]
         .replace(/^\*\*?/, '')
         .replace(/\*\*?$/, '')
         .trim();
         
+      // Clean redundant prefixes like "CỤM 1: CỤM MỆNH..." or "CHƯƠNG 1: ..."
+      rawTitle = rawTitle.replace(/^(?:CỤM|CHƯƠNG|TRỤ CỘT|KỊCH BẢN|KHỐI)\s*\d*[:\s–-]*/i, '').trim();
+      rawTitle = rawTitle.replace(/^[\s:&–-]+/, '').trim();
+        
       currentSection = {
         id: `${prefix}_ch_${num}`,
-        title: rawTitle ? `Chương ${num}: ${rawTitle}` : `Chương ${num}`,
+        title: rawTitle ? `${prefixLabel} ${num}: ${rawTitle}` : `${prefixLabel} ${num}`,
         content: []
       };
-    } else if (buocMatch) {
+    } else if (buocMatch && !hasChapters) {
       if (currentSection) {
         sections.push({
           id: currentSection.id,
@@ -103,7 +103,7 @@ export const parseMarkdownSections = (text, prefix = 'sec') => {
         title: rawTitle ? `Bước ${num}: ${rawTitle}` : `Bước ${num}`,
         content: []
       };
-    } else if (nhatChuMatch && (!currentSection || !currentSection.id.includes('nhat_chu'))) {
+    } else if (nhatChuMatch && (!currentSection || (!currentSection.id.includes('intro') && !currentSection.id.includes('nhat_chu')))) {
       if (currentSection) {
         sections.push({
           id: currentSection.id,
@@ -112,14 +112,29 @@ export const parseMarkdownSections = (text, prefix = 'sec') => {
         });
       }
       
-      const rawSubtitle = nhatChuMatch[1]
+      let rawSubtitle = (nhatChuMatch[1] || '')
         .replace(/^\*\*?/, '')
         .replace(/\*\*?$/, '')
         .trim();
+      rawSubtitle = rawSubtitle.replace(/^[\s:&–-]+/, '').trim();
+
+      const defaultTitle = isZiwei ? 'Định Vị Bản Mệnh & Tinh Đồ' :
+                           isMarriage ? 'Tổng Quan Bản Mệnh Phối Ngẫu' :
+                           isIChing ? 'Tổng Quan Quẻ Dịch' : 'Phân Tích Nhật Chủ & Bản Mệnh';
+
+      let sectionTitle = defaultTitle;
+      if (rawSubtitle) {
+        const prefixTitle = isZiwei ? 'Định Vị Bản Mệnh' :
+                            isMarriage ? 'Tổng Quan Bản Mệnh' :
+                            isIChing ? 'Tổng Quan Quẻ Dịch' : 'Phân Tích Nhật Chủ';
+        sectionTitle = rawSubtitle.toLowerCase().includes(prefixTitle.toLowerCase())
+          ? rawSubtitle
+          : `${prefixTitle}: ${rawSubtitle}`;
+      }
         
       currentSection = {
-        id: `${prefix}_nhat_chu`,
-        title: rawSubtitle ? `Phân Tích Nhật Chủ: ${rawSubtitle}` : 'Phân Tích Nhật Chủ & Bản Mệnh',
+        id: `${prefix}_intro`,
+        title: sectionTitle,
         content: []
       };
     } else if (summaryMatch && (!currentSection || !currentSection.id.includes('dieu_hoa'))) {
@@ -131,9 +146,11 @@ export const parseMarkdownSections = (text, prefix = 'sec') => {
         });
       }
       
-      const rawTitle = summaryMatch[1]
-        ? summaryMatch[1].replace(/^\*\*?/, '').replace(/\*\*?$/, '').trim()
-        : '';
+      let rawTitle = (summaryMatch[1] || '')
+        .replace(/^\*\*?/, '')
+        .replace(/\*\*?$/, '')
+        .trim();
+      rawTitle = rawTitle.replace(/^[\s:&–-]+/, '').trim();
         
       currentSection = {
         id: `${prefix}_dieu_hoa`,
@@ -166,8 +183,10 @@ export const parseMarkdownSections = (text, prefix = 'sec') => {
       } else {
         if (trimmed) {
           currentSection = {
-            id: `${prefix}_nhat_chu`,
-            title: 'Phân Tích Nhật Chủ & Bản Mệnh',
+            id: `${prefix}_intro`,
+            title: isZiwei ? 'Định Vị Bản Mệnh & Tinh Đồ' :
+                   isMarriage ? 'Tổng Quan Bản Mệnh Phối Ngẫu' :
+                   isIChing ? 'Tổng Quan Quẻ Dịch' : 'Phân Tích Nhật Chủ & Bản Mệnh',
             content: [rawLine]
           };
         }
@@ -183,5 +202,22 @@ export const parseMarkdownSections = (text, prefix = 'sec') => {
     });
   }
   
-  return sections;
+  // Filter out any sections that ended up completely empty
+  const validSections = sections.filter(s => s.content && s.content.trim().length > 0);
+
+  // Ensure unique IDs across sections to prevent duplicate key console errors
+  const idCounts = {};
+  return validSections.map((sec, idx) => {
+    let finalId = sec.id || `${prefix}_sec_${idx}`;
+    if (idCounts[finalId] !== undefined) {
+      idCounts[finalId]++;
+      finalId = `${finalId}_${idCounts[finalId]}`;
+    } else {
+      idCounts[finalId] = 0;
+    }
+    return {
+      ...sec,
+      id: finalId
+    };
+  });
 };

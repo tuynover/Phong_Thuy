@@ -58,6 +58,7 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
     const [loadingStep, setLoadingStep] = useState(0);
     const [abortController, setAbortController] = useState(null);
     const [isChatOpen, setIsChatOpen] = useState(false);
+    const [activeConsultSection, setActiveConsultSection] = useState(null);
 
     const [rating, setRating] = useState(0);
     const [feedback, setFeedback] = useState('');
@@ -940,13 +941,14 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
                             <BookOpen className="text-white" size={16} />
                         </div>
                         <h3 className="text-xl font-extrabold text-slate-800 tracking-tight">
-                            {interpretationMode === 'vip' ? 'Luận Giải Hợp Hôn Chuyên Sâu (6 Chương)' : 'Thầy Luận Giải Bát Tự Hợp Hôn'}
+                            {interpretationMode === 'vip' ? 'Luận Giải Hợp Hôn Chuyên Sâu (4 Trụ Cột Hạnh Phúc)' : 'Thầy Luận Giải Bát Tự Hợp Hôn'}
                         </h3>
                     </div>
 
-                    {/* Tracker 6 Chương */}
+                    {/* Tracker 4 Trụ Cột Hạnh Phúc */}
                     {interpretationMode === 'vip' && (
                         <VipProgressTracker
+                            system="marriage"
                             completedChapters={vipCompletedChapters}
                             activeChapters={vipActiveChapters}
                             streamingChapter={vipStreamingChapter}
@@ -957,13 +959,21 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
                     )}
 
                     {interpretation && (
-                        <SectionRenderer sections={parseMarkdownSections(interpretation, 'marriage')} theme="marriage" />
+                        <SectionRenderer 
+                            sections={parseMarkdownSections(interpretation, 'marriage')} 
+                            theme="marriage" 
+                            onConsultSection={(sec) => {
+                                setActiveConsultSection(sec);
+                                setIsChatOpen(true);
+                            }}
+                        />
                     )}
 
                     {/* Banner Nâng Cấp VIP ở cuối bài luận giải thường */}
                     {interpretation && interpretationMode !== 'vip' && !isInterpreting && (
                         <div className="mt-8">
                             <VipUpgradeBanner
+                                system="marriage"
                                 userCredits={user?.credits || 0}
                                 onUpgradeClick={() => {
                                     setIsUpgradeModal(true);
@@ -1105,6 +1115,8 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
                     userId={user?.id || user?._id} 
                     isOpen={isChatOpen}
                     setIsOpen={setIsChatOpen}
+                    activeSection={activeConsultSection}
+                    setActiveSection={setActiveConsultSection}
                 />
             )}
 
@@ -1115,6 +1127,7 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
                 onConfirm={triggerLuanGiai}
                 userCredits={user?.credits || 0}
                 isUpgrade={isUpgradeModal}
+                system="marriage"
             />
 
             {/* FLOATING SCROLL BUTTONS */}

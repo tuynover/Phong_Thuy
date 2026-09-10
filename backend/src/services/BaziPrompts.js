@@ -284,7 +284,7 @@ ${safety}`;
     /**
      * Dành riêng cho Chat Hỏi Đáp AI tiếp nối (Follow-up Chat)
      */
-    static getFollowUpPrompt(baziRecord, context, newQuestion) {
+    static getFollowUpPrompt(baziRecord, context, newQuestion, vipContextText = "") {
         const { inputInfo, baziData } = baziRecord;
         const genderText = inputInfo.gender === 1 ? 'Nam' : 'Nữ';
         const canChi = baziData.canChi;
@@ -302,7 +302,7 @@ Nhiệm vụ của bạn là giải đáp câu hỏi thắc mắc mới nhất c
 - Thai Nguyên: Can Chi ${baziData.taiNguyen?.canChi} | Nạp Âm: ${baziData.taiNguyen?.naYin}
 - Cung Mệnh: Can Chi ${baziData.cungMenh?.canChi} | Nạp Âm: ${baziData.cungMenh?.naYin}
 - Điểm tin cậy cơ sở của Lá số: 0.85
-
+${vipContextText ? `\n${vipContextText}\n` : ''}
 --- BỐI CẢNH LỊCH SỬ ĐỐI THOẠI ---
 - Tóm tắt trước đó: ${context.summary}
 - Các câu thoại gần nhất:
@@ -316,7 +316,7 @@ ${safety}
 --- YÊU CẦU BẮT BUỘC VỀ ĐẦU RA ---
 Bạn phải trả về một đối tượng JSON duy nhất theo cấu trúc sau, KHÔNG bọc trong khối code \`\`\`json \`\`\$, KHÔNG thêm bất kỳ văn bản nào khác ngoài JSON:
 {
-  "answer": "Lời giải đáp trực tiếp, đi thẳng vào câu hỏi, tuyệt đối không chào hỏi dông dài hay lặp lại các lý thuyết cũ. Trình bày bằng định dạng Markdown, sử dụng các gạch đầu dòng rõ ràng để người dùng dễ đọc...",
+  "answer": "Lời giải đáp trực tiếp, đi thẳng vào câu hỏi, tuyệt đối không chào hỏi dông dài hay lặp lại các lý thuyết cũ. Trình bày bằng định dạng Markdown, sử dụng các gạch đầu dòng rõ ràng để người dùng dễ đọc. Phải duy trì tính nhất quán 100% với bài luận giải VIP nếu có...",
   "dos": "Những việc hỷ dụng, cát lợi nên làm (hành vi, lối sống, màu sắc, phương hướng, ngành nghề, hay thời gian cát lợi liên quan đến câu hỏi). Viết dạng Markdown gạch đầu dòng rõ ràng. Nếu không có, ghi null.",
   "donts": "Những việc kỵ thần, hung hại cần tránh (hành vi xấu cần tiết chế, các hướng/màu sắc/thời điểm bất lợi, cảnh báo rủi ro). Viết dạng Markdown gạch đầu dòng rõ ràng. Nếu không có, ghi null.",
   "confidence": 0.80

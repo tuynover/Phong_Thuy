@@ -273,22 +273,37 @@ Lấy thông tin chi tiết (Lục Thân, Lục Thú, Hào Thế/Ứng) để hi
   ```json
   {
     "userId": "uuid-v7...",
-    "mode": "standard" // Hoặc "vip" cho luận giải chuyên sâu 6 Chương
+    "mode": "standard" // Hoặc "vip" cho luận giải chuyên sâu đa tầng
   }
   ```
 - **Chính sách Trừ Credit:**
   - **Bản Cơ Bản (`mode: "standard"`):** Trừ **1 Credit**. Dung lượng 800 - 1.200 từ, luận giải tổng quan tức thời.
-  - **Bản Chuyên Sâu VIP (`mode: "vip"`):** Trừ **5 Credits**. Kiến trúc Multi-Agent 3 Tầng (Qwen Plus + Gemini 3.1 Flash Lite tích hợp Gemini Chief Editor & Strategic Harmonizer), dung lượng 6.500+ từ (~34.000 ký tự), giải mã chi tiết qua 6 Chương học thuật, Ma Trận SWOT thực chiến và chuyên đề Điều Hòa Chiến Lược Đa Mục Tiêu.
+  - **Bản Chuyên Sâu VIP (`mode: "vip"`):** Trừ **5 Credits**.
+    + **Bát Tự:** Kiến trúc Multi-Agent 3 Tầng, dung lượng 6.500+ từ (~34.000 ký tự), giải mã qua 6 Chương học thuật, Ma Trận SWOT và Điều Hòa Chiến Lược Đa Mục Tiêu.
+    + **Tử Vi:** Kiến trúc Multi-Agent 4 Tầng (Cốt Cách CoT + Tứ Hóa CoT + 5 Replicas Cụm Cung song song + Gemini Flash Lite Chief Editor tổng kết 3 Bước Ngoặt & Cải Vận).
+    + **Hợp Hôn:** Kiến trúc Multi-Agent 3 Tầng (Tương Quan CoT + 4 Replicas 4 Trụ Cột song song: Cốt Cách Tâm Lý, Tài Chính Tổ Ấm, Hóa Giải Xung Khắc, Con Cái Trăm Năm + Gemini Chief Editor tổng hợp phác đồ hòa hợp).
+    + **Kinh Dịch:** Kiến trúc Multi-Agent 3 Tầng (Lục Hào CoT + 3 Replicas 3 Khối song song: Biện Chứng Lục Hào, 3 Kịch Bản Diễn Tiến Thuận/Nghịch/Đột Phá, Mốc Thời Gian Ứng Kỳ + Gemini Chief Editor đúc kết Đạo Dịch).
   - **Nâng Cấp từ Cơ Bản lên VIP (`isUpgrade: true`):** Chỉ trừ **4 Credits** (bù chênh lệch `5 - 1 = 4 credits`). Hệ thống thực hiện 0ms Instant Reset, xóa bài cũ và stream bản VIP mới.
   - **Chặn trùng lặp (Idempotent Guard):** Nếu bản ghi đã có bài VIP hoàn chỉnh (`aiInterpretation.mode === 'vip'`), hệ thống chặn 0ms, không trừ thêm credit và stream trực tiếp từ bản lưu cache.
 - **Định dạng stream:** `text/event-stream`
 - **Các gói tin SSE phát:**
-  - **Tiến độ Chương VIP (Progress Event):**
+  - **Tiến độ Chương / Cụm Cung / Trụ Cột / Kịch Bản VIP (Progress Event):**
     ```json
+    // Bát Tự (chapterId: 1..6)
     data: {"chapterId": 1, "status": "in_progress", "title": "Sự Nghiệp & Công Danh"}
-    ```
-    ```json
     data: {"chapterId": 1, "status": "completed", "title": "Sự Nghiệp & Công Danh"}
+
+    // Tử Vi (clusterId: 1..5)
+    data: {"clusterId": 1, "status": "in_progress", "title": "Mệnh - Thân - Phúc Đức"}
+    data: {"clusterId": 1, "status": "completed", "title": "Mệnh - Thân - Phúc Đức"}
+
+    // Hợp Hôn (chapterId: 1..4)
+    data: {"chapterId": 1, "status": "in_progress", "title": "Cốt Cách & Tâm Lý Phối Ngẫu"}
+    data: {"chapterId": 1, "status": "completed", "title": "Cốt Cách & Tâm Lý Phối Ngẫu"}
+
+    // Kinh Dịch (chapterId: 1..3)
+    data: {"chapterId": 1, "status": "in_progress", "title": "Biện Chứng Lục Hào Cốt Lõi"}
+    data: {"chapterId": 1, "status": "completed", "title": "Biện Chứng Lục Hào Cốt Lõi"}
     ```
   - **Nội dung văn bản (Text Chunks):**
     ```json
@@ -302,15 +317,25 @@ Lấy thông tin chi tiết (Lục Thân, Lục Thú, Hào Thế/Ứng) để hi
 
 ### 3.2 Chat Hỏi đáp sâu (Follow-up Chat - SSE Stream)
 - **Endpoint:** `POST /api/ai/iching/:id/chat` (hoặc `/bazi/:id/chat`, `/ziwei/:id/chat`, `/marriage/:id/chat`)
+- **Headers:** `Authorization: Bearer <token>`, `Content-Type: application/json`
 - **Body:**
   ```json
   {
-    "message": "Hào động thứ 3 hoặc cung Quan Lộc có ý nghĩa gì?"
+    "message": "Hào động thứ 3 hoặc cung Quan Lộc có ý nghĩa gì?",
+    "activeSectionId": "bazi_ch_1" // Tùy chọn: ID của Cụm/Chương đang đàm đạo (ví dụ: bazi_ch_1, tu_vi_ch_2, marriage_ch_1, iching_ch_2)
   }
   ```
+- **Chính sách Trừ Credit:**
+  - Trừ **0.5 Credit** cho mỗi lượt hỏi đáp (áp dụng cho tài khoản người dùng thông thường, Admin/Co-Admin được miễn phí).
+- **Cơ chế Đồng Bộ Ngữ Cảnh VIP (VIP Context Memory):**
+  - Khi bản ghi đã có bài luận giải VIP (4.000 - 7.000 từ), hệ thống áp dụng cơ chế **Hybrid Active-Chapter Awareness + Semantic Keyword Intent Routing**:
+    + Nếu `activeSectionId` được chỉ định: Trích xuất chính xác nội dung của Cụm/Chương tương ứng (~800 - 1.200 từ, tối đa 5.000 ký tự).
+    + Nếu `activeSectionId` là `null`: Tự động phân tích từ khóa câu hỏi (`message`) qua từ điển `TOPIC_ROUTING` để trích xuất Cụm liên quan nhất.
+    + Fallback: Trích xuất phần Cốt cách Tổng quan / SWOT hoặc Điều Hòa Chiến Lược.
+  - Ngữ cảnh lát cắt được tiêm trực tiếp vào Follow-up Prompt với chỉ thị bắt buộc AI duy trì tính nhất quán 100% với bài luận VIP đã xuất bản.
 - **Định dạng stream:** `text/event-stream`
 - **Sự kiện phát:**
-  - `message`: Chứa văn bản stream.
+  - `message`: Chứa văn bản stream thời gian thực từ AI.
   - `structured`: Sự kiện cuối cùng trả về đối tượng JSON chứa thông số phân tích sâu:
     ```json
     {

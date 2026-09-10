@@ -154,16 +154,32 @@ class AiInterpretationController {
             let accumulatedText = "";
             let usageMetadata = null;
 
-            const resultStream = await AiService.generateInterpretationStream(prompt, { model: ACTIVE_MODEL });
-            for await (const chunk of resultStream.stream) {
-                if (!isConnectionOpen) {
-                    console.log(`[SSE] Client closed connection, stopping IChing stream.`);
-                    break;
+            if (isVipMode) {
+                const birthYear = record.lunarDateInfo?.solarYear || record.solarYear || new Date().getFullYear();
+                const vipResult = await MultiAgentPipelineService.runIChingVipPipelineStream(prompt, birthYear, {
+                    onProgress: (progress) => sendSSE(progress)
+                });
+                for await (const chunk of vipResult.stream) {
+                    if (!isConnectionOpen) {
+                        console.log(`[SSE] Client closed connection, stopping IChing VIP stream.`);
+                        break;
+                    }
+                    const chunkText = typeof chunk === 'string' ? chunk : new TextDecoder().decode(chunk);
+                    accumulatedText += chunkText;
+                    sendSSE({ chunk: chunkText });
                 }
-                if (chunk.usageMetadata) usageMetadata = chunk.usageMetadata;
-                const chunkText = chunk.text();
-                accumulatedText += chunkText;
-                sendSSE({ chunk: chunkText });
+            } else {
+                const resultStream = await AiService.generateInterpretationStream(prompt, { model: ACTIVE_MODEL });
+                for await (const chunk of resultStream.stream) {
+                    if (!isConnectionOpen) {
+                        console.log(`[SSE] Client closed connection, stopping IChing stream.`);
+                        break;
+                    }
+                    if (chunk.usageMetadata) usageMetadata = chunk.usageMetadata;
+                    const chunkText = chunk.text();
+                    accumulatedText += chunkText;
+                    sendSSE({ chunk: chunkText });
+                }
             }
 
             if (!isConnectionOpen) {
@@ -428,16 +444,32 @@ class AiInterpretationController {
             let accumulatedText = "";
             let usageMetadata = null;
 
-            const resultStream = await AiService.generateInterpretationStream(prompt, { model: ACTIVE_MODEL });
-            for await (const chunk of resultStream.stream) {
-                if (!isConnectionOpen) {
-                    console.log(`[SSE] Client closed connection, stopping Marriage stream.`);
-                    break;
+            if (isVipMode) {
+                const birthYear = record.male?.birthSolarYear || record.male?.date?.split('/')?.[2] || record.female?.birthSolarYear || new Date().getFullYear();
+                const vipResult = await MultiAgentPipelineService.runMarriageVipPipelineStream(prompt, birthYear, {
+                    onProgress: (progress) => sendSSE(progress)
+                });
+                for await (const chunk of vipResult.stream) {
+                    if (!isConnectionOpen) {
+                        console.log(`[SSE] Client closed connection, stopping Marriage VIP stream.`);
+                        break;
+                    }
+                    const chunkText = typeof chunk === 'string' ? chunk : new TextDecoder().decode(chunk);
+                    accumulatedText += chunkText;
+                    sendSSE({ chunk: chunkText });
                 }
-                if (chunk.usageMetadata) usageMetadata = chunk.usageMetadata;
-                const chunkText = chunk.text();
-                accumulatedText += chunkText;
-                sendSSE({ chunk: chunkText });
+            } else {
+                const resultStream = await AiService.generateInterpretationStream(prompt, { model: ACTIVE_MODEL });
+                for await (const chunk of resultStream.stream) {
+                    if (!isConnectionOpen) {
+                        console.log(`[SSE] Client closed connection, stopping Marriage stream.`);
+                        break;
+                    }
+                    if (chunk.usageMetadata) usageMetadata = chunk.usageMetadata;
+                    const chunkText = chunk.text();
+                    accumulatedText += chunkText;
+                    sendSSE({ chunk: chunkText });
+                }
             }
 
             if (!isConnectionOpen) {
@@ -563,16 +595,32 @@ class AiInterpretationController {
             let accumulatedText = "";
             let usageMetadata = null;
 
-            const resultStream = await AiService.generateInterpretationStream(prompt, { model: ACTIVE_MODEL });
-            for await (const chunk of resultStream.stream) {
-                if (!isConnectionOpen) {
-                    console.log(`[SSE] Client closed connection, stopping Ziwei stream.`);
-                    break;
+            if (isVipMode) {
+                const birthYear = record.inputInfo?.birthSolarYear || record.inputInfo?.date?.split('/')?.[2];
+                const vipResult = await MultiAgentPipelineService.runZiweiVipPipelineStream(prompt, birthYear, {
+                    onProgress: (progress) => sendSSE(progress)
+                });
+                for await (const chunk of vipResult.stream) {
+                    if (!isConnectionOpen) {
+                        console.log(`[SSE] Client closed connection, stopping Ziwei VIP stream.`);
+                        break;
+                    }
+                    const chunkText = typeof chunk === 'string' ? chunk : new TextDecoder().decode(chunk);
+                    accumulatedText += chunkText;
+                    sendSSE({ chunk: chunkText });
                 }
-                if (chunk.usageMetadata) usageMetadata = chunk.usageMetadata;
-                const chunkText = chunk.text();
-                accumulatedText += chunkText;
-                sendSSE({ chunk: chunkText });
+            } else {
+                const resultStream = await AiService.generateInterpretationStream(prompt, { model: ACTIVE_MODEL });
+                for await (const chunk of resultStream.stream) {
+                    if (!isConnectionOpen) {
+                        console.log(`[SSE] Client closed connection, stopping Ziwei stream.`);
+                        break;
+                    }
+                    if (chunk.usageMetadata) usageMetadata = chunk.usageMetadata;
+                    const chunkText = chunk.text();
+                    accumulatedText += chunkText;
+                    sendSSE({ chunk: chunkText });
+                }
             }
 
             if (!isConnectionOpen) {
@@ -631,7 +679,7 @@ class AiInterpretationController {
 
     static async chatHexagram(req, res) {
         const { id } = req.params;
-        const { question } = req.body;
+        const { question, activeSectionId } = req.body;
 
         if (!question || !question.trim()) {
             return res.status(400).json({ error: 'Câu hỏi không được để trống.' });
@@ -755,7 +803,13 @@ class AiInterpretationController {
             };
 
             // 7. Tạo Prompt Follow-up
-            const prompt = IChingPrompts.getFollowUpPrompt(fullRecord, analyzedData, context, question);
+            const vipContext = (ConversationContextService.extractVipContext && ConversationContextService.extractVipContext({
+                record,
+                system: 'iching',
+                activeSectionId,
+                userQuestion: question
+            })) || {};
+            const prompt = IChingPrompts.getFollowUpPrompt(fullRecord, analyzedData, context, question, "v2.0-followup", vipContext.contextText || "");
 
             // Lưu tin nhắn của User vào Database
             const userTokens = Math.ceil((question || '').length / 4);
@@ -879,7 +933,7 @@ class AiInterpretationController {
 
     static async chatBazi(req, res) {
         const { id } = req.params;
-        const { question } = req.body;
+        const { question, activeSectionId } = req.body;
 
         if (!question || !question.trim()) {
             return res.status(400).json({ error: 'Câu hỏi không được để trống.' });
@@ -966,7 +1020,13 @@ class AiInterpretationController {
             const context = await ConversationContextService.buildConversationContext('bazi', conversation._id);
 
             // 7. Tạo Prompt
-            const prompt = BaziPrompts.getFollowUpPrompt(record.toObject(), context, question);
+            const vipContext = (ConversationContextService.extractVipContext && ConversationContextService.extractVipContext({
+                record,
+                system: 'bazi',
+                activeSectionId,
+                userQuestion: question
+            })) || {};
+            const prompt = BaziPrompts.getFollowUpPrompt(record.toObject(), context, question, vipContext.contextText || "");
 
             // Lưu tin nhắn User vào DB
             const userTokens = Math.ceil((question || '').length / 4);
@@ -1089,7 +1149,7 @@ class AiInterpretationController {
 
     static async chatMarriage(req, res) {
         const { id } = req.params;
-        const { question } = req.body;
+        const { question, activeSectionId } = req.body;
 
         if (!question || !question.trim()) {
             return res.status(400).json({ error: 'Câu hỏi không được để trống.' });
@@ -1169,7 +1229,13 @@ class AiInterpretationController {
             const context = await ConversationContextService.buildConversationContext('marriage', conversation._id);
 
             // 6. Tạo Prompt
-            const prompt = MarriagePrompts.getFollowUpPrompt(record.toObject(), context, question);
+            const vipContext = (ConversationContextService.extractVipContext && ConversationContextService.extractVipContext({
+                record,
+                system: 'marriage',
+                activeSectionId,
+                userQuestion: question
+            })) || {};
+            const prompt = MarriagePrompts.getFollowUpPrompt(record.toObject(), context, question, "v2.0-followup", vipContext.contextText || "");
 
             // Lưu tin nhắn User vào DB
             const userTokens = Math.ceil((question || '').length / 4);
@@ -1294,7 +1360,7 @@ class AiInterpretationController {
         let pingInterval = null;
         try {
             const { id } = req.params;
-            const { question } = req.body;
+            const { question, activeSectionId } = req.body;
 
             if (!question || !question.trim()) {
                 return res.status(400).json({ error: 'Câu hỏi không được để trống.' });
@@ -1363,7 +1429,14 @@ class AiInterpretationController {
             const compressedChart = ZiweiFormatter.compressForAi(record);
             const symbolicAnalysis = record.analysisSnapshot || SymbolicAnalyzer.analyze(record.chartData);
 
-            const prompt = ZiweiPrompts.buildFollowUpPrompt(compressedChart, symbolicAnalysis, memoryContext, historyPrompt, question);
+            const vipContext = (ConversationContextService.extractVipContext && ConversationContextService.extractVipContext({
+                record,
+                system: 'ziwei',
+                activeSectionId,
+                userQuestion: question
+            })) || {};
+
+            const prompt = ZiweiPrompts.buildFollowUpPrompt(compressedChart, symbolicAnalysis, memoryContext, historyPrompt, question, vipContext.contextText || "");
 
             const userTokens = Math.ceil((question || '').length / 4);
             

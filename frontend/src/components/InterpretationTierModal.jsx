@@ -1,10 +1,150 @@
 import React, { useState } from 'react';
 import { Sparkles, Check, Zap, BookOpen, Crown, X } from 'lucide-react';
 
-const InterpretationTierModal = ({ isOpen, onClose, onConfirm, userCredits = 0, isUpgrade = false }) => {
-  const [selectedTier, setSelectedTier] = useState('vip'); // Mặc định chọn Chuyên Sâu
+const SYSTEM_TIER_INFO = {
+  bazi: {
+    systemName: 'Bát Tự Hà Lạc',
+    upgradeTitle: 'Bản Chuyên Sâu 6 Chương Học Thuật',
+    upgradeDescription: 'Hệ thống sẽ tái lập và nâng cấp bản luận giải thành công trình nghiên cứu toàn diện 5.000+ từ qua 6 Chuyên đề học thuật: Sự Nghiệp, Tài Chính, Hôn Nhân, Sức Khỏe Đông Y, Phong Thủy Cải Vận và Lộ Trình Đại Vận 100 Năm.',
+    upgradeBullets: [
+      'Phân tích đa chiều từng điểm gãy vận hạn, cơ hội bứt phá và chu kỳ biến cố lớn',
+      'Bảng dự báo Lưu Niên chi tiết, định vị rõ thời điểm nên tiến thủ hay thu mình phòng thủ',
+      'Bộ giải pháp Phong Thủy cá nhân hóa và Dụng Thần điều hòa năng lượng bản mệnh'
+    ],
+    standard: {
+      title: 'Luận Giải Cơ Bản',
+      badge: '1 Credit',
+      description: 'Bản phân tích cô đọng, nhanh chóng nắm bắt bức tranh tổng quan về nguyên cục và cát hung cốt lõi.',
+      bullets: [
+        'Khảo sát nguyên cục: Can Chi, Ngũ Hành, Thần Sát cốt lõi',
+        'Đánh giá Thân Vượng / Thân Nhược và Dụng Thần sơ khởi',
+        'Luận giải cô đọng các phương diện đời người (800 - 1.200 từ)',
+        'Định hướng ứng xử và chiến lược tổng quan năm hiện tại'
+      ]
+    },
+    vip: {
+      title: 'Luận Giải Chuyên Sâu',
+      badge: '5 Credits',
+      description: 'Công trình học thuật toàn diện 5.000+ từ phân tích sâu sắc cả cuộc đời qua 6 Chuyên đề chuyên biệt.',
+      bullets: [
+        { bold: '6 Chuyên Đề Luận Giải:', text: ' Sự Nghiệp, Tài Vận, Hôn Nhân, Sức Khỏe, Cải Vận, Đại Vận 100 Năm' },
+        { bold: 'Khảo cứu sâu sắc 5.000+ từ:', text: ' Giải mã từng điểm gãy vận hạn, chu kỳ biến cố và thời cơ bứt phá' },
+        { bold: 'Bảng Diễn Biến Đại Vận & Lưu Niên:', text: ' Lộ trình chiến lược năm nào nên tiến công, năm nào cần phòng thủ' },
+        { bold: 'Bộ Giải Pháp Phong Thủy Cải Vận:', text: ' Phương vị, màu sắc, dưỡng sinh tạng phủ và Dụng Thần điều hòa' }
+      ]
+    }
+  },
+  ziwei: {
+    systemName: 'Tử Vi Đẩu Số',
+    upgradeTitle: 'Bản Chuyên Sâu 5 Cụm Cung Toàn Đồ',
+    upgradeDescription: 'Hệ thống kích hoạt tổ hợp Multi-Agent khai phá 5 Cụm Cung Toàn Đồ, kết hợp giám định Cốt cách Mệnh Thân & Cục, truy vết Tứ Hóa Phi Tinh, Ma Trận Mệnh Bàn SWOT và Lộ Trình Đại Hạn 10 Năm.',
+    upgradeBullets: [
+      'Truy vết dòng chảy Tứ Hóa Phi Tinh (Hóa Lộc, Hóa Quyền, Hóa Khoa, Hóa Kỵ) tương tác với 12 cung số',
+      'Ma Trận Mệnh Bàn SWOT 4 chiều định vị thế mạnh, tử huyệt, thời cơ và cạm bẫy cuộc đời',
+      'Kế sách Phi Tinh Hóa Giải Tinh Đồ và bảng dự phóng Đại Hạn 10 Năm chi tiết'
+    ],
+    standard: {
+      title: 'Luận Giải Cơ Bản 12 Cung',
+      badge: '1 Credit',
+      description: 'Phân tích tổng quan 12 cung số, vị trí các chính tinh đắc hãm và cát hung cơ bản của bản mệnh.',
+      bullets: [
+        'Khảo sát 12 Cung Số: Mệnh, Thân, Tài Bạch, Quan Lộc, Phu Thê...',
+        'Đánh giá chính diệu đắc hãm và cách cục nổi bật tại Mệnh Bàn',
+        'Tổng luận cát hung, điểm mạnh cốt lõi và bài học thực tế (1.200 - 1.800 từ)',
+        'Dự báo xu hướng tổng quan năm hiện tại'
+      ]
+    },
+    vip: {
+      title: 'Luận Giải Chuyên Sâu',
+      badge: '5 Credits',
+      description: 'Công trình học thuật uyên thâm 5.000+ từ kết hợp Tứ Hóa Phi Tinh, Ma Trận Mệnh Bàn SWOT và Lộ Trình Đại Hạn 10 Năm.',
+      bullets: [
+        { bold: '5 Cụm Cung Chuyên Sâu:', text: ' Mệnh Thân Phúc, Quan Tài Điền, Phu Tử, Tật Di, Nô Phụ Huynh' },
+        { bold: 'Biện Chứng Tứ Hóa Phi Tinh:', text: ' Truy vết dòng chảy Hóa Lộc, Hóa Quyền, Hóa Khoa, Hóa Kỵ' },
+        { bold: 'Ma Trận Mệnh Bàn SWOT:', text: ' Định vị 4 chiều Thế Mạnh, Tử Huyệt, Thời Cơ, Cạm Bẫy' },
+        { bold: 'Kế Sách Phi Tinh Hóa Giải:', text: ' Điều hòa năng lượng hung sát tinh & Lộ trình Đại Hạn 10 Năm' }
+      ]
+    }
+  },
+  marriage: {
+    systemName: 'Hợp Hôn Tiền Định',
+    upgradeTitle: 'Bản So Hợp Toàn Diện 4 Trụ Cột',
+    upgradeDescription: 'Hệ thống đối soát toàn diện 4 Trụ Cột Hôn Nhân: Tâm lý hai bản thể, Quản trị tài chính gia đình, Phương pháp hóa giải xung khắc phòng cưới và Bản đồ đồng hành trăm năm.',
+    upgradeBullets: [
+      'Nghiên cứu đối chiếu Tứ Trụ chuyên sâu: Can Chi 4 trụ, Cung Phối Ngẫu và Lục Hợp, Tam Hợp, Lục Xung',
+      'Pháp hóa giải xung khắc cụ thể: Phương vị phòng cưới, màu sắc và vật phẩm trợ duyên hòa hợp',
+      'Bản đồ đồng hành trăm năm: Định vị các năm nhạy cảm cần nhường nhịn và chu kỳ thịnh vượng gia đạo'
+    ],
+    standard: {
+      title: 'So Hợp Cơ Bản',
+      badge: '1 Credit',
+      description: 'Khảo sát tương hợp Can Chi, Ngũ Hành nạp âm và độ hòa hợp sơ khởi giữa hai đương số.',
+      bullets: [
+        'Đối soát Cung Phi Bát Trạch & Du Niên Bát Quái',
+        'Đánh giá tương sinh tương khắc Ngũ Hành Nạp Âm bản mệnh',
+        'Bình giải tổng quan mức độ hòa hợp lứa đôi (800 - 1.200 từ)',
+        'Lời khuyên ứng xử nền tảng cho hai vợ chồng'
+      ]
+    },
+    vip: {
+      title: 'So Hợp Chuyên Sâu',
+      badge: '5 Credits',
+      description: 'Nghiên cứu đối chiếu Tứ Trụ chuyên sâu 5.000+ từ, giải mã 4 trụ cột hôn nhân và pháp hóa giải xung khắc triệt để.',
+      bullets: [
+        { bold: '4 Trụ Cột Gia Đạo:', text: ' Cốt cách tâm lý, Tài chính chung, Con cái và Vận trình trăm năm' },
+        { bold: 'Đối Soát Tứ Trụ Chuyên Sâu:', text: ' Can Chi 4 trụ, Cung Phối Ngẫu và Lục Hợp, Tam Hợp, Lục Xung' },
+        { bold: 'Pháp Hóa Giải Xung Khắc:', text: ' Phương vị phòng cưới, màu sắc và vật phẩm điều hòa năng lượng' },
+        { bold: 'Bản Đồ Đồng Hành Trăm Năm:', text: ' Thời điểm nhạy cảm cần giữ gìn và năm hoàng kim gia đạo' }
+      ]
+    }
+  },
+  iching: {
+    systemName: 'Kinh Dịch Diệu Quẻ',
+    upgradeTitle: 'Bản Diễn Biến Toàn Cảnh & Ứng Kỳ',
+    upgradeDescription: 'Hệ thống phân tích sâu sắc Lục Hào, Dụng Thần ẩn tàng, truy vết động hào và xây dựng 3 kịch bản diễn tiến kèm mốc thời gian Ứng Kỳ cụ thể.',
+    upgradeBullets: [
+      'Biện chứng Lục Hào chuyên sâu: Thần Sát, Tuần Không, Phục Thần và thế lực Dụng Thần vượng suy',
+      '3 Kịch Bản Diễn Tiến: Tốt nhất, Thận trọng và Xấu nhất kèm xác suất định lượng',
+      'Mốc Thời Gian Ứng Kỳ Cát Hung: Định vị chính xác ngày/tháng ứng nghiệm sự việc'
+    ],
+    standard: {
+      title: 'Luận Quẻ Cơ Bản',
+      badge: '1 Credit',
+      description: 'Luận giải Thoán từ, Hào từ và phân tích Động Hào trả lời trực diện cho câu hỏi thắc mắc.',
+      bullets: [
+        'Xác lập Quẻ Chủ, Quẻ Biến và Hào Động mấu chốt',
+        'Biện chứng Thế - Ứng và trạng thái tương tác Lục Thân',
+        'Lời khuyên hành động tức thời cho sự việc đang hỏi (800 - 1.200 từ)',
+        'Đánh giá Cát Hung tổng quan theo Kinh Dịch cổ điển'
+      ]
+    },
+    vip: {
+      title: 'Luận Quẻ Chuyên Sâu',
+      badge: '5 Credits',
+      description: 'Giải mã Lục Hào Biện Chứng 5.000+ từ, 3 Kịch Bản Diễn Tiến Tương Lai và mốc thời gian Ứng Kỳ chuẩn xác.',
+      bullets: [
+        { bold: 'Lục Hào Biện Chứng Chuyên Sâu:', text: ' Thần sát, Tuần Không, Phục Thần và Dụng Thần vượng suy' },
+        { bold: '3 Kịch Bản Diễn Tiến:', text: ' Tốt nhất, Thận trọng và Xấu nhất kèm xác suất xảy ra' },
+        { bold: 'Mốc Thời Gian Ứng Kỳ Cát Hung:', text: ' Xác định chính xác ngày/tháng ứng nghiệm sự việc' },
+        { bold: 'Chiến Lược Chuyển Nguy Thành An:', text: ' Hướng xuất hành, thời điểm ra quyết định vàng' }
+      ]
+    }
+  }
+};
+
+const InterpretationTierModal = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  userCredits = 0,
+  isUpgrade = false,
+  system = 'bazi'
+}) => {
+  const [selectedTier, setSelectedTier] = useState('vip');
 
   if (!isOpen) return null;
+
+  const currentInfo = SYSTEM_TIER_INFO[system] || SYSTEM_TIER_INFO.bazi;
 
   // Trường hợp 1: Nâng cấp từ bài Thường lên bài Chuyên Sâu (Modal xác nhận nhanh 4 Credits)
   if (isUpgrade) {
@@ -28,34 +168,28 @@ const InterpretationTierModal = ({ isOpen, onClose, onConfirm, userCredits = 0, 
             <div>
               <h3 className="text-lg sm:text-xl font-bold text-slate-900">Nâng Cấp Luận Giải Chuyên Sâu</h3>
               <p className="text-xs text-slate-500 mt-0.5">
-                Số dư hiện tại: <span className="font-semibold text-amber-600">{userCredits} Credits</span>
+                Phân hệ: <span className="font-semibold text-slate-700">{currentInfo.systemName}</span> | Số dư: <span className="font-semibold text-amber-600">{userCredits} Credits</span>
               </p>
             </div>
           </div>
 
           <div className="bg-amber-50/40 border border-amber-200/80 rounded-2xl p-4 sm:p-5 mb-5">
             <div className="flex items-center justify-between mb-2.5">
-              <span className="text-sm font-bold text-amber-950">Bản Chuyên Sâu 6 Chương Học Thuật</span>
+              <span className="text-sm font-bold text-amber-950">{currentInfo.upgradeTitle}</span>
               <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 font-bold border border-amber-300">
                 Chi phí: 4 Credits
               </span>
             </div>
             <p className="text-xs text-slate-600 leading-relaxed mb-3.5">
-              Hệ thống sẽ tái lập và nâng cấp bản luận giải thành công trình nghiên cứu toàn diện 5.000+ từ qua 6 Chuyên đề học thuật: Sự Nghiệp, Tài Chính, Hôn Nhân, Sức Khỏe Đông Y, Phong Thủy Cải Vận và Lộ Trình Đại Vận 100 Năm.
+              {currentInfo.upgradeDescription}
             </p>
             <ul className="text-xs text-slate-700 space-y-2">
-              <li className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-amber-600 shrink-0" />
-                <span>Phân tích đa chiều từng điểm gãy vận hạn, cơ hội bứt phá và chu kỳ biến cố lớn</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-amber-600 shrink-0" />
-                <span>Bảng dự báo Lưu Niên chi tiết, định vị rõ thời điểm nên tiến thủ hay thu mình phòng thủ</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-amber-600 shrink-0" />
-                <span>Bộ giải pháp Phong Thủy cá nhân hóa và Dụng Thần điều hòa năng lượng bản mệnh</span>
-              </li>
+              {currentInfo.upgradeBullets.map((bullet, idx) => (
+                <li key={idx} className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span>{bullet}</span>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -86,7 +220,7 @@ const InterpretationTierModal = ({ isOpen, onClose, onConfirm, userCredits = 0, 
     );
   }
 
-  // Trường hợp 2: Khi chưa có luận giải nào -> Hiển thị Modal 2 cột gói gọn trong 1 khung hình không cuộn
+  // Trường hợp 2: Khi chưa có luận giải nào -> Hiển thị Modal 2 cột chọn gói
   const canAffordStandard = userCredits >= 1;
   const canAffordVip = userCredits >= 5;
   const isSelectedVip = selectedTier === 'vip';
@@ -103,15 +237,17 @@ const InterpretationTierModal = ({ isOpen, onClose, onConfirm, userCredits = 0, 
           <X className="w-5 h-5" />
         </button>
 
-        {/* Header rút gọn chiều cao */}
+        {/* Header */}
         <div className="text-center mb-3 sm:mb-4">
-          <h3 className="text-lg sm:text-2xl font-bold text-slate-900">Chọn Gói Luận Giải Học Thuật</h3>
+          <h3 className="text-lg sm:text-2xl font-bold text-slate-900">
+            Chọn Gói Luận Giải {currentInfo.systemName}
+          </h3>
           <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">
             Số dư hiện tại của bạn: <span className="font-bold text-amber-600">{userCredits} Credits</span>
           </p>
         </div>
 
-        {/* Khung 2 Cột: Co dãn hoàn hảo, tự động cuộn nội bộ khi màn hình quá nhỏ */}
+        {/* Khung 2 Cột: Co dãn hoàn hảo */}
         <div className="overflow-y-auto flex-1 min-h-0 pr-1 -mr-1 mb-3 sm:mb-4 pt-3.5 pb-1 px-1">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
             {/* Cột Trái: Luận Giải Cơ Bản */}
@@ -132,32 +268,22 @@ const InterpretationTierModal = ({ isOpen, onClose, onConfirm, userCredits = 0, 
                       {!isSelectedVip && <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3 stroke-[3]" />}
                     </div>
                     <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700" />
-                    <h4 className="text-sm sm:text-base font-bold text-slate-900">Luận Giải Cơ Bản</h4>
+                    <h4 className="text-sm sm:text-base font-bold text-slate-900">{currentInfo.standard.title}</h4>
                   </div>
                   <span className="text-[11px] sm:text-xs px-2 sm:px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-700 font-bold">
-                    1 Credit
+                    {currentInfo.standard.badge}
                   </span>
                 </div>
                 <p className="text-[11px] sm:text-xs text-slate-500 leading-relaxed mb-2.5">
-                  Bản phân tích cô đọng, nhanh chóng nắm bắt bức tranh tổng quan về nguyên cục và cát hung cốt lõi.
+                  {currentInfo.standard.description}
                 </p>
                 <ul className="text-[11px] sm:text-xs text-slate-700 space-y-1.5 sm:space-y-2">
-                  <li className="flex items-center gap-2">
-                    <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                    <span>Khảo sát nguyên cục: Can Chi, Ngũ Hành, Thần Sát cốt lõi</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                    <span>Đánh giá Thân Vượng / Thân Nhược và Dụng Thần sơ khởi</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                    <span>Luận giải cô đọng các phương diện đời người (800 - 1.200 từ)</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                    <span>Định hướng ứng xử và chiến lược tổng quan năm hiện tại</span>
-                  </li>
+                  {currentInfo.standard.bullets.map((bullet, idx) => (
+                    <li key={idx} className="flex items-center gap-2">
+                      <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                      <span>{bullet}</span>
+                    </li>
+                  ))}
                 </ul>
               </div>
               <div className={`mt-3 py-1.5 px-3 rounded-xl text-center text-[11px] sm:text-xs font-semibold transition ${
@@ -176,7 +302,7 @@ const InterpretationTierModal = ({ isOpen, onClose, onConfirm, userCredits = 0, 
                   : 'bg-white border-slate-200 hover:border-slate-300 shadow-2xs'
               }`}
             >
-              {/* Badge Khuyên Dùng: Nổi bật, có shadow và ring-2 không bao giờ bị cắt */}
+              {/* Badge Khuyên Dùng */}
               <div className="absolute -top-3 right-3.5 sm:right-5 px-3 py-0.5 rounded-full bg-gradient-to-r from-amber-500 via-amber-600 to-orange-500 text-white text-[10px] font-extrabold shadow-md shadow-amber-500/30 ring-2 ring-white uppercase tracking-wider flex items-center gap-1 z-10">
                 <Sparkles className="w-3 h-3 fill-current text-amber-100" />
                 <span>Khuyên Dùng</span>
@@ -191,32 +317,22 @@ const InterpretationTierModal = ({ isOpen, onClose, onConfirm, userCredits = 0, 
                       {isSelectedVip && <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3 stroke-[3]" />}
                     </div>
                     <Crown className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500" />
-                    <h4 className="text-sm sm:text-base font-bold text-slate-900">Luận Giải Chuyên Sâu</h4>
+                    <h4 className="text-sm sm:text-base font-bold text-slate-900">{currentInfo.vip.title}</h4>
                   </div>
                   <span className="text-[11px] sm:text-xs px-2 sm:px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 font-bold border border-amber-300">
-                    5 Credits
+                    {currentInfo.vip.badge}
                   </span>
                 </div>
                 <p className="text-[11px] sm:text-xs text-slate-500 leading-relaxed mb-2.5">
-                  Công trình học thuật toàn diện 5.000+ từ phân tích sâu sắc cả cuộc đời qua 6 Chuyên đề chuyên biệt.
+                  {currentInfo.vip.description}
                 </p>
                 <ul className="text-[11px] sm:text-xs text-slate-700 space-y-1.5 sm:space-y-2">
-                  <li className="flex items-center gap-2">
-                    <Check className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                    <span><strong>6 Chuyên Đề Luận Giải:</strong> Sự Nghiệp, Tài Vận, Hôn Nhân, Sức Khỏe, Cải Vận, Đại Vận 100 Năm</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                    <span><strong>Khảo cứu sâu sắc 5.000+ từ:</strong> Giải mã từng điểm gãy vận hạn, chu kỳ biến cố và thời cơ bứt phá</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                    <span><strong>Bảng Diễn Biến Đại Vận & Lưu Niên:</strong> Lộ trình chiến lược năm nào nên tiến công, năm nào cần phòng thủ</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                    <span><strong>Bộ Giải Pháp Phong Thủy Cải Vận:</strong> Phương vị, màu sắc, dưỡng sinh tạng phủ và Dụng Thần điều hòa</span>
-                  </li>
+                  {currentInfo.vip.bullets.map((bullet, idx) => (
+                    <li key={idx} className="flex items-center gap-2">
+                      <Check className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                      <span><strong>{bullet.bold}</strong>{bullet.text}</span>
+                    </li>
+                  ))}
                 </ul>
               </div>
 
@@ -229,7 +345,7 @@ const InterpretationTierModal = ({ isOpen, onClose, onConfirm, userCredits = 0, 
           </div>
         </div>
 
-        {/* Thanh Điều Hướng & Nút Xác Nhận Chung */}
+        {/* Footer */}
         <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-3">
           <p className="text-[10px] sm:text-xs text-slate-500 text-center sm:text-left">
             * Bạn có thể chọn bản cơ bản trước và nâng cấp lên chuyên sâu bất cứ lúc nào (chỉ bù 4 credits chênh lệch).
@@ -269,4 +385,3 @@ const InterpretationTierModal = ({ isOpen, onClose, onConfirm, userCredits = 0, 
 };
 
 export default InterpretationTierModal;
-

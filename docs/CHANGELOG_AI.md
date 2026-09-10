@@ -2,9 +2,183 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
-## 📅 Phiên bản: Khắc Phục Lỗi Xuất PDF Docker Production & Tối Ưu Hóa Render Siêu Tốc (10/09/2026)
+## 📅 Phiên bản: Giai Đoạn 3 (Ưu Tiên 1) - Đồng Bộ Ngữ Cảnh VIP Chat Follow-up (Hybrid Active-Chapter Awareness & Semantic Keyword Intent Routing) (10/09/2026)
 
-### 🌟 1. Khắc Phục Lỗi Thiếu Trình Duyệt & Navigation Timeout Trên Linux/Docker
+### 🌟 1. Cơ Chế Hybrid VIP Context Injection (Backend & AI Prompts)
+- **Vấn đề giải quyết:** Bài luận VIP có độ dài từ 4.000 đến 7.000 từ (~11.000 tokens). Nếu nhồi nguyên bài vào mỗi lượt chat follow-up sẽ gây quá tải token, tăng độ trễ và làm AI phản hồi lan man, loãng thông tin.
+- **Giải pháp Hybrid 2 Tầng (`ConversationContextService.js`):**
+  + **Tầng 1 (Active-Chapter Awareness):** Phân tích `activeSectionId` do client gửi lên (`tu_vi_ch_X`, `bazi_ch_X`, `marriage_ch_X`, `iching_ch_X`). Trích xuất chính xác lát cắt Cụm/Chương người dùng đang quan tâm (~800 - 1.200 từ, tối đa 5.000 ký tự).
+  + **Tầng 2 (Semantic Keyword Intent Routing):** Nếu không chọn Cụm/Chương hoặc người dùng hỏi câu hỏi tự do, hệ thống tự động phân loại chủ đề câu hỏi qua từ điển Semantic Routing `TOPIC_ROUTING` (Sự nghiệp, Tài chính, Tình cảm, Sức khỏe, Vận hạn, Phong thủy cải mệnh) cho cả 4 phân hệ để trích xuất Cụm tương ứng.
+  + **Fallback an toàn:** Tự động lấy Cốt cách Tổng quan / SWOT hoặc Điều Hòa Chiến Lược nếu không khớp chủ đề đặc thù.
+- **Tích Hợp Đồng Bộ Vào 4 Follow-up Prompts & Controllers:**
+  + Cập nhật `ZiweiPrompts.js`, `BaziPrompts.js`, `MarriagePrompts.js`, `IChingPrompts.js` tiếp nhận `vipContextText` với chỉ thị học thuật: *"Duy trì tính nhất quán 100% với bài luận giải VIP đã xuất bản cho đương số"*.
+  + Cập nhật 4 endpoints chat (`chatHexagram`, `chatBazi`, `chatMarriage`, `chatZiwei` trong `AiInterpretationController.js`) tiếp nhận `activeSectionId` và tiêm ngữ cảnh lát cắt vào prompt.
+  + Tạo mới `tests/services/ConversationContextService.test.js` kiểm thử toàn diện 6/6 test cases. Toàn bộ backend: **31/31 Test Suites PASS (235/235 tests)**.
+
+### 🌟 2. Trải Nghiệm Tương Tác Người Dùng Nâng Cao (Frontend UI/UX)
+- **Nút "💬 Đàm đạo mục này" trên từng Accordion (`SectionRenderer.jsx`):**
+  + Thêm nút bấm trực tiếp tại thanh tiêu đề mỗi thẻ Accordion Cụm/Chương, có `e.stopPropagation()` để không ảnh hưởng thao tác đóng/mở accordion.
+  + Chuẩn hóa thẻ container bên ngoài từ `<button>` thành `<div role="button">` có hỗ trợ phím bấm (`Enter`/`Space`), loại bỏ 100% cảnh báo HTML DOM lồng button trong React.
+- **AiChatWidget Thông Minh (`AiChatWidget.jsx`):**
+  + Tự động mở Chat Widget khi nhấn nút đàm đạo mục tương ứng.
+  + Hiển thị **Context Banner** nổi bật: `🏷️ Ngữ cảnh: [Tên Cụm/Chương]` kèm nút `✕` để xóa ngữ cảnh trở về đàm đạo toàn cảnh lá số.
+  + Hiển thị các **Quick Suggestion Chips** theo ngữ cảnh (`💡 Luận giải sâu mục này`, `🛡️ Lưu ý & Hóa giải`).
+  + Tự động điền câu hỏi sâu vào ô nhập liệu khi nhấn chip gợi ý.
+- **Đồng Bộ Kết Nối Toàn Bộ 4 Board:**
+  + `ZiweiBoard.jsx`, `BaziBoard.jsx`, `MarriageBoard.jsx`, `IChingBoard.jsx` đều đã liên kết đồng bộ state `activeConsultSection` truyền xuống `SectionRenderer` và `AiChatWidget`.
+
+### 🌟 3. Kiểm Thử Trực Quan & Nghiệm Thu (Chrome DevTools Verification)
+- Khởi chạy kiểm thử trên trình duyệt Chromium thực tế thông qua Chrome DevTools MCP.
+- Thao tác click "💬 Đàm đạo mục này" trên `Chương 1: SỰ NGHIỆP & CÔNG DANH` của lá số Bát Tự.
+- Xác nhận Context Banner hiển thị chính xác, click chip "💡 Luận giải sâu mục này", gửi câu hỏi và nhận stream SSE phản hồi bám sát 100% phân tích cốt lõi của Chương 1.
+- Trừ 0.5 credits chính xác và mượt mà.
+- Console log trình duyệt: 0 errors, 0 warnings. Chụp ảnh màn hình lưu trữ tại `artifacts/vip_chat_context_sync_success.png`.
+
+---
+
+## 📅 Phiên bản: Khắc Phục Toàn Diện Lỗi Hiển Thị Luận Giải Phân Hệ Tử Vi Đẩu Số & Chuẩn Hóa Động Cơ Bảng Markdown GFM (10/09/2026)
+
+### 🌟 1. Khắc Phục Lỗi Xé Nhỏ Accordion & Rỗng Ruột (Empty Accordion Body)
+- **Nguyên nhân gốc rễ:** Biểu thức chính quy `numberedStepRegex` trong `markdownParser.js` cho phép các đề mục con cấp 3 (`### 1.`, `### 2.`) tạo thành một section độc lập khi `prefix !== 'bazi'` (bao gồm `tu_vi`). Khi gặp `### 1.`, các section cha (`Định Vị Bản Mệnh` và `Chiến Lược Điều Hòa`) bị đóng ngay lập tức khi chưa kịp tích lũy nội dung (`content: ""`), tạo ra 2 accordion trống trơn (Ảnh 1 & Ảnh 4) và xé vụn các đề mục con thành các accordion "Bước 1", "Bước 2".
+- **Giải pháp:**
+  - Bổ sung cơ chế phát hiện văn bản dạng chương/cụm (`hasChapters = lines.some(l => chapterRegex.test(l.trim()))`).
+  - Khi tài liệu có chương/cụm (báo cáo VIP chuyên sâu), tuyệt đối cấm ngắt section ở cấp độ `###` (H3), giữ trọn vẹn các đề mục con `### 1.`, `### 2.` và bảng biểu bên trong accordion cha tương ứng.
+  - Thêm bộ lọc phòng vệ `validSections = sections.filter(s => s.content && s.content.trim().length > 0)`, bảo đảm triệt để không bao giờ hiển thị thẻ accordion rỗng trên giao diện người dùng.
+
+### 🌟 2. Chuẩn Hóa Nhãn Phân Hệ & Thuật Ngữ Cổ Học
+- **Loại bỏ việc gán cứng chuỗi "Phân Tích Nhật Chủ":** Tùy biến tiêu đề mở đầu động theo từng phân hệ:
+  + Tử Vi (`ziwei`, `tu_vi`): `Định Vị Bản Mệnh: ...` hoặc `Định Vị Bản Mệnh & Tinh Đồ`.
+  + Hợp Hôn (`marriage`): `Tổng Quan Bản Mệnh Phối Ngẫu: ...`
+  + Kinh Dịch (`iching`): `Tổng Quan Quẻ Dịch: ...`
+  + Bát Tự (`bazi`): giữ nguyên `Phân Tích Nhật Chủ: ...`
+- **Chuẩn hóa nhãn Cụm Cung:**
+  + Mở rộng điều kiện kiểm tra tiền tố hỗ trợ cả `prefix === 'tu_vi'` và `prefix === 'ziwei'` để hiển thị chính xác `Cụm 1..5` thay vì bị fallback nhầm thành `Chương 1..5` (Ảnh 3).
+  + Tự động làm sạch các tiền tố lặp (`CỤM 1: CỤM MỆNH...` -> `Cụm 1: MỆNH...`) và cắt bỏ các ký tự dấu thừa (`:`, `&`, `-`) ở đầu tiêu đề, triệt tiêu lỗi hiển thị `Điều Hòa Chiến Lược: & ĐẠI HẠN 10 NĂM...`.
+  + Cập nhật prompt chỉ dẫn trong `DeepInterpretationPipelines.js`: chỉ dẫn AI bắt đầu bằng `## CỤM ${id}: ...` thay vì `## CHƯƠNG ${id}`.
+
+### 🌟 3. Khắc Phục Triệt Để Lỗi Vỡ Bảng Markdown (Squashed Table into Single Line)
+- **Nguyên nhân gốc rễ:** Bước 5 trong hàm `cleanAndNormalizeMarkdown` trước đây (`([^\n|])\n*(\|[^\n]+\|\n\|[\s:-]+\|)`) tham lam khớp khoảng trắng và ký tự ngay giữa hàng tiêu đề bảng, chèn `\n\n` cắt đôi hàng tiêu đề. Hậu quả là số cột của hàng tiêu đề bị thiếu so với hàng phân cách delimiter (`|:---|:---|:---|`), khiến plugin `remark-gfm` không thể nhận diện bảng và dồn toàn bộ các hàng bảng thành một đoạn văn paragraph đơn dòng thô kệch (Ảnh 2 & Ảnh 5).
+- **Giải pháp:** Thay thế toàn bộ bằng thuật toán chuẩn hóa bảng từng dòng (Line-by-Line Table Normalizer):
+  + Tiền xử lý tách các hàng bị dính (`| |` -> `|\n|`, `|:---| |` -> `|:---|\n|`).
+  + Quét từng dòng, nhận diện dòng bảng qua `trimmed.startsWith('|') && trimmed.endsWith('|')`.
+  + Tự động đảm bảo 1 dòng trống trước bảng (nếu dòng trước có nội dung) và 1 dòng trống sau bảng.
+  + Không can thiệp hay cắt đôi cấu trúc bên trong bảng, bảo toàn nguyên vẹn 100% cú pháp GFM table.
+
+### 🌟 4. Bổ Sung Định Danh Icon & Theme Styles Cho `SectionRenderer.jsx`
+- Bổ sung đầy đủ các bộ icon cho các ID VIP mới: `tu_vi_intro`, `tu_vi_ch_1`..`5`, `tu_vi_dieu_hoa`, cùng các bộ của `marriage` và `iching`.
+- Bổ sung dải màu gradient `sectionColors` tương ứng và alias `tu_vi` trong `themeStyles`.
+
+### 🌟 5. Kiểm Thử Nghiệm Thu Trực Quan (Chrome DevTools Test)
+- **Backend Jest:** 30/30 Test Suites PASS, 229/229 Tests PASS 100%.
+- **Frontend Vite Build:** Biên dịch thành công 100% trong 2.53s.
+- **Trực tiếp kiểm thử trên trình duyệt (Chrome DevTools MCP):**
+  + Xác nhận `Ma Trận Mệnh Bàn SWOT 4 Chiều` hiển thị đúng định dạng bảng HTML 3 cột, có màu sắc, bo góc lớn mềm mại.
+  + Xác nhận `Bảng Dự Phóng Đại Vận 10 Năm` hiển thị đúng định dạng bảng HTML 4 cột.
+  + Xác nhận 7 Accordion hiển thị đầy đủ, không có accordion rỗng, đúng nhãn `Cụm 1..5`, `Định Vị Bản Mệnh`, `Điều Hòa Chiến Lược`.
+  + Console log trình duyệt: 0 lỗi.
+
+---
+
+## 📅 Phiên bản: Triển Khai Giai Đoạn 2 - Kích Hoạt Hợp Hôn VIP & Kinh Dịch VIP, Kiểm Thử Hồi Quy Toàn Diện & Nghiệm Thu 4 Phân Hệ (10/09/2026)
+
+### 🌟 1. Hoàn Thiện Bộ Đôi Luận Giải Chuyên Sâu VIP Cho Hợp Hôn & Kinh Dịch
+- **Hợp Hôn VIP Pipeline (`MarriageDeepPipeline` - 3 Tầng Multi-Agent):**
+  - **Tầng 1 (CoT Tương Quan Hai Bản Mệnh):** Phân tích sâu tương tác giữa 2 Nhật Chủ, đối chiếu Thập Thần, ngũ hành tương sinh tương khắc, Cung Phi Bát Trạch (Đông Tứ / Tây Tứ) và kiểm tra triệt để các hình thế Tam Hình, Lục Xung, Phục Ngâm / Phản Ngâm Cung Phu Thê.
+  - **Tầng 2 (4 Replicas Song Song - 4 Trụ Cột Hạnh Phúc):** Kích hoạt song song 4 mô hình AI cho 4 trụ cột cốt lõi:
+    + Trụ 1: Cốt Cách & Tâm Lý Phối Ngẫu (Nhu cầu cảm xúc, phong cách giao tiếp, điểm va chạm bản ngã).
+    + Trụ 2: Tài Chính & Quản Trị Tổ Ấm Gia Đình (Phân bổ dòng tiền, vai trò kinh tế, phong cách đầu tư).
+    + Trụ 3: Hóa Giải Xung Khắc & Phong Thủy Phòng Cưới (Phương vị phòng ngủ, màu sắc trang trí, vật phẩm ngũ hành).
+    + Trụ 4: Con Cái & Vận Trình Hậu Vận (Thời điểm sinh con cát lợi, cách thức giáo dục con cái, niên biểu đồng hành).
+  - **Tầng 3 (Chief Editor & Strategic Harmonizer):** Tiếp nhận toàn bộ 4 Trụ Cột qua Gemini Flash Lite để tổng hợp phác đồ hòa hợp bền vững, ma trận đồng thuận và bảng lộ trình đồng hành trăm năm.
+- **Kinh Dịch VIP Pipeline (`IChingDeepPipeline` - 3 Tầng Multi-Agent):**
+  - **Tầng 1 (CoT Lục Hào Biện Chứng Cốt Lõi):** Phân tích cốt cách Quẻ Thể vs Quẻ Dụng, tương quan hào Thế - Ứng, nhận diện Hào Động và vượng suy Dụng Thần theo Nguyệt Lệnh & Nhật Kiến.
+  - **Tầng 2 (3 Replicas Song Song - 3 Khối Học Thuật):** Kích hoạt song song 3 mô hình AI cho 3 kịch bản:
+    + Khối 1: Biện Chứng Lục Hào & Động Hào Cát Hung (Giải mã chi tiết từng hào, hào biến, Thần Sát).
+    + Khối 2: 3 Kịch Bản Diễn Tiến Tương Lai (Xây dựng bảng so sánh 3 kịch bản: **Thuận dòng** - **Nghịch cảnh** - **Đột phá** kèm xác suất và mức độ rủi ro).
+    + Khối 3: Mốc Thời Gian Ứng Kỳ & Chiến Lược Hành Động (Địa Chi tháng/ngày và mùa ứng nghiệm theo lịch âm dương, diệu kế hành động theo Đạo Dịch).
+  - **Tầng 3 (Chief Editor & Strategic Harmonizer):** Tiếp nhận toàn bộ dữ liệu qua Gemini Flash Lite để đúc kết ma trận SWOT, cơ hội, thách thức và lời khuyên xử thế theo Đạo Dịch kinh điển.
+
+### 🌟 2. Tích Hợp Đồng Bộ Backend & Frontend
+- **Backend:**
+  - `MultiAgentPipelineService.js`: Bổ sung phương thức `runMarriageVipPipelineStream` và `runIChingVipPipelineStream`.
+  - `AiInterpretationController.js`: Kích hoạt xử lý stream VIP cho cả `interpretMarriage` và `interpretHexagram`, thiết lập chuẩn định danh mô hình `Multi-Agent VIP Pipeline (Qwen Plus + Gemini 3.1 Flash Lite)`.
+  - `DeepInterpretationPipelines.js`: Chuẩn hóa đa hình (polymorphism) với phương thức `runVipPipelineStream(prompt, birthYear, options)` trên cả 4 class pipeline.
+- **Frontend:**
+  - `VipProgressTracker.jsx`: Bổ sung cấu hình `MARRIAGE_CHAPTERS` (4 Trụ Cột) và `ICHING_CHAPTERS` (3 Kịch Bản), tùy biến tiền tố huy hiệu (`Trụ 1..4`, `KB 1..3`, `Cụm 1..5`, `C1..6`).
+  - `MarriageBoard.jsx` & `IChingBoard.jsx`: Đồng bộ tiêu đề luận giải VIP và truyền chính xác prop `system="marriage"` / `system="iching"`.
+  - `markdownParser.js`: Mở rộng biểu thức chính quy nhận diện `TRỤ CỘT|Trụ cột|TRỤ|Trụ|KỊCH BẢN|Kịch bản|KHỐI|Khối`, tự động sinh ID duy nhất chống trùng lặp React key.
+
+### 🌟 3. Kiểm Thử Toàn Diện & Nghiệm Thu Trực Quan
+- **Jest Test Suite Backend:** Chạy kiểm thử toàn diện toàn bộ 23 test suites (`tests/controllers/`, `tests/services/`), kết quả **100% PASS** (bao gồm `ZiweiRegression.test.js`, `BaziAnalyzer.test.js`, `DungThanCachCuc.test.js`, `MarriageController.test.js`, `AiInterpretationController.test.js`...).
+- **Kiểm Thử Hồi Quy Bát Tự & Tử Vi:** Xác thực tính toán chính xác tuyệt đối của động cơ Bát Tự (Can Chi, Cách Cục, Dụng Thần, Vượng Suy) và Tử Vi (An sao 12 cung, độ sáng, tứ hóa, ngũ hành cục).
+- **Kiểm Thử Trực Tiếp Trên Trình Duyệt Bằng Chrome DevTools MCP:**
+  - `/ziwei`: Xác thực giao diện lá số 12 cung và dòng luận giải chuyên sâu 5 Cụm Cung Toàn Đồ.
+  - `/marriage`: Xác thực quy trình chọn gói VIP (5 Credits), chạy stream song song 4 Trụ Cột Hạnh Phúc, bảng biểu Markdown GFM sắc nét.
+  - `/iching`: Xác thực quy trình chọn gói VIP (5 Credits), chạy stream song song 3 Kịch Bản Tương Lai và Bảng so sánh rủi ro.
+  - **Console Check:** 100% Sạch lỗi Console (0 Errors), không có cảnh báo duplicate key hay lỗi mạng.
+
+---
+
+## 📅 Phiên bản: Triển Khai Giai Đoạn 1 - Tái Cấu Trúc Bộ Máy Luận Giải Chuyên Sâu 3 Tệp Tin Cốt Lõi, Kích Hoạt Tử Vi VIP & Tối Ưu Modal Luận Giải (10/09/2026)
+
+### 🌟 1. Tái Cấu Trúc Bộ Máy Luận Giải Chuyên Sâu Thành 3 Tệp Tin Cốt Lõi
+- **Tập trung hóa kiến trúc theo đúng nguyên tắc Module hóa tinh gọn:**
+  - Khởi tạo thư mục `backend/src/services/deep-interpretation/` với đúng **3 tệp tin chức năng cốt lõi**:
+    1. `DeepInterpretationCore.js`: Quản trị toàn bộ hạ tầng kỹ thuật chung gồm `OpenRouterRotator` (xoay vòng API key, quản lý hạn mức, bọc timeout an toàn), `LlmProviderService` (giao tiếp linh hoạt OpenRouter DeepSeek/Qwen và Google Gemini SDK chính thức với `maxTokens = 3000` chống mã lỗi 402 số dư), và `SseStreamHelper` (phát dòng text chunk, progress event, keepalive ping 15s).
+    2. `DeepInterpretationConfigs.js`: Lưu trữ toàn bộ tri thức học thuật tĩnh gồm cấu hình 6 Chương Bát Tự (`BAZI_VIP_CONFIG`), cấu hình 5 Cụm Cung Tử Vi (`ZIWEI_VIP_CONFIG`), cấu hình Hợp Hôn 4 Trụ Cột (`MARRIAGE_VIP_CONFIG`), cấu hình Kinh Dịch Cổ Pháp (`ICHING_VIP_CONFIG`), cùng các Prompts CoT (Mệnh Cách, Dụng Thần, Tứ Hóa) và Prompt Chief Editor & Strategic Harmonizer.
+    3. `DeepInterpretationPipelines.js`: Điều phối tiến trình xử lý đa tầng chuyên biệt gồm `BaziDeepPipeline` (3 tầng Bát Tự), `ZiweiDeepPipeline` (4 tầng Tử Vi), `MarriageDeepPipeline` (Hợp Hôn) và `IChingDeepPipeline` (Kinh Dịch).
+    - `index.js`: Điểm xuất khẩu tập trung thông qua lớp điều phối `DeepInterpretationManager.getPipeline(system)`.
+  - **Tương thích ngược 100%:** Cập nhật `MultiAgentPipelineService.js` thành lớp Facade ủy quyền trực tiếp sang `DeepInterpretationManager`, đảm bảo mã nguồn gọi cũ không bị phá vỡ.
+
+### 🌟 2. Kích Hoạt Luận Giải Chuyên Sâu VIP Cho Phân Hệ Tử Vi Đẩu Số
+- **Quy trình Multi-Agent 4 Tầng cho Tử Vi Đẩu Số (`ZiweiDeepPipeline`):**
+  - **Tầng 1 (Cốt cách CoT):** Phân tích sâu Mệnh - Thân - Cục, Tam phương Tứ chính, Âm Dương Ngũ hành bản mệnh kết hợp vị trí đắc/hãm của Tử Vi, Thiên Phủ, Thái Dương, Thái Âm.
+  - **Tầng 2 (Tứ Hóa CoT):** Phân tích can năm sinh và Tứ Hóa (Hóa Lộc, Hóa Quyền, Hóa Khoa, Hóa Kỵ), truy vết dòng chảy nghiệp duyên và động lực chuyển hóa cát hung giữa 12 cung.
+  - **Tầng 3 (5 Replicas Cụm Cung Song Song):** Kích hoạt song song 5 Replicas AI phân tích toàn diện 12 cung chia thành 5 cụm:
+    + Cụm 1: Mệnh - Thân - Phúc Đức (Khí chất, tư duy nội tâm, phúc trạch tổ tiên).
+    + Cụm 2: Quan Lộc - Tài Bạch - Điền Trạch (Sự nghiệp, tài chính, đất đai sản nghiệp).
+    + Cụm 3: Phu Thê - Tử Tức (Hôn nhân, bạn đời, đường con cái).
+    + Cụm 4: Tật Ách - Thiên Di (Sức khỏe, phòng ngừa tai ương, xuất hành di chuyển ngoại giới).
+    + Cụm 5: Nô Bộc - Phụ Mẫu - Huynh Đệ (Mạng lưới nhân duyên, gia thế, anh em bạn bè).
+  - **Tầng 4 (Chief Editor & Strategic Harmonizer):** Tiếp nhận toàn bộ phân tích Tầng 1, 2, 3 qua Gemini Flash Lite để tổng hợp 3 bước ngoặt lớn của cuộc đời và chiến lược cải vận, thu hút may mắn.
+- **Tích hợp Controller:** Cập nhật `AiInterpretationController.js` trong luồng `interpretZiweiStream`, tự động chuyển hướng sang `MultiAgentPipelineService.runZiweiVipPipelineStream` khi nhận `mode: 'vip'`.
+
+### 🌟 3. Tối Ưu Hóa Toàn Diện Modal Luận Giải & Nâng Cấp Cho Từng Phân Hệ
+- **`InterpretationTierModal.jsx` (Modal Chọn Gói Luận Giải 2 Cột):**
+  - Bổ sung từ điển cấu hình `SYSTEM_TIER_INFO` tự động tùy biến giao diện theo `system = 'bazi' | 'ziwei' | 'marriage' | 'iching'`.
+  - Hiển thị tiêu đề, thẻ tính năng, mô tả học thuật và quyền lợi chuyên sâu đặc thù cho từng môn:
+    + **Bát Tự:** "Luận Giải Chuyên Sâu 6 Chương Toàn Đồ", Ma trận SWOT, Dụng Thần và Lộ trình 100 năm.
+    + **Tử Vi:** "Luận Giải Chuyên Sâu 5 Cụm Cung Toàn Đồ", Mệnh - Thân - Tứ Hóa, Tam Phương Tứ Chính và 3 Bước Ngoặt Cuộc Đời.
+    + **Hợp Hôn:** "Luận Giải Chuyên Sâu Hôn Nhân & Gia Đạo", 4 Trụ Cột Hòa Hợp, Ma trận xung hợp can chi và Phác đồ hóa giải.
+    + **Kinh Dịch:** "Luận Giải Chuyên Sâu Lục Hào Biến Dịch", Cốt cách Quẻ Thể - Dụng, Ứng kỳ chi tiết và Diệu kế hành động.
+- **`VipUpgradeBanner.jsx` (Banner Gợi Ý Nâng Cấp):**
+  - Tiếp nhận prop `system`, hiển thị tiêu đề gợi ý và các huy hiệu đặc thù của từng môn học thuật thay vì gắn cứng Bát Tự.
+- **`VipProgressTracker.jsx`:**
+  - Hỗ trợ hiển thị tiến độ 5 Cụm Cung Tử Vi khi `system === 'ziwei'` song song với 6 Chương Bát Tự.
+- **`markdownParser.js`:** Bổ sung regex nhận diện tiêu đề `CỤM|Cụm` để phân đoạn thẻ xếp accordion mượt mà cho Tử Vi.
+
+### 🌟 4. Dọn Dẹp Duplicate Index Warning Mongoose
+- Khắc phục 2 cảnh báo duplicate index khi khởi động Backend:
+  - `backend/src/models/BlogPost.js`: Xóa `schema.index({ slug: 1 })` do trường `slug` đã khai báo `unique: true`.
+  - `backend/src/models/SystemLog.js`: Xóa `schema.index({ requestId: 1 })` do trường `requestId` đã khai báo `index: true`.
+- Server khởi động hoàn toàn sạch cảnh báo log (Zero Warnings).
+
+### 🌟 5. Kiểm Thử Toàn Diện & Nghiệm Thu Trực Quan
+- **Jest Unit Tests Backend:** 12/12 test suites PASS 100% (57/57 test cases passed).
+- **Frontend Build:** `npm run build` thành công tuyệt đối (`built in 18.87s`).
+- **Nghiệm thu Trình duyệt thực tế (Chrome DevTools MCP):**
+  - Chạy thực tế luồng Tử Vi VIP với stream SSE thời gian thực.
+  - Kiểm tra giao diện hiển thị đầy đủ 5 Cụm Cung, các thẻ Accordion đóng mở mượt mà, định dạng Markdown sắc nét, bảng đánh giá hiển thị chuẩn mực và 0 console error.
+
+## 📅 Phiên bản: Khắc Phục Lỗi Xuất PDF Docker Production, Render Siêu Tốc & Tối Giản Nền Header Bảng Tứ Trụ Bát Tự (10/09/2026)
+
+### 🌟 1. Tối Giản Nền Header Bảng Tứ Trụ Bát Tự (Loại Bỏ Nền Đen Đặc)
+- **Loại bỏ màu nền đen đặc (`#1e293b`):** Chuyển hàng tiêu đề 4 trụ (`TRỤ NĂM`, `NGUYỆT LỆNH`, `NHẬT CHỦ`, `TRỤ GIỜ`) sang nền trắng thuần khiết (`background: #ffffff;`), viền mảnh tinh tế (`border: 1px solid #cbd5e1; border-bottom: 2px solid #93c5fd;`).
+- **Phối màu chữ học thuật trang nhã:**
+  - Tên trụ chính: Màu xanh học thuật quý phái (`#1e3a8a`), chữ in hoa 8.5pt bold.
+  - Nhãn ý nghĩa phụ (`TỔ TIÊN / CĂN CƠ`, `CHA MẸ / SỰ NGHIỆP`, `BẢN THÂN / VỢ CHỒNG`, `CUNG TỬ TỨC / HẬU VẬN`): Chuyển sang màu xám Slate `#64748b` font-weight 600 rõ nét, hài hòa trên nền trắng.
+
+### 🌟 2. Khắc Phục Lỗi Thiếu Trình Duyệt & Navigation Timeout Trên Linux/Docker
 - **Phát hiện & xử lý nguyên nhân gốc rễ trên máy chủ Production:**
   - Lỗi 1 (`Could not find Chrome ver. 152.0...`): Base image `node:20-slim` thiếu binary Chromium và thư viện đồ họa hệ điều hành Debian.
     - Cập nhật `backend/Dockerfile`: Cài đặt `chromium`, `fonts-liberation`, `ca-certificates` qua `apt-get`, đặt biến `PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true` và `PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium`.

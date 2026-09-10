@@ -769,14 +769,16 @@ function getCorePrintStyles() {
     }
 
     .bazi-pillars-table th {
-      background: #1e293b;
-      color: #ffffff;
+      background: #ffffff;
+      color: #1e3a8a;
       font-size: 8.5pt;
-      font-weight: 700;
+      font-weight: 800;
       text-transform: uppercase;
       padding: 6px 4px;
-      border: 1px solid #334155;
+      border: 1px solid #cbd5e1;
+      border-bottom: 2px solid #93c5fd;
       width: 25%;
+      letter-spacing: 0.3px;
     }
 
     .bazi-pillars-table td {
@@ -1702,7 +1704,7 @@ function generateBaziHtml(record, scope = []) {
         <table class="bazi-pillars-table">
           <thead>
             <tr>
-              ${pillars.map(p => `<th>${p.name}<div style="font-size: 6.8pt; font-weight: normal; opacity: 0.85;">${p.label}</div></th>`).join('')}
+              ${pillars.map(p => `<th>${p.name}<div style="font-size: 6.8pt; font-weight: 600; color: #64748b; margin-top: 1px;">${p.label}</div></th>`).join('')}
             </tr>
           </thead>
           <tbody>

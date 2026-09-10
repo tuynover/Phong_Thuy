@@ -126,7 +126,7 @@ Hãy viết bản luận giải bằng tiếng Việt theo định dạng Markdo
 `;
     }
 
-    static getFollowUpPrompt(marriageRecord, context, newQuestion, promptVersion = "v2.0-followup") {
+    static getFollowUpPrompt(marriageRecord, context, newQuestion, promptVersion = "v2.0-followup", vipContextText = "") {
         const safety = getSafetyGuidelines();
         const maleBaziData = marriageRecord.maleBaziData;
         const femaleBaziData = marriageRecord.femaleBaziData;
@@ -138,6 +138,7 @@ YÊU CẦU QUAN TRỌNG VỀ PHONG CÁCH LUẬN GIẢI:
 1. ĐI THẲNG VÀO TRỌNG TÂM: Tuyệt đối không chào hỏi (không dùng "Chào đương số", "Ta đã xem..."), không lặp lại bất kỳ lý thuyết hay thông số cơ bản nào của hai lá số gốc đã được nêu ở lần giải trước. Đi thẳng trực tiếp vào phân tích tương tác hòa hợp của cặp đôi và giải đáp thắc mắc mới.
 2. TRÌNH BÀY MẠCH LẠC: Bài viết phải sử dụng định dạng Markdown, dùng các gạch đầu dòng rõ ràng, phân cấp khoa học để hai người dễ đọc.
 3. Thực chất học thuật, ứng dụng tâm lý học hiện đại và quản trị gia đình, tránh viết dông dài sáo rỗng.
+4. TÍNH NHẤT QUÁN VIP: Phải duy trì tính nhất quán 100% với bài luận giải VIP đã xuất bản cho cặp đôi.
 
 --- THÔNG TIN LÁ SỐ CHỒNG (NAM MỆNH) ---
 - Dương Lịch: ${maleBaziData.solarTimeline}
@@ -156,7 +157,7 @@ YÊU CẦU QUAN TRỌNG VỀ PHONG CÁCH LUẬN GIẢI:
 - Trụ Ngày: Can ${femaleBaziData.canChi.day.gan} (Nhật Chủ) - Chi ${femaleBaziData.canChi.day.zhi} (Nạp âm: ${femaleBaziData.canChi.day.naYin})
 - Trụ Giờ: Can ${femaleBaziData.canChi.hour.gan} - Chi ${femaleBaziData.canChi.hour.zhi} (Nạp âm: ${femaleBaziData.canChi.hour.naYin})
 - Cung Phi: ${femaleBaziData.menhQuai ? `${femaleBaziData.menhQuai.cung} (${femaleBaziData.menhQuai.element})` : 'Chưa rõ'}
-
+${vipContextText ? `\n${vipContextText}\n` : ''}
 --- BỐI CẢNH LỊCH SỬ ĐỐI THOẠI ---
 - Tóm tắt trước đó: ${context.summary}
 - Các câu thoại gần nhất:
@@ -170,7 +171,7 @@ ${safety}
 --- YÊU CẦU BẮT BUỘC VỀ ĐẦU RA ---
 Bạn phải trả về một đối tượng JSON duy nhất theo cấu trúc sau, KHÔNG bọc trong khối code \`\`\`json \`\`\$, KHÔNG thêm bất kỳ văn bản nào khác ngoài JSON:
 {
-  "answer": "Lời giải đáp trực tiếp, đi thẳng vào câu hỏi, tuyệt đối không chào hỏi dông dài hay lặp lại các lý thuyết cũ. Trình bày bằng định dạng Markdown, sử dụng các gạch đầu dòng rõ ràng để hai người dễ đọc...",
+  "answer": "Lời giải đáp trực tiếp, đi thẳng vào câu hỏi, tuyệt đối không chào hỏi dông dài hay lặp lại các lý thuyết cũ. Trình bày bằng định dạng Markdown, sử dụng các gạch đầu dòng rõ ràng để hai người dễ đọc. Phải duy trì tính nhất quán 100% với bài luận VIP nếu có...",
   "dos": "Những việc hỷ dụng cát lợi cặp đôi nên làm (hành vi gắn kết, giải pháp hóa giải xung khắc, ngày/tháng cát lợi kết hôn, sinh con hoặc hướng phong thủy hỗ trợ). Viết dạng Markdown gạch đầu dòng rõ ràng. Nếu không có, ghi null.",
   "donts": "Những điều kỵ khắc hai vợ chồng nên tránh (những xung đột hành vi, thời điểm kỵ cát kỵ hung, rủi ro ly tán cần phòng ngừa). Viết dạng Markdown gạch đầu dòng rõ ràng. Nếu không có, ghi null.",
   "confidence": 0.85

@@ -16,7 +16,8 @@ import {
   Award,
   Users,
   TrendingUp,
-  BookOpen
+  BookOpen,
+  MessageSquare
 } from 'lucide-react';
 
 const sectionIcons = {
@@ -78,6 +79,37 @@ const sectionIcons = {
   'bazi_5.2': Zap,       // Dự báo Lưu niên
   bazi_6: Compass,       // Xu cát tị hung
 
+  // Tử Vi VIP Clusters & Intro
+  tu_vi_intro: BookOpen,
+  tu_vi_ch_1: Sparkles,     // Cụm 1: Mệnh Thân Phúc Đức
+  tu_vi_ch_2: Award,        // Cụm 2: Quan Lộc Tài Bạch Điền Trạch
+  tu_vi_ch_3: Heart,        // Cụm 3: Phu Thê Tử Tức Huynh Đệ
+  tu_vi_ch_4: ShieldAlert,  // Cụm 4: Tật Ách Thiên Di
+  tu_vi_ch_5: Users,        // Cụm 5: Nô Bộc Phụ Mẫu Huynh Đệ
+  tu_vi_dieu_hoa: TrendingUp, // Điều Hòa & Đại Vận
+  ziwei_intro: BookOpen,
+  ziwei_ch_1: Sparkles,
+  ziwei_ch_2: Award,
+  ziwei_ch_3: Heart,
+  ziwei_ch_4: ShieldAlert,
+  ziwei_ch_5: Users,
+  ziwei_dieu_hoa: TrendingUp,
+
+  // Marriage VIP
+  marriage_intro: BookOpen,
+  marriage_ch_1: Heart,
+  marriage_ch_2: Sparkles,
+  marriage_ch_3: ShieldAlert,
+  marriage_ch_4: Users,
+  marriage_dieu_hoa: TrendingUp,
+
+  // IChing VIP
+  iching_intro: BookOpen,
+  iching_ch_1: Compass,
+  iching_ch_2: Zap,
+  iching_ch_3: Award,
+  iching_dieu_hoa: TrendingUp,
+
   // Legacy keys (if any)
   tong_quan: Sparkles,
   tinh_cach: User,
@@ -104,6 +136,37 @@ const sectionIcons = {
 };
 
 const sectionColors = {
+  // Tử Vi VIP Clusters & Intro
+  tu_vi_intro: "from-purple-600 to-indigo-700",
+  tu_vi_ch_1: "from-purple-500 to-indigo-600",
+  tu_vi_ch_2: "from-indigo-500 to-purple-600",
+  tu_vi_ch_3: "from-rose-500 to-pink-600",
+  tu_vi_ch_4: "from-red-500 to-rose-600",
+  tu_vi_ch_5: "from-amber-500 to-orange-600",
+  tu_vi_dieu_hoa: "from-purple-600 to-amber-600",
+  ziwei_intro: "from-purple-600 to-indigo-700",
+  ziwei_ch_1: "from-purple-500 to-indigo-600",
+  ziwei_ch_2: "from-indigo-500 to-purple-600",
+  ziwei_ch_3: "from-rose-500 to-pink-600",
+  ziwei_ch_4: "from-red-500 to-rose-600",
+  ziwei_ch_5: "from-amber-500 to-orange-600",
+  ziwei_dieu_hoa: "from-purple-600 to-amber-600",
+
+  // Marriage VIP
+  marriage_intro: "from-rose-500 to-pink-600",
+  marriage_ch_1: "from-rose-500 to-pink-600",
+  marriage_ch_2: "from-purple-500 to-rose-600",
+  marriage_ch_3: "from-red-500 to-rose-600",
+  marriage_ch_4: "from-rose-700 to-slate-900",
+  marriage_dieu_hoa: "from-rose-800 to-amber-600",
+
+  // IChing VIP
+  iching_intro: "from-amber-500 to-orange-600",
+  iching_ch_1: "from-amber-500 to-orange-600",
+  iching_ch_2: "from-blue-500 to-indigo-600",
+  iching_ch_3: "from-emerald-500 to-teal-600",
+  iching_dieu_hoa: "from-purple-600 to-amber-600",
+
   // Tử Vi - Markdown parsed (tu_vi_1 to tu_vi_14)
   tu_vi_1: "from-purple-500 to-indigo-600",
   tu_vi_2: "from-rose-500 to-pink-600",
@@ -193,6 +256,17 @@ const themeStyles = {
     shadow: "shadow-purple-950/5 hover:shadow-purple-900/10",
     hoverBg: "hover:bg-purple-50/20",
     chevronActive: "bg-purple-50 text-purple-500 border-purple-200",
+    consultBtn: "bg-purple-50 hover:bg-purple-100 text-purple-700 hover:text-purple-900 border-purple-200/80 hover:border-purple-300",
+    consultIcon: "text-purple-600",
+    prose: "prose-slate prose-headings:text-purple-950 prose-a:text-purple-600 prose-strong:text-purple-900 prose-code:text-purple-600 prose-code:bg-purple-50"
+  },
+  tu_vi: {
+    border: "border-purple-100 hover:border-purple-200",
+    shadow: "shadow-purple-950/5 hover:shadow-purple-900/10",
+    hoverBg: "hover:bg-purple-50/20",
+    chevronActive: "bg-purple-50 text-purple-500 border-purple-200",
+    consultBtn: "bg-purple-50 hover:bg-purple-100 text-purple-700 hover:text-purple-900 border-purple-200/80 hover:border-purple-300",
+    consultIcon: "text-purple-600",
     prose: "prose-slate prose-headings:text-purple-950 prose-a:text-purple-600 prose-strong:text-purple-900 prose-code:text-purple-600 prose-code:bg-purple-50"
   },
   bazi: {
@@ -200,6 +274,8 @@ const themeStyles = {
     shadow: "shadow-blue-950/5 hover:shadow-blue-900/10",
     hoverBg: "hover:bg-blue-50/20",
     chevronActive: "bg-blue-50 text-blue-500 border-blue-200",
+    consultBtn: "bg-blue-50 hover:bg-blue-100 text-blue-700 hover:text-blue-900 border-blue-200/80 hover:border-blue-300",
+    consultIcon: "text-blue-600",
     prose: "prose-blue prose-headings:text-blue-950 prose-a:text-blue-600 prose-strong:text-blue-900 prose-code:text-blue-600 prose-code:bg-blue-50"
   },
   iching: {
@@ -207,6 +283,8 @@ const themeStyles = {
     shadow: "shadow-amber-950/5 hover:shadow-amber-900/10",
     hoverBg: "hover:bg-amber-50/20",
     chevronActive: "bg-amber-50 text-amber-500 border-amber-200",
+    consultBtn: "bg-amber-50 hover:bg-amber-100 text-amber-700 hover:text-amber-900 border-amber-200/80 hover:border-amber-300",
+    consultIcon: "text-amber-600",
     prose: "prose-amber prose-headings:text-amber-950 prose-a:text-amber-600 prose-strong:text-amber-900 prose-code:text-amber-600 prose-code:bg-amber-50"
   },
   marriage: {
@@ -214,6 +292,8 @@ const themeStyles = {
     shadow: "shadow-rose-950/5 hover:shadow-rose-900/10",
     hoverBg: "hover:bg-rose-50/20",
     chevronActive: "bg-rose-50 text-rose-500 border-rose-200",
+    consultBtn: "bg-rose-50 hover:bg-rose-100 text-rose-700 hover:text-rose-900 border-rose-200/80 hover:border-rose-300",
+    consultIcon: "text-rose-600",
     prose: "prose-rose prose-headings:text-rose-950 prose-a:text-rose-600 prose-strong:text-rose-900 prose-code:text-rose-600 prose-code:bg-rose-50"
   }
 };
@@ -225,35 +305,57 @@ const cleanAndNormalizeMarkdown = (content) => {
   // 1. Replace double pipe row separators: "| |" -> "|\n|"
   text = text.replace(/\|\s*\|\s*/g, '|\n|');
 
-  // 2. Fix lines that have an orphaned row start like "|9 - 18\n| Tân Tỵ"
+  // 2. Fix delimiter stuck to next row: "| :--- | :--- | |" -> "| :--- | :--- |\n|"
+  text = text.replace(/(\|[\s:-]+\|)\s*(\|)/g, '$1\n$2');
+
+  // 3. Fix lines that have an orphaned row start like "|9 - 18\n| Tân Tỵ"
   text = text.replace(/\|\s*(\d+\s*-\s*\d+)\s*\n\s*\|\s*/g, '| $1 | ');
 
-  // 3. Fix broken delimiter row like "|:---\n| :--- | :--- | :--- |"
-  text = text.replace(/\|:---\s*\n\s*\|\s*:---/g, '| :---');
+  // 4. Line-by-line table preservation & proper spacing
+  const lines = text.split(/\r?\n/);
+  const resultLines = [];
+  let inTable = false;
 
-  // 4. Remove blank lines BETWEEN table rows (lines with pipes)
-  for (let pass = 0; pass < 5; pass++) {
-    text = text.replace(/(\|[^\n]+)\n\s*\n+(\s*\|)/g, '$1\n$2');
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmed = line.trim();
+    const isTableRow = trimmed.startsWith('|') && trimmed.endsWith('|');
+
+    if (isTableRow) {
+      if (!inTable) {
+        // Table starts: Ensure there is a blank line before it if preceded by non-empty text
+        if (resultLines.length > 0 && resultLines[resultLines.length - 1] !== '') {
+          resultLines.push('');
+        }
+        inTable = true;
+      }
+      resultLines.push(trimmed);
+    } else {
+      if (inTable) {
+        // Table ends: Ensure there is a blank line after it
+        if (trimmed !== '') {
+          resultLines.push('');
+        }
+        inTable = false;
+      }
+      resultLines.push(line);
+    }
   }
 
-  // 5. Ensure blank line BEFORE the start of a table (if preceded by a non-pipe line)
-  text = text.replace(/([^\n|])\n*(\|[^\n]+\|\n\|[\s:-]+\|)/g, '$1\n\n$2');
+  text = resultLines.join('\n');
 
-  // 6. Ensure blank line AFTER the end of a table (if followed by a non-pipe line)
-  text = text.replace(/(\|[^\n]+\|)\n+([^|\n#\s])/g, '$1\n\n$2');
-
-  // 7. Ensure bold headings on standalone lines become h3 subtopics
+  // 5. Ensure bold headings on standalone lines become h3 subtopics
   text = text.replace(/(?:^|\n)\s*\*\*(Phân Tích|Lộ Trình|Dự Báo|Chiến Lược|Đặc Trưng|Bước Ngoặt|Năng Lực|Định Vị|Môi Trường|Tiểu Nhân|Thời Điểm|Chính Tài|Kho Tài|Rủi Ro|Phong Cách|Mô Hình|Chân Dung|Đào Hoa|Đường Con|Bí Quyết|Mất Cân Bằng|Cảnh Báo|Nguy Cơ|Hạn Mổ|Phương Pháp|Persona|Màu Sắc|Cải Vận|Khung Giờ|Bố Trí|Chu Kỳ|Điểm Gãy|Hoàng Kim)[^:\n]*:\*\*/gi, (match) => {
     return `\n\n### ${match.trim()}`;
   });
 
-  // 8. Ensure clean double newlines outside tables
+  // 6. Ensure clean double newlines outside tables
   text = text.replace(/\n{3,}/g, '\n\n').trim();
 
   return text;
 };
 
-const SectionCard = ({ section, theme }) => {
+const SectionCard = ({ section, theme, onConsultSection }) => {
   const [isOpen, setIsOpen] = useState(true);
   const IconComponent = sectionIcons[section.id] || Bookmark;
   const gradientColor = sectionColors[section.id] || "from-slate-500 to-slate-700";
@@ -261,22 +363,30 @@ const SectionCard = ({ section, theme }) => {
 
   return (
     <div className={`mb-6 bg-white/70 backdrop-blur-md rounded-2xl border ${styles.border} shadow-lg ${styles.shadow} overflow-hidden transition-all duration-300`}>
-      {/* Header Button */}
-      <button
+      {/* Header Bar */}
+      <div
+        role="button"
+        tabIndex={0}
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full px-6 py-3.5 sm:py-4 flex justify-between items-center text-left transition-all duration-200 ${styles.hoverBg}`}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setIsOpen(!isOpen);
+          }
+        }}
+        className={`w-full px-5 sm:px-6 py-3.5 sm:py-4 flex items-center justify-between gap-3 sm:gap-4 text-left transition-all duration-200 cursor-pointer select-none ${styles.hoverBg}`}
       >
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full">
-          <div className="flex items-center gap-3 shrink-0">
+        <div className="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-3 min-w-0 flex-1">
             <div className={`w-9.5 h-9.5 rounded-lg bg-gradient-to-br ${gradientColor} flex items-center justify-center text-white shadow-md shrink-0`}>
               <IconComponent size={18} />
             </div>
-            <h3 className="font-black text-slate-800 text-base sm:text-[18px] md:text-[19.5px] tracking-wide leading-normal">
+            <h3 className="font-black text-slate-800 text-base sm:text-[18px] md:text-[19.5px] tracking-wide leading-snug break-words">
               {section.title}
             </h3>
           </div>
           {section.sources && section.sources.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 ml-0 sm:ml-2">
+            <div className="flex flex-wrap gap-1.5 shrink-0">
               {section.sources.map((src, idx) => (
                 <span 
                   key={idx} 
@@ -289,10 +399,27 @@ const SectionCard = ({ section, theme }) => {
           )}
         </div>
         
-        <div className={`p-1.5 rounded-full bg-slate-50 text-slate-400 border border-slate-200 transition-transform duration-300 ${isOpen ? `rotate-180 ${styles.chevronActive}` : ''}`}>
-          <ChevronDown size={18} />
+        <div className="flex items-center gap-2 shrink-0 ml-1 sm:ml-2">
+          {onConsultSection && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onConsultSection(section);
+              }}
+              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl border text-xs font-semibold shadow-2xs hover:shadow-xs transition-all duration-200 active:scale-95 group ${styles.consultBtn}`}
+              title="Đàm đạo chuyên sâu cùng Thầy về mục này"
+            >
+              <MessageSquare size={13} className={`${styles.consultIcon} group-hover:scale-110 transition-transform`} />
+              <span className="hidden sm:inline">Đàm đạo mục này</span>
+              <span className="sm:hidden text-[11px]">Đàm đạo</span>
+            </button>
+          )}
+          <div className={`p-1.5 rounded-full bg-slate-50 text-slate-400 border border-slate-200 transition-transform duration-300 ${isOpen ? `rotate-180 ${styles.chevronActive}` : ''}`}>
+            <ChevronDown size={18} />
+          </div>
         </div>
-      </button>
+      </div>
 
       {/* Accordion Content Panel */}
       <div 
@@ -336,7 +463,7 @@ const SectionCard = ({ section, theme }) => {
   );
 };
 
-const SectionRenderer = ({ sections, theme = 'tuvi' }) => {
+const SectionRenderer = ({ sections, theme = 'tuvi', onConsultSection }) => {
   if (!sections || sections.length === 0) {
     return (
       <div className="p-12 text-center bg-white/50 border border-purple-100 rounded-3xl backdrop-blur-md">
@@ -352,7 +479,12 @@ const SectionRenderer = ({ sections, theme = 'tuvi' }) => {
   return (
     <div className="w-full animate-in fade-in slide-in-from-bottom-6 duration-500">
       {sections.map((section, idx) => (
-        <SectionCard key={section.id || idx} section={section} theme={theme} />
+        <SectionCard 
+          key={section.id || idx} 
+          section={section} 
+          theme={theme} 
+          onConsultSection={onConsultSection}
+        />
       ))}
     </div>
   );

@@ -1,7 +1,15 @@
 import React from 'react';
 import { Sparkles, ArrowRight, Zap } from 'lucide-react';
 
-const VipUpgradeBanner = ({ onUpgradeClick, userCredits = 0 }) => {
+const SYSTEM_BADGES = {
+  bazi: 'Chuyên Sâu 6 Chương',
+  ziwei: 'Chuyên Sâu 5 Cụm Cung',
+  marriage: 'So Hợp 4 Trụ Cột',
+  iching: 'Toàn Cảnh Ứng Kỳ'
+};
+
+const VipUpgradeBanner = ({ onUpgradeClick, userCredits = 0, system = 'bazi' }) => {
+  const badgeText = SYSTEM_BADGES[system] || SYSTEM_BADGES.bazi;
   return (
     <div className="w-full bg-gradient-to-r from-amber-950/80 via-slate-900 to-amber-950/80 border border-amber-500/40 rounded-2xl p-4 mb-6 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 text-white">
       <div className="flex items-center gap-3">
@@ -12,7 +20,7 @@ const VipUpgradeBanner = ({ onUpgradeClick, userCredits = 0 }) => {
           <h4 className="text-sm font-bold text-amber-300 flex items-center gap-2">
             Muốn xem bài phân tích sâu sắc hơn?
             <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
-              Chuyên Sâu 6 Chương
+              {badgeText}
             </span>
           </h4>
           <p className="text-xs text-slate-300">

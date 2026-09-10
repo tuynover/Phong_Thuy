@@ -60,6 +60,7 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
     const [interpretation, setInterpretation] = useState('');
     const [interpretationMode, setInterpretationMode] = useState(data?.aiInterpretation?.mode || 'standard');
     const [isChatOpen, setIsChatOpen] = useState(false);
+    const [activeConsultSection, setActiveConsultSection] = useState(null);
     const [isInterpreting, setIsInterpreting] = useState(false);
     const [showTierModal, setShowTierModal] = useState(false);
     const [isUpgradeModal, setIsUpgradeModal] = useState(false);
@@ -1521,7 +1522,14 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
                         )}
 
                         {interpretation && (
-                            <SectionRenderer sections={parseMarkdownSections(interpretation, 'bazi')} theme="bazi" />
+                            <SectionRenderer 
+                                sections={parseMarkdownSections(interpretation, 'bazi')} 
+                                theme="bazi" 
+                                onConsultSection={(sec) => {
+                                    setActiveConsultSection(sec);
+                                    setIsChatOpen(true);
+                                }}
+                            />
                         )}
 
                         {/* Banner Nâng Cấp VIP ở cuối bài luận giải thường */}
@@ -1651,6 +1659,8 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
                     userId={user?.id || user?._id} 
                     isOpen={isChatOpen}
                     setIsOpen={setIsChatOpen}
+                    activeSection={activeConsultSection}
+                    setActiveSection={setActiveConsultSection}
                 />
             )}
 
@@ -1679,6 +1689,7 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
                 onConfirm={triggerLuanGiai}
                 userCredits={user?.credits || 0}
                 isUpgrade={isUpgradeModal}
+                system="bazi"
             />
             {/* PDF EXPORT MODAL */}
             <PdfExportModal

@@ -115,7 +115,15 @@ function robustParseJSON(text) {
     return null;
 }
 
-const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpen: setExternalIsOpen }) => {
+const AiChatWidget = ({ 
+    type, 
+    recordId, 
+    userId, 
+    isOpen: externalIsOpen, 
+    setIsOpen: setExternalIsOpen,
+    activeSection,
+    setActiveSection
+}) => {
     const auth = useContext(AuthContext);
     const token = auth ? auth.token : localStorage.getItem('token');
     const [localIsOpen, setLocalIsOpen] = useState(false);
@@ -283,7 +291,11 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
             const response = await fetch(url, {
                 method: 'POST',
                 headers,
-                body: JSON.stringify({ question, userId })
+                body: JSON.stringify({ 
+                    question, 
+                    userId,
+                    activeSectionId: activeSection?.id || null 
+                })
             });
 
             if (!response.ok) {
@@ -570,6 +582,27 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
                         </div>
                     </div>
 
+                    {/* ACTIVE VIP CONTEXT BANNER */}
+                    {activeSection && (
+                        <div className="px-3.5 py-2 bg-gradient-to-r from-amber-50/80 via-purple-50/80 to-blue-50/80 border-b border-purple-100 flex items-center justify-between text-xs animate-in fade-in duration-200">
+                            <div className="flex items-center gap-1.5 min-w-0 pr-2">
+                                <span className="w-2 h-2 rounded-full bg-purple-600 animate-pulse shrink-0" />
+                                <span className="font-bold text-slate-800 shrink-0">Ngữ cảnh:</span>
+                                <span className="truncate font-semibold text-purple-700" title={activeSection.title}>
+                                    {activeSection.title}
+                                </span>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setActiveSection && setActiveSection(null)}
+                                className="p-1 rounded-full text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors shrink-0"
+                                title="Xóa ngữ cảnh (quay về đàm đạo toàn cảnh lá số)"
+                            >
+                                <X size={13} />
+                            </button>
+                        </div>
+                    )}
+
                     {/* Messages Panel */}
                     <div 
                         ref={messagesContainerRef}
@@ -662,6 +695,26 @@ const AiChatWidget = ({ type, recordId, userId, isOpen: externalIsOpen, setIsOpe
 
                         <div ref={chatEndRef} />
                     </div>
+
+                    {/* Context Quick Suggestion Chips */}
+                    {activeSection && !isStreaming && (
+                        <div className="px-3 pt-2 pb-1 bg-white flex flex-wrap gap-1.5 border-t border-gray-100 animate-in fade-in duration-200">
+                            <button
+                                type="button"
+                                onClick={() => setInput(`Thầy phân tích sâu hơn về những điểm cốt lõi trong "${activeSection.title}" giúp con.`)}
+                                className="text-[11px] px-2.5 py-1 rounded-full bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200/60 transition-colors text-left truncate max-w-[48%] active:scale-95"
+                            >
+                                💡 Luận giải sâu mục này
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setInput(`Trong "${activeSection.title}", con cần lưu ý gì và có cách nào hóa giải không ạ?`)}
+                                className="text-[11px] px-2.5 py-1 rounded-full bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200/60 transition-colors text-left truncate max-w-[48%] active:scale-95"
+                            >
+                                🛡️ Lưu ý & Hóa giải
+                            </button>
+                        </div>
+                    )}
 
                     {/* Footer Input */}
                     <form onSubmit={handleSend} className="p-3 bg-white border-t border-gray-100 flex gap-2 items-center">

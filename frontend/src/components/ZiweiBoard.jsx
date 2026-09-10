@@ -79,6 +79,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
   const [isVipCompleted, setIsVipCompleted] = useState(false);
   const [abortController, setAbortController] = useState(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [activeConsultSection, setActiveConsultSection] = useState(null);
   const [error, setError] = useState('');
   const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
 
@@ -689,13 +690,14 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
               <div className="flex items-center gap-2 mb-6 ml-1">
                 <Sparkles className="text-purple-500" size={20} />
                 <h2 className="font-extrabold text-slate-800 text-lg md:text-xl">
-                  {interpretationMode === 'vip' ? 'Luận Giải Chuyên Sâu (6 Chương)' : 'Luận Giải Chuyên Sâu Cát Hung'}
+                  {interpretationMode === 'vip' ? 'Luận Giải Chuyên Sâu (5 Cụm Cung Toàn Đồ)' : 'Luận Giải Chuyên Sâu Cát Hung'}
                 </h2>
               </div>
 
-              {/* Tracker 6 Chương */}
+              {/* Tracker 5 Cụm Cung */}
               {interpretationMode === 'vip' && (
                 <VipProgressTracker
+                  system="ziwei"
                   completedChapters={vipCompletedChapters}
                   activeChapters={vipActiveChapters}
                   streamingChapter={vipStreamingChapter}
@@ -715,6 +717,10 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
                           : result.aiInterpretation?.sections || [])
                   } 
                   theme="tu_vi"
+                  onConsultSection={(sec) => {
+                    setActiveConsultSection(sec);
+                    setIsChatOpen(true);
+                  }}
                 />
               )}
 
@@ -722,6 +728,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
               {(interpretation || result.aiInterpretation?.content) && interpretationMode !== 'vip' && !isInterpreting && (
                 <div className="mt-8">
                   <VipUpgradeBanner
+                    system="ziwei"
                     userCredits={activeUser?.credits || 0}
                     onUpgradeClick={() => {
                       setIsUpgradeModal(true);
@@ -862,6 +869,8 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
               userId={activeUser?.id || activeUser?._id}
               isOpen={isChatOpen}
               setIsOpen={setIsChatOpen}
+              activeSection={activeConsultSection}
+              setActiveSection={setActiveConsultSection}
             />
           )}
         </>
@@ -874,6 +883,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
         onConfirm={handleTriggerInterpretation}
         userCredits={activeUser?.credits || 0}
         isUpgrade={isUpgradeModal}
+        system="ziwei"
       />
 
       {/* Modal Cập nhật thông tin sinh thần Bát tự / Tử vi dùng chung */}

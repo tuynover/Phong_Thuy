@@ -71,12 +71,14 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
 
 #### F. Tiện ích Phụ trợ & UI/UX Đột phá
 * **Luận Giải Chuyên Sâu VIP & Gói Luận Giải Đa Tầng:**
-  * **Modal Chọn Gói 2 Cột (`InterpretationTierModal.jsx`):** Khi chưa luận giải, hiển thị bảng chọn 2 cột trực quan: Bên trái là Luận Giải Cơ Bản (1 Credit, 800 - 1.200 từ), bên phải là Luận Giải Chuyên Sâu VIP (5 Credits, 5.000+ từ, viền vàng hoàng gia, huy hiệu Khuyên Dùng).
-  * **Banner Nâng Cấp VIP (`VipUpgradeBanner.jsx`):** Khi người dùng đã xem bản cơ bản, banner xuất hiện cuối bài luận giải gợi ý nâng cấp sang bản VIP chỉ với 4 Credits chênh lệch.
+  * **Modal Chọn Gói 2 Cột Đa Phân Hệ (`InterpretationTierModal.jsx`):** Khi chưa luận giải, hiển thị bảng chọn 2 cột tự động tùy biến theo từng phân hệ (`bazi`, `ziwei`, `marriage`, `iching`): Bên trái là Luận Giải Cơ Bản (1 Credit, 800 - 1.200 từ), bên phải là Luận Giải Chuyên Sâu VIP (5 Credits, viền vàng hoàng gia, huy hiệu Khuyên Dùng, mô tả chuyên sâu phù hợp từng môn cổ học).
+  * **Banner Nâng Cấp VIP (`VipUpgradeBanner.jsx`):** Khi người dùng đã xem bản cơ bản, banner xuất hiện cuối bài luận giải gợi ý nâng cấp sang bản VIP chỉ với 4 Credits chênh lệch kèm từ khóa học thuật đặc trưng của phân hệ.
   * **Nút Nâng Cấp Nổi (Floating Button):** Nút "Nâng Cấp VIP (4 Cr)" được đặt cố định ở góc dưới bên phải, nằm ngay **PHÍA TRÊN** của nút "Hỏi Thêm Thầy" để tạo cảm giác tiện dụng và kích thích chuyển đổi.
-  * **Reset Trạng Thái Tức Thời 0ms & Tiến Độ Thời Gian Thực:** Khi nhấn xác nhận nâng cấp, bài viết cũ lập tức biến mất ngay trên state, kích hoạt thanh tiến độ 6 Chương thời gian thực (`VipProgressTracker.jsx`) theo dõi từng bước hoàn thành của các chương.
+  * **Reset Trạng Thái Tức Thời 0ms & Tiến Độ Thời Gian Thực:** Khi nhấn xác nhận nâng cấp, bài viết cũ lập tức biến mất ngay trên state, kích hoạt thanh tiến độ thời gian thực (`VipProgressTracker.jsx`) theo dõi từng bước hoàn thành: 6 Chương cho Bát Tự hoặc 5 Cụm Cung Toàn Đồ cho Tử Vi.
   * **Bảo toàn Bản quyền VIP:** Khi đã hoàn thành bài VIP, giao diện ẩn hoàn toàn các nút nâng cấp và banner VIP, chỉ giữ lại nút "Hỏi Thêm Thầy".
-* **Khung Chat Thông Minh (AiChatWidget):** Bounded Slide-in Panel trượt mềm mại từ góc phải màn hình, hỗ trợ hiển thị luồng SSE thời gian thực từ AI, có thanh tiến độ độ tin cậy (Confidence Bar), Ứng Kỳ (Timing), Cảnh báo rủi ro (Risk) và bộ đếm cooldown 10s tránh spam.
+* **Khung Chat Thông Minh & Đồng Bộ Ngữ Cảnh VIP (AiChatWidget & VIP Chat Memory):** 
+  * Bounded Slide-in Panel trượt mềm mại từ góc phải màn hình, hỗ trợ hiển thị luồng SSE thời gian thực từ AI, có thanh tiến độ độ tin cậy (Confidence Bar), Ứng Kỳ (Timing), Cảnh báo rủi ro (Risk) và bộ đếm cooldown 8-10s tránh spam.
+  * **Đồng Bộ Ngữ Cảnh Bài Luận VIP (Hybrid VIP Context Memory):** Nút *"💬 Đàm đạo mục này"* được bố trí trực tiếp trên từng thanh tiêu đề thẻ Accordion Cụm/Chương (`SectionRenderer.jsx`). Khi bấm, Chat Widget tự động trượt ra kèm **Context Banner** tím nổi bật (`🏷️ Ngữ cảnh: [Tên Cụm/Chương]`), nút hủy ngữ cảnh `✕` và các phím gợi ý nhanh (**Quick Suggestion Chips**). Backend tự động cắt lát thông minh (~800 - 1.200 từ) hoặc định tuyến từ khóa ngữ nghĩa (`ConversationContextService.js`), giúp AI phản hồi chuẩn xác 100% theo từng chương mục mà không làm quá tải token context.
 * **State Persistence:** Sử dụng `localStorage` lưu trữ trạng thái phân hệ, quẻ hiện tại, lá số hiện tại và lịch sử chat để tránh mất dữ liệu khi Refresh/F5.
 * **Tạo Lá số Độc lập & Concurrency Mutex Lock:** Bỏ kiểm tra trùng lặp cũ khi tạo lá số/quẻ. Mỗi lần gửi yêu cầu hợp lệ đều tạo lá số mới độc lập, đồng thời trang bị Mutex Lock 2.5s trên Redis/RAM ngăn chặn spam 10 request đồng thời.
 * **Xóa mềm (Soft Delete) & Hủy liên kết:** Danh sách lịch sử gieo quẻ/lá số được xóa dưới dạng xóa mềm (`isDeleted: true`). Nếu bản ghi bị xóa trùng khớp với liên kết lá số bản thân của người dùng, hệ thống sẽ tự động hủy liên kết đó trong hồ sơ cá nhân (`ownBaziRecordId`/`ownZiweiRecordId` đặt về `null`).
@@ -117,6 +119,12 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
    * [HistoryController.js](file:///t:/Phongthuy/backend/src/controllers/HistoryController.js): Xem lịch sử bản ghi, xếp hạng đánh giá (rate), liên kết dữ liệu guest vào tài khoản (link), xóa bản ghi.
 6. **Quản lý Prompt động:**
    * Tách biệt các bộ prompt chuyên môn bằng tiếng Anh giúp nâng cao chất lượng phản hồi từ Gemini: [IChingPrompts.js](file:///t:/Phongthuy/backend/src/services/IChingPrompts.js), [BaziPrompts.js](file:///t:/Phongthuy/backend/src/services/BaziPrompts.js), [ZiweiPrompts.js](file:///t:/Phongthuy/backend/src/services/ZiweiPrompts.js), [MarriagePrompts.js](file:///t:/Phongthuy/backend/src/services/MarriagePrompts.js).
+6.1. **Bộ Máy Luận Giải Chuyên Sâu Đa Tầng (`backend/src/services/deep-interpretation/`):**
+   * Tổ chức tinh gọn thành 3 tệp tin chức năng cốt lõi:
+     - `DeepInterpretationCore.js`: Hạ tầng kỹ thuật (xoay vòng API key qua `OpenRouterRotator`, bộ giao tiếp `LlmProviderService` tích hợp timeout và giới hạn token `maxTokens: 3000` chống lỗi 402, cùng bộ phát dòng SSE `SseStreamHelper`).
+     - `DeepInterpretationConfigs.js`: Cấu hình học thuật và prompts chuyên sâu cho 4 phân hệ (Bát Tự 6 Chương, Tử Vi 5 Cụm Cung, Hợp Hôn 4 Trụ Cột, Kinh Dịch 3 Kịch Bản).
+     - `DeepInterpretationPipelines.js`: Điều phối tiến trình xử lý đa tầng chuyên biệt phủ sóng toàn diện 4 phân hệ gồm `BaziDeepPipeline` (3 tầng Bát Tự), `ZiweiDeepPipeline` (4 tầng Tử Vi), `MarriageDeepPipeline` (3 tầng Hợp Hôn 4 Trụ Cột) và `IChingDeepPipeline` (3 tầng Kinh Dịch 3 Kịch Bản).
+   * Lớp Facade [MultiAgentPipelineService.js](file:///t:/Phongthuy/backend/src/services/MultiAgentPipelineService.js) đảm bảo tương thích ngược 100% cho toàn bộ controller.
 7. **Hệ thống Nhật ký cao cấp (`LoggerService.js`):**
    * Hoạt động song song: In console có mã màu ANSI và ghi tệp log vật lý (`logs/app.log`, `logs/errors.log`). Tự động truy quét định danh JWT để ghi nhận IP, Email người dùng và ẩn mật khẩu bảo mật.
    * Tệp tin: [LoggerService.js](file:///t:/Phongthuy/backend/src/services/LoggerService.js).

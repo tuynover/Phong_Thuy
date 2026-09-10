@@ -18,6 +18,5 @@ const systemLogSchema = new mongoose.Schema({
 
 systemLogSchema.index({ timestamp: -1 });
 systemLogSchema.index({ userId: 1, timestamp: -1 });
-systemLogSchema.index({ requestId: 1 });
 
 module.exports = mongoose.model('SystemLog', systemLogSchema);

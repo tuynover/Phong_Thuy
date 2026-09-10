@@ -1,7 +1,7 @@
 import React from 'react';
 import { Loader2, CheckCircle2, Sparkles, Radio } from 'lucide-react';
 
-const CHAPTERS = [
+const BAZI_CHAPTERS = [
   { id: 1, title: 'Sự Nghiệp & Công Danh' },
   { id: 2, title: 'Tài Chính & Dòng Tiền' },
   { id: 3, title: 'Hôn Nhân & Gia Đạo' },
@@ -10,15 +10,58 @@ const CHAPTERS = [
   { id: 6, title: 'Mốc Đại Vận 100 Năm' }
 ];
 
+const ZIWEI_CHAPTERS = [
+  { id: 1, title: 'Mệnh - Thân - Phúc Đức' },
+  { id: 2, title: 'Quan Lộc - Tài - Điền Trạch' },
+  { id: 3, title: 'Phu Thê - Tử Tức' },
+  { id: 4, title: 'Tật Ách - Thiên Di' },
+  { id: 5, title: 'Nô Bộc - Phụ Mẫu - Huynh Đệ' }
+];
+
+const MARRIAGE_CHAPTERS = [
+  { id: 1, title: 'Cốt Cách & Tâm Lý Phối Ngẫu' },
+  { id: 2, title: 'Tài Chính & Kinh Tế Gia Đình' },
+  { id: 3, title: 'Hóa Giải Xung Khắc Cung Phu Thê' },
+  { id: 4, title: 'Con Cái & Vận Trình Hậu Vận' }
+];
+
+const ICHING_CHAPTERS = [
+  { id: 1, title: 'Biện Chứng Lục Hào Cốt Lõi' },
+  { id: 2, title: '3 Kịch Bản Diễn Biến & Xác Suất' },
+  { id: 3, title: 'Mốc Thời Gian Ứng Kỳ & Đạo Dịch' }
+];
+
+const getChaptersBySystem = (sys) => {
+  switch (sys) {
+    case 'ziwei':
+    case 'tu_vi':
+      return ZIWEI_CHAPTERS;
+    case 'marriage':
+    case 'hop_hon':
+      return MARRIAGE_CHAPTERS;
+    case 'iching':
+    case 'kinh_dich':
+      return ICHING_CHAPTERS;
+    case 'bazi':
+    case 'bat_tu':
+    default:
+      return BAZI_CHAPTERS;
+  }
+};
+
 const VipProgressTracker = ({
   completedChapters = [],
   activeChapters = [],
   streamingChapter = null,
   currentChapter = 1,
   isCompleted = false,
-  statusMessage = ''
+  statusMessage = '',
+  system = 'bazi',
+  chapters = null
 }) => {
+  const chapterList = chapters || getChaptersBySystem(system);
   const hasCompletedList = Array.isArray(completedChapters) && completedChapters.length > 0;
+  const prefixLabel = system === 'ziwei' ? 'Cụm ' : system === 'marriage' ? 'Trụ ' : system === 'iching' ? 'KB ' : 'C';
 
   return (
     <div className="w-full bg-white border border-amber-200/80 rounded-2xl p-4 mb-6 shadow-sm text-slate-800 transition-all">
@@ -38,7 +81,7 @@ const VipProgressTracker = ({
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5">
-        {CHAPTERS.map((ch) => {
+        {chapterList.map((ch) => {
           const isDone = isCompleted || (hasCompletedList ? completedChapters.includes(ch.id) : currentChapter > ch.id);
           const isStreaming = !isCompleted && streamingChapter === ch.id;
           const isCurrent = !isCompleted && !isDone && (
@@ -60,7 +103,7 @@ const VipProgressTracker = ({
               }`}
             >
               <div className="truncate font-medium pr-1">
-                <span className="text-[10px] opacity-70 font-semibold mr-1.5">C{ch.id}:</span>
+                <span className="text-[10px] opacity-70 font-semibold mr-1.5">{prefixLabel}{ch.id}:</span>
                 {ch.title}
               </div>
               <div className="shrink-0">

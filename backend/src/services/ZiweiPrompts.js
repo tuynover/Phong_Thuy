@@ -189,7 +189,7 @@ Hãy viết bài luận giải liền mạch, chi tiết bằng định dạng M
     return RESPONSE_SCHEMA;
   }
 
-  static buildFollowUpPrompt(compressedChart, symbolicAnalysis, memoryContext, historyPrompt, question) {
+  static buildFollowUpPrompt(compressedChart, symbolicAnalysis, memoryContext, historyPrompt, question, vipContextText = "") {
     return `
 ${MASTER_PROMPT}
 
@@ -199,7 +199,7 @@ ${JSON.stringify(compressedChart, null, 2)}
 \`\`\`
 CÁC CÁCH CỤC & TỔ HỢP SAO:
 ${JSON.stringify(symbolicAnalysis.patterns)}
-
+${vipContextText ? `\n${vipContextText}\n` : ''}
 BỐI CẢNH TRÒ CHUYỆN HỎI ĐÁP LỊCH LÃM:
 ${memoryContext}
 ${historyPrompt}
@@ -210,7 +210,7 @@ ${historyPrompt}
 --- YÊU CẦU BẮT BUỘC VỀ ĐẦU RA ---
 Bạn phải trả về một đối tượng JSON duy nhất theo cấu trúc sau, KHÔNG bọc trong khối code \`\`\`json \`\`\`, KHÔNG thêm bất kỳ văn bản nào khác ngoài JSON:
 {
-  "answer": "Lời giải đáp trực tiếp, đi thẳng vào câu hỏi thắc mắc mới. Trình bày bằng định dạng Markdown, chia nhỏ thành các mục con và gạch đầu dòng rõ ràng để người dùng dễ đọc...",
+  "answer": "Lời giải đáp trực tiếp, đi thẳng vào câu hỏi thắc mắc mới. Trình bày bằng định dạng Markdown, chia nhỏ thành các mục con và gạch đầu dòng rõ ràng để người dùng dễ đọc. Phải duy trì tính nhất quán 100% với bài luận VIP nếu có...",
   "confidence": 0.90
 }
 

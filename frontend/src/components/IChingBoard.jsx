@@ -238,6 +238,7 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
     const [feedback, setFeedback] = useState('');
     const [justRated, setJustRated] = useState(false);
     const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
+    const [activeConsultSection, setActiveConsultSection] = useState(null);
 
     const prevIdRef = useRef(null);
 
@@ -889,13 +890,14 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
                             <BookOpen className="text-white" size={16} />
                         </div>
                         <h3 className="text-xl font-extrabold text-slate-800 tracking-tight">
-                            {interpretationMode === 'vip' ? 'Dịch Giải Chuyên Sâu (6 Chương)' : 'Thầy Dịch Giải Chi Tiết'}
+                            {interpretationMode === 'vip' ? 'Dịch Giải Chuyên Sâu (3 Kịch Bản Tương Lai)' : 'Thầy Dịch Giải Chi Tiết'}
                         </h3>
                     </div>
 
-                    {/* Tracker 6 Chương */}
+                    {/* Tracker 3 Kịch Bản Tương Lai */}
                     {interpretationMode === 'vip' && (
                         <VipProgressTracker
+                            system="iching"
                             completedChapters={vipCompletedChapters}
                             activeChapters={vipActiveChapters}
                             streamingChapter={vipStreamingChapter}
@@ -906,13 +908,21 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
                     )}
 
                     {interpretation && (
-                        <SectionRenderer sections={parseMarkdownSections(interpretation, 'iching')} theme="iching" />
+                        <SectionRenderer 
+                            sections={parseMarkdownSections(interpretation, 'iching')} 
+                            theme="iching" 
+                            onConsultSection={(sec) => {
+                                setActiveConsultSection(sec);
+                                setIsChatOpen(true);
+                            }}
+                        />
                     )}
 
                     {/* Banner Nâng Cấp VIP ở cuối bài luận giải thường */}
                     {interpretation && interpretationMode !== 'vip' && !isInterpreting && (
                         <div className="mt-8">
                             <VipUpgradeBanner
+                                system="iching"
                                 userCredits={user?.credits || 0}
                                 onUpgradeClick={() => {
                                     setIsUpgradeModal(true);
@@ -1028,13 +1038,15 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
                 </div>
             )}
 
-            {interpretation && result?.recordId && activeUser && (
+            {interpretation && (result?.recordId || result?._id) && activeUser && (
                 <AiChatWidget 
                     type="hexagrams" 
-                    recordId={result.recordId} 
+                    recordId={result.recordId || result._id} 
                     userId={activeUser?.id || activeUser?._id} 
                     isOpen={isChatOpen}
                     setIsOpen={setIsChatOpen}
+                    activeSection={activeConsultSection}
+                    setActiveSection={setActiveConsultSection}
                 />
             )}
 
@@ -1045,6 +1057,7 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
                 onConfirm={triggerLuanGiai}
                 userCredits={user?.credits || 0}
                 isUpgrade={isUpgradeModal}
+                system="iching"
             />
 
             {/* HEXAGRAM DETAIL MODAL */}
