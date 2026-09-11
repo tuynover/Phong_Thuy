@@ -633,7 +633,7 @@ Yêu cầu quyền Admin/Co-Admin.
   }
   ```
 
-### 8.8 Dynamic XML Sitemap (SEO)
+#### 8.8 Dynamic XML Sitemap (SEO)
 Lấy sơ đồ trang web động phục vụ Googlebot lập chỉ mục.
 - **Endpoint:** `GET /sitemap.xml` (ở root level của website)
 - **Phản hồi (200):** Nội dung XML sitemap chuẩn UTF-8 (`Content-Type: application/xml; charset=utf-8`). Tự động gom các URL tĩnh chính, các bài viết Blog đã phát hành, và toàn bộ quẻ dịch/lá số đã được người dùng bật chế độ chia sẻ công khai (`isPublic: true`).
@@ -677,5 +677,32 @@ Hỗ trợ kết xuất tài liệu PDF chuẩn A4 (Eastern Imperial Luxury) cho
   - `404 Not Found`: Không tìm thấy bản ghi tương ứng hoặc bản ghi đã bị xóa mềm.
   - `429 Too Many Requests`: Vượt quá hạn mức 5 request/phút.
 
+---
 
+## 10. Động Cơ Đọc Âm Thanh & Text-to-Speech (`/api/tts`)
 
+Hỗ trợ chuyển đổi văn bản luận giải thành giọng đọc tiếng Việt Studio 96kbps Neural MP3 cao cấp (Microsoft Edge Neural TTS kết hợp SSML Prosody phong thủy), đem lại trải nghiệm đàm đạo tự nhiên, ấm áp, thong thả và có nhịp thở thuần Việt.
+
+### 10.1 Tổng hợp giọng đọc Studio 96kbps (Audio Synthesize)
+- **Endpoint:** `GET /api/tts`
+- **Query Parameters:**
+  - `text` (string, required): Đoạn văn bản cần đọc (tối đa 600 ký tự).
+  - `voice` (string, optional, mặc định `hoaimy`): Hồ sơ giọng đọc:
+    - `hoaimy`: Nữ - Truyền Cảm (Studio VTV, `vi-VN-HoaiMyNeural`, rate `-6%`, pitch `0Hz`)
+    - `namminh`: Nam - Trầm Ấm (Studio VTV, `vi-VN-NamMinhNeural`, rate `-8%`, pitch `-2Hz`, giọng Thầy luận đàm)
+    - `huonggiang`: Nữ - Sâu Lắng (Radio Thiền Định, `vi-VN-HoaiMyNeural`, rate `-12%`, pitch `-1Hz`)
+    - `ngocmai`: Nữ - Ngọt Ngào (Studio, `vi-VN-HoaiMyNeural`, rate `-5%`, pitch `+1Hz`)
+  - `lang` (string, optional, mặc định `vi`): Mã ngôn ngữ phát âm.
+- **Cơ chế Tiền Xử Lý & SSML Prosody Học Thuật:**
+  - Tự động chuyển đổi các ký hiệu đặc biệt (`&` -> `và`, `%` -> `phần trăm`, `/` -> `trên/hoặc`, `SWOT` -> `ma trận thế mạnh điểm yếu`, `Cụm I - V` -> `Cụm 1 - 5`).
+  - Chèn nhịp nghỉ thở tự nhiên (`<break time="180ms - 300ms"/>` tại dấu phẩy, hai chấm, chấm phẩy, dấu gạch ngang, dấu ba chấm).
+- **Tính năng & Hiệu năng:**
+  - Định dạng Audio Studio: `OUTPUT_FORMAT.AUDIO_24KHZ_96KBITRATE_MONO_MP3` (gấp đôi bitrate cũ, triệt tiêu tiếng kim loại).
+  - In-memory LRU Cache 1.000 câu giúp phản hồi ngay lập tức 0ms khi phát lại.
+  - Browser Cache Header `Cache-Control: public, max-age=86400` (lưu đệm cục bộ tại trình duyệt người dùng trong 24 giờ).
+  - Kiến trúc Fallback đa tầng: SSML Edge Neural -> Raw Edge Neural -> Google Translate TTS -> Native Web Speech API.
+- **Phản hồi Thành công (200):**
+  - Binary Stream âm thanh MP3 (`Content-Type: audio/mpeg`).
+- **Phản hồi Lỗi:**
+  - `400 Bad Request`: Thiếu tham số `text`.
+  - `502 Bad Gateway`: Lỗi kết nối tới upstream TTS providers.

@@ -36,8 +36,8 @@ const SYSTEM_TIER_INFO = {
   },
   ziwei: {
     systemName: 'Tử Vi Đẩu Số',
-    upgradeTitle: 'Bản Chuyên Sâu 5 Cụm Cung Toàn Đồ',
-    upgradeDescription: 'Hệ thống kích hoạt tổ hợp Multi-Agent khai phá 5 Cụm Cung Toàn Đồ, kết hợp giám định Cốt cách Mệnh Thân & Cục, truy vết Tứ Hóa Phi Tinh, Ma Trận Mệnh Bàn SWOT và Lộ Trình Đại Hạn 10 Năm.',
+    upgradeTitle: 'Bản Chuyên Sâu 5 Chương Toàn Đồ',
+    upgradeDescription: 'Hệ thống kích hoạt tổ hợp Multi-Agent khai phá 5 Chương Toàn Đồ, kết hợp giám định Cốt cách Mệnh Thân & Cục, truy vết Tứ Hóa Phi Tinh, Ma Trận Mệnh Bàn SWOT và Lộ Trình Đại Hạn 10 Năm.',
     upgradeBullets: [
       'Truy vết dòng chảy Tứ Hóa Phi Tinh (Hóa Lộc, Hóa Quyền, Hóa Khoa, Hóa Kỵ) tương tác với 12 cung số',
       'Ma Trận Mệnh Bàn SWOT 4 chiều định vị thế mạnh, tử huyệt, thời cơ và cạm bẫy cuộc đời',
@@ -59,7 +59,7 @@ const SYSTEM_TIER_INFO = {
       badge: '5 Credits',
       description: 'Công trình học thuật uyên thâm 5.000+ từ kết hợp Tứ Hóa Phi Tinh, Ma Trận Mệnh Bàn SWOT và Lộ Trình Đại Hạn 10 Năm.',
       bullets: [
-        { bold: '5 Cụm Cung Chuyên Sâu:', text: ' Mệnh Thân Phúc, Quan Tài Điền, Phu Tử, Tật Di, Nô Phụ Huynh' },
+        { bold: '5 Chương Chuyên Sâu:', text: ' Mệnh Thân Phúc, Quan Tài Điền, Phu Tử, Tật Di, Nô Phụ Huynh' },
         { bold: 'Biện Chứng Tứ Hóa Phi Tinh:', text: ' Truy vết dòng chảy Hóa Lộc, Hóa Quyền, Hóa Khoa, Hóa Kỵ' },
         { bold: 'Ma Trận Mệnh Bàn SWOT:', text: ' Định vị 4 chiều Thế Mạnh, Tử Huyệt, Thời Cơ, Cạm Bẫy' },
         { bold: 'Kế Sách Phi Tinh Hóa Giải:', text: ' Điều hòa năng lượng hung sát tinh & Lộ trình Đại Hạn 10 Năm' }
@@ -68,8 +68,8 @@ const SYSTEM_TIER_INFO = {
   },
   marriage: {
     systemName: 'Hợp Hôn Tiền Định',
-    upgradeTitle: 'Bản So Hợp Toàn Diện 4 Trụ Cột',
-    upgradeDescription: 'Hệ thống đối soát toàn diện 4 Trụ Cột Hôn Nhân: Tâm lý hai bản thể, Quản trị tài chính gia đình, Phương pháp hóa giải xung khắc phòng cưới và Bản đồ đồng hành trăm năm.',
+    upgradeTitle: 'Bản So Hợp Toàn Diện 4 Chương',
+    upgradeDescription: 'Hệ thống đối soát toàn diện 4 Chương Hôn Nhân: Tâm lý hai bản thể, Quản trị tài chính gia đình, Phương pháp hóa giải xung khắc phòng cưới và Bản đồ đồng hành trăm năm.',
     upgradeBullets: [
       'Nghiên cứu đối chiếu Tứ Trụ chuyên sâu: Can Chi 4 trụ, Cung Phối Ngẫu và Lục Hợp, Tam Hợp, Lục Xung',
       'Pháp hóa giải xung khắc cụ thể: Phương vị phòng cưới, màu sắc và vật phẩm trợ duyên hòa hợp',
@@ -89,9 +89,9 @@ const SYSTEM_TIER_INFO = {
     vip: {
       title: 'So Hợp Chuyên Sâu',
       badge: '5 Credits',
-      description: 'Nghiên cứu đối chiếu Tứ Trụ chuyên sâu 5.000+ từ, giải mã 4 trụ cột hôn nhân và pháp hóa giải xung khắc triệt để.',
+      description: 'Nghiên cứu đối chiếu Tứ Trụ chuyên sâu 5.000+ từ, giải mã 4 chương hôn nhân và pháp hóa giải xung khắc triệt để.',
       bullets: [
-        { bold: '4 Trụ Cột Gia Đạo:', text: ' Cốt cách tâm lý, Tài chính chung, Con cái và Vận trình trăm năm' },
+        { bold: '4 Chương Gia Đạo:', text: ' Cốt cách tâm lý, Tài chính chung, Con cái và Vận trình trăm năm' },
         { bold: 'Đối Soát Tứ Trụ Chuyên Sâu:', text: ' Can Chi 4 trụ, Cung Phối Ngẫu và Lục Hợp, Tam Hợp, Lục Xung' },
         { bold: 'Pháp Hóa Giải Xung Khắc:', text: ' Phương vị phòng cưới, màu sắc và vật phẩm điều hòa năng lượng' },
         { bold: 'Bản Đồ Đồng Hành Trăm Năm:', text: ' Thời điểm nhạy cảm cần giữ gìn và năm hoàng kim gia đạo' }

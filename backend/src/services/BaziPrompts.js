@@ -158,33 +158,33 @@ ${safety}
 --- CẤU TRÚC BẢN LUẬN GIẢI YÊU CẦU ĐẦU RA (BẮT BUỘC ĐỊNH DẠNG MARKDOWN CHUẨN) ---
 Hãy viết bản luận giải bằng tiếng Việt, định dạng Markdown theo chính xác cấu trúc sau (chỉ dùng tiêu đề cấp H2 '##', các mục con bên dưới dùng chữ bôi đậm '**' độc lập, phân tách bằng 1 dòng trống):
 
-## BƯỚC 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ
+## CHƯƠNG 1: PHÂN TÍCH NHẬT CHỦ : GỐC RỄ BẢN THỂ
 - Phân tích bản chất Can ngày sinh ${dayCan} (${dayElement}) theo mùa sinh (Nguyệt Lệnh ${canChi.month.zhi}). BẮT BUỘC câu mở đầu phải khẳng định chính xác "Nhật chủ ${dayCan} ${dayElement} sinh tháng ${canChi.month.zhi}...".
 - Đánh giá Đắc Lệnh, Đắc Địa, Đắc Thế và kết luận phân cấp Thân.
 - Đúc kết rõ ràng: Điểm mạnh trời sinh, Điểm mù bản năng, và Sứ mệnh cuộc đời & Bài học tâm tính cốt lõi. Dung lượng: 200 - 250 từ.
 
-## BƯỚC 2: ĐỊNH CÁCH CỤC : ĐỊNH DANH & TÌM DỤNG THẦN
+## CHƯƠNG 2: ĐỊNH CÁCH CỤC : ĐỊNH DANH & TÌM DỤNG THẦN
 - Định danh chính xác Cách Cục (Chính Cách hoặc Ngoại Cách).
 - Xác định Dụng Thần (chìa khóa), Hỷ Thần (trợ lực) và Kỵ Thần (yếu tố phá cách). Dung lượng: 150 - 200 từ.
 
-## BƯỚC 3: LUẬN GIẢI CHI TIẾT : CÁC PHƯƠNG DIỆN ĐỜI NGƯỜI
+## CHƯƠNG 3: LUẬN GIẢI CHI TIẾT : CÁC PHƯƠNG DIỆN ĐỜI NGƯỜI
 **Phân Tích Sự Nghiệp & Công Danh (Quan/Sát/Thương)**: Dung lượng: 300 - 375 từ.
 **Phân Tích Tiền Bạc & Tài Chính (Tài/Thương)**: Dung lượng: 300 - 375 từ.
 **Phân Tích Tình Duyên & Hôn Nhân (Phối Ngẫu & Cung Thê/Phu)**: Dung lượng: 300 - 375 từ.
 **Phân Tích Sức Khỏe & Tật Ách (Ngũ Hành Biện Chứng & Bệnh Lý Tạng Phủ)**: Dung lượng: 300 - 375 từ.
 
-## BƯỚC 4: GIẢI MÃ THẦN SÁT : GIA VỊ CỦA LÁ SỐ
+## CHƯƠNG 4: GIẢI MÃ THẦN SÁT : GIA VỊ CỦA LÁ SỐ
 - Tra cứu và giải mã tổng hòa các Thần Sát trên 4 trụ và Thai Mệnh. Dung lượng: 225 - 275 từ.
 
-## BƯỚC 5: LUẬN ĐẠI VẬN & LƯU NIÊN : DÒNG CHẢY THỜI GIAN
+## CHƯƠNG 5: LUẬN ĐẠI VẬN & LƯU NIÊN : DÒNG CHẢY THỜI GIAN
 - Phân tích các bước Đại vận quan trọng và Lưu niên hiện tại. Dung lượng: 350 - 450 từ.
 
-## BƯỚC 6: TỔNG KẾT & CHIẾN LƯỢC HÀNH ĐỘNG
+## CHƯƠNG 6: TỔNG KẾT & CHIẾN LƯỢC HÀNH ĐỘNG
 - Đúc kết kim chỉ nam và lời khuyên phong thủy cải vận thực tế. Dung lượng: 200 - 250 từ.`;
     }
 
     /**
-     * Dành riêng cho LUẬN GIẢI CHUYÊN SÂU (6 Chương VIP, Tích Hợp Ma Trận Thần Sát Trực Quan Toàn Diện)
+     * Dành riêng cho LUẬN GIẢI CHUYÊN SÂU (6 Chương Chuyên Sâu, Tích Hợp Ma Trận Thần Sát Trực Quan Toàn Diện)
      */
     static getDeepPrompt(baziRecord) {
         const { inputInfo, baziData } = baziRecord;
@@ -316,7 +316,7 @@ ${safety}
 --- YÊU CẦU BẮT BUỘC VỀ ĐẦU RA ---
 Bạn phải trả về một đối tượng JSON duy nhất theo cấu trúc sau, KHÔNG bọc trong khối code \`\`\`json \`\`\$, KHÔNG thêm bất kỳ văn bản nào khác ngoài JSON:
 {
-  "answer": "Lời giải đáp trực tiếp, đi thẳng vào câu hỏi, tuyệt đối không chào hỏi dông dài hay lặp lại các lý thuyết cũ. Trình bày bằng định dạng Markdown, sử dụng các gạch đầu dòng rõ ràng để người dùng dễ đọc. Phải duy trì tính nhất quán 100% với bài luận giải VIP nếu có...",
+  "answer": "Lời giải đáp trực tiếp, đi thẳng vào câu hỏi, tuyệt đối không chào hỏi dông dài hay lặp lại các lý thuyết cũ. Trình bày bằng định dạng Markdown, sử dụng các gạch đầu dòng rõ ràng để người dùng dễ đọc. Phải duy trì tính nhất quán 100% với bài luận giải chuyên sâu nếu có. TUYỆT ĐỐI KHÔNG sử dụng từ VIP trong câu trả lời...",
   "dos": "Những việc hỷ dụng, cát lợi nên làm (hành vi, lối sống, màu sắc, phương hướng, ngành nghề, hay thời gian cát lợi liên quan đến câu hỏi). Viết dạng Markdown gạch đầu dòng rõ ràng. Nếu không có, ghi null.",
   "donts": "Những việc kỵ thần, hung hại cần tránh (hành vi xấu cần tiết chế, các hướng/màu sắc/thời điểm bất lợi, cảnh báo rủi ro). Viết dạng Markdown gạch đầu dòng rõ ràng. Nếu không có, ghi null.",
   "confidence": 0.80

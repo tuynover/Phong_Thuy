@@ -5,7 +5,18 @@
 export const parseMarkdownSections = (text, prefix = 'sec') => {
   if (!text || typeof text !== 'string') return [];
   
-  const lines = text.split(/\r?\n/);
+  // Khử triệt để mọi từ ngữ VIP, chuẩn hóa thành "luận giải chuyên sâu"
+  let sanitizedText = text
+    .replace(/\bbản\s+(?:báo\s+cáo\s+)?luận\s+giải\s+vip\b/gi, 'bản luận giải chuyên sâu')
+    .replace(/\bbáo\s+cáo\s+luận\s+giải\s+vip\b/gi, 'báo cáo luận giải chuyên sâu')
+    .replace(/\bluận\s+giải\s+vip\b/gi, 'luận giải chuyên sâu')
+    .replace(/\bbáo\s+cáo\s+vip\b/gi, 'báo cáo chuyên sâu')
+    .replace(/\bgói\s+vip\b/gi, 'gói chuyên sâu')
+    .replace(/\bphân\s+tích\s+vip\b/gi, 'phân tích chuyên sâu')
+    .replace(/\bvip\b/gi, 'chuyên sâu')
+    .replace(/\bbản\s+bản\b/gi, 'bản');
+
+  const lines = sanitizedText.split(/\r?\n/);
   const sections = [];
   let currentSection = null;
   
@@ -37,7 +48,16 @@ export const parseMarkdownSections = (text, prefix = 'sec') => {
   const isMarriage = prefix === 'marriage';
   const isIChing = prefix === 'iching';
   const isBazi = prefix === 'bazi';
-  const prefixLabel = isZiwei ? 'Cụm' : isMarriage ? 'Trụ Cột' : isIChing ? 'Kịch Bản' : 'Chương';
+
+  const cleanRawTitle = (str) => {
+    if (!str) return '';
+    return str
+      .replace(/^\*\*?/, '')
+      .replace(/\*\*?$/, '')
+      .replace(/^(?:CỤM|CHƯƠNG|TRỤ CỘT|TRỤ|KỊCH BẢN|KHỐI|BƯỚC|PHẦN|STEP)\s*\d*[:\s–-]*/i, '')
+      .replace(/^[\s:&–-]+/, '')
+      .trim();
+  };
 
   for (let i = 0; i < lines.length; i++) {
     const rawLine = lines[i];
@@ -69,18 +89,11 @@ export const parseMarkdownSections = (text, prefix = 'sec') => {
       }
       
       const num = chapterMatch[1];
-      let rawTitle = chapterMatch[2]
-        .replace(/^\*\*?/, '')
-        .replace(/\*\*?$/, '')
-        .trim();
-        
-      // Clean redundant prefixes like "CỤM 1: CỤM MỆNH..." or "CHƯƠNG 1: ..."
-      rawTitle = rawTitle.replace(/^(?:CỤM|CHƯƠNG|TRỤ CỘT|KỊCH BẢN|KHỐI)\s*\d*[:\s–-]*/i, '').trim();
-      rawTitle = rawTitle.replace(/^[\s:&–-]+/, '').trim();
+      const cleanTitle = cleanRawTitle(chapterMatch[2]);
         
       currentSection = {
         id: `${prefix}_ch_${num}`,
-        title: rawTitle ? `${prefixLabel} ${num}: ${rawTitle}` : `${prefixLabel} ${num}`,
+        title: cleanTitle ? `Chương ${num}: ${cleanTitle}` : `Chương ${num}`,
         content: []
       };
     } else if (buocMatch && !hasChapters) {
@@ -93,14 +106,11 @@ export const parseMarkdownSections = (text, prefix = 'sec') => {
       }
       
       const num = buocMatch[1];
-      const rawTitle = buocMatch[2]
-        .replace(/^\*\*?/, '')
-        .replace(/\*\*?$/, '')
-        .trim();
+      const cleanTitle = cleanRawTitle(buocMatch[2]);
         
       currentSection = {
-        id: `${prefix}_${num}`,
-        title: rawTitle ? `Bước ${num}: ${rawTitle}` : `Bước ${num}`,
+        id: `${prefix}_ch_${num}`,
+        title: cleanTitle ? `Chương ${num}: ${cleanTitle}` : `Chương ${num}`,
         content: []
       };
     } else if (nhatChuMatch && (!currentSection || (!currentSection.id.includes('intro') && !currentSection.id.includes('nhat_chu')))) {
@@ -112,11 +122,7 @@ export const parseMarkdownSections = (text, prefix = 'sec') => {
         });
       }
       
-      let rawSubtitle = (nhatChuMatch[1] || '')
-        .replace(/^\*\*?/, '')
-        .replace(/\*\*?$/, '')
-        .trim();
-      rawSubtitle = rawSubtitle.replace(/^[\s:&–-]+/, '').trim();
+      let rawSubtitle = cleanRawTitle(nhatChuMatch[1] || '');
 
       const defaultTitle = isZiwei ? 'Định Vị Bản Mệnh & Tinh Đồ' :
                            isMarriage ? 'Tổng Quan Bản Mệnh Phối Ngẫu' :
@@ -146,11 +152,7 @@ export const parseMarkdownSections = (text, prefix = 'sec') => {
         });
       }
       
-      let rawTitle = (summaryMatch[1] || '')
-        .replace(/^\*\*?/, '')
-        .replace(/\*\*?$/, '')
-        .trim();
-      rawTitle = rawTitle.replace(/^[\s:&–-]+/, '').trim();
+      let rawTitle = cleanRawTitle(summaryMatch[1] || '');
         
       currentSection = {
         id: `${prefix}_dieu_hoa`,
@@ -167,14 +169,11 @@ export const parseMarkdownSections = (text, prefix = 'sec') => {
       }
       
       const num = numberedStepMatch[2];
-      const title = numberedStepMatch[3]
-        .replace(/^\*\*?/, '')
-        .replace(/\*\*?$/, '')
-        .trim();
+      const title = cleanRawTitle(numberedStepMatch[3]);
         
       currentSection = {
-        id: `${prefix}_${num}`,
-        title: title || `Phần ${num}`,
+        id: `${prefix}_ch_${num}`,
+        title: title ? `Chương ${num}: ${title}` : `Chương ${num}`,
         content: []
       };
     } else {
@@ -217,7 +216,19 @@ export const parseMarkdownSections = (text, prefix = 'sec') => {
     }
     return {
       ...sec,
-      id: finalId
+      id: finalId,
+      title: (sec.title || '')
+        .replace(/^(?:CỤM|TRỤ CỘT|KỊCH BẢN|KHỐI|BƯỚC)\s*(\d+)\s*[:\s–-]*/i, 'Chương $1: ')
+        .replace(/\bbản\s+(?:báo\s+cáo\s+)?luận\s+giải\s+vip\b/gi, 'bản luận giải chuyên sâu')
+        .replace(/\bbáo\s+cáo\s+luận\s+giải\s+vip\b/gi, 'báo cáo luận giải chuyên sâu')
+        .replace(/\bluận\s+giải\s+vip\b/gi, 'luận giải chuyên sâu')
+        .replace(/\bbáo\s+cáo\s+vip\b/gi, 'báo cáo chuyên sâu')
+        .replace(/\bgói\s+vip\b/gi, 'gói chuyên sâu')
+        .replace(/\bphân\s+tích\s+vip\b/gi, 'phân tích chuyên sâu')
+        .replace(/\bvip\b/gi, 'chuyên sâu')
+        .replace(/\bbản\s+bản\b/gi, 'bản')
+        .replace(/\s{2,}/g, ' ')
+        .trim()
     };
   });
 };

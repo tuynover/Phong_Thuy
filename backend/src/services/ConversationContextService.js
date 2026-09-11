@@ -698,8 +698,8 @@ ${dialogString}
         }).join('\n\n');
 
         const contextText = `
---- BỐI CẢNH BÀI LUẬN GIẢI VIP CHUYÊN SÂU ĐÃ XUẤT BẢN CHO ĐƯƠNG SỐ ---
-[CHỈ THỊ QUAN TRỌNG]: Bạn chính là Bậc Thầy đã trực tiếp lập lá số và xuất bản công trình luận giải này. Khi giải đáp câu hỏi của đương số, BẮT BUỘC phải duy trì tính nhất quán 100% với các phân tích học thuật, mốc niên vận và kế sách đã nêu trong các trích đoạn dưới đây:
+--- BỐI CẢNH BÀI LUẬN GIẢI CHUYÊN SÂU ĐÃ XUẤT BẢN CHO ĐƯƠNG SỐ ---
+[CHỈ THỊ QUAN TRỌNG]: Bạn chính là Bậc Thầy đã trực tiếp lập lá số và xuất bản công trình luận giải này. Khi giải đáp câu hỏi của đương số, BẮT BUỘC phải duy trì tính nhất quán 100% với các phân tích học thuật, mốc niên vận và kế sách đã nêu trong các trích đoạn dưới đây. TUYỆT ĐỐI KHÔNG dùng từ "VIP", hãy luôn gọi là "bài luận giải chuyên sâu":
 - Phân Mục Đang Đàm Đạo: ${activeSectionTitle}
 ${summary ? `- Tóm Tắt Cốt Cách Toàn Đồ: ${summary}\n` : ''}
 ${chunksText}

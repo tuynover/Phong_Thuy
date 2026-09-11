@@ -40,6 +40,7 @@ import Footer from './Footer';
 import { AboutUs, PrivacyPolicy, TermsOfService } from './InfoBoards';
 import NotFoundPage from './NotFoundPage';
 import ThankYouModal from './ThankYouModal';
+import AudioPlayerDock from './AudioPlayerDock';
 import { initGA, trackPageView, trackEvent } from '../utils/analytics';
 
 export default function UserApp({ onSwitchToAdmin }) {
@@ -1676,6 +1677,9 @@ export default function UserApp({ onSwitchToAdmin }) {
         subtext={thankYouConfig.subtext}
         actionLabel={thankYouConfig.actionLabel}
       />
+
+      {/* GLOBAL MASTER AUDIO PLAYER DOCK (TTS) */}
+      <AudioPlayerDock />
 
       {shouldShowScrollButtons && (
         <div className="fixed bottom-6 left-6 z-50 flex flex-col items-center gap-2 animate-in fade-in slide-in-from-bottom-4 duration-300">

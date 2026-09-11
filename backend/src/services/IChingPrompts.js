@@ -81,7 +81,7 @@ YÊU CẦU QUAN TRỌNG VỀ PHONG CÁCH LUẬN GIẢI:
 1. ĐI THẲNG VÀO TRỌNG TÂM: Tuyệt đối không chào hỏi (không dùng "Chào đương số", "Ta đã xem..."), không lặp lại bất kỳ lý thuyết hay thông số cơ bản nào của quẻ gốc đã được nêu ở lần giải trước. Đi thẳng trực tiếp vào phân tích và giải đáp thắc mắc mới.
 2. TRÌNH BÀY MẠCH LẠC: Bài viết phải sử dụng định dạng Markdown, dùng các gạch đầu dòng rõ ràng, phân cấp khoa học để đương số cực kỳ dễ đọc và tiếp thu.
 3. Thực chất học thuật, tránh viết dông dài sáo rỗng.
-4. TÍNH NHẤT QUÁN VIP: Phải duy trì tính nhất quán 100% với bài luận giải VIP chuyên sâu đã xuất bản cho quẻ dịch này.
+4. TÍNH NHẤT QUÁN HỌC THUẬT: Phải duy trì tính nhất quán 100% với bài luận giải chuyên sâu đã xuất bản cho quẻ dịch này. TUYỆT ĐỐI KHÔNG sử dụng từ "VIP" trong câu trả lời (luôn gọi là "luận giải chuyên sâu" nếu nhắc đến).
 
 --- THÔNG TIN QUẺ GIEO GỐC ---
 - Câu hỏi ban đầu: "${hexagramData.question}"
@@ -110,7 +110,7 @@ ${safety}
 --- YÊU CẦU BẮT BUỘC VỀ ĐẦU RA ---
 Bạn phải trả về một đối tượng JSON duy nhất theo cấu trúc sau, KHÔNG bọc trong khối code \`\`\`json \`\`\$, KHÔNG thêm bất kỳ văn bản nào khác ngoài JSON:
 {
-  "answer": "Lời luận giải chi tiết, giải thích trực tiếp thắc mắc mới nhất bằng kiến thức Kinh Dịch thực chiến dựa trên quẻ gốc. Yêu cầu viết dạng Markdown, sử dụng gạch đầu dòng rõ ràng, đi thẳng vào câu hỏi, tuyệt đối không chào hỏi dông dài hay lặp lại các lý thuyết cũ. Phải duy trì tính nhất quán 100% với bài luận giải nếu có...",
+  "answer": "Lời luận giải chi tiết, giải thích trực tiếp thắc mắc mới nhất bằng kiến thức Kinh Dịch thực chiến dựa trên quẻ gốc. Yêu cầu viết dạng Markdown, sử dụng gạch đầu dòng rõ ràng, đi thẳng vào câu hỏi, tuyệt đối không chào hỏi dông dài hay lặp lại các lý thuyết cũ. Phải duy trì tính nhất quán 100% với bài luận giải chuyên sâu nếu có. TUYỆT ĐỐI KHÔNG sử dụng từ VIP trong câu trả lời...",
   "timing": "Mốc thời gian ứng kỳ hoặc lời khuyên về thời điểm (nếu có liên quan đến câu hỏi, ví dụ: 'Ngày Dần tháng 5 âm lịch', hoặc 'Nên chờ qua Tiết Mang Chủng...'). Nếu không có, hãy ghi null.",
   "risk": "Cảnh báo, rủi ro, điểm yếu hoặc những điều cần đề phòng cực kỳ tỉ mỉ dựa vào Hào Động, Lục Xung hoặc Tuần Không (ví dụ: 'Đề phòng hao tài tốn của ngày Thân', 'Hào động hóa khắc báo hiệu trở ngại'). Nếu không có, hãy ghi null.",
   "confidence": 0.85

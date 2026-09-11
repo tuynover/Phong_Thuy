@@ -690,11 +690,11 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
               <div className="flex items-center gap-2 mb-6 ml-1">
                 <Sparkles className="text-purple-500" size={20} />
                 <h2 className="font-extrabold text-slate-800 text-lg md:text-xl">
-                  {interpretationMode === 'vip' ? 'Luận Giải Chuyên Sâu (5 Cụm Cung Toàn Đồ)' : 'Luận Giải Chuyên Sâu Cát Hung'}
+                  {interpretationMode === 'vip' ? 'Luận Giải Chuyên Sâu (5 Chương Toàn Đồ)' : 'Luận Giải Chuyên Sâu Cát Hung'}
                 </h2>
               </div>
 
-              {/* Tracker 5 Cụm Cung */}
+              {/* Tracker 5 Chương */}
               {interpretationMode === 'vip' && (
                 <VipProgressTracker
                   system="ziwei"

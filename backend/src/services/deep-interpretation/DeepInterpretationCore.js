@@ -195,7 +195,16 @@ class LlmProviderService {
  */
 class SseStreamHelper {
   static cleanMarkdown(text) {
-    return AiService.cleanMarkdown ? AiService.cleanMarkdown(text) : (text || '').trim();
+    const rawCleaned = AiService.cleanMarkdown ? AiService.cleanMarkdown(text) : (text || '').trim();
+    return rawCleaned
+      .replace(/\bbản\s+(?:báo\s+cáo\s+)?luận\s+giải\s+vip\b/gi, 'bản luận giải chuyên sâu')
+      .replace(/\bbáo\s+cáo\s+luận\s+giải\s+vip\b/gi, 'báo cáo luận giải chuyên sâu')
+      .replace(/\bluận\s+giải\s+vip\b/gi, 'luận giải chuyên sâu')
+      .replace(/\bbáo\s+cáo\s+vip\b/gi, 'báo cáo chuyên sâu')
+      .replace(/\bgói\s+vip\b/gi, 'gói chuyên sâu')
+      .replace(/\bphân\s+tích\s+vip\b/gi, 'phân tích chuyên sâu')
+      .replace(/\bvip\b/gi, 'chuyên sâu')
+      .replace(/\bbản\s+bản\b/gi, 'bản');
   }
 
   static cleanContextForVip(rawContext) {

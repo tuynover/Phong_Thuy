@@ -179,7 +179,7 @@ const ZIWEI_VIP_CONFIG = {
   REPLICAS: [
     {
       id: 1,
-      title: 'Cụm Mệnh - Thân - Phúc Đức (Cốt Cách & Bài Học Nghiệp Duyên)',
+      title: 'Mệnh - Thân - Phúc Đức (Cốt Cách & Bài Học Nghiệp Duyên)',
       provider: 'openrouter',
       model: 'qwen/qwen-plus',
       keyEnv: 'OPENROUTER_API_KEY',
@@ -193,7 +193,7 @@ const ZIWEI_VIP_CONFIG = {
     },
     {
       id: 2,
-      title: 'Cụm Quan Lộc - Tài Bạch - Điền Trạch (Công Danh, Tài Lộc & Sản Nghiệp)',
+      title: 'Quan Lộc - Tài Bạch - Điền Trạch (Công Danh, Tài Lộc & Sản Nghiệp)',
       provider: 'openrouter',
       model: 'qwen/qwen-plus',
       keyEnv: 'OPENROUTER_API_KEY_2',
@@ -207,7 +207,7 @@ const ZIWEI_VIP_CONFIG = {
     },
     {
       id: 3,
-      title: 'Cụm Phu Thê - Tử Tức (Hôn Nhân, Bạn Đời & Hậu Duệ)',
+      title: 'Phu Thê - Tử Tức (Hôn Nhân, Bạn Đời & Hậu Duệ)',
       provider: 'gemini',
       model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
       keyEnv: 'GEMINI_API_KEY',
@@ -221,7 +221,7 @@ const ZIWEI_VIP_CONFIG = {
     },
     {
       id: 4,
-      title: 'Cụm Tật Ách - Thiên Di (Sức Khỏe Tạng Phủ & Xuất Ngoại Giao Tế)',
+      title: 'Tật Ách - Thiên Di (Sức Khỏe Tạng Phủ & Xuất Ngoại Giao Tế)',
       provider: 'gemini',
       model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
       keyEnv: 'GEMINI_API_KEY',
@@ -235,7 +235,7 @@ const ZIWEI_VIP_CONFIG = {
     },
     {
       id: 5,
-      title: 'Cụm Nô Bộc - Phụ Mẫu - Huynh Đệ (Bằng Hữu, Quý Nhân & Dòng Tộc)',
+      title: 'Nô Bộc - Phụ Mẫu - Huynh Đệ (Bằng Hữu, Quý Nhân & Dòng Tộc)',
       provider: 'gemini',
       model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
       keyEnv: 'GEMINI_API_KEY_2',
@@ -251,28 +251,28 @@ const ZIWEI_VIP_CONFIG = {
 
   getClusterSpecificInstructions(clusterId) {
     const INSTRUCTIONS = {
-      1: `NGUYÊN TẮC HỌC THUẬT CỤM 1 (MỆNH - THÂN - PHÚC ĐỨC):
+      1: `NGUYÊN TẮC HỌC THUẬT CHƯƠNG 1 (MỆNH - THÂN - PHÚC ĐỨC):
 - Đi sâu vào căn cơ gốc rễ: Bản tính, cốt cách, khí chất tự nhiên của Mệnh.
 - Phân tích vị trí Cung Thân: Thân cư cung nào, cách thức đương số tương tác với cuộc đời khi bước sang giai đoạn hậu vận.
 - Phúc Đức là điểm tựa tâm linh: Phân tích nghiệp duyên, phúc ấm tổ tiên và bài học tinh thần cần tu dưỡng.
 - Tuyệt đối không phán bế tắc, luôn đưa ra giải pháp nâng cao tần số tâm thức.`,
 
-      2: `NGUYÊN TẮC HỌC THUẬT CỤM 2 (QUAN LỘC - TÀI BẠCH - ĐIỀN TRẠCH):
+      2: `NGUYÊN TẮC HỌC THUẬT CHƯƠNG 2 (QUAN LỘC - TÀI BẠCH - ĐIỀN TRẠCH):
 - Trụ cột sự nghiệp & tài sản: Đánh giá thực chất năng lực quản trị, kinh doanh và kiến tạo của cải.
 - Phân định rõ: Kiếm tiền bằng chuyên môn (Quan) hay bằng đầu tư tích sản (Tài/Điền).
 - Đưa ra bảng Markdown thời điểm vàng và các lưu ý rủi ro hao tài cụ thể.`,
 
-      3: `NGUYÊN TẮC HỌC THUẬT CỤM 3 (PHU THÊ - TỬ TỨC):
+      3: `NGUYÊN TẮC HỌC THUẬT CHƯƠNG 3 (PHU THÊ - TỬ TỨC):
 - Luận giải nhân duyên: Chân dung người bạn đời, mức độ tương thích về tinh thần và thực tế cuộc sống.
 - Giải pháp hóa giải mâu thuẫn gia đạo: Không dùng ngôn từ gây hoang mang chia ly, tập trung vào cách thấu hiểu và sẻ chia.
 - Con cái: Dự báo xu hướng phát triển và bài học nuôi dạy con cái thuận theo thiên tính.`,
 
-      4: `NGUYÊN TẮC HỌC THUẬT CỤM 4 (TẬT ÁCH - THIÊN DI):
+      4: `NGUYÊN TẮC HỌC THUẬT CHƯƠNG 4 (TẬT ÁCH - THIÊN DI):
 - Đông Y tạng phủ: Ánh xạ ngũ hành các sao tại Tật Ách sang ngũ tạng.
 - Thiên Di: Năng lực xã giao, cơ hội đi xa, xuất ngoại và xây dựng uy tín ngoài xã hội.
 - Tuyệt đối cấm phán xét ngày tận số hay bệnh nan y không cứu vãn; luôn đi kèm chế độ dưỡng sinh phòng bệnh.`,
 
-      5: `NGUYÊN TẮC HỌC THUẬT CỤM 5 (NÔ BỘC - PHỤ MẪU - HUYNH ĐỆ):
+      5: `NGUYÊN TẮC HỌC THUẬT CHƯƠNG 5 (NÔ BỘC - PHỤ MẪU - HUYNH ĐỆ):
 - Các mối quan hệ ngoại vi: Đánh giá bằng hữu, người giúp việc, anh em dòng tộc.
 - Cảnh báo cạm bẫy tiểu nhân (nếu có hung tinh) và cách chiêu cảm quý nhân tương trợ.`
     };
@@ -345,21 +345,21 @@ const MARRIAGE_VIP_CONFIG = {
 
   getPillarSpecificInstructions(pillarId) {
     const INSTRUCTIONS = {
-      1: `NGUYÊN TẮC HỌC THUẬT TRỤ 1 (CỐT CÁCH & TÂM LÝ HAI BẢN THỂ):
+      1: `NGUYÊN TẮC HỌC THUẬT CHƯƠNG 1 (CỐT CÁCH & TÂM LÝ HAI BẢN THỂ):
 - Đi sâu vào tâm lý thực chứng: Không chỉ nói suông ngũ hành sinh khắc, hãy miêu tả sống động cách Chồng phản ứng khi gặp áp lực và cách Vợ tìm kiếm sự an toàn cảm xúc.
 - Phân tích rõ: Điểm tương hợp tự nhiên nằm ở đâu (ví dụ: cùng hướng ngoại, hoặc người điềm tĩnh bù cho người nóng tính).
 - Nhận diện vùng xung đột: Chỉ ra chính xác thói quen ngôn ngữ hay hành vi nào dễ khiến đối phương tổn thương và đưa ra câu nói "cứu nguy" hóa giải ngay tại chỗ.`,
 
-      2: `NGUYÊN TẮC HỌC THUẬT TRỤ 2 (TÀI CHÍNH & QUẢN TRỊ TỔ ẤM GIA ĐÌNH):
+      2: `NGUYÊN TẮC HỌC THUẬT CHƯƠNG 2 (TÀI CHÍNH & QUẢN TRỊ TỔ ẤM GIA ĐÌNH):
 - Phân tích thực chất dòng tiền gia đình: Đánh giá ai là người kiếm tiền giỏi hơn, ai là người giữ tiền cẩn trọng hơn dựa trên Chính Tài/Thiên Tài và Kho Tài.
 - Đưa ra giải pháp phân bổ ngân sách: Tránh mập mờ, gợi ý cơ chế quỹ chung - quỹ riêng minh bạch.
 - Cảnh báo năm hao tài: Chỉ cảnh báo nếu có xung khắc thực tế ở Cung Tài hoặc vận hạn xung phá.`,
 
-      3: `NGUYÊN TẮC HỌC THUẬT TRỤ 3 (HÓA GIẢI XUNG KHẮC & PHONG THỦY PHÒNG CƯỚI):
+      3: `NGUYÊN TẮC HỌC THUẬT CHƯƠNG 3 (HÓA GIẢI XUNG KHẮC & PHONG THỦY PHÒNG CƯỚI):
 - Tuyệt đối tuân thủ nguyên tắc: KHÔNG BAO GIỜ PHÁN "CHẮC CHẮN LY HÔN" HAY "TUYỆT MỆNH KHÔNG THỂ CỨU". Trong triết lý phong thủy cổ học, mọi thế xung đều có ngũ hành cầu nối trung gian để chuyển hóa (ví dụ: Kim khắc Mộc thì dùng Thủy thông quan; Thủy khắc Hỏa thì dùng Mộc hóa giải).
 - Phong thủy phòng ngủ: Cung cấp hướng giường, màu sắc rèm/chăn ga và vật phẩm phong thủy thiết thực.`,
 
-      4: `NGUYÊN TẮC HỌC THUẬT TRỤ 4 (CON CÁI, DÒNG TỘC & LỘ TRÌNH TRĂM NĂM):
+      4: `NGUYÊN TẮC HỌC THUẬT CHƯƠNG 4 (CON CÁI, DÒNG TỘC & LỘ TRÌNH TRĂM NĂM):
 - Con cái và gia đạo: Phân tích dựa trên Trụ Giờ và cung phối ngẫu, mang thông điệp nuôi dưỡng tích cực, hướng dẫn đồng lòng dạy con.
 - Lộ trình 10 năm: Vẽ bảng Markdown so sánh các chặng đại vận của 2 người, chỉ ra giai đoạn ai cần làm điểm tựa cho ai.`
     };

@@ -313,7 +313,7 @@ export default function PdfExportModal({
               </div>
               {hasInterpretation && interpretationMode === 'vip' && (
                 <span className="text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">
-                  Bản VIP 6 Chương
+                  Luận Giải Chuyên Sâu
                 </span>
               )}
             </div>

@@ -207,10 +207,12 @@ ${historyPrompt}
 --- CÂU HỎI THẮC MẮC MỚI NHẤT CỦA ĐƯƠNG SỐ ---
 👉 "${question}"
 
+LƯU Ý QUAN TRỌNG: TUYỆT ĐỐI KHÔNG sử dụng từ "VIP" trong câu trả lời. Luôn gọi là "luận giải chuyên sâu" hoặc "bản luận giải chuyên sâu" nếu cần đề cập đến bài luận giải của đương số.
+
 --- YÊU CẦU BẮT BUỘC VỀ ĐẦU RA ---
 Bạn phải trả về một đối tượng JSON duy nhất theo cấu trúc sau, KHÔNG bọc trong khối code \`\`\`json \`\`\`, KHÔNG thêm bất kỳ văn bản nào khác ngoài JSON:
 {
-  "answer": "Lời giải đáp trực tiếp, đi thẳng vào câu hỏi thắc mắc mới. Trình bày bằng định dạng Markdown, chia nhỏ thành các mục con và gạch đầu dòng rõ ràng để người dùng dễ đọc. Phải duy trì tính nhất quán 100% với bài luận VIP nếu có...",
+  "answer": "Lời giải đáp trực tiếp, đi thẳng vào câu hỏi thắc mắc mới. Trình bày bằng định dạng Markdown, chia nhỏ thành các mục con và gạch đầu dòng rõ ràng để người dùng dễ đọc. Phải duy trì tính nhất quán 100% với bài luận giải chuyên sâu nếu có. TUYỆT ĐỐI KHÔNG sử dụng từ VIP trong câu trả lời...",
   "confidence": 0.90
 }
 

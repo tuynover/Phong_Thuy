@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { 
@@ -17,8 +17,13 @@ import {
   Users,
   TrendingUp,
   BookOpen,
-  MessageSquare
+  MessageSquare,
+  Volume2,
+  Play,
+  Pause,
+  Headphones
 } from 'lucide-react';
+import { ttsEngine } from '../utils/ttsEngine';
 
 const sectionIcons = {
   // Tử Vi - Markdown parsed (tu_vi_1 to tu_vi_14)
@@ -258,7 +263,10 @@ const themeStyles = {
     chevronActive: "bg-purple-50 text-purple-500 border-purple-200",
     consultBtn: "bg-purple-50 hover:bg-purple-100 text-purple-700 hover:text-purple-900 border-purple-200/80 hover:border-purple-300",
     consultIcon: "text-purple-600",
-    prose: "prose-slate prose-headings:text-purple-950 prose-a:text-purple-600 prose-strong:text-purple-900 prose-code:text-purple-600 prose-code:bg-purple-50"
+    prose: "prose-slate prose-headings:text-purple-950 prose-a:text-purple-600 prose-strong:text-purple-900 prose-code:text-purple-600 prose-code:bg-purple-50",
+    playAllBanner: "from-purple-950 via-indigo-950 to-slate-900 border-purple-500/30",
+    playAllBtn: "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white shadow-purple-900/40",
+    bannerBadge: "bg-purple-500/20 text-purple-300 border-purple-500/30"
   },
   tu_vi: {
     border: "border-purple-100 hover:border-purple-200",
@@ -267,7 +275,10 @@ const themeStyles = {
     chevronActive: "bg-purple-50 text-purple-500 border-purple-200",
     consultBtn: "bg-purple-50 hover:bg-purple-100 text-purple-700 hover:text-purple-900 border-purple-200/80 hover:border-purple-300",
     consultIcon: "text-purple-600",
-    prose: "prose-slate prose-headings:text-purple-950 prose-a:text-purple-600 prose-strong:text-purple-900 prose-code:text-purple-600 prose-code:bg-purple-50"
+    prose: "prose-slate prose-headings:text-purple-950 prose-a:text-purple-600 prose-strong:text-purple-900 prose-code:text-purple-600 prose-code:bg-purple-50",
+    playAllBanner: "from-purple-950 via-indigo-950 to-slate-900 border-purple-500/30",
+    playAllBtn: "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white shadow-purple-900/40",
+    bannerBadge: "bg-purple-500/20 text-purple-300 border-purple-500/30"
   },
   bazi: {
     border: "border-blue-100 hover:border-blue-200",
@@ -276,7 +287,10 @@ const themeStyles = {
     chevronActive: "bg-blue-50 text-blue-500 border-blue-200",
     consultBtn: "bg-blue-50 hover:bg-blue-100 text-blue-700 hover:text-blue-900 border-blue-200/80 hover:border-blue-300",
     consultIcon: "text-blue-600",
-    prose: "prose-blue prose-headings:text-blue-950 prose-a:text-blue-600 prose-strong:text-blue-900 prose-code:text-blue-600 prose-code:bg-blue-50"
+    prose: "prose-blue prose-headings:text-blue-950 prose-a:text-blue-600 prose-strong:text-blue-900 prose-code:text-blue-600 prose-code:bg-blue-50",
+    playAllBanner: "from-blue-950 via-sky-950 to-slate-900 border-blue-500/30",
+    playAllBtn: "bg-gradient-to-r from-blue-600 to-sky-600 hover:from-blue-500 hover:to-sky-500 text-white shadow-blue-900/40",
+    bannerBadge: "bg-blue-500/20 text-blue-300 border-blue-500/30"
   },
   iching: {
     border: "border-amber-100 hover:border-amber-200",
@@ -285,7 +299,10 @@ const themeStyles = {
     chevronActive: "bg-amber-50 text-amber-500 border-amber-200",
     consultBtn: "bg-amber-50 hover:bg-amber-100 text-amber-700 hover:text-amber-900 border-amber-200/80 hover:border-amber-300",
     consultIcon: "text-amber-600",
-    prose: "prose-amber prose-headings:text-amber-950 prose-a:text-amber-600 prose-strong:text-amber-900 prose-code:text-amber-600 prose-code:bg-amber-50"
+    prose: "prose-amber prose-headings:text-amber-950 prose-a:text-amber-600 prose-strong:text-amber-900 prose-code:text-amber-600 prose-code:bg-amber-50",
+    playAllBanner: "from-amber-950 via-orange-950 to-slate-900 border-amber-500/30",
+    playAllBtn: "bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white shadow-amber-900/40",
+    bannerBadge: "bg-amber-500/20 text-amber-300 border-amber-500/30"
   },
   marriage: {
     border: "border-rose-100 hover:border-rose-200",
@@ -294,13 +311,25 @@ const themeStyles = {
     chevronActive: "bg-rose-50 text-rose-500 border-rose-200",
     consultBtn: "bg-rose-50 hover:bg-rose-100 text-rose-700 hover:text-rose-900 border-rose-200/80 hover:border-rose-300",
     consultIcon: "text-rose-600",
-    prose: "prose-rose prose-headings:text-rose-950 prose-a:text-rose-600 prose-strong:text-rose-900 prose-code:text-rose-600 prose-code:bg-rose-50"
+    prose: "prose-rose prose-headings:text-rose-950 prose-a:text-rose-600 prose-strong:text-rose-900 prose-code:text-rose-600 prose-code:bg-rose-50",
+    playAllBanner: "from-rose-950 via-pink-950 to-slate-900 border-rose-500/30",
+    playAllBtn: "bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white shadow-rose-900/40",
+    bannerBadge: "bg-rose-500/20 text-rose-300 border-rose-500/30"
   }
 };
 
 const cleanAndNormalizeMarkdown = (content) => {
   if (!content || typeof content !== 'string') return '';
-  let text = content;
+  // 0. Khử triệt để mọi từ ngữ VIP, chuẩn hóa thành "luận giải chuyên sâu"
+  let text = content
+    .replace(/\bbản\s+(?:báo\s+cáo\s+)?luận\s+giải\s+vip\b/gi, 'bản luận giải chuyên sâu')
+    .replace(/\bbáo\s+cáo\s+luận\s+giải\s+vip\b/gi, 'báo cáo luận giải chuyên sâu')
+    .replace(/\bluận\s+giải\s+vip\b/gi, 'luận giải chuyên sâu')
+    .replace(/\bbáo\s+cáo\s+vip\b/gi, 'báo cáo chuyên sâu')
+    .replace(/\bgói\s+vip\b/gi, 'gói chuyên sâu')
+    .replace(/\bphân\s+tích\s+vip\b/gi, 'phân tích chuyên sâu')
+    .replace(/\bvip\b/gi, 'chuyên sâu')
+    .replace(/\bbản\s+bản\b/gi, 'bản');
 
   // 1. Replace double pipe row separators: "| |" -> "|\n|"
   text = text.replace(/\|\s*\|\s*/g, '|\n|');
@@ -355,11 +384,34 @@ const cleanAndNormalizeMarkdown = (content) => {
   return text;
 };
 
-const SectionCard = ({ section, theme, onConsultSection }) => {
+const SectionCard = ({ section, idx = 0, sections = [], theme, onConsultSection, ttsState }) => {
   const [isOpen, setIsOpen] = useState(true);
   const IconComponent = sectionIcons[section.id] || Bookmark;
   const gradientColor = sectionColors[section.id] || "from-slate-500 to-slate-700";
   const styles = themeStyles[theme] || themeStyles.tuvi;
+
+  const isCurrentSpeaking = ttsState?.currentSectionId === section.id;
+  const isSpeakingNow = isCurrentSpeaking && ttsState?.isPlaying && !ttsState?.isPaused;
+  const isSpeakingPaused = isCurrentSpeaking && ttsState?.isPaused;
+
+  const handleToggleSpeech = (e) => {
+    e.stopPropagation();
+    if (!isOpen) {
+      setIsOpen(true);
+    }
+    if (isCurrentSpeaking) {
+      ttsEngine.togglePlayPause();
+    } else {
+      ttsEngine.playSection({
+        sectionId: section.id,
+        sectionTitle: section.title,
+        content: section.content,
+        startIndex: 0,
+        playlist: sections,
+        playlistIndex: idx
+      });
+    }
+  };
 
   return (
     <div className={`mb-6 bg-white/70 backdrop-blur-md rounded-2xl border ${styles.border} shadow-lg ${styles.shadow} overflow-hidden transition-all duration-300`}>
@@ -382,7 +434,7 @@ const SectionCard = ({ section, theme, onConsultSection }) => {
               <IconComponent size={18} />
             </div>
             <h3 className="font-black text-slate-800 text-base sm:text-[18px] md:text-[19.5px] tracking-wide leading-snug break-words">
-              {section.title}
+              {(section.title || '').replace(/\bvip\b/gi, 'chuyên sâu')}
             </h3>
           </div>
           {section.sources && section.sources.length > 0 && (
@@ -399,7 +451,51 @@ const SectionCard = ({ section, theme, onConsultSection }) => {
           )}
         </div>
         
-        <div className="flex items-center gap-2 shrink-0 ml-1 sm:ml-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 ml-1 sm:ml-2">
+          {/* TTS Audio Read Button */}
+          <button
+            type="button"
+            onClick={handleToggleSpeech}
+            className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl border text-xs font-semibold shadow-2xs hover:shadow-xs transition-all duration-200 active:scale-95 group ${
+              isSpeakingNow
+                ? 'bg-purple-600 text-white border-purple-600 shadow-purple-500/30 ring-2 ring-purple-400/40'
+                : isSpeakingPaused
+                ? 'bg-amber-500 text-white border-amber-500 shadow-amber-500/30'
+                : styles.consultBtn
+            }`}
+            title={
+              isSpeakingNow
+                ? "Tạm dừng giọng đọc AI"
+                : isSpeakingPaused
+                ? "Tiếp tục đọc"
+                : "Nghe đọc bằng giọng AI tự nhiên"
+            }
+          >
+            {isSpeakingNow ? (
+              <>
+                <div className="flex items-end gap-0.5 h-3.5 px-0.5">
+                  <span className="w-1 h-3 bg-white rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                  <span className="w-1 h-2 bg-white rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                  <span className="w-1 h-3.5 bg-white rounded-full animate-bounce"></span>
+                </div>
+                <span className="hidden sm:inline">Tạm dừng</span>
+                <span className="sm:hidden text-[11px]">Dừng</span>
+              </>
+            ) : isSpeakingPaused ? (
+              <>
+                <Play size={13} fill="currentColor" className="text-white" />
+                <span className="hidden sm:inline">Tiếp tục</span>
+                <span className="sm:hidden text-[11px]">Tiếp</span>
+              </>
+            ) : (
+              <>
+                <Volume2 size={13} className={`${styles.consultIcon} group-hover:scale-110 transition-transform`} />
+                <span className="hidden sm:inline">Nghe đọc</span>
+                <span className="sm:hidden text-[11px]">Nghe</span>
+              </>
+            )}
+          </button>
+
           {onConsultSection && (
             <button
               type="button"
@@ -428,6 +524,29 @@ const SectionCard = ({ section, theme, onConsultSection }) => {
         }`}
       >
         <div className={`px-6 pt-4 pb-6 md:px-8 md:pt-5 md:pb-7 text-slate-700 leading-relaxed text-sm md:text-base prose max-w-none ${styles.prose}`}>
+          {/* Karaoke Realtime Sentence Highlight */}
+          {isCurrentSpeaking && ttsState?.currentSentence && (
+            <div className="not-prose mb-5 p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-purple-50/90 via-indigo-50/70 to-purple-50/90 border border-purple-200/90 shadow-xs animate-in fade-in slide-in-from-top-2 duration-300">
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-purple-600"></span>
+                  </span>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-purple-700">
+                    Đang đọc câu {ttsState.currentIndex + 1} / {ttsState.totalSentences}
+                  </span>
+                </div>
+                <span className="text-[11px] font-medium text-purple-600 bg-white/80 px-2 py-0.5 rounded-full border border-purple-100 shadow-2xs">
+                  {Math.round(ttsState.progressPercent || 0)}%
+                </span>
+              </div>
+              <p className="text-sm sm:text-base font-semibold text-purple-950 leading-relaxed italic">
+                &ldquo;{ttsState.currentSentence}&rdquo;
+              </p>
+            </div>
+          )}
+
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             components={{
@@ -464,6 +583,21 @@ const SectionCard = ({ section, theme, onConsultSection }) => {
 };
 
 const SectionRenderer = ({ sections, theme = 'tuvi', onConsultSection }) => {
+  const [ttsState, setTtsState] = useState(() => ttsEngine.getState());
+
+  useEffect(() => {
+    const unsubscribe = ttsEngine.subscribe((state) => {
+      setTtsState(state);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (sections && Array.isArray(sections) && sections.length > 0) {
+      ttsEngine.setPlaylist(sections);
+    }
+  }, [sections]);
+
   if (!sections || sections.length === 0) {
     return (
       <div className="p-12 text-center bg-white/50 border border-purple-100 rounded-3xl backdrop-blur-md">
@@ -476,14 +610,90 @@ const SectionRenderer = ({ sections, theme = 'tuvi', onConsultSection }) => {
     );
   }
 
+  const styles = themeStyles[theme] || themeStyles.tuvi;
+  const isAnyPlaying = ttsState?.isPlaying;
+  const isSpeakingNow = isAnyPlaying && !ttsState?.isPaused;
+  const isSpeakingPaused = isAnyPlaying && ttsState?.isPaused;
+
+  const handlePlayAll = () => {
+    if (isAnyPlaying) {
+      ttsEngine.togglePlayPause();
+    } else {
+      ttsEngine.playAll(sections);
+    }
+  };
+
   return (
     <div className="w-full animate-in fade-in slide-in-from-bottom-6 duration-500">
+      {/* Banner Nghe Toàn Bài Luận Giải (Áp dụng 4 phân hệ) */}
+      <div className={`mb-6 p-4 sm:p-5 rounded-3xl bg-gradient-to-r ${styles.playAllBanner} border shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 backdrop-blur-xl text-white`}>
+        <div className="flex items-center gap-3.5 min-w-0">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shrink-0 text-white shadow-inner">
+            <Headphones size={22} className={isSpeakingNow ? 'animate-bounce text-amber-300' : 'text-white'} />
+          </div>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border ${styles.bannerBadge}`}>
+                Nghe Toàn Bài • {sections.length} Mục
+              </span>
+              {isSpeakingNow && (
+                <span className="flex items-center gap-1.5 text-[11px] text-emerald-300 font-bold">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                  Đang phát: Mục {(ttsState.playlistIndex ?? 0) + 1}/{sections.length}
+                </span>
+              )}
+            </div>
+            <h3 className="text-sm sm:text-base font-extrabold text-white mt-1 leading-tight truncate">
+              Nghe Toàn Bộ Luận Giải Bằng Giọng Đọc AI Tự Nhiên
+            </h3>
+            <p className="text-xs text-white/75 mt-0.5 hidden sm:block">
+              Tự động chuyển tiếp liên tục qua tất cả {sections.length} mục từ đầu đến cuối không ngắt quãng.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={handlePlayAll}
+            className={`w-full sm:w-auto px-4 sm:px-5 py-2.5 rounded-2xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg transition-all duration-75 active:scale-95 cursor-pointer ${
+              isSpeakingNow
+                ? 'bg-amber-500 hover:bg-amber-400 text-white shadow-amber-900/40 ring-2 ring-white/30'
+                : isSpeakingPaused
+                ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/40 ring-2 ring-white/30'
+                : styles.playAllBtn
+            }`}
+          >
+            {isSpeakingNow ? (
+              <>
+                <Pause size={16} fill="currentColor" />
+                <span>Tạm Dừng Toàn Bài</span>
+              </>
+            ) : isSpeakingPaused ? (
+              <>
+                <Play size={16} fill="currentColor" />
+                <span>Tiếp Tục Toàn Bài</span>
+              </>
+            ) : (
+              <>
+                <Play size={16} fill="currentColor" />
+                <span>🎧 Nghe Toàn Bài</span>
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Danh sách các thẻ mục luận giải */}
       {sections.map((section, idx) => (
         <SectionCard 
           key={section.id || idx} 
           section={section} 
+          idx={idx}
+          sections={sections}
           theme={theme} 
           onConsultSection={onConsultSection}
+          ttsState={ttsState}
         />
       ))}
     </div>

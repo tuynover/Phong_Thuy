@@ -79,33 +79,33 @@ ${safety}
 --- CẤU TRÚC BẢN LUẬN GIẢI YÊU CẦU ĐẦU RA (BẮT BUỘC MARKDOWN CHUẨN) ---
 Hãy viết bản luận giải bằng tiếng Việt theo định dạng Markdown với chính xác 8 mục sau (dùng tiêu đề cấp H2 '##', các mục con bên dưới dùng chữ bôi đậm '**', phân tách bằng 1 dòng trống):
 
-## BƯỚC 1: TỔNG QUAN KHÍ THẾ & ĐỘ BÙ TRỪ DỤNG THẦN
+## CHƯƠNG 1: TỔNG QUAN KHÍ THẾ & ĐỘ BÙ TRỪ DỤNG THẦN
 - Phân tích vượng suy ngũ hành toàn cục của 2 bên. Đánh giá sự bù trừ năng lượng thực chất giữa Dụng Thần và Kỵ Thần.
 - Chỉ rõ: Đây là sự bù trừ tương sinh thực chất hay là sự xung khắc áp chế, hoặc đồng bệnh tương lân (cùng quá nóng/quá lạnh).
 - Dung lượng: 200 - 250 từ.
 
-## BƯỚC 2: THẾ GIỚI QUAN & TÂM LÝ GIAO TIẾP (NHẬT CAN & NHẬT CHI)
+## CHƯƠNG 2: THẾ GIỚI QUAN & TÂM LÝ GIAO TIẾP (NHẬT CAN & NHẬT CHI)
 - Phân tích tương hợp Thiên Can ngày sinh (${maleBaziData.canChi.day.gan} & ${femaleBaziData.canChi.day.gan}) - Thế giới quan, tư tưởng.
 - Phân tích tương tác Địa Chi ngày sinh (${maleBaziData.canChi.day.zhi} & ${femaleBaziData.canChi.day.zhi}) - Cung Phu Thê (hợp/xung/hình/hại).
 - Đánh giá thẳng thắn: Nếu có Tam Hình, Lục Xung thì chỉ rõ nguy cơ bạo lực lạnh, khắc khẩu, hay tranh chấp quyền kiểm soát.
 - Dung lượng: 200 - 250 từ.
 
-## BƯỚC 3: MÔ HÌNH HÔN NHÂN ĐỊNH DANH (MARRIAGE ARCHETYPE)
+## CHƯƠNG 3: MÔ HÌNH HÔN NHÂN ĐỊNH DANH (MARRIAGE ARCHETYPE)
 - Định danh chính xác 1 trong 4 mô hình: **Song Mã Cùng Tiến (Power Couple)**, **Thử Thách & Tôi Luyện (Karmic Crucible)**, **Hậu Phương & Tiền Tuyến**, hay **Tri Kỷ Tâm Giao**.
 - Luận giải vị thế bình đẳng giới, sự nghiệp độc lập và quyền tự quyết của người phụ nữ trong cuộc hôn nhân này.
 - Dung lượng: 200 - 250 từ.
 
-## BƯỚC 4: LIÊN MINH KINH TẾ & QUẢN TRỊ TÀI CHÍNH GIA ĐÌNH
+## CHƯƠNG 4: LIÊN MINH KINH TẾ & QUẢN TRỊ TÀI CHÍNH GIA ĐÌNH
 - Đánh giá khả năng tạo dựng và giữ gìn tài sản khi về chung một nhà.
 - Phân tích Thập Thần tài chính của cả 2: Chỉ định rõ ai là người nắm tay hòm chìa khóa dựa trên Chính Tài/Ấn tinh, ai có Kiếp Tài/Thương Quan dễ gây thất thoát. Cảnh báo rủi ro đầu cơ hoặc tranh chấp tài sản nếu có.
 - Dung lượng: 200 - 250 từ.
 
-## BƯỚC 5: CON CÁI & PHÚC ĐỨC HẬU VẬN (TRỤ GIỜ)
+## CHƯƠNG 5: CON CÁI & PHÚC ĐỨC HẬU VẬN (TRỤ GIỜ)
 - Đánh giá tương tác Trụ Giờ của hai bên (${maleBaziData.canChi.hour.zhi} & ${femaleBaziData.canChi.hour.zhi}).
 - Xem xét năng lượng nuôi dạy con cái, bất đồng quan điểm giáo dục (nếu có) và sự gắn kết gia đạo về hậu vận.
 - Dung lượng: 200 - 250 từ.
 
-## BƯỚC 6: ĐỒNG ĐIỆU ĐẠI VẬN & 3 MỐC NĂM THỬ THÁCH LỚN NHẤT
+## CHƯƠNG 6: ĐỒNG ĐIỆU ĐẠI VẬN & 3 MỐC NĂM THỬ THÁCH LỚN NHẤT
 - Đối chiếu hai trục Đại vận 10 năm của hai vợ chồng qua các giai đoạn cuộc đời.
 - BẮT BUỘC xuất trình danh sách 3 mốc thời gian thử thách lớn nhất theo định dạng:
   - **Mốc thử thách 1 (Năm ... / Đại vận ...)**: [Biến cố hoặc xung đột cụ thể] ➡️ [Cơ chế tác động Can Chi & Cách phòng ngừa].
@@ -113,12 +113,12 @@ Hãy viết bản luận giải bằng tiếng Việt theo định dạng Markdo
   - **Mốc thử thách 3 (Năm ... / Đại vận ...)**: [Biến cố hoặc xung đột cụ thể] ➡️ [Cơ chế tác động Can Chi & Cách phòng ngừa].
 - Dung lượng: 200 - 250 từ.
 
-## BƯỚC 7: CUNG PHI BÁT TRẠCH & KHÍ TRƯỜNG MÔI TRƯỜNG SỐNG
+## CHƯƠNG 7: CUNG PHI BÁT TRẠCH & KHÍ TRƯỜNG MÔI TRƯỜNG SỐNG
 - Tính toán Cung Phi Mệnh Quái của Nam (${maleCungPhi}) và Nữ (${femaleCungPhi}) xác định nhóm Cát (Sinh Khí, Diên Niên, Thiên Y, Phục Vị) hay Hung (Tuyệt Mệnh, Ngũ Quỷ, Lục Sát, Họa Hại).
 - Đặt Cung Phi vào đúng tỷ trọng (20% môi trường sống) và đưa ra giải pháp cân bằng hướng phòng ngủ, hướng bếp thực tế.
 - Dung lượng: 150 - 200 từ.
 
-## BƯỚC 8: KẾT LUẬN ĐIỂM SỐ & CHIẾN LƯỢC HÓA GIẢI HÀNH VI
+## CHƯƠNG 8: KẾT LUẬN ĐIỂM SỐ & CHIẾN LƯỢC HÓA GIẢI HÀNH VI
 - Chấm điểm độ tương thích tổng quan trên thang điểm 10 (TUÂN THỦ QUY TẮC KHÓA TRẦN ĐIỂM SỐ nếu có Tam hình/Lục xung/Sát cách).
 - Đúc kết các điểm tương hợp cốt lõi và các điểm xung khắc chí mạng nhất.
 - Đưa ra **Chiến lược hóa giải thực chiến**: Quy tắc ứng xử tâm lý khi mâu thuẫn (hạ hỏa, đối thoại), giải pháp quản lý tài sản minh bạch và phong thủy bổ trợ.
@@ -138,7 +138,7 @@ YÊU CẦU QUAN TRỌNG VỀ PHONG CÁCH LUẬN GIẢI:
 1. ĐI THẲNG VÀO TRỌNG TÂM: Tuyệt đối không chào hỏi (không dùng "Chào đương số", "Ta đã xem..."), không lặp lại bất kỳ lý thuyết hay thông số cơ bản nào của hai lá số gốc đã được nêu ở lần giải trước. Đi thẳng trực tiếp vào phân tích tương tác hòa hợp của cặp đôi và giải đáp thắc mắc mới.
 2. TRÌNH BÀY MẠCH LẠC: Bài viết phải sử dụng định dạng Markdown, dùng các gạch đầu dòng rõ ràng, phân cấp khoa học để hai người dễ đọc.
 3. Thực chất học thuật, ứng dụng tâm lý học hiện đại và quản trị gia đình, tránh viết dông dài sáo rỗng.
-4. TÍNH NHẤT QUÁN VIP: Phải duy trì tính nhất quán 100% với bài luận giải VIP đã xuất bản cho cặp đôi.
+4. TÍNH NHẤT QUÁN HỌC THUẬT: Phải duy trì tính nhất quán 100% với bài luận giải chuyên sâu đã xuất bản cho cặp đôi. TUYỆT ĐỐI KHÔNG sử dụng từ "VIP" trong câu trả lời (luôn gọi là "luận giải chuyên sâu" nếu nhắc đến).
 
 --- THÔNG TIN LÁ SỐ CHỒNG (NAM MỆNH) ---
 - Dương Lịch: ${maleBaziData.solarTimeline}
@@ -171,7 +171,7 @@ ${safety}
 --- YÊU CẦU BẮT BUỘC VỀ ĐẦU RA ---
 Bạn phải trả về một đối tượng JSON duy nhất theo cấu trúc sau, KHÔNG bọc trong khối code \`\`\`json \`\`\$, KHÔNG thêm bất kỳ văn bản nào khác ngoài JSON:
 {
-  "answer": "Lời giải đáp trực tiếp, đi thẳng vào câu hỏi, tuyệt đối không chào hỏi dông dài hay lặp lại các lý thuyết cũ. Trình bày bằng định dạng Markdown, sử dụng các gạch đầu dòng rõ ràng để hai người dễ đọc. Phải duy trì tính nhất quán 100% với bài luận VIP nếu có...",
+  "answer": "Lời giải đáp trực tiếp, đi thẳng vào câu hỏi, tuyệt đối không chào hỏi dông dài hay lặp lại các lý thuyết cũ. Trình bày bằng định dạng Markdown, sử dụng các gạch đầu dòng rõ ràng để hai người dễ đọc. Phải duy trì tính nhất quán 100% với bài luận giải chuyên sâu nếu có. TUYỆT ĐỐI KHÔNG sử dụng từ VIP trong câu trả lời...",
   "dos": "Những việc hỷ dụng cát lợi cặp đôi nên làm (hành vi gắn kết, giải pháp hóa giải xung khắc, ngày/tháng cát lợi kết hôn, sinh con hoặc hướng phong thủy hỗ trợ). Viết dạng Markdown gạch đầu dòng rõ ràng. Nếu không có, ghi null.",
   "donts": "Những điều kỵ khắc hai vợ chồng nên tránh (những xung đột hành vi, thời điểm kỵ cát kỵ hung, rủi ro ly tán cần phòng ngừa). Viết dạng Markdown gạch đầu dòng rõ ràng. Nếu không có, ghi null.",
   "confidence": 0.85

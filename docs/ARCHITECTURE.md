@@ -30,8 +30,11 @@ graph TD
         IChingB & BaziB & ZiweiB & MarriageB --> VipB[VipUpgradeBanner.jsx]
         IChingB & BaziB & ZiweiB & MarriageB --> VipT[VipProgressTracker.jsx]
         ChatW --> SecR[SectionRenderer.jsx]
+        SecR --> TtsE[ttsEngine.js]
         
         UserApp --> NotifB[NotificationBell.jsx]
+        UserApp --> AudioDock[AudioPlayerDock.jsx]
+        AudioDock --> TtsE
         UserApp -.-> AuthModal[AuthModal.jsx]
         BaziB -.-> UpdBaziM[UpdateBaziModal.jsx]
     end
@@ -276,6 +279,55 @@ flowchart TD
   + Phát sự kiện `context_meta` qua SSE để hiển thị huy hiệu đa ngữ cảnh (`🏷️ Ngữ cảnh đa chiều: ... + ...`) trên giao diện người dùng `AiChatWidget.jsx`.
 - **Tiết kiệm tài nguyên:** Giảm kích thước prompt từ ~11.000 tokens xuống chỉ còn ~1.500 tokens/lượt chat, tăng tốc độ phản hồi ban đầu (Time-to-First-Token) xuống dưới 1.2s.
 - **Tính nhất quán tuyệt đối:** AI follow-up bám sát và kế thừa toàn bộ phân tích thần sát, cách cục, đại vận và lời khuyên đã được tổng hợp ở bài luận chính, loại bỏ hiện tượng mâu thuẫn câu trả lời.
+
+### 2.5 Động Cơ Đọc Âm Thanh Kép (Dual-Audio TTS Engine) & Đồng Bộ Trực Quan Karaoke Sync
+Để nâng tầm trải nghiệm của người dùng khi theo dõi các bản luận giải chuyên sâu (4.000 - 7.000 từ), hệ thống cung cấp động cơ âm thanh kép (Dual-Audio TTS) kết hợp hài hòa giữa chất lượng cao và tốc độ phản hồi tức thời:
+
+```mermaid
+flowchart TD
+    SectionCard[SectionCard (Header Bar)] -->|Nhấn 🔊 Nghe đọc| PlayAction[ttsEngine.playSection]
+    
+    subgraph TTSEngineCore [Động Cơ Dual-Audio Singleton - ttsEngine.js]
+        PlayAction --> Normalizer[NLP Text Normalizer: Phiên âm ký hiệu cổ học M, V, Đ, H, Tứ Hóa & Bảng Markdown]
+        Normalizer --> Chunker[Sentence Chunking: Tách câu thông minh < 180 ký tự]
+        Chunker --> GenderCheck{Chế độ Giọng Đọc}
+        
+        GenderCheck -->|Giọng Nữ AI| GoogleTTS[Endpoint Backend Proxy: /api/tts?text=...&lang=vi]
+        GoogleTTS --> LRUCache[In-Memory LRU Cache 500 câu (0ms)]
+        LRUCache --> HTML5Audio[HTML5 Audio: Google Natural Voice MP3 ngọt ngào]
+        
+        GenderCheck -->|Giọng Nam| WebSpeech[Native Web Speech API: SAPI Microsoft An trầm ấm]
+        WebSpeech --> KeepAlive[Chromium Keepalive: Heartbeat Ping vi mô 10s chống freeze]
+        KeepAlive --> UtteranceSpeak[window.speechSynthesis.speak]
+    end
+
+    HTML5Audio --> StateNotify[ttsEngine._notify: Phát sự kiện tới các listeners]
+    UtteranceSpeak --> StateNotify
+    
+    subgraph ReactiveUI [Giao Diện Phản Ứng Thời Gian Thực]
+        StateNotify --> KaraokeSync[SectionRenderer: Khung trích dẫn Karaoke Realtime Highlight]
+        StateNotify --> SectionBtn[SectionCard: Nút trạng thái Đang đọc với Equalizer 3 cột]
+        StateNotify --> MasterDock[AudioPlayerDock: Nổi cố định đáy màn hình]
+    end
+
+    MasterDock --> Controls[Bảng Điều Khiển: Tua tiến trình Scrubber Thumb, Âm lượng 0-100%, Tốc độ 0.75x-1.5x, Đổi giọng Nữ/Nam, Đóng X]
+    Controls --> TTSEngineCore
+```
+
+- **Kiến trúc Dual-Audio Đột Phá:**
+  + **Giọng Nữ Chuẩn AI (Google Natural Voice MP3):** Truyền phát qua backend proxy `/api/tts` với bộ đệm in-memory LRU 500 câu. Đem lại chất giọng nữ ngọt ngào, truyền cảm, khắc phục 100% khiếm khuyết thiếu voice nữ trên hệ điều hành Windows SAPI.
+  + **Giọng Nam (*"Thầy Luận Quẻ"*):** Sử dụng Native Web Speech API bản địa với giọng trầm ấm, đĩnh đạc, phản hồi 0ms.
+- **Thanh Tiến Trình Tua Câu Tương Tác (Interactive Seek Bar):**
+  + Người dùng có thể click hoặc kéo rê chuột (drag) trên thanh tiến trình để tua tức thời đến bất kỳ câu văn nào trong chương luận giải.
+  + Tích hợp Scrubber Thumb và Tooltip xem trước số câu (`Câu X/Y`) khi rê chuột.
+- **Điều Khiển Âm Lượng & Bật/Tắt Tiếng:**
+  + Cụm icon `Volume2`/`VolumeX` kết hợp slider `0 - 100%` điều chỉnh âm lượng mượt mà, phản hồi ngay lập tức trên cả HTML5 Audio và Native Web Speech.
+- **Điều Chỉnh Tốc Độ Phát Âm Thanh (0.75x - 1.5x):**
+  + Hỗ trợ 4 mức: `0.75x`, `1.0x`, `1.25x`, `1.5x`. Cố định `defaultPlaybackRate` và `playbackRate` trên Audio Element chống tình trạng trình duyệt tự reset về 1.0x khi nạp câu mới.
+- **Chuyên Biệt Hóa Giao Diện Theo 4 Phân Hệ Phong Thủy:**
+  + Tự động đồng bộ màu sắc chủ đạo của modal, header gradient, waveform equalizer, thanh tiến trình, nút bấm và badge theo đúng phân hệ: **Tử Vi** (Tím / Chàm), **Bát Tự** (Xanh dương / Cyan), **Kinh Dịch** (Hổ phách / Cam), **Hôn Nhân** (Hồng ngọc / Rose).
+- **Khắc Phục Hoàn Toàn Nút Đóng "X":**
+  + Tự động reset `currentSectionId = null` và giải phóng audio stream khi nhấn nút X, đảm bảo modal đóng và unmount khỏi DOM ngay lập tức.
 
 ---
 

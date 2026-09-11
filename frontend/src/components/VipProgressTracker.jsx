@@ -61,7 +61,7 @@ const VipProgressTracker = ({
 }) => {
   const chapterList = chapters || getChaptersBySystem(system);
   const hasCompletedList = Array.isArray(completedChapters) && completedChapters.length > 0;
-  const prefixLabel = system === 'ziwei' ? 'Cụm ' : system === 'marriage' ? 'Trụ ' : system === 'iching' ? 'KB ' : 'C';
+  const prefixLabel = 'Chương ';
 
   return (
     <div className="w-full bg-white border border-amber-200/80 rounded-2xl p-4 mb-6 shadow-sm text-slate-800 transition-all">

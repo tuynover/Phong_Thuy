@@ -3,8 +3,8 @@ import { Sparkles, ArrowRight, Zap } from 'lucide-react';
 
 const SYSTEM_BADGES = {
   bazi: 'Chuyên Sâu 6 Chương',
-  ziwei: 'Chuyên Sâu 5 Cụm Cung',
-  marriage: 'So Hợp 4 Trụ Cột',
+  ziwei: 'Chuyên Sâu 5 Chương',
+  marriage: 'So Hợp 4 Chương',
   iching: 'Toàn Cảnh Ứng Kỳ'
 };
 

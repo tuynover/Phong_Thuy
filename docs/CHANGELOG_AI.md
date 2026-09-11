@@ -2,7 +2,273 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
-## 📅 Phiên bản: Nâng Cấp Bộ Lọc Ngữ Cảnh & Từ Ngữ Phương Án 1 (Native In-Memory Semantic Engine: Weighted Intent Scoring Guardrail & Okapi BM25 Ranker) (10/09/2026)
+## 📅 Phiên bản: Chuẩn Hóa Cấu Trúc Đề Mục "Chương" Toàn Diện Cả 4 Phân Hệ - Triệt Tiêu "Bước 1, Bước 2", "Cụm 1, Cụm 2" & Phân Tích Đề Xuất Tối Ưu Quẻ Đa Đoán Kinh Dịch (11/09/2026)
+
+### 🌟 1. Mục Tiêu & Yêu Cầu Cốt Lõi
+- **Khử Triệt Để Tiền Tố Rác & Con Số Vô Nghĩa:** Loại bỏ hoàn toàn các tiền tố gây rối mắt như "Bước 1, Bước 2", "Cụm 1, Cụm 2", "Trụ Cột 1", "Kịch Bản 1", "Khối 1" trên giao diện bài luận giải và tiến trình phân tích.
+- **Đồng Bộ Chuẩn Hóa Kiến Trúc "Chương":** Thống nhất toàn bộ 4 phân hệ (Bát Tự, Tử Vi, Hôn Nhân, Kinh Dịch) theo chuẩn mực phân tầng của Bát Tự chuyên sâu:
+  - Chia thành các **Chương** rõ ràng (`Chương 1: ...`, `Chương 2: ...`).
+  - Trong mỗi chương chia thành các **mục nhỏ riêng biệt** (`1. ...`, `2. ...`, hoặc đề mục cấp 3 `###`).
+  - Các phần mở đầu (Định Vị Bản Mệnh / Phân Tích Nhật Chủ) và kết thúc (Chiến Lược Điều Hòa) hiển thị đề mục trang nhã, không gắn số thứ tự vô nghĩa.
+- **Giải Thích & Trình Bày Chuyên Sâu Luận Giải Kinh Dịch:** Phân tích nguyên nhân mô hình 3 kịch bản trước đây bị coi là phỏng đoán suy diễn nước đôi; làm rõ bản chất học thuật cổ truyền của **"Quẻ Đa Đoán" (Nhất quái đa đoán - 一卦多断)** và đề xuất giải pháp kiến trúc 6 chương thực thể cho Kinh Dịch.
+
+### 🌟 2. Các Thay Đổi Kỹ Thuật Đã Thực Hiện
+
+#### A. Frontend Parser & UI Components:
+- **`frontend/src/utils/markdownParser.js`:**
+  - Chuẩn hóa `prefixLabel = 'Chương'` đồng bộ cho toàn bộ các bộ môn.
+  - Bổ sung hàm tiền xử lý `cleanRawTitle`: Bóc tách triệt để các tiền tố rác `^(?:CỤM|CHƯƠNG|TRỤ CỘT|TRỤ|KỊCH BẢN|KHỐI|BƯỚC|PHẦN|STEP)\s*\d*[:\s–-]*` khỏi tiêu đề thô.
+  - Nhánh `chapterMatch`, `buocMatch`, `numberedStepMatch` đều gán title định dạng chuẩn: `Chương ${num}: ${cleanTitle}`.
+  - Khâu hoàn tất cuối cùng tự động quét và chuẩn hóa mọi tiêu đề còn sót về `Chương ${num}: `.
+- **`frontend/src/components/VipProgressTracker.jsx`:**
+  - Thay thế nhãn `prefixLabel` phân mảnh (`Cụm `, `Trụ `, `KB `, `C`) thành thống nhất `'Chương '`.
+- **`frontend/src/components/ZiweiBoard.jsx`:**
+  - Cập nhật tiêu đề từ `Luận Giải Chuyên Sâu (5 Cụm Cung Toàn Đồ)` thành `Luận Giải Chuyên Sâu (5 Chương Toàn Đồ)`.
+- **`frontend/src/components/InterpretationTierModal.jsx` & `VipUpgradeBanner.jsx`:**
+  - Cập nhật toàn bộ các badge và mô tả modal từ `5 Cụm Cung` / `4 Trụ Cột` sang `5 Chương` / `4 Chương`.
+
+#### B. Backend Prompts & Multi-Agent Pipelines:
+- **`backend/src/services/deep-interpretation/DeepInterpretationConfigs.js`:**
+  - `ZIWEI_VIP_CONFIG.REPLICAS`: Bỏ tiền tố `Cụm ` trong tiêu đề các chuyên đề; sửa chỉ dẫn học thuật từ `CỤM 1` -> `CHƯƠNG 1` ... `CHƯƠNG 5`.
+  - `MARRIAGE_VIP_CONFIG`: Sửa chỉ dẫn học thuật từ `TRỤ 1` -> `CHƯƠNG 1` ... `CHƯƠNG 4`.
+- **`backend/src/services/deep-interpretation/DeepInterpretationPipelines.js`:**
+  - Ziwei Pipeline: Bắt đầu văn bản trực tiếp bằng `## CHƯƠNG ${id}: ${title.toUpperCase()}`; chuẩn hóa log và SSE messages.
+  - Marriage Pipeline: Bắt đầu văn bản trực tiếp bằng `## CHƯƠNG ${id}: ${title.toUpperCase()}`; chuẩn hóa log và SSE messages.
+- **`backend/src/services/BaziPrompts.js` & `MarriagePrompts.js`:**
+  - Sửa các cấu trúc output chuẩn từ `## BƯỚC 1:` -> `## CHƯƠNG 1:`, triệt tiêu chữ "Bước" ngay từ đầu nguồn sinh LLM.
+
+### 🌟 3. Nghiệm Thu Giao Diện Bằng Chrome DevTools MCP
+- **Kiểm Tra Cây DOM:** Chạy evaluate script trên Chrome xác nhận 100% các tiêu đề section trên trang đều hiển thị chuẩn mực `Chương 1: Mệnh - Thân - Phúc Đức...`, không còn bất kỳ chữ `Cụm 1:` hay `Bước 1:` nào.
+- **Kiểm Tra Trực Quan:** Chụp ảnh màn hình Viewport và lưu lại vào transcript, xác nhận giao diện đẹp mắt, phân tầng đề mục lớn và tiểu mục nhỏ mạch lạc, trang nhã.
+- **Console Errors:** 0 lỗi runtime.
+
+---
+
+## 📅 Phiên bản: Tối Ưu UX Audio Player Dock - Cơ Chế Toggle Bật/Tắt Thông Minh Cho Nút Âm Lượng & Chọn Giọng (11/09/2026)
+
+### 🌟 1. Mô Tả & Mục Tiêu Nghiệp Vụ
+- **Yêu cầu:** Ở nút chọn giọng đọc và nút điều chỉnh âm lượng trên thanh Audio Player Dock: Sau khi click lần 1 (mở modal/popover), nếu người dùng không thao tác gì và click tiếp lần 2 vào chính nút đó thì modal chọn phải tự động ẩn đi (toggle đóng/mở mượt mà).
+- **Phân Tích Căn Nguyên:** Trước đây `volumePopoverRef` và `voiceMenuRef` chỉ được gán vào phần thân bảng popover menu mà không bao gồm nút kích hoạt (trigger button). Khi người dùng click lần 2, sự kiện `mousedown` trên `document` đã bắt sự kiện click bên ngoài popover và set `state = false`, sau đó sự kiện `click` của chính nút kích hoạt lại tiếp tục chạy `setShow...(!show...)` khiến popover bị mở ngược trở lại (không bao giờ đóng được khi click vào chính nút đó).
+
+### 🌟 2. Giải Pháp Triển Khai
+- **Container Ref Pattern (`volumeContainerRef`, `voiceContainerRef`):** Gán ref trực tiếp vào thẻ bọc ngoài cùng (`<div ref={volumeContainerRef} className="relative">` và `<div ref={voiceContainerRef} className="relative shrink-0">`) bao bọc cả nút kích hoạt và flyout popover menu.
+- **Hỗ Trợ Đa Thiết Bị Desktop & Mobile:** Lắng nghe cả sự kiện `mousedown` và `touchstart` trên `document` để tự động đóng popover khi người dùng chạm/click ra bất kỳ vị trí nào bên ngoài container.
+- **Functional State Updates (`prev => !prev`):** Chuyển đổi toàn bộ lệnh cập nhật state sang functional update để đảm bảo tính nguyên tử, triệt tiêu race condition giữa các event loop.
+- **Đóng Chéo Tương Hỗ (Mutual Exclusivity):** Khi đang mở cột âm lượng mà bấm chọn giọng đọc thì cột âm lượng tự động đóng và menu giọng đọc mở ra; và ngược lại.
+
+### 🌟 3. Nghiệm Thu Thực Tế Bằng Chrome DevTools MCP
+- **Click Lần 1 & 2 Cột Âm Lượng:** Kiểm thử tự động trên Chrome: Click 1 -> Mở (`true`), Click 2 -> Đóng (`false`), Click 3 -> Mở (`true`), Click outside -> Đóng (`false`).
+- **Click Lần 1 & 2 Menu Chọn Giọng:** Click 1 -> Mở (`true`), Click 2 -> Đóng (`false`), Click 3 -> Mở (`true`), Click outside -> Đóng (`false`).
+- **Nghiệm Thu Đóng Chéo:** Mở âm lượng -> click nút giọng -> âm lượng đóng, giọng mở.
+
+---
+
+## 📅 Phiên bản: Chuẩn Hóa Học Thuật - Triệt Tiêu Hoàn Toàn Từ "VIP", Thống Nhất Thuật Ngữ "Luận Giải Chuyên Sâu" Cho Cả 4 Phân Hệ (11/09/2026)
+
+### 🌟 1. Mục Tiêu & Định Hướng Nghiệp Vụ
+- **Yêu cầu:** Triệt tiêu 100% mọi từ ngữ chứa "VIP", "luận giải VIP", "bản VIP", "gói VIP", "báo cáo VIP", "phân tích VIP" trong toàn bộ bài luận giải, lời thoại AI, âm thanh TTS, tiêu đề và giao diện hiển thị của cả 4 phân hệ (Bát Tự, Tử Vi, Kinh Dịch, Hôn Nhân).
+- **Chuẩn Hóa:** Thay thế đồng bộ bằng thuật ngữ học thuật phong thủy mực thước: **"Luận Giải Chuyên Sâu"** / **"bản luận giải chuyên sâu"**.
+
+### 🌟 2. Kiến Trúc Bảo Vệ Đa Tầng Triệt Để (3 Tầng Phòng Thủ + Fallback Sanitization)
+- **Tầng 1 - Prompt Negative Constraint (Kỷ Luật Chặt Chẽ Cho LLMs):**
+  - Bổ sung chỉ thị cấm tuyệt đối (Negative Prompting): `TUYỆT ĐỐI CẤM TỪ "VIP": TUYỆT ĐỐI KHÔNG dùng từ "VIP", "gói VIP", "báo cáo VIP" hay bất kỳ từ "VIP" nào trong bài viết. Hãy luôn sử dụng từ "luận giải chuyên sâu" hoặc "bản luận giải chuyên sâu".`
+  - Áp dụng trên toàn bộ Prompt tạo bài viết đa tác nhân và prompt hỏi đáp follow-up của 4 phân hệ:
+    - Bát Tự (`BaziPrompts.js`, `DeepInterpretationPipelines.js` - Replicas & Synthesis)
+    - Tử Vi (`ZiweiPrompts.js`, `DeepInterpretationPipelines.js` - Clusters & Synthesis)
+    - Hôn Nhân (`MarriagePrompts.js`, `DeepInterpretationPipelines.js` - Pillars & Synthesis)
+    - Kinh Dịch (`IChingPrompts.js`, `DeepInterpretationPipelines.js` - Scenarios & Editor)
+    - Trích xuất ngữ cảnh đối thoại (`ConversationContextService.js`).
+- **Tầng 2 - Backend Streaming & Persistence Sanitization:**
+  - `AiService.cleanMarkdown`: Regex làm sạch văn bản trước khi lưu vào MongoDB, chuẩn hóa các cụm "báo cáo VIP", "bản VIP", "luận giải VIP", "VIP" thành "luận giải chuyên sâu" / "chuyên sâu" và triệt tiêu hiện tượng lặp từ ("bản bản").
+  - `SseStreamHelper.cleanMarkdown`: Làm sạch realtime từng chunk văn bản và chương stream SSE gửi cho client.
+  - `TtsController.preprocessTextForNaturalSpeech`: Làm sạch văn bản trước khi sinh âm thanh Edge Neural SSML, đảm bảo giọng đọc AI phát âm chuẩn xác "chuyên sâu", không bao giờ đọc từ "VIP".
+- **Tầng 3 - Frontend & TTS Client-Side Sanitization:**
+  - `markdownParser.parseMarkdownSections`: Tự động sanitize toàn bộ nội dung và tiêu đề các chương/mục khi phân tích Markdown, giúp các bản ghi lịch sử cũ trong DB nếu còn từ "VIP" cũng tự động được chuyển hóa thành "chuyên sâu" tức thì khi tải.
+  - `SectionRenderer.jsx`: Tự động làm sạch nội dung hiển thị trong `cleanAndNormalizeMarkdown` và tiêu đề thẻ mục.
+  - `AudioPlayerDock.jsx`: Khử triệt để từ "VIP" trong tiêu đề mục và câu xem trước (karaoke preview text).
+  - `PdfExportModal.jsx`: Đổi nhãn huy hiệu từ "Bản VIP 6 Chương" thành "Luận Giải Chuyên Sâu".
+  - `ttsEngine.cleanMarkdownForSpeech`: Khử sạch từ "VIP" trước khi tách câu chunking, chống lặp từ kép.
+
+### 🌟 3. Nghiệm Thu Thực Tế Bằng Chrome DevTools MCP
+- **Kiểm Tra DOM:** Chạy script duyệt toàn bộ cây DOM trên trang chi tiết lá số, xác nhận `totalMatches: 0` (tuyệt đối không còn từ VIP nào trên trang).
+- **Kiểm Tra TTS Audio & Karaoke Text:** Kích hoạt "Nghe Toàn Bài", xác nhận câu văn ban đầu `"chuyển hóa 6 bài phân tích chuyên sâu thành bản Báo Cáo Luận Giải VIP này"` đã hiển thị và phát âm hoàn hảo thành: `"chuyển hóa 6 bài phân tích chuyên sâu thành bản báo cáo luận giải chuyên sâu này"`.
+- **Chụp Ảnh Giao Diện:** Chụp và lưu trữ ảnh chụp màn hình kiểm thử thực tế vào hệ thống báo cáo.
+
+---
+
+## 📅 Phiên bản: Tối Ưu Toàn Diện Động Cơ Âm Thanh TTS (Phương Án 1 - Chuẩn Studio 96kbps & SSML Prosody Phong Thủy Thuần Việt, Triệt Tiêu Cảm Giác Máy Móc) (11/09/2026)
+
+### 🌟 1. Nâng Cấp Chất Lượng Âm Thanh Studio 96kbps Mono MP3
+- **Triệt Tiêu Tiếng Rè Kim Loại & Robot:** Chuyển đổi định dạng âm thanh từ chuẩn nén thấp sang `OUTPUT_FORMAT.AUDIO_24KHZ_96KBITRATE_MONO_MP3` (gấp đôi bitrate 48kbps trước đây), mang lại độ trong trẻo, mượt mà và tròn vành rõ chữ chuẩn phòng thu.
+- **Loại Bỏ Hoàn Toàn Giọng Robot Google Cũ:** Tái cơ cấu toàn diện hệ thống TTS sang Microsoft Edge Neural đa giọng đọc cao cấp, chỉ giữ Google Translate làm phương án dự phòng khẩn cấp tầng 3.
+
+### 🌟 2. Bộ Tiền Xử Lý Văn Bản Thuần Việt & SSML Prosody Học Thuật
+- **Tiền Xử Lý Ký Hiệu & Thuật Ngữ Phong Thủy (`preprocessTextForNaturalSpeech`):**
+  - Mở rộng toàn bộ ký hiệu đặc biệt sang từ ngữ thuần Việt: `&` -> `và`, `%` -> `phần trăm`, `+` -> `cộng`, `/` -> `trên/hoặc`, `SWOT` -> `ma trận thế mạnh điểm yếu`, `AI` -> `A I`, `VIP` -> `Víp`.
+  - Phiên âm số La Mã tiêu đề luận giải: `Cụm I - V` -> `Cụm 1 - 5`, `Chương I - V` -> `Chương 1 - 5`.
+  - Escape ký tự đặc biệt XML an toàn tuyệt đối tránh lỗi SSML parser.
+- **Chèn Nhịp Nghỉ Thở Tự Nhiên (Natural Breath Pauses):**
+  - Tự động chèn `<break time="180ms"/>` tại dấu phẩy, `<break time="220ms"/>` tại dấu chấm phẩy, `<break time="240ms"/>` tại dấu hai chấm, `<break time="200ms"/>` tại dấu gạch ngang, và `<break time="300ms"/>` tại dấu ba chấm.
+  - Mang lại nhịp thở lấy hơi tự nhiên như con người đang trực tiếp đàm đạo, loại bỏ hoàn toàn cảm giác đọc dồn dập, đều đều của máy móc.
+- **Điều Hòa Nhịp Điệu Chuyên Biệt Cho Từng Hồ Sơ Giọng Đọc:**
+  - 🌸 **Hoài My:** Nữ - Truyền Cảm (Studio VTV, `rate="-6%"`, `pitch="+0Hz"`, giọng đọc chuẩn mực đài truyền hình).
+  - 🎙️ **Nam Minh:** Nam - Trầm Ấm (Studio VTV, `rate="-8%"`, `pitch="-2Hz"`, giọng Thầy luận đàm đĩnh đạc, uyên bác).
+  - 🪷 **Hương Giang:** Nữ - Sâu Lắng (Radio Thiền Định, `rate="-12%"`, `pitch="-1Hz"`, âm sắc chậm rãi, chiêm nghiệm, thư thái).
+  - 📿 **Thầy Luận:** Nam - Thiết Bị Bản Địa (Offline Native Web Speech API 0ms).
+
+### 🌟 3. Tối Ưu Hiệu Năng & Bộ Nhớ Đệm
+- **Bộ Nhớ Đệm In-Memory LRU Mở Rộng 1.000 Câu:** Khóa cache phân biệt theo giọng và nội dung `v2:${voice}:${cleanText}`, phản hồi tức thời 0ms khi phát lại.
+- **Browser Cache Header 24 Giờ:** `Cache-Control: public, max-age=86400` cho phép trình duyệt lưu tệp âm thanh cục bộ, tiết kiệm 100% băng thông cho các câu trùng lặp.
+- **Kiến Trúc Fallback Đa Tầng Tự Động:** SSML Edge Neural 96kbps -> Raw Edge Neural 96kbps -> Google Translate TTS -> Native Web Speech API.
+
+### 🌟 4. Tinh Chỉnh Giao Diện Cột Loa Dọc & Menu Chọn Giọng
+- **Triệt Tiêu Hiện Tượng Nhìn Xuyên Thấu (Translucent Text Clashes):** Chuyển đổi nền của Popover menu giọng đọc và popover cột âm lượng từ `bg-white/98` sang `bg-white` đục nguyên khối cùng đổ bóng `shadow-2xl` và viền `border-slate-200`, giúp văn bản hiển thị rõ nét 100% trên mọi nền giao diện.
+- **Đồng Bộ Hoàn Toàn 4 Giọng Đọc Mới:** Hiển thị biểu tượng 🪷 Hương Giang, 🌸 Hoài My, 🎙️ Nam Minh, 📿 Thầy Luận trên dropdown.
+
+### 🌟 5. Nghiệm Thu Thực Tế Trên Chrome DevTools MCP
+- Đã chạy Dev Server, mở trực tiếp lá số trên Chrome, kích hoạt phát âm thanh, chuyển đổi qua lại giữa Hoài My, Nam Minh và Hương Giang.
+- Đã xác nhận âm thanh phát mượt mà, nhịp đọc sâu lắng, tiến trình tua mượt mà và console đạt chuẩn 0 lỗi.
+
+---
+
+## 📅 Phiên bản: Nâng Cấp Động Cơ Âm Thanh TTS Thế Hệ Mới - Đa Giọng Đọc (VTV Neural), Nghe Toàn Bài 4 Phân Hệ, Tự Động Chuyển Mục & Giao Diện Cột Loa Dọc (11/09/2026)
+
+### 🌟 1. Kho 4 Giọng Đọc AI Cao Cấp Đa Dạng (`VOICES`)
+- **Tích Hợp Microsoft Edge ReadAloud WebSocket Engine & Google Natural:**
+  - 🌸 **Hoài My:** Microsoft Edge Neural `vi-VN-HoaiMyNeural` - Giọng nữ truyền cảm, phát âm tròn vành rõ chữ của phát thanh viên VTV.
+  - 🎙️ **Nam Minh:** Microsoft Edge Neural `vi-VN-NamMinhNeural` - Giọng nam trầm ấm, đĩnh đạc, uyên bác phong cách MC truyền hình quốc gia.
+  - ✨ **Ngọc Mai:** Google Natural Voice - Giọng nữ dịu dàng, tự nhiên.
+  - 📿 **Thầy Luận:** Native Web Speech API - Giọng nam cổ học bản địa thiết bị, không phụ thuộc kết nối mạng (0ms latency).
+- **Flyout Menu Chọn Giọng Trực Quan:** Bấm nút giọng đọc ở góc phải dock để mở menu hiển thị đầy đủ icon, tên, phong cách âm sắc và đánh dấu tích chọn (checkmark). Chuyển giọng tức thì trong 0ms.
+
+### 🌟 2. Chế Độ "Nghe Toàn Bài" & Tự Động Chuyển Mục Không Ngắt Quãng (Continuous Autoplay)
+- **Banner "🎧 Nghe Toàn Bài Luận Giải" Đồng Loạt Cho Cả 4 Phân Hệ:**
+  - Hiển thị nổi bật ở đầu bài luận giải trên Tử Vi, Bát Tự, Kinh Dịch và Hôn Nhân.
+  - Tự động thống kê số mục, hiển thị huy hiệu động `Đang phát: Mục X/N` và nút điều khiển `Tạm Dừng Toàn Bài` / `Tiếp Tục Toàn Bài` / `Nghe Toàn Bài`.
+- **Cơ Chế Playlist & Chuyển Mục Tự Động:**
+  - Khi đọc hết câu cuối cùng của một mục lớn, động cơ tự động tăng chỉ số playlist và nạp tiếp mục kế tiếp để đọc liền mạch từ đầu tới cuối.
+  - Cho phép người dùng click "Nghe đọc" ở bất kỳ mục nào giữa bài, hệ thống vẫn tự động tiếp tục đọc các mục tiếp theo đến hết bài.
+  - Nút Skip Forward / Skip Backward ở ranh giới mục cũng tự động nhảy sang mục kế tiếp hoặc lùi về mục trước.
+
+### 🌟 3. Triệt Tiêu Độ Trễ (Zero-Delay 0ms Response) & Nạp Trước Câu Kế Tiếp (Sentence Pre-fetching)
+- Cài đặt cơ chế **Sentence Pre-fetching (`_prefetchNextSentence`)**: Khi câu $N$ đang phát, audio của câu $N+1$ tự động được nạp trước vào bộ nhớ đệm trình duyệt, triệt tiêu hoàn toàn độ trễ mạng khi chuyển câu.
+- Rút ngắn transition CSS xuống `duration-75 active:scale-95`, bấm nút phản hồi cơ học tức thì không có cảm giác trễ hay ì.
+
+### 🌟 4. Tái Cấu Trúc Bảng Điều Khiển: Cột Loa Âm Lượng Dọc & Tối Ưu Tốc Độ Đọc
+- **Bỏ Mốc Tốc Độ 0.75x:** Chỉ giữ lại 3 mốc tốc độ tối ưu và được dùng nhiều nhất: `1x`, `1.25x`, `1.5x`.
+- **Cột Trượt Âm Lượng Dọc (Vertical Slider Flyout):** Đưa icon loa lên cạnh cụm tốc độ đọc; khi click mở popover trượt dọc ngay phía trên nút loa hiển thị % âm lượng, thanh kéo dọc và nút mute nhanh.
+- **Thu Gọn 1 Hàng Duy Nhất:** Xóa bỏ hoàn toàn hàng thanh ngang âm lượng ở đáy cũ, giúp dock giảm 35% chiều cao, thanh thoát, sang trọng và không che khuất nội dung màn hình.
+- **Bảo Toàn Nhận Diện 4 Phân Hệ:** Visualizer sóng âm, viền, thanh tiến trình và nút bấm tự động biến đổi theo sắc thái 4 phân hệ (Tử Vi - Tím, Bát Tự - Lam, Kinh Dịch - Hổ phách, Hôn Nhân - Hồng).
+
+### 🌟 5. Nghiệm Thu Trực Tiếp Trên Trình Duyệt Chrome DevTools MCP
+- Đã test và chụp ảnh minh chứng thực tế trên cả 4 phân hệ (Tử Vi, Bát Tự, Kinh Dịch, Hôn Nhân).
+- Xác nhận nút "Nghe Toàn Bài" hoạt động hoàn hảo, âm lượng cột dọc mượt mà, chuyển đổi 4 giọng đọc trơn tru và console đạt 0 lỗi.
+
+---
+
+## 📅 Phiên bản: Nâng Cấp Toàn Diện Động Cơ Âm Thanh TTS - Giọng Nữ Chuẩn AI, Điều Khiển Âm Lượng, Tua Tiến Trình & Chuyên Biệt Hóa Giao Diện 4 Phân Hệ (11/09/2026)
+
+### 🌟 1. Động Cơ Dual-Audio & Giọng Nữ Chuẩn Ngọt Ngào 100% (`backend/src/controllers/TtsController.js` & `frontend/src/utils/ttsEngine.js`)
+- **Khắc Phục Dứt Điểm Giới Hạn Trình Duyệt Windows:** 
+  - Trên hệ điều hành Windows, SAPI chỉ cung cấp duy nhất giọng nam `Microsoft An` và không hỗ trợ điều biến âm sắc (pitch modulation).
+  - Kiến trúc Động Cơ Kép (Dual-Audio Architecture):
+    + **Giọng Nữ:** Tải luồng âm thanh MP3 chất lượng cao phát âm tự nhiên tiếng Việt từ Google Natural Voice qua backend endpoint proxy `/api/tts?text=...&lang=vi`. Có in-memory cache LRU 500 câu phản hồi trong 0ms.
+    + **Giọng Nam:** Sử dụng Native Web Speech API với giọng trầm ấm, đĩnh đạc (*"Thầy Luận Quẻ"*).
+  - Khả năng chuyển đổi qua lại giữa Giọng Nữ và Giọng Nam tức thì chỉ với 1 cú click.
+
+### 🌟 2. Thanh Trượt Điều Khiển Âm Lượng & Bật/Tắt Tiếng (Volume Slider & Mute)
+- Bổ sung cụm điều khiển âm lượng gồm icon `Volume2`/`Volume1`/`VolumeX` và thanh trượt trực quan từ 0% đến 100%.
+- Hỗ trợ click icon để bật/tắt tiếng (`toggleMute`) và kéo slider để điều chỉnh âm lượng mượt mà theo thời gian thực.
+- Cập nhật tức thời cả trên HTML5 Audio (`audio.volume`) và Native Web Speech (`SpeechSynthesisUtterance.volume`).
+
+### 🌟 3. Thanh Tiến Trình Tương Tác Có Khả Năng Tua Câu (Interactive Seekable Progress Bar)
+- Thanh tiến trình hỗ trợ cả click và drag (kéo rê chuột) đến bất kỳ vị trí nào trên thanh để tua ngay đến câu tương ứng (`seekSentence(targetIndex)`).
+- Hiển thị núm tròn tua (Scrubber Thumb) và Tooltip xem trước số câu (`Câu X/Y`) khi rê chuột (hover).
+- Cập nhật tức thì chỉ số tiến độ %, câu văn karaoke preview và phát lại câu mới được chọn.
+
+### 🌟 4. Điều Chỉnh Tốc Độ Phát Âm Thanh Tức Thì (Live Speed Rate Control)
+- Hỗ trợ 4 mức tốc độ chuẩn học thuật: `0.75x`, `1.0x`, `1.25x`, `1.5x`.
+- Khắc phục lỗi trình duyệt reset tốc độ: Cố định `defaultPlaybackRate`, `playbackRate` và thiết lập lại trong sự kiện `onloadedmetadata` của Audio Element.
+- Nút bấm tốc độ được tô màu nổi bật theo theme phân hệ hiện hành khi kích hoạt.
+
+### 🌟 5. Khắc Phục Triệt Để Nút Đóng "X" & Giải Phóng Tài Nguyên
+- Khắc phục lỗi nút `X` không tắt được modal do `currentSectionId` không được reset về `null` trong `stop()`.
+- Cập nhật điều kiện kiểm tra render trong `AudioPlayerDock`: Khi người dùng click `X`, toàn bộ âm thanh dừng lại, trạng thái reset và modal đóng/unmount hoàn toàn khỏi DOM ngay lập tức.
+- Nút `X` hoạt động đồng nhất ở cả giao diện đầy đủ (Master Dock) và giao diện thu nhỏ (Mini Floating Pill).
+
+### 🌟 6. Chuyên Biệt Hóa Giao Diện Modal Theo Màu Sắc Vốn Có Của 4 Phân Hệ Phong Thủy
+- Tự động nhận diện phân hệ đang mở qua `sectionId` hoặc URL:
+  + **Tử Vi (`tuvi`):** Sắc tím huyền bí & chàm vương giả (`Purple / Indigo / Violet`), huy hiệu *"TỬ VI ĐÀM ĐẠO"*, nút phát gradient tím, progress bar tím, waveform tím/hổ phách.
+  + **Bát Tự (`bazi`):** Sắc xanh dương trí tuệ & ngọc bích thiên địa (`Blue / Sky / Cyan`), huy hiệu *"BÁT TỰ ĐÀM ĐẠO"*, nút phát gradient xanh dương, progress bar cyan.
+  + **Kinh Dịch (`iching`):** Sắc hổ phách cổ học & thái cực âm dương (`Amber / Orange / Bronze`), huy hiệu *"KINH DỊCH LUẬN ĐẠO"*, nút phát gradient hổ phách, progress bar cam vàng.
+  + **Hôn Nhân (`marriage`):** Sắc hoa hồng tình duyên & hạnh phúc gia đạo (`Rose / Pink / Ruby`), huy hiệu *"HÔN NHÂN ĐỒNG ĐIỆU"*, nút phát gradient hồng ngọc, progress bar rose.
+- Cả giao diện Master Dock và Mini Floating Pill đều biến đổi màu sắc viền, nền, waveform và điểm nhấn tương ứng với phân hệ.
+
+### 🌟 7. Kiểm Thử Nghiệm Thu Trực Tiếp Trên Trình Duyệt Chrome DevTools MCP
+- Đã kiểm tra toàn diện trên trình duyệt Chrome thực tế:
+  + Test Giọng Nữ MP3 stream: Phát âm tiếng Việt chuẩn, ngọt ngào, mượt mà.
+  + Test Chuyển đổi Giọng Nam/Nữ: Chuyển đổi qua lại chuẩn xác và tức thì.
+  + Test Tua tiến trình: Nhấn thanh tiến trình câu văn nhảy chính xác theo vị trí click.
+  + Test Nút X: Modal đóng và unmount khỏi DOM lập tức.
+  + Test Chỉnh âm lượng & Mute: Slider và icon phản hồi chuẩn xác.
+  + Test Chỉnh tốc độ `1.25x`, `1.5x`: Tốc độ đọc tăng tức thời.
+  + Test Theme 4 phân hệ: Chụp ảnh màn hình nghiệm thu đầy đủ trên Tử Vi, Bát Tự, Kinh Dịch, Hôn Nhân.
+
+---
+
+## 📅 Phiên bản: Giai Đoạn 3 (Ưu Tiên 2 - Phương Án 1) - Động Cơ Đọc Âm Thanh Bài Luận AI (Native Web Speech Audio Engine & Karaoke Highlight Sync) (10/09/2026)
+
+### 🌟 1. Động Cơ Phát Âm Bản Địa & NLP Text Normalizer Thuần Trình Duyệt (`frontend/src/utils/ttsEngine.js`)
+- **Kiến trúc Singleton `ttsEngine` (Web Speech API):** Chạy 100% trên trình duyệt người dùng qua `window.speechSynthesis`, 0đ chi phí máy chủ, 0ms độ trễ khởi tạo, không tốn băng thông đường truyền.
+- **Bộ Chuẩn Hóa Văn Bản Phong Thủy Cổ Học (`cleanMarkdownForSpeech`):**
+  - Tự động phiên âm các ký hiệu đắc hãm Tử Vi & Tứ Hóa: `(M)` ➡️ *Miếu địa*, `(V)` ➡️ *Vượng địa*, `(Đ)` ➡️ *Đắc địa*, `(B)` ➡️ *Bình hòa*, `(H)` ➡️ *Hãm địa*, `(KHOA)` ➡️ *Hóa Khoa*, `(QUYỀN)` ➡️ *Hóa Quyền*, `(LỘC)` ➡️ *Hóa Lộc*, `(KỴ)` ➡️ *Hóa Kỵ*.
+  - Biến đổi bảng biểu Markdown (Ma trận SWOT, Bảng Lộ trình, Cát hung) thành các câu thoại đối thoại tự nhiên, giúp người dùng nghe mạch lạc thay vì đọc chuỗi ký tự rời rạc.
+  - Làm sạch các ký tự cú pháp Markdown (`#`, `**`, `*`, `---`, code block) và chuẩn hóa khoảng trắng.
+- **Tách Câu Thông Minh (`splitIntoSpeechSentences`):**
+  - Tách câu theo các dấu kết thúc ngữ cảnh tiếng Việt (`. `, `! `, `? `, `\n`). Bảo toàn các cấu trúc tiêu đề nội dòng chứa dấu hai chấm như `Cụm 1: Mệnh Thân...`.
+  - Tự động chia nhỏ các câu quá dài (> 180 ký tự) tại các liên từ (`và`, `nhưng`, `bởi vì`, `do đó`) để giọng đọc có nhịp thở tự nhiên.
+- **Cơ Chế Heartbeat Ping (10s) Khắc Phục Lỗi Chromium Silent Freeze:**
+  - Khắc phục triệt để lỗi bug cố hữu của Chromium / WebKit tự động đóng băng (freeze) âm thanh khi đọc văn bản dài quá 15 giây bằng timer tự động `pause()`/`resume()` vi mô mỗi 10 giây.
+- **Nhận Diện, Phân Loại Giọng & Điều Tần Âm Sắc (Acoustic Pitch Modulation):**
+  - Tự động nhận diện chính xác giọng nữ mặc định trên Windows: `Microsoft An` (thường bị nhầm lẫn với tên nam), cùng các giọng Online `HoaiMy`, `Linh`, `Google tiếng Việt`.
+  - Tích hợp công nghệ **Điều biến âm tần (Pitch Modulation)**: 
+    + **Giọng Nữ:** `pitch = 1.15` (âm vực cao trong, thanh thoát, nhẹ nhàng).
+    + **Giọng Nam:** `pitch = 0.82` (âm vực trầm ấm, dày dặn, đĩnh đạc).
+  - Khắc phục triệt để trường hợp hệ điều hành chỉ cài đặt 1 voice tiếng Việt offline duy nhất: Khi bấm chuyển đổi `Giọng Nữ` ↔ `Giọng Nam`, người dùng vẫn nghe thấy sự khác biệt rõ rệt và tự nhiên giữa hai âm sắc!
+
+### 🌟 2. Tích Hợp Nút "Nghe Đọc" & Khung Karaoke Realtime Sync (`frontend/src/components/SectionRenderer.jsx`)
+- **Nút "🔊 Nghe đọc" / "⏸️ Tạm dừng" Trên Từng Accordion:**
+  - Tích hợp trực tiếp vào thanh tiêu đề của mỗi Cụm/Chương (kế bên nút *"Đàm đạo mục này"*).
+  - Khi đang phát: Hiển thị hoạt ảnh sóng âm Equalizer 3 cột nhún nhảy sống động (`animate-bounce`), nền tím phong thủy nổi bật.
+  - Khi tạm dừng: Nút hiển thị màu hổ phách dịu mắt với biểu tượng `Play` tiếp tục.
+  - Tự động bung mở (expand) nội dung Cụm nếu Accordion đang đóng khi người dùng nhấn nghe đọc.
+- **Khung Hiển Thị Câu Đang Đọc (Karaoke Realtime Highlight):**
+  - Hiển thị nổi bật ở đầu nội dung Cụm đang phát với huy hiệu phát sóng động (`animate-ping`), số thứ tự câu (`Câu X / Y`), tỷ lệ % hoàn thành và nội dung câu văn đang phát trích dẫn in nghiêng thanh lịch.
+
+### 🌟 3. Master Audio Player Dock Nổi Toàn Cục (`frontend/src/components/AudioPlayerDock.jsx`)
+- **Giao Diện Chuẩn Premium Glassmorphism:**
+  - Nổi cố định góc dưới màn hình với phong cách thiết kế kính mờ siêu thực (`backdrop-blur-2xl`, bo góc lớn `rounded-3xl`, viền tím mờ huyền ảo `border-purple-500/30`, bóng đổ đa tầng).
+  - Thanh tiến trình % mượt mà cùng visualizer sóng âm 3 cột phản hồi trạng thái phát.
+- **Bảng Điều Khiển Đầy Đủ & Linh Hoạt:**
+  - Nút Play / Pause to tròn nổi bật, nút tua tới / tua lùi 1 câu văn (`skipForward`, `skipBackward`).
+  - Chọn tốc độ phát âm thanh tức thì: `0.8x`, `1.0x`, `1.25x`.
+  - Chuyển đổi giọng đọc `Giọng Nữ` ↔ `Giọng Nam` 1-click.
+  - Nút **Thu nhỏ (Minimize)** thành Mini Floating Pill ở góc màn hình và nút **Mở rộng (Expand)** quay lại dock hoàn chỉnh.
+  - Nút **Tắt trình phát (Close)** giải phóng toàn bộ tài nguyên âm thanh.
+- **Gắn Toàn Cục Tại `frontend/src/components/UserApp.jsx`:**
+  - Xuất hiện đồng nhất trên cả 4 phân hệ (Tử Vi, Bát Tự, Hôn Nhân, Kinh Dịch). Người dùng có thể vừa nghe đọc vừa cuộn xem lá số hoặc tra cứu thông tin mà âm thanh không bị gián đoạn.
+
+### 🌟 4. Kiểm Thử Nghiệm Thu Trực Tiếp Trên Trình Duyệt Chrome DevTools MCP
+- **Unit Test NLP Normalizer:** `scratch/test_tts_normalizer.js` đạt **100% PASS** (10/10 câu chuẩn xác, phiên âm đắc hãm và chuyển bảng biểu mượt mà).
+- **Frontend Production Build:** `npm run build` chạy thành công không có bất kỳ lỗi cú pháp nào (`dist/index.html` 5.81 kB, `vite build` 2.21s).
+- **Kiểm Thử Trực Quan Trên Trình Duyệt Chrome Thực Tế:**
+  - Mở trang lá số Tử Vi VIP (`/ziwei/record/01a089d3-44b7-73ba-9a73-d1e566fa4945`).
+  - Nhấn nút *"Nghe đọc"* tại Cụm 1 ➡️ Master Audio Player Dock trượt mượt mà lên từ đáy màn hình.
+  - Khung Karaoke trong Cụm 1 hiển thị đồng bộ câu văn đang đọc theo thời gian thực: *“tâm thế vững vàng trước các biến động của đời sống, và năng lực xây dựng uy tín cá nhân bền vững theo thời gian.”*
+  - Test đầy đủ các thao tác: Tạm dừng (`isPaused: true`), Tiếp tục phát lại, Đổi tốc độ lên `1.25x`, Đổi giọng đọc Nam/Nữ, Thu nhỏ thành Mini Pill và Mở rộng trở lại.
+  - Lưu trữ ảnh chụp màn hình nghiệm thu thực tế: `tts_audio_player_demo.png`.
+
+---
 
 ### 🌟 1. Động Cơ Chấm Điểm Trọng Số Ý Định (Weighted Intent Scoring Guardrail)
 - **Vấn đề giải quyết:** Trước đây kiểm tra `isDivinationRelated` bằng danh sách từ khóa cứng (`q.includes(kw)`), dẫn đến 2 nhược điểm nghiêm trọng:

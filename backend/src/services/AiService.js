@@ -27,6 +27,17 @@ class AiService {
         cleaned = cleaned.replace(/沟通/g, 'lắng nghe và chia sẻ');
         cleaned = cleaned.replace(/夫妻/g, 'vợ chồng');
         cleaned = cleaned.replace(/[\u4e00-\u9fa5]+/g, '');
+
+        // Tuyệt đối không để bất kỳ từ VIP nào trong bài luận giải của cả 4 phân hệ -> chuyển thành "chuyên sâu"
+        cleaned = cleaned.replace(/\bbản\s+(?:báo\s+cáo\s+)?luận\s+giải\s+vip\b/gi, 'bản luận giải chuyên sâu');
+        cleaned = cleaned.replace(/\bbáo\s+cáo\s+luận\s+giải\s+vip\b/gi, 'báo cáo luận giải chuyên sâu');
+        cleaned = cleaned.replace(/\bluận\s+giải\s+vip\b/gi, 'luận giải chuyên sâu');
+        cleaned = cleaned.replace(/\bbáo\s+cáo\s+vip\b/gi, 'báo cáo chuyên sâu');
+        cleaned = cleaned.replace(/\bgói\s+vip\b/gi, 'gói chuyên sâu');
+        cleaned = cleaned.replace(/\bphân\s+tích\s+vip\b/gi, 'phân tích chuyên sâu');
+        cleaned = cleaned.replace(/\bvip\b/gi, 'chuyên sâu');
+        cleaned = cleaned.replace(/\bbản\s+bản\b/gi, 'bản');
+
         return cleaned.trim();
     }
 
