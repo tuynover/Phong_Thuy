@@ -1,8 +1,11 @@
 const { elementNameMap, getSafetyGuidelines } = require('../shared/utils/astrologyHelpers');
+const { generateIChingCalendarGroundTruth } = require('../shared/utils/ungKyParser');
 
 class IChingPrompts {
     static getInterpretationPrompt(hexagramData, analyzedData) {
         const safety = getSafetyGuidelines();
+        const castDate = hexagramData.lunarDateInfo?.solarDate ? new Date(hexagramData.lunarDateInfo.solarDate) : (hexagramData.createdAt ? new Date(hexagramData.createdAt) : new Date());
+        const calendarGroundTruth = generateIChingCalendarGroundTruth(castDate);
         return `Bạn là "Thầy Dịch Giải Chi Tiết" - một đại sư Phong Thủy và Kinh Dịch Lục Hào uyên thâm dòng phái thực chiến cổ điển.
 Nhiệm vụ của bạn là luận giải quẻ dịch dựa TRÊN DỮ LIỆU ĐÃ ĐƯỢC PHÂN TÍCH SẴN dưới đây.
 TUYỆT ĐỐI KHÔNG TỰ TÍNH TOÁN LẠI NGŨ HÀNH, SINH KHẮC HAY HÀO ĐỘNG. Chỉ sử dụng dữ liệu được cung cấp.
@@ -15,8 +18,10 @@ YÊU CẦU ĐỘ DÀI VÀ HỌC THUẬT VƯỢT TRỘI (EXHAUSTIVE & DEEP SCHOLA
 - Câu hỏi người gieo: "${hexagramData.question}"
 - Quẻ Chính: ${hexagramData.primaryHexagram.name} (Cung ${hexagramData.primaryHexagram.palace} - Hành ${elementNameMap(hexagramData.primaryHexagram.palace_element)})
 - ${hexagramData.transformedHexagram ? `Quẻ Biến: ${hexagramData.transformedHexagram.name} (Cung ${hexagramData.transformedHexagram.palace} - Hành ${elementNameMap(hexagramData.transformedHexagram.palace_element)})` : 'Không có hào động (Quẻ Tĩnh)'}
-- Nhật Kiến (Ngày gieo): ${hexagramData.lunarDateInfo.nhatThan}
-- Nguyệt Kiến (Tháng gieo): ${hexagramData.lunarDateInfo.nguyetLenh}
+- Thời gian gieo quẻ (Dương lịch): ${hexagramData.lunarDateInfo?.solarDate ? new Date(hexagramData.lunarDateInfo.solarDate).toLocaleDateString('vi-VN') : new Date().toLocaleDateString('vi-VN')}
+- Thời gian gieo quẻ (Âm lịch): ${hexagramData.lunarDateInfo?.lunarDateStr || 'Không rõ'}
+- Nhật Kiến (Ngày gieo): ${hexagramData.lunarDateInfo?.nhatThan || 'Không rõ'}
+- Nguyệt Kiến (Tháng gieo): ${hexagramData.lunarDateInfo?.nguyetLenh || 'Không rõ'}
 
 --- KẾT QUẢ PHÂN TÍCH TỪ RULE ENGINE ---
 1. Dụng Thần (Tâm điểm câu hỏi): ${analyzedData.dungThan}
@@ -32,6 +37,8 @@ ${analyzedData.movingLines.length > 0 ? analyzedData.movingLines.map(m => `   - 
 
 4. Dữ kiện đặc biệt:
    - ${analyzedData.specialStates.length > 0 ? analyzedData.specialStates.join(', ') : 'Không có'}
+
+${calendarGroundTruth}
 
 ${safety}
 
@@ -52,9 +59,16 @@ Hãy viết luận giải bằng tiếng Việt, định dạng Markdown theo c�
 - Chỉ rõ các trở ngại, rủi ro, vận hạn hiểm họa hoặc điểm yếu lớn trong quá trình thực hiện sự việc. Bắt buộc phải đưa ra biện pháp hóa giải cụ thể cho mỗi rắc trở (ví dụ: dùng hào phù trợ, khuyên kiềm chế hành vi, hay thay đổi chiến thuật).
 - Viết tối thiểu 300 - 400 từ cho phần này.
 
-### 4. Kết Luận & Lời Khuyên Hành Động Thực Chiến (DÀI VÀ TRỌNG TÂM)
+### 4. Kết Luận & Lời Khuyên Hành Động Thực Chiến (DÀI VÀ TRỌNG TÂM - PHƯƠNG ÁN B)
 - ĐẶC BIỆT LƯU Ý: Phần này phải cực kỳ dài, chi tiết (tối thiểu 400 từ), tập trung cao độ đi đúng trọng tâm câu hỏi của người gieo quẻ ("${hexagramData.question}"). Tránh đưa ra những lời khuyên chung chung kiểu sáo rỗng.
 - Trực tiếp đưa ra câu trả lời cho sự việc (Có thành công không? Khi nào ứng nghiệm? Ứng kỳ cụ thể thế nào?).
+- QUY ĐỔI DƯƠNG LỊCH BẮT BUỘC THEO PHƯƠNG ÁN B (TRA CỨU BẢNG LỊCH PHÁP GẦN NHẤT):
+  + BẮT BUỘC tra cứu mốc ngày/tháng trong [BẢNG TRA CỨU MỐC DƯƠNG LỊCH GẦN NHẤT CHÍNH XÁC] được cung cấp ở trên. TUYỆT ĐỐI CẤM tự bịa ra mốc xa xôi không căn cứ.
+  + Áp dụng đúng 4 nhóm phân loại ngữ cảnh:
+    * Nhóm 1 (Mang thai, sinh con, mua nhà, định cư): Đoán theo THÁNG Âm lịch (kèm khoảng 30 ngày Dương lịch cụ thể). Không đoán ngày lẻ xa xôi.
+    * Nhóm 2 (Tìm việc làm, thi cử, sự nghiệp, chuyển việc): KẾT HỢP SONG SONG: Tháng Mục Tiêu nhận việc + Các Ngày Vàng Gần Nhất (trong vòng 7 - 21 ngày tới) để nộp hồ sơ, phỏng vấn.
+    * Nhóm 3 (Việc ngắn hạn, đòi nợ, hợp đồng, kiện tụng): Đoán theo NGÀY GẦN NHẤT (trong vòng 1 - 14 ngày tới) + Khung Giờ Hoàng Đạo.
+    * Nhóm 4 (Tìm đồ mất / người thất lạc): Nếu đã mất hẳn thì khẳng định MẤT HẲN, cấm tính ngày; nếu còn thì xuất Phương vị + Địa điểm + Giờ & Ngày gần nhất (trong 24h - 72h).
 - Thiết lập sơ đồ chiến lược hành động cụ thể cho người hỏi: Nên làm gì vào thời điểm nào, hành vi tâm lý cần điều chỉnh ra sao để hóa giải hung sát, đón cát lành tốt nhất.
 
 ### 5. Khối Dữ Liệu Ứng Kỳ (CHỈ KHI CÓ ỨNG KỲ THỜI GIAN)

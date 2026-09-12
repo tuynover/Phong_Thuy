@@ -100,12 +100,12 @@ const SYSTEM_TIER_INFO = {
   },
   iching: {
     systemName: 'Kinh Dịch Diệu Quẻ',
-    upgradeTitle: 'Bản Diễn Biến Toàn Cảnh & Ứng Kỳ',
-    upgradeDescription: 'Hệ thống phân tích sâu sắc Lục Hào, Dụng Thần ẩn tàng, truy vết động hào và xây dựng 3 kịch bản diễn tiến kèm mốc thời gian Ứng Kỳ cụ thể.',
+    upgradeTitle: 'Bản Luận Giải 6 Chương Tượng Pháp & Lục Hào',
+    upgradeDescription: 'Hệ thống kết hợp biện chứng giữa Tượng Pháp 64 Quẻ và Lục Hào Dụng Thần, đối chiếu Biểu - Lý khách quan và định lượng Ứng Kỳ theo ngữ cảnh câu hỏi.',
     upgradeBullets: [
-      'Biện chứng Lục Hào chuyên sâu: Thần Sát, Tuần Không, Phục Thần và thế lực Dụng Thần vượng suy',
-      '3 Kịch Bản Diễn Tiến: Tốt nhất, Thận trọng và Xấu nhất kèm xác suất định lượng',
-      'Mốc Thời Gian Ứng Kỳ Cát Hung: Định vị chính xác ngày/tháng ứng nghiệm sự việc'
+      'Tượng Pháp Chu Dịch & Biện chứng Lục Hào Dụng Thần chuyên sâu (Thần Sát, Tuần Không, Phục Thần)',
+      'Đối chiếu Biểu vs Lý: Giải mã Quẻ Hung Hào Cát (vượt khó hái quả ngọt) vs Quẻ Cát Hào Hung (mật ngọt chết ruồi)',
+      'Mốc Thời Gian Ứng Kỳ Cát Hung: Định vị theo ngữ cảnh (mốc ấn định, tìm đồ mất, kỳ vọng tương lai)'
     ],
     standard: {
       title: 'Luận Quẻ Cơ Bản',
@@ -121,12 +121,12 @@ const SYSTEM_TIER_INFO = {
     vip: {
       title: 'Luận Quẻ Chuyên Sâu',
       badge: '5 Credits',
-      description: 'Giải mã Lục Hào Biện Chứng 5.000+ từ, 3 Kịch Bản Diễn Tiến Tương Lai và mốc thời gian Ứng Kỳ chuẩn xác.',
+      description: 'Công trình Dịch học 6 Chương toàn diện 5.000+ từ, đối chiếu Tượng - Hào khách quan và định vị Ứng Kỳ chuẩn xác.',
       bullets: [
-        { bold: 'Lục Hào Biện Chứng Chuyên Sâu:', text: ' Thần sát, Tuần Không, Phục Thần và Dụng Thần vượng suy' },
-        { bold: '3 Kịch Bản Diễn Tiến:', text: ' Tốt nhất, Thận trọng và Xấu nhất kèm xác suất xảy ra' },
-        { bold: 'Mốc Thời Gian Ứng Kỳ Cát Hung:', text: ' Xác định chính xác ngày/tháng ứng nghiệm sự việc' },
-        { bold: 'Chiến Lược Chuyển Nguy Thành An:', text: ' Hướng xuất hành, thời điểm ra quyết định vàng' }
+        { bold: 'Tượng Pháp & Lục Hào Biện Chứng:', text: ' Khảo cứu bối cảnh thế cuộc và thực lực Dụng Thần vượng suy' },
+        { bold: 'Đối Chiếu Biểu vs Lý Khách Quan:', text: ' Phán quyết dứt khoát, không thiên vị hay võ đoán' },
+        { bold: 'Thời Khắc Ứng Kỳ Theo Ngữ Cảnh:', text: ' Xử lý chính xác sự kiện ngắn hạn, đồ vật thất lạc hoặc kỳ vọng' },
+        { bold: 'Kim Chỉ Nam Đạo Dịch Thực Chiến:', text: ' Phác đồ hành động từng bước tùy thời biến dịch' }
       ]
     }
   }

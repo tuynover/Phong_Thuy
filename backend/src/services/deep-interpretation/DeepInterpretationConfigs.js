@@ -367,74 +367,177 @@ const MARRIAGE_VIP_CONFIG = {
   }
 };
 
-// =========================================================================
-// 4. CẤU HÌNH KINH DỊCH CHUYÊN SÂU (ICHING VIP CONFIG)
+/// =========================================================================
+// 4. CẤU HÌNH KINH DỊCH CHUYÊN SÂU (ICHING VIP CONFIG - 6 CHƯƠNG TOÀN DIỆN)
 // =========================================================================
 const ICHING_VIP_CONFIG = {
-  SCENARIOS: [
+  CHAPTERS: [
     {
       id: 1,
-      title: 'Biện Chứng Lục Hào & Động Hào Cát Hung',
+      title: 'Khởi Quái & Tượng Pháp Chu Dịch (Bản Chất Thời Thế & Quái Tượng Vĩ Mô)',
       provider: 'openrouter',
       model: 'qwen/qwen-plus',
       keyEnv: 'OPENROUTER_API_KEY',
       subtopics: [
-        'Bản chất Quẻ Gốc (Thể) và xu hướng chuyển hóa sang Quẻ Biến (Dụng)',
-        'Tương quan Thế - Ứng: Đương số đứng ở đâu trong toàn cảnh thế sự',
-        'Giải mã chi tiết các Hào Động: Nguyên nhân khởi phát biến động và mắt xích trọng yếu',
-        'Vượng suy của Dụng Thần theo Nguyệt Kiến (Tháng) và Nhật Thần (Ngày gieo quẻ)',
-        'Tác động của Lục Thân (Phụ Mẫu, Huynh Đệ, Tử Tôn, Thê Tài, Quan Quỷ) và Thần Thú hộ trì'
+        'Bản chất Quẻ Chủ (Thể) và xu hướng chuyển hóa sang Quẻ Biến (Dụng), Quẻ Hỗ tiềm ẩn',
+        'Ý nghĩa quái tượng thiên nhiên (Trời, Đất, Sấm, Gió, Nước, Lửa, Núi, Đầm) ứng vào hoàn cảnh câu hỏi',
+        'Giải mã Thoán Từ của quẻ chủ và Hào Từ tại các hào phát động',
+        'Định vị thời thế đương số: Đang ở giai đoạn Tiềm ẩn, Khó khăn, Hanh thông hay Kháng cực thoái trào',
+        'Lời răn học thuật: Tượng quẻ là hoàn cảnh bên ngoài (Biểu), chưa thể vội kết luận cát hung thực chất'
       ]
     },
     {
       id: 2,
-      title: '3 Kịch Bản Diễn Tiến Tương Lai',
-      provider: 'gemini',
-      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
-      keyEnv: 'GEMINI_API_KEY',
+      title: 'Biện Chứng Lục Hào & Vị Thế Dụng Thần (Thực Lực Cốt Lõi Trọng Tâm)',
+      provider: 'openrouter',
+      model: 'qwen/qwen-plus',
+      keyEnv: 'OPENROUTER_API_KEY_2',
       subtopics: [
-        'Kịch bản 1 (Thuận dòng tự nhiên): Nếu giữ nguyên hiện trạng, sự việc sẽ đi về đâu?',
-        'Kịch bản 2 (Nghịch cảnh tiềm ẩn): Cạm bẫy bất ngờ, trở ngại nhân sự hoặc biến động ngoại cảnh cần lường trước',
-        'Kịch bản 3 (Đột phá chuyển nguy thành an): Hành động can thiệp chủ động để đảo ngược thế cờ',
-        'Đối chiếu các biến số then chốt: Yếu tố con người (Nhân hòa) vs Cơ hội thiên thời',
-        'Bảng tổng hợp so sánh xác suất và hệ quả của 3 kịch bản'
+        'Định vị Dụng Thần chuẩn xác duy nhất theo câu hỏi cốt lõi (Tài, Quan, Phụ, Tử, Huynh)',
+        'Thẩm định độ Vượng - Tướng - Hưu - Tù của Dụng Thần dưới ảnh hưởng của Nguyệt Kiến (Tháng) và Nhật Thần (Ngày)',
+        'Tương quan Hào Thế (Nội lực bản thân) vs Hào Ứng (Mục tiêu / Đối tác / Môi trường)',
+        'Phân tích thế cục: Thế Ứng tương sinh, tương khắc, hay tỷ hòa; ai đang nắm quyền chủ động',
+        'Kỷ luật học thuật: Tuyệt đối bám sát câu hỏi, không lan man sang chủ đề không liên quan'
       ]
     },
     {
       id: 3,
-      title: 'Mốc Thời Gian Ứng Kỳ & Chiến Lược Hành Động',
+      title: 'Động Hào Biến Khí & Yếu Tố Ẩn Tàng (Dòng Chảy Biến Động & Tâm Lý Vi Mô)',
+      provider: 'gemini',
+      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      keyEnv: 'GEMINI_API_KEY',
+      subtopics: [
+        'Giải phẫu chi tiết các Hào Động: Hào phát động sinh hay khắc Dụng Thần, hỗ trợ hay phá hoại',
+        'Biến Hóa Hào: Hóa Tiến thần (ngày càng mạnh), Hóa Thoái thần (dần tiêu hao), Hóa Hồi Đầu Khắc (tự gây họa)',
+        'Hào Động hóa Tuyệt, hóa Mộ, hoặc hóa Không ảnh hưởng trực tiếp đến kết quả',
+        'Truy vết Phục Thần & Phi Thần: Những yếu tố chìm khuất, tiền ngầm, người giấu mặt, mầm bệnh chưa phát',
+        'Lục Thần tác động vi mô: Thanh Long hỷ khí, Chu Tước khẩu thiệt, Câu Trần trì trệ, Đằng Xà lo âu, Bạch Hổ hung sát, Huyền Vũ khuất tất'
+      ]
+    },
+    {
+      id: 4,
+      title: 'Đối Chiếu Biện Chứng Tượng - Hào & Phán Quyết Thực Thể (Nút Thắt Cốt Lõi - Không Thiên Vị)',
+      provider: 'gemini',
+      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      keyEnv: 'GEMINI_API_KEY',
+      subtopics: [
+        'Bảng Đối Chiếu Ma Trận Biểu (Tượng 64 Quẻ) vs Lý (Lục Hào Dụng Thần)',
+        'Phân tích biện chứng sâu sắc: Quẻ Hung Hào Cát (vượt chông gai hái quả ngọt) hay Quẻ Cát Hào Hung (mật ngọt chết ruồi)',
+        'Đánh giá tính đồng thuận hoặc mâu thuẫn giữa hoàn cảnh bên ngoài và thực chất bên trong',
+        'Phán quyết dứt khoát không thiên vị: Thành hay Bại? Được hay Mất? Lành hay Dữ? Tuyệt đối không phán nước đôi',
+        'Chỉ rõ tử huyệt lớn nhất và nguyên nhân cốt lõi dẫn đến kết quả này'
+      ]
+    },
+    {
+      id: 5,
+      title: 'Định Lượng Thời Khắc Ứng Kỳ & Bản Đồ Không - Thời Gian Theo Ngữ Cảnh',
       provider: 'gemini',
       model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
       keyEnv: 'GEMINI_API_KEY_2',
       subtopics: [
-        'Xác định chính xác mốc Ứng Kỳ (Thời điểm sự việc phát tác hoặc có kết quả rõ ràng theo Địa Chi tháng/ngày)',
-        'Thời điểm nên chủ động tấn công hoặc ký kết, triển khai quyết định quan trọng',
-        'Thời điểm nên thu mình phòng thủ, bảo toàn lực lượng và tránh đối đầu trực diện',
-        'Diệu kế hành động thực chiến theo từng bước (Step-by-step Execution Blueprint)',
-        'Lời khuyên Đạo Dịch: Trọng đức, tu tâm, tùy thời biến dịch để đạt cát tường'
+        'Phân loại câu hỏi theo 4 Nhóm Thời Gian: Chu kỳ sinh học (theo tháng) vs Chuyển dịch cơ hội (tháng + ngày vàng gần nhất) vs Ngắn hạn/Giao dịch (ngày gần nhất + giờ hoàng đạo) vs Tìm đồ/Người (còn/mất + giờ/ngày gần nhất)',
+        'Bắt buộc tra cứu trực tiếp mốc ngày/tháng từ [BẢNG TRA CỨU MỐC DƯƠNG LỊCH GẦN NHẤT CHÍNH XÁC], tuyệt đối không bịa ngày xa xôi vô căn cứ',
+        'Phân tích Dịch lý Ứng kỳ Lục Hào: Dụng Thần đắc lệnh, Xuất Không, Trị Nhật, Hợp Hào, Xung Hào, Khai Mộ',
+        'Bảng Ma Trận Ứng Kỳ 4 Cột: Mốc Thời Gian (Âm Lịch) | Mốc Dương Lịch Gần Nhất Cụ Thể | Dịch Lý Luận Giải | Diệu Kế & Hành Động Cụ Thể',
+        'Cảnh báo thời khắc tử huyệt hung sát (hình xung phá hại) cần tuyệt đối né tránh hoặc thu mình phòng thủ'
+      ]
+    },
+    {
+      id: 6,
+      title: 'Kim Chỉ Nam Đạo Dịch & Diệu Kế Hành Động "Tùy Thời Biến Dịch"',
+      provider: 'gemini',
+      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      keyEnv: 'GEMINI_API_KEY_2',
+      subtopics: [
+        'Phác đồ hành động từng bước (Step-by-step Action Blueprint) giải quyết nút thắt câu hỏi',
+        'Sách lược điều hòa: Cách ứng xử khi gặp Quẻ Hung Hào Cát (nhẫn nại tích lũy) vs Quẻ Cát Hào Hung (tỉnh táo phòng thủ)',
+        'Thời điểm nên chủ động tấn công, chốt hạ quyết định quan trọng vs Thời điểm nên thu mình ẩn nhẫn',
+        'Người cần gặp, việc nên làm, điều tối kỵ cần tránh để bảo toàn bản thân',
+        'Lời khuyên Đạo Dịch: Cương Nhu tương phối, tri kỷ tri bỉ, thuận thiên ứng nhân để vạn sự hanh thông'
       ]
     }
   ],
 
-  getScenarioSpecificInstructions(scenarioId) {
+  // Alias để bảo toàn tương thích ngược
+  get SCENARIOS() {
+    return this.CHAPTERS;
+  },
+
+  getChapterSpecificInstructions(chapterId) {
     const INSTRUCTIONS = {
-      1: `NGUYÊN TẮC HỌC THUẬT KHỐI 1 (BIỆN CHỨNG LỤC HÀO & ĐỘNG HÀO CÁT HUNG):
-- Bám sát quẻ gieo: Nêu rõ tên Quẻ Chính và Quẻ Biến, ngũ hành quái tượng.
-- Luận sâu Dụng Thần: Xác định Dụng Thần dựa trên câu hỏi của đương số. Nếu hỏi tài lộc thì lấy Thê Tài, hỏi thi cử/công danh thì lấy Quan Quỷ/Phụ Mẫu...
-- Phân tích hào động: Hào nào động thì hào đó phát động khí, tương tác sinh khắc thế nào với Hào Thế.`,
+      1: `NGUYÊN TẮC HỌC THUẬT CHƯƠNG 1 (KHỞI QUÁI & TƯỢNG PHÁP CHU DỊCH):
+- Nêu rõ tên Quẻ Chủ, Quẻ Hỗ, Quẻ Biến; ngũ hành của các quái (Càn Kim, Khôn Thổ, v.v.).
+- Phân tích Quẻ Thể (Chủ thể đương số) và Quẻ Dụng (Sự việc/Môi trường): Thể Dụng sinh khắc ra sao.
+- Luận Thoán Từ quẻ chủ và Hào Từ tại các hào động, rút ra thông điệp thế cuộc của cổ nhân về câu hỏi.
+- ‼️ LƯU Ý BẮT BUỘC: Nhấn mạnh Tượng Quẻ 64 quẻ phản ánh bối cảnh môi trường bên ngoài ("Biểu"). Tuyệt đối chưa vội kết luận thành bại mà phải chờ đối chiếu Lục Hào ở các chương sau.`,
 
-      2: `NGUYÊN TẮC HỌC THUẬT KHỐI 2 (3 KỊCH BẢN DIỄN TIẾN TƯƠNG LAI):
-- Luận giải đa chiều biện chứng: Không đưa ra một lời phán cứng nhắc mà phân tích 3 kịch bản:
-  + Kịch bản Thuận: Khi yếu tố cát thần phát huy tối đa.
-  + Kịch bản Nghịch: Cảnh báo những rủi ro nếu đương số nôn nóng, bất cẩn.
-  + Kịch bản Đột phá: Con đường sáng tạo, giải pháp vượt khung để xoay chuyển tình thế.
-- Trình bày dạng bảng so sánh Markdown rõ ràng, cô đọng.`,
+      2: `NGUYÊN TẮC HỌC THUẬT CHƯƠNG 2 (BIỆN CHỨNG LỤC HÀO & VỊ THẾ DỤNG THẦN):
+- ‼️ TẬP TRUNG 100% VÀO CÂU HỎI CỐT LÕI: Xác định DUY NHẤT Dụng Thần tương ứng với câu hỏi:
+  + Hỏi Bệnh tật/Sức khỏe: Dụng thần là Hào Thế (thể trạng), Quan Quỷ (bệnh tà), Tử Tôn (dược liệu/phúc thần giải bệnh). TUYỆT ĐỐI KHÔNG LUẬN CÔNG DANH TIỀN BẠC!
+  + Hỏi Tiền tài/Đầu tư/Kinh doanh: Dụng thần là Thê Tài (vốn/lãi), Tử Tôn (nguồn sinh tài), Huynh Đệ (đối thủ/nguy cơ đoạt tài).
+  + Hỏi Công việc/Thăng chức/Thi cử: Dụng thần là Quan Quỷ (chức vụ), Phụ Mẫu (bằng cấp/hồ sơ), Huynh Đệ (đối thủ cạnh tranh).
+  + Hỏi Kiện tụng/Pháp lý: Quan Quỷ (quan tòa/pháp luật), Thế (mình), Ứng (đối phương), Tử Tôn (hòa giải).
+  + Hỏi Tình duyên/Hôn nhân: Nam lấy Thê Tài, Nữ lấy Quan Quỷ, Ứng hào là đối phương.
+- Đánh giá Vượng Tướng Hưu Tù của Dụng Thần dựa trên Nguyệt Kiến (Tháng) và Nhật Thần (Ngày gieo).
+- Phân tích tương quan Hào Thế (Bản thân) vs Hào Ứng (Đối phương/Mục tiêu): Sinh trợ, tương khắc, hay xung phá.`,
 
-      3: `NGUYÊN TẮC HỌC THUẬT KHỐI 3 (MỐC THỜI GIAN ỨNG KỲ & CHIẾN LƯỢC):
-- Xác định Ứng Kỳ rõ ràng: Dựa vào hào động xung/hợp hoặc tuần không để chỉ ra tháng/ngày âm lịch cụ thể (ví dụ: Ứng vào tháng Dậu xung Mão, hoặc ngày Thìn hợp Dậu).
-- Chiến lược thực chiến: Hướng dẫn đương số nên làm gì, gặp ai, tránh điều gì. Kết thúc bằng lời khuyên sâu sắc từ triết lý Kinh Dịch cổ truyền.`
+      3: `NGUYÊN TẮC HỌC THUẬT CHƯƠNG 3 (ĐỘNG HÀO BIẾN KHÍ & YẾU TỐ ẨN TÀNG):
+- Phân tích chi tiết từng Hào Động: Hào phát động tương tác sinh khắc thế nào với Dụng Thần và Thế hào.
+- Đánh giá Biến Hào: Hóa Tiến Thần (vấn đề tăng tiến), Hóa Thoái Thần (suy giảm thoái lui), Hóa Hồi Đầu Khắc (tự chuốc vạ vào thân), Hóa Mộ/Tuyệt/Không.
+- Truy vết Phục Thần & Phi Thần: Có yếu tố nào chìm khuất chưa lộ rõ (tiền ngầm, kẻ thứ ba, bệnh ngầm)?
+- Tác động của Lục Thần (Thanh Long, Chu Tước, Câu Trần, Đằng Xà, Bạch Hổ, Huyền Vũ) lên tâm lý, hành vi của các bên.`,
+
+      4: `NGUYÊN TẮC HỌC THUẬT CHƯƠNG 4 (ĐỐI CHIẾU BIỆN CHỨNG TƯỢNG - HÀO & PHÁN QUYẾT THỰC THỂ):
+- ‼️ BẮT BUỘC THIẾT LẬP BẢNG SO SÁNH MA TRẬN 3 CỘT:
+  | Chiều Kích Soi Chiếu | Góc Nhìn Tượng Pháp (64 Quẻ) | Góc Nhìn Lục Hào (Dụng Thần) | Biện Chứng Hợp Nhất (Thực Tế) |
+- Luận giải sâu sắc sự mâu thuẫn hoặc đồng thuận giữa Tượng và Hào:
+  + Nếu Quẻ Hung mà Hào Cát: Tượng quẻ gian nan trắc trở (như Khốn, Truân, Phệ Hạp) nhưng Dụng thần vượng tướng, đắc sinh phù ➡️ Bản chất là "TRONG NGUY CÓ CƠ", phải chịu áp lực vượt khó ban đầu mới hái quả ngọt lớn.
+  + Nếu Quẻ Cát mà Hào Hung: Tượng quẻ êm ả thuận hòa (như Thái, Tấn, Đại Hữu) nhưng Dụng thần Không Tuyệt, Hóa Thoái, bị khắc ➡️ Bản chất là "MẬT NGỌT CHẾT RUỒI", bề ngoài bánh vẽ hào nhoáng nhưng bên trong rỗng tuếch, dễ mất trắng nếu nhẹ dạ.
+  + Nếu Cát - Cát: Thuận buồm xuôi gió toàn diện, thiên thời địa lợi.
+  + Nếu Hung - Hung: Tứ phía bủa vây, họa vô đơn chí, tuyệt đối dừng lại.
+- ‼️ ĐƯA RA PHÁN QUYẾT DỨT KHOÁT: Trả lời thẳng câu hỏi cốt lõi: Thành hay Bại? Được hay Mất? Lành hay Dữ? TUYỆT ĐỐI KHÔNG NÓI NƯỚC ĐÔI.`,
+
+      5: `NGUYÊN TẮC HỌC THUẬT CHƯƠNG 5 (ĐỊNH LƯỢNG ỨNG KỲ THEO NGỮ CẢNH & QUY ĐỔI DƯƠNG LỊCH GẦN NHẤT - PHƯƠNG ÁN B):
+- ‼️ QUY TẮC BẮT BUỘC: TRA CỨU LỊCH PHÁP TỪ DỮ LIỆU ĐƯỢC CUNG CẤP:
+  Bạn được cung cấp [BẢNG TRA CỨU MỐC DƯƠNG LỊCH GẦN NHẤT CHÍNH XÁC (SOURCE OF TRUTH)] bên dưới.
+  BẮT BUỘC bạn phải tra cứu trực tiếp ngày, tháng, thứ và khoảng ngày Dương lịch từ bảng này.
+  TUYỆT ĐỐI CẤM tự suy đoán hoặc bịa ra ngày tháng Dương lịch xa xôi, vô căn cứ!
+
+- ‼️ MA TRẬN PHÂN LOẠI NGỮ CẢNH 4 NHÓM THỜI GIAN (BẮT BUỘC TUÂN THỦ NGHIÊM NGẶT):
+  1. NHÓM 1 - CHU KỲ SINH HỌC & TÍCH LŨY DÀI HẠN (Hỏi mang thai, sinh con, mua nhà đất, định cư, kết hôn):
+     + ĐẶC ĐIỂM BẮT BUỘC: Đoán theo THÁNG ÂM LỊCH (kèm khoảng 30 ngày Dương lịch cụ thể).
+     + LÝ GIẢI HỌC THUẬT: Việc mang thai, sinh nở hay giao dịch bất động sản cần chu kỳ sinh học và chuẩn bị tài chính dài ngày. TUYỆT ĐỐI CẤM đoán ngày lẻ xa xôi gây ngộ nhận cho người hỏi.
+     + CÁCH CHỌN MỐC: Tra Bảng 2, chọn 1 - 2 tháng cát lợi gần nhất (ví dụ: Tháng 9 ÂL Mậu Tuất từ 10/10/2026 đến 08/11/2026 DL; hoặc Tháng 10 ÂL Kỷ Hợi từ 09/11/2026 đến 08/12/2026 DL) khi Dụng Thần (Tử Tôn/Phụ Mẫu) đắc lệnh hoặc xuất Không.
+
+  2. NHÓM 2 - BƯỚC NGOẶT CHUYỂN DỊCH & CƠ HỘI NGHỀ NGHIỆP (Hỏi tìm việc làm, chuyển việc, thi cử, kết quả phỏng vấn, thăng chức):
+     + ĐẶC ĐIỂM BẮT BUỘC: KẾT HỢP SONG SONG HAI CẤP ĐỘ (CÁC NGÀY VÀNG GẦN NHẤT + THÁNG MỤC TIÊU):
+       * Cấp độ 1 - Các Ngày Vàng Gần Nhất (Hàng 1, 2, 3 của bảng ma trận): BẮT BUỘC CHỌN 2 - 3 NGÀY TRONG BẢNG 1 CÓ MỐC GẦN NHẤT (ƯU TIÊN MỐC LẦN 1 TRONG VÒNG 1 - 14 NGÀY TỚI) đắc sinh phù để NỘP HỒ SƠ, GỬI CV, HẸN PHỎNG VẤN, CHỦ ĐỘNG LIÊN HỆ. TUYỆT ĐỐI CẤM nhảy cóc sang tháng 10 hay tháng 11 nếu việc có thể khởi động ngay trong tuần này/tuần sau!
+       * Cấp độ 2 - Tháng Mục Tiêu: Chọn tháng gần nhất trong 1 - 2 tháng tới từ Bảng 2 (ví dụ: Tháng 8 ÂL hiện tại hoặc Tháng 9 ÂL kế tiếp) làm mốc chính thức nhậm chức/nhận kết quả chung cuộc. TUYỆT ĐỐI KHÔNG nhảy sang tháng quá xa (tháng 10, 11, 12).
+
+  3. NHÓM 3 - SỰ KIỆN NGẮN HẠN / GIAO DỊCH TỨC THÌ / PHÁP LÝ (Hỏi đòi nợ, ký hợp đồng, xuất hành, giải quyết tranh chấp, thi đấu, sự kiện tuần này/tháng này):
+     + ĐẶC ĐIỂM BẮT BUỘC: Đoán theo NGÀY GẦN NHẤT (trong vòng 1 - 14 ngày tới) + KHUNG GIỜ HOÀNG ĐẠO.
+     + CÁCH CHỌN MỐC: Tra Bảng 1, lấy ngay mốc Lần 1 gần nhất của Chi tương sinh/hợp Dụng Thần. Nếu ngày gần nhất bị Tuần Không hoặc Xung phá thì chỉ định ngày Lần 2 gần kế tiếp (Kế hoạch B).
+
+  4. NHÓM 4 - TÌM ĐỒ MẤT / TÌM NGƯỜI THẤT LẠC:
+     + Thẩm định TIÊN QUYẾT: Còn hay Mất hẳn? Nếu Dụng Thần lâm Không Tuyệt, bị Huynh Đệ đoạt, Huyền Vũ lừa gạt ➡️ KHẲNG ĐỊNH ĐÃ MẤT HẲN, TUYỆT ĐỐI KHÔNG TÍNH ỨNG KỲ TÌM THẤY ĐỂ TRÁNH GÂY HY VỌNG HÃO HUYỀN.
+     + Nếu còn tìm được: Cung cấp Phương Vị (hướng Bát Quái) + Địa Điểm đặc trưng (vật dụng/vị trí) + Giờ & Ngày GẦN NHẤT (trong 24h - 72h tới) để tìm kiếm.
+
+- ‼️ BẢNG MA TRẬN ỨNG KỲ QUY ĐỔI SONG SONG (BẮT BUỘC 4 CỘT):
+  BẮT BUỘC thiết lập 1 bảng Markdown chi tiết gồm 4 cột:
+  | Mốc Thời Gian (Âm Lịch) | Mốc Dương Lịch Gần Nhất Cụ Thể | Dịch Lý Luận Giải | Diệu Kế & Hành Động Cụ Thể |
+  (BẮT BUỘC: 2 - 3 hàng đầu trích xuất nguyên văn mốc ngày GẦN NHẤT từ BẢNG 1 trong vòng 1 - 14 ngày tới để nộp CV/hành động; hàng cuối cùng lấy mốc tháng từ BẢNG 2 cho kết quả nhận việc chính thức. TUYỆT ĐỐI CẤM lấy toàn mốc xa xôi).`,
+
+      6: `NGUYÊN TẮC HỌC THUẬT CHƯƠNG 6 (KIM CHỈ NAM ĐẠO DỊCH & DIỆU KẾ HÀNH ĐỘNG):
+- Phác đồ hành động từng bước (Action Blueprint): 3 việc nên làm ngay, người cần gặp hoặc nhờ cậy, điều tối kỵ cần tránh.
+- Sách lược Đạo Dịch "Tùy Thời Biến Dịch": Biết tiến thoái đúng lúc, vận dụng đức Cương Kiện hay Nhu Thuận theo quái khí.
+- Lời khuyên tu tâm định tính: Giữ tâm an định, trung chính để chuyển hung hóa cát.`
     };
-    return INSTRUCTIONS[scenarioId] || '';
+    return INSTRUCTIONS[chapterId] || '';
+  },
+
+  // Alias để bảo toàn tương thích
+  getScenarioSpecificInstructions(id) {
+    return this.getChapterSpecificInstructions(id);
   }
 };
 

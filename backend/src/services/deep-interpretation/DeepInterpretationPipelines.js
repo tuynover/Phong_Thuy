@@ -7,6 +7,7 @@ const logger = require('../LoggerService');
 const AiService = require('../AiService');
 const { OpenRouterRotator, LlmProviderService, SseStreamHelper } = require('./DeepInterpretationCore');
 const { BAZI_VIP_CONFIG, ZIWEI_VIP_CONFIG, MARRIAGE_VIP_CONFIG, ICHING_VIP_CONFIG } = require('./DeepInterpretationConfigs');
+const { generateIChingCalendarGroundTruth } = require('../../shared/utils/ungKyParser');
 
 /**
  * Pipeline Bát Tự Đa Tầng (3 Tầng: Dual CoT -> 6 Replicas -> Chief Editor)
@@ -188,7 +189,7 @@ class BaziDeepPipeline {
 
           let introAndOutro = null;
           try {
-            const synthesisPrompt = `Bạn là Đại Sư Mệnh Lý Đông Phương & Tổng Biên Tập Học Thuật Tối Cao.
+            const synthesisPrompt = `Bạn là Đại Sư Mệnh Lý Đông Phương uyên bác.
 Dưới đây là 2 nguồn dữ liệu học thuật hoàn chỉnh của lá số:
 
 [NGUỒN 1: DỮ LIỆU LÁ SỐ BÁT TỰ & BẢN PHÂN TÍCH HỌC THUẬT NỀN TẢNG (TẦNG 1)]:
@@ -197,10 +198,10 @@ ${combinedPreAnalysis}
 [NGUỒN 2: TOÀN VĂN 6 CHUYÊN ĐỀ ĐÃ ĐƯỢC 6 CHUYÊN GIA ĐỘC LẬP LUẬN GIẢI CHI TIẾT (TẦNG 2)]:
 ${fullChaptersContext}
 
-NHIỆM VỤ TỔNG BIÊN TẬP CỦA BẠN (ĐỌC TOÀN BỘ NỘI DUNG 6 CHƯƠNG TRÊN ĐỂ RÀ SOÁT, TỔNG HỢP VÀ ĐIỀU HÒA CHIẾN LƯỢC TOÀN DIỆN):
+NHIỆM VỤ CỦA BẠN (TỔNG HỢP VÀ ĐIỀU HÒA CHIẾN LƯỢC TOÀN DIỆN CHO ĐƯƠNG SỐ):
 
 1. SOẠN THẢO PHẦN MỞ ĐẦU (Định vị bản thể & Ma trận SWOT thực chiến):
-   Bắt đầu chính xác bằng: "## ĐỊNH VỊ BẢN MỆNH: BẢN ĐỒ CHIẾN LƯỢC NHÂN SINH & MA TRẬN SWOT"
+   BẮT ĐẦU CHÍNH XÁC BẰNG TIÊU ĐỀ: "## ĐỊNH VỊ BẢN MỆNH: BẢN ĐỒ CHIẾN LƯỢC NHÂN SINH & MA TRẬN SWOT"
    Bao gồm 2 mục con rõ ràng:
    ### 1. Bản Thể & Chân Dung Cốt Cách Nhật Chủ (khoảng 250 - 300 từ): Khắc họa thần thái cốt cách, năng lượng ngũ hành chủ đạo, điểm đắc lực và sứ mệnh gốc rễ của Nhật Chủ.
    ### 2. Ma Trận Định Vị Bản Mệnh SWOT (Chiết Xuất 100% Từ 6 Phân Hệ Thực Chiến):
@@ -212,7 +213,7 @@ NHIỆM VỤ TỔNG BIÊN TẬP CỦA BẠN (ĐỌC TOÀN BỘ NỘI DUNG 6 CHƯ
    - Hàng 4: **T - Threats (Cạm Bẫy Cần Đề Phòng)**: Tổng hợp trực tiếp từ Ch3, Ch4 & Ch6.
 
 2. SOẠN THẢO PHẦN KẾT THÚC (Chiến lược điều hòa đa mục tiêu & Đúc kết nhân sinh):
-   Bắt đầu chính xác bằng: "## CHIẾN LƯỢC ĐIỀU HÒA ĐA MỤC TIÊU & HÓA GIẢI XUNG KHẮC BẢN MỆNH"
+   BẮT ĐẦU CHÍNH XÁC BẰNG TIÊU ĐỀ: "## CHIẾN LƯỢC ĐIỀU HÒA ĐA MỤC TIÊU & HÓA GIẢI XUNG KHẮC BẢN MỆNH"
    ### 1. Cân Bằng Giữa Dòng Tiền & Tạng Phủ (Tài Chính vs Sức Khỏe)
    ### 2. Cân Bằng Giữa Danh Vọng & Hạnh Phúc Gia Đạo (Sự Nghiệp vs Hôn Nhân)
    ### 3. Bảng Lộ Trình Đồng Bộ Hành Động Theo Chu Kỳ (Master Action Roadmap)
@@ -222,7 +223,8 @@ NHIỆM VỤ TỔNG BIÊN TẬP CỦA BẠN (ĐỌC TOÀN BỘ NỘI DUNG 6 CHƯ
    Tiếp theo là mục:
    ## ĐÚC KẾT NHÂN SINH & LỜI KHUYÊN HÀNH ĐẠO (khoảng 250 - 350 từ).
 
-LƯU Ý BẮT BUỘC:
+‼️ BỘ QUY TẮC BẮT BUỘC:
+- TUYỆT ĐỐI CẤM mọi lời chào hỏi, xưng danh hay kể lể quy trình biên tập (CẤM: "Chào bạn", "Với tư cách là...", "Tổng biên tập", "Tôi đã thẩm định...", "Theo yêu cầu của bạn", "Dưới đây là phần trình bày...", "Sau khi đọc 6 chương..."). Đi thẳng ngay vào tiêu đề Markdown!
 - Xưng hô với đương số là "bạn", TUYỆT ĐỐI KHÔNG dùng từ "ngươi".
 - TUYỆT ĐỐI KHÔNG tóm tắt hay rút gọn 6 chương vì hệ thống sẽ chèn 100% nguyên văn 6 chương chi tiết vào giữa. Bạn CHỈ XUẤT ĐÚNG 2 PHẦN:
   [PHẦN 1: DẪN NHẬP ĐỊNH VỊ BẢN MỆNH & SWOT] và [PHẦN 2: CHIẾN LƯỢC ĐIỀU HÒA ĐA MỤC TIÊU & ĐÚC KẾT NHÂN SINH].
@@ -240,10 +242,10 @@ LƯU Ý BẮT BUỘC:
             const splitRegex = /(?=##\s*CHIẾN LƯỢC ĐIỀU HÒA|##\s*ĐÚC KẾT)/i;
             const parts = cleanedSynthesis.split(splitRegex);
             if (parts.length > 1) {
-              introHeader = parts[0].trim();
+              introHeader = SseStreamHelper.sanitizeMetaIntro(parts[0]);
               outroFooter = parts.slice(1).join('\n\n').trim();
             } else {
-              introHeader = cleanedSynthesis.trim();
+              introHeader = SseStreamHelper.sanitizeMetaIntro(cleanedSynthesis);
             }
           }
 
@@ -433,7 +435,7 @@ class ZiweiDeepPipeline {
 
           let introAndOutro = null;
           try {
-            const chiefEditorPrompt = `Bạn là Đại Sư Tử Vi Đẩu Số & Tổng Biên Tập Học Thuật Tối Cao.
+            const chiefEditorPrompt = `Bạn là Đại Sư Tử Vi Đẩu Số uyên bác.
 Dưới đây là 2 nguồn dữ liệu hoàn chỉnh của lá số:
 
 [NGUỒN 1: TINH ĐỒ FACT DATA & SUY LUẬN TẦNG 1-2 COT]:
@@ -442,9 +444,9 @@ ${combinedCot}
 [NGUỒN 2: TOÀN VĂN 5 CHƯƠNG ĐÃ ĐƯỢC 5 CHUYÊN GIA ĐỘC LẬP LUẬN GIẢI CHI TIẾT (TẦNG 3)]:
 ${fullClustersContext}
 
-NHIỆM VỤ TỔNG BIÊN TẬP CỦA BẠN:
+NHIỆM VỤ CỦA BẠN (TỔNG HỢP VÀ ĐIỀU HÒA CHIẾN LƯỢC TOÀN DIỆN CHO ĐƯƠNG SỐ):
 1. SOẠN THẢO PHẦN MỞ ĐẦU (Định vị bản thể & Ma trận SWOT Mệnh Bàn):
-   Bắt đầu chính xác bằng: "## ĐỊNH VỊ BẢN MỆNH: MA TRẬN MỆNH BÀN SWOT & TỔNG QUAN TINH ĐỒ"
+   BẮT ĐẦU CHÍNH XÁC BẰNG TIÊU ĐỀ: "## ĐỊNH VỊ BẢN MỆNH: MA TRẬN MỆNH BÀN SWOT & TỔNG QUAN TINH ĐỒ"
    ### 1. Thần Thái & Chân Dung Cốt Cách Tinh Đẩu (khoảng 250 - 300 từ)
    ### 2. Ma Trận Mệnh Bàn SWOT 4 Chiều (Tổng hợp từ 5 chương & Tứ Hóa):
    BẮT BUỘC lập BẢNG MARKDOWN chuẩn xác gồm 3 cột:
@@ -455,7 +457,7 @@ NHIỆM VỤ TỔNG BIÊN TẬP CỦA BẠN:
    - **T - Threats**: Hóa Kỵ xung phá, cạm bẫy Không Kiếp, Kình Đà và các hạn hiểm ác.
 
 2. SOẠN THẢO PHẦN KẾT THÚC (Chiến lược điều hòa & Kế sách hóa giải tinh đồ):
-   Bắt đầu chính xác bằng: "## CHIẾN LƯỢC ĐIỀU HÒA & ĐẠI HẠN 10 NĂM: KẾ SÁCH PHI TINH HÓA GIẢI"
+   BẮT ĐẦU CHÍNH XÁC BẰNG TIÊU ĐỀ: "## CHIẾN LƯỢC ĐIỀU HÒA & ĐẠI HẠN 10 NĂM: KẾ SÁCH PHI TINH HÓA GIẢI"
    ### 1. Kế Sách Phi Tinh Điều Hòa Năng Lượng & Hóa Giải Hung Sát
    (Cách hóa giải Hóa Kỵ, cách thuần hóa Không Kiếp, Kình Đà dựa trên hành vi và môi trường).
    ### 2. Bảng Dự Phóng Đại Vận 10 Năm (Master Lifepath Roadmap)
@@ -465,7 +467,8 @@ NHIỆM VỤ TỔNG BIÊN TẬP CỦA BẠN:
    Tiếp theo là mục:
    ## ĐÚC KẾT NHÂN SINH & LỜI KHUYÊN HÀNH ĐẠO (khoảng 250 - 350 từ).
 
-LƯU Ý BẮT BUỘC:
+‼️ BỘ QUY TẮC BẮT BUỘC:
+- TUYỆT ĐỐI CẤM mọi lời chào hỏi, xưng danh hay kể lể quy trình biên tập (CẤM: "Chào bạn", "Với tư cách là...", "Tổng biên tập", "Tôi đã thẩm định...", "Theo yêu cầu của bạn", "Dưới đây là phần trình bày...", "Sau khi đọc 5 chương..."). Đi thẳng ngay vào tiêu đề Markdown!
 - Xưng hô với đương số là "bạn", TUYỆT ĐỐI KHÔNG dùng từ "ngươi".
 - TUYỆT ĐỐI KHÔNG tóm tắt hay rút gọn 5 chương vì hệ thống sẽ chèn 100% nguyên văn 5 chương vào giữa. Bạn CHỈ XUẤT ĐÚNG 2 PHẦN:
   [PHẦN 1: DẪN NHẬP ĐỊNH VỊ BẢN MỆNH SWOT] và [PHẦN 2: CHIẾN LƯỢC ĐIỀU HÒA & KẾ SÁCH HÓA GIẢI].
@@ -483,10 +486,10 @@ LƯU Ý BẮT BUỘC:
             const splitRegex = /(?=##\s*CHIẾN LƯỢC ĐIỀU HÒA|##\s*ĐÚC KẾT)/i;
             const parts = cleanedSynthesis.split(splitRegex);
             if (parts.length > 1) {
-              introHeader = parts[0].trim();
+              introHeader = SseStreamHelper.sanitizeMetaIntro(parts[0]);
               outroFooter = parts.slice(1).join('\n\n').trim();
             } else {
-              introHeader = cleanedSynthesis.trim();
+              introHeader = SseStreamHelper.sanitizeMetaIntro(cleanedSynthesis);
             }
           }
 
@@ -648,16 +651,20 @@ class MarriageDeepPipeline {
             message: 'Đang tổng hợp ma trận duyên phận tương hợp & phác đồ hòa giải...'
           });
 
-          const editorPrompt = `Bạn là Tổng biên tập học thuật Phong Thủy & Hôn Nhân Gia Đạo. Đọc toàn bộ phân tích 4 Chương sau đây:\n\n` +
+          const editorPrompt = `Bạn là Bậc Thầy Phong Thủy & Hôn Nhân Gia Đạo uyên thâm. Đọc toàn bộ phân tích 4 Chương sau đây để viết phần Dẫn Nhập Đánh Giá Tương Hợp và Phác Đồ Hòa Giải trực tiếp cho hai đương số:\n\n` +
             pillarResults.map(p => `=== CHƯƠNG ${p.id}: ${p.title} ===\n${p.text}`).join('\n\n') +
-            `\n\nNhiệm vụ của bạn:\n` +
+            `\n\nNHIỆM VỤ CỦA BẠN:\n` +
             `1. Viết phần DẪN NHẬP & MA TRẬN ĐÁNH GIÁ MỨC ĐỘ TƯƠNG HỢP đặt lên ĐẦU bài viết:\n` +
+            `   - BẮT ĐẦU CHÍNH XÁC BẰNG TIÊU ĐỀ: "## TỔNG QUAN HÔN PHỐI & KHÍ TRƯỜNG NHÂN DUYÊN"\n` +
             `   - Điểm số hòa hợp (thang điểm 100/100) và Tỷ lệ tương thích (%)\n` +
             `   - Ma trận SWOT Hôn Nhân: S (Điểm tựa gắn kết), W (Điểm nhạy cảm xung đột), O (Cơ hội tài lộc khi đồng lòng), T (Nguy cơ rủi ro cần lường trước)\n` +
             `2. Viết phần KẾT LUẬN & PHÁC ĐỒ HÓA GIẢI đặt ở CUỐI bài viết:\n` +
+            `   - BẮT ĐẦU CHÍNH XÁC BẰNG TIÊU ĐỀ: "## CHIẾN LƯỢC ĐIỀU HÒA & PHÁC ĐỒ HÓA GIẢI HÔN NHÂN"\n` +
             `   - 3 NGUYÊN TẮC VÀNG GÌN GIỮ HẠNH PHÚC GIA ĐẠO\n` +
             `   - PHÁC ĐỒ HÓA GIẢI TOÀN DIỆN & LỜI CHÚC PHÚC TRĂM NĂM\n\n` +
-            `‼️ TUYỆT ĐỐI KHÔNG dùng từ "VIP", hãy luôn sử dụng từ "luận giải chuyên sâu" hoặc "bản luận giải chuyên sâu".\n\n` +
+            `‼️ BỘ QUY TẮC BẮT BUỘC:\n` +
+            `- TUYỆT ĐỐI CẤM mọi lời chào hỏi, xưng danh hay kể lể quy trình biên tập (CẤM: "Chào bạn", "Với tư cách là...", "Tổng biên tập", "Tôi đã thẩm định...", "Theo yêu cầu của bạn", "Dưới đây là phần trình bày..."). Đi thẳng ngay vào tiêu đề Markdown!\n` +
+            `- TUYỆT ĐỐI KHÔNG dùng từ "VIP", hãy luôn sử dụng từ "luận giải chuyên sâu" hoặc "bản luận giải chuyên sâu".\n\n` +
             `Phân tách rõ ràng 2 phần bằng thẻ: <!-- SPLIT_INTRO_OUTRO -->`;
 
           let introHeader = '';
@@ -666,7 +673,7 @@ class MarriageDeepPipeline {
             const editorText = await AiService.generateInterpretation(editorPrompt, { model: 'gemini-3.1-flash-lite' });
             if (editorText.includes('<!-- SPLIT_INTRO_OUTRO -->')) {
               const parts = editorText.split('<!-- SPLIT_INTRO_OUTRO -->');
-              introHeader = parts[0].trim();
+              introHeader = SseStreamHelper.sanitizeMetaIntro(parts[0]);
               outroFooter = parts[1].trim();
             } else {
               outroFooter = editorText.trim();
@@ -719,54 +726,66 @@ class MarriageDeepPipeline {
  * Pipeline Kinh Dịch Đa Tầng (3 Tầng: CoT Lục Hào -> 3 Replicas Kịch Bản -> Gemini Chief Editor)
  */
 class IChingDeepPipeline {
-  static async executeReplica(replica, fullContext) {
+  static async executeReplica(replica, fullContext, options = {}) {
     const { id, title, provider, model, keyEnv, subtopics } = replica;
     const cleanContext = SseStreamHelper.cleanContextForVip(fullContext);
-    const scenarioInstruction = ICHING_VIP_CONFIG.getScenarioSpecificInstructions(id);
+    let scenarioInstruction = ICHING_VIP_CONFIG.getChapterSpecificInstructions(id) || ICHING_VIP_CONFIG.getScenarioSpecificInstructions(id);
 
-    const replicaPrompt = `Dựa trên dữ liệu quẻ Kinh Dịch, câu hỏi đương số và bảng Lục Hào phân tích:\n${cleanContext}\n\n` +
+    // Chèn Bảng Tra Cứu Lịch Pháp Gần Nhất (Source of Truth) cho Chương 5 theo Phương án B
+    if (id === 5) {
+      const castDate = options.castDate || new Date();
+      const calendarGroundTruth = generateIChingCalendarGroundTruth(castDate);
+      scenarioInstruction = `${scenarioInstruction}\n\n${calendarGroundTruth}`;
+    }
+
+    const replicaPrompt = `Dựa trên dữ liệu quẻ Kinh Dịch, câu hỏi cốt lõi của đương số và bảng Lục Hào phân tích:\n${cleanContext}\n\n` +
       `----------------------------------------\n` +
-      `CHỈ DẪN HỌC THUẬT CHUYÊN BIỆT CHO KHỐI ${id}: ${title.toUpperCase()}\n` +
+      `CHỈ DẪN HỌC THUẬT CHUYÊN BIỆT CHO CHƯƠNG ${id}: ${title.toUpperCase()}\n` +
       `${scenarioInstruction}\n\n` +
       `ĐỊNH HƯỚNG CÁC TRỌNG TÂM CẦN LUẬN GIẢI:\n${subtopics.map(s => `- ${s}`).join('\n')}\n\n` +
       `‼️ BỘ QUY TẮC KỶ LUẬT HỌC THUẬT BẮT BUỘC:\n` +
       `1. QUY TẮC XƯNG HÔ: BẮT BUỘC xưng hô với đương số là "bạn", tự xưng là "tôi" hoặc góc nhìn học thuật khách quan. TUYỆT ĐỐI CẤM xưng "ngươi", "kẻ hèn".\n` +
-      `2. CHUẨN XÁC DỊCH LÝ: Bám sát Quẻ Gốc, Quẻ Biến, Thế - Ứng, Hào Động và Dụng Thần tương ứng với câu hỏi. TUYỆT ĐỐI KHÔNG phán nước đôi vô nghĩa.\n` +
-      `3. ỨNG KỲ RÕ RÀNG: Ở phần thời gian, chỉ rõ Địa Chi tháng/ngày và mùa ứng nghiệm theo lịch âm dương.\n` +
+      `2. CHUẨN XÁC DỊCH LÝ: Bám sát Quẻ Chủ, Quẻ Biến, Thế - Ứng, Hào Động và Dụng Thần tương ứng với câu hỏi. TUYỆT ĐỐI KHÔNG phán nước đôi vô nghĩa.\n` +
+      `3. 100% TẬP TRUNG CÂU HỎI CỐT LÕI: Tuyệt đối không lan man sang chủ đề khác không được hỏi.\n` +
       `4. TIÊU ĐỀ RÕ RÀNG: Dùng tiêu đề cấp 3 (### Tên Đề Mục) cho từng đề mục con.\n` +
-      `5. ĐỊNH DẠNG: Chuẩn Markdown GFM, dùng bảng Markdown khi so sánh 3 kịch bản hoặc mốc thời gian.\n` +
+      `5. ĐỊNH DẠNG: Chuẩn Markdown GFM, dùng bảng Markdown khi so sánh hoặc mốc thời gian.\n` +
       `6. 100% TIẾNG VIỆT THUẦN TÚY: Không dùng chữ Hán / tiếng Trung.\n` +
-      `7. DUNG LƯỢNG: Phân tích sâu sắc, độ dài khoảng 800 - 1.200 từ cho Khối này.\n` +
+      `7. DUNG LƯỢNG: Phân tích sâu sắc, độ dài khoảng 600 - 900 từ cho Chương này.\n` +
       `8. TUYỆT ĐỐI CẤM TỪ "VIP": TUYỆT ĐỐI KHÔNG dùng từ "VIP", "gói VIP", "báo cáo VIP" hay bất kỳ từ "VIP" nào trong bài viết. Hãy luôn sử dụng từ "luận giải chuyên sâu" hoặc "bản luận giải chuyên sâu".\n` +
-      `Bắt đầu trực tiếp bằng: ## KỊCH BẢN ${id}: ${title.toUpperCase()}`;
+      `9. TUYỆT ĐỐI CẤM MỌI LỜI CHÀO HỎI, XƯNG DANH: TUYỆT ĐỐI CẤM mọi câu chào hỏi, tự xưng danh (CẤM: 'Chào bạn', 'Với tư cách là...'). Bắt đầu trực tiếp bằng tiêu đề: ## CHƯƠNG ${id}: ${title.toUpperCase()} và đi thẳng vào nội dung học thuật.\n\n` +
+      `Bắt đầu trực tiếp bằng: ## CHƯƠNG ${id}: ${title.toUpperCase()}`;
 
+    let generatedText = '';
     try {
       if (provider === 'gemini') {
         const geminiKey = process.env[keyEnv] || process.env.GEMINI_API_KEY;
         const geminiModel = model || process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite';
-        logger.info(`[IChingDeepPipeline - Tầng 2] Khối ${id} (${title}) gọi Google Gemini trực tiếp [${geminiModel}]...`);
-        return await LlmProviderService.callGeminiWithKey(geminiKey, replicaPrompt, geminiModel);
-      }
-
-      const openRouterKeys = OpenRouterRotator.getKeys();
-      if (openRouterKeys.length > 0) {
-        try {
-          logger.info(`[IChingDeepPipeline - Tầng 2] Khối ${id} (${title}) routing to OpenRouter [${model}]...`);
-          return await LlmProviderService.callOpenRouterEndpoint({
-            model: model || 'qwen/qwen-plus',
-            prompt: replicaPrompt
-          });
-        } catch (orErr) {
-          logger.warn(`[IChingDeepPipeline - Tầng 2] OpenRouter Khối ${id} error: ${orErr.message}. Falling back to Gemini...`);
+        logger.info(`[IChingDeepPipeline - Phân tích] Chương ${id} (${title}) gọi Google Gemini trực tiếp [${geminiModel}]...`);
+        generatedText = await LlmProviderService.callGeminiWithKey(geminiKey, replicaPrompt, geminiModel);
+      } else {
+        const openRouterKeys = OpenRouterRotator.getKeys();
+        if (openRouterKeys.length > 0) {
+          try {
+            logger.info(`[IChingDeepPipeline - Phân tích] Chương ${id} (${title}) routing to OpenRouter [${model}]...`);
+            generatedText = await LlmProviderService.callOpenRouterEndpoint({
+              model: model || 'qwen/qwen-plus',
+              prompt: replicaPrompt
+            });
+          } catch (orErr) {
+            logger.warn(`[IChingDeepPipeline - Phân tích] OpenRouter Chương ${id} error: ${orErr.message}. Falling back to Gemini...`);
+          }
+        }
+        if (!generatedText) {
+          const apiKey = process.env[keyEnv] || process.env.GEMINI_API_KEY;
+          generatedText = await LlmProviderService.callGeminiWithKey(apiKey, replicaPrompt, model);
         }
       }
-
-      const apiKey = process.env[keyEnv] || process.env.GEMINI_API_KEY;
-      return await LlmProviderService.callGeminiWithKey(apiKey, replicaPrompt, model);
     } catch (err) {
-      logger.warn(`[IChingDeepPipeline - Tầng 2] Khối ${id} fallback error: ${err.message}. Using default Gemini...`);
-      return await AiService.generateInterpretation(replicaPrompt, { model: 'gemini-3.1-flash-lite' });
+      logger.warn(`[IChingDeepPipeline - Phân tích] Chương ${id} fallback error: ${err.message}. Using default Gemini...`);
+      generatedText = await AiService.generateInterpretation(replicaPrompt, { model: 'gemini-3.1-flash-lite' });
     }
+
+    return SseStreamHelper.sanitizeMetaIntro(generatedText);
   }
 
   static async runVipPipelineStream(prompt, birthYear, options = {}) {
@@ -775,7 +794,7 @@ class IChingDeepPipeline {
 
   static async runIChingVipPipelineStream(prompt, options = {}) {
     const { onProgress } = options;
-    const SCENARIOS = ICHING_VIP_CONFIG.SCENARIOS;
+    const CHAPTERS = ICHING_VIP_CONFIG.CHAPTERS;
 
     const stream = new ReadableStream({
       async start(controller) {
@@ -791,7 +810,7 @@ class IChingDeepPipeline {
             `YÊU CẦU ĐÚC KẾT CỐT LÕI (200-300 từ):\n` +
             `1. Ý nghĩa cốt lõi của Quẻ Chính (Thể) và hướng phát triển sang Quẻ Biến (Dụng).\n` +
             `2. Tương quan Hào Thế (Bản thân) vs Hào Ứng (Đối tác/Môi trường) và Hào Động mấu chốt.\n` +
-            `3. Dụng Thần vượng tướng hay hưu tù theo ngày tháng gieo quẻ.`;
+            `3. Dụng Thần vượng tướng hay hưu tù theo ngày tháng gieo quẻ đối với câu hỏi của đương số.`;
 
           let cotResult = '';
           try {
@@ -806,30 +825,30 @@ class IChingDeepPipeline {
 
           const fullContext = `${prompt}\n\n[KHUNG XƯƠNG PHÂN TÍCH BIỆN CHỨNG DỊCH LÝ]:\n${cotResult}`;
 
-          // --- PHÂN TÍCH SONG SONG CÁC CHƯƠNG ---
+          // --- PHÂN TÍCH SONG SONG 6 CHƯƠNG ---
           SseStreamHelper.dispatchProgress(onProgress, {
             stage: 'replicas_started',
-            message: 'Đang tiến hành luận giải chuyên sâu các phương diện Dịch lý...'
+            message: 'Đang tiến hành luận giải chuyên sâu 6 chương Dịch lý...'
           });
 
-          const scenarioPromises = SCENARIOS.map(async (scenario) => {
+          const chapterPromises = CHAPTERS.map(async (ch) => {
             SseStreamHelper.dispatchProgress(onProgress, {
-              chapterId: scenario.id,
+              chapterId: ch.id,
               status: 'in_progress',
-              title: scenario.title,
-              message: `Đang luận giải Chương ${scenario.id}: ${scenario.title}...`
+              title: ch.title,
+              message: `Đang luận giải Chương ${ch.id}: ${ch.title}...`
             });
-            const text = await IChingDeepPipeline.executeReplica(scenario, fullContext);
+            const text = await IChingDeepPipeline.executeReplica(ch, fullContext, options);
             SseStreamHelper.dispatchProgress(onProgress, {
-              chapterId: scenario.id,
+              chapterId: ch.id,
               status: 'completed',
-              title: scenario.title,
-              message: `Đã hoàn tất Chương ${scenario.id}: ${scenario.title}`
+              title: ch.title,
+              message: `Đã hoàn tất Chương ${ch.id}: ${ch.title}`
             });
-            return { id: scenario.id, title: scenario.title, text };
+            return { id: ch.id, title: ch.title, text };
           });
 
-          const scenarioResults = await Promise.all(scenarioPromises);
+          const chapterResults = await Promise.all(chapterPromises);
 
           // --- TỔNG HỢP MA TRẬN QUÁI TƯỢNG & KIM CHỈ NAM ---
           SseStreamHelper.dispatchProgress(onProgress, {
@@ -837,16 +856,25 @@ class IChingDeepPipeline {
             message: 'Đang tổng hợp ma trận quái tượng & kim chỉ nam Đạo Dịch...'
           });
 
-          const editorPrompt = `Bạn là Tổng biên tập Dịch học. Đọc toàn bộ 3 khối luận giải Kinh Dịch sau đây:\n\n` +
-            scenarioResults.map(s => `=== KHỐI ${s.id}: ${s.title} ===\n${s.text}`).join('\n\n') +
-            `\n\nNhiệm vụ của bạn:\n` +
-            `1. Viết phần DẪN NHẬP & MA TRẬN SWOT QUÁI TƯỢNG đặt lên ĐẦU bài viết:\n` +
-            `   - Định vị tình thế hiện tại của đương số qua quẻ dịch\n` +
-            `   - Ma trận SWOT: S (Thế mạnh nội lực), W (Điểm yếu tiềm ẩn), O (Thời cơ hanh thông), T (Rủi ro hung sát)\n` +
-            `2. Viết phần KẾT LUẬN & KIM CHỈ NAM ĐẠO DỊCH đặt ở CUỐI bài viết:\n` +
-            `   - ĐÚC KẾT CHIẾN LƯỢC: HÀNH ĐỘNG THEO THỜI (TÙY THỜI BIẾN DỊCH)\n` +
-            `   - LỜI KHUYÊN ĐẠO ĐỨC & TU TÂM AN ĐỊNH\n\n` +
-            `‼️ TUYỆT ĐỐI KHÔNG dùng từ "VIP", hãy luôn sử dụng từ "luận giải chuyên sâu" hoặc "bản luận giải chuyên sâu".\n\n` +
+          const editorPrompt = `Bạn là Bậc Thầy Dịch Lý Cổ Học Phương Đông. Đọc toàn bộ 6 chương luận giải Kinh Dịch sau đây để viết phần Tổng Quan Định Vị và Đúc Kết Chỉ Nam trực tiếp cho đương số:\n\n` +
+            chapterResults.map(s => `=== CHƯƠNG ${s.id}: ${s.title} ===\n${s.text}`).join('\n\n') +
+            `\n\nNHIỆM VỤ CỦA BẠN:\n` +
+            `1. Viết phần DẪN NHẬP & MA TRẬN ĐỐI CHIẾU QUÁI TƯỢNG (SWOT DỊCH LÝ) đặt lên ĐẦU bài viết:\n` +
+            `   - BẮT ĐẦU CHÍNH XÁC BẰNG TIÊU ĐỀ: "## TỔNG QUAN QUÁI TƯỢNG & ĐỊNH VỊ THỜI THẾ"\n` +
+            `   - Khắc họa bức tranh toàn cảnh và định vị tình thế hiện tại của đương số đối với câu hỏi cốt lõi\n` +
+            `   - Ma trận SWOT Dịch Lý (Bảng 3 cột: Chiều Kích | Yếu Tố Dịch Lý | Ý Nghĩa Thực Tế):\n` +
+            `     + S (Thế mạnh & Nội lực Hào Thế)\n` +
+            `     + W (Điểm yếu & Cạm bẫy tiềm ẩn)\n` +
+            `     + O (Thời cơ hanh thông & Điểm đột phá)\n` +
+            `     + T (Rủi ro hung sát & Đối tượng khắc phá)\n` +
+            `2. Viết phần KẾT LUẬN & ĐẠO DỊCH CHỈ NAM đặt ở CUỐI bài viết:\n` +
+            `   - BẮT ĐẦU CHÍNH XÁC BẰNG TIÊU ĐỀ: "## KẾT LUẬN & ĐẠO DỊCH CHỈ NAM"\n` +
+            `   - ĐÚC KẾT CHIẾN LƯỢC: NGUYÊN TẮC HÀNH ĐỘNG TÙY THỜI BIẾN DỊCH\n` +
+            `   - 3 ĐIỀU TỐI QUAN TRỌNG ĐỂ THÀNH CÔNG VÀ GIỮ GÌN PHÚC ĐỨC\n\n` +
+            `‼️ BỘ QUY TẮC BẮT BUỘC:\n` +
+            `- TUYỆT ĐỐI CẤM mọi lời chào hỏi, xưng danh hay kể lể quy trình biên tập (CẤM: "Chào bạn", "Với tư cách là...", "Tổng biên tập", "Tôi đã thẩm định...", "Theo yêu cầu của bạn", "Dưới đây là phần trình bày...", "Sau khi đọc 6 chương..."). Đi thẳng ngay vào tiêu đề Markdown!\n` +
+            `- Xưng hô với đương số là "bạn", giọng văn uyên bác, trang trọng, đồng cảm sâu sắc.\n` +
+            `- TUYỆT ĐỐI KHÔNG dùng từ "VIP", hãy luôn sử dụng từ "luận giải chuyên sâu" hoặc "bản luận giải chuyên sâu".\n\n` +
             `Phân tách rõ ràng 2 phần bằng thẻ: <!-- SPLIT_INTRO_OUTRO -->`;
 
           let introHeader = '';
@@ -855,7 +883,7 @@ class IChingDeepPipeline {
             const editorText = await AiService.generateInterpretation(editorPrompt, { model: 'gemini-3.1-flash-lite' });
             if (editorText.includes('<!-- SPLIT_INTRO_OUTRO -->')) {
               const parts = editorText.split('<!-- SPLIT_INTRO_OUTRO -->');
-              introHeader = parts[0].trim();
+              introHeader = SseStreamHelper.sanitizeMetaIntro(parts[0]);
               outroFooter = parts[1].trim();
             } else {
               outroFooter = editorText.trim();
@@ -870,7 +898,7 @@ class IChingDeepPipeline {
             controller.enqueue(encoder.encode('\n\n---\n\n'));
           }
 
-          for (const s of scenarioResults) {
+          for (const s of chapterResults) {
             SseStreamHelper.dispatchProgress(onProgress, {
               stage: 'streaming',
               streamingChapterId: s.id,
@@ -889,7 +917,7 @@ class IChingDeepPipeline {
             isCompleted: true,
             message: 'Hoàn tất toàn bộ luận giải chuyên sâu Kinh Dịch Lục Hào!'
           });
-          logger.info('[IChingDeepPipeline] Stream Kinh Dịch hoàn thành trọn vẹn 100%.');
+          logger.info('[IChingDeepPipeline] Luồng stream Kinh Dịch hoàn thành trọn vẹn 100%.');
 
         } catch (err) {
           logger.error('[IChingDeepPipeline] Stream error:', err);

@@ -46,5 +46,9 @@ router.post('/marriage/analyze', calcLimiter, MarriageController.analyze);
 router.post('/date/check', calcLimiter, DateController.check);
 router.post('/date/consult', calcLimiter, DateController.consult);
 router.get('/tts', TtsController.synthesize);
+router.post('/tts/chapter', TtsController.synthesizeChapter);
+router.get('/tts/chapter', TtsController.synthesizeChapter);
+router.post('/tts/ticket', TtsController.createStreamTicket);
+router.get('/tts/stream/:ticketId', TtsController.streamAudioTicket);
 
 module.exports = router;

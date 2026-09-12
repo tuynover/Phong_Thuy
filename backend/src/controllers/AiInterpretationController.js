@@ -156,8 +156,10 @@ class AiInterpretationController {
 
             if (isVipMode) {
                 const birthYear = record.lunarDateInfo?.solarYear || record.solarYear || new Date().getFullYear();
+                const castDate = record.lunarDateInfo?.solarDate || record.createdAt || new Date();
                 const vipResult = await MultiAgentPipelineService.runIChingVipPipelineStream(prompt, birthYear, {
-                    onProgress: (progress) => sendSSE(progress)
+                    onProgress: (progress) => sendSSE(progress),
+                    castDate
                 });
                 for await (const chunk of vipResult.stream) {
                     if (!isConnectionOpen) {

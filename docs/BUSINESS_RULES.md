@@ -59,14 +59,15 @@ Sử dụng phương pháp Tử Vi Bắc Phái định vị Mệnh - Thân:
 
 ## 🔒 4. Quy tắc Kiểm soát Tài nguyên & Vận hành
 
-### 4.1 Cơ chế Cooldown & Rate Limit của AI
-- **Thời gian hồi chiêu (Cooldown):** Khoảng cách tối thiểu giữa 2 lần bấm chat/luận giải của một người dùng là **10 giây** (COOLDOWN_TIME_SECONDS).
-- **Giới hạn số câu hỏi chat:** Tối đa **10 câu/giờ** (CHAT_LIMIT_PER_HOUR) đối với mỗi tài khoản nhằm hạn chế tình trạng spam chi phí API.
-- **Lọc chủ đề chat (`isDivinationRelated`):** Dịch vụ phân tích ý định sẽ từ chối trả lời nếu người dùng hỏi lệch hướng (ví dụ: hỏi viết code, làm toán, lập trình...). Ngoại trừ việc hỏi về thời tiết và chọn ngày cát lành được phép thông qua.
+### 4.1 Cơ chế Chống Spam & Kiểm soát AI
+- **Chống spam yêu cầu đồng thời (In-Flight Mutex Lock):** Áp dụng middleware `antiSpamLock.js` sử dụng Redis/RAM lock (TTL 3000ms) tự động giải phóng khi response kết thúc (`res.on('finish')`) để chặn việc click đúp hoặc spam liên tục trên cùng một route.
+- **Kiểm soát chi phí Chat:** Mỗi tin nhắn hỏi đáp AI tiêu thụ **0.5 Credit** (xác thực nguyên tử qua `chatCreditCheck.js`). Miễn phí cho tài khoản có vai trò `admin` hoặc `co-admin`.
+- **Lưu ý cấu hình tĩnh:** Hai biến `COOLDOWN_TIME_SECONDS = 10` và `CHAT_LIMIT_PER_HOUR = 10` trong `config/ai.js` hiện là hằng số tham chiếu chưa được nối middleware chặn độc lập. Phía Frontend hiện tự quản lý bộ đếm cooldown trên giao diện.
+- **Lọc chủ đề chat (`isDivinationRelated`):** Dịch vụ phân tích ý định (`ConversationContextService.js`) sẽ từ chối trả lời nếu người dùng hỏi lệch hướng (ví dụ: hỏi viết code, làm toán, lập trình...). Ngoại trừ việc hỏi về thời tiết và chọn ngày cát lành được phép thông qua.
 
 ### 4.2 Cấp phát Credits & Xóa tài khoản soft-delete
 - **Quản trị Credit:** Đã loại bỏ hoàn toàn cơ chế tự động tặng credit miễn phí hàng ngày (`DAILY_CREDIT_INCREMENT`) để đảm bảo giá trị của Credits và duy trì kiểm soát tài nguyên chặt chẽ.
-- **Dọn dẹp database:** Tìm kiếm những tài khoản bị xóa mềm (`isDeleted: true`) quá **30 ngày** và thực hiện xóa vĩnh viễn (Hard Delete) tài khoản đó cùng toàn bộ lịch sử Bát Tự, Tử Vi, Kinh Dịch, Kết Hôn, Chat liên quan để tối ưu tài nguyên lưu trữ.
+- **Dọn dẹp database:** Tìm kiếm những tài khoản bị xóa mềm (`isDeleted: true`) quá **30 ngày** thông qua `NotificationScheduler.js` (`purgeSoftDeletedUsers`). Hiện tại hàm dọn dẹp xóa các bản ghi `BaziRecord`, `IChingRecord`, `ZiweiRecord`, `BanAppeal`, `Notification` và `User`. (Lưu ý: Cần bổ sung xóa thêm `MarriageRecord`, `Conversation`, `Message` để tránh bản ghi mồ côi).
 
 ### 4.3 Quét lịch thông báo Ứng Kỳ
 - Mỗi ngày, scheduler quét các bản ghi Kinh Dịch có mảng `ungKy` đang ở trạng thái `pending`.
@@ -78,11 +79,12 @@ Sử dụng phương pháp Tử Vi Bắc Phái định vị Mệnh - Thân:
 ### 4.4 Quyền riêng tư & Hiệu lực phiên đăng nhập (Session & Data Privacy)
 - **Bảo mật quyền sở hữu dữ liệu:**
   - Mỗi bản ghi học thuật (Kinh Dịch, Bát Tự, Tử Vi, Hợp Hôn) và các đoạn hội thoại chat AI đều được gắn nhãn sở hữu bởi ID người dùng lập ra nó.
-  - Một người dùng thông thường tuyệt đối không được quyền truy cập chéo để xem chi tiết hoặc gọi AI luận giải trên các bản ghi của người khác (ngay cả khi biết ID bản ghi). Hành vi vi phạm sẽ bị chặn bởi hệ thống kiểm soát quyền riêng tư.
+  - Một người dùng thông thường tuyệt đối không được quyền truy cập chéo để xem chi tiết hoặc gọi AI luận giải trên các bản ghi của người khác (ngay cả khi biết ID bản ghi). Hành vi vi phạm sẽ bị chặn bởi hệ thống kiểm soát quyền riêng tư (`checkRecordOwnership`, `checkHistoryOwnership`).
   - Chỉ có quản trị viên (Admin/Co-Admin) hoặc chính chủ sở hữu mới có quyền truy cập. Khách vãng lai (guest) chỉ được xem các bản ghi do khách tự lập.
-- **Hiệu lực phiên đăng nhập:**
+- **Hiệu lực phiên đăng nhập & Thu hồi Token:**
   - Phiên đăng nhập (token JWT) có thời hạn tối đa là **7 ngày** kể từ khi đăng nhập thành công.
-  - Khi người dùng chủ động nhấn **Đăng xuất (Logout)**, hệ thống sẽ thực hiện lệnh tăng phiên bản token (`tokenVersion`) trên máy chủ, lập tức vô hiệu hóa token hiện tại và tất cả các token đã cấp trước đó của tài khoản này để phòng tránh lạm dụng token cũ.
+  - Khi người dùng chủ động nhấn **Đăng xuất (Logout)** hoặc đổi mật khẩu, hệ thống tăng `tokenVersion` trên máy chủ để vô hiệu hóa token cũ.
+  - *Lưu ý hiện trạng mã nguồn:* Việc so khớp `tokenVersion` hiện mới được áp dụng tại `middleware/auth.js`. Các middleware `adminAuth.js`, `creditCheck.js`, `chatCreditCheck.js` hiện chưa kiểm tra trường này (cần bổ sung theo lộ trình).
 
 ### 4.5 Quy trình Xác thực & Khôi phục mật khẩu qua Email OTP
 - **Sinh mã OTP:** Khi yêu cầu khôi phục mật khẩu (`POST /forgot-password`), hệ thống tự động kiểm tra tài khoản, sinh mã OTP ngẫu nhiên gồm 6 chữ số (`000000 - 999999`) và cập nhật thời hạn hết hạn là **15 phút**.
@@ -473,7 +475,13 @@ Nhằm mang lại bản in tài liệu chiêm bốc cổ học trực quan, tran
   - *Thẻ 3 - Hào Động & Biến Hóa:* Liệt kê từng hào động kèm tác động dịch lý (Hóa Tiến, Hóa Thoái, Hóa Sinh, Hóa Khắc).
   - *Thẻ 4 - Cách Cục & Độ Ứng Nghiệm:* Tổng kết các trạng thái đặc biệt, Quái Thân bảo trợ, độ tin cậy toán học (%) và lời khuyên dịch học cô đọng.
 - **Bảng Niên Lịch Ứng Kỳ Dự Báo Cát Hung:** Hiển thị thời điểm dự báo sự việc biến chuyển theo lịch âm, dương quy chiếu và dự đoán cát hung.
-- **Toàn Văn Luận Giải Chu Dịch:** Sử dụng khoảng cách tự nhiên giữa các chương (`.chapter-block`), không ngắt trang cưỡng bức, hỗ trợ lựa chọn xuất theo từng chương (`ch1` - Ý nghĩa quái tượng, `ch2` - Hào động, `ch3` - Lời khuyên, `ch4` - Ứng kỳ).
+- **Toàn Văn Luận Giải Chu Dịch (6 Chương Tượng Pháp & Lục Hào Biện Chứng):** Sử dụng khoảng cách tự nhiên giữa các chương (`.chapter-block`), không ngắt trang cưỡng bức, hỗ trợ lựa chọn xuất theo từng chương độc lập:
+  - *Chương 1:* Khởi Quái & Tượng Pháp Chu Dịch (Quái tượng vĩ mô, Thể Dụng, Thoán/Hào từ).
+  - *Chương 2:* Biện Chứng Lục Hào & Vị Thế Dụng Thần (Tập trung 100% câu hỏi cốt lõi, Nguyệt Lệnh, Nhật Thần, Thế - Ứng).
+  - *Chương 3:* Động Hào Biến Khí & Yếu Tố Ẩn Tàng (Hóa Tiến/Thoái/Khắc, Phục Thần, Lục Thần).
+  - *Chương 4:* Đối Chiếu Biện Chứng Tượng - Hào & Phán Quyết Thực Thể (Bảng Ma Trận Biểu vs Lý 3 cột, phân định Cát-Cát, Cát-Hung, Hung-Cát, Hung-Hung, không thiên vị võ đoán).
+  - *Chương 5:* Định Lượng Thời Khắc Ứng Kỳ & Bản Đồ Không - Thời Gian (Phân định theo 3 ngữ cảnh: sự kiện ngắn hạn, tìm đồ thất lạc, kỳ vọng tương lai).
+  - *Chương 6:* Kim Chỉ Nam Đạo Dịch & Diệu Kế Hành Động (Đạo Dịch "Tùy Thời Biến Dịch", phương sách xử thế thực tiễn).
 
 ---
 
@@ -562,3 +570,49 @@ Nhằm nâng cao tính thẩm mỹ và độ chính xác học thuật trong b�
   - **Lược bỏ hoàn toàn hàng Thần Sát:** Nhằm tinh giản thông tin, tránh phân tán và quá tải chi tiết tại bảng Tứ Trụ Hợp Hôn, hàng Thần Sát được lược bỏ triệt để khỏi bảng mini, tập trung toàn bộ sự chú ý vào Thập Thần, Can Chi lớn (13pt bold màu ngũ hành), Nạp Âm và Tàng Can.
   - Bảng áp dụng thuộc tính `table-layout: fixed; width: 100%;`, mỗi trụ (Năm, Nguyệt Lệnh, Nhật Chủ, Giờ) chiếm trọn 25% chiều ngang khổ giấy A4 (~45mm/cột).
   - Chiều cao Trang 1 được tính toán vi mô (~540px) đảm bảo luôn nằm trọn vẹn trong 1 trang in A4 duy nhất, luận giải AI chuyển tiếp êm ả sang Trang 2.
+
+## 8.14 Chuẩn Hóa Trang Bìa Cá Nhân Hóa (4 Bảng Màu Phân Hệ, Khử Text Viện, Thái Cực Chuẩn & Ấn Triện)
+
+Nhằm nâng tầm giá trị các tài liệu học thuật xuất bản độc bản cho từng gia chủ/đương số, toàn bộ 4 phân hệ (Bát Tự, Tử Vi, Kinh Dịch, Hợp Hôn) được trang bị **Trang Bìa Cá Nhân Hóa Độc Bản** (`Personal Luxury Monograph Cover Page`) đạt chuẩn in ấn quốc tế:
+- **Nguyên Tắc Cá Nhân Hóa Toàn Diện (Bỏ 100% Text Viện/Học Viện):**
+  - Tài liệu là ấn phẩm lưu hành cá nhân độc bản dành riêng cho đương số, tuyệt đối không dùng danh xưng của các tổ chức, cơ quan như "Viện nghiên cứu & khảo cứu cổ học", "Học Viện Mệnh Lý Cổ Học", "Khâm định hoàng triều".
+  - Danh xưng chuẩn hóa:
+    + *Kinh Dịch:* `HỒ SƠ DỊCH LÝ & CHIÊM BỐC CÁ NHÂN` / `BẢN DỊCH GIẢI CHIÊM BỐC ĐỘC BẢN`.
+    + *Bát Tự:* `HỒ SƠ TỨ TRỤ MỆNH LÝ CÁ NHÂN` / `BẢN KHẢO LUẬN BÁT TỰ ĐỘC BẢN`.
+    + *Tử Vi:* `HỒ SƠ TỬ VI ĐẨU SỐ CÁ NHÂN` / `BẢN KHẢO LUẬN MỆNH BÀN ĐỘC BẢN`.
+    + *Hợp Hôn:* `HỒ SƠ HỢP HÔN & GIA ĐẠO CÁ NHÂN` / `BẢN KHẢO LUẬN PHU THÊ ĐỘC BẢN`.
+    + *Chân Trang:* `HỒ SƠ MỆNH LÝ CÁ NHÂN — MÃ SỐ ĐỊNH DANH: [UUIDv7]`.
+- **Chuyên Biệt Hóa 4 Bảng Màu Nhận Diện Phân Hệ:**
+  - Không dùng chung một màu hổ phách; mỗi phân hệ sở hữu bảng màu độc lập:
+    + **Kinh Dịch (`iching`):** Đỏ Chu Sa Cổ Điển (`#991b1b`), nền dải radial `#ffffff` $\rightarrow$ `#fff5f5` $\rightarrow$ `#fee2e2`, viền kép `#991b1b`, ấn triện son đỏ `DỊCH LÝ CHÍNH TÔNG`.
+    + **Bát Tự (`bazi`):** Vàng Hổ Phách Cung Đình (`#b45309`), nền `#fffdf8` $\rightarrow$ `#faf6ec` $\rightarrow$ `#f4ebd9`, viền kép `#b45309`, ấn triện `TỨ TRỤ MỆNH LÝ`.
+    + **Tử Vi (`ziwei`):** Tím Tử Vi Huyền Không (`#6b21a8`), nền `#ffffff` $\rightarrow$ `#faf5ff` $\rightarrow$ `#f3e8ff`, viền kép `#6b21a8`, ấn triện `TỬ VI ĐẨU SỐ`.
+    + **Hợp Hôn (`marriage`):** Đỏ Mận Hỷ Khánh Gia Đạo (`#be123c`), nền `#ffffff` $\rightarrow$ `#fff1f2` $\rightarrow$ `#ffe4e6`, viền kép `#be123c`, ấn triện `HỢP HÔN GIA ĐẠO`.
+- **Chuẩn Hóa Biểu Tượng Thái Cực Đồ "Trong Âm Có Dương, Trong Dương Có Âm":**
+  - Đồ hình Thái Cực Đồ SVG chuẩn canonical S-curve (`viewBox="-50 -50 100 100"`):
+    + Nửa trên (Dương, nền trắng) chứa Mắt Âm (chấm tròn đậm màu phân hệ tại `cy="-20"`).
+    + Nửa dưới (Âm, nền màu phân hệ) chứa Mắt Dương (chấm tròn trắng viền mảnh tại `cy="20"`).
+    + Triệt tiêu hoàn toàn lỗi mắt tàng hình do trùng màu nền, thể hiện chính xác quy luật biến dịch cổ học.
+- **Khắc Phục Lỗi Tràn Chữ Trên Ấn Triện (Tứ Phân Ấn 56px Có Crosshair Divider):**
+  - Kích thước hộp con dấu `.cover-imperial-seal` được mở rộng lên 56px x 56px, `overflow: hidden; padding: 2.5px;`.
+  - Khung viền trong `.seal-inner-border` thiết kế lưới 2x2 có khoảng cách `gap: 1px;` tạo thành đường chữ thập crosshair sắc sảo, nền ngăn cách bằng màu viền trong.
+  - Từng ô chữ `.seal-cell` có nền riêng theo màu phân hệ, phông `Noto Serif` 6.3pt đậm, căn giữa hoàn hảo, triệt tiêu mọi hiện tượng viền trắng hoặc chữ `ĐỊNH`, `LÝ` tràn ra ngoài.
+- **Quy Đổi Ứng Kỳ Dương Lịch Gần Nhất Theo Phương Án B & Bảng Lịch Pháp Ground Truth:**
+  - **Bảng Tra Cứu Lịch Pháp Gần Nhất Chính Xác (`generateIChingCalendarGroundTruth`):** Hệ thống sử dụng thư viện `lunar-javascript` sinh sẵn bảng tọa độ lịch pháp thực tế (khoảng ngày Dương lịch của 6 tháng Âm lịch tiếp theo và 2 lần xuất hiện gần nhất của toàn bộ 12 Địa Chi ngày trong vòng 30 ngày tới kể từ thời điểm gieo quẻ) để nạp làm Source of Truth vào prompt. AI bắt buộc tra cứu trực tiếp từ bảng này, TUYỆT ĐỐI CẤM tự bịa mốc ngày tháng Dương lịch xa xôi, vô căn cứ.
+  - **Ma Trận Phân Loại Ngữ Cảnh 4 Nhóm Thời Gian Cốt Lõi:**
+    + *Nhóm 1 - Chu kỳ sinh học & Tích lũy dài hạn (Mang thai, sinh con, mua nhà đất, định cư, kết hôn):* Bắt buộc đoán theo **THÁNG ÂM LỊCH** (kèm khoảng 30 ngày Dương lịch cụ thể từ ngày ... đến ngày ...). Không đoán ngày lẻ xa xôi gây ngộ nhận cho người hỏi.
+    + *Nhóm 2 - Bước ngoặt chuyển dịch & Cơ hội nghề nghiệp (Tìm việc làm, chuyển việc, thi cử, kết quả phỏng vấn, thăng chức):* **KẾT HỢP SONG SONG HAI CẤP ĐỘ**:
+      1) *Tháng Mục Tiêu:* Tháng đắc Quan Quỷ/Phụ Mẫu vượng tướng (kèm khoảng ngày Dương lịch) là thời điểm chính thức nhận việc hoặc ký hợp đồng dài hạn.
+      2) *Các Ngày Vàng Gần Nhất:* Tra cứu 2 - 3 ngày Can Chi gần nhất trong vòng 7 - 21 ngày tới đắc sinh phù để nộp hồ sơ, gửi CV, hẹn phỏng vấn hoặc chủ động liên hệ.
+    + *Nhóm 3 - Sự kiện ngắn hạn / Giao dịch tức thì / Pháp lý (Đòi nợ, ký hợp đồng, xuất hành, tranh chấp, sự kiện tuần này):* Đoán theo **NGÀY GẦN NHẤT (trong vòng 1 - 14 ngày tới)** + Khung Giờ Hoàng Đạo cụ thể. Nếu ngày gần nhất bị Tuần Không/Xung phá thì chỉ định ngày Lần 2 gần kế tiếp (Kế hoạch B).
+    + *Nhóm 4 - Tìm đồ mất / Tìm người thất lạc:* Tiên quyết thẩm định Còn hay Mất hẳn. Nếu Dụng Thần tử tuyệt, Huynh Đệ đoạt thì khẳng định **ĐÃ MẤT HẲN**, tuyệt đối không tính ngày; nếu còn thì xuất Phương vị (Bát quái) + Địa điểm + Giờ & Ngày GẦN NHẤT (trong 24h - 72h tới).
+  - **Bảng Ma Trận Ứng Kỳ 4 Cột:**
+    `| Mốc Thời Gian (Âm Lịch) | Mốc Dương Lịch Gần Nhất Cụ Thể | Dịch Lý Luận Giải | Diệu Kế & Hành Động Cụ Thể |`
+- **Triệt Tiêu 100% Rò Rỉ Lời Dẫn Meta-talk (Prompt Leakage Elimination):**
+  - Nghiêm cấm mô hình AI xuất hiện các chức danh biên tập nội bộ hay câu dẫn quy trình ("Chào bạn, với tư cách là Bậc thầy Dịch lý & Tổng biên tập Cổ học Phương Đông...", "Tôi đã thẩm định 6 chương...", "Theo yêu cầu của bạn...").
+  - Tầng Chief Editor của toàn bộ 4 phân hệ (Bát Tự, Tử Vi, Kinh Dịch, Hôn Nhân) bắt buộc đi thẳng trực tiếp vào tiêu đề Markdown mở đầu (ví dụ: `## TỔNG QUAN QUÁI TƯỢNG & ĐỊNH VỊ THỜI THẾ`, `## ĐỊNH VỊ BẢN MỆNH: BẢN ĐỒ CHIẾN LƯỢC NHÂN SINH & MA TRẬN SWOT`).
+  - Tích hợp bộ lọc làm sạch tự động (`SseStreamHelper.sanitizeMetaIntro`) cắt bỏ toàn bộ lời chào xã giao hoặc câu dẫn vai trò trước thẻ tiêu đề Markdown đầu tiên.
+- **Cơ Chế Bật/Tắt Tùy Biến (Frontend & Backend Integration):**
+  - Trong Modal Xuất PDF (`PdfExportModal.jsx`), bổ sung tùy chọn `Trang Bìa Hoàng Gia (Imperial Title Page)` nằm ở vị trí đầu tiên của danh sách lựa chọn, mặc định được tích chọn (`true`).
+  - Backend `PdfTemplateService` đọc biến `includeCover` (`scope.includes('cover') || scope.includes('all') || !hasScope`). Khi bật, tự động gọi `renderCoverPage(options)` chèn vào đầu chuỗi HTML xuất bản.
+

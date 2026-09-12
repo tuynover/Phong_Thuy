@@ -207,12 +207,45 @@ class SseStreamHelper {
       .replace(/\bbản\s+bản\b/gi, 'bản');
   }
 
+  static sanitizeMetaIntro(text) {
+    if (!text) return '';
+    let cleaned = this.cleanMarkdown(text);
+    
+    // 1. Nếu có tiêu đề Markdown (# hoặc ##), kiểm tra xem có đoạn mở đầu đàm thoại / meta-talk trước nó không
+    const firstHeaderMatch = cleaned.match(/(?:^|\n)(#{1,3}\s+[^\n]+)/);
+    if (firstHeaderMatch) {
+      const headerIdx = cleaned.indexOf(firstHeaderMatch[1]);
+      if (headerIdx > 0) {
+        const preamble = cleaned.substring(0, headerIdx).trim();
+        // Nếu preamble chứa lời chào, tự nhận vai trò biên tập, hoặc câu dẫn meta-talk thì loại bỏ 100%
+        if (/(?:chào|tư cách|tổng biên tập|thẩm định|yêu cầu của bạn|dưới đây là|kính gửi|bậc thầy|đại sư|sau khi rà soát)/i.test(preamble)) {
+          cleaned = cleaned.substring(headerIdx).trim();
+        }
+      }
+    }
+    
+    // 2. Cắt bỏ các dòng mở đầu xưng hô đàm thoại rác nếu xuất hiện ở đầu văn bản
+    cleaned = cleaned.replace(/^(?:(?:chào\s+(?:bạn|đương số|anh\/chị)[^\n]*|với tư cách[^\n]*|tôi đã thẩm định[^\n]*|dưới đây là[^\n]*|sau khi rà soát[^\n]*|theo yêu cầu[^\n]*)\n*)+/gi, '').trim();
+
+    // 3. Nếu ngay dưới tiêu đề Markdown có dòng chào hỏi xưng danh meta-talk -> cắt bỏ dòng đó
+    cleaned = cleaned.replace(/^(#{1,3}\s+[^\n]+\n+)(?:(?:chào\s+(?:bạn|đương số|anh\/chị)[^\n]*|với tư cách[^\n]*)\n*)+/i, (m, p1) => p1).trim();
+
+    return cleaned;
+  }
+
   static cleanContextForVip(rawContext) {
     if (!rawContext) return '';
-    const marker = '--- CẤU TRÚC BẢN LUẬN GIẢI YÊU CẦU ĐẦU RA';
-    const idx = rawContext.indexOf(marker);
-    if (idx !== -1) {
-      return rawContext.substring(0, idx).trim();
+    const markers = [
+      '--- CẤU TRÚC BẢN LUẬN GIẢI YÊU CẦU ĐẦU RA',
+      '--- YÊU CẦU ĐẦU RA CHI TIẾT ---',
+      '--- YÊU CẦU ĐẦU RA',
+      '--- CẤU TRÚC BẢN LUẬN GIẢI'
+    ];
+    for (const marker of markers) {
+      const idx = rawContext.indexOf(marker);
+      if (idx !== -1) {
+        return rawContext.substring(0, idx).trim();
+      }
     }
     return rawContext.trim();
   }

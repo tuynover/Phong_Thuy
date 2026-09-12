@@ -13,9 +13,10 @@ import {
     Sparkles,
     ChevronDown,
     Check,
-    ListMusic
+    ListMusic,
+    Loader2
 } from 'lucide-react';
-import { ttsEngine, VOICES } from '../utils/ttsEngine';
+import { ttsEngine, VOICES, formatAudioTime } from '../utils/ttsEngine';
 
 /**
  * Cấu hình giao diện chuyên biệt cho 4 phân hệ phong thủy
@@ -118,7 +119,7 @@ const THEMES = {
 /**
  * Tự động nhận diện phân hệ đang chạy dựa trên sectionId hoặc đường dẫn trình duyệt
  */
-export function getSubsystemTheme(sectionId) {
+function getSubsystemTheme(sectionId) {
     const id = (sectionId || '').toLowerCase();
     const path = typeof window !== 'undefined' ? window.location.pathname.toLowerCase() : '';
 
@@ -194,11 +195,14 @@ export default function AudioPlayerDock() {
     const { 
         isPlaying, 
         isPaused, 
+        isLoading,
         currentSectionId,
         currentSectionTitle, 
-        currentIndex, 
-        totalSentences, 
-        currentSentence, 
+        currentExcerpt,
+        currentTime,
+        duration,
+        formattedCurrentTime,
+        formattedDuration,
         rate, 
         currentVoiceId,
         currentVoice,
@@ -216,12 +220,11 @@ export default function AudioPlayerDock() {
 
     // Xử lý tua tiến trình theo tọa độ chuột
     const handleSeekToX = (clientX) => {
-        if (!progressBarRef.current || totalSentences <= 0) return;
+        if (!progressBarRef.current || duration <= 0) return;
         const rect = progressBarRef.current.getBoundingClientRect();
         const clickX = Math.max(0, Math.min(clientX - rect.left, rect.width));
         const percentage = clickX / rect.width;
-        const targetIndex = Math.min(totalSentences - 1, Math.floor(percentage * totalSentences));
-        ttsEngine.seekSentence(targetIndex);
+        ttsEngine.seekTime(percentage * duration);
     };
 
     const handleSeekClick = (e) => {
@@ -249,10 +252,10 @@ export default function AudioPlayerDock() {
             window.removeEventListener('mousemove', handleWindowMouseMove);
             window.removeEventListener('mouseup', handleWindowMouseUp);
         };
-    }, [isDraggingSeek, totalSentences]);
+    }, [isDraggingSeek, duration]);
 
     const handleSeekMouseMove = (e) => {
-        if (!progressBarRef.current || totalSentences <= 0) return;
+        if (!progressBarRef.current || duration <= 0) return;
         const rect = progressBarRef.current.getBoundingClientRect();
         const hoverX = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
         const pct = Math.round((hoverX / rect.width) * 100);
@@ -323,9 +326,9 @@ export default function AudioPlayerDock() {
                     <div className="flex items-center gap-2.5 min-w-0 pr-2">
                         {/* Visualizer Waveform Animation */}
                         <div className="flex items-end gap-0.5 h-4 w-4 shrink-0">
-                            <span className={`w-1 ${theme.bars[0]} rounded-full transition-all duration-200 ${isPlaying && !isPaused ? 'h-4 animate-pulse' : 'h-1.5'}`}></span>
-                            <span className={`w-1 ${theme.bars[1]} rounded-full transition-all duration-200 ${isPlaying && !isPaused ? 'h-2.5 animate-bounce' : 'h-2'}`}></span>
-                            <span className={`w-1 ${theme.bars[2]} rounded-full transition-all duration-200 ${isPlaying && !isPaused ? 'h-3.5 animate-pulse' : 'h-1'}`}></span>
+                            <span className={`w-1 ${theme.bars[0]} rounded-full transition-all duration-200 ${isPlaying && !isPaused && !isLoading ? 'h-4 animate-pulse' : 'h-1.5'}`}></span>
+                            <span className={`w-1 ${theme.bars[1]} rounded-full transition-all duration-200 ${isPlaying && !isPaused && !isLoading ? 'h-2.5 animate-bounce' : 'h-2'}`}></span>
+                            <span className={`w-1 ${theme.bars[2]} rounded-full transition-all duration-200 ${isPlaying && !isPaused && !isLoading ? 'h-3.5 animate-pulse' : 'h-1'}`}></span>
                         </div>
                         <div className="min-w-0">
                             <div className="flex items-center gap-1.5">
@@ -338,8 +341,8 @@ export default function AudioPlayerDock() {
                                         Mục {playlistIndex + 1}/{playlistLength}
                                     </span>
                                 )}
-                                <span className="text-[11px] text-white/75 font-medium">
-                                    Câu {currentIndex + 1}/{Math.max(1, totalSentences)}
+                                <span className="text-[11px] text-white/75 font-medium tabular-nums">
+                                    {formattedCurrentTime} / {formattedDuration}
                                 </span>
                             </div>
                             <h4 className="font-bold text-xs sm:text-sm truncate leading-tight text-white/95 mt-0.5" title={currentSectionTitle}>
@@ -368,17 +371,23 @@ export default function AudioPlayerDock() {
                     </div>
                 </div>
 
-                {/* Nội dung câu đang phát (Karaoke Preview) */}
+                {/* Nội dung đoạn văn đang phát (Karaoke Preview) */}
                 <div className={`px-4 py-2.5 ${theme.previewBg} border-b`}>
                     <div className="flex items-start gap-2 min-h-[40px]">
                         <Sparkles size={14} className={`${theme.sparkleColor} mt-0.5 shrink-0`} />
                         <p className="text-xs sm:text-[13px] text-slate-800 leading-snug font-medium italic line-clamp-2">
-                            {(currentSentence || "Đang phát giọng đọc phong thủy...").replace(/\bvip\b/gi, 'chuyên sâu').replace(/\bbản\s+bản\b/gi, 'bản')}
+                            {isLoading 
+                                ? "Đang kết nối & tổng hợp giọng đọc AI chất lượng cao..."
+                                : (currentExcerpt || "Đang phát giọng đọc phong thủy...").replace(/\bvip\b/gi, 'chuyên sâu').replace(/\bbản\s+bản\b/gi, 'bản')}
                         </p>
                     </div>
 
-                    {/* Thanh Tiến Trình Tương Tác (Interactive Seek Bar) */}
+                    {/* Thanh Tiến Trình Tương Tác (Interactive Timeline Scrubber) */}
                     <div className="mt-2 flex items-center gap-2.5">
+                        <span className={`text-[10px] font-bold ${theme.percentText} min-w-[32px] tabular-nums`}>
+                            {formattedCurrentTime}
+                        </span>
+
                         <div 
                             ref={progressBarRef}
                             onClick={handleSeekClick}
@@ -386,7 +395,7 @@ export default function AudioPlayerDock() {
                             onMouseMove={handleSeekMouseMove}
                             onMouseLeave={() => setHoverPercent(null)}
                             className="group/seek relative flex-1 h-4 flex items-center cursor-pointer select-none"
-                            title="Bấm hoặc kéo để tua đến câu bất kỳ"
+                            title="Bấm hoặc kéo để tua thời gian bất kỳ"
                         >
                             {/* Thanh nền */}
                             <div className={`w-full ${theme.trackBg} rounded-full h-1.5 group-hover/seek:h-2 transition-all relative overflow-hidden`}>
@@ -405,19 +414,21 @@ export default function AudioPlayerDock() {
                                 style={{ left: `calc(${progressPercent}% - 7px)` }}
                             />
 
-                            {/* Hover Tooltip gợi ý số câu */}
-                            {hoverPercent !== null && totalSentences > 0 && (
+                            {/* Hover Tooltip gợi ý thời gian */}
+                            {hoverPercent !== null && duration > 0 && (
                                 <div 
-                                    className="absolute -top-7 -translate-x-1/2 bg-slate-900 text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow pointer-events-none whitespace-nowrap z-10"
+                                    className="absolute -top-7 -translate-x-1/2 bg-slate-900 text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow pointer-events-none whitespace-nowrap z-10 tabular-nums"
                                     style={{ left: `${hoverPercent}%` }}
                                 >
-                                    Câu {Math.min(totalSentences, Math.floor((hoverPercent / 100) * totalSentences) + 1)}/{totalSentences}
+                                    {currentVoiceId === 'thayluan'
+                                        ? `Câu ${Math.max(1, Math.round((hoverPercent / 100) * duration))}`
+                                        : formatAudioTime((hoverPercent / 100) * duration)}
                                 </div>
                             )}
                         </div>
 
-                        <span className={`text-[10px] font-extrabold ${theme.percentText} min-w-[30px] text-right`}>
-                            {progressPercent}%
+                        <span className={`text-[10px] font-bold ${theme.percentText} min-w-[32px] text-right tabular-nums`}>
+                            {formattedDuration}
                         </span>
                     </div>
                 </div>
@@ -507,14 +518,14 @@ export default function AudioPlayerDock() {
                         </div>
                     </div>
 
-                    {/* CỤM TRUNG TÂM: NÚT TUA CÂU & PHÁT / TẠM DỪNG */}
+                    {/* CỤM TRUNG TÂM: NÚT NHẢY CHƯƠNG LÙI / TIẾN & PHÁT / TẠM DỪNG */}
                     <div className="flex items-center gap-1 sm:gap-1.5">
                         <button
                             type="button"
-                            onClick={() => ttsEngine.skipBackward(1)}
-                            disabled={currentIndex <= 0 && !hasPrevSection}
-                            className="p-2 rounded-full hover:bg-slate-100 text-slate-600 hover:text-slate-900 disabled:opacity-30 disabled:hover:bg-transparent transition-all duration-75 active:scale-90 cursor-pointer"
-                            title="Câu trước"
+                            onClick={() => ttsEngine.skipPrevSection()}
+                            disabled={!hasPrevSection && currentTime <= 2}
+                            className="p-2 rounded-full hover:bg-slate-100 text-slate-600 hover:text-slate-900 transition-all duration-75 active:scale-90 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                            title={hasPrevSection ? "Chương trước" : "Về đầu chương"}
                         >
                             <SkipBack size={16} />
                         </button>
@@ -522,10 +533,13 @@ export default function AudioPlayerDock() {
                         <button
                             type="button"
                             onClick={() => ttsEngine.togglePlayPause()}
-                            className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full text-white flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-75 cursor-pointer shadow-md ${theme.playButton}`}
-                            title={isPaused ? "Tiếp tục đọc" : "Tạm dừng"}
+                            disabled={isLoading}
+                            className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full text-white flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-75 cursor-pointer shadow-md ${theme.playButton} ${isLoading ? 'opacity-85 cursor-wait' : ''}`}
+                            title={isLoading ? "Đang chuẩn bị âm thanh..." : isPaused ? "Tiếp tục đọc" : "Tạm dừng"}
                         >
-                            {isPaused ? (
+                            {isLoading ? (
+                                <Loader2 size={18} className="animate-spin text-white" />
+                            ) : isPaused ? (
                                 <Play size={18} className="ml-0.5" fill="currentColor" />
                             ) : (
                                 <Pause size={18} fill="currentColor" />
@@ -534,10 +548,10 @@ export default function AudioPlayerDock() {
 
                         <button
                             type="button"
-                            onClick={() => ttsEngine.skipForward(1)}
-                            disabled={currentIndex >= totalSentences - 1 && !hasNextSection}
-                            className="p-2 rounded-full hover:bg-slate-100 text-slate-600 hover:text-slate-900 disabled:opacity-30 disabled:hover:bg-transparent transition-all duration-75 active:scale-90 cursor-pointer"
-                            title="Câu tiếp theo"
+                            onClick={() => ttsEngine.skipNextSection()}
+                            disabled={!hasNextSection}
+                            className="p-2 rounded-full hover:bg-slate-100 text-slate-600 hover:text-slate-900 transition-all duration-75 active:scale-90 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                            title="Nhảy sang chương kế tiếp"
                         >
                             <SkipForward size={16} />
                         </button>
@@ -553,21 +567,21 @@ export default function AudioPlayerDock() {
                                 setShowVolumePopover(false);
                             }}
                             className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs font-bold transition-all duration-75 active:scale-95 shadow-2xs cursor-pointer ${theme.genderBadge}`}
-                            title="Bấm để chọn giọng đọc AI khác"
+                            title="Bấm để chọn giọng đọc khác"
                         >
                             <span className="text-sm">{currentVoice?.icon || '🌸'}</span>
                             <span className="max-w-[70px] sm:max-w-none truncate">{currentVoice?.name || 'Hoài My'}</span>
                             <ChevronDown size={12} className={`transition-transform duration-100 ${showVoiceMenu ? 'rotate-180' : ''}`} />
                         </button>
 
-                        {/* Menu Popover 4 Giọng Đọc AI */}
+                        {/* Menu Popover Danh Sách Giọng Đọc */}
                         {showVoiceMenu && (
                             <div 
                                 onClick={(e) => e.stopPropagation()}
                                 className="absolute bottom-full mb-3 right-0 bg-white rounded-2xl shadow-2xl border border-slate-200 p-2 z-50 animate-in fade-in zoom-in-95 duration-100 w-56 sm:w-64"
                             >
                                 <div className="px-2.5 py-1.5 text-[10px] font-black uppercase tracking-wider text-slate-400 border-b border-slate-100 mb-1 flex items-center justify-between">
-                                    <span>Chọn giọng đọc AI</span>
+                                    <span>Chọn giọng đọc</span>
                                     <Sparkles size={11} className={theme.sparkleColor} />
                                 </div>
                                 <div className="space-y-1">

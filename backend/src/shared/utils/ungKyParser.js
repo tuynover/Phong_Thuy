@@ -175,9 +175,146 @@ function parseUngKyBlock(text, castDate = new Date()) {
     return { cleanedText, ungKyList };
 }
 
+const GAN_VI = {
+    '甲': 'Giáp', '乙': 'Ất', '丙': 'Bính', '丁': 'Đinh', '戊': 'Mậu',
+    '己': 'Kỷ', '庚': 'Canh', '辛': 'Tân', '壬': 'Nhâm', '癸': 'Quý'
+};
+
+function toViGanZhi(gz) {
+    if (!gz || gz.length < 2) return gz;
+    return (GAN_VI[gz[0]] || gz[0]) + ' ' + (ZHI_VI[gz[1]] || gz[1]);
+}
+
+function formatDateDDMMYYYY(date) {
+    const d = String(date.getDate()).padStart(2, '0');
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const y = date.getFullYear();
+    return `${d}/${m}/${y}`;
+}
+
+function getDayOfWeekVi(date) {
+    const days = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+    return days[date.getDay()];
+}
+
+function parseDateFlexible(val) {
+    if (!val) return new Date();
+    if (val instanceof Date && !isNaN(val.getTime())) return val;
+    if (typeof val === 'string') {
+        const dmyMatch = val.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+        if (dmyMatch) {
+            const day = parseInt(dmyMatch[1], 10);
+            const month = parseInt(dmyMatch[2], 10) - 1;
+            const year = parseInt(dmyMatch[3], 10);
+            return new Date(year, month, day);
+        }
+        const d = new Date(val);
+        if (!isNaN(d.getTime())) return d;
+    }
+    if (typeof val === 'number') return new Date(val);
+    return new Date();
+}
+
+/**
+ * Tạo Bảng Tra Cứu Lịch Pháp Gần Nhất Chính Xác (Source of Truth) cho Kinh Dịch
+ * Giúp AI tra cứu và quy đổi mốc Dương lịch gần nhất theo Phương án B mà không bị nhầm lẫn hay bịa ngày xa xôi.
+ */
+function generateIChingCalendarGroundTruth(castDate = new Date()) {
+    const baseDate = parseDateFlexible(castDate);
+    const curSolar = Solar.fromDate(baseDate);
+    const curLunar = curSolar.getLunar();
+
+    const curDayGz = toViGanZhi(curLunar.getDayInGanZhi());
+    const curMonthGz = toViGanZhi(curLunar.getMonthInGanZhi());
+    const curYearGz = toViGanZhi(curLunar.getYearInGanZhi());
+
+    let text = '=== [BẢNG TRA CỨU MỐC DƯƠNG LỊCH GẦN NHẤT CHÍNH XÁC (SOURCE OF TRUTH)] ===\n';
+    text += `* TỌA ĐỘ THỜI ĐIỂM GIEO QUẺ: Ngày ${formatDateDDMMYYYY(baseDate)} Dương lịch (tức ngày ${curLunar.getDay()}/${Math.abs(curLunar.getMonth())}/${curLunar.getYear()} Âm lịch - Ngày ${curDayGz}, Tháng ${curMonthGz}, Năm ${curYearGz}).\n\n`;
+
+    text += '--- BẢNG 1: MỐC CÁC NGÀY CAN CHI GẦN NHẤT TRONG VÒNG 1 - 14 NGÀY TỚI KỂ TỪ HÔM NAY (BẮT BUỘC ƯU TIÊN SỬ DỤNG CHO HÀNG 1, 2, 3 CỦA BẢNG MA TRẬN) ---\n';
+    text += '(Sử dụng cho Nhóm 2 - Cấp độ 2: Các ngày vàng gần nhất để nộp hồ sơ, gửi CV, hẹn phỏng vấn, chủ động hành động; và Nhóm 3: Việc ngắn hạn, đòi nợ, ký hợp đồng, pháp lý)\n';
+
+    const branchOccurrences = {};
+    for (const zhiChar in ZHI_VI) {
+        branchOccurrences[ZHI_VI[zhiChar]] = [];
+    }
+
+    for (let i = 0; i <= 35; i++) {
+        const nextSolar = curSolar.next(i);
+        const nextLunar = nextSolar.getLunar();
+        const zhiVi = ZHI_VI[nextLunar.getDayZhi()];
+        const dateObj = new Date(nextSolar.getYear(), nextSolar.getMonth() - 1, nextSolar.getDay());
+        if (branchOccurrences[zhiVi] && branchOccurrences[zhiVi].length < 2) {
+            const dayGz = toViGanZhi(nextLunar.getDayInGanZhi());
+            const dow = getDayOfWeekVi(dateObj);
+            const isToday = (i === 0) ? ' (HÔM NAY - NGÀY GIEO)' : '';
+            branchOccurrences[zhiVi].push(
+                `${dow}, ${formatDateDDMMYYYY(dateObj)} DL (Ngày ${dayGz} - ${nextLunar.getDay()}/${Math.abs(nextLunar.getMonth())} ÂL)${isToday}`
+            );
+        }
+    }
+
+    const branchOrder = ['Tý', 'Sửu', 'Dần', 'Mão', 'Thìn', 'Tị', 'Ngọ', 'Mùi', 'Thân', 'Dậu', 'Tuất', 'Hợi'];
+    for (const zhi of branchOrder) {
+        const occs = branchOccurrences[zhi] || [];
+        text += `* Ngày ${zhi} gần nhất:\n`;
+        occs.forEach((oc, idx) => {
+            text += `  + Lần ${idx + 1}: ${oc}\n`;
+        });
+    }
+
+    text += '\n--- BẢNG 2: QUY ĐỔI KHOẢNG NGÀY DƯƠNG LỊCH CỦA CÁC THÁNG ÂM LỊCH TỚI (DÙNG ĐOÁN THEO THÁNG MỤC TIÊU / DÀI HẠN) ---\n';
+    text += '(Sử dụng cho Nhóm 1: Mang thai, sinh con, mua nhà, định cư; và Nhóm 2 - Cấp độ 1: Tháng mục tiêu nhận việc/nhậm chức)\n';
+
+    const monthStarts = [];
+    for (let i = -30; i <= 210; i++) {
+        const s = curSolar.next(i);
+        const l = s.getLunar();
+        if (l.getDay() === 1) {
+            monthStarts.push({
+                lunarMonth: l.getMonth(),
+                lunarYear: l.getYear(),
+                monthGz: toViGanZhi(l.getMonthInGanZhi()),
+                solarDate: new Date(s.getYear(), s.getMonth() - 1, s.getDay())
+            });
+        }
+    }
+
+    let curMonthIdx = -1;
+    for (let idx = 0; idx < monthStarts.length; idx++) {
+        if (monthStarts[idx].lunarYear === curLunar.getYear() && monthStarts[idx].lunarMonth === curLunar.getMonth()) {
+            curMonthIdx = idx;
+            break;
+        }
+    }
+
+    if (curMonthIdx !== -1) {
+        for (let o = 0; o <= 5; o++) {
+            const mIdx = curMonthIdx + o;
+            if (mIdx < monthStarts.length) {
+                const startInfo = monthStarts[mIdx];
+                const nextInfo = monthStarts[mIdx + 1];
+                let endSolarDate;
+                if (nextInfo) {
+                    endSolarDate = new Date(nextInfo.solarDate.getTime() - 24 * 60 * 60 * 1000);
+                } else {
+                    endSolarDate = new Date(startInfo.solarDate.getTime() + 29 * 24 * 60 * 60 * 1000);
+                }
+                const isCurrent = (o === 0) ? ' [THÁNG HIỆN TẠI ĐANG GIEO]' : '';
+                const mNum = Math.abs(startInfo.lunarMonth);
+                const leapText = startInfo.lunarMonth < 0 ? ' (Nhuận)' : '';
+                text += `- Tháng ${mNum}${leapText} ÂL (${startInfo.monthGz})${isCurrent}: Từ ngày ${formatDateDDMMYYYY(startInfo.solarDate)} đến ngày ${formatDateDDMMYYYY(endSolarDate)} Dương lịch.\n`;
+            }
+        }
+    }
+
+    return text;
+}
+
 module.exports = {
     parseUngKyBlock,
     findNextDayByBranch,
     getUpcomingLunarMonthDate,
-    getUpcomingLunarDayMonthDate
+    getUpcomingLunarDayMonthDate,
+    generateIChingCalendarGroundTruth
 };

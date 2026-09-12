@@ -382,4 +382,40 @@ describe('PdfTemplateService Unit Tests', () => {
             expect(onlyInterp).not.toContain('III. CẤU TRÚC TỨ TRỤ CAN CHI (ĐỐI CHIẾU NAM TRÊN - NỮ DƯỚI)');
         });
     });
+
+    describe('Imperial Cover Page Generation (Trang Bìa Hoàng Gia)', () => {
+        const mockRecord = {
+            _id: '018e391b-bazi-7000-8000-000000000001',
+            inputInfo: { name: 'Hoàng Thái Tử', gender: 1, date: '1995-10-10' },
+            userName: 'Hoàng Thái Tử',
+            primaryHexagram: { name: 'Thuần Càn', palace: 'Càn Kim' },
+            transformedHexagram: { name: 'Thiên Phong Cấu', palace: 'Càn Kim' },
+            question: 'Dự án kinh doanh cuối năm có thu được lợi nhuận lớn không?'
+        };
+
+        test('should render Bazi cover page with personal monograph title, seal, and client card when cover scope is included', () => {
+            const html = pdfTemplateService.generateBaziHtml(mockRecord, ['cover', 'bazi_pillars']);
+            expect(html).toContain('cover-page-wrapper');
+            expect(html).toContain('cover-theme-bazi');
+            expect(html).toContain('BÁT TỰ TỨ TRỤ BẢN MỆNH THƯ');
+            expect(html).toContain('Hoàng Thái Tử');
+            expect(html).toContain('cover-imperial-seal');
+            expect(html).toContain('HỒ SƠ TỨ TRỤ MỆNH LÝ CÁ NHÂN');
+            expect(html).toContain('Cân Bằng Ngũ Hành');
+        });
+
+        test('should render IChing cover page with question focus and seal', () => {
+            const html = pdfTemplateService.generateIChingHtml(mockRecord, ['cover']);
+            expect(html).toContain('cover-page-wrapper');
+            expect(html).toContain('cover-theme-iching');
+            expect(html).toContain('HỒ SƠ DỊCH LÝ & CHIÊM BỐC CÁ NHÂN');
+            expect(html).toContain('CHU DỊCH QUÁI TƯỢNG & LỤC HÀO BIỆN CHỨNG');
+            expect(html).toContain('Dự án kinh doanh cuối năm có thu được lợi nhuận lớn không?');
+            expect(html).toContain('Thuần Càn');
+            expect(html).toContain('cover-imperial-seal');
+            expect(html).toContain('DỊCH');
+            expect(html).toContain('TÔNG');
+        });
+    });
 });
+

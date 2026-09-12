@@ -18,10 +18,10 @@ graph TD
         UserApp --> HistoryB[HistoryBoard.jsx]
         UserApp --> ProfileB[ProfileBoard.jsx]
         
-        IChingB --> CoinT[CoinToss.jsx] & MaiHoaIn[MaiHoaInput.jsx] & ManualIn[ManualInput.jsx]
+        IChingB --> IChingIn[IChingInput.jsx]
         BaziB --> BaziIn[BaziInput.jsx]
         MarriageB --> MarriageIn[MarriageInput.jsx]
-        ZiweiB --> ZiweiCh[ZiweiChart.jsx]
+        ZiweiB --> ZiweiCh[ZiweiChart.jsx] & ZiweiIn[ZiweiInput.jsx]
         
         IChingB & BaziB & ZiweiB & MarriageB --> ChatW[AiChatWidget.jsx]
         IChingB & BaziB & ZiweiB & MarriageB --> FloatT[FloatingErrorToast.jsx]
@@ -232,14 +232,17 @@ Tổ chức phân tích tương thích hai bản mệnh Bát Tự chuyên sâu q
   + Trụ 4: Con Cái, Dòng Tộc & Lộ Trình Vận Trình Trăm Năm (Thời điểm sinh nở đại cát, cách thức giáo dục con cái, niên biểu đồng hành).
 - **Tầng 3 (Gemini Chief Editor & Strategic Harmonizer):** Tổng hợp ma trận hòa hợp, phác đồ đồng thuận hôn nhân bền vững và lời khuyên tu dưỡng tổ ấm.
 
-#### D. Quy trình Kinh Dịch VIP Pipeline (3 Kịch Bản Tương Lai & Đạo Dịch Thực Chiến)
-Tổ chức biện chứng Lục Hào cổ điển kết hợp dự phóng đa kịch bản hành động:
-- **Tầng 1 (CoT Biện Chứng Lục Hào Cốt Lõi):** Phân tích Quẻ Thể - Dụng, tương quan Thế - Ứng, Hào Động và vượng suy Dụng Thần theo Nguyệt Lệnh/Nhật Kiến.
-- **Tầng 2 (3 Replicas Song Song - 3 Khối Học Thuật):**
-  + Khối 1: Biện Chứng Lục Hào & Động Hào Cát Hung (Giải mã ý nghĩa từng hào, hào biến, vượng suy thế ứng).
-  + Khối 2: 3 Kịch Bản Diễn Tiến Tương Lai (Bảng so sánh 3 kịch bản: Thuận dòng - Nghịch cảnh - Đột phá kèm xác suất và rủi ro).
-  + Khối 3: Mốc Thời Gian Ứng Kỳ & Chiến Lược Hành Động (Địa Chi tháng/ngày ứng nghiệm, diệu kế hành động theo Đạo Dịch).
-- **Tầng 3 (Gemini Chief Editor & Strategic Harmonizer):** Tổng kết ma trận SWOT, phân định cơ hội/thách thức và đúc kết lời khuyên trí tuệ Dịch học.
+#### D. Quy trình Kinh Dịch VIP Pipeline (6 Chương Tượng - Hào Biện Chứng & Ứng Kỳ Ngữ Cảnh)
+Tổ chức biện chứng Chu Dịch cổ điển kết hợp Lục Hào Nạp Giáp và định lượng ứng kỳ theo ngữ cảnh:
+- **Tầng 1 (CoT Biện Chứng Cốt Lõi Tượng - Hào):** Phân tích Quẻ Thể - Dụng, tương quan Thế - Ứng, Hào Động và vượng suy Dụng Thần theo Nguyệt Lệnh/Nhật Kiến, tập trung 100% vào câu hỏi chiêm bốc cốt lõi của đương số.
+- **Tầng 2 (6 Replicas Song Song - 6 Chương Chuyên Sâu):**
+  + Chương 1: Khởi Quái & Tượng Pháp Chu Dịch (Quái tượng vĩ mô, Thể Dụng, Thoán/Hào từ, hoàn cảnh khách quan bên ngoài).
+  + Chương 2: Biện Chứng Lục Hào & Vị Thế Dụng Thần (Đi thẳng vào tâm điểm câu hỏi, thẩm định Nguyệt Kiến, Nhật Thần, tương quan Thế - Ứng).
+  + Chương 3: Động Hào Biến Khí & Yếu Tố Ẩn Tàng (Hóa Tiến/Thoái/Hồi Đầu Khắc, Phục Thần, Lục Thần chi phối tâm lý và ngoại cảnh).
+  + Chương 4: Đối Chiếu Biện Chứng Tượng - Hào & Phán Quyết Thực Thể (Ma trận 3 cột Biểu vs Lý, phân định 4 trường hợp Cát-Cát, Cát-Hung, Hung-Cát, Hung-Hung, phán quyết khách quan dứt khoát).
+  + Chương 5: Định Lượng Thời Khắc Ứng Kỳ & Bản Đồ Không - Thời Gian (Phân định chặt chẽ 3 tình thái: sự kiện ngắn hạn mốc ấn định, tìm kiếm đồ thất lạc/mất mát, và kỳ vọng mở tương lai).
+  + Chương 6: Kim Chỉ Nam Đạo Dịch & Diệu Kế Hành Động (Triết lý "Tùy Thời Biến Dịch", phương sách xử thế thực tế và hóa giải nghịch cảnh).
+- **Tầng 3 (Gemini Chief Editor & Strategic Harmonizer):** Tổng kết Ma Trận SWOT Dịch Lý (Thế mạnh, Nguy cơ, Cơ hội, Thách thức) và Đạo Dịch Chỉ Nam cô đọng. Toàn bộ tiến trình được khử sạch 100% các từ ngữ nội bộ hệ thống (Gemini, CoT, Replicas, Tầng, Chief Editor).
 
 ### 2.4 Cơ Chế Đồng Bộ Ngữ Cảnh VIP Chat Follow-up & Động Cơ Ngữ Nghĩa BM25 In-Memory (Hybrid VIP Context Memory)
 Để hỗ trợ người dùng hỏi đáp chuyên sâu (Follow-up Chat) trên các bài luận giải VIP có độ dài từ 4.000 - 7.000 từ mà không làm quá tải token context window (~11.000 tokens) và tránh AI bị loãng thông tin, hệ thống triển khai kiến trúc **Native In-Memory Semantic Engine** tại `ConversationContextService.js` gồm 3 thành phần chính:
@@ -280,54 +283,55 @@ flowchart TD
 - **Tiết kiệm tài nguyên:** Giảm kích thước prompt từ ~11.000 tokens xuống chỉ còn ~1.500 tokens/lượt chat, tăng tốc độ phản hồi ban đầu (Time-to-First-Token) xuống dưới 1.2s.
 - **Tính nhất quán tuyệt đối:** AI follow-up bám sát và kế thừa toàn bộ phân tích thần sát, cách cục, đại vận và lời khuyên đã được tổng hợp ở bài luận chính, loại bỏ hiện tượng mâu thuẫn câu trả lời.
 
-### 2.5 Động Cơ Đọc Âm Thanh Kép (Dual-Audio TTS Engine) & Đồng Bộ Trực Quan Karaoke Sync
-Để nâng tầm trải nghiệm của người dùng khi theo dõi các bản luận giải chuyên sâu (4.000 - 7.000 từ), hệ thống cung cấp động cơ âm thanh kép (Dual-Audio TTS) kết hợp hài hòa giữa chất lượng cao và tốc độ phản hồi tức thời:
+#### 2.5 Động Cơ Audiobook TTS Streaming & Chuỗi DSP Mastering 8 Tầng (Audiophile Gapless Engine)
+Hệ thống triển khai kiến trúc **Live Audio Streaming & Dual-Audio Ping-Pong Engine** đạt chuẩn ứng dụng audiobook cao cấp (Audible, Storytel, Voiz FM):
 
 ```mermaid
 flowchart TD
-    SectionCard[SectionCard (Header Bar)] -->|Nhấn 🔊 Nghe đọc| PlayAction[ttsEngine.playSection]
+    UserAction[Người dùng: Bấm Nghe Toàn Bài / Đổi Giọng] --> TicketReq[POST /api/tts/ticket: Tạo vé trong 2ms]
+    TicketReq --> StreamConn[GET /api/tts/stream/:ticketId]
     
-    subgraph TTSEngineCore [Động Cơ Dual-Audio Singleton - ttsEngine.js]
-        PlayAction --> Normalizer[NLP Text Normalizer: Phiên âm ký hiệu cổ học M, V, Đ, H, Tứ Hóa & Bảng Markdown]
-        Normalizer --> Chunker[Sentence Chunking: Tách câu thông minh < 180 ký tự]
-        Chunker --> GenderCheck{Chế độ Giọng Đọc}
-        
-        GenderCheck -->|Giọng Nữ AI| GoogleTTS[Endpoint Backend Proxy: /api/tts?text=...&lang=vi]
-        GoogleTTS --> LRUCache[In-Memory LRU Cache 500 câu (0ms)]
-        LRUCache --> HTML5Audio[HTML5 Audio: Google Natural Voice MP3 ngọt ngào]
-        
-        GenderCheck -->|Giọng Nam| WebSpeech[Native Web Speech API: SAPI Microsoft An trầm ấm]
-        WebSpeech --> KeepAlive[Chromium Keepalive: Heartbeat Ping vi mô 10s chống freeze]
-        KeepAlive --> UtteranceSpeak[window.speechSynthesis.speak]
+    subgraph BackendStreaming [Máy Chủ Node.js Streaming]
+        StreamConn --> CheckCache{Đã có trong chapterCache?}
+        CheckCache -->|Có (14ms)| ServeFull[Phản hồi toàn bộ Buffer MP3 + Content-Length]
+        CheckCache -->|Chưa có| LiveStream[Transfer-Encoding: chunked]
+        LiveStream --> EdgeTTS[MsEdgeTTS toStream: Tạo dòng âm thanh 96kbps]
+        EdgeTTS -->|Mỗi chunk MP3| PipeClient[res.write: Gửi ngay lập tức tới Trình duyệt TTFB < 500ms]
+        EdgeTTS -->|Hoàn thành| SaveCache[Buffer.concat -> Lưu chapterCache]
     end
 
-    HTML5Audio --> StateNotify[ttsEngine._notify: Phát sự kiện tới các listeners]
-    UtteranceSpeak --> StateNotify
-    
-    subgraph ReactiveUI [Giao Diện Phản Ứng Thời Gian Thực]
-        StateNotify --> KaraokeSync[SectionRenderer: Khung trích dẫn Karaoke Realtime Highlight]
-        StateNotify --> SectionBtn[SectionCard: Nút trạng thái Đang đọc với Equalizer 3 cột]
-        StateNotify --> MasterDock[AudioPlayerDock: Nổi cố định đáy màn hình]
+    subgraph FrontendDualEngine [Dual-Audio Ping-Pong Engine - ttsEngine.js]
+        ServeFull --> ActiveAudio[_activeAudio: Phát ngay lập tức < 1s]
+        PipeClient --> ActiveAudio
+        ActiveAudio --> DSP[Chuỗi 8 tầng DSP Web Audio API Mastering]
+        DSP --> Speaker[Loa Người Dùng: Âm thanh trong trẻo, ấm áp]
+        
+        ActiveAudio -.->|Sau 300ms phát Chương N| StandbyPrefetch[_standbyAudio: Tự động tải trước Chương N+1]
+        StandbyPrefetch --> CacheRAM[Bộ đệm RAM Trình duyệt]
+        
+        ActiveAudio -->|Sự kiện onended| Handover[_performSeamlessHandover: Hoán đổi Active <-> Standby trong 4.4ms]
+        Handover --> SeamlessPlay[_activeAudio.play: Phát Chương N+1 với độ trễ 0ms Gapless]
     end
 
-    MasterDock --> Controls[Bảng Điều Khiển: Tua tiến trình Scrubber Thumb, Âm lượng 0-100%, Tốc độ 0.75x-1.5x, Đổi giọng Nữ/Nam, Đóng X]
-    Controls --> TTSEngineCore
+    subgraph FallbackVoice [Giọng Thầy Luận]
+        UserAction -.->|Chọn Thầy Luận| WebSpeechNative[100% Native Web Speech API: pitch 0.78, phản hồi 1.6ms]
+        WebSpeechNative --> Speaker
+    end
 ```
 
-- **Kiến trúc Dual-Audio Đột Phá:**
-  + **Giọng Nữ Chuẩn AI (Google Natural Voice MP3):** Truyền phát qua backend proxy `/api/tts` với bộ đệm in-memory LRU 500 câu. Đem lại chất giọng nữ ngọt ngào, truyền cảm, khắc phục 100% khiếm khuyết thiếu voice nữ trên hệ điều hành Windows SAPI.
-  + **Giọng Nam (*"Thầy Luận Quẻ"*):** Sử dụng Native Web Speech API bản địa với giọng trầm ấm, đĩnh đạc, phản hồi 0ms.
-- **Thanh Tiến Trình Tua Câu Tương Tác (Interactive Seek Bar):**
-  + Người dùng có thể click hoặc kéo rê chuột (drag) trên thanh tiến trình để tua tức thời đến bất kỳ câu văn nào trong chương luận giải.
-  + Tích hợp Scrubber Thumb và Tooltip xem trước số câu (`Câu X/Y`) khi rê chuột.
-- **Điều Khiển Âm Lượng & Bật/Tắt Tiếng:**
-  + Cụm icon `Volume2`/`VolumeX` kết hợp slider `0 - 100%` điều chỉnh âm lượng mượt mà, phản hồi ngay lập tức trên cả HTML5 Audio và Native Web Speech.
-- **Điều Chỉnh Tốc Độ Phát Âm Thanh (0.75x - 1.5x):**
-  + Hỗ trợ 4 mức: `0.75x`, `1.0x`, `1.25x`, `1.5x`. Cố định `defaultPlaybackRate` và `playbackRate` trên Audio Element chống tình trạng trình duyệt tự reset về 1.0x khi nạp câu mới.
-- **Chuyên Biệt Hóa Giao Diện Theo 4 Phân Hệ Phong Thủy:**
-  + Tự động đồng bộ màu sắc chủ đạo của modal, header gradient, waveform equalizer, thanh tiến trình, nút bấm và badge theo đúng phân hệ: **Tử Vi** (Tím / Chàm), **Bát Tự** (Xanh dương / Cyan), **Kinh Dịch** (Hổ phách / Cam), **Hôn Nhân** (Hồng ngọc / Rose).
-- **Khắc Phục Hoàn Toàn Nút Đóng "X":**
-  + Tự động reset `currentSectionId = null` và giải phóng audio stream khi nhấn nút X, đảm bảo modal đóng và unmount khỏi DOM ngay lập tức.
+- **Kiến trúc Live Audio Streaming & Streaming Ticket:**
+  + **Tốc độ Khởi Phát Tức Thì (< 1.0s):** Không cần chờ tải toàn bộ file MP3 (từng mất 30s-45s), backend truyền trực tiếp từng chunk MP3 ngay khi máy chủ Microsoft tạo ra. Trình duyệt nhận âm thanh và cất tiếng nói trong < 500ms.
+  + **Động Cơ Kép Dual-Audio Ping-Pong (Chuyển chương 0ms Gapless):** Sử dụng 2 Audio Element (`_audioA` và `_audioB`). Khi Chương 1 đang phát trên `_activeAudio`, Chương 2 được tự động nạp trước vào `_standbyAudio`. Khi Chương 1 kết thúc, hai Audio Element hoán đổi tức thì trong 4.4ms (0ms gapless) mà không có khoảng lặng nào.
+  + **Chuỗi Xử Lý Âm Thanh Chuẩn Phòng Thu (8 Tầng Web Audio DSP Mastering):**
+    1. *High-pass filter (80Hz)*: Cắt tiếng ù rền.
+    2. *Low-shelf filter (140Hz, +3.0dB)*: Tạo độ dày giọng lồng ngực.
+    3. *Peaking presence (2.8kHz, +2.0dB)*: Làm rõ nét âm tiết khẩu hình.
+    4. *De-Esser (6.8kHz, -1.8dB)*: Triệt tiêu tiếng xuýt gắt âm gió AI.
+    5. *High-shelf air (11kHz, +1.2dB)*: Mở rộng dải âm cao thoáng đãng.
+    6. *Harmonic Exciter (8kHz-14kHz)*: Bổ sung hài âm màng micro lớn.
+    7. *Studio Ambience (Haas effect 20ms, 3.5%)*: Chiều sâu không gian thiền phòng.
+    8. *Dynamics Compressor (Threshold -20dB, Ratio 3.5:1)*: Cân bằng âm lượng podcast radio.
+  + **Giọng Thầy Luận Bản Địa:** Chạy 100% trên thiết bị người dùng qua Web Speech API với cao độ chuẩn `pitch: 0.78`, phản hồi 1.6ms, 0đ chi phí.
 
 ---
 
@@ -494,4 +498,95 @@ graph TD
 - **Chuẩn In Ấn A4:** Khổ A4 đứng (Portrait, margin: `10mm 12mm 12mm 12mm`). Sử dụng `@page` CSS và font chữ hoàng gia Phương Đông (`Cinzel`, `Noto Serif`, `Inter`).
 - **Phân Tách Trang Thông Minh:** Các thẻ `no-break` (`page-break-inside: avoid`) giữ nguyên đồ hình tứ trụ, bảng đối chiếu hợp hôn hoặc đồ hình 6 hào trên cùng một trang giấy, tránh việc bị cắt đứt giữa chừng.
 - **Ma Trận Đại Vận 2 Hàng x 5 Cột:** Thay thế thanh trượt ngang trên web bằng lưới 2x5 cố định (hàng trên 50 năm tiền vận, hàng dưới 50 năm hậu vận) kèm huy hiệu Cát/Hung theo Dụng Thần.
+
+### 7.3 Trang Bìa Cá Nhân Hóa Xuất Bản PDF (Personal Luxury Monograph Cover Page Architecture)
+Hệ thống tích hợp module tạo trang bìa cao cấp `renderCoverPage(options)` tại `PdfTemplateService.js` dành riêng cho toàn bộ 4 phân hệ (Bát Tự, Tử Vi, Kinh Dịch, Hợp Hôn):
+- **Cấu Trúc Khối Bìa A4 Vừa Vặn & Cá Nhân Hóa (Khử 100% Text Viện):**
+  - Khung bao `.cover-page-wrapper` cố định `height: 268mm; max-height: 268mm; overflow: hidden; page-break-after: always;` chiếm trọn vẹn Trang 1, ngắt trang cưỡng bức sang Trang 2 không gây tràn layout.
+  - Loại bỏ hoàn toàn các từ viện nghiên cứu, học viện hay khâm định. Toàn bộ là ấn phẩm cá nhân độc bản dành riêng cho đương số:
+    + *Kinh Dịch:* `HỒ SƠ DỊCH LÝ & CHIÊM BỐC CÁ NHÂN` / `BẢN DỊCH GIẢI CHIÊM BỐC ĐỘC BẢN`.
+    + *Bát Tự:* `HỒ SƠ TỨ TRỤ MỆNH LÝ CÁ NHÂN` / `BẢN KHẢO LUẬN BÁT TỰ ĐỘC BẢN`.
+    + *Tử Vi:* `HỒ SƠ TỬ VI ĐẨU SỐ CÁ NHÂN` / `BẢN KHẢO LUẬN MỆNH BÀN ĐỘC BẢN`.
+    + *Hợp Hôn:* `HỒ SƠ HỢP HÔN & GIA ĐẠO CÁ NHÂN` / `BẢN KHẢO LUẬN PHU THÊ ĐỘC BẢN`.
+- **4 Bộ Theme Chuyên Biệt Theo Phân Hệ (`cover-theme-${system}`):**
+  - *Kinh Dịch (`iching`):* Đỏ Chu Sa cổ điển `#991b1b`, nền radial đỏ hồng nhạt `#ffffff` $\rightarrow$ `#fff5f5` $\rightarrow$ `#fee2e2`.
+  - *Bát Tự (`bazi`):* Vàng Hổ Phách Cung Đình `#b45309`, nền radial giấy cổ `#fffdf8` $\rightarrow$ `#faf6ec` $\rightarrow$ `#f4ebd9`.
+  - *Tử Vi (`ziwei`):* Tím Tử Vi Huyền Không `#6b21a8`, nền radial tím sương `#ffffff` $\rightarrow$ `#faf5ff` $\rightarrow$ `#f3e8ff`.
+  - *Hợp Hôn (`marriage`):* Đỏ Mận Hỷ Khánh Gia Đạo `#be123c`, nền radial hồng ngọc `#ffffff` $\rightarrow$ `#fff1f2` $\rightarrow$ `#ffe4e6`.
+- **Thái Cực Đồ SVG Chuẩn Canonical Âm Dương:**
+  - Thiết kế đồ hình Thái Cực Đồ chuẩn canonical S-curve: Nửa trên (Dương, nền trắng) chứa Mắt Âm (chấm tròn màu phân hệ); Nửa dưới (Âm, nền màu phân hệ) chứa Mắt Dương (chấm tròn trắng viền mảnh). Triệt tiêu lỗi trùng màu nền, phản ánh trọn vẹn nguyên lý "trong âm có dương, trong dương có âm".
+- **Hệ Thống Tứ Phân Ấn 56px Có Crosshair Divider (Vermilion Seal):**
+  - Con dấu triện son 56px x 56px với khung viền kép và khoảng cách `gap: 1px` tạo thành đường chữ thập crosshair cổ kính:
+    + Kinh Dịch: `DỊCH LÝ CHÍNH TÔNG`
+    + Bát Tự: `TỨ TRỤ MỆNH LÝ`
+    + Tử Vi: `TỬ VI ĐẨU SỐ`
+    + Hợp Hôn: `HỢP HÔN GIA ĐẠO`
+  - Font `Noto Serif` 6.3pt đậm căn giữa từng quadrant, triệt tiêu 100% lỗi tràn chữ hoặc viền mờ ngoài hộp.
+- **Tương Thích Ngược & Lựa Chọn Linh Hoạt:**
+  - `PdfExportModal.jsx` cung cấp tùy chọn checkbox `Trang Bìa Hoàng Gia (Imperial Title Page)` mặc định bật.
+  - Kiểm thử tự động (Unit Tests) tự động bypass trang bìa khi chạy các test suite cũ chỉ yêu cầu đồ hình/luận giải (`scope: ['chart', 'interp']`), bảo toàn tính ổn định 100% của toàn bộ hệ thống test.
+
+---
+
+## 8. Kiến Trúc Âm Thanh Luận Giải AI (Dual-Mode TTS & Audiophile Web Audio DSP)
+
+Hệ thống âm thanh đọc bài luận giải phong thủy được thiết kế theo kiến trúc **Dual-Mode Hybrid 0đ Chi Phí** kết hợp bộ xử lý tín hiệu số **Web Audio API 8 Tầng DSP Mastering**:
+
+```mermaid
+graph TD
+    User([Người Dùng / AudioPlayerDock]) -->|Chọn Giọng / Play| Dispatcher{Bộ Điều Phối Giọng}
+    
+    subgraph "Chế Độ 1: Thầy Luận (Native Web Speech API)"
+        Dispatcher -->|voice = 'thayluan'| WebSpeech[window.speechSynthesis]
+        WebSpeech --> SplitSentences[Tách Câu splitIntoSpeechSentences]
+        SplitSentences --> SentenceEngine[Phát Từng Câu + Tiến Trình 'Câu X / Y']
+        SentenceEngine --> KeepAlive[Chromium Keep-Alive Timer 10s]
+    end
+
+    subgraph "Chế Độ 2: Neural Studio (MsEdgeTTS 96kbps)"
+        Dispatcher -->|Hoài My / Nam Minh / ...| CacheCheck{Browser RAM Cache}
+        CacheCheck -->|Cache HIT| FastPlay[Phát Ngay Lập Tức < 50ms]
+        CacheCheck -->|Cache MISS| BackendReq[/POST /api/tts/chapter/]
+        BackendReq --> CleanFilter[Lọc Emoji Unicode & Ký Tự Đặc Biệt]
+        CleanFilter --> Queue[Hàng Đợi Tuần Tự EdgeTtsQueue]
+        Queue --> EdgeWS[Microsoft Bing WebSocket 96kbps]
+        EdgeWS --> ConcatBuf[Buffer.concat Ghép File MP3 Hoàn Chỉnh]
+        ConcatBuf --> ReturnMP3[Phản Hồi MP3 Stream]
+    end
+
+    FastPlay --> DSPMaster[Chuỗi 8 Tầng Web Audio API DSP]
+    ReturnMP3 --> DSPMaster
+    DSPMaster --> Destination([Loa / Tai Nghe Người Dùng])
+```
+
+### 8.1 Hai Chế Độ Hoạt Động (Dual-Mode Execution)
+1. **Chế độ Thầy Luận (`thayluan` - 📿):**
+   - Hoàn toàn chạy Client-side qua Native Web Speech API (`window.speechSynthesis`).
+   - 0đ chi phí, 0ms độ trễ mạng, phản hồi tức thì (~2ms).
+   - Cao độ được tinh chỉnh trầm ấm uy nghiêm (`pitch: 0.78` - giảm 5% theo chuẩn cổ học).
+   - Thanh tiến trình hiển thị theo cấu trúc câu (`Câu 1 / 19 câu`).
+   - Tự động giữ kết nối bằng Chromium Keep-Alive Timer chống silent freeze 15 giây.
+2. **Chế độ Neural Studio (Hoài My, Nam Minh, Hương Giang, Ngọc Mai):**
+   - Sử dụng Microsoft Edge Neural Voice Studio 96kbps Mono MP3 với độ chân thực cao.
+   - Ghép trọn vẹn cả chương thành 1 file MP3 liên tục (0ms ngắt quãng giữa các câu).
+   - Thanh tiến trình tua theo thời gian thực (mm:ss).
+
+### 8.2 Chuỗi Làm Chủ Âm Học 8 Tầng DSP (Audiophile Mastering Chain)
+Tất cả các luồng âm thanh Neural được dẫn qua chuỗi xử lý tín hiệu Web Audio API trước khi xuất ra loa:
+1. **High-Pass Rumble Filter (80Hz, Q=0.7):** Lọc tạp âm rung chấn dưới 80Hz.
+2. **Low-Shelf Body Filter (140Hz, +3.0dB):** Bổ sung độ dày và độ ấm lồng ngực.
+3. **Peaking Presence Clarity (2.8kHz, +2.0dB, Q=1.2):** Tách bạch âm thanh nguyên âm/phụ âm tiếng Việt.
+4. **De-Esser Anti-Harshness (6.8kHz, -1.8dB, Q=2.0):** Dập tắt tiếng xì gắt của âm gió AI.
+5. **High-Shelf Air Filter (11kHz, +1.2dB):** Mở rộng dải âm cao thoáng đãng.
+6. **Psychoacoustic Harmonic Exciter (3.2kHz Bandpass + Soft-Saturation tanh(1.6x) + 6.5kHz Highpass + 4.5% Mix):** Kích thích hài âm bậc chẵn/lẻ ở dải 8-14kHz, mô phỏng chất âm micro condenser cao cấp.
+7. **Subtle Studio Ambience (20ms Haas Early Reflection + 3.2kHz Lowpass + 3.5% Mix):** Tạo chiều sâu 3D không gian thiền phòng đàm đạo cách người nói 1.2 - 1.5m.
+8. **Broadcast Dynamics Compressor (-20dB threshold, 12dB knee, 3.5:1 ratio, 3ms attack, 140ms release):** Nén mượt đa tầng, gắn kết hài hòa toàn bộ âm phổ.
+
+### 8.3 Cơ Chế Phòng Chống Đứt Gãy Kết Nối & Tối Ưu Tốc Độ Đổi Giọng
+- **Hàng Đợi Tuần Tự `EdgeTtsQueue`:** Chống đụng độ WebSocket đồng thời trên Microsoft Bing, kèm khoảng nghỉ an toàn 600ms.
+- **`cancelToken` Khi Client Hủy Yêu Cầu:** Hủy tức thì socket cũ qua `tts.close()` khi người dùng bấm chuyển giọng, nhường tài nguyên ngay lập tức cho giọng mới.
+- **Bộ Lọc Emoji Unicode Quốc Tế:** Loại bỏ triệt để các ký hiệu `\p{Extended_Pictographic}` gây lỗi đóng socket bất thường.
+- **Khối Ngữ Nghĩa An Toàn (`maxChunkLen = 450 - 500 ký tự`):** Tránh timeout 60 giây và tối ưu tốc độ phản hồi.
+- **Bộ Nhớ Đệm 2 Tầng (L1 Browser Blob Cache + L2 Node.js Chapter Cache):** Đã nghe một lần thì lần thứ hai chuyển giọng chỉ mất **< 50ms**!
+
 

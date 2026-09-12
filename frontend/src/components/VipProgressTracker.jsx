@@ -26,9 +26,12 @@ const MARRIAGE_CHAPTERS = [
 ];
 
 const ICHING_CHAPTERS = [
-  { id: 1, title: 'Biện Chứng Lục Hào Cốt Lõi' },
-  { id: 2, title: '3 Kịch Bản Diễn Biến & Xác Suất' },
-  { id: 3, title: 'Mốc Thời Gian Ứng Kỳ & Đạo Dịch' }
+  { id: 1, title: 'Quái Tượng & Bối Cảnh Thời Thế' },
+  { id: 2, title: 'Biện Chứng Lục Hào & Dụng Thần' },
+  { id: 3, title: 'Động Hào Biến Khí & Phục Thần' },
+  { id: 4, title: 'Đối Chiếu Tượng - Hào & Phán Quyết' },
+  { id: 5, title: 'Thời Khắc Ứng Kỳ Theo Ngữ Cảnh' },
+  { id: 6, title: 'Kim Chỉ Nam & Diệu Kế Đạo Dịch' }
 ];
 
 const getChaptersBySystem = (sys) => {

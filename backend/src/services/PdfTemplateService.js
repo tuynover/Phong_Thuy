@@ -1551,6 +1551,569 @@ function getCorePrintStyles() {
       gap: 6px 10px;
       margin-bottom: 12px;
     }
+
+    /* ==========================================================================
+       TRANG BÌA HOÀNG GIA (IMPERIAL LUXURY COVER PAGE)
+       ========================================================================== */
+    .cover-page-wrapper {
+      page-break-after: always;
+      break-after: page;
+      width: 100%;
+      height: 268mm;
+      max-height: 268mm;
+      display: flex;
+      flex-direction: column;
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .cover-page-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16mm 14mm;
+      background: radial-gradient(circle at 50% 35%, #fffdf8 0%, #faf6ec 65%, #f4ebd9 100%);
+      border: 3.5px double #b45309;
+      box-sizing: border-box;
+      text-align: center;
+    }
+
+    .cover-inner-border {
+      position: absolute;
+      top: 5mm;
+      bottom: 5mm;
+      left: 5mm;
+      right: 5mm;
+      border: 1px solid #d97706;
+      pointer-events: none;
+    }
+
+    .cover-corner {
+      position: absolute;
+      color: #b45309;
+      font-size: 14pt;
+      line-height: 1;
+      font-weight: 900;
+      user-select: none;
+    }
+    .corner-tl { top: 3.5mm; left: 3.5mm; }
+    .corner-tr { top: 3.5mm; right: 3.5mm; }
+    .corner-bl { bottom: 3.5mm; left: 3.5mm; }
+    .corner-br { bottom: 3.5mm; right: 3.5mm; }
+
+    .cover-top {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      z-index: 2;
+    }
+
+    .cover-institute {
+      font-family: 'Noto Serif', serif;
+      font-size: 9pt;
+      font-weight: 800;
+      color: #92400e;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .cover-top-divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 200px;
+    }
+
+    .cover-divider-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #d97706, transparent);
+    }
+
+    .cover-yin-yang {
+      color: #b45309;
+      font-size: 11pt;
+    }
+
+    .cover-series-badge {
+      display: inline-block;
+      border: 1px solid #b45309;
+      background: #fffbeb;
+      color: #78350f;
+      font-size: 7pt;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 2px 10px;
+      border-radius: 9999px;
+    }
+
+    .cover-middle {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      z-index: 2;
+    }
+
+    .cover-emblem {
+      margin-bottom: 10px;
+    }
+
+    .cover-title {
+      font-size: 23pt;
+      font-weight: 900;
+      color: #78350f;
+      margin: 0 0 8px 0;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      line-height: 1.25;
+      text-shadow: 0 1px 2px rgba(180, 83, 9, 0.15);
+    }
+
+    .cover-subtitle {
+      font-size: 10pt;
+      font-weight: 600;
+      color: #b45309;
+      margin-bottom: 20px;
+      letter-spacing: 0.6px;
+      max-width: 520px;
+      line-height: 1.4;
+    }
+
+    .cover-client-card {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1.5px solid #fde68a;
+      box-shadow: 0 2px 10px rgba(180, 83, 9, 0.08);
+      border-radius: 8px;
+      padding: 10px 18px;
+      width: 90%;
+      max-width: 480px;
+      box-sizing: border-box;
+    }
+
+    .cover-card-header {
+      font-size: 8pt;
+      font-weight: 800;
+      color: #92400e;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-bottom: 1px dashed #fde68a;
+      padding-bottom: 4px;
+      margin-bottom: 8px;
+    }
+
+    .cover-card-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 5px 12px;
+      font-size: 9pt;
+      text-align: left;
+    }
+
+    .cover-info-row {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .cover-info-row.full-width {
+      grid-column: span 2;
+    }
+
+    .cover-info-label {
+      font-size: 8pt;
+      font-weight: 700;
+      color: #64748b;
+      min-width: 70px;
+    }
+
+    .cover-info-val {
+      font-size: 9pt;
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    .cover-info-val.highlight-name {
+      font-family: 'Noto Serif', serif;
+      font-size: 11pt;
+      font-weight: 800;
+      color: #92400e;
+      text-transform: uppercase;
+    }
+
+    .cover-info-val.highlight-text {
+      color: #b45309;
+      font-weight: 700;
+      font-style: italic;
+    }
+
+    .cover-bottom {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      z-index: 2;
+    }
+
+    .cover-seal-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .cover-imperial-seal {
+      width: 56px;
+      height: 56px;
+      border: 2px solid #991b1b;
+      background: #991b1b;
+      padding: 2.5px;
+      box-sizing: border-box;
+      border-radius: 4px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+      overflow: hidden;
+    }
+
+    .seal-inner-border {
+      width: 100%;
+      height: 100%;
+      border: 1.5px solid #fecaca;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 1px;
+      box-sizing: border-box;
+      overflow: hidden;
+      padding: 1px;
+      background: #fecaca;
+    }
+
+    .seal-cell {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #991b1b;
+      color: #ffffff;
+      font-family: 'Noto Serif', serif;
+      font-weight: 900;
+      font-size: 6.3pt;
+      line-height: 1;
+      letter-spacing: -0.2px;
+      text-shadow: none;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .seal-caption {
+      font-size: 6.5pt;
+      font-weight: 800;
+      color: #991b1b;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .cover-motto {
+      text-align: center;
+    }
+
+    .motto-main {
+      font-family: 'Noto Serif', serif;
+      font-size: 8.5pt;
+      font-style: italic;
+      color: #78350f;
+      margin-bottom: 2px;
+    }
+
+    .motto-sub {
+      font-size: 6.5pt;
+      font-weight: 600;
+      color: #94a3b8;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    /* THEME 1: KINH DỊCH (Đỏ Chu Sa Cổ Điển) */
+    .cover-theme-iching {
+      background: radial-gradient(circle at 50% 35%, #ffffff 0%, #fff5f5 65%, #fee2e2 100%) !important;
+      border-color: #991b1b !important;
+    }
+    .cover-theme-iching .cover-inner-border { border-color: #f87171 !important; }
+    .cover-theme-iching .cover-corner { color: #991b1b !important; }
+    .cover-theme-iching .cover-institute { color: #991b1b !important; }
+    .cover-theme-iching .cover-series-badge {
+      background: #fef2f2 !important;
+      border-color: #991b1b !important;
+      color: #991b1b !important;
+    }
+    .cover-theme-iching .cover-title { color: #7f1d1d !important; text-shadow: 0 1px 2px rgba(153, 27, 27, 0.15) !important; }
+    .cover-theme-iching .cover-subtitle { color: #991b1b !important; }
+    .cover-theme-iching .cover-client-card { border-color: #fca5a5 !important; }
+    .cover-theme-iching .cover-card-header { color: #991b1b !important; border-bottom-color: #fca5a5 !important; }
+    .cover-theme-iching .highlight-name { color: #991b1b !important; }
+    .cover-theme-iching .highlight-text { color: #dc2626 !important; }
+    .cover-theme-iching .cover-imperial-seal {
+      border-color: #991b1b !important;
+      background: #991b1b !important;
+    }
+    .cover-theme-iching .seal-inner-border { border-color: #fecaca !important; background: #fecaca !important; }
+    .cover-theme-iching .seal-cell { background: #991b1b !important; }
+    .cover-theme-iching .seal-caption { color: #991b1b !important; }
+    .cover-theme-iching .motto-main { color: #7f1d1d !important; }
+
+    /* THEME 2: BÁT TỰ (Vàng Hổ Phách Cung Đình) */
+    .cover-theme-bazi {
+      background: radial-gradient(circle at 50% 35%, #fffdf8 0%, #faf6ec 65%, #f4ebd9 100%) !important;
+      border-color: #b45309 !important;
+    }
+    .cover-theme-bazi .cover-inner-border { border-color: #d97706 !important; }
+    .cover-theme-bazi .cover-corner { color: #b45309 !important; }
+    .cover-theme-bazi .cover-institute { color: #92400e !important; }
+    .cover-theme-bazi .cover-series-badge {
+      background: #fffbeb !important;
+      border-color: #b45309 !important;
+      color: #78350f !important;
+    }
+    .cover-theme-bazi .cover-title { color: #78350f !important; text-shadow: 0 1px 2px rgba(180, 83, 9, 0.15) !important; }
+    .cover-theme-bazi .cover-subtitle { color: #b45309 !important; }
+    .cover-theme-bazi .cover-client-card { border-color: #fde68a !important; }
+    .cover-theme-bazi .cover-card-header { color: #92400e !important; border-bottom-color: #fde68a !important; }
+    .cover-theme-bazi .highlight-name { color: #92400e !important; }
+    .cover-theme-bazi .highlight-text { color: #b45309 !important; }
+    .cover-theme-bazi .cover-imperial-seal {
+      border-color: #b45309 !important;
+      background: #b45309 !important;
+    }
+    .cover-theme-bazi .seal-inner-border { border-color: #fef3c7 !important; background: #fef3c7 !important; }
+    .cover-theme-bazi .seal-cell { background: #b45309 !important; }
+    .cover-theme-bazi .seal-caption { color: #b45309 !important; }
+    .cover-theme-bazi .motto-main { color: #78350f !important; }
+
+    /* THEME 3: TỬ VI (Tím Tử Vi Huyền Không) */
+    .cover-theme-ziwei {
+      background: radial-gradient(circle at 50% 35%, #ffffff 0%, #faf5ff 65%, #f3e8ff 100%) !important;
+      border-color: #6b21a8 !important;
+    }
+    .cover-theme-ziwei .cover-inner-border { border-color: #a855f7 !important; }
+    .cover-theme-ziwei .cover-corner { color: #6b21a8 !important; }
+    .cover-theme-ziwei .cover-institute { color: #6b21a8 !important; }
+    .cover-theme-ziwei .cover-series-badge {
+      background: #faf5ff !important;
+      border-color: #6b21a8 !important;
+      color: #6b21a8 !important;
+    }
+    .cover-theme-ziwei .cover-title { color: #581c87 !important; text-shadow: 0 1px 2px rgba(107, 33, 168, 0.15) !important; }
+    .cover-theme-ziwei .cover-subtitle { color: #6b21a8 !important; }
+    .cover-theme-ziwei .cover-client-card { border-color: #d8b4fe !important; }
+    .cover-theme-ziwei .cover-card-header { color: #6b21a8 !important; border-bottom-color: #d8b4fe !important; }
+    .cover-theme-ziwei .highlight-name { color: #6b21a8 !important; }
+    .cover-theme-ziwei .highlight-text { color: #7e22ce !important; }
+    .cover-theme-ziwei .cover-imperial-seal {
+      border-color: #6b21a8 !important;
+      background: #6b21a8 !important;
+    }
+    .cover-theme-ziwei .seal-inner-border { border-color: #e9d5ff !important; background: #e9d5ff !important; }
+    .cover-theme-ziwei .seal-cell { background: #6b21a8 !important; }
+    .cover-theme-ziwei .seal-caption { color: #6b21a8 !important; }
+    .cover-theme-ziwei .motto-main { color: #581c87 !important; }
+
+    /* THEME 4: HỢP HÔN (Đỏ Mận Hỷ Khánh Gia Đạo) */
+    .cover-theme-marriage {
+      background: radial-gradient(circle at 50% 35%, #ffffff 0%, #fff1f2 65%, #ffe4e6 100%) !important;
+      border-color: #be123c !important;
+    }
+    .cover-theme-marriage .cover-inner-border { border-color: #f43f5e !important; }
+    .cover-theme-marriage .cover-corner { color: #be123c !important; }
+    .cover-theme-marriage .cover-institute { color: #be123c !important; }
+    .cover-theme-marriage .cover-series-badge {
+      background: #fff1f2 !important;
+      border-color: #be123c !important;
+      color: #be123c !important;
+    }
+    .cover-theme-marriage .cover-title { color: #881337 !important; text-shadow: 0 1px 2px rgba(190, 18, 60, 0.15) !important; }
+    .cover-theme-marriage .cover-subtitle { color: #be123c !important; }
+    .cover-theme-marriage .cover-client-card { border-color: #fecdd3 !important; }
+    .cover-theme-marriage .cover-card-header { color: #be123c !important; border-bottom-color: #fecdd3 !important; }
+    .cover-theme-marriage .highlight-name { color: #be123c !important; }
+    .cover-theme-marriage .highlight-text { color: #e11d48 !important; }
+    .cover-theme-marriage .cover-imperial-seal {
+      border-color: #be123c !important;
+      background: #be123c !important;
+    }
+    .cover-theme-marriage .seal-inner-border { border-color: #ffe4e6 !important; background: #ffe4e6 !important; }
+    .cover-theme-marriage .seal-cell { background: #be123c !important; }
+    .cover-theme-marriage .seal-caption { color: #be123c !important; }
+    .cover-theme-marriage .motto-main { color: #881337 !important; }
+  `;
+}
+
+const SYSTEM_COVER_CONFIGS = {
+  iching: {
+    category: 'HỒ SƠ DỊCH LÝ & CHIÊM BỐC CÁ NHÂN',
+    badge: 'BẢN DỊCH GIẢI CHIÊM BỐC ĐỘC BẢN',
+    primaryColor: '#991b1b',
+    accentColor: '#dc2626',
+    motto: '"Thuận Thiên Ứng Thời • Tri Mệnh Tận Tính • Tùy Thời Biến Dịch"',
+    footerDesc: 'HỒ SƠ DỊCH LÝ CÁ NHÂN',
+    defaultSeal: ['DỊCH', 'LÝ', 'CHÍNH', 'TÔNG']
+  },
+  bazi: {
+    category: 'HỒ SƠ TỨ TRỤ MỆNH LÝ CÁ NHÂN',
+    badge: 'BẢN KHẢO LUẬN BÁT TỰ ĐỘC BẢN',
+    primaryColor: '#b45309',
+    accentColor: '#d97706',
+    motto: '"Cân Bằng Ngũ Hành • Thuận Ứng Vận Khí • Khai Thông Mệnh Trình"',
+    footerDesc: 'HỒ SƠ MỆNH LÝ CÁ NHÂN',
+    defaultSeal: ['TỨ', 'TRỤ', 'MỆNH', 'LÝ']
+  },
+  ziwei: {
+    category: 'HỒ SƠ TỬ VI ĐẨU SỐ CÁ NHÂN',
+    badge: 'BẢN KHẢO LUẬN MỆNH BÀN ĐỘC BẢN',
+    primaryColor: '#6b21a8',
+    accentColor: '#9333ea',
+    motto: '"Tinh Bàn Tụ Khí • Tứ Hóa Luân Chuyển • Định Vị Càn Khôn"',
+    footerDesc: 'HỒ SƠ TỬ VI CÁ NHÂN',
+    defaultSeal: ['TỬ', 'VI', 'ĐẨU', 'SỐ']
+  },
+  marriage: {
+    category: 'HỒ SƠ HỢP HÔN & GIA ĐẠO CÁ NHÂN',
+    badge: 'BẢN KHẢO LUẬN PHU THÊ ĐỘC BẢN',
+    primaryColor: '#be123c',
+    accentColor: '#e11d48',
+    motto: '"Loan Phụng Hòa Minh • Âm Dương Cân Xứng • Bách Niên Giai Lão"',
+    footerDesc: 'HỒ SƠ GIA ĐẠO CÁ NHÂN',
+    defaultSeal: ['HỢP', 'HÔN', 'GIA', 'ĐẠO']
+  }
+};
+
+/**
+ * Render Trang Bìa Cá Nhân Hóa (Personal Luxury Monograph Cover Page)
+ */
+function renderCoverPage({
+  system = 'bazi',
+  title = 'ẤN PHẨM HỌC THUẬT',
+  subtitle = '',
+  clientName = 'Gia Chủ',
+  gender = '',
+  dateStr = '',
+  lunarStr = '',
+  extraInfo = [],
+  recordId = '',
+  sealText = null
+}) {
+  const sys = SYSTEM_COVER_CONFIGS[system] || SYSTEM_COVER_CONFIGS.bazi;
+  const activeSeal = (Array.isArray(sealText) && sealText.length === 4) ? sealText : sys.defaultSeal;
+
+  return `
+    <div class="cover-page-wrapper">
+      <div class="cover-page-container cover-theme-${system}">
+        <!-- Đường viền kép nội bộ & 4 góc hoa văn hoàng gia -->
+        <div class="cover-inner-border"></div>
+        <div class="cover-corner corner-tl">❖</div>
+        <div class="cover-corner corner-tr">❖</div>
+        <div class="cover-corner corner-bl">❖</div>
+        <div class="cover-corner corner-br">❖</div>
+
+        <!-- PHẦN ĐẦU TRANG BÌA: Định Danh Hồ Sơ Cá Nhân -->
+        <div class="cover-top">
+          <div class="cover-institute">${sys.category}</div>
+          <div class="cover-top-divider">
+            <span class="cover-divider-line" style="background: linear-gradient(90deg, transparent, ${sys.accentColor}, transparent);"></span>
+            <span class="cover-yin-yang" style="color: ${sys.primaryColor};">☯</span>
+            <span class="cover-divider-line" style="background: linear-gradient(90deg, transparent, ${sys.accentColor}, transparent);"></span>
+          </div>
+          <div class="cover-series-badge">${sys.badge}</div>
+        </div>
+
+        <!-- PHẦN TRUNG TÂM: Tựa Đề Ấn Phẩm & Thái Cực Đồ Chuẩn Âm Dương -->
+        <div class="cover-middle">
+          <div class="cover-emblem">
+            <svg class="cover-bagua-svg" viewBox="-50 -50 100 100" width="70" height="70">
+              <!-- Vòng hào quang ngoài -->
+              <circle cx="0" cy="0" r="47" fill="none" stroke="${sys.primaryColor}" stroke-width="2"/>
+              <circle cx="0" cy="0" r="43" fill="none" stroke="${sys.accentColor}" stroke-width="0.8" stroke-dasharray="3,2" opacity="0.8"/>
+              
+              <!-- Nửa Dương: Vòng tròn nền trắng -->
+              <circle cx="0" cy="0" r="40" fill="#ffffff"/>
+              
+              <!-- Nửa Âm: Vùng cong màu chủ đạo của phân hệ -->
+              <path d="M 0,-40 A 40,40 0 0,1 0,40 A 20,20 0 0,1 0,0 A 20,20 0 0,0 0,-40 Z" fill="${sys.primaryColor}"/>
+              
+              <!-- Viền tròn ngăn cách vòng thái cực -->
+              <circle cx="0" cy="0" r="40" fill="none" stroke="${sys.primaryColor}" stroke-width="1.2"/>
+              
+              <!-- TRONG DƯƠNG CÓ ÂM: Mắt màu đậm trên nửa trên nền trắng -->
+              <circle cx="0" cy="-20" r="5.5" fill="${sys.primaryColor}"/>
+              
+              <!-- TRONG ÂM CÓ DƯƠNG: Mắt trắng viền mảnh trên nửa dưới nền màu đậm -->
+              <circle cx="0" cy="20" r="5.5" fill="#ffffff" stroke="${sys.primaryColor}" stroke-width="0.6"/>
+            </svg>
+          </div>
+          <h1 class="cover-title serif-title">${title}</h1>
+          <div class="cover-subtitle serif-title">${subtitle}</div>
+
+          <!-- KHỐI THÔNG TIN ĐƯƠNG SỐ TRANG TRỌNG -->
+          <div class="cover-client-card">
+            <div class="cover-card-header">HỒ SƠ BẢN MỆNH ĐƯƠNG SỐ</div>
+            <div class="cover-card-grid">
+              <div class="cover-info-row">
+                <span class="cover-info-label">Chủ sự:</span>
+                <span class="cover-info-val highlight-name">${clientName}</span>
+              </div>
+              ${gender ? `
+              <div class="cover-info-row">
+                <span class="cover-info-label">Giới tính:</span>
+                <span class="cover-info-val">${gender}</span>
+              </div>` : ''}
+              ${dateStr ? `
+              <div class="cover-info-row">
+                <span class="cover-info-label">Dương lịch:</span>
+                <span class="cover-info-val">${dateStr}</span>
+              </div>` : ''}
+              ${lunarStr ? `
+              <div class="cover-info-row">
+                <span class="cover-info-label">Âm lịch:</span>
+                <span class="cover-info-val">${lunarStr}</span>
+              </div>` : ''}
+              ${extraInfo.map(item => `
+              <div class="cover-info-row ${item.fullWidth ? 'full-width' : ''}">
+                <span class="cover-info-label">${item.label}:</span>
+                <span class="cover-info-val ${item.highlight ? 'highlight-text' : ''}">${item.value}</span>
+              </div>`).join('')}
+            </div>
+          </div>
+        </div>
+
+        <!-- PHẦN CHÂN TRANG BÌA: Triện Ấn & Lời Đề Từ -->
+        <div class="cover-bottom">
+          <!-- Triện ấn sắc nét không tràn chữ -->
+          <div class="cover-seal-box">
+            <div class="cover-imperial-seal">
+              <div class="seal-inner-border">
+                <div class="seal-cell">${activeSeal[0] || 'DỊCH'}</div>
+                <div class="seal-cell">${activeSeal[1] || 'LÝ'}</div>
+                <div class="seal-cell">${activeSeal[2] || 'CHÍNH'}</div>
+                <div class="seal-cell">${activeSeal[3] || 'TÔNG'}</div>
+              </div>
+            </div>
+            <div class="seal-caption">CHỨNG THỰC CỔ HỌC</div>
+          </div>
+
+          <div class="cover-motto">
+            <div class="motto-main">${sys.motto}</div>
+            <div class="motto-sub">${sys.footerDesc} — MÃ SỐ ĐỊNH DANH: ${recordId ? String(recordId).slice(0, 20) : 'IMP-' + Date.now()}</div>
+          </div>
+        </div>
+      </div>
+    </div>
   `;
 }
 
@@ -1632,12 +2195,31 @@ function generateBaziHtml(record, scope = []) {
 
   let contentHtml = '';
 
+  const includeCover = scope.includes('cover') || scope.includes('all') || (!hasScope);
+  if (includeCover) {
+    contentHtml += renderCoverPage({
+      system: 'bazi',
+      title: 'BÁT TỰ TỨ TRỤ BẢN MỆNH THƯ',
+      subtitle: 'Khảo Cứu Tứ Trụ, Thần Sát, Cân Bằng Ngũ Hành & Đại Vận 100 Năm',
+      clientName: inputInfo.name || 'Gia Chủ',
+      gender: parseInt(inputInfo.gender) === 0 ? 'Nữ Mệnh (Âm Nữ)' : 'Nam Mệnh (Dương Nam)',
+      dateStr: record.solarTimeline || inputInfo.date || 'Chưa xác định',
+      lunarStr: record.tietKhiTimeline ? `Tiết khí: ${record.tietKhiTimeline}` : '',
+      extraInfo: [
+        ...(baziData.menhQuai ? [{ label: 'Mệnh Quái', value: formatMenhQuai(baziData.menhQuai) }] : []),
+        ...(dungThan && dungThan !== 'Chưa xác định' ? [{ label: 'Dụng Thần', value: dungThan, highlight: true }] : [])
+      ],
+      recordId: record._id || '',
+      sealText: ['TỨ', 'TRỤ', 'MỆNH', 'LÝ']
+    });
+  }
+
   // 1. HEADER & META TRANG 1
   contentHtml += `
     <div class="monograph-header">
       <div style="display: flex; justify-content: space-between; align-items: flex-start;">
         <div>
-          <span class="monograph-badge">Học Viện Mệnh Lý Cổ Học</span>
+          <span class="monograph-badge">Hồ Sơ Mệnh Lý Cá Nhân • Tứ Trụ Tử Bình</span>
           <h1 class="monograph-title serif-title">LÁ SỐ BÁT TỰ TỨ TRỤ & VẬN TRÌNH</h1>
         </div>
         <div style="text-align: right; font-size: 7.5pt; color: #78350f; font-weight: 700;">
@@ -2181,11 +2763,31 @@ function generateZiweiHtml(record, scope = []) {
   const menhPalace = rawPalaces.find(p => p.name === 'Mệnh' || p.name === 'MỆNH');
   const bodyPalace = rawPalaces.find(p => p.isBodyPalace || p.name?.includes('Thân'));
 
-  let contentHtml = `
+  const includeCover = scope.includes('cover') || scope.includes('all') || (!hasScope);
+  let coverHtml = '';
+  if (includeCover) {
+    coverHtml = renderCoverPage({
+      system: 'ziwei',
+      title: 'TỬ VI ĐẨU SỐ TOÀN THƯ MỆNH BÀN',
+      subtitle: 'Khảo Luận 12 Cung Vị, Tinh Đẩu Đắc Hãm & Tứ Hóa Phi Tinh Biến Hóa',
+      clientName: chartData.name || inputInfo.name || 'Gia Chủ',
+      gender: inputInfo.gender === 'female' || parseInt(inputInfo.gender) === 0 ? 'Nữ Mệnh' : 'Nam Mệnh',
+      dateStr: inputInfo.birthday || inputInfo.date || 'Chưa xác định',
+      lunarStr: record.lunarDate ? `Âm lịch: ${record.lunarDate}` : '',
+      extraInfo: [
+        ...(record.cuc ? [{ label: 'Cục vị', value: record.cuc }] : []),
+        ...(record.menhChu ? [{ label: 'Mệnh Chủ', value: `${record.menhChu} | Thân: ${record.thanChu || ''}` }] : [])
+      ],
+      recordId: record._id || '',
+      sealText: ['TỬ', 'VI', 'ĐẨU', 'SỐ']
+    });
+  }
+
+  let contentHtml = coverHtml + `
     <div class="monograph-header">
       <div style="display: flex; justify-content: space-between; align-items: flex-start;">
         <div>
-          <span class="monograph-badge" style="background: #f3e8ff; color: #6b21a8; border: 1px solid #d8b4fe;">Tử Vi Đẩu Số Toàn Thư • Bắc Phái Mệnh Lý</span>
+          <span class="monograph-badge" style="background: #f3e8ff; color: #6b21a8; border: 1px solid #d8b4fe;">Hồ Sơ Tử Vi Cá Nhân • Bắc Phái Mệnh Lý</span>
           <h1 class="monograph-title serif-title">MỆNH BÀN 12 CUNG & VẬN HẠN ĐẨU SỐ</h1>
         </div>
         <div style="text-align: right; font-size: 7.5pt; color: #78350f; font-weight: 700;">
@@ -2536,11 +3138,33 @@ function generateIChingHtml(record, scope = []) {
   const nhatThan = lunarDateInfo.nhatThan || `${dayCanChi.split(' ').pop() || ''}-Hỏa`;
   const nguyetLenh = lunarDateInfo.nguyetLenh || `${monthCanChi.split(' ').pop() || ''}-Kim`;
 
-  let contentHtml = `
+  const includeCover = scope.includes('cover') || scope.includes('all') || (!hasScope);
+  let coverHtml = '';
+  if (includeCover) {
+    coverHtml = renderCoverPage({
+      system: 'iching',
+      title: 'CHU DỊCH QUÁI TƯỢNG & LỤC HÀO BIỆN CHỨNG',
+      subtitle: 'Bốc Phệ Chiêm Đoán, Biện Chứng Tượng - Hào & Định Lượng Ứng Kỳ',
+      clientName: record.userName || 'Đương Số',
+      gender: '',
+      dateStr: dateCastStr,
+      lunarStr: lunarDateInfo.lunarDateStr ? `Âm lịch: ${lunarDateInfo.lunarDateStr}` : `${dayCanChi} | ${monthCanChi}`,
+      extraInfo: [
+        { label: 'Tâm điểm', value: `"${question}"`, fullWidth: true, highlight: true },
+        { label: 'Quẻ Chủ', value: `${primary.name || 'N/A'} (${primary.palace || ''})` },
+        { label: 'Quẻ Biến', value: transformed?.name ? `${transformed.name} (${transformed.palace || ''})` : 'Không có quẻ biến' },
+        ...(tuankhong ? [{ label: 'Tuần Không', value: tuankhong }] : [])
+      ],
+      recordId: record._id || '',
+      sealText: ['DỊCH', 'LÝ', 'CHÍNH', 'TÔNG']
+    });
+  }
+
+  let contentHtml = coverHtml + `
     <div class="monograph-header">
       <div style="display: flex; justify-content: space-between; align-items: flex-start;">
         <div>
-          <span class="monograph-badge">Chu Dịch Chiêm Bốc & Lục Hào Lạc Giáp Cổ Pháp</span>
+          <span class="monograph-badge">Hồ Sơ Dịch Lý Cá Nhân • Chu Dịch Lục Hào</span>
           <h1 class="monograph-title serif-title">HỒ SƠ QUẺ DỊCH & DỰ ĐOÁN ỨNG KỲ</h1>
         </div>
         <div style="text-align: right; font-size: 7.5pt; color: #78350f; font-weight: 700;">
@@ -3230,13 +3854,33 @@ function generateMarriageHtml(record, scope = []) {
 
   let contentHtml = '';
 
+  const includeCover = scope.includes('cover') || scope.includes('all') || (!hasScope);
+  if (includeCover) {
+    contentHtml += renderCoverPage({
+      system: 'marriage',
+      title: 'HỢP HÔN ĐỐI CHIẾU GIA ĐẠO BẢN THƯ',
+      subtitle: 'Tương Quan Bát Tự, Cung Phi Bát Trạch & Phác Đồ Hòa Hợp Gia Đạo',
+      clientName: `${male.name || 'Gia Chủ Nam'} & ${female.name || 'Gia Chủ Nữ'}`,
+      gender: 'Hợp Hôn Phu Thê',
+      dateStr: `Ngày lập: ${new Date().toLocaleDateString('vi-VN')}`,
+      lunarStr: '',
+      extraInfo: [
+        { label: 'Chồng', value: `${male.name || 'Nam'} (${male.canChiYear || male.year || maleData.canChi?.year?.gan + ' ' + maleData.canChi?.year?.zhi || ''})` },
+        { label: 'Vợ', value: `${female.name || 'Nữ'} (${female.canChiYear || female.year || femaleData.canChi?.year?.gan + ' ' + femaleData.canChi?.year?.zhi || ''})` },
+        ...(batTrachName ? [{ label: 'Bát Trạch', value: `${batTrachName} (${batTrachInfo.desc})`, highlight: true }] : [])
+      ],
+      recordId: record._id || '',
+      sealText: ['HỢP', 'HÔN', 'GIA', 'ĐẠO']
+    });
+  }
+
   const hasPage1 = includeCompare || includePillars;
   if (hasPage1) {
     contentHtml += `
       <!-- TRANG 1: HỒ SƠ TỔNG QUAN, 5 TIÊU CHÍ & TỨ TRỤ CAN CHI -->
       <div class="monograph-header" style="border: 1.5px solid #be123c; background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%); border-radius: 8px; padding: 7px 12px; margin-bottom: 8px;">
         <div style="display: flex; justify-content: space-between; align-items: center;">
-          <span style="background: #be123c; color: #ffffff; font-size: 6.8pt; font-weight: 800; text-transform: uppercase; padding: 1.5px 7px; border-radius: 9999px;">Bát Tự & Bát Trạch Hợp Hôn Cổ Pháp</span>
+          <span style="background: #be123c; color: #ffffff; font-size: 6.8pt; font-weight: 800; text-transform: uppercase; padding: 1.5px 7px; border-radius: 9999px;">Hồ Sơ Hợp Hôn Cá Nhân • Bát Tự & Bát Trạch</span>
           <span style="font-size: 7pt; color: #64748b; font-weight: 600;">MÃ HỒ SƠ: ${String(record._id || '').slice(0, 18)}</span>
         </div>
         <h1 class="serif-title" style="color: #881337; font-size: 14pt; font-weight: 900; margin: 3px 0 6px 0;">HỒ SƠ ĐỐI CHIẾU ĐỘ HÒA HỢP CẶP ĐÔI</h1>

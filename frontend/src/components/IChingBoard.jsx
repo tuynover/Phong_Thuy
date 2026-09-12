@@ -890,11 +890,11 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
                             <BookOpen className="text-white" size={16} />
                         </div>
                         <h3 className="text-xl font-extrabold text-slate-800 tracking-tight">
-                            {interpretationMode === 'vip' ? 'Dịch Giải Chuyên Sâu (3 Kịch Bản Tương Lai)' : 'Thầy Dịch Giải Chi Tiết'}
+                            {interpretationMode === 'vip' ? 'Dịch Giải Chuyên Sâu (6 Chương Tượng Pháp & Lục Hào)' : 'Thầy Dịch Giải Chi Tiết'}
                         </h3>
                     </div>
 
-                    {/* Tracker 3 Kịch Bản Tương Lai */}
+                    {/* Tracker 6 Chương Dịch Lý */}
                     {interpretationMode === 'vip' && (
                         <VipProgressTracker
                             system="iching"

@@ -402,13 +402,13 @@ const SectionCard = ({ section, idx = 0, sections = [], theme, onConsultSection,
     if (isCurrentSpeaking) {
       ttsEngine.togglePlayPause();
     } else {
-      ttsEngine.playSection({
+      ttsEngine.playChapter({
         sectionId: section.id,
         sectionTitle: section.title,
         content: section.content,
-        startIndex: 0,
         playlist: sections,
-        playlistIndex: idx
+        playlistIndex: idx,
+        isContinuous: false
       });
     }
   };
@@ -524,8 +524,8 @@ const SectionCard = ({ section, idx = 0, sections = [], theme, onConsultSection,
         }`}
       >
         <div className={`px-6 pt-4 pb-6 md:px-8 md:pt-5 md:pb-7 text-slate-700 leading-relaxed text-sm md:text-base prose max-w-none ${styles.prose}`}>
-          {/* Karaoke Realtime Sentence Highlight */}
-          {isCurrentSpeaking && ttsState?.currentSentence && (
+          {/* Realtime Chapter Audio Banner */}
+          {isCurrentSpeaking && (
             <div className="not-prose mb-5 p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-purple-50/90 via-indigo-50/70 to-purple-50/90 border border-purple-200/90 shadow-xs animate-in fade-in slide-in-from-top-2 duration-300">
               <div className="flex items-center justify-between gap-2 mb-2">
                 <div className="flex items-center gap-2">
@@ -534,15 +534,15 @@ const SectionCard = ({ section, idx = 0, sections = [], theme, onConsultSection,
                     <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-purple-600"></span>
                   </span>
                   <span className="text-[11px] font-bold uppercase tracking-wider text-purple-700">
-                    Đang đọc câu {ttsState.currentIndex + 1} / {ttsState.totalSentences}
+                    {ttsState.isLoading ? "Đang kết nối âm thanh..." : "Đang phát giọng đọc AI"}
                   </span>
                 </div>
-                <span className="text-[11px] font-medium text-purple-600 bg-white/80 px-2 py-0.5 rounded-full border border-purple-100 shadow-2xs">
-                  {Math.round(ttsState.progressPercent || 0)}%
+                <span className="text-[11px] font-medium text-purple-600 bg-white/80 px-2 py-0.5 rounded-full border border-purple-100 shadow-2xs tabular-nums">
+                  {ttsState.formattedCurrentTime || "00:00"} / {ttsState.formattedDuration || "00:00"} ({Math.round(ttsState.progressPercent || 0)}%)
                 </span>
               </div>
               <p className="text-sm sm:text-base font-semibold text-purple-950 leading-relaxed italic">
-                &ldquo;{ttsState.currentSentence}&rdquo;
+                &ldquo;{(ttsState.currentExcerpt || section.title || '').replace(/\bvip\b/gi, 'chuyên sâu')}&rdquo;
               </p>
             </div>
           )}
@@ -592,9 +592,13 @@ const SectionRenderer = ({ sections, theme = 'tuvi', onConsultSection }) => {
     return () => unsubscribe();
   }, []);
 
+  // Đồng bộ playlist khi người dùng xem phân hệ
   useEffect(() => {
     if (sections && Array.isArray(sections) && sections.length > 0) {
-      ttsEngine.setPlaylist(sections);
+      // Chỉ gán playlist nếu chưa có playlist hoặc không có bài nào đang phát
+      if (!ttsEngine.isPlaying) {
+        ttsEngine.setPlaylist(sections);
+      }
     }
   }, [sections]);
 
@@ -611,12 +615,16 @@ const SectionRenderer = ({ sections, theme = 'tuvi', onConsultSection }) => {
   }
 
   const styles = themeStyles[theme] || themeStyles.tuvi;
-  const isAnyPlaying = ttsState?.isPlaying;
-  const isSpeakingNow = isAnyPlaying && !ttsState?.isPaused;
-  const isSpeakingPaused = isAnyPlaying && ttsState?.isPaused;
+  const isThisPlaylistPlaying = Boolean(
+    ttsState?.isPlaying && 
+    Array.isArray(sections) && 
+    sections.some(s => s.id && s.id === ttsState?.currentSectionId)
+  );
+  const isSpeakingNow = isThisPlaylistPlaying && !ttsState?.isPaused;
+  const isSpeakingPaused = isThisPlaylistPlaying && ttsState?.isPaused;
 
   const handlePlayAll = () => {
-    if (isAnyPlaying) {
+    if (isThisPlaylistPlaying) {
       ttsEngine.togglePlayPause();
     } else {
       ttsEngine.playAll(sections);
@@ -656,6 +664,8 @@ const SectionRenderer = ({ sections, theme = 'tuvi', onConsultSection }) => {
           <button
             type="button"
             onClick={handlePlayAll}
+            onMouseEnter={() => ttsEngine.warmupFirstChapter(sections)}
+            onTouchStart={() => ttsEngine.warmupFirstChapter(sections)}
             className={`w-full sm:w-auto px-4 sm:px-5 py-2.5 rounded-2xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg transition-all duration-75 active:scale-95 cursor-pointer ${
               isSpeakingNow
                 ? 'bg-amber-500 hover:bg-amber-400 text-white shadow-amber-900/40 ring-2 ring-white/30'

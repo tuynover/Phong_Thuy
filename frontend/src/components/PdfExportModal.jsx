@@ -16,7 +16,9 @@ export default function PdfExportModal({
 
   // Cấu hình các mục theo từng phân hệ
   const getSectionsConfig = () => {
-    const chartSections = [];
+    const chartSections = [
+      { id: 'cover', label: 'Trang Bìa Hoàng Gia (Imperial Title Page)', desc: 'Bìa ấn phẩm trang trọng, ấn triện son đỏ, viền mạ vàng & định danh hồ sơ' }
+    ];
     if (system === 'bazi') {
       chartSections.push(
         { id: 'bazi_pillars', label: 'Tứ Trụ Bản Mệnh (Năm - Tháng - Ngày - Giờ)', desc: 'Thiên can, Địa chi, Thập thần, Tàng can, Nạp âm' },
@@ -44,9 +46,21 @@ export default function PdfExportModal({
     const interpretSections = [];
     if (hasInterpretation) {
       if (system === 'iching' || system === 'hexagrams') {
-        interpretSections.push(
-          { id: 'intro', label: 'Toàn Văn Luận Giải Chu Dịch', desc: 'Luận đoán chi tiết sự việc, hào động và lời khuyên định hướng' }
-        );
+        const isVip = interpretationMode === 'vip' || (rawInterpretation && /(?:CHƯƠNG|Chương)\s*1/i.test(rawInterpretation));
+        if (isVip) {
+          interpretSections.push(
+            { id: 'ch1', label: 'Chương 1: Khởi Quái & Tượng Pháp Chu Dịch', desc: 'Quái tượng 64 quẻ, thể dụng, thoán từ & bối cảnh thời thế' },
+            { id: 'ch2', label: 'Chương 2: Biện Chứng Lục Hào & Dụng Thần', desc: 'Thực lực bên trong, vượng suy nguyệt nhật, tương quan Thế - Ứng' },
+            { id: 'ch3', label: 'Chương 3: Động Hào Biến Khí & Phục Thần', desc: 'Hào động sinh khắc, biến hóa hóa thoái/tiến, phục thần & lục thần' },
+            { id: 'ch4', label: 'Chương 4: Đối Chiếu Biện Chứng Tượng - Hào', desc: 'Ma trận Biểu vs Lý, phán quyết thực thể cát hung không thiên vị' },
+            { id: 'ch5', label: 'Chương 5: Thời Khắc Ứng Kỳ Theo Ngữ Cảnh', desc: 'Định vị mốc thời gian phát tác theo ngữ cảnh câu hỏi' },
+            { id: 'ch6', label: 'Chương 6: Kim Chỉ Nam Đạo Dịch Thực Chiến', desc: 'Diệu kế hành động tùy thời biến dịch & sách lược hóa giải' }
+          );
+        } else {
+          interpretSections.push(
+            { id: 'intro', label: 'Toàn Văn Luận Giải Chu Dịch', desc: 'Luận đoán chi tiết sự việc, hào động và lời khuyên định hướng' }
+          );
+        }
       } else if (system === 'ziwei') {
         interpretSections.push(
           { id: 'intro', label: 'Toàn Văn Luận Giải 12 Cung & Vận Hạn', desc: 'Luận giải chi tiết bản mệnh, các cung vị và phương pháp cải vận phong thủy' }

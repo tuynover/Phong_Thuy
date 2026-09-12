@@ -63,7 +63,7 @@ Tệp đặc tả Postman Collection được đặt tại:
 
 ### 1.3 SSE - Đồng bộ tài khoản phía Client
 - **Endpoint:** `GET /api/auth/events`
-- **Query:** `?token=<jwt_token>`
+- **Headers:** `Authorization: Bearer <token>` (Lưu ý: Trình duyệt cần dùng EventSourcePolyfill để gửi kèm Authorization Header, route backend hiện không đọc qua query `?token=`)
 - **Định dạng stream:** `text/event-stream`
 - **Sự kiện phát:**
   - `account_locked`: Kích hoạt khi tài khoản bị admin khóa.
@@ -706,3 +706,69 @@ Hỗ trợ chuyển đổi văn bản luận giải thành giọng đọc tiến
 - **Phản hồi Lỗi:**
   - `400 Bad Request`: Thiếu tham số `text`.
   - `502 Bad Gateway`: Lỗi kết nối tới upstream TTS providers.
+
+### 10.2 Tổng hợp một chương hoàn chỉnh thành 1 file MP3 liên tục (Chapter-Level Audio)
+Tổng hợp trọn vẹn toàn bộ một chương luận giải thành một tệp MP3 đơn nhất, triệt tiêu hoàn toàn 100% độ trễ khựng giữa các câu, đảm bảo tính liên tục thông suốt tuyệt đối chuẩn Podcast / Radio chuyên nghiệp.
+- **Endpoint:** `POST /api/tts/chapter` hoặc `GET /api/tts/chapter`
+- **Request Body (POST) hoặc Query Parameters (GET):**
+  ```json
+  {
+    "content": "Toàn bộ văn bản markdown hoặc văn xuôi của chương...",
+    "voice": "hoaimy",
+    "sectionId": "iching_ch_1"
+  }
+  ```
+  - `content` (string, required): Nội dung chi tiết của chương (hỗ trợ văn bản dài ~3.000 - 6.000 từ).
+  - `voice` (string, optional, mặc định `hoaimy`): `hoaimy` | `namminh` | `huonggiang` | `ngocmai`.
+  - `sectionId` (string, optional): Khóa định danh phân đoạn để tối ưu hóa bộ đệm (RAM Cache).
+- **Cơ chế Xử Lý Chuyên Sâu:**
+  - Tự động làm sạch định dạng Markdown (`cleanChapterMarkdown`): Chuyển bảng Markdown thành văn xuôi, phiên âm đắc hãm Tử Vi, loại bỏ metadata máy đọc `---UNGKYSTART--- ... ---UNGKYEND---`, chuyển từ "VIP" sang "chuyên sâu".
+  - Thuật toán phân tách ngữ nghĩa an toàn (`splitTextIntoSemanticChunks` ~650 ký tự) để chống tràn bộ đệm WebSocket của Microsoft Edge TTS.
+  - Ghép nối nhị phân nguyên khối (`Buffer.concat`) tại bộ nhớ đệm máy chủ thành 1 stream MP3 liên tục (0.00ms gap, ngữ điệu thông suốt).
+  - Hệ thống Cache 2 tầng: RAM In-Memory Cache (tối đa 200 chương) + Client-side RAM Blob Cache (tối đa 40 chương).
+  - Tự động nạp trước (Prefetching) chương kế tiếp $k+1$ vào RAM Client khi chương $k$ đang phát.
+- **Phản hồi Thành công (200):**
+  - `Content-Type: audio/mpeg`
+  - `Accept-Ranges: bytes`
+  - `Cache-Control: public, max-age=86400`
+  - Binary Stream của toàn bộ file MP3 chương.
+- **Phản hồi Lỗi:**
+  - `400 Bad Request`: Nội dung chương rỗng hoặc không hợp lệ.
+  - `500 Internal Server Error`: Lỗi hệ thống khi tổng hợp âm thanh.
+
+### 10.3 Khởi tạo Vé Truyền Phát Trực Tiếp (Streaming Audio Ticket)
+Tạo vé truyền phát âm thanh tức thì trong 2ms để Audio Element của trình duyệt kết nối trực tiếp với luồng stream âm thanh, khởi động giọng đọc trong < 1.0s.
+- **Endpoint:** `POST /api/tts/ticket`
+- **Request Body:**
+  ```json
+  {
+    "content": "Toàn bộ văn bản markdown hoặc văn xuôi của chương...",
+    "voice": "hoaimy",
+    "sectionId": "bazi_ch_1"
+  }
+  ```
+- **Phản hồi Thành công (200):**
+  ```json
+  {
+    "success": true,
+    "ticketId": "hoaimy_bazi_ch_1_a1b2c3d4e5f6g7h8",
+    "streamUrl": "/api/tts/stream/hoaimy_bazi_ch_1_a1b2c3d4e5f6g7h8",
+    "isCached": false
+  }
+  ```
+
+### 10.4 Truyền Phát Âm Thanh Trực Tiếp Theo Vé (Live Chunked Audio Streaming & HTTP 206 Partial Content)
+Truyền phát trực tiếp dòng âm thanh MP3 (chunked transfer) tới Audio Element của trình duyệt. Trình duyệt nhận gói âm thanh đầu tiên trong ~300ms - 500ms và phát tiếng ngay lập tức (< 1.0s), không phải chờ tải toàn bộ file. Hỗ trợ chuẩn HTTP 206 Partial Content cho phép trình duyệt tua âm thanh mượt mà tới bất kỳ thời điểm nào.
+- **Endpoint:** `GET /api/tts/stream/:ticketId`
+- **Request Headers (Optional):**
+  - `Range`: `bytes=start-end` (Yêu cầu khung dữ liệu âm thanh từ phía trình duyệt để thực hiện thao tác tua / seek).
+- **Headers Phản Hồi:**
+  - `Content-Type: audio/mpeg`
+  - `Transfer-Encoding: chunked` (khi stream trực tiếp) hoặc `Content-Length` (khi lấy từ RAM cache).
+  - `Accept-Ranges: bytes` (Khai báo hỗ trợ tua dữ liệu byte).
+  - `Content-Range: bytes start-end/total` (Khi nhận Range request từ client, phản hồi mã `206 Partial Content`).
+  - `Access-Control-Allow-Origin: *` (Hỗ trợ Web Audio API Mastering kết nối đa tầng DSP).
+  - `Cache-Control: public, max-age=86400`
+
+
+

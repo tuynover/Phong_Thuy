@@ -5,7 +5,7 @@ Hệ thống sử dụng **MongoDB** làm cơ sở dữ liệu chính, được 
 ---
 
 ## 🔑 1. Quy tắc Thiết kế Khóa chính & Chỉ mục (Indexes)
-- **UUIDv7 làm Khóa chính:** Mọi tài liệu (document) đều ghi đè trường `_id` mặc định bằng chuỗi sinh ra từ thuật toán **UUIDv7** để đảm bảo tính sắp xếp theo thời gian tốt hơn và tránh bị đoán định ID tuần tự.
+- **UUIDv7 làm Khóa chính:** Mọi bảng dữ liệu nghiệp vụ chính (`User`, `IChingRecord`, `BaziRecord`, `ZiweiRecord`, `MarriageRecord`, `Conversation`, `Message`, `Notification`, `AdminNotification`, `BanAppeal`, `BlogPost`) đều ghi đè trường `_id` mặc định bằng chuỗi sinh ra từ thuật toán **UUIDv7** (`default: uuidv7`) để đảm bảo tính sắp xếp theo thời gian tốt hơn và tránh đoán định ID tuần tự. Riêng bảng `SystemLog` hiện sử dụng `ObjectId` mặc định của MongoDB.
 - **Xóa mềm (Soft Delete):** Hầu hết các tài liệu nghiệp vụ đều sử dụng cờ `isDeleted: { type: Boolean, default: false }` kết hợp với trạng thái `status: { type: String, enum: ['active', 'locked'] }`.
 - **Compound Indexes:** Được thiết lập sẵn trên các trường truy vấn thường xuyên như `userId`, `createdAt`, và cờ trạng thái để tối ưu hóa hiệu năng tìm kiếm của MongoDB.
 
@@ -28,7 +28,7 @@ Lưu trữ thông tin tài khoản, hồ sơ Bát Tự mặc định, số dư c
     /* Mã OTP được lưu trữ & tự động hết hạn hoàn toàn trên Redis (otp:verify_email & otp:reset_password), không lưu rác trong MongoDB */
     gender: { type: Number, default: 1 }, // 1: Nam, 0: Nữ
     role: { type: String, enum: ['admin', 'co-admin', 'vip', 'user'], default: 'user' },
-    credits: { type: Number, default: 1 },
+    credits: { type: Number, default: 2 },
     status: { type: String, enum: ['active', 'locked'], default: 'active' },
     lockReason: { type: String, default: '' },
     isDeleted: { type: Boolean, default: false },
@@ -47,6 +47,12 @@ Lưu trữ thông tin tài khoản, hồ sơ Bát Tự mặc định, số dư c
       baziTokens: { type: Number, default: 0 },
       ziweiTokens: { type: Number, default: 0 },
       marriageTokens: { type: Number, default: 0 },
+      ichingChatTokens: { type: Number, default: 0 },
+      baziChatTokens: { type: Number, default: 0 },
+      ziweiChatTokens: { type: Number, default: 0 },
+      marriageChatTokens: { type: Number, default: 0 },
+      totalInterpretTokens: { type: Number, default: 0 },
+      totalChatTokens: { type: Number, default: 0 },
       totalTokens: { type: Number, default: 0 },
       lastUpdated: { type: Date, default: null }
     },
@@ -344,6 +350,32 @@ Lưu trữ các bài viết kiến thức phong thủy và học thuật chuyên
   - `{"category": 1, "isPublished": 1, "isDeleted": 1}`
   - `{"createdAt": -1}`
 
+#### f. Bảng Nhật ký Hệ thống & Kiểm toán (`systemlogs`)
+Lưu trữ nhật ký truy vết request, thời gian xử lý, IP và token đã tiêu thụ.
+- **Model:** [SystemLog.js](file:///t:/Phongthuy/backend/src/models/SystemLog.js)
+- **Cấu trúc Schema:**
+  ```javascript
+  {
+    _id: ObjectId, // Sử dụng ObjectId mặc định của MongoDB
+    requestId: { type: String, index: true },
+    userId: { type: String, default: 'anonymous' },
+    email: { type: String, default: '' },
+    name: { type: String, default: '' },
+    ip: { type: String, required: true },
+    action: { type: String, required: true },
+    method: { type: String, required: true },
+    path: { type: String, required: true },
+    statusCode: { type: Number, required: true },
+    duration: { type: Number, required: true }, // millisecond duration
+    tokensUsed: { type: Number, default: 0 },
+    requestParams: { type: Object, default: null },
+    timestamp: { type: Date, default: Date.now }
+  }
+  ```
+- **Chỉ mục phụ:**
+  - `{"timestamp": -1}`
+  - `{"userId": 1, "timestamp": -1}`
+
 ---
 
 ## ⚡ 3. Cơ chế Cập nhật Thống kê Tài nguyên Nguyên tử O(1)
@@ -360,4 +392,5 @@ Lưu trữ các bài viết kiến thức phong thủy và học thuật chuyên
   );
   ```
 - **Không sử dụng post-save hooks lặp lại:** Các hook `post('save')` tự động gọi quét lại dữ liệu đã được **loại bỏ hoàn toàn** ở các Model `IChingRecord`, `BaziRecord`, `ZiweiRecord`, `MarriageRecord`, `Conversation` để đảm bảo tốc độ tạo lá số đạt mức dưới 10ms.
+- **Lưu ý hiện trạng HistoryController:** Hiện tại hàm `updateByIdFlex` trong `HistoryController.js` vẫn đang gọi `UserStatsService.updateUserStatsBackground` (chạy 12 câu lệnh MongoDB aggregation). Đây là điểm nghẽn cần gỡ bỏ theo lộ trình tối ưu production.
 - **Truy vấn Lịch sử Tối ưu:** Cả 4 bảng dữ liệu chính đều được tạo Compound Index `{"userId": 1, "isDeleted": 1, "createdAt": -1}` để phục vụ truy vấn lịch sử phân trang mà không phải thực hiện In-memory sorting trên MongoDB.
