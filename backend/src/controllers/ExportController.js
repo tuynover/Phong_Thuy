@@ -164,7 +164,11 @@ class ExportController {
         ip: req.ip,
         duration: durationMs
       });
-      return res.status(500).json({ error: 'Đã xảy ra lỗi trong quá trình tạo tệp PDF. Vui lòng thử lại sau.' });
+      const statusCode = err.status || 500;
+      const errorMessage = err.status
+        ? err.message
+        : 'Đã xảy ra lỗi trong quá trình tạo tệp PDF. Vui lòng thử lại sau.';
+      return res.status(statusCode).json({ error: errorMessage });
     }
   }
 }

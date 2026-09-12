@@ -1,17 +1,117 @@
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
 const puppeteer = require('puppeteer');
 const { redisClient, isRedisConnected, withTimeout } = require('../config/redis');
 const logger = require('./LoggerService');
 
+// Thư mục đệm tạm thời trên ổ đĩa cho tệp PDF (Zero Redis RAM footprint)
+const PDF_CACHE_DIR = path.join(__dirname, '../../scratch/pdf_cache');
+if (!fs.existsSync(PDF_CACHE_DIR)) {
+  try {
+    fs.mkdirSync(PDF_CACHE_DIR, { recursive: true });
+  } catch (e) {
+    // Ignore error if already created
+  }
+}
+
+/**
+ * Hàng đợi Semaphore FIFO Promise kiểm soát số worker đồng thời và độ dài hàng đợi
+ */
+class PdfSemaphoreQueue {
+  constructor(maxConcurrent = 2, maxQueueSize = 20, timeoutMs = 30000) {
+    this.maxConcurrent = maxConcurrent;
+    this.maxQueueSize = maxQueueSize;
+    this.timeoutMs = timeoutMs;
+    this.activeWorkers = 0;
+    this.queue = [];
+  }
+
+  async acquire() {
+    if (this.activeWorkers < this.maxConcurrent) {
+      this.activeWorkers++;
+      return () => this.release();
+    }
+
+    if (this.queue.length >= this.maxQueueSize) {
+      const err = new Error('Hệ thống tạo bản in PDF đang quá tải (hàng đợi đầy). Vui lòng thử lại sau giây lát.');
+      err.status = 503;
+      throw err;
+    }
+
+    return new Promise((resolve, reject) => {
+      let timer = null;
+      const item = {
+        resolve: () => {
+          if (timer) clearTimeout(timer);
+          this.activeWorkers++;
+          resolve(() => this.release());
+        },
+        reject: (err) => {
+          if (timer) clearTimeout(timer);
+          reject(err);
+        }
+      };
+
+      timer = setTimeout(() => {
+        const idx = this.queue.indexOf(item);
+        if (idx !== -1) {
+          this.queue.splice(idx, 1);
+          const timeoutErr = new Error('Thời gian chờ xuất PDF quá hạn (timeout). Vui lòng thử lại sau.');
+          timeoutErr.status = 504;
+          reject(timeoutErr);
+        }
+      }, this.timeoutMs);
+      if (timer.unref) timer.unref();
+
+      this.queue.push(item);
+    });
+  }
+
+  release() {
+    this.activeWorkers = Math.max(0, this.activeWorkers - 1);
+    if (this.queue.length > 0) {
+      const next = this.queue.shift();
+      next.resolve();
+    }
+  }
+
+  get stats() {
+    return {
+      activeWorkers: this.activeWorkers,
+      queueLength: this.queue.length,
+      maxConcurrent: this.maxConcurrent,
+      maxQueueSize: this.maxQueueSize
+    };
+  }
+}
+
 class PdfGeneratorService {
   constructor() {
     this.browser = null;
-    this.activeWorkers = 0;
-    this.maxConcurrent = 2; // Giới hạn tối đa 2 render cùng lúc để bảo vệ RAM server
+    const maxConcurrent = parseInt(process.env.PDF_MAX_CONCURRENT, 10) || 2;
+    const maxQueueSize = parseInt(process.env.PDF_MAX_QUEUE, 10) || 20;
+    const queueTimeoutMs = parseInt(process.env.PDF_QUEUE_TIMEOUT_MS, 10) || 30000;
+
+    this.semaphore = new PdfSemaphoreQueue(maxConcurrent, maxQueueSize, queueTimeoutMs);
     this.idleTimer = null;
   }
 
+  get activeWorkers() {
+    return this.semaphore.activeWorkers;
+  }
+
+  get maxConcurrent() {
+    return this.semaphore.maxConcurrent;
+  }
+
+  getCacheFilePath(cacheKey) {
+    const hash = crypto.createHash('sha256').update(cacheKey).digest('hex');
+    return path.join(PDF_CACHE_DIR, `${hash}.pdf`);
+  }
+
   /**
-   * Khởi động hoặc tái sử dụng browser singleton
+   * Khởi động hoặc tái sử dụng Chromium singleton worker
    */
   async getBrowser() {
     if (this.idleTimer) {
@@ -25,10 +125,8 @@ class PdfGeneratorService {
 
     logger.info('[PdfGeneratorService] Khởi tạo Chromium singleton worker...');
 
-    // Tự động tìm kiếm đường dẫn executable phù hợp trên Linux / Docker hoặc từ biến môi trường
     let executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
     if (!executablePath && process.platform === 'linux') {
-      const fs = require('fs');
       const candidatePaths = [
         '/usr/bin/chromium',
         '/usr/bin/chromium-browser',
@@ -73,7 +171,7 @@ class PdfGeneratorService {
   scheduleIdleClose() {
     if (this.idleTimer) clearTimeout(this.idleTimer);
     this.idleTimer = setTimeout(async () => {
-      if (this.activeWorkers === 0 && this.browser) {
+      if (this.semaphore.activeWorkers === 0 && this.browser) {
         try {
           logger.info('[PdfGeneratorService] Tự động giải phóng Chromium browser do không hoạt động (idle).');
           await this.browser.close();
@@ -83,48 +181,43 @@ class PdfGeneratorService {
         }
       }
     }, 5 * 60 * 1000);
+    if (this.idleTimer.unref) this.idleTimer.unref();
   }
 
   /**
-   * Đợi slot trống nếu đã vượt quá số worker đồng thời
-   */
-  async acquireSlot() {
-    while (this.activeWorkers >= this.maxConcurrent) {
-      await new Promise(resolve => setTimeout(resolve, 250));
-    }
-    this.activeWorkers++;
-  }
-
-  releaseSlot() {
-    this.activeWorkers = Math.max(0, this.activeWorkers - 1);
-    if (this.activeWorkers === 0) {
-      this.scheduleIdleClose();
-    }
-  }
-
-  /**
-   * Kết xuất HTML sang PDF Buffer có đệm L2 Redis
+   * Kết xuất HTML sang PDF Buffer có đệm tệp SSD (Zero Redis RAM)
    * @param {string} htmlContent - Mã HTML đã chuẩn bị
-   * @param {string} cacheKey - Khóa đệm Redis (tùy chọn)
+   * @param {string} cacheKey - Khóa đệm (tùy chọn)
    */
   async renderHtmlToPdf(htmlContent, cacheKey = null) {
-    // 1. Kiểm tra L2 Redis Cache
-    if (cacheKey && isRedisConnected()) {
+    const cacheFilePath = cacheKey ? this.getCacheFilePath(cacheKey) : null;
+
+    // 1. Kiểm tra Cache trên ổ đĩa SSD
+    if (cacheFilePath && fs.existsSync(cacheFilePath)) {
       try {
-        const cachedBase64 = await withTimeout(redisClient.get(cacheKey), 300, null);
-        if (cachedBase64) {
+        const stats = await fs.promises.stat(cacheFilePath);
+        const ageMs = Date.now() - stats.mtimeMs;
+        const maxAgeMs = 24 * 60 * 60 * 1000; // 24 giờ
+
+        if (ageMs <= maxAgeMs) {
+          const now = new Date();
+          fs.utimes(cacheFilePath, now, now, () => {}); // Cập nhật mtime
+          const buffer = await fs.promises.readFile(cacheFilePath);
           return {
-            buffer: Buffer.from(cachedBase64, 'base64'),
+            buffer,
             isCacheHit: true
           };
+        } else {
+          // Tệp cache đã quá hạn 24h
+          fs.promises.unlink(cacheFilePath).catch(() => {});
         }
       } catch (err) {
-        // Fallback silently if redis times out
+        logger.warn(`[PdfGeneratorService] Lỗi khi đọc file cache: ${err.message}`);
       }
     }
 
-    // 2. Chờ slot render an toàn bộ nhớ
-    await this.acquireSlot();
+    // 2. Chờ slot render an toàn qua Semaphore FIFO Queue
+    const releaseSlot = await this.semaphore.acquire();
     let page = null;
 
     try {
@@ -134,7 +227,7 @@ class PdfGeneratorService {
       // Đặt timeout 25s
       page.setDefaultNavigationTimeout(25000);
 
-      // Nạp nội dung HTML - chỉ đợi DOM nạp xong, không chờ networkidle0 để tránh treo khi tải font ngoại
+      // Nạp nội dung HTML - chỉ đợi DOM nạp xong để tránh treo khi tải font ngoại
       await page.setContent(htmlContent, {
         waitUntil: 'domcontentloaded',
         timeout: 15000
@@ -155,17 +248,22 @@ class PdfGeneratorService {
         }
       });
 
-      // 3. Lưu vào Redis Cache (TTL: 24h)
-      if (cacheKey && isRedisConnected() && pdfBuffer) {
-        withTimeout(
-          redisClient.setex(cacheKey, 24 * 60 * 60, Buffer.from(pdfBuffer).toString('base64')),
-          500,
-          null
-        ).catch(() => {});
+      const bufferResult = Buffer.from(pdfBuffer);
+
+      // 3. Ghi tệp đệm ra đĩa SSD bất đồng bộ (Zero Redis RAM)
+      if (cacheFilePath && bufferResult.length > 0) {
+        fs.promises.writeFile(cacheFilePath, bufferResult).catch(writeErr => {
+          logger.warn(`[PdfGeneratorService] Không thể ghi file cache PDF: ${writeErr.message}`);
+        });
+
+        // Đánh dấu nhẹ vào Redis (1 byte, không lưu base64)
+        if (isRedisConnected()) {
+          withTimeout(redisClient.setex(cacheKey, 24 * 60 * 60, '1'), 300, null).catch(() => {});
+        }
       }
 
       return {
-        buffer: Buffer.from(pdfBuffer),
+        buffer: bufferResult,
         isCacheHit: false
       };
     } finally {
@@ -176,9 +274,19 @@ class PdfGeneratorService {
           // Ignore
         }
       }
-      this.releaseSlot();
+      releaseSlot();
+      if (this.semaphore.activeWorkers === 0) {
+        this.scheduleIdleClose();
+      }
     }
+  }
+
+  getStats() {
+    return this.semaphore.stats;
   }
 }
 
-module.exports = new PdfGeneratorService();
+const instance = new PdfGeneratorService();
+instance.PdfSemaphoreQueue = PdfSemaphoreQueue;
+
+module.exports = instance;

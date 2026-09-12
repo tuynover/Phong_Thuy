@@ -82,6 +82,7 @@ const CONCEPT_FALLBACK = {
 class ConceptController {
     static async getConcept(req, res) {
         try {
+            res.setHeader('Cache-Control', 'public, max-age=86400, stale-while-revalidate=604800');
             const { term } = req.params;
             const fallback = CONCEPT_FALLBACK[term];
             const row = conceptsData.find(c => c.term === term);

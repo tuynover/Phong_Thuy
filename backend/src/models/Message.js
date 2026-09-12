@@ -21,13 +21,21 @@ const messageSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  sectionId: {
+    type: String,
+    default: null
+  },
+  sectionTitle: {
+    type: String,
+    default: null
+  },
   structuredContent: {
-    answer: String,
-    timing: String,
-    risk: String,
-    dos: String,
-    donts: String,
-    confidence: Number
+    answer: { type: String, default: '' },
+    timing: { type: mongoose.Schema.Types.Mixed, default: null },
+    risk: { type: mongoose.Schema.Types.Mixed, default: null },
+    dos: { type: mongoose.Schema.Types.Mixed, default: null },
+    donts: { type: mongoose.Schema.Types.Mixed, default: null },
+    confidence: { type: Number, default: 0.8 }
   },
   promptTokens: {
     type: Number,
@@ -45,6 +53,7 @@ const messageSchema = new mongoose.Schema({
   timestamps: true
 });
 
+messageSchema.index({ conversationId: 1, createdAt: 1 });
 messageSchema.index({ createdAt: 1 });
 
 module.exports = mongoose.model('Message', messageSchema);

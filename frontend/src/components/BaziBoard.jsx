@@ -1643,7 +1643,10 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
 
                     {/* Nút "Hỏi Thêm Thầy" */}
                     <button
-                        onClick={() => setIsChatOpen(true)}
+                        onClick={() => {
+                            setActiveConsultSection(null);
+                            setIsChatOpen(true);
+                        }}
                         className="flex items-center gap-2.5 px-6 py-4 rounded-full shadow-2xl transition-all duration-300 font-extrabold border bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-950 hover:from-blue-950 hover:to-indigo-950 text-amber-300 border-amber-400/40 shadow-blue-900/30 hover:scale-105 active:scale-95 text-xs sm:text-sm tracking-wider uppercase ring-4 ring-blue-500/20"
                     >
                         <MessageCircle className="animate-bounce text-amber-400 shrink-0" size={18} />
@@ -1652,10 +1655,10 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
                 </div>
             )}
 
-            {interpretation && data?.recordId && user && (
+            {(interpretation || data?.aiInterpretation?.content) && (data?.recordId || data?._id) && user && (
                 <AiChatWidget 
                     type="bazi" 
-                    recordId={data.recordId} 
+                    recordId={data.recordId || data._id} 
                     userId={user?.id || user?._id} 
                     isOpen={isChatOpen}
                     setIsOpen={setIsChatOpen}

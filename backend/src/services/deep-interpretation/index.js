@@ -56,5 +56,6 @@ module.exports = {
   BAZI_VIP_CONFIG,
   ZIWEI_VIP_CONFIG,
   MARRIAGE_VIP_CONFIG,
-  ICHING_VIP_CONFIG
+  ICHING_VIP_CONFIG,
+  AiConcurrencyLimiter: require('./AiConcurrencyLimiter')
 };

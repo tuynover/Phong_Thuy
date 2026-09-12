@@ -80,6 +80,8 @@ graph TD
         Services --> UserStatsS[UserStatsService.js]
         Services --> ZiweiCache[ZiweiCache.js]
         Services --> ZiweiVal[ZiweiValidators.js]
+        Services --> PdfGen[PdfGeneratorService.js]
+        Services --> AiLimiter[deep-interpretation/AiConcurrencyLimiter.js]
     end
 
     subgraph Database [MongoDB]
@@ -332,6 +334,24 @@ flowchart TD
     7. *Studio Ambience (Haas effect 20ms, 3.5%)*: Chiều sâu không gian thiền phòng.
     8. *Dynamics Compressor (Threshold -20dB, Ratio 3.5:1)*: Cân bằng âm lượng podcast radio.
   + **Giọng Thầy Luận Bản Địa:** Chạy 100% trên thiết bị người dùng qua Web Speech API với cao độ chuẩn `pitch: 0.78`, phản hồi 1.6ms, 0đ chi phí.
+
+### 2.6 Quản Trị Hàng Đợi Xuất PDF & Điều Tiết Tài Nguyên AI (PDF Semaphore & AI Concurrency Guard)
+
+Để phục vụ ổn định **100 người dùng đồng thời (100 CCU)** mà không gây nghẽn RAM do tiến trình Chromium headless hoặc quá tải quota dẫn đến lỗi HTTP 429 Too Many Requests từ các nhà cung cấp LLM, hệ thống triển khai hai cơ chế Semaphore Promise Queue độc lập:
+
+1. **Hàng Đợi Semaphore Xuất PDF (`PdfSemaphoreQueue` trong `PdfGeneratorService.js`):**
+   - **Giới hạn luồng đồng thời:** Tối đa 2 tác vụ render Chromium cùng lúc (`maxConcurrent: 2`), bảo vệ tuyệt đối dung lượng RAM máy chủ.
+   - **Hàng đợi FIFO Promise (Non-blocking):** Không sử dụng spinlock polling `while`, thay vào đó sử dụng Promise Queue FIFO với giới hạn độ dài `maxQueueSize: 20` và thời gian chờ tối đa `timeoutMs: 30000`. Khi vượt quá độ dài, trả về lỗi `503 Service Unavailable` ngay lập tức; khi quá 30s trả về `504 Gateway Timeout`.
+   - **Bộ Đệm Tệp Trên Ổ Đĩa (Zero Redis RAM Footprint):** Các bản in PDF được lưu đệm trực tiếp thành tệp tin `.pdf` trong thư mục `backend/scratch/pdf_cache/` với TTL 24 giờ. Redis chỉ lưu cờ hiệu 1-byte, giải phóng hoàn toàn việc lưu chuỗi Base64 1-4MB làm cạn kiệt bộ nhớ Redis 256MB.
+   - **Tự động giải phóng Idle Worker:** Tự động tắt instance Chromium khi không có tác vụ nào trong 5 phút để tiết kiệm RAM.
+
+2. **Bộ Điều Tiết Hạn Mức Gọi AI (`AiConcurrencyLimiter` trong `deep-interpretation/AiConcurrencyLimiter.js`):**
+   - **Giới hạn số Pipeline VIP song song:** Tối đa 3-4 luồng VIP pipeline chạy đồng thời (`AI_VIP_MAX_CONCURRENT`).
+   - **Thông báo Hàng Đợi Trực Quan Qua SSE:** Khi các slot phân tích VIP đã đầy, các yêu cầu mới được đưa vào hàng đợi chờ (tối đa 15 yêu cầu, timeout 60s). Hệ thống tự động gửi gói tin sự kiện SSE `{ stage: 'queued', position, message: 'Đang chờ slot (vị trí: #X)...' }` giúp giao diện người dùng hiển thị trực quan thay vì bị đơ hoặc báo lỗi.
+   - **Tự động kích hoạt khi có slot trống:** Khi một pipeline hoàn tất hoặc thất bại, slot được giải phóng lập tức và kích hoạt yêu cầu tiếp theo trong hàng đợi, đồng thời cập nhật lại số thứ tự hàng đợi cho các client đang chờ.
+
+3. **Tác Vụ Dọn Dẹp Bộ Nhớ Đệm Tệp Định Kỳ (`NotificationScheduler.js`):**
+   - Hàm `purgeExpiredCacheFiles()` được tích hợp vào scheduler chạy định kỳ mỗi ngày để quét và xóa sạch các tệp PDF và TTS trong `scratch/` có thời gian sửa đổi cũ hơn 24 giờ, đảm bảo dung lượng đĩa SSD luôn được duy trì tối ưu.
 
 ---
 

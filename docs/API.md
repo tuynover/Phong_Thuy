@@ -417,9 +417,9 @@ Yêu cầu người dùng đăng nhập. Phục vụ lấy danh sách và quản
 
 ---
 
-## 📅 7. Xem Ngày & Giờ Hoàng Đạo (Trạch Cát) (`/api/date`)
+## 📅 7. Xem Ngày & Giờ Hoàng Đạo (Trạch Cát) (`/api/date`) & Thuật Ngữ (`/api/concept`)
 
-Chức năng chạy in-memory, phục vụ xem ngày cát hung và tư vấn khoảng thời gian hoàng đạo phù hợp với tuổi. Không lưu trữ thông tin vào cơ sở dữ liệu.
+Chức năng chạy in-memory, phục vụ xem ngày cát hung và tư vấn khoảng thời gian hoàng đạo phù hợp với tuổi. Không lưu trữ thông tin vào cơ sở dữ liệu. Kết quả tính toán mang tính tiền định (deterministic) và được tự động lưu đệm qua `MemoryCacheService` (L1 RAM + L2 Redis) với TTL 24 giờ (`24 * 3600 * 1000` ms) cho phản hồi tức thì < 1ms khi có truy vấn trùng khớp.
 
 ### 7.1 Kiểm tra một ngày cụ thể (Xem Ngày)
 - **Endpoint:** `POST /api/date/check`
@@ -512,6 +512,28 @@ Chức năng chạy in-memory, phục vụ xem ngày cát hung và tư vấn kho
       },
       ...
     ]
+  }
+  ```
+
+### 7.3 Tra cứu Thuật ngữ Cổ học & Phong thủy
+- **Endpoint:** `GET /api/concept/:term`
+- **Headers Phản hồi:** `Cache-Control: public, max-age=86400, stale-while-revalidate=604800` (lưu đệm CDN / Trình duyệt 24 giờ và hỗ trợ tái xác thực nền 7 ngày)
+- **Tham số Đường dẫn (Params):**
+  - `term`: Thuật ngữ cần tra cứu (ví dụ: `thap_than`, `chinh_tai`, `luc_hao`, `tuan_triet`, `dung_than`, ...)
+- **Phản hồi Thành công (200):**
+  ```json
+  {
+    "term": "dung_than",
+    "title": "Dụng Thần (用神)",
+    "category": "bazi",
+    "description": "Là ngũ hành giữ vai trò cân bằng, cứu trợ cho thân chủ trong Bát Tự...",
+    "examples": ["Thân nhược ấn thụ vi dụng", "Thân vượng thực thương tiết tú"]
+  }
+  ```
+- **Phản hồi Lỗi (404):**
+  ```json
+  {
+    "message": "Không tìm thấy thông tin cho thuật ngữ này."
   }
   ```
 
@@ -696,20 +718,24 @@ Hỗ trợ chuyển đổi văn bản luận giải thành giọng đọc tiến
 - **Cơ chế Tiền Xử Lý & SSML Prosody Học Thuật:**
   - Tự động chuyển đổi các ký hiệu đặc biệt (`&` -> `và`, `%` -> `phần trăm`, `/` -> `trên/hoặc`, `SWOT` -> `ma trận thế mạnh điểm yếu`, `Cụm I - V` -> `Cụm 1 - 5`).
   - Chèn nhịp nghỉ thở tự nhiên (`<break time="180ms - 300ms"/>` tại dấu phẩy, hai chấm, chấm phẩy, dấu gạch ngang, dấu ba chấm).
+- **Bảo Vệ Tài Nguyên & Rate Limiting:** Bảo vệ bằng `ttsLimiter` (tối đa 20 yêu cầu / 1 phút) để chống lạm dụng băng thông mạng và CPU máy chủ.
 - **Tính năng & Hiệu năng:**
   - Định dạng Audio Studio: `OUTPUT_FORMAT.AUDIO_24KHZ_96KBITRATE_MONO_MP3` (gấp đôi bitrate cũ, triệt tiêu tiếng kim loại).
-  - In-memory LRU Cache 1.000 câu giúp phản hồi ngay lập tức 0ms khi phát lại.
+  - Đệm tệp tạm thời trên ổ cứng SSD (`backend/scratch/tts_cache`), zero Node.js RAM heap footprint, phản hồi tức thì < 5ms khi phát lại qua Linux Page Cache.
+  - Tự động dọn dẹp các tệp MP3 hết hạn sau 24 giờ qua background sweep timer (unref).
   - Browser Cache Header `Cache-Control: public, max-age=86400` (lưu đệm cục bộ tại trình duyệt người dùng trong 24 giờ).
   - Kiến trúc Fallback đa tầng: SSML Edge Neural -> Raw Edge Neural -> Google Translate TTS -> Native Web Speech API.
 - **Phản hồi Thành công (200):**
   - Binary Stream âm thanh MP3 (`Content-Type: audio/mpeg`).
 - **Phản hồi Lỗi:**
   - `400 Bad Request`: Thiếu tham số `text`.
+  - `429 Too Many Requests`: Gửi yêu cầu quá 20 lần/phút.
   - `502 Bad Gateway`: Lỗi kết nối tới upstream TTS providers.
 
 ### 10.2 Tổng hợp một chương hoàn chỉnh thành 1 file MP3 liên tục (Chapter-Level Audio)
 Tổng hợp trọn vẹn toàn bộ một chương luận giải thành một tệp MP3 đơn nhất, triệt tiêu hoàn toàn 100% độ trễ khựng giữa các câu, đảm bảo tính liên tục thông suốt tuyệt đối chuẩn Podcast / Radio chuyên nghiệp.
 - **Endpoint:** `POST /api/tts/chapter` hoặc `GET /api/tts/chapter`
+- **Rate Limit:** Áp dụng `ttsLimiter` (tối đa 20 yêu cầu / 1 phút).
 - **Request Body (POST) hoặc Query Parameters (GET):**
   ```json
   {
@@ -720,25 +746,27 @@ Tổng hợp trọn vẹn toàn bộ một chương luận giải thành một t
   ```
   - `content` (string, required): Nội dung chi tiết của chương (hỗ trợ văn bản dài ~3.000 - 6.000 từ).
   - `voice` (string, optional, mặc định `hoaimy`): `hoaimy` | `namminh` | `huonggiang` | `ngocmai`.
-  - `sectionId` (string, optional): Khóa định danh phân đoạn để tối ưu hóa bộ đệm (RAM Cache).
+  - `sectionId` (string, optional): Khóa định danh phân đoạn để tối ưu hóa bộ đệm.
 - **Cơ chế Xử Lý Chuyên Sâu:**
   - Tự động làm sạch định dạng Markdown (`cleanChapterMarkdown`): Chuyển bảng Markdown thành văn xuôi, phiên âm đắc hãm Tử Vi, loại bỏ metadata máy đọc `---UNGKYSTART--- ... ---UNGKYEND---`, chuyển từ "VIP" sang "chuyên sâu".
   - Thuật toán phân tách ngữ nghĩa an toàn (`splitTextIntoSemanticChunks` ~650 ký tự) để chống tràn bộ đệm WebSocket của Microsoft Edge TTS.
-  - Ghép nối nhị phân nguyên khối (`Buffer.concat`) tại bộ nhớ đệm máy chủ thành 1 stream MP3 liên tục (0.00ms gap, ngữ điệu thông suốt).
-  - Hệ thống Cache 2 tầng: RAM In-Memory Cache (tối đa 200 chương) + Client-side RAM Blob Cache (tối đa 40 chương).
-  - Tự động nạp trước (Prefetching) chương kế tiếp $k+1$ vào RAM Client khi chương $k$ đang phát.
-- **Phản hồi Thành công (200):**
+  - Ghép nối nhị phân nguyên khối (`Buffer.concat`) tại bộ nhớ máy chủ thành 1 stream MP3 liên tục (0.00ms gap, ngữ điệu thông suốt).
+  - Bộ đệm lưu trữ tệp đĩa SSD (`backend/scratch/tts_cache`) với cơ chế hỗ trợ HTTP 206 Partial Content (tua âm thanh mượt mà) và không làm phình bộ nhớ RAM Node.js heap.
+  - Tự động nạp trước (Prefetching) chương kế tiếp $k+1$ vào RAM Client khi chương $k$ đang phát ở chế độ Nghe Toàn Bài.
+- **Phản hồi Thành công (200 / 206):**
   - `Content-Type: audio/mpeg`
   - `Accept-Ranges: bytes`
   - `Cache-Control: public, max-age=86400`
-  - Binary Stream của toàn bộ file MP3 chương.
+  - Binary Stream của file MP3 chương (hoặc chunk byte Range 206).
 - **Phản hồi Lỗi:**
   - `400 Bad Request`: Nội dung chương rỗng hoặc không hợp lệ.
+  - `429 Too Many Requests`: Vượt quá hạn mức 20 yêu cầu/phút.
   - `500 Internal Server Error`: Lỗi hệ thống khi tổng hợp âm thanh.
 
 ### 10.3 Khởi tạo Vé Truyền Phát Trực Tiếp (Streaming Audio Ticket)
 Tạo vé truyền phát âm thanh tức thì trong 2ms để Audio Element của trình duyệt kết nối trực tiếp với luồng stream âm thanh, khởi động giọng đọc trong < 1.0s.
 - **Endpoint:** `POST /api/tts/ticket`
+- **Rate Limit:** Áp dụng `ttsLimiter` (tối đa 20 yêu cầu / 1 phút).
 - **Request Body:**
   ```json
   {
@@ -764,11 +792,54 @@ Truyền phát trực tiếp dòng âm thanh MP3 (chunked transfer) tới Audio 
   - `Range`: `bytes=start-end` (Yêu cầu khung dữ liệu âm thanh từ phía trình duyệt để thực hiện thao tác tua / seek).
 - **Headers Phản Hồi:**
   - `Content-Type: audio/mpeg`
-  - `Transfer-Encoding: chunked` (khi stream trực tiếp) hoặc `Content-Length` (khi lấy từ RAM cache).
+  - `Transfer-Encoding: chunked` (khi stream trực tiếp) hoặc `Content-Length` (khi phát từ Disk Cache).
   - `Accept-Ranges: bytes` (Khai báo hỗ trợ tua dữ liệu byte).
   - `Content-Range: bytes start-end/total` (Khi nhận Range request từ client, phản hồi mã `206 Partial Content`).
   - `Access-Control-Allow-Origin: *` (Hỗ trợ Web Audio API Mastering kết nối đa tầng DSP).
   - `Cache-Control: public, max-age=86400`
 
+---
 
+## 📄 11. Xuất Bản Hồ Sơ PDF Học Thuật (`/api/export`)
 
+Hệ thống cung cấp dịch vụ kết xuất đồ hình lá số và toàn văn bài luận giải AI ra tài liệu PDF khổ A4 tiêu chuẩn in ấn (Imperial Style).
+Để bảo vệ tài nguyên CPU và bộ nhớ máy chủ trong môi trường tải cao, tiến trình Puppeteer Chromium được điều tiết bởi **Semaphore FIFO Queue** (tối đa 2 tác vụ render song song, hàng đợi chờ tối đa 20 tác vụ, timeout 30s) kết hợp **Bộ đệm tệp SSD** (`backend/scratch/pdf_cache/{hash}.pdf`, TTL 24h).
+
+### 11.1 Xuất Tệp PDF Hồ Sơ Học Thuật
+- **Endpoint:** `POST /api/export/pdf/:type/:recordId`
+- **Headers:** `Authorization: Bearer <token>`
+- **URL Parameters:**
+  - `type` (string, bắt buộc): Phân hệ cần xuất (`bazi` | `ziwei` | `iching` | `marriage`).
+  - `recordId` (string, bắt buộc): Mã định danh UUIDv7 của bản ghi cần xuất.
+- **Request Body:**
+  ```json
+  {
+    "scope": [
+      "cover",
+      "bazi_pillars",
+      "bazi_dayun",
+      "bazi_wuxing",
+      "bazi_shensha",
+      "nhat_chu",
+      "ch1",
+      "ch2",
+      "ch3",
+      "ch4",
+      "ch5",
+      "ch6",
+      "harmonizer"
+    ]
+  }
+  ```
+  - `scope` (array of string, tùy chọn): Danh sách các phân mục cần xuất. Mặc định nếu để trống hoặc không truyền sẽ xuất toàn bộ các mục có trong bản ghi.
+- **Headers Phản hồi:**
+  - `Content-Type: application/pdf`
+  - `Content-Disposition: attachment; filename="[LoaiLaSo]_[Ten]_[RecordId].pdf"`
+  - `Content-Length: <kích thước file byte>`
+  - `Cache-Control: public, max-age=86400`
+- **Mã lỗi đặc biệt:**
+  - `400 Bad Request`: Thiếu hoặc sai định dạng tham số `type`, `recordId`.
+  - `401 / 403`: Chưa xác thực hoặc không có quyền truy cập bản ghi riêng tư.
+  - `404 Not Found`: Không tìm thấy bản ghi.
+  - `503 Service Unavailable`: Hàng đợi máy chủ đang quá tải (vượt quá 20 yêu cầu chờ tạo PDF song song). Phản hồi gợi ý người dùng thử lại sau 30-60 giây.
+  - `504 Gateway Timeout`: Hàng đợi xử lý bị quá thời gian chờ (30 giây) do tài nguyên kết xuất Chromium quá tải.

@@ -4,7 +4,7 @@ const logger = require('../services/LoggerService');
 const rateLimitCache = new Map();
 
 // Tự động dọn dẹp bộ nhớ đệm RAM mỗi 15 phút để tránh rò rỉ bộ nhớ
-setInterval(() => {
+const cleanupTimer = setInterval(() => {
     const now = Date.now();
     for (const [key, value] of rateLimitCache.entries()) {
         if (now > value.resetTime) {
@@ -12,6 +12,7 @@ setInterval(() => {
         }
     }
 }, 15 * 60 * 1000);
+if (cleanupTimer.unref) cleanupTimer.unref();
 
 /**
  * Fallback rate limiter sử dụng bộ nhớ đệm RAM (JavaScript Map)

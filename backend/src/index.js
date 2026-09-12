@@ -70,6 +70,9 @@ const auditLogger = require('./middleware/logging');
 
 const app = express();
 
+// Trust reverse proxy (Nginx / Cloudflare / ALB) for accurate client IP in rate limiting
+app.set('trust proxy', 1);
+
 // Security HTTP Headers Middleware
 app.use(helmet({
   crossOriginResourcePolicy: false,

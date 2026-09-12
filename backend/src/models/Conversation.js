@@ -37,6 +37,8 @@ const conversationSchema = new mongoose.Schema({
   timestamps: true
 });
 
+conversationSchema.index({ userId: 1, recordId: 1 });
+conversationSchema.index({ userId: 1, system: 1, updatedAt: -1 });
 conversationSchema.index({ userId: 1, totalTokens: 1 });
 conversationSchema.index({ createdAt: 1 });
 

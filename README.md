@@ -245,7 +245,7 @@ Hệ thống API Backend sử dụng tiền tố `/api` và phân chia thành c�
    ```bash
    npm run dev
    ```
-5. Khởi chạy Unit Test Suite (Jest - 19 Test Suites, 86/86 Tests PASSED):
+5. Khởi chạy Unit Test Suite (Jest - 31 Test Suites, 241/241 Tests PASSED 100%):
    ```bash
    npm test
    ```
@@ -263,11 +263,15 @@ Hệ thống API Backend sử dụng tiền tố `/api` và phân chia thành c�
    ```env
    VITE_API_URL=http://localhost:3001/api
    ```
-4. Khởi chạy giao diện nhà phát triển:
+4. Khởi chạy Unit Test Suite Frontend (Vitest - 4 Test Suites, 29/29 Tests PASSED 100%):
+   ```bash
+   npm test
+   ```
+5. Khởi chạy giao diện nhà phát triển:
    ```bash
    npm run dev
    ```
-5. Mở trình duyệt và truy cập `http://localhost:5173`.
+6. Mở trình duyệt và truy cập `http://localhost:5173`.
 
 ### 🐳 Cách 2: Khởi chạy bằng Docker Compose và Luồng Tự Động CI/CD
 

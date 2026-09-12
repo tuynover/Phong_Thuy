@@ -852,7 +852,10 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
 
               {/* Nút "Hỏi Thêm Thầy" */}
               <button
-                onClick={() => setIsChatOpen(true)}
+                onClick={() => {
+                  setActiveConsultSection(null);
+                  setIsChatOpen(true);
+                }}
                 className="flex items-center gap-2.5 px-6 py-4 rounded-full shadow-2xl transition-all duration-300 font-extrabold border bg-gradient-to-r from-purple-950 via-indigo-900 to-slate-950 hover:from-purple-900 hover:to-indigo-950 text-amber-300 border-amber-400/40 shadow-purple-950/30 hover:scale-105 active:scale-95 text-xs sm:text-sm tracking-wider uppercase ring-4 ring-purple-500/20"
               >
                 <MessageCircle className="animate-bounce text-amber-400 shrink-0" size={18} />
@@ -865,7 +868,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
           {(interpretation || result.aiInterpretation?.content || result.aiInterpretation?.sections?.length > 0) && activeUser && (
             <AiChatWidget
               type="tu_vi"
-              recordId={result._id}
+              recordId={result.recordId || result._id}
               userId={activeUser?.id || activeUser?._id}
               isOpen={isChatOpen}
               setIsOpen={setIsChatOpen}

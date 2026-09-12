@@ -40,6 +40,7 @@ class RedisQueueService {
      * Tiến trình Worker chạy ngầm liên tục rút job từ Redis Queue để gửi mail (Non-blocking LPOP)
      */
     async startWorker() {
+        if (process.env.NODE_ENV === 'test') return;
         if (this.isProcessing) return;
         this.isProcessing = true;
 
@@ -63,7 +64,8 @@ class RedisQueueService {
                 }
             }
 
-            setTimeout(processNextJob, nextDelayMs);
+            const timer = setTimeout(processNextJob, nextDelayMs);
+            if (timer.unref) timer.unref();
         };
 
         processNextJob();

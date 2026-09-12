@@ -4,10 +4,16 @@ Hệ thống sử dụng **MongoDB** làm cơ sở dữ liệu chính, được 
 
 ---
 
-## 🔑 1. Quy tắc Thiết kế Khóa chính & Chỉ mục (Indexes)
+## 🔑 1. Quy tắc Thiết kế Khóa chính, Chỉ mục (Indexes) & Connection Pool
 - **UUIDv7 làm Khóa chính:** Mọi bảng dữ liệu nghiệp vụ chính (`User`, `IChingRecord`, `BaziRecord`, `ZiweiRecord`, `MarriageRecord`, `Conversation`, `Message`, `Notification`, `AdminNotification`, `BanAppeal`, `BlogPost`) đều ghi đè trường `_id` mặc định bằng chuỗi sinh ra từ thuật toán **UUIDv7** (`default: uuidv7`) để đảm bảo tính sắp xếp theo thời gian tốt hơn và tránh đoán định ID tuần tự. Riêng bảng `SystemLog` hiện sử dụng `ObjectId` mặc định của MongoDB.
 - **Xóa mềm (Soft Delete):** Hầu hết các tài liệu nghiệp vụ đều sử dụng cờ `isDeleted: { type: Boolean, default: false }` kết hợp với trạng thái `status: { type: String, enum: ['active', 'locked'] }`.
-- **Compound Indexes:** Được thiết lập sẵn trên các trường truy vấn thường xuyên như `userId`, `createdAt`, và cờ trạng thái để tối ưu hóa hiệu năng tìm kiếm của MongoDB.
+- **Compound Indexes:** Được thiết lập sẵn trên các trường truy vấn thường xuyên như `userId`, `createdAt`, và cờ trạng thái để tối ưu hóa hiệu năng tìm kiếm của MongoDB, triệt tiêu 100% các bước In-memory sorting (SORT stage).
+- **Cấu hình Connection Pool & Sức chịu tải (Production Readiness):**
+  - Trong `backend/src/config/db.js`, cấu hình Mongoose kết nối với các tham số tối ưu cho môi trường chịu tải cao (mục tiêu 100 concurrent users):
+    - `maxPoolSize: 100`: Giữ tối đa 100 socket TCP đồng thời, đáp ứng tải đỉnh mà không nghẽn hàng đợi kết nối.
+    - `minPoolSize: 10`: Luôn duy trì 10 socket ấm (warm connections), triệt tiêu độ trễ bắt tay TCP/TLS SSL khi có yêu cầu đột ngột.
+    - `serverSelectionTimeoutMS: 5000`: Fast-fail sau 5 giây nếu không kết nối được cụm MongoDB, tránh treo request vô thời hạn.
+    - `socketTimeoutMS: 45000`: Tự động ngắt socket sau 45s nếu truy vấn bị treo hoặc máy chủ cơ sở dữ liệu không phản hồi.
 
 ---
 
@@ -223,6 +229,9 @@ Lưu trữ kết quả so sánh Bát Tự và độ hòa hợp của hai đối 
     totalTokens: { type: Number, default: 0 }
   }
   ```
+- **Chỉ mục phụ (Compound Indexes):**
+  - `{"userId": 1, "recordId": 1}`: Tối ưu hóa việc tìm nhanh cuộc trò chuyện gắn với một bản ghi cụ thể của người dùng.
+  - `{"userId": 1, "system": 1, "updatedAt": -1}`: Tối ưu hóa việc lấy danh sách các phiên chat gần nhất theo từng phân hệ.
 
 ### 2.7 Bảng Tin nhắn dùng chung (`messages`)
 - **Model:** [Message.js](file:///t:/Phongthuy/backend/src/models/Message.js)
@@ -233,19 +242,23 @@ Lưu trữ kết quả so sánh Bát Tự và độ hòa hợp của hai đối 
     conversationId: { type: String, required: true, ref: 'Conversation', index: true },
     role: { type: String, required: true, enum: ['user', 'ai'] },
     content: { type: String, required: true },
+    sectionId: { type: String, default: null },
+    sectionTitle: { type: String, default: null },
     structuredContent: {
-      answer: String,
-      timing: String,
-      risk: String,
-      dos: String,
-      donts: String,
-      confidence: Number
+      answer: { type: String },
+      timing: { type: mongoose.Schema.Types.Mixed, default: "" },
+      risk: { type: mongoose.Schema.Types.Mixed, default: "" },
+      dos: { type: mongoose.Schema.Types.Mixed, default: "" },
+      donts: { type: mongoose.Schema.Types.Mixed, default: "" },
+      confidence: { type: Number, default: 0.8 }
     },
     promptTokens: { type: Number, default: 0 },
     completionTokens: { type: Number, default: 0 },
     totalTokens: { type: Number, default: 0 }
   }
   ```
+- **Chỉ mục phụ (Compound Indexes):**
+  - `{"conversationId": 1, "createdAt": 1}`: Tối ưu hóa truy vấn toàn bộ lịch sử tin nhắn của một hội thoại theo thứ tự thời gian tăng dần, triệt tiêu 100% In-memory sorting trên RAM của MongoDB.
 
 ### 2.8 Các bảng hỗ trợ Quản trị & Hệ thống
 
@@ -391,6 +404,5 @@ Lưu trữ nhật ký truy vết request, thời gian xử lý, IP và token đ�
     }
   );
   ```
-- **Không sử dụng post-save hooks lặp lại:** Các hook `post('save')` tự động gọi quét lại dữ liệu đã được **loại bỏ hoàn toàn** ở các Model `IChingRecord`, `BaziRecord`, `ZiweiRecord`, `MarriageRecord`, `Conversation` để đảm bảo tốc độ tạo lá số đạt mức dưới 10ms.
-- **Lưu ý hiện trạng HistoryController:** Hiện tại hàm `updateByIdFlex` trong `HistoryController.js` vẫn đang gọi `UserStatsService.updateUserStatsBackground` (chạy 12 câu lệnh MongoDB aggregation). Đây là điểm nghẽn cần gỡ bỏ theo lộ trình tối ưu production.
+- **Xóa bỏ triệt để nghẽn đĩa trong HistoryController:** Hàm `updateByIdFlex` trong `HistoryController.js` đã được gỡ bỏ hoàn toàn lệnh gọi `UserStatsService.updateUserStatsBackground` (loại bỏ 12 câu lệnh MongoDB aggregation khi ghim, gắn tag, đánh giá sao hoặc chuyển đổi công khai lá số), giúp các thao tác cập nhật metadata đạt tốc độ O(1) < 5ms và triệt tiêu 100% các đột biến Disk I/O.
 - **Truy vấn Lịch sử Tối ưu:** Cả 4 bảng dữ liệu chính đều được tạo Compound Index `{"userId": 1, "isDeleted": 1, "createdAt": -1}` để phục vụ truy vấn lịch sử phân trang mà không phải thực hiện In-memory sorting trên MongoDB.

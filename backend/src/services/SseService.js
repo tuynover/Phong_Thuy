@@ -22,6 +22,7 @@ class SseService {
     const keepAlive = setInterval(() => {
       res.write(': ping\n\n');
     }, 15000);
+    if (keepAlive.unref) keepAlive.unref();
 
     req.on('close', () => {
       clearInterval(keepAlive);
@@ -47,6 +48,7 @@ class SseService {
     const keepAlive = setInterval(() => {
       res.write(': ping\n\n');
     }, 15000);
+    if (keepAlive.unref) keepAlive.unref();
 
     req.on('close', () => {
       clearInterval(keepAlive);

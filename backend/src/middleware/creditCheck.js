@@ -23,6 +23,7 @@ const creditCheck = async (req, res, next) => {
     }
 
     const userId = decoded.user?.id || decoded.id;
+    const tokenVersion = decoded.user?.tokenVersion;
     if (!userId) {
       return res.status(401).json({ error: 'Token không hợp lệ.' });
     }
@@ -47,6 +48,12 @@ const creditCheck = async (req, res, next) => {
       return res.status(403).json({ 
         error: `Tài khoản của bạn đã bị khóa. Lý do: ${user.lockReason || 'Không có'}` 
       });
+    }
+
+    const currentTokenVersion = user.tokenVersion || 0;
+    const payloadTokenVersion = tokenVersion !== undefined ? tokenVersion : 0;
+    if (payloadTokenVersion !== currentTokenVersion) {
+      return res.status(401).json({ error: 'Phiên đăng nhập đã hết hạn hoặc đã đăng xuất.' });
     }
 
     // Determine requested mode (standard vs vip)

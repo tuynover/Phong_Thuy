@@ -1,6 +1,103 @@
+const fs = require('fs');
+const path = require('path');
 const https = require('https');
 const crypto = require('crypto');
 const { MsEdgeTTS, OUTPUT_FORMAT } = require('msedge-tts');
+
+// Thư mục đệm tạm thời cho tệp âm thanh MP3 (Zero Node.js RAM footprint)
+const CACHE_DIR = path.join(__dirname, '../../scratch/tts_cache');
+if (!fs.existsSync(CACHE_DIR)) {
+    try {
+        fs.mkdirSync(CACHE_DIR, { recursive: true });
+    } catch (e) {}
+}
+
+function getCacheFilePath(key) {
+    const safeHash = crypto.createHash('sha256').update(key).digest('hex');
+    return path.join(CACHE_DIR, `${safeHash}.mp3`);
+}
+
+function hasDiskCache(key) {
+    return fs.existsSync(getCacheFilePath(key));
+}
+
+function streamFromDiskCache(key, req, res) {
+    const filePath = getCacheFilePath(key);
+    if (!fs.existsSync(filePath)) return false;
+    try {
+        const stat = fs.statSync(filePath);
+        const total = stat.size;
+        const range = req.headers.range;
+
+        // Cập nhật mtime để LRU/TTL nhận biết file vừa được nghe
+        const now = new Date();
+        fs.utimes(filePath, now, now, () => {});
+
+        if (range) {
+            const parts = range.replace(/bytes=/, "").split("-");
+            const start = parseInt(parts[0], 10);
+            const end = parts[1] ? parseInt(parts[1], 10) : total - 1;
+            const chunksize = (end - start) + 1;
+            res.writeHead(206, {
+                'Content-Range': `bytes ${start}-${end}/${total}`,
+                'Accept-Ranges': 'bytes',
+                'Content-Length': chunksize,
+                'Content-Type': 'audio/mpeg',
+                'Access-Control-Allow-Origin': '*',
+                'Cache-Control': 'public, max-age=86400'
+            });
+            fs.createReadStream(filePath, { start, end }).pipe(res);
+        } else {
+            res.writeHead(200, {
+                'Content-Length': total,
+                'Content-Type': 'audio/mpeg',
+                'Accept-Ranges': 'bytes',
+                'Access-Control-Allow-Origin': '*',
+                'Cache-Control': 'public, max-age=86400'
+            });
+            fs.createReadStream(filePath).pipe(res);
+        }
+        return true;
+    } catch (err) {
+        return false;
+    }
+}
+
+async function saveDiskCache(key, buffer) {
+    if (!buffer || buffer.length === 0) return;
+    const filePath = getCacheFilePath(key);
+    try {
+        await fs.promises.writeFile(filePath, buffer);
+    } catch (e) {
+        console.warn('[TtsController] Warning saving disk cache:', e.message);
+    }
+}
+
+// Hàm dọn dẹp định kỳ các file âm thanh tạm quá 24h
+function cleanupExpiredTtsFiles(maxAgeMs = 24 * 60 * 60 * 1000) {
+    if (!fs.existsSync(CACHE_DIR)) return;
+    fs.readdir(CACHE_DIR, (err, files) => {
+        if (err || !files) return;
+        const now = Date.now();
+        for (const file of files) {
+            if (!file.endsWith('.mp3')) continue;
+            const fullPath = path.join(CACHE_DIR, file);
+            fs.stat(fullPath, (statErr, stat) => {
+                if (!statErr && stat) {
+                    if (now - stat.mtimeMs > maxAgeMs) {
+                        fs.unlink(fullPath, () => {});
+                    }
+                }
+            });
+        }
+    });
+}
+
+// Timer dọn dẹp chạy mỗi 30 phút, dùng .unref() để không giữ tiến trình
+const sweepTimer = setInterval(() => {
+    cleanupExpiredTtsFiles();
+}, 30 * 60 * 1000);
+if (sweepTimer.unref) sweepTimer.unref();
 
 /**
  * Cấu hình hồ sơ giọng đọc AI Neural cao cấp (Studio 96kbps & SSML Prosody)
@@ -252,11 +349,7 @@ function splitTextIntoSemanticChunks(text, maxChunkLen = 650) {
 }
 
 class TtsController {
-    // In-memory cache lưu các đoạn MP3 đã tải (tối đa 2.000 câu)
-    static cache = new Map();
-    // In-memory cache lưu các chương MP3 hoàn chỉnh (tối đa 300 chương)
-    static chapterCache = new Map();
-    // In-memory cache lưu các vé truyền phát luồng (tối đa 1.000 vé)
+    // In-memory cache lưu các vé truyền phát luồng ngắn hạn (tối đa 1.000 vé metadata, không chứa binary audio)
     static ticketCache = new Map();
 
     /**
@@ -351,11 +444,8 @@ class TtsController {
             const cleanText = text.trim().slice(0, 600);
             const cacheKey = `v2:${voice}:${cleanText}`;
 
-            if (TtsController.cache.has(cacheKey)) {
-                const cachedBuffer = TtsController.cache.get(cacheKey);
-                res.setHeader('Content-Type', 'audio/mpeg');
-                res.setHeader('Cache-Control', 'public, max-age=86400');
-                return res.send(cachedBuffer);
+            if (hasDiskCache(cacheKey)) {
+                return streamFromDiskCache(cacheKey, req, res);
             }
 
             let audioBuffer = null;
@@ -391,12 +481,7 @@ class TtsController {
                 return res.status(500).json({ error: 'Empty audio buffer received' });
             }
 
-            // Giữ kích thước cache tối đa 2000 câu
-            if (TtsController.cache.size > 2000) {
-                const firstKey = TtsController.cache.keys().next().value;
-                TtsController.cache.delete(firstKey);
-            }
-            TtsController.cache.set(cacheKey, audioBuffer);
+            await saveDiskCache(cacheKey, audioBuffer);
 
             res.setHeader('Content-Type', 'audio/mpeg');
             res.setHeader('Cache-Control', 'public, max-age=86400');
@@ -432,31 +517,8 @@ class TtsController {
             const textHash = crypto.createHash('md5').update(cleanText).digest('hex').slice(0, 16);
             const cacheKey = `chap:${voice}:${sectionId || 'sec'}:${textHash}`;
 
-            if (TtsController.chapterCache.has(cacheKey)) {
-                const cachedBuffer = TtsController.chapterCache.get(cacheKey);
-                const total = cachedBuffer.length;
-                if (req.headers.range) {
-                    const range = req.headers.range;
-                    const parts = range.replace(/bytes=/, "").split("-");
-                    const start = parseInt(parts[0], 10);
-                    const end = parts[1] ? parseInt(parts[1], 10) : total - 1;
-                    const chunksize = (end - start) + 1;
-                    res.writeHead(206, {
-                        'Content-Range': `bytes ${start}-${end}/${total}`,
-                        'Accept-Ranges': 'bytes',
-                        'Content-Length': chunksize,
-                        'Content-Type': 'audio/mpeg',
-                        'Access-Control-Allow-Origin': '*',
-                        'Cache-Control': 'public, max-age=86400'
-                    });
-                    return res.end(cachedBuffer.slice(start, end + 1));
-                }
-
-                res.setHeader('Content-Type', 'audio/mpeg');
-                res.setHeader('Cache-Control', 'public, max-age=86400');
-                res.setHeader('Accept-Ranges', 'bytes');
-                res.setHeader('Content-Length', total);
-                return res.send(cachedBuffer);
+            if (hasDiskCache(cacheKey)) {
+                return streamFromDiskCache(cacheKey, req, res);
             }
 
             // Phát hiện hủy kết nối từ phía client (khi user chuyển giọng hoặc đổi chương)
@@ -534,12 +596,7 @@ class TtsController {
 
             const completeChapterBuffer = Buffer.concat(validBuffers);
 
-            // Giữ tối đa 300 chương trong RAM cache (~150MB RAM)
-            if (TtsController.chapterCache.size > 300) {
-                const firstKey = TtsController.chapterCache.keys().next().value;
-                TtsController.chapterCache.delete(firstKey);
-            }
-            TtsController.chapterCache.set(cacheKey, completeChapterBuffer);
+            await saveDiskCache(cacheKey, completeChapterBuffer);
 
             res.setHeader('Content-Type', 'audio/mpeg');
             res.setHeader('Cache-Control', 'public, max-age=86400');
@@ -577,7 +634,7 @@ class TtsController {
             const ticketId = `${voice}_${sectionId || 'sec'}_${textHash}`;
             const cacheKey = `chap:${voice}:${sectionId || 'sec'}:${textHash}`;
 
-            const isCached = TtsController.chapterCache.has(cacheKey);
+            const isCached = hasDiskCache(cacheKey);
 
             if (!isCached) {
                 if (TtsController.ticketCache.size > 1000) {
@@ -629,37 +686,9 @@ class TtsController {
             const sectionId = parts.slice(1, parts.length - 1).join('_');
             const cacheKey = `chap:${voice}:${sectionId}:${textHash}`;
 
-            // 2. Nếu chương đã có trong cache RAM: trả về toàn bộ file MP3 ngay lập tức (< 5ms)
-            if (TtsController.chapterCache.has(cacheKey)) {
-                const cachedBuffer = TtsController.chapterCache.get(cacheKey);
-                const total = cachedBuffer.length;
-
-                // Hỗ trợ HTTP 206 Partial Content (Range request) cho phép trình duyệt tua âm thanh tức thì
-                if (req.headers.range) {
-                    const range = req.headers.range;
-                    const parts = range.replace(/bytes=/, "").split("-");
-                    const start = parseInt(parts[0], 10);
-                    const end = parts[1] ? parseInt(parts[1], 10) : total - 1;
-                    const chunksize = (end - start) + 1;
-                    res.writeHead(206, {
-                        'Content-Range': `bytes ${start}-${end}/${total}`,
-                        'Accept-Ranges': 'bytes',
-                        'Content-Length': chunksize,
-                        'Content-Type': 'audio/mpeg',
-                        'Access-Control-Allow-Origin': '*',
-                        'Cache-Control': 'public, max-age=86400'
-                    });
-                    return res.end(cachedBuffer.slice(start, end + 1));
-                }
-
-                res.writeHead(200, {
-                    'Content-Type': 'audio/mpeg',
-                    'Content-Length': total,
-                    'Accept-Ranges': 'bytes',
-                    'Access-Control-Allow-Origin': '*',
-                    'Cache-Control': 'public, max-age=86400'
-                });
-                return res.end(cachedBuffer);
+            // 2. Nếu chương đã có trong cache disk: truyền phát file MP3 ngay lập tức (< 5ms)
+            if (hasDiskCache(cacheKey)) {
+                return streamFromDiskCache(cacheKey, req, res);
             }
 
             // 3. Nếu chưa có trong cache: tìm vé trong ticketCache
@@ -801,14 +830,10 @@ class TtsController {
                 res.end();
             }
 
-            // Lưu toàn bộ buffer vào cache để các lần nghe tiếp theo phát tức thì 0ms
+            // Lưu toàn bộ buffer vào disk cache để các lần nghe tiếp theo phát tức thì 0ms
             if (!isClientDisconnected && collectedBuffers.length > 0) {
                 const completeBuffer = Buffer.concat(collectedBuffers);
-                if (TtsController.chapterCache.size > 300) {
-                    const firstKey = TtsController.chapterCache.keys().next().value;
-                    TtsController.chapterCache.delete(firstKey);
-                }
-                TtsController.chapterCache.set(cacheKey, completeBuffer);
+                await saveDiskCache(cacheKey, completeBuffer);
             }
         } catch (err) {
             console.error('[TtsController.streamAudioTicket] Error:', err);

@@ -7,6 +7,9 @@ const SystemLog = require('../models/SystemLog');
 const AdminNotification = require('../models/AdminNotification');
 const BaziRecord = require('../models/BaziRecord');
 const ZiweiRecord = require('../models/ZiweiRecord');
+const MarriageRecord = require('../models/MarriageRecord');
+const Conversation = require('../models/Conversation');
+const Message = require('../models/Message');
 const BanAppeal = require('../models/BanAppeal');
 
 const logger = require('./LoggerService');
@@ -43,6 +46,9 @@ async function purgeSoftDeletedUsers() {
             await BaziRecord.deleteMany({ userId });
             await IChingRecord.deleteMany({ userId });
             await ZiweiRecord.deleteMany({ userId });
+            await MarriageRecord.deleteMany({ userId });
+            await Conversation.deleteMany({ userId });
+            await Message.deleteMany({ userId });
             await BanAppeal.deleteMany({ userId });
             await Notification.deleteMany({ userId });
             await User.deleteOne({ _id: userId });
@@ -53,11 +59,49 @@ async function purgeSoftDeletedUsers() {
     }
 }
 
+async function purgeExpiredCacheFiles() {
+    const fs = require('fs');
+    const path = require('path');
+    const maxAgeMs = 24 * 60 * 60 * 1000; // 24 hours
+    const now = Date.now();
+
+    const cacheDirs = [
+        path.join(__dirname, '../../scratch/pdf_cache'),
+        path.join(__dirname, '../../scratch/tts_cache')
+    ];
+
+    for (const dir of cacheDirs) {
+        try {
+            if (!fs.existsSync(dir)) continue;
+            const files = await fs.promises.readdir(dir);
+            let purgedCount = 0;
+            for (const file of files) {
+                const filePath = path.join(dir, file);
+                try {
+                    const stats = await fs.promises.stat(filePath);
+                    if (now - stats.mtimeMs > maxAgeMs) {
+                        await fs.promises.unlink(filePath);
+                        purgedCount++;
+                    }
+                } catch (e) {}
+            }
+            if (purgedCount > 0) {
+                console.log(`[NotificationScheduler] Cleaned up ${purgedCount} expired cache files in ${path.basename(dir)}.`);
+            }
+        } catch (err) {
+            console.error(`[NotificationScheduler] Error purging cache files in ${dir}:`, err);
+        }
+    }
+}
+
 async function checkAndSendNotifications() {
     console.log('[NotificationScheduler] Running daily check...');
     
-    // 1. Purge expired soft-deleted users (Daily Free Credits Cron has been completely removed)
+    // 1. Purge expired soft-deleted users
     await purgeSoftDeletedUsers();
+
+    // 2. Purge expired temporary PDF and TTS cache files (>24h)
+    await purgeExpiredCacheFiles();
 
     try {
         const today = new Date();
@@ -282,10 +326,11 @@ function startScheduler() {
     const todayStr = new Date().toLocaleDateString('en-GB', { timeZone: 'Asia/Ho_Chi_Minh' });
     lastRunDay = todayStr;
     
-    setTimeout(() => {
+    const initTimer = setTimeout(() => {
         checkAndSendNotifications();
         scanResourceSpikes();
     }, 5000);
+    if (initTimer.unref) initTimer.unref();
 
     // Daily check every hour
     checkInterval = setInterval(() => {
@@ -295,11 +340,13 @@ function startScheduler() {
             lastRunDay = currentDayStr;
         }
     }, 3600000); 
+    if (checkInterval.unref) checkInterval.unref();
 
     // Spike check every 10 minutes
     spikeInterval = setInterval(() => {
         scanResourceSpikes();
     }, 600000);
+    if (spikeInterval.unref) spikeInterval.unref();
     
     console.log('[NotificationScheduler] Started successfully.');
 }
@@ -318,5 +365,6 @@ function stopScheduler() {
 module.exports = {
     startScheduler,
     stopScheduler,
-    checkAndSendNotifications
+    checkAndSendNotifications,
+    purgeExpiredCacheFiles
 };

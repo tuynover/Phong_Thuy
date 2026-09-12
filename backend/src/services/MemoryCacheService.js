@@ -192,8 +192,11 @@ class MemoryCacheService {
      */
     clearChatCache(type, recordId) {
         if (!type || !recordId) return;
-        const prefix = `history:chat:${type}:${recordId}:`;
-        this.deleteByPrefix(prefix);
+        this.deleteByPrefix(`history:chat:${type}:${recordId}:`);
+        if (type === 'iching') this.deleteByPrefix(`history:chat:hexagrams:${recordId}:`);
+        if (type === 'hexagrams') this.deleteByPrefix(`history:chat:iching:${recordId}:`);
+        if (type === 'ziwei') this.deleteByPrefix(`history:chat:tu_vi:${recordId}:`);
+        if (type === 'tu_vi') this.deleteByPrefix(`history:chat:ziwei:${recordId}:`);
     }
 
     /**

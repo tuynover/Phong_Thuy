@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const { setUserProfileCache } = require('../config/redis');
+const { getUserProfileCache, setUserProfileCache } = require('../config/redis');
 
 module.exports = async (req, res, next) => {
   try {
@@ -24,11 +24,23 @@ module.exports = async (req, res, next) => {
     }
 
     const userId = decoded.user?.id || decoded.user?._id || decoded.id;
+    const tokenVersion = decoded.user?.tokenVersion;
     if (!userId) {
       return res.status(401).json({ error: 'Token không hợp lệ.' });
     }
 
-    const user = await User.findById(userId);
+    // 1. Check Redis cache first to bypass MongoDB query
+    let user = await getUserProfileCache(userId);
+
+    // 2. Fallback to MongoDB if cache miss
+    if (!user) {
+      const mongoUser = await User.findById(userId);
+      if (mongoUser) {
+        user = mongoUser.toObject ? mongoUser.toObject() : mongoUser;
+        setUserProfileCache(userId, user);
+      }
+    }
+
     if (!user || user.isDeleted) {
       return res.status(401).json({ error: 'Tài khoản không tồn tại.' });
     }
@@ -37,6 +49,12 @@ module.exports = async (req, res, next) => {
       return res.status(403).json({ 
         error: `Tài khoản của bạn đã bị khóa. Lý do: ${user.lockReason || 'Không có'}` 
       });
+    }
+
+    const currentTokenVersion = user.tokenVersion || 0;
+    const payloadTokenVersion = tokenVersion !== undefined ? tokenVersion : 0;
+    if (payloadTokenVersion !== currentTokenVersion) {
+      return res.status(401).json({ error: 'Phiên đăng nhập đã hết hạn hoặc đã đăng xuất.' });
     }
 
     // Bypass check for admins and co-admins

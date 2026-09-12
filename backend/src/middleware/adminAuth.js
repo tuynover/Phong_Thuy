@@ -15,6 +15,7 @@ const adminAuth = async (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decoded.user?.id || decoded.id;
+    const tokenVersion = decoded.user?.tokenVersion;
     if (!userId) {
       return res.status(401).json({ error: 'Token không hợp lệ.' });
     }
@@ -37,6 +38,12 @@ const adminAuth = async (req, res, next) => {
 
     if (user.status === 'locked') {
       return res.status(403).json({ error: 'Tài khoản của bạn đã bị khóa.' });
+    }
+
+    const currentTokenVersion = user.tokenVersion || 0;
+    const payloadTokenVersion = tokenVersion !== undefined ? tokenVersion : 0;
+    if (payloadTokenVersion !== currentTokenVersion) {
+      return res.status(401).json({ error: 'Phiên đăng nhập đã hết hạn hoặc đã đăng xuất.' });
     }
 
     if (user.role !== 'admin' && user.role !== 'co-admin') {

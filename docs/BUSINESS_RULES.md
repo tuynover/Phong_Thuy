@@ -67,7 +67,7 @@ Sử dụng phương pháp Tử Vi Bắc Phái định vị Mệnh - Thân:
 
 ### 4.2 Cấp phát Credits & Xóa tài khoản soft-delete
 - **Quản trị Credit:** Đã loại bỏ hoàn toàn cơ chế tự động tặng credit miễn phí hàng ngày (`DAILY_CREDIT_INCREMENT`) để đảm bảo giá trị của Credits và duy trì kiểm soát tài nguyên chặt chẽ.
-- **Dọn dẹp database:** Tìm kiếm những tài khoản bị xóa mềm (`isDeleted: true`) quá **30 ngày** thông qua `NotificationScheduler.js` (`purgeSoftDeletedUsers`). Hiện tại hàm dọn dẹp xóa các bản ghi `BaziRecord`, `IChingRecord`, `ZiweiRecord`, `BanAppeal`, `Notification` và `User`. (Lưu ý: Cần bổ sung xóa thêm `MarriageRecord`, `Conversation`, `Message` để tránh bản ghi mồ côi).
+- **Dọn dẹp database:** Tìm kiếm những tài khoản bị xóa mềm (`isDeleted: true`) quá **30 ngày** thông qua `NotificationScheduler.js` (`purgeSoftDeletedUsers`). Hệ thống tự động xóa sạch toàn bộ dữ liệu liên quan ở 9 bảng (`BaziRecord`, `IChingRecord`, `ZiweiRecord`, `MarriageRecord`, `Conversation`, `Message`, `BanAppeal`, `Notification` và `User`), ngăn chặn triệt để bản ghi mồ côi.
 
 ### 4.3 Quét lịch thông báo Ứng Kỳ
 - Mỗi ngày, scheduler quét các bản ghi Kinh Dịch có mảng `ungKy` đang ở trạng thái `pending`.
@@ -84,7 +84,7 @@ Sử dụng phương pháp Tử Vi Bắc Phái định vị Mệnh - Thân:
 - **Hiệu lực phiên đăng nhập & Thu hồi Token:**
   - Phiên đăng nhập (token JWT) có thời hạn tối đa là **7 ngày** kể từ khi đăng nhập thành công.
   - Khi người dùng chủ động nhấn **Đăng xuất (Logout)** hoặc đổi mật khẩu, hệ thống tăng `tokenVersion` trên máy chủ để vô hiệu hóa token cũ.
-  - *Lưu ý hiện trạng mã nguồn:* Việc so khớp `tokenVersion` hiện mới được áp dụng tại `middleware/auth.js`. Các middleware `adminAuth.js`, `creditCheck.js`, `chatCreditCheck.js` hiện chưa kiểm tra trường này (cần bổ sung theo lộ trình).
+  - **Đồng bộ Kiểm tra tokenVersion Toàn Hệ Thống:** Việc so khớp `tokenVersion` đã được áp dụng đồng bộ tại tất cả các middleware xác thực và kiểm tra tài nguyên: `middleware/auth.js`, `middleware/adminAuth.js`, `middleware/creditCheck.js`, và `middleware/chatCreditCheck.js`. Bất kỳ token JWT nào cũ hơn `tokenVersion` hiện tại của tài khoản đều bị từ chối 401 ngay lập tức.
 
 ### 4.5 Quy trình Xác thực & Khôi phục mật khẩu qua Email OTP
 - **Sinh mã OTP:** Khi yêu cầu khôi phục mật khẩu (`POST /forgot-password`), hệ thống tự động kiểm tra tài khoản, sinh mã OTP ngẫu nhiên gồm 6 chữ số (`000000 - 999999`) và cập nhật thời hạn hết hạn là **15 phút**.
@@ -615,4 +615,26 @@ Nhằm nâng tầm giá trị các tài liệu học thuật xuất bản độc
 - **Cơ Chế Bật/Tắt Tùy Biến (Frontend & Backend Integration):**
   - Trong Modal Xuất PDF (`PdfExportModal.jsx`), bổ sung tùy chọn `Trang Bìa Hoàng Gia (Imperial Title Page)` nằm ở vị trí đầu tiên của danh sách lựa chọn, mặc định được tích chọn (`true`).
   - Backend `PdfTemplateService` đọc biến `includeCover` (`scope.includes('cover') || scope.includes('all') || !hasScope`). Khi bật, tự động gọi `renderCoverPage(options)` chèn vào đầu chuỗi HTML xuất bản.
+
+---
+
+## ⚡ 9. Quy Tắc Quản Trị Hàng Đợi & Tải Đỉnh 100 CCU
+
+### 9.1 Hàng Đợi Semaphore Xuất PDF (`PdfGeneratorService.js`)
+- **Ngưỡng tải đồng thời:** Tối đa 2 tác vụ render Chromium headless hoạt động cùng thời điểm (`maxConcurrent = 2`).
+- **Giới hạn hàng đợi:** Tối đa 20 yêu cầu xếp hàng (`maxQueueSize = 20`). Nếu hàng đợi đầy, trả về mã lỗi `503 Service Unavailable` ngay lập tức kèm thông báo thân thiện.
+- **Thời gian chờ tối đa:** Mỗi yêu cầu xếp hàng có timeout 30 giây (`timeoutMs = 30000`). Nếu hết thời gian chờ mà chưa có slot trống, trả về mã lỗi `504 Gateway Timeout`.
+- **Bộ đệm tệp SSD (Zero Redis RAM):** Toàn bộ bản in PDF được lưu đệm dưới dạng tệp `.pdf` tại `backend/scratch/pdf_cache/{hash}.pdf`. Tuyệt đối không lưu chuỗi Base64 PDF vào Redis để bảo vệ bộ nhớ RAM 256MB của Redis.
+- **Tự động giải phóng Idle Worker:** Nếu sau 5 phút không có bất kỳ yêu cầu xuất PDF nào, Chromium browser tự động đóng để giải phóng RAM cho hệ thống.
+
+### 9.2 Bộ Điều Tiết Hạn Mức Gọi AI VIP (`AiConcurrencyLimiter.js`)
+- **Ngưỡng chạy song song:** Tối đa 3-4 luồng VIP pipeline chạy song song (`AI_VIP_MAX_CONCURRENT`).
+- **Phát sự kiện SSE hàng đợi:** Khi hết slot, các yêu cầu mới tự động vào hàng đợi và nhận sự kiện SSE `{ stage: 'queued', position, message: 'Đang chờ slot (vị trí: #X)...' }`.
+- **Hạn mức hàng đợi:** Tối đa 15 yêu cầu chờ, timeout 60 giây.
+- **Tự động kích hoạt luân phiên:** Khi có slot hoàn thành hoặc lỗi, hệ thống tự động gọi yêu cầu tiếp theo và cập nhật vị trí mới cho các yêu cầu còn lại.
+
+### 9.3 Tác Vụ Dọn Dẹp File Tạm Định Kỳ (`NotificationScheduler.js`)
+- **Tần suất quét:** Chạy định kỳ vào 00:00 hàng ngày hoặc khi khởi động scheduler.
+- **Tiêu chuẩn dọn dẹp:** Xóa toàn bộ các tệp `.pdf` và `.mp3` trong `backend/scratch/pdf_cache/` và `backend/scratch/tts_cache/` có thời gian sửa đổi (mtime) cũ hơn 24 giờ.
+
 

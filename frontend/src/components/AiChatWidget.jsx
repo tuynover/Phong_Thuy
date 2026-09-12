@@ -273,7 +273,13 @@ const AiChatWidget = ({
         setError('');
         
         // Optimistic User Message
-        const userMsg = { _id: Date.now().toString(), role: 'user', content: question };
+        const userMsg = { 
+            _id: Date.now().toString(), 
+            role: 'user', 
+            content: question,
+            sectionId: activeSection?.id || null,
+            sectionTitle: activeSection?.title || null
+        };
         setMessages(prev => [...prev, userMsg]);
         setIsStreaming(true);
         setStreamText('');
@@ -326,8 +332,13 @@ const AiChatWidget = ({
                                 done = true;
                                 break;
                             }
+                            let parsed = null;
                             try {
-                                const parsed = JSON.parse(dataStr);
+                                parsed = JSON.parse(dataStr);
+                            } catch (err) {
+                                // JSON parsing error of non-JSON / partial chunk (safe to ignore)
+                            }
+                            if (parsed) {
                                 if (parsed.error) {
                                     throw new Error(parsed.error);
                                 }
@@ -338,8 +349,6 @@ const AiChatWidget = ({
                                     currentText += parsed.chunk;
                                     setStreamText(currentText);
                                 }
-                            } catch (err) {
-                                // JSON parsing error of individual chunk (usually safe to ignore)
                             }
                         }
                     }
@@ -353,6 +362,8 @@ const AiChatWidget = ({
                 answer: finalCleaned,
                 timing: null,
                 risk: null,
+                dos: null,
+                donts: null,
                 confidence: 0.8
             };
 
@@ -361,10 +372,14 @@ const AiChatWidget = ({
                 _id: (Date.now() + 1).toString(),
                 role: 'ai',
                 content: JSON.stringify(parsedJson),
+                sectionId: activeSection?.id || detectedContext?.activeSectionId || null,
+                sectionTitle: activeSection?.title || detectedContext?.activeSectionTitle || null,
                 structuredContent: {
                     answer: parsedJson.answer || finalCleaned,
                     timing: parsedJson.timing || null,
                     risk: parsedJson.risk || null,
+                    dos: parsedJson.dos || null,
+                    donts: parsedJson.donts || null,
                     confidence: parsedJson.confidence !== undefined ? parsedJson.confidence : 0.8
                 }
             };
@@ -682,9 +697,25 @@ const AiChatWidget = ({
                                         : 'bg-white border border-gray-100 shadow-sm rounded-tl-none'
                                 }`}>
                                     {msg.role === 'user' ? (
-                                        <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                                        <div>
+                                            {msg.sectionTitle && (
+                                                <div className="mb-1.5 pb-1 border-b border-neutral-700 flex items-center gap-1 text-[11px] font-semibold text-amber-300">
+                                                    <span className="opacity-80">📌</span>
+                                                    <span className="truncate max-w-[220px]" title={msg.sectionTitle}>{msg.sectionTitle}</span>
+                                                </div>
+                                            )}
+                                            <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                                        </div>
                                     ) : (
-                                        renderAiMessage(msg)
+                                        <div>
+                                            {msg.sectionTitle && (
+                                                <div className="mb-1.5 pb-1 border-b border-gray-100 flex items-center gap-1 text-[11px] font-semibold text-purple-700">
+                                                    <span className="opacity-80">📌</span>
+                                                    <span className="truncate max-w-[220px]" title={msg.sectionTitle}>{msg.sectionTitle}</span>
+                                                </div>
+                                            )}
+                                            {renderAiMessage(msg)}
+                                        </div>
                                     )}
                                 </div>
                             </div>

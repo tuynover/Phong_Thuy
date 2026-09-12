@@ -1099,7 +1099,10 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
 
                     {/* Nút "Hỏi Đáp AI" */}
                     <button
-                        onClick={() => setIsChatOpen(true)}
+                        onClick={() => {
+                            setActiveConsultSection(null);
+                            setIsChatOpen(true);
+                        }}
                         className="flex items-center gap-2 px-6 py-3.5 rounded-full shadow-2xl transition-all duration-300 font-extrabold border bg-gradient-to-r from-rose-800 to-rose-950 hover:from-rose-900 hover:to-rose-950 text-white border-rose-700 hover:scale-105 hover:shadow-rose-900/40 uppercase text-xs tracking-wider animate-pulse"
                     >
                         <MessageCircle size={20} />
@@ -1108,7 +1111,7 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
                 </div>
             )}
 
-            {interpretation && resolvedRecordId && user && (
+            {(interpretation || data?.aiInterpretation?.content) && resolvedRecordId && user && (
                 <AiChatWidget 
                     type="marriage" 
                     recordId={resolvedRecordId} 

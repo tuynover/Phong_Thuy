@@ -24,6 +24,13 @@ const calcLimiter = rateLimiter({
     message: 'Bạn đã thực hiện quá nhiều lượt lập số lý/quẻ dịch. Vui lòng thử lại sau.'
 });
 
+// Giới hạn 20 yêu cầu TTS trong 1 phút để chống lạm dụng băng thông và tài nguyên CPU/mạng
+const ttsLimiter = rateLimiter({
+    windowMs: 60 * 1000,
+    max: 20,
+    message: 'Bạn đang yêu cầu phát giọng đọc quá nhanh. Vui lòng đợi một chút trước khi thử lại.'
+});
+
 router.use('/auth', authRoutes);
 router.use('/history', historyRoutes);
 router.use('/ai', aiRoutes);
@@ -45,10 +52,10 @@ router.post('/bazi/analyze', calcLimiter, BaziController.analyze);
 router.post('/marriage/analyze', calcLimiter, MarriageController.analyze);
 router.post('/date/check', calcLimiter, DateController.check);
 router.post('/date/consult', calcLimiter, DateController.consult);
-router.get('/tts', TtsController.synthesize);
-router.post('/tts/chapter', TtsController.synthesizeChapter);
-router.get('/tts/chapter', TtsController.synthesizeChapter);
-router.post('/tts/ticket', TtsController.createStreamTicket);
+router.get('/tts', ttsLimiter, TtsController.synthesize);
+router.post('/tts/chapter', ttsLimiter, TtsController.synthesizeChapter);
+router.get('/tts/chapter', ttsLimiter, TtsController.synthesizeChapter);
+router.post('/tts/ticket', ttsLimiter, TtsController.createStreamTicket);
 router.get('/tts/stream/:ticketId', TtsController.streamAudioTicket);
 
 module.exports = router;

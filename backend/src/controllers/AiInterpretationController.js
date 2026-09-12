@@ -51,6 +51,17 @@ const updateByIdFlex = async (Model, id, update) => {
     return record;
 };
 
+function formatFieldToString(val) {
+    if (!val) return null;
+    if (Array.isArray(val)) {
+        return val.map(item => `- ${String(item).trim().replace(/^[-*•\s+]+/, '')}`).join('\n');
+    }
+    if (typeof val === 'object') {
+        return JSON.stringify(val);
+    }
+    return String(val);
+}
+
 class AiInterpretationController {
     static async interpretHexagram(req, res) {
         const { id } = req.params;
@@ -98,6 +109,7 @@ class AiInterpretationController {
                     res.write(":\n\n");
                 }
             }, 15000);
+            if (pingInterval.unref) pingInterval.unref();
 
             // Invalidate Cache check
             const isVipMode = req.body?.mode === 'vip' || req.query?.mode === 'vip';
@@ -274,6 +286,7 @@ class AiInterpretationController {
                     res.write(":\n\n");
                 }
             }, 15000);
+            if (pingInterval.unref) pingInterval.unref();
 
             // Invalidate Cache check
             const isVipMode = req.body?.mode === 'vip' || req.query?.mode === 'vip';
@@ -418,6 +431,7 @@ class AiInterpretationController {
                     res.write(":\n\n");
                 }
             }, 15000);
+            if (pingInterval.unref) pingInterval.unref();
 
             // Invalidate Cache check
             const isVipMode = req.body?.mode === 'vip' || req.query?.mode === 'vip';
@@ -561,6 +575,7 @@ class AiInterpretationController {
                     res.write(":\n\n");
                 }
             }, 15000);
+            if (pingInterval.unref) pingInterval.unref();
 
             const ZIWEI_KNOWLEDGE_VERSION = "tv_know_v2";
 
@@ -756,6 +771,7 @@ class AiInterpretationController {
                     res.write(":\n\n");
                 }
             }, 15000);
+            if (pingInterval.unref) pingInterval.unref();
 
             // 5. Caching Rule Engine Output
             let analyzedData = record.analysisSnapshot;
@@ -829,6 +845,8 @@ class AiInterpretationController {
                 conversationId: conversation._id,
                 role: 'user',
                 content: question,
+                sectionId: activeSectionId || null,
+                sectionTitle: vipContext.activeSectionTitle || null,
                 promptTokens: userTokens,
                 totalTokens: userTokens
             });
@@ -868,7 +886,7 @@ class AiInterpretationController {
                         });
                         parsed = JSON.parse(escaped);
                     } catch (e2) {
-                        const answerMatch = match[0].match(/"answer"\s*:\s*"([\s\S]*?)"\s*,\s*"timing"/);
+                        const answerMatch = match[0].match(/"answer"\s*:\s*"([\s\S]*?)"/);
                         const answer = answerMatch ? answerMatch[1] : "";
                         
                         const timingMatch = match[0].match(/"timing"\s*:\s*(?:"([\s\S]*?)"|null)/);
@@ -896,21 +914,52 @@ class AiInterpretationController {
             const completionTokens = usageMetadata?.candidatesTokenCount || Math.ceil((cleanedContent || '').length / 4);
             const totalTurnTokens = usageMetadata?.totalTokenCount || (promptTokens + completionTokens);
 
-            // Lưu tin nhắn AI vào Database
-            await Message.create({
-                conversationId: conversation._id,
-                role: 'ai',
-                content: JSON.stringify(parsed),
-                promptTokens: promptTokens,
-                completionTokens: completionTokens,
-                totalTokens: totalTurnTokens,
-                structuredContent: {
-                    answer: parsed.answer || cleanedContent,
-                    timing: parsed.timing || null,
-                    risk: parsed.risk || null,
-                    confidence: parsed.confidence !== undefined ? parsed.confidence : 0.85
-                }
-            });
+            // Lưu tin nhắn AI vào Database an toàn
+            const answerText = parsed.answer || cleanedContent || accumulatedText || "";
+            const formattedTiming = formatFieldToString(parsed.timing);
+            const formattedRisk = formatFieldToString(parsed.risk);
+            const formattedDos = formatFieldToString(parsed.dos);
+            const formattedDonts = formatFieldToString(parsed.donts);
+            const conf = typeof parsed.confidence === 'number' ? parsed.confidence : 0.85;
+
+            const aiStructured = {
+                answer: answerText,
+                timing: formattedTiming,
+                risk: formattedRisk,
+                dos: formattedDos,
+                donts: formattedDonts,
+                confidence: conf
+            };
+
+            try {
+                await Message.create({
+                    conversationId: conversation._id,
+                    role: 'ai',
+                    content: JSON.stringify(aiStructured),
+                    sectionId: activeSectionId || null,
+                    sectionTitle: vipContext.activeSectionTitle || null,
+                    promptTokens: promptTokens,
+                    completionTokens: completionTokens,
+                    totalTokens: totalTurnTokens,
+                    structuredContent: aiStructured
+                });
+            } catch (saveErr) {
+                console.error("[chatIching] Fallback save AI message:", saveErr);
+                await Message.create({
+                    conversationId: conversation._id,
+                    role: 'ai',
+                    content: answerText,
+                    sectionId: activeSectionId || null,
+                    sectionTitle: vipContext.activeSectionTitle || null,
+                    promptTokens: promptTokens,
+                    completionTokens: completionTokens,
+                    totalTokens: totalTurnTokens,
+                    structuredContent: {
+                        answer: answerText,
+                        confidence: 0.85
+                    }
+                });
+            }
 
             // Cập nhật tổng số token của Conversation
             await Conversation.findByIdAndUpdate(conversation._id, {
@@ -1020,6 +1069,7 @@ class AiInterpretationController {
                     res.write(":\n\n");
                 }
             }, 15000);
+            if (pingInterval.unref) pingInterval.unref();
 
             // 5. Caching Bazi Rule Output
             let analyzedData = record.analysisSnapshot;
@@ -1056,6 +1106,8 @@ class AiInterpretationController {
                 conversationId: conversation._id,
                 role: 'user',
                 content: question,
+                sectionId: activeSectionId || null,
+                sectionTitle: vipContext.activeSectionTitle || null,
                 promptTokens: userTokens,
                 totalTokens: userTokens
             });
@@ -1123,20 +1175,52 @@ class AiInterpretationController {
             const completionTokens = usageMetadata?.candidatesTokenCount || Math.ceil((cleanedContent || '').length / 4);
             const totalTurnTokens = usageMetadata?.totalTokenCount || (promptTokens + completionTokens);
 
-            await Message.create({
-                conversationId: conversation._id,
-                role: 'ai',
-                content: JSON.stringify(parsed),
-                promptTokens: promptTokens,
-                completionTokens: completionTokens,
-                totalTokens: totalTurnTokens,
-                structuredContent: {
-                    answer: parsed.answer || cleanedContent,
-                    dos: parsed.dos || "",
-                    donts: parsed.donts || "",
-                    confidence: parsed.confidence !== undefined ? parsed.confidence : 0.80
-                }
-            });
+            // Lưu tin nhắn AI vào Database an toàn
+            const answerText = parsed.answer || cleanedContent || accumulatedText || "";
+            const formattedDos = formatFieldToString(parsed.dos);
+            const formattedDonts = formatFieldToString(parsed.donts);
+            const formattedTiming = formatFieldToString(parsed.timing);
+            const formattedRisk = formatFieldToString(parsed.risk);
+            const conf = typeof parsed.confidence === 'number' ? parsed.confidence : 0.80;
+
+            const aiStructured = {
+                answer: answerText,
+                dos: formattedDos,
+                donts: formattedDonts,
+                timing: formattedTiming,
+                risk: formattedRisk,
+                confidence: conf
+            };
+
+            try {
+                await Message.create({
+                    conversationId: conversation._id,
+                    role: 'ai',
+                    content: JSON.stringify(aiStructured),
+                    sectionId: activeSectionId || null,
+                    sectionTitle: vipContext.activeSectionTitle || null,
+                    promptTokens: promptTokens,
+                    completionTokens: completionTokens,
+                    totalTokens: totalTurnTokens,
+                    structuredContent: aiStructured
+                });
+            } catch (saveErr) {
+                console.error("[chatBazi] Fallback save AI message:", saveErr);
+                await Message.create({
+                    conversationId: conversation._id,
+                    role: 'ai',
+                    content: answerText,
+                    sectionId: activeSectionId || null,
+                    sectionTitle: vipContext.activeSectionTitle || null,
+                    promptTokens: promptTokens,
+                    completionTokens: completionTokens,
+                    totalTokens: totalTurnTokens,
+                    structuredContent: {
+                        answer: answerText,
+                        confidence: 0.80
+                    }
+                });
+            }
 
             // Cập nhật tổng số token của Conversation
             await Conversation.findByIdAndUpdate(conversation._id, {
@@ -1246,6 +1330,7 @@ class AiInterpretationController {
                     res.write(":\n\n");
                 }
             }, 15000);
+            if (pingInterval.unref) pingInterval.unref();
 
             // 5. Xây dựng bối cảnh hội thoại
             const context = await ConversationContextService.buildConversationContext('marriage', conversation._id);
@@ -1275,6 +1360,8 @@ class AiInterpretationController {
                 conversationId: conversation._id,
                 role: 'user',
                 content: question,
+                sectionId: activeSectionId || null,
+                sectionTitle: vipContext.activeSectionTitle || null,
                 promptTokens: userTokens,
                 totalTokens: userTokens
             });
@@ -1342,20 +1429,52 @@ class AiInterpretationController {
             const completionTokens = usageMetadata?.candidatesTokenCount || Math.ceil((cleanedContent || '').length / 4);
             const totalTurnTokens = usageMetadata?.totalTokenCount || (promptTokens + completionTokens);
 
-            await Message.create({
-                conversationId: conversation._id,
-                role: 'ai',
-                content: JSON.stringify(parsed),
-                promptTokens: promptTokens,
-                completionTokens: completionTokens,
-                totalTokens: totalTurnTokens,
-                structuredContent: {
-                    answer: parsed.answer || cleanedContent,
-                    dos: parsed.dos || "",
-                    donts: parsed.donts || "",
-                    confidence: parsed.confidence !== undefined ? parsed.confidence : 0.85
-                }
-            });
+            // Lưu tin nhắn AI vào Database an toàn
+            const answerText = parsed.answer || cleanedContent || accumulatedText || "";
+            const formattedDos = formatFieldToString(parsed.dos);
+            const formattedDonts = formatFieldToString(parsed.donts);
+            const formattedTiming = formatFieldToString(parsed.timing);
+            const formattedRisk = formatFieldToString(parsed.risk);
+            const conf = typeof parsed.confidence === 'number' ? parsed.confidence : 0.85;
+
+            const aiStructured = {
+                answer: answerText,
+                dos: formattedDos,
+                donts: formattedDonts,
+                timing: formattedTiming,
+                risk: formattedRisk,
+                confidence: conf
+            };
+
+            try {
+                await Message.create({
+                    conversationId: conversation._id,
+                    role: 'ai',
+                    content: JSON.stringify(aiStructured),
+                    sectionId: activeSectionId || null,
+                    sectionTitle: vipContext.activeSectionTitle || null,
+                    promptTokens: promptTokens,
+                    completionTokens: completionTokens,
+                    totalTokens: totalTurnTokens,
+                    structuredContent: aiStructured
+                });
+            } catch (saveErr) {
+                console.error("[chatMarriage] Fallback save AI message:", saveErr);
+                await Message.create({
+                    conversationId: conversation._id,
+                    role: 'ai',
+                    content: answerText,
+                    sectionId: activeSectionId || null,
+                    sectionTitle: vipContext.activeSectionTitle || null,
+                    promptTokens: promptTokens,
+                    completionTokens: completionTokens,
+                    totalTokens: totalTurnTokens,
+                    structuredContent: {
+                        answer: answerText,
+                        confidence: 0.85
+                    }
+                });
+            }
 
             // Cập nhật tổng số token của Conversation
             await Conversation.findByIdAndUpdate(conversation._id, {
@@ -1477,6 +1596,8 @@ class AiInterpretationController {
                 conversationId: conversation._id,
                 role: 'user',
                 content: question,
+                sectionId: activeSectionId || null,
+                sectionTitle: vipContext.activeSectionTitle || null,
                 promptTokens: userTokens,
                 totalTokens: userTokens
             });
@@ -1505,6 +1626,7 @@ class AiInterpretationController {
                     res.write(":\n\n");
                 }
             }, 15000);
+            if (pingInterval.unref) pingInterval.unref();
 
             // Gửi metadata ngữ cảnh cho client (nếu có)
             if (vipContext.matchedSections && vipContext.matchedSections.length > 0) {
@@ -1570,21 +1692,52 @@ class AiInterpretationController {
             const completionTokens = usageMetadata?.candidatesTokenCount || Math.ceil((cleanedContent || '').length / 4);
             const tokensUsed = usageMetadata?.totalTokenCount || (promptTokens + completionTokens);
 
-            // Lưu tin nhắn AI vào DB
-            await Message.create({
-                conversationId: conversation._id,
-                role: 'ai',
-                content: JSON.stringify(parsed),
-                promptTokens,
-                completionTokens,
-                totalTokens: tokensUsed,
-                structuredContent: {
-                    answer: parsed.answer || cleanedContent,
-                    timing: "",
-                    risk: "",
-                    confidence: parsed.confidence || 0.85
-                }
-            });
+            // Lưu tin nhắn AI vào DB an toàn
+            const answerText = parsed.answer || cleanedContent || accumulatedText || "";
+            const formattedTiming = formatFieldToString(parsed.timing);
+            const formattedRisk = formatFieldToString(parsed.risk);
+            const formattedDos = formatFieldToString(parsed.dos);
+            const formattedDonts = formatFieldToString(parsed.donts);
+            const conf = typeof parsed.confidence === 'number' ? parsed.confidence : 0.85;
+
+            const aiStructured = {
+                answer: answerText,
+                timing: formattedTiming,
+                risk: formattedRisk,
+                dos: formattedDos,
+                donts: formattedDonts,
+                confidence: conf
+            };
+
+            try {
+                await Message.create({
+                    conversationId: conversation._id,
+                    role: 'ai',
+                    content: JSON.stringify(aiStructured),
+                    sectionId: activeSectionId || null,
+                    sectionTitle: vipContext.activeSectionTitle || null,
+                    promptTokens,
+                    completionTokens,
+                    totalTokens: tokensUsed,
+                    structuredContent: aiStructured
+                });
+            } catch (saveErr) {
+                console.error("[chatZiwei] Fallback save AI message:", saveErr);
+                await Message.create({
+                    conversationId: conversation._id,
+                    role: 'ai',
+                    content: answerText,
+                    sectionId: activeSectionId || null,
+                    sectionTitle: vipContext.activeSectionTitle || null,
+                    promptTokens,
+                    completionTokens,
+                    totalTokens: tokensUsed,
+                    structuredContent: {
+                        answer: answerText,
+                        confidence: 0.85
+                    }
+                });
+            }
 
             // Cập nhật cuộc hội thoại
             await Conversation.findByIdAndUpdate(conversation._id, {
