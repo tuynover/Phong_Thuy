@@ -134,11 +134,13 @@ Lệnh này sẽ thực hiện:
 
 ### 6.4 Triển khai Tự động bằng CI/CD (GitHub Actions)
 
-Dự án đã được thiết lập luồng CI/CD hoàn chỉnh (tại tệp `.github/workflows/deploy.yml`). 
-Mỗi khi bạn thực hiện `git push` lên nhánh `main`, hệ thống sẽ tự động:
-1. Chạy 86/86 Unit Test để kiểm tra độ ổn định.
-2. Build và nén Frontend/Backend đẩy lên **Docker Hub** để tận dụng Caching cực nhanh và giảm tải cho máy chủ.
-3. Sử dụng SSH Key kết nối vào EC2 để cập nhật tự động (pull image mới) mà không gây sập các dịch vụ không liên quan.
+Dự án đã được thiết lập luồng CI/CD hoàn chỉnh và đa tầng:
+- **Frontend CI (`.github/workflows/frontend-ci.yml`)**: Tự động chạy khi có `push` hoặc `pull_request` vào nhánh `main`. Cài đặt dependencies, chạy 29 unit tests (Vitest) và đóng gói bundle `npm run build`.
+- **Backend CI (`.github/workflows/backend-ci.yml`)**: Tự động chạy khi có `push` hoặc `pull_request` vào nhánh `main`. Kiểm tra cú pháp Node.js và chạy toàn bộ 252 tests (Jest).
+- **Deployment Pipeline (`.github/workflows/deploy.yml`)**: Mỗi khi bạn thực hiện `git push` lên nhánh `main`, hệ thống sẽ tự động:
+  1. Chạy toàn diện **252/252 Backend Unit Tests** (34 suites) và **29/29 Frontend Unit Tests** (4 suites) + Build Check.
+  2. Đóng gói Frontend và Backend thành Docker images và đẩy lên **Docker Hub** (áp dụng GitHub Actions Layer Caching để tăng tốc tối đa).
+  3. Kết nối SSH an toàn vào máy chủ AWS EC2 để pull image mới nhất và khởi động lại dịch vụ không gián đoạn (Zero Downtime Recreate & Nginx Reload).
 
 **Để kích hoạt luồng tự động này, bạn cần điền 5 thông tin bí mật (Secrets) sau trên kho lưu trữ GitHub (Settings > Secrets and variables > Actions):**
 - `DOCKERHUB_USERNAME`: Tên đăng nhập Docker Hub (Ví dụ: `hoangnguyen`).

@@ -3,6 +3,22 @@
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
 
+## 📅 Phiên bản: Tích Hợp Frontend Vào Luồng CI/CD Tự Động (GitHub Actions) (12/09/2026)
+
+### 🌟 1. Mục Tiêu & Bản Chất Kỹ Thuật
+- **Tích hợp kiểm thử Frontend tự động vào luồng triển khai Production (`deploy.yml`)**:
+  - Bổ sung bước cài đặt dependencies, chạy toàn diện 29 unit tests (Vitest) và kiểm tra đóng gói bundle (`npm run build`) cho `./frontend` trước khi kích hoạt Docker Buildx.
+  - Đảm bảo chất lượng nghiêm ngặt: Nếu bất kỳ bài test nào (CustomDatePicker, CustomSelect, TTSEngine, API Client) hoặc thao tác build Vite bị lỗi, pipeline GitHub Actions sẽ lập tức dừng lại, ngăn chặn 100% việc tạo image hỏng hoặc đẩy lên Docker Hub và EC2.
+- **Nâng cấp quy trình Frontend CI độc lập (`frontend-ci.yml`)**:
+  - Bổ sung trigger khi có commit đẩy lên nhánh `main` (`push: branches: [ "main" ]`) song song với `pull_request`.
+  - Tích hợp bước chạy unit tests Vitest (`npm test`) trước khi chạy `npm run build`.
+- **Đồng bộ hóa Backend CI (`backend-ci.yml`)**:
+  - Bổ sung trigger `push: branches: [ "main" ]` để kiểm tra cú pháp và chạy 252 tests Jest tự động mỗi lần commit.
+- **Cập nhật tài liệu hướng dẫn phát triển (`docs/DEVELOPMENT_GUIDE.md`)**:
+  - Cập nhật số lượng bài test thực tế (34 backend suites / 252 tests, 4 frontend suites / 29 tests) và luồng CI/CD đa tầng.
+
+---
+
 ## 📅 Phiên bản: Triển Khai Giai Đoạn 3 - Tối Ưu Tải Đỉnh 100 CCU & Điều Tiết Tài Nguyên Nặng (PDF Semaphore Queue, Zero-Redis-RAM File Cache, AI Concurrency Guard) (12/09/2026)
 
 ### 🌟 1. Mục Tiêu & Bản Chất Kỹ Thuật

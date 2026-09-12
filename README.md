@@ -275,7 +275,11 @@ Hệ thống API Backend sử dụng tiền tố `/api` và phân chia thành c�
 
 ### 🐳 Cách 2: Khởi chạy bằng Docker Compose và Luồng Tự Động CI/CD
 
-Dự án đã được tích hợp quy trình **Tích hợp và Triển khai Liên tục (CI/CD)** hoàn chỉnh qua GitHub Actions (xem chi tiết tại [DEVELOPMENT_GUIDE.md](file:///t:/Phongthuy/docs/DEVELOPMENT_GUIDE.md) và [ARCHITECTURE.md](file:///t:/Phongthuy/docs/ARCHITECTURE.md)).
+Dự án đã được tích hợp quy trình **Tích hợp và Triển khai Liên tục (CI/CD)** đa tầng qua GitHub Actions:
+- **Frontend CI (`.github/workflows/frontend-ci.yml`)**: Tự động kích hoạt khi có push/PR vào nhánh `main`, chạy 29 bài unit tests Vitest và đóng gói bundle `npm run build`.
+- **Backend CI (`.github/workflows/backend-ci.yml`)**: Kiểm tra cú pháp và chạy toàn bộ 252 bài tests Jest tự động.
+- **Deploy Pipeline (`.github/workflows/deploy.yml`)**: Kiểm tra nghiêm ngặt cả Frontend lẫn Backend trước khi build Docker, đẩy lên Docker Hub và tự động cập nhật lên máy chủ AWS EC2.
+(Xem chi tiết tại [DEVELOPMENT_GUIDE.md](file:///t:/Phongthuy/docs/DEVELOPMENT_GUIDE.md)).
 
 Nếu bạn muốn chạy đóng gói thủ công trên máy cục bộ, hãy làm theo các bước sau:
 

@@ -12,19 +12,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # -- BƯỚC MỚI: CHẠY UNIT TEST TRƯỚC KHI ĐÓNG GÓI --
+      # -- KIỂM THỬ TỰ ĐỘNG TOÀN DIỆN TRƯỚC KHI ĐÓNG GÓI DOCKER --
       - name: Setup Node.js for Testing
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: './backend/package-lock.json'
 
       - name: Install Backend Dependencies and Run Tests
         working-directory: ./backend
         run: |
           npm ci
           npm test -- --forceExit
+
+      - name: Install Frontend Dependencies, Run Tests and Build Check
+        working-directory: ./frontend
+        run: |
+          npm ci
+          npm test
+          npm run build
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
