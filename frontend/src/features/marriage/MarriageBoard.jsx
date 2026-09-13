@@ -1,0 +1,1172 @@
+import React, { useState, useEffect, useContext, useRef } from 'react';
+import ReactMarkdown from 'react-markdown';
+import { AuthContext } from '@/context/AuthContext';
+import { getInterpretationStreamUrl, rateMarriage, togglePublicCalculation } from '@/services/api';
+import { AlertCircle, BookOpen, ScrollText, Heart, X, ArrowUp, ArrowDown, MessageCircle, Star, Zap, Crown, FileDown } from 'lucide-react';
+import Tooltip from '@/components/common/Tooltip';
+import SectionRenderer from '@/components/widgets/SectionRenderer';
+import InterpretationTierModal from '@/components/modals/InterpretationTierModal';
+import VipUpgradeBanner from '@/components/widgets/VipUpgradeBanner';
+import VipProgressTracker from '@/components/widgets/VipProgressTracker';
+import { parseMarkdownSections } from '@/utils/markdownParser';
+import AiChatWidget from '@/components/widgets/AiChatWidget';
+import FloatingNotificationToast from '@/components/common/FloatingNotificationToast';
+import PdfExportModal from '@/components/modals/PdfExportModal';
+
+import {
+    stemElements,
+    branchElements,
+    getColorClass,
+    getBgColorClass,
+} from '@/utils/astrologyHelpers';
+
+const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHistory }) => {
+    const { user, setUser, token } = useContext(AuthContext);
+
+    // Unwrap nested marriageData / analysisSnapshot if passing full DB record object
+    const data = React.useMemo(() => {
+        if (!rawData) return null;
+        const mObj = rawData.marriageData || rawData.analysisSnapshot || rawData.result || rawData;
+        return {
+            ...mObj,
+            _id: rawData._id || rawData.id || mObj._id,
+            recordId: rawData.recordId || rawData._id || rawData.id || mObj.recordId,
+            userId: rawData.userId || mObj.userId,
+            isPublic: rawData.isPublic !== undefined ? rawData.isPublic : mObj.isPublic,
+            maleBaziData: rawData.maleBaziData || mObj.maleBaziData || mObj.male || rawData.male || {},
+            femaleBaziData: rawData.femaleBaziData || mObj.femaleBaziData || mObj.female || rawData.female || {},
+            inputInfo: rawData.inputInfo || mObj.inputInfo,
+            aiInterpretation: rawData.aiInterpretation || mObj.aiInterpretation,
+            rating: rawData.rating !== undefined ? rawData.rating : mObj.rating,
+            feedback: rawData.feedback !== undefined ? rawData.feedback : mObj.feedback
+        };
+    }, [rawData]);
+
+    // AI Interpretation States
+    const [interpretation, setInterpretation] = useState('');
+    const [interpretationMode, setInterpretationMode] = useState(data?.aiInterpretation?.mode || 'standard');
+    const [isInterpreting, setIsInterpreting] = useState(false);
+    const [showTierModal, setShowTierModal] = useState(false);
+    const [isUpgradeModal, setIsUpgradeModal] = useState(false);
+    const [vipChapter, setVipChapter] = useState(1);
+    const [vipCompletedChapters, setVipCompletedChapters] = useState([]);
+    const [vipActiveChapters, setVipActiveChapters] = useState([]);
+    const [vipStreamingChapter, setVipStreamingChapter] = useState(null);
+    const [vipStatusMessage, setVipStatusMessage] = useState('');
+    const [isVipCompleted, setIsVipCompleted] = useState(false);
+    const [error, setError] = useState('');
+    const [loadingStep, setLoadingStep] = useState(0);
+    const [abortController, setAbortController] = useState(null);
+    const [isChatOpen, setIsChatOpen] = useState(false);
+    const [activeConsultSection, setActiveConsultSection] = useState(null);
+
+    const [rating, setRating] = useState(0);
+    const [feedback, setFeedback] = useState('');
+    const [justRated, setJustRated] = useState(false);
+    const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
+
+    const prevIdRef = useRef(null);
+
+    // Set initial interpretation and rating if cached
+    useEffect(() => {
+        const currentId = data?.recordId || data?._id;
+        if (currentId !== prevIdRef.current) {
+            setJustRated(false);
+            prevIdRef.current = currentId;
+        }
+        if (data?.aiInterpretation && data.aiInterpretation.content) {
+            setInterpretation(data.aiInterpretation.content);
+            setInterpretationMode(data.aiInterpretation.mode || 'standard');
+        } else {
+            setInterpretation('');
+            setInterpretationMode('standard');
+        }
+        setRating(data?.rating || 0);
+        setFeedback(data?.feedback || '');
+    }, [data]);
+
+    // Fake progressive loading steps
+    const loadingTexts = [
+        "Đang tính toán Cung Phi...",
+        "Đang hòa hợp Nhật Can...",
+        "Đang đối chiếu Cung Phu Thê...",
+        "Đang phân tích Dụng Thần..."
+    ];
+
+    useEffect(() => {
+        let interval;
+        if (isInterpreting) {
+            setLoadingStep(0);
+            interval = setInterval(() => {
+                setLoadingStep(prev => (prev < loadingTexts.length - 1 ? prev + 1 : prev));
+            }, 3000);
+        }
+        return () => clearInterval(interval);
+    }, [isInterpreting]);
+
+    // Clean up abort controller on unmount
+    useEffect(() => {
+        return () => {
+            if (abortController) {
+                abortController.abort();
+            }
+        };
+    }, [abortController]);
+
+    const [result, setResult] = useState(data);
+    const [isPublicState, setIsPublicState] = useState(false);
+    const [toastMsg, setToastMsg] = useState('');
+
+    useEffect(() => {
+        setResult(data);
+    }, [data]);
+
+    useEffect(() => {
+        setIsPublicState(result?.isPublic || false);
+    }, [result]);
+
+    const handleTogglePublic = async () => {
+        const resolvedId = result?.recordId || result?._id;
+        if (!resolvedId) return;
+        try {
+            const newStatus = !isPublicState;
+            await togglePublicCalculation('marriage', resolvedId, newStatus);
+            setIsPublicState(newStatus);
+            setToastMsg(`Đã ${newStatus ? 'bật' : 'tắt'} chia sẻ công khai kết quả Hợp Hôn!`);
+            if (onInvalidateHistory) onInvalidateHistory();
+            setResult(prev => prev ? { ...prev, isPublic: newStatus } : null);
+            if (onUpdateData) {
+                onUpdateData(prev => ({
+                    ...prev,
+                    isPublic: newStatus
+                }));
+            }
+        } catch (err) {
+            console.error('Lỗi khi đổi trạng thái công khai Marriage:', err);
+            setToastMsg('Không thể thay đổi trạng thái chia sẻ. Vui lòng thử lại sau.');
+        }
+    };
+
+    const handleRatingSubmit = async (e) => {
+        e.preventDefault();
+        const resolvedId = data?.recordId || data?._id;
+        if (!resolvedId) return;
+        try {
+            await rateMarriage(resolvedId, rating, feedback);
+            setJustRated(true);
+            if (onInvalidateHistory) onInvalidateHistory();
+            if (onUpdateData) {
+                onUpdateData(prev => ({
+                    ...prev,
+                    rating,
+                    feedback
+                }));
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    if (!data) return null;
+
+    const recordId = data.recordId || data._id;
+    const maleBaziData = data.maleBaziData || {};
+    const femaleBaziData = data.femaleBaziData || {};
+    const resolvedRecordId = recordId || data._id;
+
+    const getNaYinColorClass = (naYinText) => {
+        if (!naYinText) return 'text-slate-500 bg-slate-100/80 border-slate-200/40';
+        if (naYinText.includes('Kim')) return 'text-slate-700 bg-slate-100 border-slate-350';
+        if (naYinText.includes('Mộc')) return 'text-emerald-700 bg-emerald-50 border-emerald-250/30';
+        if (naYinText.includes('Thủy')) return 'text-blue-700 bg-blue-50 border-blue-200/40';
+        if (naYinText.includes('Hỏa')) return 'text-red-700 bg-red-50 border-red-200/40';
+        if (naYinText.includes('Thổ')) return 'text-amber-800 bg-amber-50/60 border-amber-250/30';
+        return 'text-slate-500 bg-slate-100/80 border-slate-200/40';
+    };
+
+    const getAbbreviatedTruongSinh = (name) => {
+        if (!name) return '';
+        const abbrev = {
+            'Trường Sinh': 'T.Sinh',
+            'Mộc Dục': 'M.Dục',
+            'Quan Đới': 'Q.Đới',
+            'Lâm Quan': 'L.Quan',
+            'Đế Vượng': 'Đ.Vượng',
+            'Suy': 'Suy',
+            'Bệnh': 'Bệnh',
+            'Tử': 'Tử',
+            'Mộ': 'Mộ',
+            'Tuyệt': 'Tuyệt',
+            'Thai': 'Thai',
+            'Dưỡng': 'Dưỡng'
+        };
+        return abbrev[name] || name;
+    };
+
+    // radar chart element drawing helper
+    const FiveElementsDiagram = ({ scores, canChi }) => {
+        const safeScores = scores || {};
+        const totalScore = Object.values(safeScores).reduce((a, b) => a + b, 0);
+        const getPercentage = (key) => {
+            if (!totalScore) return 0;
+            return Math.round(((safeScores[key] || 0) / totalScore) * 100);
+        };
+        
+        const width = 360;
+        const height = 280;
+        const cx = width / 2;
+        const cy = 140;
+        const rLayout = 100; // Radius for grid
+        const rLabel = 120; // Radius for label
+        
+        const order = ['Moc', 'Hoa', 'Tho', 'Kim', 'Thuy'];
+        const dmElem = canChi && canChi.day && canChi.day.gan ? stemElements[canChi.day.gan] : null;
+        const dmIndex = dmElem ? order.indexOf(dmElem) : -1;
+        
+        const getSubLabel = (key) => {
+            if (dmIndex === -1) return '';
+            const idx = order.indexOf(key);
+            const diff = (idx - dmIndex + 5) % 5;
+            const subLabels = {
+                0: 'KẾT NỐI',
+                1: 'SÁNG TẠO',
+                2: 'QUẢN LÝ',
+                3: 'HỖ TRỢ',
+                4: 'TƯ DUY'
+            };
+            return subLabels[diff] || '';
+        };
+
+        const getBezierPath = (points, tension = 0.08) => {
+            if (points.length === 0) return '';
+            let d = `M ${points[0].x} ${points[0].y}`;
+            const n = points.length;
+            for (let i = 0; i < n; i++) {
+                const p0 = points[(i - 1 + n) % n];
+                const p1 = points[i];
+                const p2 = points[(i + 1) % n];
+                const p3 = points[(i + 2) % n];
+                
+                const cp1x = p1.x + (p2.x - p0.x) * tension;
+                const cp1y = p1.y + (p2.y - p0.y) * tension;
+                const cp2x = p2.x - (p3.x - p1.x) * tension;
+                const cp2y = p2.y - (p3.y - p1.y) * tension;
+                
+                d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
+            }
+            return d;
+        };
+        
+        const elementsDef = [
+            { key: 'Hoa', label: 'Hỏa', color: '#b91c1c', bgColor: '#fee2e2', char: '火', emoji: '🔥', subLabel: getSubLabel('Hoa'), angle: -Math.PI / 2 },
+            { key: 'Tho', label: 'Thổ', color: '#854d0e', bgColor: '#fef3c7', char: '土', emoji: '⛰️', subLabel: getSubLabel('Tho'), angle: -Math.PI / 2 + (2 * Math.PI) / 5 },
+            { key: 'Kim', label: 'Kim', color: '#4b5563', bgColor: '#f3f4f6', char: '金', emoji: '🪙', subLabel: getSubLabel('Kim'), angle: -Math.PI / 2 + (4 * Math.PI) / 5 },
+            { key: 'Thuy', label: 'Thủy', color: '#1d4ed8', bgColor: '#dbeafe', char: '水', emoji: '💧', subLabel: getSubLabel('Thuy'), angle: -Math.PI / 2 + (6 * Math.PI) / 5 },
+            { key: 'Moc', label: 'Mộc', color: '#15803d', bgColor: '#d1fae5', char: '木', emoji: '🌲', subLabel: getSubLabel('Moc'), angle: -Math.PI / 2 + (8 * Math.PI) / 5 }
+        ];
+        
+        const nodes = elementsDef.map(el => {
+            const pct = getPercentage(el.key);
+            const rData = rLayout * (pct / 100);
+            
+            return {
+                ...el,
+                x: cx + rData * Math.cos(el.angle),
+                y: cy + rData * Math.sin(el.angle),
+                xLabel: cx + rLabel * Math.cos(el.angle),
+                yLabel: cy + rLabel * Math.sin(el.angle),
+                pct
+            };
+        });
+        
+        const gridLevels = [1, 2, 3, 4, 5];
+        
+        return (
+            <div className="relative flex flex-col items-center justify-center max-w-sm mx-auto w-full select-none mt-2">
+                <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto overflow-visible">
+                    <defs>
+                        <filter id="marriageGlow" x="-20%" y="-20%" width="140%" height="140%">
+                            <feDropShadow dx="0" dy="3" stdDeviation="4" floodColor="#b91c1c" floodOpacity="0.1" />
+                        </filter>
+                        <radialGradient id="marriageGrad" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stopColor="#f43f5e" stopOpacity="0.05" />
+                            <stop offset="85%" stopColor="#f43f5e" stopOpacity="0.2" />
+                            <stop offset="100%" stopColor="#e11d48" stopOpacity="0.35" />
+                        </radialGradient>
+                    </defs>
+
+                    {gridLevels.map(level => {
+                        const rLevel = rLayout * (level / 5);
+                        const points = elementsDef.map(el => {
+                            const x = cx + rLevel * Math.cos(el.angle);
+                            const y = cy + rLevel * Math.sin(el.angle);
+                            return `${x},${y}`;
+                        }).join(' ');
+                        const isOuter = level === 5;
+                        return (
+                            <polygon 
+                                key={`grid-${level}`}
+                                points={points} 
+                                fill="none" 
+                                stroke={isOuter ? "rgba(226, 115, 150, 0.4)" : "rgba(226, 115, 150, 0.15)"} 
+                                strokeWidth={isOuter ? "1.5" : "1"} 
+                                strokeDasharray={isOuter ? "none" : "3,3"}
+                            />
+                        );
+                    })}
+                    
+                    {elementsDef.map((el, idx) => {
+                        const xOuter = cx + rLayout * Math.cos(el.angle);
+                        const yOuter = cy + rLayout * Math.sin(el.angle);
+                        return (
+                            <line 
+                                key={`spoke-${idx}`} 
+                                x1={cx} y1={cy} 
+                                x2={xOuter} y2={yOuter} 
+                                stroke="rgba(226, 115, 150, 0.25)" 
+                                strokeWidth="1" 
+                                strokeDasharray="2,2"
+                            />
+                        );
+                    })}
+
+                    <circle cx={cx} cy={cy} r="3" fill="#f43f5e" opacity="0.6" />
+                    
+                    <path 
+                        d={getBezierPath(nodes, 0.08)} 
+                        fill="url(#marriageGrad)" 
+                        stroke="#f43f5e" 
+                        strokeWidth="2.5" 
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        filter="url(#marriageGlow)"
+                    />
+                    
+                    {nodes.map((node, idx) => (
+                        <g key={`marker-${idx}`}>
+                            <circle cx={node.x} cy={node.y} r="4" fill={node.color} stroke="#white" strokeWidth="1" />
+                            <foreignObject 
+                                x={node.xLabel - 32} 
+                                y={node.yLabel - 20} 
+                                width="64" 
+                                height="44"
+                                className="overflow-visible"
+                            >
+                                <div className="flex flex-col items-center justify-center text-center">
+                                    <div 
+                                        className="text-[10px] font-black px-1.5 py-0.5 rounded-full shadow-sm border flex items-center gap-0.5"
+                                        style={{ backgroundColor: node.bgColor, borderColor: node.color + '20', color: node.color }}
+                                    >
+                                        <span>{node.emoji}</span>
+                                        <span>{node.label} ({node.pct}%)</span>
+                                    </div>
+                                    {node.subLabel && (
+                                        <div className="text-[7.5px] font-extrabold text-neutral-400 mt-0.5 tracking-wider uppercase">{node.subLabel}</div>
+                                    )}
+                                </div>
+                            </foreignObject>
+                        </g>
+                    ))}
+                </svg>
+            </div>
+        );
+    };
+
+    const handleInterpretClick = () => {
+        if (!user) {
+            onRequireLogin();
+            return;
+        }
+
+        if (!resolvedRecordId) {
+            alert("Lỗi: Bản ghi hợp hôn chưa được lưu thành công.");
+            return;
+        }
+
+        setIsUpgradeModal(false);
+        setShowTierModal(true);
+    };
+
+    const triggerLuanGiai = async (tier = 'standard') => {
+        setShowTierModal(false);
+        setIsInterpreting(true);
+        setError('');
+
+        const isVip = tier === 'vip';
+        const isUpgrade = isUpgradeModal || (isVip && !!interpretation);
+        const costToDeduct = isUpgrade ? 4 : (isVip ? 5 : 1);
+
+        // 0ms Instant Reset
+        setInterpretation('');
+        setInterpretationMode(isVip ? 'vip' : 'standard');
+        setVipChapter(1);
+        setVipCompletedChapters([]);
+        setVipActiveChapters([]);
+        setVipStreamingChapter(null);
+        setVipStatusMessage(isVip ? 'Đang khởi động hệ thống phân tích...' : '');
+        setIsVipCompleted(false);
+
+        const controller = new AbortController();
+        setAbortController(controller);
+
+        let currentText = "";
+        try {
+            const streamUrl = getInterpretationStreamUrl('marriage', resolvedRecordId);
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+            const response = await fetch(streamUrl, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify({ 
+                    userId: user?.id || user?._id || 'guest',
+                    mode: isVip ? 'vip' : 'standard'
+                }),
+                signal: controller.signal
+            });
+
+            if (!response.ok) {
+                const errData = await response.json().catch(() => ({}));
+                throw new Error(errData.error || 'Lỗi khi gọi dịch vụ giải đoán.');
+            }
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder('utf-8');
+            let buffer = "";
+
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) break;
+
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split('\n');
+                buffer = lines.pop(); // Keep partial line in buffer
+
+                for (const line of lines) {
+                    if (line.startsWith('data: ')) {
+                        const dataStr = line.slice(6).trim();
+                        if (dataStr === '[DONE]') {
+                            break;
+                        }
+                        try {
+                            const parsed = JSON.parse(dataStr);
+                            if (parsed.error) {
+                                throw new Error(parsed.error);
+                            }
+                            if (parsed.message) {
+                                setVipStatusMessage(parsed.message);
+                            }
+                            if (parsed.stage === 'streaming' && parsed.streamingChapterId) {
+                                setVipStreamingChapter(parsed.streamingChapterId);
+                            }
+                            if (parsed.chapterId) {
+                                setVipChapter(parsed.chapterId);
+                                if (parsed.status === 'completed') {
+                                    setVipCompletedChapters(prev => prev.includes(parsed.chapterId) ? prev : [...prev, parsed.chapterId]);
+                                    setVipActiveChapters(prev => prev.filter(id => id !== parsed.chapterId));
+                                } else if (parsed.status === 'in_progress') {
+                                    setVipActiveChapters(prev => prev.includes(parsed.chapterId) ? prev : [...prev, parsed.chapterId]);
+                                }
+                            }
+                            if (parsed.isCompleted || (parsed.stage === 'completed')) {
+                                setIsVipCompleted(true);
+                            }
+                            if (parsed.chunk) {
+                                const isFirstChunk = !currentText;
+                                currentText += parsed.chunk;
+                                setInterpretation(currentText);
+                                if (isFirstChunk) {
+                                    setTimeout(() => {
+                                        const element = document.getElementById('marriage-interpretation-section');
+                                        element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                    }, 100);
+                                }
+                            }
+                            if (parsed.error) {
+                                setError(parsed.error);
+                            }
+                        } catch (e) {
+                            console.error("Lỗi parse SSE chunk:", e);
+                        }
+                    }
+                }
+            }
+
+            // Sync updated record interpretation to parent if exists
+            if (onUpdateData) {
+                onUpdateData(prev => ({
+                    ...prev,
+                    aiInterpretation: {
+                        content: currentText,
+                        mode: isVip ? 'vip' : 'standard',
+                        generatedAt: new Date()
+                    }
+                }));
+            }
+
+            // Decrement credit locally for non-admin accounts
+            if (user && user.role !== 'admin' && user.role !== 'co-admin') {
+                setUser(prev => {
+                    if (!prev) return prev;
+                    const updated = { ...prev, credits: Math.max(0, prev.credits - costToDeduct) };
+                    localStorage.setItem('user', JSON.stringify(updated));
+                    return updated;
+                });
+            }
+
+        } catch (err) {
+            if (err.name === 'AbortError') {
+                console.log("Interpretation aborted.");
+            } else {
+                console.error(err);
+                setError(err.message || "Hệ thống luận giải đang bận hoặc gặp lỗi. Vui lòng thử lại sau.");
+            }
+        } finally {
+            setIsInterpreting(false);
+            setAbortController(null);
+            if (isVip) setIsVipCompleted(true);
+        }
+    };
+
+    const SHEN_SHA_COLORS = {
+        // --- 1. NHÓM CÁT THẦN (MÀU XANH - Emerald) ---
+        'Thiên Ất': 'text-emerald-600',
+        'Thiên Ất Quý Nhân': 'text-emerald-600',
+        'Thái Cực': 'text-emerald-600',
+        'Thái Cực Quý Nhân': 'text-emerald-600',
+        'Thiên Đức': 'text-emerald-600',
+        'Thiên Đức Quý Nhân': 'text-emerald-600',
+        'Nguyệt Đức': 'text-emerald-600',
+        'Nguyệt Đức Quý Nhân': 'text-emerald-600',
+        'Lộc Thần': 'text-emerald-600',
+        'Tuế Lộc': 'text-emerald-600',
+        'Kiến Lộc': 'text-emerald-600',
+        'Chuyên Lộc': 'text-emerald-600',
+        'Quy Lộc': 'text-emerald-600',
+        'Văn Xương': 'text-emerald-600',
+        'Văn Xương Quý Nhân': 'text-emerald-600',
+        'Học Đường': 'text-emerald-600',
+        'Học Đường Quý Nhân': 'text-emerald-600',
+        'Từ Quán': 'text-emerald-600',
+        'Từ Quán Quý Nhân': 'text-emerald-600',
+        'Tướng Tinh': 'text-emerald-600',
+        'Phúc Tinh': 'text-emerald-600',
+        'Phúc Tinh Quý Nhân': 'text-emerald-600',
+        'Thiên Y': 'text-emerald-600',
+        'Quốc Ấn': 'text-emerald-600',
+        'Quốc Ấn Quý Nhân': 'text-emerald-600',
+        'Thiên Trù': 'text-emerald-600',
+        'Thiên Trù Quý Nhân': 'text-emerald-600',
+        'Đường Phù': 'text-emerald-600',
+        'Thiên Hỷ': 'text-emerald-600',
+        'Thiên Hỷ Quý Nhân': 'text-emerald-600',
+        'Kim Dư': 'text-emerald-600',
+        'Kim Dư Quý Nhân': 'text-emerald-600',
+        'Thiên Xá': 'text-emerald-600',
+        'Âm Chú Dương Thụ': 'text-emerald-600',
+        'Thiên Thượng Tam Kỳ': 'text-emerald-600',
+        'Địa Thượng Tam Kỳ': 'text-emerald-600',
+        'Nhân Gian Tam Kỳ': 'text-emerald-600',
+        'Thiếu Dương': 'text-emerald-600',
+        'Thiếu Âm': 'text-emerald-600',
+        'Long Đức': 'text-emerald-600',
+        'Phúc Đức': 'text-emerald-600',
+
+        // --- 2. NHÓM HUNG SÁT (MÀU ĐỎ - Rose) ---
+        'Kình Dương': 'text-rose-600',
+        'Đà La': 'text-rose-600',
+        'Kiếp Sát': 'text-rose-600',
+        'Vong Thần': 'text-rose-600',
+        'Vong Sát': 'text-rose-600',
+        'Cô Thần': 'text-rose-600',
+        'Quả Tú': 'text-rose-600',
+        'Đại Hao': 'text-rose-600',
+        'Tiểu Hao': 'text-rose-600',
+        'Tai Sát': 'text-rose-600',
+        'Nguyên Thần': 'text-rose-600',
+        'Huyết Nhận': 'text-rose-600',
+        'Huyết Nhận Sát': 'text-rose-600',
+        'Tử Phù': 'text-rose-600',
+        'Bệnh Phù': 'text-rose-600',
+        'Thương Quan Kiến Quan': 'text-rose-600',
+        'Thiên La': 'text-rose-600',
+        'Địa Võng': 'text-rose-600',
+        'Cô Loan Sát': 'text-rose-600',
+        'Lưu Hà': 'text-rose-600',
+        'Lưu Hà Sát': 'text-rose-600',
+        'Quan Phù': 'text-rose-600',
+        'Thập Ác Đại Bại': 'text-rose-600',
+        'Tỷ Kiên Cô Quả': 'text-rose-600',
+        'Phi Nhẫn': 'text-rose-600',
+        'Tứ Phế': 'text-rose-600',
+        'Câu Sát': 'text-rose-600',
+        'Giảo Sát': 'text-rose-600',
+        'Ngũ Quỷ': 'text-rose-600',
+        'Cách Giác': 'text-rose-600',
+        'Tang Môn': 'text-rose-600',
+        'Điếu Khách': 'text-rose-600',
+        'Bạch Hổ': 'text-rose-600',
+        'Tuế Phá': 'text-rose-600',
+        'Trực Phù': 'text-rose-600',
+
+        // --- 3. NHÓM TRUNG TÍNH / CÁT HUNG LẪN LỘN (MÀU ĐEN - Slate) ---
+        'Đào Hoa': 'text-slate-800',
+        'Hồng Loan': 'text-slate-800',
+        'Hồng Diễm Sát': 'text-slate-800',
+        'Không Vong': 'text-slate-800',
+        'Dịch Mã': 'text-slate-800',
+        'Hoa Cái': 'text-slate-800',
+        'Khôi Cương': 'text-slate-800',
+        'Khôi Canh': 'text-slate-800',
+        'Âm Dương Sai Thác': 'text-slate-800',
+        'Kim Thần': 'text-slate-800',
+        'Thái Tuế': 'text-slate-800'
+    };
+
+    const getShenShaColorClass = (ss, isFemale) => {
+        if (!ss) return isFemale ? 'text-rose-700' : 'text-blue-700';
+        if (SHEN_SHA_COLORS[ss]) return SHEN_SHA_COLORS[ss];
+
+        const baseTerm = ss.split(' (')[0].trim();
+        if (SHEN_SHA_COLORS[baseTerm]) return SHEN_SHA_COLORS[baseTerm];
+
+        const lower = ss.toLowerCase();
+        // Cát Thần (Xanh)
+        if (lower.includes('lộc') || lower.includes('đức') || lower.includes('quý nhân') || lower.includes('ấn') || lower.includes('y') || lower.includes('hỷ') || lower.includes('xương') || lower.includes('đường') || lower.includes('quán') || lower.includes('dư') || lower.includes('tinh') || lower.includes('phúc')) {
+            return 'text-emerald-600';
+        }
+        // Hung Sát (Đỏ)
+        if (lower.includes('sát') || lower.includes('phù') || lower.includes('đại bại') || lower.includes('vong') || lower.includes('cô') || lower.includes('tú') || lower.includes('dương') || lower.includes('đà') || lower.includes('hao') || lower.includes('nhận') || lower.includes('kiến quan') || lower.includes('phế') || lower.includes('quỷ') || lower.includes('giác') || lower.includes('môn') || lower.includes('khách') || lower.includes('hổ')) {
+            return 'text-rose-600';
+        }
+
+        return 'text-slate-800';
+    };
+
+    const getAbbreviatedThapThan = (name) => {
+        if (!name) return '';
+        return name.trim();
+    };
+
+    const PillarCard = ({ title, gan, zhi, thapThanGan, tangCan = [], naYin, truongSinh, shenSha = [], isFemale, isDayMaster }) => {
+        const ganElem = stemElements[gan];
+        const zhiElem = branchElements[zhi];
+        const showTruongSinh = truongSinh;
+
+        const isHighlighted = isDayMaster;
+        const themeBorder = isFemale
+            ? (isHighlighted ? 'border-rose-500 bg-rose-50/20 ring-4 ring-rose-100' : 'border-rose-100 bg-white hover:border-rose-300')
+            : (isHighlighted ? 'border-blue-500 bg-blue-50/20 ring-4 ring-blue-100' : 'border-blue-100 bg-white hover:border-blue-300');
+
+        return (
+            <div className={`relative flex flex-col justify-start items-center py-4 sm:py-6 rounded-2xl shadow-sm border-2 transition-all hover:scale-[1.02] flex-1 self-stretch h-full min-h-[385px] sm:min-h-[415px] md:min-h-[455px] px-3 sm:px-5 md:px-6 mx-0.5 sm:mx-1 ${themeBorder}`}>
+                <Tooltip term={title} unstyled={true}>
+                    <div className={`text-[9px] sm:text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${isDayMaster ? (isFemale ? 'bg-rose-100 text-rose-800' : 'bg-blue-100 text-blue-800') : 'bg-gray-100 text-gray-505'}`}>
+                        {title}
+                    </div>
+                </Tooltip>
+
+                {/* Horizontal dashed divider line */}
+                <div className="w-full border-t border-dashed border-gray-200 my-2"></div>
+                
+                <div className="text-[10px] sm:text-sm font-bold text-gray-400 mb-1.5 h-4 sm:h-5">
+                    {thapThanGan !== 'Nhật Chủ' && thapThanGan !== 'Bản Thể' ? (
+                        <Tooltip term={thapThanGan} unstyled={true}>
+                            <span className="cursor-help hover:text-rose-700 transition-colors">{thapThanGan}</span>
+                        </Tooltip>
+                    ) : ''}
+                </div>
+                
+                <Tooltip term={gan} unstyled={true}>
+                    <div className={`text-2xl sm:text-4xl font-black mt-1 mb-1 sm:mb-2 hover:scale-110 transition-transform ${getColorClass(ganElem)}`}>{gan}</div>
+                </Tooltip>
+                
+                {/* Địa chi và Trường sinh ngang hàng (xoay dọc sát mép trái giống bên Bát Tự) */}
+                <div className="flex items-center justify-center relative w-full select-none">
+                    {showTruongSinh && (
+                        <div className="absolute -left-3 sm:-left-4 md:-left-5 top-1/2 -translate-y-1/2 flex items-center justify-center w-4 h-8 select-none">
+                            <Tooltip term={truongSinh} unstyled={true}>
+                                <span className={`text-[10px] sm:text-[11.5px] font-black cursor-help transition-colors transform -rotate-90 origin-center inline-block whitespace-nowrap leading-none tracking-tighter ${isFemale ? 'text-rose-650 hover:text-rose-850' : 'text-blue-650 hover:text-blue-850'}`}>
+                                    {getAbbreviatedTruongSinh(truongSinh)}
+                                </span>
+                            </Tooltip>
+                        </div>
+                    )}
+                    <Tooltip term={zhi} unstyled={true}>
+                        <div className={`text-2xl sm:text-4xl font-black mb-1 sm:mb-2 hover:scale-110 transition-transform ${getColorClass(zhiElem)}`}>{zhi}</div>
+                    </Tooltip>
+                </div>
+                
+                {naYin && (
+                    <Tooltip term={naYin} unstyled={true}>
+                        <div className={`text-[8.5px] sm:text-xs font-semibold px-2 py-0.5 rounded-full border my-1 text-center max-w-full truncate hover:brightness-95 transition-all ${getNaYinColorClass(naYin)}`}>
+                            {naYin}
+                        </div>
+                    </Tooltip>
+                )}
+                
+                {/* Tàng can: pad lên đủ 3 dòng cố định chiều cao */}
+                <div className="w-full border-t border-dashed border-gray-200 mt-4 pt-2 flex flex-col items-center justify-center">
+                    <div className="w-full max-w-[125px] sm:max-w-[145px] flex flex-col gap-1 mt-1">
+                        {(() => {
+                            const paddedTangCan = [...tangCan];
+                            while (paddedTangCan.length < 3) {
+                                paddedTangCan.push({ gan: '', thapThan: '' });
+                            }
+                            return paddedTangCan.map((tc, idx) => (
+                                <div key={idx} className="flex justify-between items-center text-[10px] sm:text-[12.5px] leading-tight w-full font-sans h-[15px] sm:h-[18px]">
+                                    {tc.gan ? (
+                                        <>
+                                            <Tooltip term={tc.gan} unstyled={true}>
+                                                <span className={`font-bold shrink-0 text-left hover:scale-110 transition-transform ${getColorClass(stemElements[tc.gan])}`}>{tc.gan}</span>
+                                            </Tooltip>
+                                            <Tooltip term={tc.thapThan} unstyled={true}>
+                                                <span className={`font-bold text-right truncate pl-1 hover:underline transition-all ${isFemale ? 'text-rose-800 hover:text-rose-950' : 'text-blue-800 hover:text-blue-950'}`}>{getAbbreviatedThapThan(tc.thapThan)}</span>
+                                            </Tooltip>
+                                        </>
+                                    ) : (
+                                        <span className="invisible">&nbsp;</span>
+                                    )}
+                                </div>
+                            ));
+                        })()}
+                    </div>
+                </div>
+
+                {/* Thần Sát Bát Tự: pad lên đủ 4 dòng cố định chiều cao */}
+                <div className="w-full border-t border-dashed border-gray-200 mt-2.5 pt-2 flex flex-col items-center justify-center">
+                    <div className="w-full max-w-[125px] sm:max-w-[145px] flex flex-col gap-1 mt-1">
+                        {(() => {
+                            const paddedShenSha = [...shenSha];
+                            while (paddedShenSha.length < 4) {
+                                paddedShenSha.push('');
+                            }
+                            return paddedShenSha.map((ss, idx) => {
+                                const baseTerm = ss ? ss.split(' (')[0] : '';
+                                const cleanSS = ss ? ss.replace(/\(\s+/g, '(').replace(/\s+\)/g, ')') : '';
+                                const colorClass = getShenShaColorClass(ss, isFemale);
+                                return (
+                                    <div key={idx} className="flex justify-center items-center text-[10px] sm:text-[12px] leading-tight w-full font-black h-[15px] sm:h-[18px]">
+                                        {ss ? (
+                                            <Tooltip term={baseTerm} unstyled={true}>
+                                                <span className={`${colorClass} hover:scale-105 transition-transform cursor-help whitespace-nowrap`}>
+                                                    {cleanSS}
+                                                </span>
+                                            </Tooltip>
+                                        ) : (
+                                            <span className="invisible">&nbsp;</span>
+                                        )}
+                                    </div>
+                                );
+                            });
+                        })()}
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+    const BaziPillarsSection = ({ canChi, isFemale }) => {
+        const safeCanChi = {
+            year: canChi?.year || {},
+            month: canChi?.month || {},
+            day: canChi?.day || {},
+            hour: canChi?.hour || {}
+        };
+        return (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 justify-center items-stretch w-full pb-2">
+                <PillarCard title="Năm Sinh" gan={safeCanChi.year.gan} zhi={safeCanChi.year.zhi} thapThanGan={safeCanChi.year.thapThanGan} tangCan={safeCanChi.year.tangCan} naYin={safeCanChi.year.naYin} truongSinh={safeCanChi.year.truongSinh} shenSha={safeCanChi.year.shenSha} isFemale={isFemale} isDayMaster={false} />
+                <PillarCard title="Nguyệt Lệnh" gan={safeCanChi.month.gan} zhi={safeCanChi.month.zhi} thapThanGan={safeCanChi.month.thapThanGan} tangCan={safeCanChi.month.tangCan} naYin={safeCanChi.month.naYin} truongSinh={safeCanChi.month.truongSinh} shenSha={safeCanChi.month.shenSha} isFemale={isFemale} isDayMaster={false} />
+                <PillarCard title="Nhật Chủ" gan={safeCanChi.day.gan} zhi={safeCanChi.day.zhi} thapThanGan="Nhật Chủ" tangCan={safeCanChi.day.tangCan} naYin={safeCanChi.day.naYin} truongSinh={safeCanChi.day.truongSinh} shenSha={safeCanChi.day.shenSha} isFemale={isFemale} isDayMaster={true} />
+                <PillarCard title="Giờ Sinh" gan={safeCanChi.hour.gan} zhi={safeCanChi.hour.zhi} thapThanGan={safeCanChi.hour.thapThanGan} tangCan={safeCanChi.hour.tangCan} naYin={safeCanChi.hour.naYin} truongSinh={safeCanChi.hour.truongSinh} shenSha={safeCanChi.hour.shenSha} isFemale={isFemale} isDayMaster={false} />
+            </div>
+        );
+    };
+
+    return (
+        <div className="max-w-6xl mx-auto space-y-6 md:space-y-8 pb-20 font-sans relative">
+
+            {/* Công tắc chia sẻ công khai kết quả Hợp Hôn */}
+            {(!window.location.pathname.includes('/record/') || (user && (result?.userId === user.id || result?.userId === user._id))) ? (
+                <div className="p-5 bg-rose-50/40 border border-rose-100 rounded-3xl flex flex-wrap items-center justify-between gap-4 shadow-sm">
+                    <div className="flex flex-col">
+                        <span className="text-sm font-extrabold text-slate-800">Chia sẻ công khai kết quả hợp hôn</span>
+                        <span className="text-[11px] text-gray-500 font-medium">Bật để cho phép người khác truy cập xem kết quả so hợp tuổi này qua liên kết công khai</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        {(data?._id || data?.recordId) && (
+                            <button
+                                type="button"
+                                onClick={() => setIsPdfModalOpen(true)}
+                                className="px-3.5 py-1.5 bg-white hover:bg-rose-50 text-rose-700 border border-rose-200 rounded-full text-xs font-extrabold transition-all active:scale-95 cursor-pointer flex items-center gap-1.5 shadow-sm"
+                                title="Xuất tệp PDF học thuật lá số và luận giải"
+                            >
+                                <FileDown size={14} className="text-rose-600" />
+                                <span>Xuất PDF</span>
+                            </button>
+                        )}
+                        {isPublicState && (
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    const shareUrl = `${window.location.origin}/marriage/record/${data._id || data.recordId}`;
+                                    navigator.clipboard.writeText(shareUrl);
+                                    setToastMsg('Đã sao chép liên kết chia sẻ công khai Hợp Hôn!');
+                                }}
+                                className="px-3 py-1 bg-rose-100 text-rose-800 border border-rose-200 hover:bg-rose-200 rounded-full text-xs font-bold transition-all active:scale-95 cursor-pointer"
+                            >
+                                Sao chép liên kết
+                            </button>
+                        )}
+                        <button
+                            type="button"
+                            onClick={handleTogglePublic}
+                            className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${isPublicState ? 'bg-rose-700' : 'bg-gray-300'}`}
+                        >
+                            <span
+                                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${isPublicState ? 'translate-x-5' : 'translate-x-0'}`}
+                            />
+                        </button>
+                    </div>
+                </div>
+            ) : (
+                (data?._id || data?.recordId) && (
+                    <div className="p-4 bg-rose-50/40 border border-rose-100 rounded-2xl flex items-center justify-between shadow-sm">
+                        <span className="text-sm font-bold text-slate-700">Tài liệu học thuật Hợp Hôn</span>
+                        <button
+                            type="button"
+                            onClick={() => setIsPdfModalOpen(true)}
+                            className="px-4 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer flex items-center gap-1.5 shadow-md shadow-rose-600/20"
+                        >
+                            <FileDown size={14} />
+                            <span>Tải Tệp PDF</span>
+                        </button>
+                    </div>
+                )
+            )}
+            
+            {/* SECTION 1: BASIC INFO DIVIDED IN HALF */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+                {/* MALE BASIC INFO */}
+                <div className="p-6 bg-white/70 backdrop-blur-sm border border-blue-100 rounded-3xl shadow-md space-y-4">
+                    <h3 className="text-xl font-bold text-blue-900 border-l-4 border-blue-500 pl-4 uppercase">Đại Diện Nam Mệnh</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                        <div className="bg-slate-50 p-3 rounded-xl">
+                            <span className="text-gray-400 block text-xs font-bold uppercase mb-0.5">Sinh Dương Lịch</span>
+                            <span className="font-extrabold text-slate-800">{maleBaziData.solarTimeline}</span>
+                        </div>
+                        <div className="bg-slate-50 p-3 rounded-xl">
+                            <span className="text-gray-400 block text-xs font-bold uppercase mb-0.5">Sinh Âm Lịch</span>
+                            <span className="font-extrabold text-slate-800">{maleBaziData.lunarDateStr}</span>
+                        </div>
+                        <div className="bg-slate-50 p-3 rounded-xl">
+                            <span className="text-gray-400 block text-xs font-bold uppercase mb-0.5">Nạp Âm Bản Mệnh</span>
+                            <span className={`font-extrabold px-2 py-0.5 rounded border inline-block ${getNaYinColorClass(maleBaziData.canChi?.day?.naYin)}`}>
+                                {maleBaziData.canChi?.day?.naYin || 'Chưa xác định'}
+                            </span>
+                        </div>
+                        <div className="bg-slate-50 p-3 rounded-xl">
+                            <span className="text-gray-400 block text-xs font-bold uppercase mb-0.5">Cung Phi (Mệnh Quái)</span>
+                            {maleBaziData.menhQuai ? (
+                                <span className="font-extrabold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded inline-block">
+                                    {maleBaziData.menhQuai.cung} ({maleBaziData.menhQuai.element} - {maleBaziData.menhQuai.group})
+                                </span>
+                            ) : 'Chưa xác định'}
+                        </div>
+                    </div>
+                </div>
+
+                {/* FEMALE BASIC INFO */}
+                <div className="p-6 bg-white/70 backdrop-blur-sm border border-rose-100 rounded-3xl shadow-md space-y-4">
+                    <h3 className="text-xl font-bold text-rose-900 border-l-4 border-rose-500 pl-4 uppercase">Đại Diện Nữ Mệnh</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                        <div className="bg-slate-50 p-3 rounded-xl">
+                            <span className="text-gray-400 block text-xs font-bold uppercase mb-0.5">Sinh Dương Lịch</span>
+                            <span className="font-extrabold text-slate-800">{femaleBaziData.solarTimeline}</span>
+                        </div>
+                        <div className="bg-slate-50 p-3 rounded-xl">
+                            <span className="text-gray-400 block text-xs font-bold uppercase mb-0.5">Sinh Âm Lịch</span>
+                            <span className="font-extrabold text-slate-800">{femaleBaziData.lunarDateStr}</span>
+                        </div>
+                        <div className="bg-slate-50 p-3 rounded-xl">
+                            <span className="text-gray-400 block text-xs font-bold uppercase mb-0.5">Nạp Âm Bản Mệnh</span>
+                            <span className={`font-extrabold px-2 py-0.5 rounded border inline-block ${getNaYinColorClass(femaleBaziData.canChi?.day?.naYin)}`}>
+                                {femaleBaziData.canChi?.day?.naYin || 'Chưa xác định'}
+                            </span>
+                        </div>
+                        <div className="bg-slate-50 p-3 rounded-xl">
+                            <span className="text-gray-400 block text-xs font-bold uppercase mb-0.5">Cung Phi (Mệnh Quái)</span>
+                            {femaleBaziData.menhQuai ? (
+                                <span className="font-extrabold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded inline-block">
+                                    {femaleBaziData.menhQuai.cung} ({femaleBaziData.menhQuai.element} - {femaleBaziData.menhQuai.group})
+                                </span>
+                            ) : 'Chưa xác định'}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* SECTION 2: STRUCTURE OF FOUR PILLARS (Nam top, Nữ bottom - enlarged cards) */}
+            <div className="space-y-6 bg-white p-6 md:p-8 rounded-3xl border border-gray-150 shadow-lg">
+                <div>
+                    <h3 className="text-xl font-bold text-gray-800 border-l-4 border-amber-600 pl-4 mb-4 uppercase">Cấu Trúc Tứ Trụ Nam Mệnh (Chồng)</h3>
+                    <BaziPillarsSection canChi={maleBaziData.canChi} isFemale={false} />
+                </div>
+                <hr className="border-gray-100" />
+                <div>
+                    <h3 className="text-xl font-bold text-gray-800 border-l-4 border-rose-600 pl-4 mb-4 uppercase">Cấu Trúc Tứ Trụ Nữ Mệnh (Vợ)</h3>
+                    <BaziPillarsSection canChi={femaleBaziData.canChi} isFemale={true} />
+                </div>
+            </div>
+
+            {/* SECTION 3: ELEMENT ASSESSMENT (Side by side) */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 bg-white p-6 md:p-8 rounded-3xl border border-gray-150 shadow-lg">
+                <div className="flex flex-col items-center">
+                    <h3 className="text-lg font-bold text-blue-900 border-l-4 border-blue-500 pl-4 mb-4 uppercase w-full text-left">Đánh Giá Ngũ Hành - Nam Mệnh</h3>
+                    <FiveElementsDiagram scores={maleBaziData.nguHanh} canChi={maleBaziData.canChi} />
+                </div>
+                <div className="flex flex-col items-center">
+                    <h3 className="text-lg font-bold text-rose-900 border-l-4 border-rose-500 pl-4 mb-4 uppercase w-full text-left">Đánh Giá Ngũ Hành - Nữ Mệnh</h3>
+                    <FiveElementsDiagram scores={femaleBaziData.nguHanh} canChi={femaleBaziData.canChi} />
+                </div>
+            </div>
+
+            {(interpretation || isInterpreting) && (
+                <div id="marriage-interpretation-section" className="bg-transparent space-y-6">
+                    <div className="flex items-center gap-3 mb-6 ml-1">
+                        <div className="w-8 h-8 bg-rose-800 rounded-lg flex items-center justify-center shadow-md">
+                            <BookOpen className="text-white" size={16} />
+                        </div>
+                        <h3 className="text-xl font-extrabold text-slate-800 tracking-tight">
+                            {interpretationMode === 'vip' ? 'Luận Giải Hợp Hôn Chuyên Sâu (4 Trụ Cột Hạnh Phúc)' : 'Thầy Luận Giải Bát Tự Hợp Hôn'}
+                        </h3>
+                    </div>
+
+                    {/* Tracker 4 Trụ Cột Hạnh Phúc */}
+                    {interpretationMode === 'vip' && (
+                        <VipProgressTracker
+                            system="marriage"
+                            completedChapters={vipCompletedChapters}
+                            activeChapters={vipActiveChapters}
+                            streamingChapter={vipStreamingChapter}
+                            currentChapter={vipChapter}
+                            isCompleted={isVipCompleted || !isInterpreting}
+                            statusMessage={vipStatusMessage}
+                        />
+                    )}
+
+                    {interpretation && (
+                        <SectionRenderer 
+                            sections={parseMarkdownSections(interpretation, 'marriage')} 
+                            theme="marriage" 
+                            onConsultSection={(sec) => {
+                                setActiveConsultSection(sec);
+                                setIsChatOpen(true);
+                            }}
+                        />
+                    )}
+
+                    {/* Banner Nâng Cấp VIP ở cuối bài luận giải thường */}
+                    {interpretation && interpretationMode !== 'vip' && !isInterpreting && (
+                        <div className="mt-8">
+                            <VipUpgradeBanner
+                                system="marriage"
+                                userCredits={user?.credits || 0}
+                                onUpgradeClick={() => {
+                                    setIsUpgradeModal(true);
+                                    setShowTierModal(true);
+                                }}
+                            />
+                        </div>
+                    )}
+
+                    {/* ĐÁNH GIÁ PHẢN HỒI */}
+                    {(!data?.rating || justRated) && (
+                        <div className="mt-12 bg-white/60 border border-rose-100 p-6 rounded-3xl backdrop-blur-md max-w-xl mx-auto shadow-md">
+                            <h4 className="font-extrabold text-slate-800 text-center mb-2">Đánh Giá Luận Giải Thầy Hợp Hôn</h4>
+                            <p className="text-center text-xs text-slate-400 mb-6">Nhận xét của bạn sẽ giúp bổ sung tri thức và cải thiện chất lượng của AI tốt hơn.</p>
+
+                            {justRated ? (
+                                <div className="text-center py-4 text-rose-600 font-bold animate-in zoom-in-95">
+                                    Xin chân thành cảm ơn ý kiến đánh giá của bạn!
+                                </div>
+                            ) : (
+                                <form onSubmit={handleRatingSubmit} className="space-y-4">
+                                <div className="flex justify-center gap-2">
+                                    {[1, 2, 3, 4, 5].map((star) => (
+                                        <button
+                                            key={star}
+                                            type="button"
+                                            onClick={() => setRating(star)}
+                                            className="transition-transform duration-100 active:scale-95"
+                                        >
+                                            <Star
+                                                size={28}
+                                                className={`stroke-2 cursor-pointer ${
+                                                    star <= rating ? 'fill-amber-400 stroke-amber-500' : 'text-slate-200 hover:text-amber-300'
+                                                }`}
+                                            />
+                                        </button>
+                                    ))}
+                                </div>
+                                <textarea
+                                    placeholder="Ý kiến nhận xét hoặc lưu ý thực tế của bạn..."
+                                    value={feedback}
+                                    onChange={(e) => setFeedback(e.target.value)}
+                                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-rose-400 focus:border-rose-400 transition-all font-bold placeholder:text-slate-300 focus:outline-none"
+                                    rows={2}
+                                />
+                                <button
+                                    type="submit"
+                                    disabled={!rating}
+                                    className="w-full py-3 bg-rose-600 hover:bg-rose-700 text-white font-extrabold rounded-2xl shadow-md disabled:bg-slate-100 disabled:text-slate-400 disabled:shadow-none transition-all active:scale-[0.98]"
+                                >
+                                    Gửi Nhận Xét
+                                </button>
+                            </form>
+                        )}
+                    </div>
+                )}
+            </div>
+        )}
+
+            {isInterpreting && !interpretation && (
+                <div className="bg-[#faf6f0] p-10 md:p-20 rounded-[2rem] border border-amber-200/50 shadow-sm text-center space-y-4">
+                    <div className="w-12 h-12 border-4 border-amber-200 border-t-amber-800 rounded-full animate-spin mx-auto"></div>
+                    <p className="text-amber-900 font-bold text-base animate-pulse">
+                        {interpretationMode === 'vip' ? `Đang Phân Tích C${vipChapter}...` : loadingTexts[loadingStep]}
+                    </p>
+                </div>
+            )}
+
+            {error && (
+                <div className="bg-red-50 border border-red-200 p-4 rounded-xl text-red-750 flex items-start gap-3">
+                    <AlertCircle size={20} className="shrink-0 mt-0.5" />
+                    <div>
+                        <span className="font-bold">Lỗi luận giải: </span>
+                        <span>{error}</span>
+                    </div>
+                </div>
+            )}
+
+            {isInterpreting && interpretation && (
+                <div className="flex items-center gap-2 text-amber-800/80 font-bold text-xs mt-4 animate-pulse px-4">
+                    <div className="w-2 h-2 bg-amber-800 rounded-full animate-ping"></div>
+                    <span>Đại sư đang soạn tiếp lời giải đoán...</span>
+                </div>
+            )}
+
+            {/* FLOATING ACTION BUTTON */}
+            {!interpretation ? (
+                <button
+                    onClick={handleInterpretClick}
+                    disabled={isInterpreting}
+                    className={`fixed bottom-4 md:bottom-8 right-4 md:right-8 z-50 flex items-center gap-2 px-5 py-3 rounded-full shadow-2xl transition-all duration-300 font-bold border ${isInterpreting ? 'bg-rose-100 border-rose-200 text-rose-500 cursor-not-allowed scale-95' : 'bg-gradient-to-r from-rose-800 to-rose-950 hover:from-rose-900 hover:to-rose-950 text-white border-rose-700 hover:scale-105 hover:shadow-rose-900/40'}`}
+                >
+                    {isInterpreting ? (
+                        <>
+                            <div className="w-5 h-5 border-2 border-rose-600 border-t-transparent rounded-full animate-spin"></div>
+                            <span className="text-sm">
+                                {interpretationMode === 'vip' ? `Đang Phân Tích C${vipChapter}...` : loadingTexts[loadingStep]}
+                            </span>
+                        </>
+                    ) : (
+                        <>
+                            <ScrollText className="animate-pulse" size={20} />
+                            <span className="hidden sm:inline">Thầy Luận Giải</span>
+                        </>
+                    )}
+                </button>
+            ) : !isChatOpen && user && (
+                <div className="fixed bottom-4 md:bottom-8 right-4 md:right-8 z-50 flex flex-col items-end gap-2.5">
+                    {/* Nút "Nâng Cấp Luận Giải" nằm ngay PHÍA TRÊN nút "Hỏi Đáp AI" nếu chưa có bản VIP */}
+                    {interpretationMode !== 'vip' && (
+                        <button
+                            onClick={() => {
+                                setIsUpgradeModal(true);
+                                setShowTierModal(true);
+                            }}
+                            disabled={isInterpreting}
+                            className="flex items-center gap-2 px-5 py-3 rounded-full shadow-2xl transition-all duration-300 font-extrabold border bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 hover:from-amber-400 hover:to-amber-500 text-slate-950 border-amber-300/60 shadow-amber-500/30 hover:scale-105 active:scale-95 text-xs sm:text-sm uppercase tracking-wider ring-4 ring-amber-500/20"
+                        >
+                            <Crown className="w-4 h-4 fill-current animate-pulse text-slate-950" />
+                            <span>Nâng Cấp Luận Giải</span>
+                        </button>
+                    )}
+
+                    {/* Nút "Hỏi Đáp AI" */}
+                    <button
+                        onClick={() => {
+                            setActiveConsultSection(null);
+                            setIsChatOpen(true);
+                        }}
+                        className="flex items-center gap-2 px-6 py-3.5 rounded-full shadow-2xl transition-all duration-300 font-extrabold border bg-gradient-to-r from-rose-800 to-rose-950 hover:from-rose-900 hover:to-rose-950 text-white border-rose-700 hover:scale-105 hover:shadow-rose-900/40 uppercase text-xs tracking-wider animate-pulse"
+                    >
+                        <MessageCircle size={20} />
+                        <span>Hỏi Đáp AI</span>
+                    </button>
+                </div>
+            )}
+
+            {(interpretation || data?.aiInterpretation?.content) && resolvedRecordId && user && (
+                <AiChatWidget 
+                    type="marriage" 
+                    recordId={resolvedRecordId} 
+                    userId={user?.id || user?._id} 
+                    isOpen={isChatOpen}
+                    setIsOpen={setIsChatOpen}
+                    activeSection={activeConsultSection}
+                    setActiveSection={setActiveConsultSection}
+                />
+            )}
+
+            {/* TIER SELECTION / UPGRADE MODAL */}
+            <InterpretationTierModal
+                isOpen={showTierModal}
+                onClose={() => setShowTierModal(false)}
+                onConfirm={triggerLuanGiai}
+                userCredits={user?.credits || 0}
+                isUpgrade={isUpgradeModal}
+                system="marriage"
+            />
+
+            {/* FLOATING SCROLL BUTTONS */}
+            <div className="fixed bottom-4 md:bottom-8 left-4 md:left-8 z-40 flex flex-col gap-1 pointer-events-auto bg-transparent border-none shadow-none">
+                <button
+                    onClick={() => window.scrollTo(0, 0)}
+                    className="flex items-center justify-center w-10 h-10 rounded-full bg-transparent text-slate-400 hover:text-slate-700 active:scale-95 transition-all duration-300 shadow-none border-none pointer-events-auto"
+                    title="Cuộn lên đầu trang"
+                >
+                    <ArrowUp size={24} />
+                </button>
+                <button
+                    onClick={() => window.scrollTo(0, document.documentElement.scrollHeight)}
+                    className="flex items-center justify-center w-10 h-10 rounded-full bg-transparent text-slate-400 hover:text-slate-700 active:scale-95 transition-all duration-300 shadow-none border-none pointer-events-auto"
+                    title="Cuộn xuống cuối trang"
+                >
+                    <ArrowDown size={24} />
+                </button>
+            </div>
+            {/* PDF EXPORT MODAL */}
+            {(data?._id || data?.recordId) && (
+                <PdfExportModal
+                    isOpen={isPdfModalOpen}
+                    onClose={() => setIsPdfModalOpen(false)}
+                    recordId={data?.recordId || data?._id}
+                    recordData={data}
+                    system="marriage"
+                    hasInterpretation={Boolean(interpretation || data?.aiInterpretation?.content || data?.aiInterpretation)}
+                    interpretationMode={interpretationMode}
+                    rawInterpretation={interpretation || data?.aiInterpretation?.content || ''}
+                />
+            )}
+
+            {toastMsg && <FloatingNotificationToast message={toastMsg} onClose={() => setToastMsg('')} />}
+        </div>
+    );
+};
+
+export default React.memo(MarriageBoard);

@@ -1,10 +1,10 @@
 import React from 'react';
-import Tooltip from '../Tooltip';
+import Tooltip from '@/components/common/Tooltip';
 import {
     stemElements,
     branchElements,
     getColorClass
-} from '../../utils/astrologyHelpers';
+} from '@/utils/astrologyHelpers';
 
 export const getSeasonColorClass = (tietKhi) => {
     if (!tietKhi) return 'text-amber-800';

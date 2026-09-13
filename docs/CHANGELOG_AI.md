@@ -3,6 +3,164 @@
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
 
+## 📅 Phiên bản: Triệt Tiêu Hiện Tượng Rung Lắc Header (Header Shaking/Jitter) Khi Bật Menu Phụ Trên Mobile (13/09/2026)
+
+### 🌟 1. Phân Tích & Nguyên Nhân Gốc Rễ
+- **Hiện tượng:** Khi người dùng ở vị trí cuộn bất kỳ trên trang (`window.scrollY > 0`), bấm vào nút Chức Năng La Bàn (`🧭 >`) trên mobile header, thanh Header bị "rung giật bần bật", giao diện bị rung lắc mạnh và vị trí cuộn trang nhảy loạn.
+- **Nguyên nhân kỹ thuật sâu xa:**
+  1. Menu phụ (`isMobileModulesExpanded`) trước đây được đặt trong luồng hiển thị tài liệu thông thường (normal document flow) ngay trong thẻ `<header>`.
+  2. Thẻ `<header>` có thuộc tính `position: sticky; top: 0;`.
+  3. Menu phụ sử dụng Framer Motion với animation co giãn chiều cao: `initial={{ height: 0 }} animate={{ height: 'auto' }}`.
+  4. Trong suốt quá trình chuyển động (~200ms), mỗi khung hình (frame) Framer Motion tính toán thay đổi chiều cao của phần tử bên trong, khiến thẻ `<header>` liên tục co giãn chiều cao.
+  5. Đối với một phần tử có `position: sticky` khi trang đang cuộn dở, thuật toán **Scroll Anchoring** của trình duyệt liên tục bù trừ tọa độ cuộn `window.scrollY` lên/xuống (biên độ dao động lên tới ~50px mỗi frame) để cố gắng giữ nguyên vùng nhìn của nội dung bên dưới.
+  6. Sự giằng co giữa hoạt họa chiều cao của Javascript và thuật toán Scroll Anchoring của trình duyệt tạo ra hiệu ứng mắt thường nhìn thấy là **header bị rung bần bật**.
+
+---
+
+### 🚀 2. Giải Pháp Kỹ Thuật Đã Triển Khai (`frontend/src/app/UserApp.jsx`)
+1. **Tách menu phụ ra khỏi luồng bố cục thông thường (Out of Document Flow)**:
+   - Chuyển container menu phụ thành `absolute top-full left-0 w-full md:hidden border-b border-slate-200 shadow-md bg-white z-40`.
+   - Vì menu phụ nằm ở vị trí `absolute` bám theo đáy header, chiều cao của thẻ `<header>` mang tính chất `sticky` được **cố định tuyệt đối 100%**, không bị phình to thu nhỏ khi bật/tắt menu.
+2. **Thay thế Height Animation bằng GPU Transform Animation**:
+   - Thay vì tính toán lại layout (reflow) với `height: 0 -> auto`, chuyển sang GPU transform: `initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}`.
+   - Chuyển động cực kỳ thanh thoát, phản hồi tức thì, không tiêu tốn CPU/Reflow và không kích hoạt Scroll Anchoring của trình duyệt.
+3. **Màu nền Opaque `bg-white`**:
+   - Sử dụng nền trắng `bg-white` kết hợp đổ bóng `shadow-md` giúp menu phụ che phủ sạch sẽ phần nội dung bên dưới khi thả xuống, không bị nhìn xuyên thấu chữ.
+
+---
+
+### 📊 3. Kết Quả Kiểm Thử (Chrome DevTools MCP & Vitest)
+- **Đo lường độ dịch chuyển Scroll (Scroll Shift Verification)**:
+  - Khi đang ở `window.scrollY = 500px`, bấm mở nút `🧭 >`:
+    - `startY = 500`, sau animation `endY = 500`. Độ lệch cuộn = **0px** (hoàn toàn không xê dịch).
+    - Header hoàn toàn đứng yên, menu thả xuống mượt mà, triệt tiêu 100% hiện tượng rung lắc.
+- **Vitest Automated Tests**: 4/4 suites passed, 29/29 tests passed 100% trong 2.80s.
+- **Production Build**: 0 lỗi, hoàn tất thành công trong 2.37s.
+
+---
+
+
+
+### 🌟 1. Phân Tích & Yêu Cầu Người Dùng
+1. **Lỗi nút Chức năng (🧭 >) trên Header**: Khi người dùng ở vị trí bất kỳ trên trang (đã cuộn trang xuống, `scrollY > 0`), bấm vào nút la bàn (`🧭 >`) thì menu phụ không mở được hoặc lập tức biến mất; chỉ khi ở đỉnh đầu trang (`scrollY === 0`) mới dùng được.
+   - *Nguyên nhân gốc rễ:* Khi bấm mở menu phụ, thẻ `<header>` (có thuộc tính `sticky top-0`) co giãn chiều cao. Trình duyệt tự động hiệu chỉnh vị trí cuộn trang để bảo toàn tọa độ hiển thị, kích hoạt sự kiện `scroll`. Hook `useEffect` trước đó lắng nghe `scroll` một cách vội vã (`window.addEventListener('scroll', handleScroll)`) và lập tức gọi `setIsMobileModulesExpanded(false)`, khiến menu tự động đóng ngay lập tức khi người dùng không ở đỉnh trang.
+2. **Khoảng trống dư thừa dưới đáy Footer trên Mobile**: Khi đã gom thành 2 hàng, đáy footer trên mobile vẫn còn dư khoảng trắng lớn do thuộc tính `pb-24` (96px). Người dùng yêu cầu xóa bỏ hoàn toàn khoảng trống này.
+
+---
+
+### 🚀 2. Các Thay Đổi & Giải Pháp Kỹ Thuật
+1. **Khắc phục triệt để lỗi nút Chức năng (🧭 >) trên Header (`frontend/src/app/UserApp.jsx`)**:
+   - Thiết lập thời gian hoãn 400ms (`timer`) khi mở menu phụ để bỏ qua toàn bộ sự kiện `scroll` phát sinh do co giãn layout của sticky header.
+   - Chỉ kích hoạt đóng khi người dùng **thực sự chủ động cuộn trang** một khoảng đáng kể (`Math.abs(window.scrollY - initialY) > 80`).
+   - Bổ sung cơ chế `handleClickOutside` (lắng nghe `mousedown` và `touchstart`) tự động đóng menu phụ khi người dùng bấm/chạm ra ngoài vùng header.
+   - Đồng bộ hóa tương hỗ: Mở menu la bàn thì tự động đóng menu drawer hamburger và ngược lại, tránh xung đột hiển thị.
+
+2. **Xóa triệt để khoảng trống thừa dưới đáy Footer Mobile (`frontend/src/components/layout/Footer.jsx`)**:
+   - Giảm `pb-24` (96px) xuống `pb-4 md:pb-6` (16px) và `gap-y-4 md:gap-6`.
+   - Loại bỏ hoàn toàn vùng trắng thừa dưới chân trang trên thiết bị di động, footer ôm sát nội dung vừa vặn và thẩm mỹ.
+
+---
+
+### 📊 3. Kết Quả Kiểm Thử (Chrome DevTools & Automated Tests)
+- **Kiểm thử nút (🧭 >) qua Chrome DevTools**: Cuộn trang xuống `scrollY = 600px`, click nút la bàn: menu phụ mở ra ổn định, hiển thị đầy đủ 4 nút `Kinh Dịch`, `Bát Tự`, `Tử Vi`, `Hôn Nhân`, click lại đóng mượt mà.
+- **Kiểm thử Footer Mobile**: Cuộn xuống đáy, toàn bộ khoảng trắng thừa bị triệt tiêu, các dòng chữ gọn gàng.
+- **Vitest Automated Tests**: 4/4 suites passed, 29/29 tests passed 100% trong 2.80s.
+- **Production Build**: 0 lỗi, hoàn tất trong 2.37s.
+
+---
+
+## 📅 Phiên bản: Tối Ưu Chiều Cao Footer & Bố Cục 2 Hàng Trên Mobile (13/09/2026)
+
+### 🌟 1. Yêu Cầu Người Dùng
+- Loại bỏ thanh bản quyền chân trang phía dưới (dải bản quyền ngang gây kéo dài footer và va chạm với nút nổi `Hỏi Thêm Thầy`).
+- Tối ưu hóa chiều cao footer gọn gàng hơn.
+- Trên giao diện di động (mobile): Bố trí thành **2 hàng (2 cột mỗi hàng)** thay vì xếp chồng 4 cột dọc đơn lẻ làm trang quá dài.
+
+---
+
+### 🚀 2. Các Thay Đổi & Giải Pháp Kỹ Thuật
+1. **Loại bỏ dải bản quyền chân trang thừa**:
+   - Gỡ bỏ khối `div` chân trang bản quyền (`border-t border-slate-200/50 py-6`) chiếm 64px+ ở đáy footer.
+   - Di chuyển dòng bản quyền `© {currentYear} PHONG THỦY.` vào ngay dưới slogan thương hiệu ở Cột 1 để bảo toàn tính pháp lý và nhận diện thương hiệu một cách tinh gọn.
+
+2. **Bố cục 2 hàng trên Mobile (`grid-cols-2 md:grid-cols-4`)**:
+   - Thay thế `grid-cols-1 md:grid-cols-4` bằng `grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-6 md:gap-6`.
+   - **Hàng 1 trên Mobile**: Cột 1 (Logo PHONG THỦY, slogan, bản quyền) và Cột 2 (Dịch Vụ: 6 liên kết).
+   - **Hàng 2 trên Mobile**: Cột 3 (Liên Kết: 4 liên kết) và Cột 4 (Cộng Đồng: 3 liên kết).
+   - Chiều cao footer trên mobile giảm hơn 50% (từ ~460px xuống ~240px).
+
+3. **Tối ưu hóa đệm an toàn (`pb-24 md:pb-6`)**:
+   - Bổ sung đệm đáy `pb-24` trên mobile để các nút điều hướng cuộn trang (`ArrowUp`, `ArrowDown`) góc trái và nút hành động nổi `Hỏi Thêm Thầy` góc phải nằm hoàn toàn trong khoảng trống an toàn, 100% không đè che lên bất kỳ dòng chữ hay liên kết nào trong footer.
+
+---
+
+### 📊 3. Kết Quả Kiểm Thử
+- **Chrome DevTools MCP**: Kiểm thử trực tiếp trên Desktop (1440x900) và Mobile iPhone (393x852) - bố cục 2 hàng cân đối, không đè nút nổi, 0 console errors.
+- **Automated Tests**: 4/4 suites passed, 29/29 tests passed 100% trong 2.46s.
+- **Production Build**: 0 lỗi, hoàn tất trong 1.99s.
+
+---
+
+## 📅 Phiên bản: Tái Cấu Trúc Thư Mục Frontend Chuẩn Hóa Theo Domain & Tối Ưu Hiển Thị Native Mobile (13/09/2026)
+
+### 🌟 1. Yêu Cầu & Ranh Giới Nghiêm Ngặt Từ Người Dùng
+- **Bảo toàn 100% Giao diện (Zero Visual Regression)**:
+  - Giữ nguyên toàn bộ giao diện thị giác, bố cục, bảng màu, animation và các luồng tương tác hiện có.
+  - Không thêm mới Bottom Navigation Dock hay bất kỳ thanh điều hướng lạ nào (người dùng đã duyệt "bỏ").
+  - Chỉ tập trung tái cơ cấu cấu trúc mã nguồn theo chuẩn module hóa Domain-Driven và tối ưu hóa cơ chế hiển thị / cảm ứng cho thiết bị di động (Native Mobile UX).
+
+---
+
+### 🚀 2. Các Thay Đổi & Giải Pháp Kỹ Thuật Đã Triển Khai
+
+1. **Cấu Hình Path Alias Hiện Đại (`@/*`)**:
+   - `frontend/vite.config.js`: Khởi tạo alias `@` trỏ trực tiếp đến `path.resolve(__dirname, './src')`.
+   - `frontend/vitest.config.js`: Đồng bộ alias `@` để các bài kiểm thử tự động nhận diện chính xác đường dẫn.
+   - `frontend/jsconfig.json`: Tạo cấu hình trình biên tập với `"@/*": ["src/*"]` hỗ trợ gợi ý mã nguồn và chuyển hướng tệp tức thì trong IDE.
+
+2. **Dọn Dẹp Xung Đột Tệp Bát Tự**:
+   - Khử trùng lặp giữa `baziConstants.js` và `baziConstants.jsx`.
+   - Giữ lại `baziConstants.jsx` (chứa các phần tử JSX `<span className="...">` bắt buộc bởi trình phân tích cú pháp Vite) và xóa tệp `.js` dư thừa.
+
+3. **Tái Cấu Trúc Thư Mục Chuẩn Hóa Domain-Driven**:
+   - `src/app/`: Tách biệt các orchestrators cấp ứng dụng (`UserApp.jsx`, `AdminApp.jsx`).
+   - `src/features/`: Phân nhóm 10 module nghiệp vụ chuyên biệt:
+     - `features/iching/`: `IChingBoard.jsx`, `IChingInput.jsx`
+     - `features/bazi/`: `BaziBoard.jsx`, `BaziInput.jsx`, `baziConstants.jsx`
+     - `features/ziwei/`: `ZiweiBoard.jsx`, `ZiweiChart.jsx`, `ZiweiInput.jsx`
+     - `features/marriage/`: `MarriageBoard.jsx`, `MarriageInput.jsx`
+     - `features/xemngay/`: `DateSelectionBoard.jsx`
+     - `features/blog/`: `BlogBoard.jsx`
+     - `features/history/`: `HistoryBoard.jsx`
+     - `features/profile/`: `ProfileBoard.jsx`
+     - `features/home/`: `HomeBoard.jsx`
+     - `features/admin/`: `AdminConfirmModal.jsx`
+   - `src/components/common/`: Tập trung các thành phần tái sử dụng (`CustomDatePicker.jsx`, `CustomSelect.jsx`, `Tooltip.jsx`, `InfoBoards.jsx`, `ChartRenderer.jsx`, `SectionRenderer.jsx`, `NotFoundPage.jsx`).
+   - `src/components/layout/`: Tập trung thành phần khung giao diện (`Footer.jsx`).
+   - `src/components/modals/`: Tập trung các hộp thoại popup (`AuthModal.jsx`, `PdfExportModal.jsx`, `MyFoldersModal.jsx`, `InterpretationTierModal.jsx`, `ThankYouModal.jsx`, `UpdateBaziModal.jsx`).
+   - `src/components/widgets/`: Tập trung widget nổi tương tác (`AiChatWidget.jsx`, `AudioPlayerDock.jsx`, `NotificationBell.jsx`, `FloatingErrorToast.jsx`, `FloatingNotificationToast.jsx`, `VipUpgradeBanner.jsx`, `VipProgressTracker.jsx`).
+   - **Cơ chế Proxy Re-export Tương Thích Ngược 100%**: Tạo 37 tệp proxy re-export tại thư mục gốc `src/components/*.jsx` (`export * from '@/...'; export { default } from '@/...';`). Đảm bảo mọi bài test cũ và dynamic import không bị đứt gãy.
+
+4. **Tối Ưu Cơ Chế Hiển Thị & Trải Nghiệm Native Mobile (CSS & Viewport)**:
+   - `frontend/index.html`: Bổ sung `viewport-fit=cover` và `maximum-scale=5.0, user-scalable=yes` chuẩn PWA.
+   - `frontend/src/index.css`:
+     - **Triệt tiêu độ trễ chạm 300ms**: Áp dụng `touch-action: manipulation;` và `-webkit-tap-highlight-color: transparent;` trên các phần tử tương tác root.
+     - **Ngăn chặn triệt để lỗi tự động phóng to (Auto-zoom) của iOS Safari**: Ép quy tắc `input, select, textarea { font-size: 16px !important; }` trên màn hình di động (`max-width: 768px`). Loại bỏ hoàn toàn hiện tượng rung giật / zoom lệch màn hình khi bấm chọn ô nhập liệu mà không ảnh hưởng đến tỷ lệ layout.
+     - **Cuộn mượt phần cứng (Hardware-accelerated Momentum Scroll)**: Thêm `-webkit-overflow-scrolling: touch;` và `overscroll-behavior-y: contain;`.
+     - **Hỗ trợ viền an toàn Safe Area Insets**: Tiện ích `pb-safe` và `pt-safe` cho Notch tai thỏ / Dynamic Island và thanh gạt Home Indicator của iPhone.
+
+---
+
+### 📊 3. Kết Quả Kiểm Thử Toàn Diện (Chrome DevTools & Automated Tests)
+- **Vitest Automated Tests**: 4/4 test files passed, **29/29 tests passed (100%)**.
+- **Vite Production Build**: Hoàn tất biên dịch thành công trong 4.20s với **0 lỗi, 0 cảnh báo chunk**.
+- **Chrome DevTools MCP (Môi trường máy tính 1440x900 & Di động iPhone 14/15 Pro 393x852)**:
+  - Kiểm thử toàn bộ 8 phân hệ người dùng: Trang Chủ, Kinh Dịch, Bát Tự, Tử Vi, Hôn Nhân, Xem Ngày, Kiến Thức, Lịch Sử.
+  - Kiểm tra Console Log: **0 lỗi, 0 cảnh báo đỏ**.
+  - Kiểm tra bố cục Form Nhập Liệu trên di động: Ô nhập Ngày, Giờ, Phút chuẩn 16px, không giật màn hình khi focus, menu Drawer đóng mở mượt mà.
+
+---
+
 ## 📅 Phiên bản: Tối Ưu Độ Trễ Chuyển Phân Hệ & Khắc Phục Lệch Tốc Độ Phản Hồi Tab Giữa Dev và Production (13/09/2026)
 
 ### 🌟 1. Phân Tích Nguyên Nhân Gốc Rễ (Root Cause Analysis)

@@ -6,37 +6,46 @@ Hệ thống hoạt động theo mô hình Client-Server rời rạc, giao tiế
 
 ```mermaid
 graph TD
-    subgraph Frontend [React 19 & Vite]
-        App[App.jsx] --> AuthCtx[AuthContext.jsx]
-        App --> UserApp[UserApp.jsx]
-        App --> AdminApp[AdminApp.jsx]
+    subgraph Frontend [React 19 & Vite - Domain Driven Architecture]
+        App[App.jsx] --> AuthCtx[context/AuthContext.jsx]
+        App --> UserApp[app/UserApp.jsx]
+        App --> AdminApp[app/AdminApp.jsx]
         
-        UserApp --> IChingB[IChingBoard.jsx]
-        UserApp --> BaziB[BaziBoard.jsx]
-        UserApp --> ZiweiB[ZiweiBoard.jsx]
-        UserApp --> MarriageB[MarriageBoard.jsx]
-        UserApp --> HistoryB[HistoryBoard.jsx]
-        UserApp --> ProfileB[ProfileBoard.jsx]
-        
-        IChingB --> IChingIn[IChingInput.jsx]
-        BaziB --> BaziIn[BaziInput.jsx]
-        MarriageB --> MarriageIn[MarriageInput.jsx]
-        ZiweiB --> ZiweiCh[ZiweiChart.jsx] & ZiweiIn[ZiweiInput.jsx]
-        
-        IChingB & BaziB & ZiweiB & MarriageB --> ChatW[AiChatWidget.jsx]
-        IChingB & BaziB & ZiweiB & MarriageB --> FloatT[FloatingErrorToast.jsx]
-        IChingB & BaziB & ZiweiB & MarriageB --> Tooltip[Tooltip.jsx]
-        IChingB & BaziB & ZiweiB & MarriageB --> TierM[InterpretationTierModal.jsx]
-        IChingB & BaziB & ZiweiB & MarriageB --> VipB[VipUpgradeBanner.jsx]
-        IChingB & BaziB & ZiweiB & MarriageB --> VipT[VipProgressTracker.jsx]
-        ChatW --> SecR[SectionRenderer.jsx]
-        SecR --> TtsE[ttsEngine.js]
-        
-        UserApp --> NotifB[NotificationBell.jsx]
-        UserApp --> AudioDock[AudioPlayerDock.jsx]
-        AudioDock --> TtsE
-        UserApp -.-> AuthModal[AuthModal.jsx]
-        BaziB -.-> UpdBaziM[UpdateBaziModal.jsx]
+        subgraph Features [src/features/*]
+            UserApp --> IChingB[features/iching/IChingBoard.jsx]
+            UserApp --> BaziB[features/bazi/BaziBoard.jsx]
+            UserApp --> ZiweiB[features/ziwei/ZiweiBoard.jsx]
+            UserApp --> MarriageB[features/marriage/MarriageBoard.jsx]
+            UserApp --> HistoryB[features/history/HistoryBoard.jsx]
+            UserApp --> ProfileB[features/profile/ProfileBoard.jsx]
+            UserApp --> DateB[features/xemngay/DateSelectionBoard.jsx]
+            UserApp --> BlogB[features/blog/BlogBoard.jsx]
+            UserApp --> HomeB[features/home/HomeBoard.jsx]
+            AdminApp --> AdminConf[features/admin/AdminConfirmModal.jsx]
+            
+            IChingB --> IChingIn[features/iching/IChingInput.jsx]
+            BaziB --> BaziIn[features/bazi/BaziInput.jsx]
+            MarriageB --> MarriageIn[features/marriage/MarriageInput.jsx]
+            ZiweiB --> ZiweiCh[features/ziwei/ZiweiChart.jsx] & ZiweiIn[features/ziwei/ZiweiInput.jsx]
+        end
+
+        subgraph SharedWidgets [src/components/widgets/* & modals/* & common/*]
+            IChingB & BaziB & ZiweiB & MarriageB --> ChatW[widgets/AiChatWidget.jsx]
+            IChingB & BaziB & ZiweiB & MarriageB --> FloatT[widgets/FloatingErrorToast.jsx]
+            IChingB & BaziB & ZiweiB & MarriageB --> Tooltip[common/Tooltip.jsx]
+            IChingB & BaziB & ZiweiB & MarriageB --> TierM[modals/InterpretationTierModal.jsx]
+            IChingB & BaziB & ZiweiB & MarriageB --> VipB[widgets/VipUpgradeBanner.jsx]
+            IChingB & BaziB & ZiweiB & MarriageB --> VipT[widgets/VipProgressTracker.jsx]
+            ChatW --> SecR[common/SectionRenderer.jsx]
+            SecR --> TtsE[services/ttsEngine.js]
+            
+            UserApp --> NotifB[widgets/NotificationBell.jsx]
+            UserApp --> AudioDock[widgets/AudioPlayerDock.jsx]
+            AudioDock --> TtsE
+            UserApp -.-> AuthModal[modals/AuthModal.jsx]
+            UserApp -.-> FoldersModal[modals/MyFoldersModal.jsx]
+            BaziB -.-> UpdBaziM[modals/UpdateBaziModal.jsx]
+        end
     end
 
     subgraph Backend [Express.js v5]

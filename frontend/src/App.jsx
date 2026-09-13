@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from './context/AuthContext';
 // Pre-trigger import in background for zero-latency module resolution
-const userAppPromise = import('./components/UserApp');
+const userAppPromise = import('./app/UserApp');
 const UserApp = React.lazy(() => userAppPromise);
-const AdminApp = React.lazy(() => import('./components/AdminApp'));
+const AdminApp = React.lazy(() => import('./app/AdminApp'));
 
 function App() {
   const { user, loading: authLoading } = useContext(AuthContext);

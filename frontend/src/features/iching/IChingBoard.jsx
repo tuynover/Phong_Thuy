@@ -1,0 +1,1159 @@
+import React, { useState, useEffect, useContext, useRef } from 'react';
+import { createPortal } from 'react-dom';
+import Tooltip from '@/components/common/Tooltip';
+import FloatingNotificationToast from '@/components/common/FloatingNotificationToast';
+import { hexagramDictionary } from '@/data/hexagrams';
+import ReactMarkdown from 'react-markdown';
+import { getInterpretationStreamUrl, rateIChing, togglePublicCalculation } from '@/services/api';
+import { AlertCircle, BookOpen, ScrollText, MessageCircle, ArrowUp, ArrowDown, Star, Zap, Crown, FileDown } from 'lucide-react';
+import AiChatWidget from '@/components/widgets/AiChatWidget';
+import InterpretationTierModal from '@/components/modals/InterpretationTierModal';
+import VipUpgradeBanner from '@/components/widgets/VipUpgradeBanner';
+import VipProgressTracker from '@/components/widgets/VipProgressTracker';
+import { parseMarkdownSections } from '@/utils/markdownParser';
+import SectionRenderer from '@/components/widgets/SectionRenderer';
+import PdfExportModal from '@/components/modals/PdfExportModal';
+import { getColorClass, getBgColorClass, HAO_VI_MEANING, getChiOnly } from '@/utils/astrologyHelpers';
+import { AuthContext } from '@/context/AuthContext';
+
+const LineVisual = ({ type, isRed }) => {
+    const colorClass = isRed ? 'bg-red-600' : 'bg-blue-800';
+    return (
+        <div className="flex w-12 sm:w-16 md:w-20 h-2.5 justify-between items-center">
+            {type === 1 ? (
+                <div className={`w-full h-full ${colorClass}`}></div>
+            ) : (
+                <>
+                    <div className={`w-[45%] h-full ${colorClass}`}></div>
+                    <div className={`w-[45%] h-full ${colorClass}`}></div>
+                </>
+            )}
+        </div>
+    );
+};
+
+const LineWithTooltip = ({ type, isRed, isMoving, index }) => {
+    const [show, setShow] = useState(false);
+    const [coords, setCoords] = useState({ top: 0, left: 0, width: 260 });
+    const targetRef = useRef(null);
+    const tooltipRef = useRef(null);
+    const closeTimeoutRef = useRef(null);
+    const isTouchDeviceRef = useRef(false);
+    const movingLabel = isMoving ? ' · Động 🔴' : '';
+    const haoInfo = HAO_VI_MEANING[index] || {};
+    const placement = index >= 3 ? 'bottom' : 'top';
+
+    // Clean up timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (closeTimeoutRef.current) {
+                clearTimeout(closeTimeoutRef.current);
+            }
+        };
+    }, []);
+
+    // Close on scroll
+    useEffect(() => {
+        if (show) {
+            const handleScroll = () => {
+                setShow(false);
+            };
+            window.addEventListener('scroll', handleScroll, { capture: true, passive: true });
+            return () => {
+                window.removeEventListener('scroll', handleScroll, { capture: true });
+            };
+        }
+    }, [show]);
+
+    // Close on click outside
+    useEffect(() => {
+        if (show) {
+            const handleOutsideClick = (e) => {
+                if (targetRef.current && !targetRef.current.contains(e.target)) {
+                    if (tooltipRef.current && !tooltipRef.current.contains(e.target)) {
+                        setShow(false);
+                    }
+                }
+            };
+            document.addEventListener('pointerdown', handleOutsideClick);
+            return () => {
+                document.removeEventListener('pointerdown', handleOutsideClick);
+            };
+        }
+    }, [show]);
+
+    const calculatePosition = () => {
+        if (targetRef.current) {
+            const rect = targetRef.current.getBoundingClientRect();
+            const viewportWidth = window.innerWidth;
+            const tooltipWidth = Math.min(260, viewportWidth - 24);
+            const padding = 12;
+            
+            let left = rect.left + rect.width / 2;
+            const minLeft = tooltipWidth / 2 + padding;
+            const maxLeft = viewportWidth - tooltipWidth / 2 - padding;
+            left = Math.max(minLeft, Math.min(maxLeft, left));
+
+            if (placement === 'bottom') {
+                setCoords({
+                    left,
+                    top: rect.bottom + 8,
+                    width: tooltipWidth
+                });
+            } else {
+                setCoords({
+                    left,
+                    top: rect.top - 8,
+                    width: tooltipWidth
+                });
+            }
+        }
+    };
+
+    const handleMouseEnter = () => {
+        if (isTouchDeviceRef.current) return;
+        if (closeTimeoutRef.current) {
+            clearTimeout(closeTimeoutRef.current);
+            closeTimeoutRef.current = null;
+        }
+        calculatePosition();
+        setShow(true);
+    };
+
+    const handleMouseLeave = () => {
+        if (isTouchDeviceRef.current) return;
+        closeTimeoutRef.current = setTimeout(() => {
+            setShow(false);
+        }, 150);
+    };
+
+    const handleTouchStart = (e) => {
+        isTouchDeviceRef.current = true;
+        e.stopPropagation();
+        if (show) {
+            setShow(false);
+        } else {
+            calculatePosition();
+            setShow(true);
+        }
+    };
+
+    const handleTooltipMouseEnter = () => {
+        if (isTouchDeviceRef.current) return;
+        if (closeTimeoutRef.current) {
+            clearTimeout(closeTimeoutRef.current);
+            closeTimeoutRef.current = null;
+        }
+    };
+
+    const handleTooltipMouseLeave = () => {
+        if (isTouchDeviceRef.current) return;
+        closeTimeoutRef.current = setTimeout(() => {
+            setShow(false);
+        }, 150);
+    };
+
+    const tooltipStyle = {
+        position: 'fixed',
+        left: `${coords.left}px`,
+        top: `${coords.top}px`,
+        width: `${coords.width}px`,
+        transform: placement === 'bottom' ? 'translate(-50%, 0)' : 'translate(-50%, -100%)',
+        zIndex: 99999,
+        pointerEvents: 'auto',
+    };
+
+    return (
+        <div
+            ref={targetRef}
+            className="relative inline-flex items-center gap-2 cursor-pointer h-full"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            onTouchStart={handleTouchStart}
+        >
+            <LineVisual type={type} isRed={isRed} />
+            {show && createPortal(
+                <div 
+                    ref={tooltipRef}
+                    className="bg-amber-50 border border-amber-200 rounded-lg shadow-xl p-3 text-left z-[99999]"
+                    style={tooltipStyle}
+                    onMouseEnter={handleTooltipMouseEnter}
+                    onMouseLeave={handleTooltipMouseLeave}
+                >
+                    <div className="font-bold text-red-800 text-sm border-b border-amber-300 pb-1 mb-2">
+                        {haoInfo.ten}{movingLabel}
+                    </div>
+                    <div className="text-[12px] space-y-1.5 text-gray-800">
+                        <div className="text-amber-900 font-medium italic">{haoInfo.y_nghia}</div>
+                        <div><span className="text-gray-500">Đại diện:</span> <span className="font-semibold">{haoInfo.dai_dien}</span></div>
+                    </div>
+                </div>,
+                document.body
+            )}
+        </div>
+    );
+};
+
+const HexagramVisual = ({ lines }) => {
+    const reversedLines = [...lines].reverse();
+    return (
+        <div className="flex flex-col items-center gap-[6px] my-3">
+            {reversedLines.map((line, idx) => {
+                const isRed = line.moving;
+                return <LineVisual key={idx} type={line.line_type} isRed={isRed} />;
+            })}
+        </div>
+    );
+};
+
+const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidateHistory }) => {
+    const { user: ctxUser, setUser, token } = useContext(AuthContext);
+    const activeUser = ctxUser || user;
+    const [selectedHex, setSelectedHex] = useState(null);
+    const [isChatOpen, setIsChatOpen] = useState(false);
+    const [isInterpreting, setIsInterpreting] = useState(false);
+    const [showTierModal, setShowTierModal] = useState(false);
+    const [isUpgradeModal, setIsUpgradeModal] = useState(false);
+    const [vipChapter, setVipChapter] = useState(1);
+    const [vipCompletedChapters, setVipCompletedChapters] = useState([]);
+    const [vipActiveChapters, setVipActiveChapters] = useState([]);
+    const [vipStreamingChapter, setVipStreamingChapter] = useState(null);
+    const [vipStatusMessage, setVipStatusMessage] = useState('');
+    const [isVipCompleted, setIsVipCompleted] = useState(false);
+    const [abortController, setAbortController] = useState(null);
+    
+    // Help parse legacy and structured interpretations cleanly
+    const getInitialInterpretationText = (aiInt) => {
+        if (!aiInt) return '';
+        if (typeof aiInt === 'string') return aiInt;
+        return aiInt.content || '';
+    };
+
+    const [interpretation, setInterpretation] = useState(getInitialInterpretationText(result?.aiInterpretation));
+    const [interpretationMode, setInterpretationMode] = useState(result?.aiInterpretation?.mode || 'standard');
+    const [error, setError] = useState('');
+    const [loadingStep, setLoadingStep] = useState(0);
+
+    const [rating, setRating] = useState(0);
+    const [feedback, setFeedback] = useState('');
+    const [justRated, setJustRated] = useState(false);
+    const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
+    const [activeConsultSection, setActiveConsultSection] = useState(null);
+
+    const prevIdRef = useRef(null);
+
+    // Update interpretation if result changes (e.g. user clicks another history item)
+    useEffect(() => {
+        const currentId = result?._id || result?.recordId;
+        if (currentId !== prevIdRef.current) {
+            setJustRated(false);
+            prevIdRef.current = currentId;
+        }
+        setInterpretation(getInitialInterpretationText(result?.aiInterpretation));
+        setInterpretationMode(result?.aiInterpretation?.mode || 'standard');
+        setRating(result?.rating || 0);
+        setFeedback(result?.feedback || '');
+    }, [result]);
+
+    // Elegant minimalist loading texts
+    const loadingTexts = [
+        "Đang tra cứu Tượng Quẻ...",
+        "Đang luận giải Thế Ứng...",
+        "Đang định vị Hào Động..."
+    ];
+
+    useEffect(() => {
+        let interval;
+        if (isInterpreting) {
+            setLoadingStep(0);
+            interval = setInterval(() => {
+                setLoadingStep(prev => (prev < loadingTexts.length - 1 ? prev + 1 : prev));
+            }, 3500);
+        }
+        return () => clearInterval(interval);
+    }, [isInterpreting]);
+
+    // Auto abort on component destruction
+    useEffect(() => {
+        return () => {
+            if (abortController) {
+                abortController.abort();
+            }
+        };
+    }, [abortController]);
+
+    const [isPublicState, setIsPublicState] = useState(false);
+    const [toastMsg, setToastMsg] = useState('');
+
+    useEffect(() => {
+        setIsPublicState(result?.isPublic || false);
+    }, [result]);
+
+    const handleTogglePublic = async () => {
+        const resolvedId = result?._id || result?.recordId;
+        if (!resolvedId) return;
+        try {
+            const newStatus = !isPublicState;
+            await togglePublicCalculation('iching', resolvedId, newStatus);
+            setIsPublicState(newStatus);
+            setToastMsg(`Đã ${newStatus ? 'bật' : 'tắt'} chia sẻ công khai quẻ dịch!`);
+            if (onInvalidateHistory) onInvalidateHistory();
+            if (onUpdateResult) {
+                onUpdateResult({
+                    ...result,
+                    isPublic: newStatus
+                });
+            }
+        } catch (err) {
+            console.error('Lỗi khi đổi trạng thái công khai IChing:', err);
+            setToastMsg('Không thể thay đổi trạng thái chia sẻ. Vui lòng thử lại sau.');
+        }
+    };
+
+    const handleRatingSubmit = async (e) => {
+        e.preventDefault();
+        const resolvedId = result?._id || result?.recordId;
+        if (!resolvedId) return;
+        try {
+            await rateIChing(resolvedId, rating, feedback);
+            setJustRated(true);
+            if (onInvalidateHistory) onInvalidateHistory();
+            if (onUpdateResult) {
+                onUpdateResult({
+                    ...result,
+                    rating,
+                    feedback
+                });
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const triggerLuanGiai = async (tier = 'standard') => {
+        setShowTierModal(false);
+        setIsInterpreting(true);
+        setError('');
+
+        const isVip = tier === 'vip';
+        const isUpgrade = isUpgradeModal || (isVip && !!interpretation);
+        const costToDeduct = isUpgrade ? 4 : (isVip ? 5 : 1);
+
+        // 0ms Instant Reset
+        setInterpretation('');
+        setInterpretationMode(isVip ? 'vip' : 'standard');
+        setVipChapter(1);
+        setVipCompletedChapters([]);
+        setVipActiveChapters([]);
+        setVipStreamingChapter(null);
+        setVipStatusMessage(isVip ? 'Đang khởi động hệ thống phân tích...' : '');
+        setIsVipCompleted(false);
+
+        const abortCtrl = new AbortController();
+        setAbortController(abortCtrl);
+
+        let currentText = "";
+        try {
+            const url = getInterpretationStreamUrl('hexagrams', result.recordId);
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+            const response = await fetch(url, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify({ 
+                    userId: user?.id || user?._id || 'guest',
+                    mode: isVip ? 'vip' : 'standard'
+                }),
+                signal: abortCtrl.signal
+            });
+
+            if (!response.ok) {
+                const errData = await response.json().catch(() => ({}));
+                throw new Error(errData.error || `Lỗi kết nối từ server (HTTP ${response.status})`);
+            }
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder('utf-8');
+            let done = false;
+            let buffer = '';
+
+            while (!done) {
+                const { value, done: doneReading } = await reader.read();
+                done = doneReading;
+                if (value) {
+                    buffer += decoder.decode(value, { stream: !done });
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop();
+                    for (const line of lines) {
+                        const trimmed = line.trim();
+                        if (trimmed.startsWith('data: ')) {
+                            const dataStr = trimmed.slice(6);
+                            if (dataStr === '[DONE]') {
+                                done = true;
+                                break;
+                            }
+                            try {
+                                const parsed = JSON.parse(dataStr);
+                                if (parsed.error) {
+                                    throw new Error(parsed.error);
+                                }
+                                if (parsed.message) {
+                                    setVipStatusMessage(parsed.message);
+                                }
+                                if (parsed.stage === 'streaming' && parsed.streamingChapterId) {
+                                    setVipStreamingChapter(parsed.streamingChapterId);
+                                }
+                                if (parsed.chapterId) {
+                                    setVipChapter(parsed.chapterId);
+                                    if (parsed.status === 'completed') {
+                                        setVipCompletedChapters(prev => prev.includes(parsed.chapterId) ? prev : [...prev, parsed.chapterId]);
+                                        setVipActiveChapters(prev => prev.filter(id => id !== parsed.chapterId));
+                                    } else if (parsed.status === 'in_progress') {
+                                        setVipActiveChapters(prev => prev.includes(parsed.chapterId) ? prev : [...prev, parsed.chapterId]);
+                                    }
+                                }
+                                if (parsed.isCompleted || (parsed.stage === 'completed')) {
+                                    setIsVipCompleted(true);
+                                }
+                                if (parsed.chunk) {
+                                    const isFirstChunk = !currentText;
+                                    currentText += parsed.chunk;
+                                    setInterpretation(currentText);
+                                    if (isFirstChunk) {
+                                        setTimeout(() => {
+                                            const element = document.getElementById('iching-interpretation-section');
+                                            element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                        }, 100);
+                                    }
+                                }
+                            } catch (e) {
+                                if (e.message.includes('SAFETY') || e.message.includes('luận giải') || e.message.includes('quá tải')) {
+                                    throw e;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (err) {
+            if (err.name === 'AbortError') {
+                console.log("Interpretation aborted.");
+            } else {
+                console.error(err);
+                setError(err.message || "Hệ thống luận giải đang bận hoặc gặp lỗi. Vui lòng thử lại sau.");
+            }
+        } finally {
+            setIsInterpreting(false);
+            setAbortController(null);
+            if (isVip) setIsVipCompleted(true);
+
+            if (currentText && onUpdateResult) {
+                onUpdateResult({
+                    ...result,
+                    aiInterpretation: {
+                        ...result.aiInterpretation,
+                        content: currentText,
+                        mode: isVip ? 'vip' : 'standard'
+                    }
+                });
+
+                // Decrement credit locally for non-admin accounts
+                if (user && user.role !== 'admin' && user.role !== 'co-admin') {
+                    setUser(prev => {
+                        if (!prev) return prev;
+                        const updated = { ...prev, credits: Math.max(0, prev.credits - costToDeduct) };
+                        localStorage.setItem('user', JSON.stringify(updated));
+                        return updated;
+                    });
+                }
+            }
+        }
+    };
+
+    const handleAILuanGiai = async () => {
+        if (!user) {
+            if (onRequireLogin) onRequireLogin();
+            return;
+        }
+        
+        if (!result.recordId) {
+            alert("Lỗi: Quẻ này chưa được lưu vào hệ thống, không thể luận giải.");
+            return;
+        }
+
+        setIsUpgradeModal(false);
+        setShowTierModal(true);
+    };
+
+    if (!result) return null;
+
+    const primaryHex = result.primary || result.primaryHexagram || result.primaryHexagramInfo;
+    const secondaryHex = result.secondary || result.transformedHexagram || result.transformedHexagramInfo;
+    const primaryLinesArr = result.primaryLines || (primaryHex ? primaryHex.lines : []) || [];
+    const secondaryLinesArr = result.secondaryLines || (secondaryHex ? secondaryHex.lines : []) || [];
+    const dateInfo = result.dateInfo || result.lunarDateInfo;
+    const renderSecondarySide = Boolean(secondaryHex && primaryHex && (secondaryHex.binary_code !== primaryHex.binary_code));
+
+    const rows = [];
+    for (let i = 5; i >= 0; i--) {
+        const pLine = primaryLinesArr[i] || {};
+        const sLine = secondaryLinesArr[i] || {};
+        rows.push({ pLine, sLine, index: i + 1 });
+    }
+
+    const HexTitle = ({ hexagram }) => {
+        const hexData = hexagramDictionary[hexagram.binary_code] || {
+            summary: "Chưa có thông tin", type: "Chưa Rõ", image: "...", desc: "..."
+        };
+        const color = getColorClass(hexagram.palace_element);
+        
+        return (
+            <div className="relative group cursor-pointer inline-block text-center z-20" onClick={() => setSelectedHex({ ...hexagram, ...hexData })}>
+                <h3 className={`text-2xl font-black uppercase tracking-widest mb-1 hover:underline transition-all ${color}`}>
+                    {hexData.name || hexagram.name}
+                </h3>
+                {/* TOOLTIP */}
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-[9999] w-[300px] bg-slate-800 text-white shadow-2xl p-4 rounded-xl text-left border border-slate-600">
+                    <span className="block text-xs font-bold text-amber-400 uppercase tracking-widest mb-1">{hexData.type}</span>
+                    <span className="text-sm font-medium leading-relaxed">{hexData.summary}</span>
+                    <div className="mt-2 text-xs text-gray-400 italic">Nhấp vào để xem chi tiết quẻ</div>
+                </div>
+            </div>
+        );
+    };
+
+    return (
+        <div className="bg-white px-4 md:px-12 py-6 md:py-10 max-w-6xl mx-auto my-4 md:my-10 font-sans text-gray-900 shadow-2xl rounded-3xl border-t-8 border-t-amber-800 relative">
+            
+            <h1 className="text-3xl font-black mb-6 tracking-wide text-gray-800 uppercase">TRANG DỊCH QUÁI</h1>
+            
+            {dateInfo && (
+                <div className="grid grid-cols-1 md:grid-cols-[1.8fr_1.2fr] gap-6 text-[15px] font-medium text-gray-800">
+                    {/* Cột trái: Thông tin thời gian lập quẻ */}
+                    <div className="space-y-3.5">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                            <span className="w-40 sm:shrink-0 text-gray-500 font-bold sm:font-normal">Thời gian lập quẻ:</span>
+                            <span>{dateInfo.time} - {dateInfo.solarDate} ({dateInfo.lunarDateStr})</span>
+                        </div>
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                            <span className="w-40 sm:shrink-0 text-gray-500 font-bold sm:font-normal">Can Chi:</span>
+                            <span>Giờ <strong className="text-red-700 whitespace-nowrap">{dateInfo.hourCanChi}</strong>, ngày <strong className="text-red-700 whitespace-nowrap">{dateInfo.dayCanChi}</strong>, tháng <strong className="text-amber-700 whitespace-nowrap">{dateInfo.monthCanChi}</strong>, năm <strong className="text-amber-700 whitespace-nowrap">{dateInfo.yearCanChi}</strong></span>
+                        </div>
+                        <div className="flex flex-wrap gap-x-12 gap-y-3">
+                            <div className="flex gap-2">
+                                <span className="text-gray-500 font-bold sm:font-normal">Nhật thần:</span>
+                                <span className="font-bold text-red-800">{dateInfo.nhatThan}</span>
+                            </div>
+                            <div className="flex gap-2">
+                                <span className="text-gray-500 font-bold sm:font-normal">Nguyệt lệnh:</span>
+                                <span className="font-bold text-amber-800">{dateInfo.nguyetLenh}</span>
+                            </div>
+                        </div>
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 pt-2">
+                            <span className="w-40 sm:shrink-0 text-gray-500 font-bold sm:font-normal">Phương pháp gieo:</span>
+                            <span className="font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded inline-block w-fit">Lục Hào Truyền Thống</span>
+                        </div>
+                    </div>
+
+                    {/* Cột phải: Toggle Share & Xuất PDF */}
+                    <div className="flex flex-col justify-start md:border-l md:border-amber-200/50 md:pl-6 space-y-3 pt-4 md:pt-0">
+                        {(!window.location.pathname.includes('/record/') || (activeUser && (result?.userId === activeUser.id || result?.userId === activeUser._id))) ? (
+                            <>
+                                <div className="flex flex-col">
+                                    <span className="text-sm font-extrabold text-slate-800">Chia sẻ công khai quẻ dịch này</span>
+                                    <span className="text-[11px] text-gray-500 font-medium leading-relaxed">Bật để cho phép người khác xem chi tiết quẻ này qua liên kết công khai</span>
+                                </div>
+                                <div className="flex items-center gap-3 pt-1 flex-wrap">
+                                    <button
+                                        type="button"
+                                        onClick={handleTogglePublic}
+                                        className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${isPublicState ? 'bg-amber-800' : 'bg-gray-300'}`}
+                                    >
+                                        <span
+                                            className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${isPublicState ? 'translate-x-5' : 'translate-x-0'}`}
+                                        />
+                                    </button>
+                                    {isPublicState && (
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const shareUrl = `${window.location.origin}/iching/record/${result._id || result.recordId}`;
+                                                navigator.clipboard.writeText(shareUrl);
+                                                setToastMsg('Đã sao chép liên kết chia sẻ công khai quẻ dịch!');
+                                            }}
+                                            className="px-3 py-1 bg-amber-100 text-amber-800 border border-amber-200 hover:bg-amber-200 rounded-full text-xs font-bold transition-all active:scale-95 cursor-pointer"
+                                        >
+                                            Sao chép liên kết
+                                        </button>
+                                    )}
+                                    {(result._id || result.recordId) && (
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsPdfModalOpen(true)}
+                                            className="px-3.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300/80 rounded-full text-xs font-extrabold transition-all active:scale-95 cursor-pointer flex items-center gap-1.5 shadow-sm"
+                                        >
+                                            <FileDown size={14} className="text-amber-700" />
+                                            <span>Xuất PDF</span>
+                                        </button>
+                                    )}
+                                </div>
+                            </>
+                        ) : (
+                            (result._id || result.recordId) && (
+                                <div className="flex flex-col gap-2">
+                                    <span className="text-sm font-extrabold text-slate-800">Tài liệu học thuật</span>
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsPdfModalOpen(true)}
+                                        className="w-fit px-4 py-1.5 bg-amber-700 hover:bg-amber-800 text-white rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer flex items-center gap-2 shadow-md shadow-amber-800/20"
+                                    >
+                                        <FileDown size={15} />
+                                        <span>Tải Tệp PDF</span>
+                                    </button>
+                                </div>
+                            )
+                        )}
+                    </div>
+                </div>
+            )}
+
+            <hr className="border-t-2 border-amber-500 my-8 shadow-sm" />
+
+            <div className="flex flex-col md:flex-row mb-8">
+                <div className="flex-1 flex flex-col items-center relative">
+                    {primaryHex && <HexTitle hexagram={primaryHex} />}
+                    <HexagramVisual lines={primaryLinesArr} />
+                    {primaryHex && <span className={`text-[13px] font-bold uppercase tracking-widest mt-2 px-3 py-1 rounded-full border ${getBgColorClass(primaryHex.palace_element)} ${getColorClass(primaryHex.palace_element)}`}>HỌ {primaryHex.palace} - {primaryHex.palace_element}</span>}
+                </div>
+                
+                {renderSecondarySide && secondaryHex && (
+                    <div className="flex-1 flex flex-col items-center border-t md:border-t-0 md:border-l-[1.5px] border-amber-300 pt-8 md:pt-0 relative">
+                        <HexTitle hexagram={secondaryHex} />
+                        <HexagramVisual lines={secondaryLinesArr} />
+                        <span className={`text-[13px] font-bold uppercase tracking-widest mt-2 px-3 py-1 rounded-full border ${getBgColorClass(secondaryHex.palace_element)} ${getColorClass(secondaryHex.palace_element)}`}>HỌ {secondaryHex.palace} - {secondaryHex.palace_element}</span>
+                    </div>
+                )}
+            </div>
+
+            <hr className="border-t-2 border-gray-300 mb-0" />
+
+            {/* TABLE */}
+            <div className="w-full pb-20 relative z-10">
+                {renderSecondarySide ? (
+                    <div className="flex flex-col lg:flex-row gap-6 lg:gap-0">
+                        <div className="flex-1 min-w-0 border-b border-dashed border-gray-300 lg:border-b-0 lg:border-r-2 lg:border-gray-300 pb-6 lg:pb-0">
+                            <div className="overflow-x-auto w-full custom-scrollbar">
+                                <table className="w-full text-left text-xs sm:text-[14px] border-collapse relative">
+                                    <thead>
+                                        <tr className="border-b-2 border-gray-400 bg-slate-50/50 h-10">
+                                            <th className="font-extrabold text-gray-800 w-[16%] text-center align-middle">Hào</th>
+                                            <th className="font-bold text-gray-700 w-[10%] align-middle text-center">T/Ư</th>
+                                            <th className="font-bold text-gray-700 w-[28%] align-middle">Lục Thân</th>
+                                            <th className="font-bold text-gray-700 w-[28%] align-middle">Địa Chi</th>
+                                            <th className="font-bold text-gray-700 w-[10%] align-middle">PT</th>
+                                            <th className="font-bold text-gray-700 w-[8%] pr-2 align-middle">TK</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {rows.map((row, idx) => {
+                                            const { pLine, index } = row;
+                                            const isMoving = pLine.moving;
+                                            const trClass = `border-b border-gray-200 hover:bg-yellow-50/60 transition-colors h-[48px] ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/30'}`;
+                                            return (
+                                                <tr key={index} className={trClass}>
+                                                    <td className="pl-0 text-center align-middle h-full">
+                                                        <div className="flex items-center justify-center h-full">
+                                                            <LineWithTooltip type={pLine.line_type} isRed={isMoving} isMoving={isMoving} index={index} />
+                                                        </div>
+                                                    </td>
+                                                    <td className="text-[13px] font-extrabold text-blue-800 align-middle text-center">
+                                                        {pLine.is_host ? 'Thế' : pLine.is_guest ? 'Ứng' : ''}
+                                                    </td>
+                                                    <td className={`font-medium align-middle ${isMoving ? 'font-bold' : ''}`}>
+                                                        {pLine.relative ? <Tooltip term={pLine.relative} placement={idx < 3 ? 'bottom' : 'top'}>{pLine.relative}</Tooltip> : ''}
+                                                    </td>
+                                                    <td className={`font-medium align-middle ${getColorClass(pLine.element)} ${isMoving ? 'font-bold' : ''}`}>
+                                                        {getChiOnly(pLine.stem_branch)} {pLine.element}
+                                                    </td>
+                                                    <td className="text-[13px] text-gray-600 font-bold align-middle">
+                                                        {pLine.hidden_spirit ? <Tooltip term={pLine.hidden_spirit} placement={idx < 3 ? 'bottom' : 'top'}>{pLine.hidden_spirit}</Tooltip> : ''}
+                                                    </td>
+                                                    <td className="font-semibold text-gray-400 pr-2 align-middle">{pLine.tk}</td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div className="flex-1 min-w-0 pt-6 lg:pt-0 lg:pl-0">
+                            <div className="overflow-x-auto w-full custom-scrollbar">
+                                <table className="w-full text-left text-xs sm:text-[14px] border-collapse relative">
+                                    <thead>
+                                        <tr className="border-b-2 border-gray-400 bg-slate-50/50 h-10">
+                                            <th className="pl-3 font-bold text-gray-700 w-[28%] align-middle">Lục Thân</th>
+                                            <th className="font-bold text-gray-700 w-[28%] align-middle">Địa Chi</th>
+                                            <th className="font-bold text-gray-700 w-[10%] align-middle">TK</th>
+                                            <th className="font-bold text-gray-700 w-[26%] align-middle">Lục Thú</th>
+                                            <th className="pr-0 font-extrabold text-gray-800 w-[8%] text-center align-middle">Hào</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {rows.map((row, idx) => {
+                                            const { pLine, sLine, index } = row;
+                                            const isMoving = pLine.moving;
+                                            const trClass = `border-b border-gray-200 hover:bg-yellow-50/60 transition-colors h-[48px] ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/30'}`;
+                                            return (
+                                                <tr key={index} className={trClass}>
+                                                    <td className={`pl-3 font-medium align-middle ${isMoving ? 'font-bold' : ''}`}>
+                                                        {sLine.relative ? <Tooltip term={sLine.relative} placement={idx < 3 ? 'bottom' : 'top'}>{sLine.relative}</Tooltip> : ''}
+                                                    </td>
+                                                    <td className={`font-medium align-middle ${getColorClass(sLine.element)} ${isMoving ? 'font-bold' : ''}`}>
+                                                        {getChiOnly(sLine.stem_branch)} {sLine.element}
+                                                    </td>
+                                                    <td className={`font-semibold align-middle ${isMoving ? 'text-red-400' : 'text-gray-400'}`}>{sLine.tk}</td>
+                                                    <td className="font-semibold text-slate-700 align-middle">
+                                                        <Tooltip term={pLine.luc_thu} placement={idx < 3 ? 'bottom' : 'top'}>{pLine.luc_thu}</Tooltip>
+                                                    </td>
+                                                    <td className="pr-0 text-center align-middle h-full">
+                                                        <div className="flex items-center justify-center h-full">
+                                                            <LineWithTooltip type={sLine.line_type} isRed={isMoving} isMoving={isMoving} index={index} />
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="overflow-x-auto w-full custom-scrollbar">
+                        <table className="w-full text-left text-xs sm:text-[14px] border-collapse relative">
+                            <thead>
+                                <tr className="border-b-2 border-gray-400 bg-slate-50/50 h-10">
+                                    <th className="font-extrabold text-gray-800 w-[16%] text-center align-middle">Hào</th>
+                                    <th className="font-bold text-gray-700 w-[10%] align-middle text-center">T/Ư</th>
+                                    <th className="font-bold text-gray-700 w-[22%] align-middle">Lục Thân</th>
+                                    <th className="font-bold text-gray-700 w-[22%] align-middle">Địa Chi</th>
+                                    <th className="font-bold text-gray-700 w-[18%] align-middle">Phục Thần</th>
+                                    <th className="font-bold text-gray-700 w-[12%] align-middle">Lục Thú</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {rows.map((row, idx) => {
+                                    const { pLine, index } = row;
+                                    const isMoving = pLine.moving;
+                                    const trClass = `border-b border-gray-200 hover:bg-yellow-50/60 transition-colors h-[48px] ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/30'}`;
+                                    return (
+                                        <tr key={index} className={trClass}>
+                                            <td className="pl-0 text-center align-middle h-full">
+                                                <div className="flex items-center justify-center h-full">
+                                                    <LineWithTooltip type={pLine.line_type} isRed={isMoving} isMoving={isMoving} index={index} />
+                                                </div>
+                                            </td>
+                                            <td className="text-[14px] font-extrabold text-blue-800 align-middle text-center">
+                                                {pLine.is_host ? 'Thế' : pLine.is_guest ? 'Ứng' : ''}
+                                            </td>
+                                            <td className={`font-medium align-middle ${isMoving ? 'font-bold' : ''}`}>
+                                                {pLine.relative ? <Tooltip term={pLine.relative} placement={idx < 3 ? 'bottom' : 'top'}>{pLine.relative}</Tooltip> : ''}
+                                            </td>
+                                            <td className={`font-medium align-middle ${getColorClass(pLine.element)} ${isMoving ? 'font-bold' : ''}`}>
+                                                {getChiOnly(pLine.stem_branch)} {pLine.element}
+                                            </td>
+                                            <td className="text-[14px] text-gray-600 font-bold align-middle">
+                                                {pLine.hidden_spirit ? <Tooltip term={pLine.hidden_spirit} placement={idx < 3 ? 'bottom' : 'top'}>{pLine.hidden_spirit}</Tooltip> : ''}
+                                            </td>
+                                            <td className="font-semibold text-slate-700 align-middle">
+                                                <Tooltip term={pLine.luc_thu} placement={idx < 3 ? 'bottom' : 'top'}>{pLine.luc_thu}</Tooltip>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </div>
+
+            {/* VƯỢNG SUY CỦA HÀO */}
+            <div className="w-full pb-10">
+                <h3 className="text-xl font-bold text-gray-800 mb-6 uppercase tracking-wider border-b-2 border-red-800 pb-2 inline-block">Trạng Thái Vượng Suy Các Hào</h3>
+                
+                <div className="flex flex-col md:flex-row gap-6 md:gap-0">
+                    {/* QUẺ CHÍNH */}
+                    <div className="flex-1 flex flex-col md:pr-4">
+                        <div className="flex justify-end items-center mb-3">
+                            {primaryHex?.quai_than && <span className="bg-purple-100 text-purple-800 font-bold px-3 py-1 rounded-full text-sm border border-purple-200 shadow-sm">Quái Thân: {primaryHex.quai_than}</span>}
+                        </div>
+                        <div className="border border-gray-200 rounded-xl bg-white shadow-sm overflow-hidden">
+                            <div className="overflow-x-auto w-full custom-scrollbar">
+                                <table className="w-full text-left text-xs sm:text-sm border-collapse">
+                                    <thead className="bg-slate-50 border-b border-gray-200 text-gray-600 text-[11px] font-bold uppercase tracking-wider">
+                                        <tr>
+                                            <th className="py-2.5 px-3 w-[40%]">Hào / Can Chi</th>
+                                            <th className="py-2.5 px-3 w-[20%]">Vượng Suy</th>
+                                            <th className="py-2.5 px-3 w-[20%]">TS Ngày</th>
+                                            <th className="py-2.5 px-3 w-[20%]">TS Tháng</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-100">
+                                        {rows.map((row, idx) => {
+                                            const { pLine, index } = row;
+                                            const isVuongTuong = pLine.vuong_suy === 'Vượng' || pLine.vuong_suy === 'Tướng';
+                                            const vuongSuyColor = isVuongTuong ? 'text-red-600 bg-red-50' : 'text-gray-700';
+                                            
+                                            return (
+                                                <tr key={`p-${index}`} className="hover:bg-amber-50/50 transition-colors">
+                                                    <td className="py-2.5 px-3 align-middle">
+                                                        <div className="flex items-center gap-2 flex-wrap">
+                                                            <span className={`font-semibold ${getColorClass(pLine.element)}`}>
+                                                                {pLine.stem_branch}
+                                                            </span>
+                                                            {pLine.qt && <span className="px-1.5 py-0.5 bg-purple-100 text-purple-800 text-[10px] font-bold rounded uppercase tracking-wider">QT</span>}
+                                                        </div>
+                                                    </td>
+                                                    <td className={`py-2.5 px-3 align-middle font-bold ${vuongSuyColor}`}>
+                                                        <span className={isVuongTuong ? 'px-2 py-0.5 rounded bg-white border border-red-100 shadow-sm' : ''}>{pLine.vuong_suy}</span>
+                                                    </td>
+                                                    <td className="py-2.5 px-3 align-middle text-blue-800 font-semibold">{pLine.ts_ngay}</td>
+                                                    <td className="py-2.5 px-3 align-middle text-amber-700 font-semibold">{pLine.ts_thang}</td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* QUẺ BIẾN */}
+                    {renderSecondarySide && (
+                        <div className="flex-1 flex flex-col border-t md:border-t-0 md:border-l-[1.5px] border-gray-300 pt-6 md:pt-0 md:pl-4">
+                            <div className="flex justify-end items-center mb-3">
+                                {secondaryHex?.quai_than && <span className="bg-purple-100 text-purple-800 font-bold px-3 py-1 rounded-full text-sm border border-purple-200 shadow-sm">Quái Thân: {secondaryHex.quai_than}</span>}
+                            </div>
+                            <div className="border border-gray-200 rounded-xl bg-white shadow-sm overflow-hidden">
+                                <div className="overflow-x-auto w-full custom-scrollbar">
+                                    <table className="w-full text-left text-xs sm:text-sm border-collapse">
+                                        <thead className="bg-slate-50 border-b border-gray-200 text-gray-600 text-[11px] font-bold uppercase tracking-wider">
+                                            <tr>
+                                                <th className="py-2.5 px-3 w-[40%]">Hào / Can Chi</th>
+                                                <th className="py-2.5 px-3 w-[20%]">Vượng Suy</th>
+                                                <th className="py-2.5 px-3 w-[20%]">TS Ngày</th>
+                                                <th className="py-2.5 px-3 w-[20%]">TS Tháng</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-100">
+                                            {rows.map((row, idx) => {
+                                                const { sLine, index } = row;
+                                                const isVuongTuong = sLine.vuong_suy === 'Vượng' || sLine.vuong_suy === 'Tướng';
+                                                const vuongSuyColor = isVuongTuong ? 'text-red-600 bg-red-50' : 'text-gray-700';
+                                                
+                                                return (
+                                                    <tr key={`s-${index}`} className="hover:bg-amber-50/50 transition-colors">
+                                                        <td className="py-2.5 px-3 align-middle">
+                                                            <div className="flex items-center gap-2 flex-wrap">
+                                                                <span className={`font-semibold ${getColorClass(sLine.element)}`}>
+                                                                    {sLine.stem_branch}
+                                                                </span>
+                                                                {sLine.qt && <span className="px-1.5 py-0.5 bg-purple-100 text-purple-800 text-[10px] font-bold rounded uppercase tracking-wider">QT</span>}
+                                                            </div>
+                                                        </td>
+                                                        <td className={`py-2.5 px-3 align-middle font-bold ${vuongSuyColor}`}>
+                                                            <span className={isVuongTuong ? 'px-2 py-0.5 rounded bg-white border border-red-100 shadow-sm' : ''}>{sLine.vuong_suy}</span>
+                                                        </td>
+                                                        <td className="py-2.5 px-3 align-middle text-blue-800 font-semibold">{sLine.ts_ngay}</td>
+                                                        <td className="py-2.5 px-3 align-middle text-amber-700 font-semibold">{sLine.ts_thang}</td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {(interpretation || isInterpreting) && (
+                <div id="iching-interpretation-section" className="w-full mt-4 mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="flex items-center gap-3 mb-6 ml-1">
+                        <div className="w-8 h-8 bg-amber-800 rounded-lg flex items-center justify-center shadow-md">
+                            <BookOpen className="text-white" size={16} />
+                        </div>
+                        <h3 className="text-xl font-extrabold text-slate-800 tracking-tight">
+                            {interpretationMode === 'vip' ? 'Dịch Giải Chuyên Sâu (6 Chương Tượng Pháp & Lục Hào)' : 'Thầy Dịch Giải Chi Tiết'}
+                        </h3>
+                    </div>
+
+                    {/* Tracker 6 Chương Dịch Lý */}
+                    {interpretationMode === 'vip' && (
+                        <VipProgressTracker
+                            system="iching"
+                            completedChapters={vipCompletedChapters}
+                            activeChapters={vipActiveChapters}
+                            streamingChapter={vipStreamingChapter}
+                            currentChapter={vipChapter}
+                            isCompleted={isVipCompleted || !isInterpreting}
+                            statusMessage={vipStatusMessage}
+                        />
+                    )}
+
+                    {interpretation && (
+                        <SectionRenderer 
+                            sections={parseMarkdownSections(interpretation, 'iching')} 
+                            theme="iching" 
+                            onConsultSection={(sec) => {
+                                setActiveConsultSection(sec);
+                                setIsChatOpen(true);
+                            }}
+                        />
+                    )}
+
+                    {/* Banner Nâng Cấp VIP ở cuối bài luận giải thường */}
+                    {interpretation && interpretationMode !== 'vip' && !isInterpreting && (
+                        <div className="mt-8">
+                            <VipUpgradeBanner
+                                system="iching"
+                                userCredits={user?.credits || 0}
+                                onUpgradeClick={() => {
+                                    setIsUpgradeModal(true);
+                                    setShowTierModal(true);
+                                }}
+                            />
+                        </div>
+                    )}
+
+                    {/* ĐÁNH GIÁ PHẢN HỒI */}
+                    {(!result?.rating || justRated) && (
+                        <div className="mt-12 bg-white/60 border border-amber-100 p-6 rounded-3xl backdrop-blur-md max-w-xl mx-auto shadow-md">
+                            <h4 className="font-extrabold text-slate-800 text-center mb-2">Đánh Giá Luận Giải Thầy Dịch Lý</h4>
+                            <p className="text-center text-xs text-slate-400 mb-6">Nhận xét của bạn sẽ giúp bổ sung tri thức và cải thiện chất lượng của AI tốt hơn.</p>
+
+                            {justRated ? (
+                                <div className="text-center py-4 text-amber-700 font-bold animate-in zoom-in-95">
+                                    Xin chân thành cảm ơn ý kiến đánh giá của bạn!
+                                </div>
+                            ) : (
+                                <form onSubmit={handleRatingSubmit} className="space-y-4">
+                                <div className="flex justify-center gap-2">
+                                    {[1, 2, 3, 4, 5].map((star) => (
+                                        <button
+                                            key={star}
+                                            type="button"
+                                            onClick={() => setRating(star)}
+                                            className="transition-transform duration-100 active:scale-95"
+                                        >
+                                            <Star
+                                                size={28}
+                                                className={`stroke-2 cursor-pointer ${
+                                                    star <= rating ? 'fill-amber-400 stroke-amber-500' : 'text-slate-200 hover:text-amber-300'
+                                                }`}
+                                            />
+                                        </button>
+                                    ))}
+                                </div>
+                                <textarea
+                                    placeholder="Ý kiến nhận xét hoặc lưu ý thực tế của bạn..."
+                                    value={feedback}
+                                    onChange={(e) => setFeedback(e.target.value)}
+                                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition-all font-bold placeholder:text-slate-300 focus:outline-none"
+                                    rows={2}
+                                />
+                                <button
+                                    type="submit"
+                                    disabled={!rating}
+                                    className="w-full py-3 bg-amber-800 hover:bg-amber-900 text-white font-extrabold rounded-2xl shadow-md disabled:bg-slate-100 disabled:text-slate-400 disabled:shadow-none transition-all active:scale-[0.98]"
+                                >
+                                    Gửi Nhận Xét
+                                </button>
+                            </form>
+                        )}
+                    </div>
+                )}
+            </div>
+        )}
+
+            {error && (
+                <div className="w-full mt-4 mb-8 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-xl flex items-start gap-3">
+                    <AlertCircle className="text-red-500 shrink-0 mt-0.5" size={20} />
+                    <p className="text-red-800 font-medium">{error}</p>
+                </div>
+            )}
+
+            {/* FLOATING ACTION BUTTON & FOLLOW-UP CHAT WIDGET */}
+            {!interpretation ? (
+                <button
+                    onClick={handleAILuanGiai}
+                    disabled={isInterpreting}
+                    className={`fixed bottom-4 md:bottom-8 right-4 md:right-8 z-50 flex items-center gap-2 px-5 py-3 rounded-full shadow-2xl transition-all duration-300 font-bold border ${isInterpreting ? 'bg-amber-100 border-amber-200 text-amber-500 cursor-not-allowed scale-95' : 'bg-gradient-to-r from-amber-800 to-amber-950 hover:from-amber-900 hover:to-stone-900 text-white border-amber-700 hover:scale-105 hover:shadow-amber-900/40'}`}
+                >
+                    {isInterpreting ? (
+                        <>
+                            <div className="w-5 h-5 border-2 border-amber-600 border-t-transparent rounded-full animate-spin"></div>
+                            <span className="text-sm">
+                                {interpretationMode === 'vip' ? `Đang Phân Tích C${vipChapter}...` : loadingTexts[loadingStep]}
+                            </span>
+                        </>
+                    ) : (
+                        <>
+                            <ScrollText className="animate-pulse" size={20} />
+                            <span className="hidden sm:inline">Thầy Dịch Giải</span>
+                        </>
+                    )}
+                </button>
+            ) : !isChatOpen && activeUser && (
+                <div className="fixed bottom-4 md:bottom-8 right-4 md:right-8 z-50 flex flex-col items-end gap-2.5">
+                    {/* Nút "Nâng Cấp Luận Giải" nằm ngay PHÍA TRÊN nút "Hỏi Thêm Thầy" nếu chưa có bản chuyên sâu */}
+                    {interpretationMode !== 'vip' && (
+                        <button
+                            onClick={() => {
+                                setIsUpgradeModal(true);
+                                setShowTierModal(true);
+                            }}
+                            disabled={isInterpreting}
+                            className="flex items-center gap-2 px-5 py-3 rounded-full shadow-2xl transition-all duration-300 font-extrabold border bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 hover:from-amber-400 hover:to-amber-500 text-slate-950 border-amber-300/60 shadow-amber-500/30 hover:scale-105 active:scale-95 text-xs sm:text-sm uppercase tracking-wider ring-4 ring-amber-500/20"
+                        >
+                            <Crown className="w-4 h-4 fill-current animate-pulse text-slate-950" />
+                            <span>Nâng Cấp Luận Giải</span>
+                        </button>
+                    )}
+
+                    {/* Nút "Hỏi Thêm Thầy" */}
+                    <button
+                        onClick={() => {
+                            setActiveConsultSection(null);
+                            setIsChatOpen(true);
+                        }}
+                        className="flex items-center gap-2 px-6 py-3.5 rounded-full shadow-2xl transition-all duration-300 font-extrabold border bg-gradient-to-r from-amber-800 to-amber-950 hover:from-amber-900 hover:to-stone-900 text-white border-amber-700 hover:scale-105 hover:shadow-amber-900/40 uppercase text-xs tracking-wider animate-pulse"
+                    >
+                        <MessageCircle className="animate-bounce shrink-0" size={18} />
+                        <span>Hỏi Thêm Thầy</span>
+                    </button>
+                </div>
+            )}
+
+            {(interpretation || result?.aiInterpretation?.content) && (result?.recordId || result?._id) && activeUser && (
+                <AiChatWidget 
+                    type="hexagrams" 
+                    recordId={result.recordId || result._id} 
+                    userId={activeUser?.id || activeUser?._id} 
+                    isOpen={isChatOpen}
+                    setIsOpen={setIsChatOpen}
+                    activeSection={activeConsultSection}
+                    setActiveSection={setActiveConsultSection}
+                />
+            )}
+
+            {/* TIER SELECTION / UPGRADE MODAL */}
+            <InterpretationTierModal
+                isOpen={showTierModal}
+                onClose={() => setShowTierModal(false)}
+                onConfirm={triggerLuanGiai}
+                userCredits={user?.credits || 0}
+                isUpgrade={isUpgradeModal}
+                system="iching"
+            />
+
+            {/* HEXAGRAM DETAIL MODAL */}
+            {selectedHex && (
+                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[99999] flex justify-center items-center p-4">
+                    <div className="bg-white max-w-2xl w-full rounded-2xl shadow-2xl overflow-hidden relative animate-in fade-in zoom-in-95 duration-200">
+                        
+                        <div className="absolute top-4 right-4">
+                            <button onClick={() => setSelectedHex(null)} className="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-red-100 text-gray-500 hover:text-red-500 rounded-full transition-colors font-bold">✕</button>
+                        </div>
+
+                        <div className={`p-8 border-b-4 ${getBgColorClass(selectedHex.palace_element)} ${getColorClass(selectedHex.palace_element)}`}>
+                            <div className="text-sm font-bold uppercase tracking-widest mb-1 opacity-80">
+                                Quẻ Số {selectedHex.number || '??'} - {selectedHex.type}
+                            </div>
+                            <h2 className="text-4xl font-black mb-3">{selectedHex.name}</h2>
+                            <div className="text-lg italic text-gray-700 font-medium border-l-4 border-current pl-4">Hình tượng: {selectedHex.image}</div>
+                        </div>
+
+                        <div className="p-8 pb-10 max-h-[60vh] overflow-y-auto">
+                            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-3">Tóm Lược Yếu Quyết</h3>
+                            <p className="text-xl text-gray-800 font-medium mb-8 leading-relaxed bg-slate-50 p-4 border-l-4 border-amber-500 rounded-r">{selectedHex.summary}</p>
+                            
+                            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Luận Giải Chi Tiết</h3>
+                            <div className="text-gray-700 leading-loose text-justify space-y-4">
+                                {selectedHex.desc.split('\n').map((para, i) => {
+                                    if (para.includes(':')) {
+                                        const [title, ...rest] = para.split(':');
+                                        return (
+                                            <div key={i} className="mb-2">
+                                                <span className="font-bold text-slate-800 mb-1 block">📌 {title}:</span>
+                                                <span className="block pl-5">{rest.join(':')}</span>
+                                            </div>
+                                        )
+                                    }
+                                    return <p key={i}>{para}</p>;
+                                })}
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            )}
+
+            {/* FLOATING SCROLL BUTTONS */}
+            <div className="fixed bottom-4 md:bottom-8 left-4 md:left-8 z-40 flex flex-col gap-1 pointer-events-auto bg-transparent border-none shadow-none">
+                <button
+                    onClick={() => window.scrollTo(0, 0)}
+                    className="flex items-center justify-center w-10 h-10 rounded-full bg-transparent text-slate-400 hover:text-slate-700 active:scale-95 transition-all duration-300 shadow-none border-none pointer-events-auto"
+                    title="Cuộn lên đầu trang"
+                >
+                    <ArrowUp size={24} />
+                </button>
+                <button
+                    onClick={() => window.scrollTo(0, document.documentElement.scrollHeight)}
+                    className="flex items-center justify-center w-10 h-10 rounded-full bg-transparent text-slate-400 hover:text-slate-700 active:scale-95 transition-all duration-300 shadow-none border-none pointer-events-auto"
+                    title="Cuộn xuống cuối trang"
+                >
+                    <ArrowDown size={24} />
+                </button>
+            </div>
+            {/* PDF EXPORT MODAL */}
+            <PdfExportModal
+                isOpen={isPdfModalOpen}
+                onClose={() => setIsPdfModalOpen(false)}
+                system="iching"
+                recordId={result?._id || result?.recordId}
+                recordData={result}
+                hasInterpretation={Boolean(interpretation || result?.aiInterpretation?.content)}
+                interpretationMode={interpretationMode}
+                rawInterpretation={interpretation || result?.aiInterpretation?.content || ''}
+            />
+            {toastMsg && <FloatingNotificationToast message={toastMsg} onClose={() => setToastMsg('')} />}
+
+            <style jsx="true">{`
+                @media (max-width: 1024px) {
+                    .custom-scrollbar table {
+                        font-size: 11px !important;
+                    }
+                    .custom-scrollbar th, 
+                    .custom-scrollbar td {
+                        padding-left: 2px !important;
+                        padding-right: 2px !important;
+                        padding-top: 6px !important;
+                        padding-bottom: 6px !important;
+                    }
+                    .custom-scrollbar td div.flex.w-12 {
+                        margin: 0 auto;
+                    }
+                }
+            `}</style>
+        </div>
+    );
+};
+
+export default React.memo(IChingBoard);

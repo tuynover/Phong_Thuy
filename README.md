@@ -8,8 +8,32 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
 
 ## 🏗️ Cấu trúc dự án
 
-- `/frontend`: Mã nguồn giao diện người dùng (React 19 / Vite / Tailwind CSS).
-- `/backend`: Mã nguồn máy chủ (Node.js / Express.js / MongoDB).
+- `/backend`: Mã nguồn máy chủ (Node.js / Express.js v5 / MongoDB / Redis).
+- `/frontend`: Mã nguồn giao diện người dùng (React 19 / Vite / Tailwind CSS), tổ chức theo kiến trúc module hướng miền (Domain-Driven Architecture):
+  ```text
+  frontend/src/
+    ├── app/                     # Trình điều phối và shell ứng dụng (UserApp.jsx, AdminApp.jsx)
+    ├── features/                # Các phân hệ nghiệp vụ độc lập (Domain-Driven Features)
+    │   ├── iching/              # Kinh Dịch: IChingBoard.jsx, IChingInput.jsx
+    │   ├── bazi/                # Bát Tự: BaziBoard.jsx, BaziInput.jsx, baziConstants.jsx
+    │   ├── ziwei/               # Tử Vi: ZiweiBoard.jsx, ZiweiChart.jsx, ZiweiInput.jsx
+    │   ├── marriage/            # Hợp Hôn: MarriageBoard.jsx, MarriageInput.jsx
+    │   ├── xemngay/             # Xem Ngày Đẹp: DateSelectionBoard.jsx
+    │   ├── blog/                # Kiến Thức Phong Thủy: BlogBoard.jsx
+    │   ├── history/             # Lịch Sử Phân Tích: HistoryBoard.jsx
+    │   ├── profile/             # Hồ Sơ Cá Nhân & Quản Trị: ProfileBoard.jsx
+    │   ├── home/                # Trang Chủ Giới Thiệu: HomeBoard.jsx
+    │   └── admin/               # Quản Trị Hệ Thống: AdminConfirmModal.jsx
+    ├── components/
+    │   ├── common/              # Thành phần dùng chung (CustomDatePicker, CustomSelect, Tooltip...)
+    │   ├── layout/              # Khung giao diện (Footer.jsx, Header...)
+    │   ├── modals/              # Hộp thoại modal (AuthModal, PdfExportModal, MyFoldersModal...)
+    │   ├── widgets/             # Widget tiện ích nổi (AiChatWidget, AudioPlayerDock, NotificationBell...)
+    │   └── ...                  # Proxy Re-exports đảm bảo 100% tương thích ngược
+    ├── context/                 # Quản lý ngữ cảnh React (AuthContext.jsx)
+    ├── services/                # Giao tiếp API & Giọng đọc AI (api.js, ttsEngine.js)
+    └── utils/                   # Hàm tiện ích bổ trợ (baziUtils.js)
+  ```
 
 ---
 
