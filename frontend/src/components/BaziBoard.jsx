@@ -1843,4 +1843,4 @@ const ThapThanStrengthTable = ({ thapThanAnalysis }) => {
     );
 };
 
-export default BaziBoard;
+export default React.memo(BaziBoard);

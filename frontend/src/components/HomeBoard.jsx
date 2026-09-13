@@ -123,7 +123,7 @@ function CustomSelect({ value, onChange, options, placeholder }) {
   );
 }
 
-export default function HomeBoard({ onSelectModule, user, onRequireLogin, onViewDestiny }) {
+function HomeBoard({ onSelectModule, user, onRequireLogin, onViewDestiny }) {
   const [hoveredCard, setHoveredCard] = useState(null);
   const [latestPosts, setLatestPosts] = useState([]);
   
@@ -1020,3 +1020,5 @@ export default function HomeBoard({ onSelectModule, user, onRequireLogin, onView
     </div>
   );
 }
+
+export default React.memo(HomeBoard);

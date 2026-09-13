@@ -53,7 +53,7 @@ const getCategoryColor = (cat) => {
   return colors[cat] || 'text-indigo-800 bg-indigo-50 border-indigo-200/40';
 };
 
-export default function BlogBoard({ onSelectModule, initialSlug, onClearSlug, onSelectPost }) {
+function BlogBoard({ onSelectModule, initialSlug, onClearSlug, onSelectPost }) {
   const [posts, setPosts] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -712,3 +712,5 @@ export default function BlogBoard({ onSelectModule, initialSlug, onClearSlug, on
     </div>
   );
 }
+
+export default React.memo(BlogBoard);

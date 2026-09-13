@@ -1732,4 +1732,4 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
     );
 };
 
-export default HistoryBoard;
+export default React.memo(HistoryBoard);

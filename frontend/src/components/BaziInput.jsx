@@ -713,4 +713,4 @@ const BaziInput = ({ onComplete }) => {
     );
 };
 
-export default BaziInput;
+export default React.memo(BaziInput);

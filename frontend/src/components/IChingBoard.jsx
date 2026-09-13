@@ -1156,4 +1156,4 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
     );
 };
 
-export default IChingBoard;
+export default React.memo(IChingBoard);

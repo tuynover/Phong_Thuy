@@ -490,4 +490,4 @@ const MarriageInput = ({ onComplete }) => {
     );
 };
 
-export default MarriageInput;
+export default React.memo(MarriageInput);

@@ -615,7 +615,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
       )}
       {/* 3. COMPLETED RESULT BOARD PANEL */}
       {result && !loading && (
-        <div className="space-y-12 animate-in fade-in duration-500">
+        <div className="space-y-12 animate-in fade-in duration-100">
           {/* Công tắc chia sẻ công khai & Xuất PDF lá số Tử Vi */}
           {(!window.location.pathname.includes('/record/') || (activeUser && (result?.userId === activeUser.id || result?.userId === activeUser._id))) ? (
             <div className="max-w-4xl mx-auto p-5 bg-purple-50/40 border border-purple-100 rounded-3xl flex flex-wrap items-center justify-between gap-4 shadow-sm mb-6">
@@ -919,4 +919,4 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
   );
 };
 
-export default ZiweiBoard;
+export default React.memo(ZiweiBoard);

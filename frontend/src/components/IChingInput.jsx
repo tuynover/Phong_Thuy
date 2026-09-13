@@ -817,7 +817,7 @@ export const ManualInput = ({ onComplete }) => {
 // ==========================================
 // 4. UNIFIED ICHING INPUT CONTAINER COMPONENT
 // ==========================================
-export default function IChingInput({ 
+function IChingInput({ 
     question, 
     setQuestion, 
     onComplete, 
@@ -887,3 +887,5 @@ export default function IChingInput({
         </>
     );
 }
+
+export default React.memo(IChingInput);

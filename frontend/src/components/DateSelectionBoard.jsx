@@ -265,7 +265,7 @@ function CustomHourPicker({ value, onChange }) {
   );
 }
 
-export default function DateSelectionBoard({ user }) {
+function DateSelectionBoard({ user }) {
   const [activeTab, setActiveTab] = useState('check'); // 'check' | 'consult'
 
   const getHourClassifications = (hoursList) => {
@@ -1125,3 +1125,5 @@ export default function DateSelectionBoard({ user }) {
     </div>
   );
 }
+
+export default React.memo(DateSelectionBoard);

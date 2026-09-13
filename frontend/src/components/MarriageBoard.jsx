@@ -1169,4 +1169,4 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
     );
 };
 
-export default MarriageBoard;
+export default React.memo(MarriageBoard);
