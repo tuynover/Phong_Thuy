@@ -184,7 +184,7 @@ export default function BlogBoard({ onSelectModule, initialSlug, onClearSlug, on
           const newUrl = `${window.location.origin}${window.location.pathname}?post=${encodeURIComponent(slug)}`;
           window.history.replaceState({ path: newUrl }, '', newUrl);
         }
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo(0, 0);
       }
     } catch (err) {
       console.error('Error fetching blog post detail:', err);

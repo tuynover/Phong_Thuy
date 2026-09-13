@@ -1108,14 +1108,14 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
             {/* FLOATING SCROLL BUTTONS */}
             <div className="fixed bottom-4 md:bottom-8 left-4 md:left-8 z-40 flex flex-col gap-1 pointer-events-auto bg-transparent border-none shadow-none">
                 <button
-                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                    onClick={() => window.scrollTo(0, 0)}
                     className="flex items-center justify-center w-10 h-10 rounded-full bg-transparent text-slate-400 hover:text-slate-700 active:scale-95 transition-all duration-300 shadow-none border-none pointer-events-auto"
                     title="Cuộn lên đầu trang"
                 >
                     <ArrowUp size={24} />
                 </button>
                 <button
-                    onClick={() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' })}
+                    onClick={() => window.scrollTo(0, document.documentElement.scrollHeight)}
                     className="flex items-center justify-center w-10 h-10 rounded-full bg-transparent text-slate-400 hover:text-slate-700 active:scale-95 transition-all duration-300 shadow-none border-none pointer-events-auto"
                     title="Cuộn xuống cuối trang"
                 >

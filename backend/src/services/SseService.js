@@ -83,6 +83,18 @@ class SseService {
       client.write(`data: ${payload}\n\n`);
     }
   }
+
+  getClientStats() {
+    let totalUserSessions = 0;
+    for (const sessions of this.userClients.values()) {
+      totalUserSessions += sessions.size;
+    }
+    return {
+      adminClients: this.adminClients.size,
+      uniqueUsers: this.userClients.size,
+      totalUserSessions
+    };
+  }
 }
 
 module.exports = new SseService();

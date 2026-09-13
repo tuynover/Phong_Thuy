@@ -796,9 +796,9 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
                 setTimeout(() => {
                   const element = document.getElementById('ziwei-input-gender');
                   if (element) {
-                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    element.scrollIntoView({ behavior: 'auto', block: 'center' });
                   } else {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    window.scrollTo(0, 0);
                   }
                 }, 50);
               }}

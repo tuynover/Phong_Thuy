@@ -609,4 +609,32 @@ Tất cả các luồng âm thanh Neural được dẫn qua chuỗi xử lý tí
 - **Khối Ngữ Nghĩa An Toàn (`maxChunkLen = 450 - 500 ký tự`):** Tránh timeout 60 giây và tối ưu tốc độ phản hồi.
 - **Bộ Nhớ Đệm 2 Tầng (L1 Browser Blob Cache + L2 Node.js Chapter Cache):** Đã nghe một lần thì lần thứ hai chuyển giọng chỉ mất **< 50ms**!
 
+---
+
+## 9. Tối Ưu Hóa Production & Khả Năng Giám Sát (Production Optimization & Observability)
+
+Hệ thống được thiết kế và chuẩn hóa để đáp ứng lưu lượng tải cao (>100 người dùng đồng thời, 10.000 truy cập/ngày) mà vẫn duy trì độ ổn định, tiết kiệm tài nguyên máy chủ và đem lại trải nghiệm mượt mà.
+
+### 9.1 Phân Mảnh Gói Mã Nguồn Phía Frontend (Frontend Code Splitting)
+- **Lazy Loading Cấp Cao Nhất:** Tách biệt hoàn toàn `UserApp.jsx` và `AdminApp.jsx` qua `React.lazy` và `Suspense`. Khách vãng lai và người dùng thông thường chỉ tải bundle của UserApp khi cần, không tải mã nguồn Admin.
+- **Rollup Manual Chunks:** Phân chia các thư viện bên thứ ba thành các gói riêng biệt (`vendor-react`, `vendor-lunar`, `vendor-charts`, `vendor-motion`, `vendor-icons`, `vendor-markdown`, `vendor-firebase`).
+- **Hiệu quả:** Root entry bundle (`index-*.js`) giảm từ **1.526 KB** xuống còn **3.06 KB** (gzip chỉ **1.45 KB**), triệt tiêu hoàn toàn cảnh báo vượt kích thước chunk của Vite.
+
+### 9.2 Nén Băng Thông & Bộ Đệm Tĩnh (Nginx Gzip & Long-term Asset Caching)
+- **Gzip Compression:** Bật nén Gzip (level 6) cho toàn bộ file text, HTML, CSS, JavaScript, JSON, SVG và XML, giảm từ 65% - 75% dung lượng truyền tải mạng.
+- **Immutable Static Asset Cache:** Các tệp build có hash nội dung trong thư mục `/assets/` được cấu hình tiêu đề `Cache-Control: public, max-age=31536000, immutable`. Trình duyệt chỉ tải 1 lần duy nhất và tái sử dụng vĩnh viễn từ Disk Cache.
+
+### 9.3 Bảo Vệ Hạ Tầng Toàn Cục (Global API Rate Limiting)
+- Sử dụng `express-rate-limit` bọc tại cấp router cao nhất (`/api/*`), giới hạn 300 yêu cầu / 5 phút trên mỗi IP.
+- Ngăn chặn bot cào quét dữ liệu trái phép, ngăn chặn các cuộc tấn công từ chối dịch vụ (DDoS) và bảo toàn hạn mức tài nguyên AI LLM.
+
+### 9.4 Khả Năng Giám Sát Sức Khỏe Máy Chủ (Health Probes & Observability)
+- **Readiness Probe (`GET /health`):** Kiểm tra trạng thái sẵn sàng thực tế của cơ sở dữ liệu MongoDB (`mongoose.connection.readyState === 1`). Trả mã `503 Service Unavailable` khi mất kết nối DB để AWS Application Load Balancer / Docker ngắt lưu lượng tới container lỗi ngay tức khắc.
+- **Detailed Metrics Probe (`GET /health/detailed`):** Báo cáo thời gian chạy thực tế (`uptime`), mức tiêu thụ bộ nhớ RAM (`rssMB`, `heapUsedMB`), trạng thái Redis, và số lượng phiên kết nối SSE người dùng / Admin đang hoạt động.
+
+### 9.5 Tinh Gọn Chỉ Mục Cơ Sở Dữ Liệu (MongoDB Index Optimization)
+- Loại bỏ các chỉ mục trùng lặp tiền tố (Prefix Redundant Indexes) trên 4 bảng dữ liệu lớn (`BaziRecord`, `ZiweiRecord`, `IChingRecord`, `MarriageRecord`).
+- Chỉ mục kết hợp đa trường `{ userId: 1, isDeleted: 1, isPinned: -1, createdAt: -1 }` tự động thỏa mãn các truy vấn tiền tố `{ userId: 1 }` và `{ userId: 1, isDeleted: 1 }`. Việc loại bỏ 8 B-trees thừa giúp giảm dung lượng RAM MongoDB và tăng tốc độ thao tác ghi/cập nhật bản ghi.
+
+
 

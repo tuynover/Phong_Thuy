@@ -132,10 +132,13 @@ app.use((req, res, next) => {
 // Premium Audit Logger Middleware (logs User, Time, Action, Parameters, and Performance)
 app.use(auditLogger);
 
-// Lightweight Health Check Route for AWS ALB / Nginx / Monitoring
-app.get('/health', (req, res) => {
-  res.status(200).send('ok');
-});
+const HealthController = require('./controllers/HealthController');
+
+// Production Health Check Route for AWS ALB / Nginx / Monitoring
+app.get('/health', HealthController.getHealth);
+
+// Detailed System Health & Metrics Observability Endpoint
+app.get('/health/detailed', HealthController.getDetailedHealth);
 
 // Swagger UI Documentation Route (Only enabled outside production or when explicit)
 if (process.env.NODE_ENV !== 'production') {

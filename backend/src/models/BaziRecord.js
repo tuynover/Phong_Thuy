@@ -103,8 +103,6 @@ const baziRecordSchema = new mongoose.Schema({
 
 baziRecordSchema.index({ userId: 1, isDeleted: 1, isPinned: -1, createdAt: -1 }); // Compound index tối ưu cho sort { isPinned: -1, createdAt: -1 }
 baziRecordSchema.index({ userId: 1, tags: 1 });
-baziRecordSchema.index({ userId: 1, isDeleted: 1, createdAt: -1 }); // Compound index cho query lịch sử: { userId, isDeleted: { $ne: true } } sort createdAt: -1
-baziRecordSchema.index({ userId: 1, createdAt: -1 });
 baziRecordSchema.index({ userId: 1, "aiInterpretation.tokensUsed": 1 });
 baziRecordSchema.index({ createdAt: 1 });
 baziRecordSchema.index({ isDeleted: 1, status: 1, userId: 1, _id: -1 });

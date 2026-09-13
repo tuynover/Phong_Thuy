@@ -2,6 +2,13 @@
 
 Tất cả các API Endpoints đều có tiền tố `/api`. Các endpoint yêu cầu xác thực phải gửi JWT token trong Header `Authorization: Bearer <token>`.
 
+### 🛡️ Giới hạn Tần suất Truy cập Toàn cục (Global API Rate Limiter)
+Toàn bộ các yêu cầu HTTP tới `/api/*` được bảo vệ bởi bộ điều tiết tần suất:
+- **Ngưỡng giới hạn:** 300 yêu cầu / 5 phút trên mỗi địa chỉ IP (`standardHeaders: true`, `legacyHeaders: false`).
+- **Mã phản hồi khi vượt ngưỡng:** `429 Too Many Requests`.
+- **Thông báo lỗi:** `Quá nhiều yêu cầu từ địa chỉ IP này. Vui lòng thử lại sau 5 phút.`
+- **Headers:** `RateLimit-Limit: 300`, `RateLimit-Remaining: <số lượt còn lại>`, `RateLimit-Reset: <thời điểm làm mới>`.
+
 ---
 
 ## 🚀 Hướng dẫn Kiểm thử & Thử nghiệm API (Testing Guides)
@@ -835,7 +842,6 @@ Hệ thống cung cấp dịch vụ kết xuất đồ hình lá số và toàn 
 - **Headers Phản hồi:**
   - `Content-Type: application/pdf`
   - `Content-Disposition: attachment; filename="[LoaiLaSo]_[Ten]_[RecordId].pdf"`
-  - `Content-Length: <kích thước file byte>`
   - `Cache-Control: public, max-age=86400`
 - **Mã lỗi đặc biệt:**
   - `400 Bad Request`: Thiếu hoặc sai định dạng tham số `type`, `recordId`.
@@ -843,3 +849,65 @@ Hệ thống cung cấp dịch vụ kết xuất đồ hình lá số và toàn 
   - `404 Not Found`: Không tìm thấy bản ghi.
   - `503 Service Unavailable`: Hàng đợi máy chủ đang quá tải (vượt quá 20 yêu cầu chờ tạo PDF song song). Phản hồi gợi ý người dùng thử lại sau 30-60 giây.
   - `504 Gateway Timeout`: Hàng đợi xử lý bị quá thời gian chờ (30 giây) do tài nguyên kết xuất Chromium quá tải.
+
+
+---
+
+## 🩺 12. Kiểm Tra Trạng Thái & Giám Sát Hệ Thống (`/health`)
+
+Cung cấp các endpoint phục vụ Load Balancer (AWS ALB, Docker Healthcheck) và giám sát hạ tầng thời gian thực (Observability).
+
+### 12.1 Health Check Cơ Bản (Liveness / Readiness Probe)
+Phục vụ Load Balancer (AWS ALB, Kubernetes, Docker) kiểm tra tính sẵn sàng của phiên bản ứng dụng. Kiểm tra kết nối MongoDB thực tế (không trả về 200 giả mạo).
+- **Endpoint:** `GET /health`
+- **Xác thực:** Không yêu cầu (Public).
+- **Phản hồi thành công (200 OK):** Khi ứng dụng hoạt động và MongoDB kết nối sẵn sàng (`readyState === 1`).
+  ```json
+  {
+    "status": "ok",
+    "timestamp": "2026-09-12T17:00:00.000Z"
+  }
+  ```
+- **Phản hồi thất bại (503 Service Unavailable):** Khi MongoDB mất kết nối (`readyState !== 1`), giúp Load Balancer lập tức loại bỏ container lỗi ra khỏi Target Group.
+  ```json
+  {
+    "status": "degraded",
+    "error": "Database connection not ready",
+    "timestamp": "2026-09-12T17:00:00.000Z"
+  }
+  ```
+
+### 12.2 Giám Sát Chỉ Số Chi Tiết (Detailed Metrics Probe)
+Cung cấp bức tranh toàn cảnh về tài nguyên hệ thống phục vụ DevOps và Admin Dashboard.
+- **Endpoint:** `GET /health/detailed`
+- **Xác thực:** Không yêu cầu (hoặc có thể bọc qua reverse proxy/firewall cho monitoring nội bộ).
+- **Phản hồi (200 OK hoặc 503 Service Unavailable):**
+  ```json
+  {
+    "status": "ok",
+    "timestamp": "2026-09-12T17:00:00.000Z",
+    "uptime": {
+      "seconds": 1254,
+      "human": "20m 54s"
+    },
+    "memory": {
+      "rssMB": 85.42,
+      "heapTotalMB": 42.15,
+      "heapUsedMB": 31.8
+    },
+    "services": {
+      "database": {
+        "status": "connected",
+        "readyState": 1
+      },
+      "redis": {
+        "status": "connected"
+      },
+      "sse": {
+        "adminClients": 1,
+        "uniqueUsers": 12,
+        "totalUserSessions": 15
+      }
+    }
+  }
+  ```

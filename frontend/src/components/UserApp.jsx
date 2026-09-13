@@ -95,6 +95,21 @@ export default function UserApp({ onSwitchToAdmin }) {
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
+
+  // Track visited subsystems for Keep-Alive Lazy Mounting (triệt tiêu 100% overhead render & network lúc đầu)
+  const [visitedModes, setVisitedModes] = useState(() => {
+    const initialMode = typeof window !== 'undefined' ? parsePathToAppMode(window.location.pathname) : 'home';
+    return new Set([initialMode, 'home']);
+  });
+
+  useEffect(() => {
+    setVisitedModes(prev => {
+      if (prev.has(appMode)) return prev;
+      const next = new Set(prev);
+      next.add(appMode);
+      return next;
+    });
+  }, [appMode]);
   
   const [blogSlug, setBlogSlug] = useState(initialUrlSlug);
   const [previousMode, setPreviousMode] = useState('home');
@@ -268,7 +283,7 @@ export default function UserApp({ onSwitchToAdmin }) {
     } else if (slug === null && mode !== 'blog') {
       window.history.pushState({ path: '/' }, '', '/');
     }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo(0, 0);
   };
 
   const handleClearBlogSlug = () => {
@@ -763,7 +778,7 @@ export default function UserApp({ onSwitchToAdmin }) {
   };
 
   return (
-    <div className={`min-h-screen font-sans text-neutral-800 flex flex-col relative z-0 transition-colors duration-500 ${getAmbientBgClass()}`}>
+    <div className={`min-h-screen font-sans text-neutral-800 flex flex-col relative z-0 ${getAmbientBgClass()}`}>
       {appMode !== 'home' && <div className="hidden lg:block desktop-mystic-bg"></div>}
       {/* Toast Notification */}
       <AnimatePresence>
@@ -1335,277 +1350,262 @@ export default function UserApp({ onSwitchToAdmin }) {
         )}
 
         {/* SYSTEM 1: I CHING */}
-        <div className={`${appMode === 'iching' ? 'block' : 'hidden'}`}>
-          {!result && (
-            <IChingInput 
-              question={question}
-              setQuestion={setQuestion}
-              onComplete={handleDivinationComplete}
-              loading={loading}
-            />
-          )}
+        {visitedModes.has('iching') && (
+          <div className={`${appMode === 'iching' ? 'block' : 'hidden'}`}>
+            {!result && (
+              <IChingInput 
+                question={question}
+                setQuestion={setQuestion}
+                onComplete={handleDivinationComplete}
+                loading={loading}
+              />
+            )}
 
-          {!result && !loading && (
-            <div className="max-w-3xl mx-auto mt-10 space-y-8 font-sans">
-              {/* Detailed Academic Cards */}
-              <div className="bg-white p-6 md:p-8 rounded-3xl border border-amber-100 shadow-md">
-                <h4 className="text-sm font-extrabold text-amber-800 uppercase tracking-widest text-center mb-6">Kiến thức học thuật Dịch Lý</h4>
-                
-                <div className="space-y-6">
-                  {/* Card 1 */}
-                  <div className="border-b border-slate-100 pb-5 text-left">
-                    <h5 className="font-extrabold text-slate-800 text-base mb-2.5 flex items-center gap-2">
-                      <span className="w-1.5 h-6 rounded bg-amber-600 block"></span>
-                      1. Kinh Dịch Lục Hào là gì?
-                    </h5>
-                    <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed pl-3.5 mb-2">
-                      Kinh Dịch Lục Hào là phương pháp chiêm cát hung cổ học dựa trên 64 quẻ Dịch. Mỗi quẻ gồm 6 hào đại diện cho sự biến thiên âm dương của vạn vật tại một thời điểm hệ trọng.
-                    </p>
-                    <ul className="list-disc pl-8 text-xs text-slate-500 space-y-1 font-medium">
-                      <li><strong>Nguyên lý:</strong> Dùng tương tác giữa Thiên Địa Nhân để phản ánh trạng thái sự việc cần hỏi.</li>
-                      <li><strong>Quẻ Chủ:</strong> Đại diện cho bối cảnh hiện tại của sự việc khi gieo quẻ.</li>
-                      <li><strong>Quẻ Biến:</strong> Kết quả xu hướng phát triển trong tương lai do các Hào Động sinh ra.</li>
-                    </ul>
+            {!result && !loading && (
+              <div className="max-w-3xl mx-auto mt-10 space-y-8 font-sans">
+                {/* Detailed Academic Cards */}
+                <div className="bg-white p-6 md:p-8 rounded-3xl border border-amber-100 shadow-md">
+                  <h4 className="text-sm font-extrabold text-amber-800 uppercase tracking-widest text-center mb-6">Kiến thức học thuật Dịch Lý</h4>
+                  
+                  <div className="space-y-6">
+                    {/* Card 1 */}
+                    <div className="border-b border-slate-100 pb-5 text-left">
+                      <h5 className="font-extrabold text-slate-800 text-base mb-2.5 flex items-center gap-2">
+                        <span className="w-1.5 h-6 rounded bg-amber-600 block"></span>
+                        1. Kinh Dịch Lục Hào là gì?
+                      </h5>
+                      <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed pl-3.5 mb-2">
+                        Kinh Dịch Lục Hào là phương pháp chiêm cát hung cổ học dựa trên 64 quẻ Dịch. Mỗi quẻ gồm 6 hào đại diện cho sự biến thiên âm dương của vạn vật tại một thời điểm hệ trọng.
+                      </p>
+                      <ul className="list-disc pl-8 text-xs text-slate-500 space-y-1 font-medium">
+                        <li><strong>Nguyên lý:</strong> Dùng tương tác giữa Thiên Địa Nhân để phản ánh trạng thái sự việc cần hỏi.</li>
+                        <li><strong>Quẻ Chủ:</strong> Đại diện cho bối cảnh hiện tại của sự việc khi gieo quẻ.</li>
+                        <li><strong>Quẻ Biến:</strong> Kết quả xu hướng phát triển trong tương lai do các Hào Động sinh ra.</li>
+                      </ul>
+                    </div>
+
+                    {/* Card 2 */}
+                    <div className="border-b border-slate-100 pb-5 text-left">
+                      <h5 className="font-extrabold text-slate-800 text-base mb-2.5 flex items-center gap-2">
+                        <span className="w-1.5 h-6 rounded bg-amber-600 block"></span>
+                        2. Phương pháp luận quẻ chuyên sâu
+                      </h5>
+                      <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed pl-3.5 mb-2">
+                        Để giải mã thông tin ẩn chứa trong quẻ, các bậc thầy Dịch học sử dụng các hệ tọa độ tương tác:
+                      </p>
+                      <ul className="list-disc pl-8 text-xs text-slate-500 space-y-1.5 font-medium">
+                        <li><strong>Hào Thế (世):</strong> Đại diện cho bản thể người hỏi, phản ánh nội tâm, năng lực và tình trạng hiện tại.</li>
+                        <li><strong>Hào Ứng (应):</strong> Đại diện cho đối phương, mục tiêu cần hướng tới hoặc hoàn cảnh khách quan của sự việc.</li>
+                        <li><strong>Dụng Thần (用神):</strong> Chọn 1 trong 5 hào Lục Thân (Phụ Mẫu, Huynh Đệ, Tử Tôn, Thê Tài, Quan Quỷ) làm trung tâm để luận sự việc (ví dụ hỏi tiền tài lấy Thê Tài làm Dụng Thần).</li>
+                        <li><strong>Nhật Nguyệt (日/月):</strong> Thiên can và Địa chi của ngày gieo quẻ làm thước đo năng lượng sinh, khắc, vượng, suy cho các Hào.</li>
+                      </ul>
+                    </div>
+
+                    {/* Card 3 */}
+                    <div className="text-left">
+                      <h5 className="font-extrabold text-slate-800 text-base mb-2.5 flex items-center gap-2">
+                        <span className="w-1.5 h-6 rounded bg-amber-600 block"></span>
+                        3. Ứng Kỳ trong Kinh Dịch
+                      </h5>
+                      <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed pl-3.5">
+                        Ứng Kỳ là thời điểm sự việc được dự đoán sẽ diễn ra trên thực tế. Dựa trên trạng thái Tuần Không, Xung, Hợp, Phục Thần và Vượng Tướng Hưu Tù của Dụng Thần, hệ thống có thể xác định chính xác Năm, Tháng, Ngày hoặc Giờ ứng nghiệm.
+                      </p>
+                    </div>
                   </div>
+                </div>
 
-                  {/* Card 2 */}
-                  <div className="border-b border-slate-100 pb-5 text-left">
-                    <h5 className="font-extrabold text-slate-800 text-base mb-2.5 flex items-center gap-2">
-                      <span className="w-1.5 h-6 rounded bg-amber-600 block"></span>
-                      2. Phương pháp luận quẻ chuyên sâu
-                    </h5>
-                    <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed pl-3.5 mb-2">
-                      Để giải mã thông tin ẩn chứa trong quẻ, các bậc thầy Dịch học sử dụng các hệ tọa độ tương tác:
-                    </p>
-                    <ul className="list-disc pl-8 text-xs text-slate-500 space-y-1.5 font-medium">
-                      <li><strong>Hào Thế (世):</strong> Đại diện cho bản thể người hỏi, phản ánh nội tâm, năng lực và tình trạng hiện tại.</li>
-                      <li><strong>Hào Ứng (应):</strong> Đại diện cho đối phương, mục tiêu cần hướng tới hoặc hoàn cảnh khách quan của sự việc.</li>
-                      <li><strong>Dụng Thần (用神):</strong> Chọn 1 trong 5 hào Lục Thân (Phụ Mẫu, Huynh Đệ, Tử Tôn, Thê Tài, Quan Quỷ) làm trung tâm để luận sự việc (ví dụ hỏi tiền tài lấy Thê Tài làm Dụng Thần).</li>
-                      <li><strong>Nhật Nguyệt (日/月):</strong> Thiên can và Địa chi của ngày gieo quẻ làm thước đo năng lượng sinh, khắc, vượng, suy cho các Hào.</li>
-                    </ul>
-                  </div>
+                {/* FAQ Cards */}
+                <div className="bg-white p-6 md:p-8 rounded-3xl border border-amber-100 shadow-md">
+                  <h4 className="text-sm font-extrabold text-amber-800 uppercase tracking-widest text-center mb-6">Câu hỏi thường gặp (FAQ)</h4>
+                  
+                  <div className="space-y-4">
+                    <div className="p-4 bg-amber-50/50 rounded-2xl border border-amber-100 text-left">
+                      <h5 className="font-bold text-slate-800 text-sm mb-1">Hỏi: Một ngày có thể gieo quẻ nhiều lần được không?</h5>
+                      <p className="text-xs text-slate-600 font-medium">Đáp: Kinh Dịch dạy "Sơ phệ cáo, tái tam độc, độc tắc bất cáo" (Lần đầu thì báo, hai ba lần là nhờn, nhờn thì không báo). Một sự việc chỉ nên gieo 1 lần, chỉ gieo lại khi sự việc có biến chuyển lớn.</p>
+                    </div>
 
-                  {/* Card 3 */}
-                  <div className="text-left">
-                    <h5 className="font-extrabold text-slate-800 text-base mb-2.5 flex items-center gap-2">
-                      <span className="w-1.5 h-6 rounded bg-amber-600 block"></span>
-                      3. Bản luận giải cung cấp những thông tin gì?
-                    </h5>
-                    <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed pl-3.5 mb-2">
-                      Bản phân tích học thuật từ hệ thống sẽ cung cấp chi tiết:
-                    </p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-3.5 mt-3">
-                      <div className="bg-amber-50/40 p-3 rounded-xl border border-amber-100/50">
-                        <span className="block text-xs font-bold text-amber-800 uppercase tracking-wider mb-1">✓ Cát hung bản chất</span>
-                        <span className="text-[11px] text-slate-500 font-medium block">Xác định sự việc thành công hay thất bại dựa trên tương sinh tương khắc giữa Thế và Dụng Thần.</span>
-                      </div>
-                      <div className="bg-amber-50/40 p-3 rounded-xl border border-amber-100/50">
-                        <span className="block text-xs font-bold text-amber-800 uppercase tracking-wider mb-1">✓ Thời gian ứng kỳ</span>
-                        <span className="text-[11px] text-slate-500 font-medium block">Chỉ rõ thời điểm (ngày, tháng) sự việc sẽ diễn ra cụ thể dựa trên quy luật Hào Động, Tuần Không hoặc Xung Thực.</span>
-                      </div>
-                      <div className="bg-amber-50/40 p-3 rounded-xl border border-amber-100/50">
-                        <span className="block text-xs font-bold text-amber-800 uppercase tracking-wider mb-1">✓ Lời khuyên Dịch lý</span>
-                        <span className="text-[11px] text-slate-500 font-medium block">Lời khuyên ứng xử phù hợp đạo lý nhân quả giúp bạn xu cát tị hung, chủ động chuyển hóa tình huống.</span>
-                      </div>
-                      <div className="bg-amber-50/40 p-3 rounded-xl border border-amber-100/50">
-                        <span className="block text-xs font-bold text-amber-800 uppercase tracking-wider mb-1">✓ Lục thú trì thế</span>
-                        <span className="text-[11px] text-slate-500 font-medium block">Tác động tâm lý từ Thanh Long, Chu Tước, Câu Trận, Đằng Xà, Bạch Hổ, Huyền Vũ đến diễn biến sự việc.</span>
-                      </div>
+                    <div className="p-4 bg-amber-50/50 rounded-2xl border border-amber-100 text-left">
+                      <h5 className="font-bold text-slate-800 text-sm mb-1">Hỏi: Gieo quẻ online có linh nghiệm như gieo đồng xu thật?</h5>
+                      <p className="text-xs text-slate-600 font-medium">Đáp: Dịch học dựa on cơ chế "Đồng thanh tương ứng, đồng khí tương cầu" và "Động tâm khởi niệm". Khi tâm niệm chí thành tại thời khắc bấm nút, trường năng lượng vẫn khởi tạo quẻ tương ứng chuẩn xác.</p>
+                    </div>
+
+                    <div className="p-4 bg-amber-50/50 rounded-2xl border border-amber-100 text-left">
+                      <h5 className="font-bold text-slate-800 text-sm mb-1">Hỏi: Nếu quẻ xấu thì có cách nào hóa giải không?</h5>
+                      <p className="text-xs text-slate-600 font-medium">Đáp: "Tận nhân lực, tri thiên mệnh". Quẻ dịch chỉ ra xu hướng để ta "Xu cát tị hung" (tìm đến điều lành, tránh điều dữ), điều chỉnh hành vi và tâm thế để chuyển hóa vận hạn.</p>
                     </div>
                   </div>
                 </div>
               </div>
+            )}
 
-              {/* FAQs Section */}
-              <div className="bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-md space-y-6">
-                <h4 className="text-sm font-extrabold text-amber-800 uppercase tracking-widest text-center">Các câu hỏi thường gặp về Kinh Dịch</h4>
-                <div className="space-y-4">
-                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100/70">
-                    <h5 className="font-extrabold text-slate-800 text-xs sm:text-sm mb-1.5 flex items-center gap-1.5 text-left">
-                      <HelpCircle size={15} className="text-amber-600 shrink-0" />
-                      Làm thế nào để gieo quẻ có độ chính xác cao nhất?
-                    </h5>
-                    <p className="text-xs text-slate-500 font-medium leading-relaxed pl-5 text-left">
-                      Bạn cần chọn nơi yên tĩnh, giữ tâm thế thoải mái, tập trung cao độ ý niệm vào câu hỏi duy nhất trong khoảng 1-2 phút trước khi gieo quẻ. Tránh hỏi khi tâm trạng đang quá tức giận, lo âu hoặc hỏi đùa giỡn.
-                    </p>
-                  </div>
-                  
-                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100/70">
-                    <h5 className="font-extrabold text-slate-800 text-xs sm:text-sm mb-1.5 flex items-center gap-1.5 text-left">
-                      <HelpCircle size={15} className="text-amber-600 shrink-0" />
-                      Có nên gieo quẻ nhiều lần cho cùng một sự việc không?
-                    </h5>
-                    <p className="text-xs text-slate-500 font-medium leading-relaxed pl-5 text-left">
-                      Không nên. Kinh Dịch có câu "Sơ phệ cáo, tái tam độc, độc tắc bất cáo" (Lần đầu thì báo tin, hỏi lại hai ba lần là gây nhiễu loạn, nhiễu thì không báo nữa). Chỉ gieo lại khi tình huống có sự biến chuyển hoàn toàn mới.
-                    </p>
-                  </div>
-
-                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100/70">
-                    <h5 className="font-extrabold text-slate-800 text-xs sm:text-sm mb-1.5 flex items-center gap-1.5 text-left">
-                      <HelpCircle size={15} className="text-amber-600 shrink-0" />
-                      Nếu quẻ dịch cho kết quả không tốt thì có thay đổi được không?
-                    </h5>
-                    <p className="text-xs text-slate-500 font-medium leading-relaxed pl-5 text-left">
-                      Kết quả của quẻ dịch chỉ phản ánh diễn biến tự nhiên nếu bạn giữ nguyên thói quen và cách hành xử hiện tại. Kinh Dịch là môn học về "Biến dịch", quẻ xấu là lời cảnh báo để bạn chủ động thay đổi hành vi, tâm tính và cách giải quyết sự việc nhằm đảo chiều kết quả xấu thành cát lành.
-                    </p>
-                  </div>
+            {result && (
+              <div className="space-y-12 animate-in fade-in zoom-in-95 duration-700 pb-20 font-sans">
+                <IChingBoard 
+                  data={result} 
+                  onUpdateData={setResult} 
+                  onRequireLogin={() => setIsAuthModalOpen(true)}
+                  onInvalidateHistory={invalidateHistoryCache}
+                />
+                <div className="text-center">
+                  <button 
+                    onClick={() => {
+                      setResult(null);
+                      setTimeout(() => {
+                        const element = document.getElementById('iching-input-header');
+                        if (element) {
+                          element.scrollIntoView({ behavior: 'auto', block: 'center' });
+                        } else {
+                          window.scrollTo(0, 0);
+                        }
+                      }, 50);
+                    }} 
+                    className="px-10 py-4 bg-white text-amber-900 border-2 border-amber-200 rounded-2xl shadow-md hover:bg-amber-50 hover:border-amber-300 font-bold text-lg transition-all hover:-translate-y-1"
+                  >
+                    Gieo Quẻ Mới
+                  </button>
                 </div>
               </div>
-            </div>
-          )}
-
-          {result && !loading && (
-            <div className="space-y-12 animate-in fade-in zoom-in-95 duration-700 pb-20 font-sans">
-              <IChingBoard result={result} onUpdateResult={setResult} user={user} onRequireLogin={() => setIsAuthModalOpen(true)} onInvalidateHistory={invalidateHistoryCache} />
-              <div className="text-center">
-                <button 
-                  onClick={() => {
-                    setResult(null);
-                    setTimeout(() => {
-                      const element = document.getElementById('iching-input-header');
-                      if (element) {
-                        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                      } else {
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                      }
-                    }, 50);
-                  }} 
-                  className="px-10 py-4 bg-white text-amber-900 border-2 border-amber-200 rounded-2xl shadow-md hover:bg-amber-50 hover:border-amber-300 font-bold text-lg transition-all hover:-translate-y-1"
-                >
-                  Gieo Quẻ Mới
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
 
         {/* SYSTEM 2: BAZI */}
-        <div className={`${appMode === 'bazi' ? 'block' : 'hidden'}`}>
-          {user && !baziResult && !loading && (
-            <div className="max-w-xl mx-auto mb-10 text-center">
-              <button 
-                onClick={handleViewOwnBazi}
-                className="bg-[#faf6f0] border-2 border-amber-200/60 text-amber-900 px-8 py-4 rounded-2xl font-bold shadow-md transition-all hover:bg-blue-600 hover:border-blue-600 hover:text-white hover:shadow-lg hover:shadow-blue-600/20 active:bg-blue-700 hover:-translate-y-0.5 active:translate-y-0 text-lg w-full mb-4"
-              >
-                Xem Lá Số Của Bản Thân
-              </button>
-              <div className="flex items-center gap-4 py-4">
-                <div className="h-px bg-gray-200 flex-1"></div>
-                <span className="text-gray-400 font-medium text-xs sm:text-sm uppercase">Hoặc lập lá số mới</span>
-                <div className="h-px bg-gray-200 flex-1"></div>
-              </div>
-            </div>
-          )}
-
-          {loading && (
-            <div className="text-center py-20 animate-in fade-in">
-              <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-6"></div>
-              <div className="text-xl font-bold text-blue-800 animate-pulse">Đang nạp thuật toán Tử Bình...</div>
-            </div>
-          )}
-
-          {!baziResult && !loading && (
-            <div className="transition-all duration-500 animate-in fade-in slide-in-from-bottom-8">
-              <BaziInput onComplete={handleBaziComplete} />
-            </div>
-          )}
-
-          {baziResult && !loading && (
-            <div className="space-y-12 animate-in fade-in zoom-in-95 duration-700 pb-20 font-sans">
-              <BaziBoard data={baziResult} onUpdateData={setBaziResult} onRequireLogin={() => setIsAuthModalOpen(true)} onInvalidateHistory={invalidateHistoryCache} />
-              <div className="text-center">
+        {visitedModes.has('bazi') && (
+          <div className={`${appMode === 'bazi' ? 'block' : 'hidden'}`}>
+            {user && !baziResult && !loading && (
+              <div className="max-w-xl mx-auto mb-10 text-center">
                 <button 
-                  onClick={() => {
-                    setBaziResult(null);
-                    setTimeout(() => {
-                      const element = document.getElementById('bazi-input-gender');
-                      if (element) {
-                        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                      } else {
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                      }
-                    }, 50);
-                  }} 
-                  className="px-10 py-4 bg-white text-blue-900 border-2 border-blue-200 rounded-2xl shadow-md hover:bg-blue-50 hover:border-blue-300 font-bold text-lg transition-all hover:-translate-y-1"
+                  onClick={handleViewOwnBazi}
+                  className="bg-[#faf6f0] border-2 border-amber-200/60 text-amber-900 px-8 py-4 rounded-2xl font-bold shadow-md transition-all hover:bg-blue-600 hover:border-blue-600 hover:text-white hover:shadow-lg hover:shadow-blue-600/20 active:bg-blue-700 hover:-translate-y-0.5 active:translate-y-0 text-lg w-full mb-4"
                 >
-                  Luận Lá Số Khác
+                  Xem Lá Số Của Bản Thân
                 </button>
+                <div className="flex items-center gap-4 py-4">
+                  <div className="h-px bg-gray-200 flex-1"></div>
+                  <span className="text-gray-400 font-medium text-xs sm:text-sm uppercase">Hoặc lập lá số mới</span>
+                  <div className="h-px bg-gray-200 flex-1"></div>
+                </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+
+            {loading && (
+              <div className="text-center py-20 animate-in fade-in">
+                <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-6"></div>
+                <div className="text-xl font-bold text-blue-800 animate-pulse">Đang nạp thuật toán Tử Bình...</div>
+              </div>
+            )}
+
+            {!baziResult && !loading && (
+              <div className="transition-all duration-500 animate-in fade-in slide-in-from-bottom-8">
+                <BaziInput onComplete={handleBaziComplete} />
+              </div>
+            )}
+
+            {baziResult && !loading && (
+              <div className="space-y-12 animate-in fade-in zoom-in-95 duration-700 pb-20 font-sans">
+                <BaziBoard data={baziResult} onUpdateData={setBaziResult} onRequireLogin={() => setIsAuthModalOpen(true)} onInvalidateHistory={invalidateHistoryCache} />
+                <div className="text-center">
+                  <button 
+                    onClick={() => {
+                      setBaziResult(null);
+                      setTimeout(() => {
+                        const element = document.getElementById('bazi-input-gender');
+                        if (element) {
+                          element.scrollIntoView({ behavior: 'auto', block: 'center' });
+                        } else {
+                          window.scrollTo(0, 0);
+                        }
+                      }, 50);
+                    }} 
+                    className="px-10 py-4 bg-white text-blue-900 border-2 border-blue-200 rounded-2xl shadow-md hover:bg-blue-50 hover:border-blue-300 font-bold text-lg transition-all hover:-translate-y-1"
+                  >
+                    Luận Lá Số Khác
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* SYSTEM 3: TỬ VI */}
-        <div className={`${appMode === 'ziwei' ? 'block' : 'hidden'}`}>
-          <ZiweiBoard 
-            user={user} 
-            onRequireLogin={() => setIsAuthModalOpen(true)} 
-            historicalRecordId={historicalZiweiId} 
-            onCalculationComplete={invalidateHistoryCache}
-            onResultChange={setIsZiweiResultLoaded}
-            autoSubmitInfo={autoSubmitZiwei}
-            onClearAutoSubmit={() => setAutoSubmitZiwei(null)}
-            onInvalidateHistory={invalidateHistoryCache}
-          />
-        </div>
+        {visitedModes.has('ziwei') && (
+          <div className={`${appMode === 'ziwei' ? 'block' : 'hidden'}`}>
+            <ZiweiBoard 
+              user={user} 
+              onRequireLogin={() => setIsAuthModalOpen(true)} 
+              historicalRecordId={historicalZiweiId} 
+              onCalculationComplete={invalidateHistoryCache}
+              onResultChange={setIsZiweiResultLoaded}
+              autoSubmitInfo={autoSubmitZiwei}
+              onClearAutoSubmit={() => setAutoSubmitZiwei(null)}
+              onInvalidateHistory={invalidateHistoryCache}
+            />
+          </div>
+        )}
 
         {/* SYSTEM 5: HÔN NHÂN */}
-        <div className={`${appMode === 'marriage' ? 'block' : 'hidden'}`}>
-          {loading && (
-            <div className="text-center py-20 animate-in fade-in">
-              <div className="w-16 h-16 border-4 border-rose-200 border-t-rose-600 rounded-full animate-spin mx-auto mb-6"></div>
-              <div className="text-xl font-bold text-rose-800 animate-pulse">Đang đối chiếu lá số hợp hôn...</div>
-            </div>
-          )}
-
-          {!marriageResult && !loading && (
-            <div className="transition-all duration-500 animate-in fade-in slide-in-from-bottom-8">
-              <MarriageInput onComplete={handleMarriageComplete} />
-            </div>
-          )}
-
-          {marriageResult && !loading && (
-            <div className="space-y-12 animate-in fade-in zoom-in-95 duration-700 pb-20 font-sans">
-              <MarriageBoard data={marriageResult} onUpdateData={setMarriageResult} onRequireLogin={() => setIsAuthModalOpen(true)} onInvalidateHistory={invalidateHistoryCache} />
-              <div className="text-center">
-                <button 
-                  onClick={() => {
-                    setMarriageResult(null);
-                    setTimeout(() => {
-                      const element = document.getElementById('marriage-input-nam');
-                      if (element) {
-                        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                      } else {
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                      }
-                    }, 50);
-                  }} 
-                  className="px-10 py-4 bg-white text-rose-900 border-2 border-rose-200 rounded-2xl shadow-md hover:bg-rose-50 hover:border-rose-300 font-bold text-lg transition-all hover:-translate-y-1"
-                >
-                  Xem Cặp Đôi Khác
-                </button>
+        {visitedModes.has('marriage') && (
+          <div className={`${appMode === 'marriage' ? 'block' : 'hidden'}`}>
+            {loading && (
+              <div className="text-center py-20 animate-in fade-in">
+                <div className="w-16 h-16 border-4 border-rose-200 border-t-rose-600 rounded-full animate-spin mx-auto mb-6"></div>
+                <div className="text-xl font-bold text-rose-800 animate-pulse">Đang đối chiếu lá số hợp hôn...</div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+
+            {!marriageResult && !loading && (
+              <div className="transition-all duration-500 animate-in fade-in slide-in-from-bottom-8">
+                <MarriageInput onComplete={handleMarriageComplete} />
+              </div>
+            )}
+
+            {marriageResult && !loading && (
+              <div className="space-y-12 animate-in fade-in zoom-in-95 duration-700 pb-20 font-sans">
+                <MarriageBoard data={marriageResult} onUpdateData={setMarriageResult} onRequireLogin={() => setIsAuthModalOpen(true)} onInvalidateHistory={invalidateHistoryCache} />
+                <div className="text-center">
+                  <button 
+                    onClick={() => {
+                      setMarriageResult(null);
+                      setTimeout(() => {
+                        const element = document.getElementById('marriage-input-nam');
+                        if (element) {
+                          element.scrollIntoView({ behavior: 'auto', block: 'center' });
+                        } else {
+                          window.scrollTo(0, 0);
+                        }
+                      }, 50);
+                    }} 
+                    className="px-10 py-4 bg-white text-rose-900 border-2 border-rose-200 rounded-2xl shadow-md hover:bg-rose-50 hover:border-rose-300 font-bold text-lg transition-all hover:-translate-y-1"
+                  >
+                    Xem Cặp Đôi Khác
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
         
         {/* SYSTEM 6: DATE SELECTION */}
-        <div className={`${appMode === 'xemngay' ? 'block' : 'hidden'}`}>
-          <DateSelectionBoard user={user} />
-        </div>
+        {visitedModes.has('xemngay') && (
+          <div className={`${appMode === 'xemngay' ? 'block' : 'hidden'}`}>
+            <DateSelectionBoard user={user} />
+          </div>
+        )}
 
         {/* SYSTEM 7: BLOG */}
-        <div className={`${appMode === 'blog' ? 'block' : 'hidden'}`}>
-          <BlogBoard 
-            onSelectModule={handleSelectModule} 
-            initialSlug={blogSlug} 
-            onClearSlug={handleClearBlogSlug} 
-            onSelectPost={(slug) => handleSelectModule('blog', slug)}
-          />
-        </div>
+        {visitedModes.has('blog') && (
+          <div className={`${appMode === 'blog' ? 'block' : 'hidden'}`}>
+            <BlogBoard 
+              onSelectModule={handleSelectModule} 
+              initialSlug={blogSlug} 
+              onClearSlug={handleClearBlogSlug} 
+              onSelectPost={(slug) => handleSelectModule('blog', slug)}
+            />
+          </div>
+        )}
 
         {/* SYSTEM 4: HISTORY */}
-        {user && (
+        {user && visitedModes.has('history') && (
           <div className={`${appMode === 'history' ? 'block' : 'hidden'}`}>
             <HistoryBoard 
               onViewHexagram={handleViewHistoricalHexagram} 
@@ -1684,14 +1684,14 @@ export default function UserApp({ onSwitchToAdmin }) {
       {shouldShowScrollButtons && (
         <div className="fixed bottom-6 left-6 z-50 flex flex-col items-center gap-2 animate-in fade-in slide-in-from-bottom-4 duration-300">
           <button 
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            onClick={() => window.scrollTo(0, 0)}
             title="Cuộn lên đầu"
             className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-slate-800 transition-all active:scale-90 bg-transparent"
           >
             <ArrowUp size={24} strokeWidth={2.5} />
           </button>
           <button 
-            onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })}
+            onClick={() => window.scrollTo(0, document.body.scrollHeight)}
             title="Cuộn xuống cuối"
             className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-slate-800 transition-all active:scale-90 bg-transparent"
           >

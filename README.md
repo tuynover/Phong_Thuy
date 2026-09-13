@@ -94,10 +94,10 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
 
 ### 🛠️ Công nghệ sử dụng
 - **Core:** Node.js, Express.js (v5).
-- **Database & Cache:** MongoDB (Mongoose v9), Redis (`ioredis`, Redis Alpine).
-- **PDF Engine:** Puppeteer (Headless Chromium pool, auto idle close 5m, Redis Base64 24h cache).
-- **Security:** JWT, bcryptjs, CORS, creditCheck Middleware, antiSpamLock Middleware (Distributed Mutex Lock).
-- **AI Engine:** Google Gemini API (`@google/generative-ai` model `gemini-3.1-flash-lite`, tích hợp chuỗi dự phòng đa tầng OpenRouter Qwen / Groq Llama).
+- **Database & Cache:** MongoDB (Mongoose v9, maxPoolSize: 100), Redis (`ioredis`, Redis Alpine), Hybrid L1 RAM + L2 Redis Cache.
+- **PDF Engine:** Puppeteer (Headless Chromium pool, Semaphore FIFO Queue, SSD Disk Cache 24h).
+- **Security & Reliability:** JWT, bcryptjs, CORS, Global API Rate Limiter (300 req/5min), creditCheck Middleware, antiSpamLock Middleware (Distributed Mutex Lock), Readiness & Observability Health Probes (`/health`, `/health/detailed`).
+- **AI Engine:** Google Gemini API (`@google/generative-ai` model `gemini-3.1-flash-lite`, tích hợp chuỗi dự phòng đa tầng OpenRouter Qwen / Groq Llama, AI VIP Concurrency Limiter).
 - **Phong thủy Logic:** `lunar-javascript` (Lịch pháp âm dương, Can Chi, Bát Tự).
 
 

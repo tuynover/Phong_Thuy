@@ -3,7 +3,7 @@ const logger = require('../services/LoggerService');
 
 let isConnected = false;
 
-const redisHost = process.env.REDIS_HOST || 'redis';
+const redisHost = process.env.REDIS_HOST || (process.env.NODE_ENV === 'production' ? 'redis' : '127.0.0.1');
 const redisPort = parseInt(process.env.REDIS_PORT || '6379', 10);
 const redisPassword = process.env.REDIS_PASSWORD || undefined;
 const redisTls = process.env.REDIS_TLS === 'true' || (process.env.REDIS_URL && process.env.REDIS_URL.startsWith('rediss://'));

@@ -31,6 +31,15 @@ const ttsLimiter = rateLimiter({
     message: 'Bạn đang yêu cầu phát giọng đọc quá nhanh. Vui lòng đợi một chút trước khi thử lại.'
 });
 
+// Giới hạn 300 yêu cầu trong 5 phút trên toàn bộ API để ngăn chặn bot cào dữ liệu và tấn công DoS
+const globalApiLimiter = rateLimiter({
+    windowMs: 5 * 60 * 1000,
+    max: 300,
+    message: 'Hệ thống phát hiện tần suất yêu cầu bất thường từ địa chỉ mạng của bạn. Vui lòng thử lại sau vài phút.'
+});
+
+router.use(globalApiLimiter);
+
 router.use('/auth', authRoutes);
 router.use('/history', historyRoutes);
 router.use('/ai', aiRoutes);
