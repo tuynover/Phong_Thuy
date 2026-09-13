@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const BaziRecord = require('../models/BaziRecord');
-const ZiweiRecord = require('../models/ZiweiRecord');
-const IChingRecord = require('../models/IChingRecord');
-const MarriageRecord = require('../models/MarriageRecord');
-const BlogPost = require('../models/BlogPost');
-const logger = require('../services/LoggerService');
+const BaziRecord = require('../modules/bazi/models/BaziRecord');
+const ZiweiRecord = require('../modules/ziwei/models/ZiweiRecord');
+const IChingRecord = require('../modules/iching/models/IChingRecord');
+const MarriageRecord = require('../modules/bazi/models/MarriageRecord');
+const BlogPost = require('../modules/blog/models/BlogPost');
+const logger = require('../core/services/LoggerService');
 
 // Cache template HTML của Frontend trong RAM
 let htmlTemplateCache = null;
@@ -111,7 +111,7 @@ router.get('/bazi/record/:id', async (req, res) => {
         return res.send(ogHtml);
     } catch (error) {
         logger.error('[SEO Router] Lỗi xử lý SEO Bazi:', error);
-        res.sendFile(path.join(__dirname, '../index.html'));
+        return res.status(500).send('Lỗi máy chủ nội bộ');
     }
 });
 

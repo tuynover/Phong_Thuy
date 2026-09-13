@@ -1,4 +1,4 @@
-const IChingDataService = require('../../services/IChingDataService');
+const IChingDataService = require('../../modules/iching/services/IChingDataService');
 
 class IChingEngine {
   /**

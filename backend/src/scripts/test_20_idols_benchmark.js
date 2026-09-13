@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const BaziAnalyzer = require('../services/BaziAnalyzer');
+const BaziAnalyzer = require('../modules/bazi/services/BaziAnalyzer');
 
 const idols = [
   { id: 1, country: 'Mỹ (US-UK)', name: 'Michael Jackson', role: 'Vua nhạc Pop thế giới (King of Pop)', date: '29/08/1958', time: '23:45', gender: 1 },

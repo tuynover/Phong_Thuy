@@ -1,36 +1,36 @@
-const HistoryController = require('../../src/controllers/HistoryController');
+const HistoryController = require('../../src/modules/history/controllers/HistoryController');
 
 // Mock all dependencies
-jest.mock('../../src/models/IChingRecord');
-jest.mock('../../src/models/BaziRecord');
-jest.mock('../../src/models/ZiweiRecord');
-jest.mock('../../src/models/MarriageRecord');
-jest.mock('../../src/models/Conversation');
-jest.mock('../../src/models/Message');
-jest.mock('../../src/models/User');
-jest.mock('../../src/services/IChingDataService');
-jest.mock('../../src/services/BaziAnalyzer');
-jest.mock('../../src/services/MemoryCacheService', () => ({
+jest.mock('../../src/modules/iching/models/IChingRecord');
+jest.mock('../../src/modules/bazi/models/BaziRecord');
+jest.mock('../../src/modules/ziwei/models/ZiweiRecord');
+jest.mock('../../src/modules/bazi/models/MarriageRecord');
+jest.mock('../../src/core/models/Conversation');
+jest.mock('../../src/core/models/Message');
+jest.mock('../../src/core/models/User');
+jest.mock('../../src/modules/iching/services/IChingDataService');
+jest.mock('../../src/modules/bazi/services/BaziAnalyzer');
+jest.mock('../../src/core/services/MemoryCacheService', () => ({
     get: jest.fn(),
     set: jest.fn(),
     clearUserHistoryCache: jest.fn()
 }));
-jest.mock('../../src/services/UserStatsService', () => ({
+jest.mock('../../src/core/services/UserStatsService', () => ({
     incrementRecordCount: jest.fn(),
     updateUserStatsBackground: jest.fn()
 }));
-jest.mock('../../src/services/SseService', () => ({
+jest.mock('../../src/core/services/SseService', () => ({
     sendToAdmins: jest.fn()
 }));
-jest.mock('../../src/utils/transactionHelper', () => ({
+jest.mock('../../src/core/utils/transactionHelper', () => ({
     runInTransaction: jest.fn(async (fn) => fn(null)) // Execute callback with null session (no transaction)
 }));
 
-const IChingRecord = require('../../src/models/IChingRecord');
-const BaziRecord = require('../../src/models/BaziRecord');
-const User = require('../../src/models/User');
-const MemoryCacheService = require('../../src/services/MemoryCacheService');
-const { runInTransaction } = require('../../src/utils/transactionHelper');
+const IChingRecord = require('../../src/modules/iching/models/IChingRecord');
+const BaziRecord = require('../../src/modules/bazi/models/BaziRecord');
+const User = require('../../src/core/models/User');
+const MemoryCacheService = require('../../src/core/services/MemoryCacheService');
+const { runInTransaction } = require('../../src/core/utils/transactionHelper');
 
 // Helper to create chainable Mongoose query mock
 const createChainableQuery = (resolvedValue) => {
@@ -123,7 +123,7 @@ describe('HistoryController Unit Tests', () => {
         };
 
         IChingRecord.findById.mockResolvedValue(mockRecord);
-        const IChingDataService = require('../../src/services/IChingDataService');
+        const IChingDataService = require('../../src/modules/iching/services/IChingDataService');
         IChingDataService.parseLines.mockReturnValue({
             primaryLines: [], secondaryLines: []
         });

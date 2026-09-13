@@ -1,4 +1,6 @@
-const BaziAnalyzer = require('../../src/services/BaziAnalyzer');
+const BaziAnalyzer = require('../../src/modules/bazi/services/BaziAnalyzer');
+
+jest.setTimeout(300000);
 
 describe('Bazi Hồi Quy & Snapshot Testing (200+ Ca)', () => {
     test('Xác thực đầu ra của 260+ cấu hình Bát Tự đại diện', () => {

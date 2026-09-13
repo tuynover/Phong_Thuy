@@ -1,6 +1,6 @@
 const SymbolicAnalyzer = require('../shared/knowledge-engine/SymbolicAnalyzer');
-const ZiweiFormatter = require('../services/ZiweiFormatter');
-const ZiweiPrompts = require('../services/ZiweiPrompts');
+const ZiweiFormatter = require('../modules/ziwei/services/ZiweiFormatter');
+const ZiweiPrompts = require('../modules/ziwei/prompts/ZiweiPrompts');
 
 const sampleCharts = [
   {

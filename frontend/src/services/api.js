@@ -111,6 +111,38 @@ export const exportPdf = (type, id, scope = []) => {
   });
 };
 
+/**
+ * Tạo URL tải trực tiếp tệp PDF có gắn kèm Scope và Token xác thực
+ */
+export const getPdfExportUrl = (type, id, scope = []) => {
+  const token = localStorage.getItem('token');
+  const scopeStr = Array.isArray(scope) ? scope.join(',') : scope;
+  const params = new URLSearchParams();
+  if (scopeStr) params.append('scope', scopeStr);
+  if (token) params.append('token', token);
+  const queryString = params.toString();
+  return `${API_URL}/export/pdf/${type}/${id}${queryString ? `?${queryString}` : ''}`;
+};
+
+/**
+ * Kích hoạt luồng tải tệp tự nhiên của Trình duyệt (Native Browser Download Manager)
+ * Giúp hiển thị trực tiếp tiến trình "Đang tải xuống..." trên thanh Download của Chrome/Edge
+ */
+export const triggerNativePdfDownload = (type, id, scope = []) => {
+  const downloadUrl = getPdfExportUrl(type, id, scope);
+  const link = document.createElement('a');
+  link.href = downloadUrl;
+  link.setAttribute('download', '');
+  link.style.display = 'none';
+  document.body.appendChild(link);
+  link.click();
+  setTimeout(() => {
+    try {
+      if (link.parentNode) link.parentNode.removeChild(link);
+    } catch (e) {}
+  }, 1000);
+};
+
 // Blog API Endpoints
 export const getBlogPosts = (params) => axios.get(`${API_URL}/blog`, { params });
 export const getBlogPost = (slug) => axios.get(`${API_URL}/blog/${slug}`);

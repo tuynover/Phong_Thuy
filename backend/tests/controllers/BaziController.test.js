@@ -1,22 +1,22 @@
-const BaziController = require('../../src/controllers/BaziController');
+const BaziController = require('../../src/modules/bazi/controllers/BaziController');
 
 // Mock all dependencies
-jest.mock('../../src/models/BaziRecord');
-jest.mock('../../src/services/BaziAnalyzer');
-jest.mock('../../src/services/InputValidator');
-jest.mock('../../src/services/MemoryCacheService', () => ({
+jest.mock('../../src/modules/bazi/models/BaziRecord');
+jest.mock('../../src/modules/bazi/services/BaziAnalyzer');
+jest.mock('../../src/core/services/InputValidator');
+jest.mock('../../src/core/services/MemoryCacheService', () => ({
     clearUserHistoryCache: jest.fn()
 }));
-jest.mock('../../src/services/UserStatsService', () => ({
+jest.mock('../../src/core/services/UserStatsService', () => ({
     incrementRecordCount: jest.fn()
 }));
-jest.mock('../../src/services/SseService', () => ({
+jest.mock('../../src/core/services/SseService', () => ({
     sendToAdmins: jest.fn()
 }));
 
-const BaziRecord = require('../../src/models/BaziRecord');
-const BaziAnalyzer = require('../../src/services/BaziAnalyzer');
-const InputValidator = require('../../src/services/InputValidator');
+const BaziRecord = require('../../src/modules/bazi/models/BaziRecord');
+const BaziAnalyzer = require('../../src/modules/bazi/services/BaziAnalyzer');
+const InputValidator = require('../../src/core/services/InputValidator');
 
 const mockBaziResult = {
     solarTimeline: 'Dương lịch test',

@@ -1,5 +1,5 @@
-const BaziAnalyzer = require('../services/BaziAnalyzer');
-const BaziPrompts = require('../services/BaziPrompts');
+const BaziAnalyzer = require('../modules/bazi/services/BaziAnalyzer');
+const BaziPrompts = require('../modules/bazi/prompts/BaziPrompts');
 const BaziPrompts_vNext = require('../services/BaziPrompts_vNext');
 
 const dataset = [

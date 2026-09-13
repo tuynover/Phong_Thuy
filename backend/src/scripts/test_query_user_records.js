@@ -1,7 +1,7 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
-const User = require('../models/User');
-const BaziRecord = require('../models/BaziRecord');
+const User = require('../core/models/User');
+const BaziRecord = require('../core/models/BaziRecord');
 
 async function inspectUserRecords() {
     try {

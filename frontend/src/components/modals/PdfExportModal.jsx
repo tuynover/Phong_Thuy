@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { X, FileDown, CheckSquare, Square, AlertCircle, Loader2, Sparkles, ShieldAlert } from 'lucide-react';
-import { exportPdf } from '@/services/api';
+import { X, FileDown, CheckSquare, Square, AlertCircle, Sparkles, ShieldAlert } from 'lucide-react';
+import { exportPdf, triggerNativePdfDownload } from '@/services/api';
 
 export default function PdfExportModal({
   isOpen,
@@ -10,7 +10,8 @@ export default function PdfExportModal({
   recordData,
   hasInterpretation = false,
   interpretationMode = 'standard',
-  rawInterpretation = ''
+  rawInterpretation = '',
+  onDownloadStart
 }) {
   if (!isOpen) return null;
 
@@ -113,7 +114,6 @@ export default function PdfExportModal({
   ];
 
   const [selectedIds, setSelectedIds] = useState(allAvailableIds);
-  const [isDownloading, setIsDownloading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
@@ -143,73 +143,20 @@ export default function PdfExportModal({
   const selectedCount = selectedIds.length;
   const isNoneSelected = selectedCount === 0;
 
-  // Thực hiện tải file PDF
-  const handleDownloadPdf = async () => {
-    if (isNoneSelected || isDownloading) return;
+  // Thực hiện tải file PDF: Đóng modal ngay lập tức & Trình duyệt hiện "Đang tải xuống..."
+  const handleDownloadPdf = () => {
+    if (isNoneSelected) return;
 
-    setIsDownloading(true);
-    setErrorMessage('');
+    // 1. Đóng modal ngay lập tức để người dùng không phải chờ đợi
+    onClose();
 
-    try {
-      const response = await exportPdf(system, recordId, selectedIds);
-      
-      // Lấy tên file từ Content-Disposition nếu có
-      let filename = `La_So_${system.toUpperCase()}_${Date.now()}.pdf`;
-      const disposition = response.headers['content-disposition'];
-      if (disposition && disposition.includes('filename=')) {
-        const matches = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-        if (matches != null && matches[1]) {
-          filename = matches[1].replace(/['"]/g, '');
-        }
-      }
-
-      // Tạo Blob và trigger tải file
-      const blob = new Blob([response.data], { type: 'application/pdf' });
-      const downloadUrl = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(downloadUrl);
-
-      // Đóng modal sau khi tải xong thành công
-      setTimeout(() => {
-        setIsDownloading(false);
-        onClose();
-      }, 500);
-    } catch (err) {
-      setIsDownloading(false);
-      console.error('Lỗi khi tải PDF:', err);
-
-      if (err.response) {
-        let serverError = '';
-        if (err.response.data instanceof Blob) {
-          try {
-            const errorText = await err.response.data.text();
-            const parsed = JSON.parse(errorText);
-            serverError = parsed.error || parsed.message;
-          } catch (_) {}
-        } else if (err.response.data && err.response.data.error) {
-          serverError = err.response.data.error;
-        }
-
-        if (serverError) {
-          setErrorMessage(serverError);
-        } else if (err.response.status === 401) {
-          setErrorMessage('Vui lòng đăng nhập để tải bản ghi riêng tư này.');
-        } else if (err.response.status === 403) {
-          setErrorMessage('Bản ghi này ở chế độ riêng tư. Chỉ chính chủ sở hữu mới có quyền tải tệp PDF.');
-        } else if (err.response.status === 429) {
-          setErrorMessage('Bạn đã yêu cầu xuất tệp PDF quá nhanh (giới hạn 5 lượt/phút). Vui lòng đợi 1 phút trước khi thử lại.');
-        } else {
-          setErrorMessage('Không thể xuất tệp PDF vào lúc này. Vui lòng kiểm tra lại quyền truy cập hoặc thử lại sau.');
-        }
-      } else {
-        setErrorMessage('Lỗi kết nối tới máy chủ. Vui lòng kiểm tra đường truyền mạng.');
-      }
+    // 2. Kích hoạt thông báo nổi nếu component cha hỗ trợ
+    if (typeof onDownloadStart === 'function') {
+      onDownloadStart('Hệ thống đang chuẩn bị tệp PDF... Bạn có thể theo dõi tiến trình ở mục Tải về của trình duyệt.');
     }
+
+    // 3. Kích hoạt luồng tải tự nhiên của Trình duyệt (Chrome/Edge Native Download)
+    triggerNativePdfDownload(system, recordId, selectedIds);
   };
 
   return (
@@ -236,7 +183,6 @@ export default function PdfExportModal({
           </div>
           <button
             onClick={onClose}
-            disabled={isDownloading}
             className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-full transition-colors cursor-pointer"
           >
             <X size={20} />
@@ -250,7 +196,6 @@ export default function PdfExportModal({
             <button
               type="button"
               onClick={handleSelectAll}
-              disabled={isDownloading}
               className="px-2.5 py-1 text-blue-700 hover:bg-blue-50 rounded-lg transition-all cursor-pointer font-bold"
             >
               Chọn tất cả
@@ -259,7 +204,6 @@ export default function PdfExportModal({
             <button
               type="button"
               onClick={handleDeselectAll}
-              disabled={isDownloading}
               className="px-2.5 py-1 text-slate-500 hover:bg-slate-200 rounded-lg transition-all cursor-pointer font-bold"
             >
               Bỏ chọn tất cả
@@ -292,7 +236,7 @@ export default function PdfExportModal({
                 return (
                   <div
                     key={item.id}
-                    onClick={() => !isDownloading && toggleItem(item.id)}
+                    onClick={() => toggleItem(item.id)}
                     className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-start gap-3 select-none ${
                       isChecked
                         ? 'bg-amber-50/40 border-amber-300 shadow-sm'
@@ -346,7 +290,7 @@ export default function PdfExportModal({
                   return (
                     <div
                       key={item.id}
-                      onClick={() => !isDownloading && toggleItem(item.id)}
+                      onClick={() => toggleItem(item.id)}
                       className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-start gap-3 select-none ${
                         isChecked
                           ? 'bg-indigo-50/40 border-indigo-300 shadow-sm'
@@ -388,7 +332,6 @@ export default function PdfExportModal({
             <button
               type="button"
               onClick={onClose}
-              disabled={isDownloading}
               className="px-5 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-200/60 transition-all cursor-pointer"
             >
               Hủy bỏ
@@ -397,24 +340,15 @@ export default function PdfExportModal({
             <button
               type="button"
               onClick={handleDownloadPdf}
-              disabled={isNoneSelected || isDownloading}
+              disabled={isNoneSelected}
               className={`px-6 py-2.5 rounded-xl text-xs font-extrabold flex items-center gap-2 shadow-md transition-all ${
-                isNoneSelected || isDownloading
+                isNoneSelected
                   ? 'bg-slate-200 text-slate-400 cursor-not-allowed opacity-60 shadow-none'
                   : 'bg-amber-600 hover:bg-amber-700 text-white shadow-amber-600/20 active:scale-95 cursor-pointer'
               }`}
             >
-              {isDownloading ? (
-                <>
-                  <Loader2 size={16} className="animate-spin" />
-                  <span>Đang kết xuất PDF...</span>
-                </>
-              ) : (
-                <>
-                  <FileDown size={16} />
-                  <span>Tải Xuống Tệp PDF ({selectedCount})</span>
-                </>
-              )}
+              <FileDown size={16} />
+              <span>Tải Xuống Tệp PDF ({selectedCount})</span>
             </button>
           </div>
         </div>

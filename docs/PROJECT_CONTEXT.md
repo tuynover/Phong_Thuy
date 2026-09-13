@@ -110,5 +110,21 @@ Trước đây, mỗi phân hệ có các bảng hội thoại và tin nhắn ri
 - **Đồng Bộ Nút Thẻ Thư Mục (Tags):** Bổ sung đầy đủ Badge nhãn thẻ `🏷️ [Tên thẻ]` và nút Icon Tag 🏷️ cho cả 4 phân hệ (Kinh Dịch, Bát Tự, Tử Vi, Hôn Nhân) trên thẻ danh sách `HistoryBoard.jsx` và modal `MyFoldersModal.jsx`.
 - **Tự Động Tải Chi Tiết Lá Số (Full-Detail Fetching):** Xử lý bóc tách tự động các cấu trúc dữ liệu lồng `baziData`/`marriageData`/`analysisSnapshot` ở `BaziBoard.jsx` và `MarriageBoard.jsx`. Tự động kích hoạt gọi API `getBaziRecord(id)` và `getMarriageRecord(id)` khi bấm xem chi tiết từ Lịch sử / Lá số của tôi, khắc phục triệt để lỗi màn hình trắng hay trống trơn dữ liệu.
 
+### 4.11 Tái Cấu Trúc Backend Thành Kiến Trúc Module Độc Lập (Domain-Driven Modular Architecture - 09/2026)
+Hệ thống máy chủ Express.js v5 đã được tái cấu trúc toàn diện thành kiến trúc Domain-Driven Modular:
+- **Tách Biệt Ranh Giới Nghiệp Vụ (`src/modules/`):**
+  + Gộp phân hệ **Hôn Nhân (Marriage)** dùng chung module với **Bát Tự (Bazi)** tại `src/modules/bazi/` theo bản chất cổ học.
+  + Tách các phân hệ khác thành các module độc lập: `iching`, `ziwei`, `date`, `blog`, `auth`, `admin`, `notification`, `tts`, `export`, `history`.
+  + Mỗi module chứa đầy đủ: `controllers/`, `models/`, `services/`, `prompts/`, `routes/`.
+- **Tách Nhỏ Các File Khổng Lồ (> 800 dòng):**
+  + `AdminController.js` (957 dòng) $\rightarrow$ 4 controllers chuyên trách: `AdminUserController`, `AdminRecordController`, `AdminStatsController`, `AdminAppealController`.
+  + `HistoryController.js` (806 dòng) $\rightarrow$ 5 controllers chuyên trách theo từng môn: `GeneralHistoryController`, `BaziHistoryController`, `MarriageHistoryController`, `IChingHistoryController`, `ZiweiHistoryController`.
+  + `TtsController.js` (848 dòng) $\rightarrow$ `TtsController.js` + 3 dịch vụ chuyên biệt: `TtsAudioService`, `TtsCacheService`, `TtsTicketService`.
+  + `AiInterpretationController.js` (1060 dòng) $\rightarrow$ 4 controllers chuyên môn theo từng phân hệ: `BaziAiController`, `MarriageAiController`, `IChingAiController`, `ZiweiAiController`.
+- **Nền Tảng Dùng Chung (`src/core/` & `src/shared/`):**
+  + `src/core/`: Tập trung hạ tầng dùng chung (`config/`, `middleware/`, `services/`, `models/`, `ai/`, `controllers/`, `utils/`).
+  + `src/shared/`: Động cơ cổ học an sao và tri thức dùng chung (`AstrologyEngine`, `SymbolicAnalyzer`, `ungKyParser`, `astrologyHelpers`).
+- **Đường Dẫn Mới Trực Tiếp 100%:** Cập nhật trực tiếp 100% các câu lệnh `require` sang đường dẫn mới ở tất cả các routes, controllers, scripts và toàn bộ 35 Test Suites (257 bài test Jest), xóa bỏ hoàn toàn các tệp và thư mục cũ. Tỷ lệ kiểm thử thành công: **35/35 Test Suites PASSED (100%)**.
+
 
 

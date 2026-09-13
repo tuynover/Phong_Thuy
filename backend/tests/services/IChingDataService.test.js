@@ -1,4 +1,4 @@
-const IChingDataService = require('../../src/services/IChingDataService');
+const IChingDataService = require('../../src/modules/iching/services/IChingDataService');
 
 describe('IChingDataService Comprehensive Unit Tests', () => {
 

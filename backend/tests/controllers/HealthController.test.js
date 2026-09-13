@@ -1,7 +1,7 @@
-const HealthController = require('../../src/controllers/HealthController');
+const HealthController = require('../../src/core/controllers/HealthController');
 const mongoose = require('mongoose');
-const { isRedisConnected } = require('../../src/config/redis');
-const sseService = require('../../src/services/SseService');
+const { isRedisConnected } = require('../../src/core/config/redis');
+const sseService = require('../../src/core/services/SseService');
 
 jest.mock('mongoose', () => ({
   connection: {
@@ -11,11 +11,11 @@ jest.mock('mongoose', () => ({
   }
 }));
 
-jest.mock('../../src/config/redis', () => ({
+jest.mock('../../src/core/config/redis', () => ({
   isRedisConnected: jest.fn().mockReturnValue(true)
 }));
 
-jest.mock('../../src/services/SseService', () => ({
+jest.mock('../../src/core/services/SseService', () => ({
   getClientStats: jest.fn().mockReturnValue({
     adminClients: 1,
     uniqueUsers: 2,

@@ -6,7 +6,7 @@ const crypto = require('crypto');
 jest.mock('puppeteer', () => ({
   launch: jest.fn()
 }));
-jest.mock('../../src/config/redis', () => ({
+jest.mock('../../src/core/config/redis', () => ({
   redisClient: {
     get: jest.fn().mockResolvedValue(null),
     setex: jest.fn().mockResolvedValue('OK')
@@ -14,14 +14,14 @@ jest.mock('../../src/config/redis', () => ({
   isRedisConnected: jest.fn().mockReturnValue(true),
   withTimeout: jest.fn((p) => p)
 }));
-jest.mock('../../src/services/LoggerService', () => ({
+jest.mock('../../src/core/services/LoggerService', () => ({
   info: jest.fn(),
   warn: jest.fn(),
   error: jest.fn()
 }));
 
 const puppeteer = require('puppeteer');
-const pdfService = require('../../src/services/PdfGeneratorService');
+const pdfService = require('../../src/modules/export/services/PdfGeneratorService');
 const { PdfSemaphoreQueue } = pdfService;
 
 describe('PdfSemaphoreQueue Unit Tests', () => {

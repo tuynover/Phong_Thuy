@@ -1,5 +1,5 @@
-const UserStatsService = require('../../src/services/UserStatsService');
-const User = require('../../src/models/User');
+const UserStatsService = require('../../src/core/services/UserStatsService');
+const User = require('../../src/core/models/User');
 
 describe('UserStatsService O(1) Atomic Increments Tests', () => {
     test('incrementRecordCount should issue $inc for specified system count', async () => {

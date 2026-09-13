@@ -1,7 +1,7 @@
 require('dotenv').config();
-const BaziAnalyzer = require('../services/BaziAnalyzer');
-const BaziPrompts = require('../services/BaziPrompts');
-const AiService = require('../services/AiService');
+const BaziAnalyzer = require('../modules/bazi/services/BaziAnalyzer');
+const BaziPrompts = require('../modules/bazi/prompts/BaziPrompts');
+const AiService = require('../core/ai/AiService');
 const { Lunar } = require('lunar-javascript');
 
 async function testUserCase() {

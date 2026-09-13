@@ -911,6 +911,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
         hasInterpretation={Boolean(interpretation || result?.aiInterpretation?.content)}
         interpretationMode={interpretationMode}
         rawInterpretation={interpretation || result?.aiInterpretation?.content || ''}
+        onDownloadStart={(msg) => setToastMsg(msg)}
       />
 
       {toastMsg && <FloatingNotificationToast message={toastMsg} onClose={() => setToastMsg('')} />}

@@ -1161,6 +1161,7 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
                     hasInterpretation={Boolean(interpretation || data?.aiInterpretation?.content || data?.aiInterpretation)}
                     interpretationMode={interpretationMode}
                     rawInterpretation={interpretation || data?.aiInterpretation?.content || ''}
+                    onDownloadStart={(msg) => setToastMsg(msg)}
                 />
             )}
 

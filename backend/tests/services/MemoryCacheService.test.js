@@ -1,4 +1,4 @@
-const MemoryCacheService = require('../../src/services/MemoryCacheService');
+const MemoryCacheService = require('../../src/core/services/MemoryCacheService');
 
 describe('MemoryCacheService LRU & Eviction Unit Tests', () => {
     beforeEach(() => {

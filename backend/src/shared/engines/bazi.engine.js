@@ -1,4 +1,4 @@
-const BaziAnalyzer = require('../../services/BaziAnalyzer');
+const BaziAnalyzer = require('../../modules/bazi/services/BaziAnalyzer');
 
 class BaziEngine {
   /**

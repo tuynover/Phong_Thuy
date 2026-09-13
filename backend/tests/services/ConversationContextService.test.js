@@ -1,4 +1,4 @@
-const ConversationContextService = require('../../src/services/ConversationContextService');
+const ConversationContextService = require('../../src/core/ai/ConversationContextService');
 
 describe('ConversationContextService - isDivinationRelated (Weighted Intent Scoring)', () => {
     test('rejects programming, code generation and jailbreak queries', () => {

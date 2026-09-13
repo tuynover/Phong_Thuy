@@ -1,32 +1,32 @@
-const HistoryController = require('../../src/controllers/HistoryController');
+const HistoryController = require('../../src/modules/history/controllers/HistoryController');
 
-jest.mock('../../src/models/IChingRecord');
-jest.mock('../../src/models/BaziRecord');
-jest.mock('../../src/models/ZiweiRecord');
-jest.mock('../../src/models/MarriageRecord');
-jest.mock('../../src/models/Conversation');
-jest.mock('../../src/models/Message');
-jest.mock('../../src/models/User');
-jest.mock('../../src/services/MemoryCacheService', () => ({
+jest.mock('../../src/modules/iching/models/IChingRecord');
+jest.mock('../../src/modules/bazi/models/BaziRecord');
+jest.mock('../../src/modules/ziwei/models/ZiweiRecord');
+jest.mock('../../src/modules/bazi/models/MarriageRecord');
+jest.mock('../../src/core/models/Conversation');
+jest.mock('../../src/core/models/Message');
+jest.mock('../../src/core/models/User');
+jest.mock('../../src/core/services/MemoryCacheService', () => ({
     get: jest.fn(),
     set: jest.fn(),
     clearUserHistoryCache: jest.fn()
 }));
-jest.mock('../../src/services/UserStatsService', () => ({
+jest.mock('../../src/core/services/UserStatsService', () => ({
     incrementRecordCount: jest.fn(),
     updateUserStatsBackground: jest.fn()
 }));
-jest.mock('../../src/services/SseService', () => ({
+jest.mock('../../src/core/services/SseService', () => ({
     sendToAdmins: jest.fn()
 }));
-jest.mock('../../src/utils/transactionHelper', () => ({
+jest.mock('../../src/core/utils/transactionHelper', () => ({
     runInTransaction: jest.fn(async (fn) => fn(null))
 }));
 
-const IChingRecord = require('../../src/models/IChingRecord');
-const BaziRecord = require('../../src/models/BaziRecord');
-const ZiweiRecord = require('../../src/models/ZiweiRecord');
-const MarriageRecord = require('../../src/models/MarriageRecord');
+const IChingRecord = require('../../src/modules/iching/models/IChingRecord');
+const BaziRecord = require('../../src/modules/bazi/models/BaziRecord');
+const ZiweiRecord = require('../../src/modules/ziwei/models/ZiweiRecord');
+const MarriageRecord = require('../../src/modules/bazi/models/MarriageRecord');
 
 const createChainableQuery = (resolvedValue) => {
     return {

@@ -1,0 +1,62 @@
+const express = require('express');
+const router = express.Router();
+const AuthController = require('../controllers/AuthController');
+const rateLimiter = require('../../../core/middleware/rateLimiter');
+const auth = require('../../../core/middleware/auth');
+const sseService = require('../../../core/services/SseService');
+
+// Giới hạn 10 lần đăng ký/đăng nhập trong 15 phút để chống brute-force
+const authLimiter = rateLimiter({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    message: 'Bạn đã thử đăng ký hoặc đăng nhập quá nhiều lần. Vui lòng quay lại sau 15 phút.'
+});
+
+router.post('/register', authLimiter, AuthController.register);
+router.post('/login', authLimiter, AuthController.login);
+router.post('/google', authLimiter, AuthController.googleLogin);
+router.put('/bazi', auth, AuthController.updateBaziInfo);
+router.put('/profile', auth, AuthController.updateProfile);
+router.put('/change-password', auth, AuthController.changePassword);
+router.post('/logout', auth, AuthController.logout);
+router.post('/appeal', AuthController.submitAppeal);
+router.post('/send-verification-email', auth, AuthController.sendVerificationEmail);
+router.post('/verify-email', auth, AuthController.verifyEmail);
+router.post('/forgot-password', authLimiter, AuthController.forgotPassword);
+router.post('/reset-password', authLimiter, AuthController.resetPassword);
+
+const sendUserProfile = (req, res) => {
+  const userId = req.dbUser.id || req.dbUser._id;
+  res.json({
+    id: userId,
+    _id: userId,
+    email: req.dbUser.email,
+    name: req.dbUser.name,
+    baziInfo: req.dbUser.baziInfo,
+    gender: req.dbUser.gender,
+    phone: req.dbUser.phone || "",
+    role: req.dbUser.role,
+    credits: req.dbUser.credits,
+    status: req.dbUser.status,
+    isDeleted: req.dbUser.isDeleted,
+    isEmailVerified: req.dbUser.isEmailVerified || false,
+    stats: req.dbUser.stats || {},
+    tags: req.dbUser.tags || []
+  });
+};
+
+router.get('/me', auth, sendUserProfile);
+router.get('/profile', auth, sendUserProfile);
+router.get('/vip-status', auth, (req, res) => {
+  res.json({
+    role: req.dbUser.role,
+    credits: req.dbUser.credits,
+    isVip: req.dbUser.role === 'vip' || req.dbUser.role === 'admin'
+  });
+});
+
+router.get('/events', auth, (req, res) => {
+  sseService.addUserClient(req.dbUser.id || req.dbUser._id.toString(), req, res);
+});
+
+module.exports = router;

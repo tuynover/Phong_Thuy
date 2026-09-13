@@ -1,5 +1,5 @@
-const AuthController = require('../../src/controllers/AuthController');
-const sseService = require('../../src/services/SseService');
+const AuthController = require('../../src/modules/auth/controllers/AuthController');
+const sseService = require('../../src/core/services/SseService');
 
 describe('AuthController Integrity & Reference Tests', () => {
     test('AuthController should load without any ReferenceError', () => {

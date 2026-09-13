@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const BaziAnalyzer = require('../services/BaziAnalyzer');
+const BaziAnalyzer = require('../modules/bazi/services/BaziAnalyzer');
 
 /**
  * BỘ TẬP TẮC TEST CASE TOÀN DIỆN CHO TẤT CẢ CÁCH CỤC & DỤNG THẦN BÁT TỰ

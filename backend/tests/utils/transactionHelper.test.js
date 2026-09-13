@@ -1,4 +1,4 @@
-const { runInTransaction } = require('../../src/utils/transactionHelper');
+const { runInTransaction } = require('../../src/core/utils/transactionHelper');
 const mongoose = require('mongoose');
 
 describe('transactionHelper Unit Tests', () => {

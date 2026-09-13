@@ -2,25 +2,25 @@ const fs = require('fs');
 const path = require('path');
 
 // Mock dependencies of NotificationScheduler so test runs in isolation
-jest.mock('../../src/models/IChingRecord', () => ({ find: jest.fn().mockResolvedValue([]) }));
-jest.mock('../../src/models/User', () => ({ find: jest.fn().mockResolvedValue([]), findById: jest.fn().mockResolvedValue(null) }));
-jest.mock('../../src/models/Notification', () => ({ deleteMany: jest.fn().mockResolvedValue({}) }));
-jest.mock('../../src/models/SystemLog', () => ({ countDocuments: jest.fn().mockResolvedValue(0) }));
-jest.mock('../../src/models/AdminNotification', () => ({ create: jest.fn().mockResolvedValue({}) }));
-jest.mock('../../src/models/BaziRecord', () => ({ deleteMany: jest.fn().mockResolvedValue({}) }));
-jest.mock('../../src/models/ZiweiRecord', () => ({ deleteMany: jest.fn().mockResolvedValue({}) }));
-jest.mock('../../src/models/MarriageRecord', () => ({ deleteMany: jest.fn().mockResolvedValue({}) }));
-jest.mock('../../src/models/Conversation', () => ({ deleteMany: jest.fn().mockResolvedValue({}) }));
-jest.mock('../../src/models/Message', () => ({ deleteMany: jest.fn().mockResolvedValue({}) }));
-jest.mock('../../src/models/BanAppeal', () => ({ deleteMany: jest.fn().mockResolvedValue({}) }));
-jest.mock('../../src/services/EmailService', () => ({ sendNotificationEmail: jest.fn().mockResolvedValue(true) }));
-jest.mock('../../src/services/LoggerService', () => ({
+jest.mock('../../src/modules/iching/models/IChingRecord', () => ({ find: jest.fn().mockResolvedValue([]) }));
+jest.mock('../../src/core/models/User', () => ({ find: jest.fn().mockResolvedValue([]), findById: jest.fn().mockResolvedValue(null) }));
+jest.mock('../../src/modules/notification/models/Notification', () => ({ deleteMany: jest.fn().mockResolvedValue({}) }));
+jest.mock('../../src/modules/admin/models/SystemLog', () => ({ countDocuments: jest.fn().mockResolvedValue(0) }));
+jest.mock('../../src/modules/admin/models/AdminNotification', () => ({ create: jest.fn().mockResolvedValue({}) }));
+jest.mock('../../src/modules/bazi/models/BaziRecord', () => ({ deleteMany: jest.fn().mockResolvedValue({}) }));
+jest.mock('../../src/modules/ziwei/models/ZiweiRecord', () => ({ deleteMany: jest.fn().mockResolvedValue({}) }));
+jest.mock('../../src/modules/bazi/models/MarriageRecord', () => ({ deleteMany: jest.fn().mockResolvedValue({}) }));
+jest.mock('../../src/core/models/Conversation', () => ({ deleteMany: jest.fn().mockResolvedValue({}) }));
+jest.mock('../../src/core/models/Message', () => ({ deleteMany: jest.fn().mockResolvedValue({}) }));
+jest.mock('../../src/modules/admin/models/BanAppeal', () => ({ deleteMany: jest.fn().mockResolvedValue({}) }));
+jest.mock('../../src/modules/auth/services/EmailService', () => ({ sendNotificationEmail: jest.fn().mockResolvedValue(true) }));
+jest.mock('../../src/core/services/LoggerService', () => ({
   info: jest.fn(),
   warn: jest.fn(),
   error: jest.fn()
 }));
 
-const { purgeExpiredCacheFiles, stopScheduler } = require('../../src/services/NotificationScheduler');
+const { purgeExpiredCacheFiles, stopScheduler } = require('../../src/modules/notification/services/NotificationScheduler');
 
 describe('NotificationScheduler Cache Pruning Unit Tests', () => {
   const testPdfDir = path.join(__dirname, '../../scratch/pdf_cache');

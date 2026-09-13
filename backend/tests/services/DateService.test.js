@@ -1,4 +1,4 @@
-const DateService = require('../../src/services/DateService');
+const DateService = require('../../src/modules/date/services/DateService');
 
 describe('DateService Unit Tests', () => {
     // ==================== getUserYearInfo (3 tests) ====================

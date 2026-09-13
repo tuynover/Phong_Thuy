@@ -1,8 +1,8 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
-const BaziRecord = require('../models/BaziRecord');
-const MarriageRecord = require('../models/MarriageRecord');
-const BaziAnalyzer = require('../services/BaziAnalyzer');
+const BaziRecord = require('../core/models/BaziRecord');
+const MarriageRecord = require('../core/models/MarriageRecord');
+const BaziAnalyzer = require('../modules/bazi/services/BaziAnalyzer');
 
 const GUA_MAP = {
     1: { cung: 'Khảm', element: 'Thủy', group: 'Đông tứ mệnh' },

@@ -8,7 +8,33 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
 
 ## 🏗️ Cấu trúc dự án
 
-- `/backend`: Mã nguồn máy chủ (Node.js / Express.js v5 / MongoDB / Redis).
+- `/backend`: Mã nguồn máy chủ (Node.js / Express.js v5 / MongoDB / Redis), tổ chức theo kiến trúc module chuyên trách (Domain-Driven Modular Architecture):
+  ```text
+  backend/src/
+    ├── core/                    # Nền tảng cốt lõi dùng chung (Core Infrastructure)
+    │   ├── ai/                  # Dịch vụ AI & stream (AiService, AiStreamHelper, ConversationContextService)
+    │   ├── config/              # Cấu hình hệ thống (db, env, redis, ai, swagger)
+    │   ├── controllers/         # Controller hệ thống (HealthController)
+    │   ├── middleware/          # Middleware bảo vệ (auth, creditCheck, rateLimiter, logging, antiSpamLock...)
+    │   ├── models/              # Mô hình tài khoản & chat (User, Conversation, Message)
+    │   ├── services/            # Dịch vụ lõi (Logger, Cache, UserStats, SSE, RedisQueue, GoogleIndexing...)
+    │   └── utils/               # Tiện ích bổ trợ (aiFormatters, transactionHelper, escapeRegExp)
+    ├── modules/                 # Các phân hệ chuyên trách độc lập (Domain Modules)
+    │   ├── bazi/                # Bát Tự & Hợp Hôn (Bazi + Marriage controllers, models, services, prompts, data)
+    │   ├── ziwei/               # Tử Vi Đẩu Số (controllers, models, services, prompts, routes)
+    │   ├── iching/              # Kinh Dịch Lục Hào (controllers, models, services, prompts, routes)
+    │   ├── date/                # Xem Ngày Lành (controllers, services, routes)
+    │   ├── blog/                # Blog & Khái Niệm (controllers, models, services, routes)
+    │   ├── auth/                # Xác Thực & Thẻ Tag (controllers, routes, services)
+    │   ├── admin/               # Quản Trị Hệ Thống (controllers tách nhỏ, models, routes)
+    │   ├── history/             # Lịch Sử Bản Ghi (controllers tách nhỏ theo môn, routes)
+    │   ├── notification/        # Thông Báo Tự Động (controllers, services, routes)
+    │   ├── tts/                 # Đọc Luận Giải AI (controllers, audio services, cache)
+    │   └── export/              # Xuất Bản PDF A4 (controllers, templates, generators)
+    ├── routes/                  # Điểm kết nối router gốc (index.js, ai.js, seo.js)
+    ├── shared/                  # Động cơ & tri thức cổ học dùng chung (AstrologyEngine, SymbolicAnalyzer, ungKyParser)
+    └── scripts/                 # Kịch bản kiểm thử & bảo trì cơ sở dữ liệu
+  ```
 - `/frontend`: Mã nguồn giao diện người dùng (React 19 / Vite / Tailwind CSS), tổ chức theo kiến trúc module hướng miền (Domain-Driven Architecture):
   ```text
   frontend/src/

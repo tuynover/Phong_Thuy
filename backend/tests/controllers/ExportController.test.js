@@ -1,30 +1,30 @@
-const ExportController = require('../../src/controllers/ExportController');
+const ExportController = require('../../src/modules/export/controllers/ExportController');
 
 // Mock models and services
-jest.mock('../../src/models/BaziRecord');
-jest.mock('../../src/models/ZiweiRecord');
-jest.mock('../../src/models/IChingRecord');
-jest.mock('../../src/models/MarriageRecord');
-jest.mock('../../src/models/SystemLog', () => ({
+jest.mock('../../src/modules/bazi/models/BaziRecord');
+jest.mock('../../src/modules/ziwei/models/ZiweiRecord');
+jest.mock('../../src/modules/iching/models/IChingRecord');
+jest.mock('../../src/modules/bazi/models/MarriageRecord');
+jest.mock('../../src/modules/admin/models/SystemLog', () => ({
     create: jest.fn().mockResolvedValue({})
 }));
-jest.mock('../../src/services/PdfGeneratorService', () => ({
+jest.mock('../../src/modules/export/services/PdfGeneratorService', () => ({
     renderHtmlToPdf: jest.fn().mockResolvedValue({
         buffer: Buffer.from('%PDF-1.4 mock pdf content'),
         isCacheHit: false
     })
 }));
-jest.mock('../../src/services/LoggerService', () => ({
+jest.mock('../../src/core/services/LoggerService', () => ({
     info: jest.fn(),
     warn: jest.fn(),
     error: jest.fn()
 }));
 
-const BaziRecord = require('../../src/models/BaziRecord');
-const ZiweiRecord = require('../../src/models/ZiweiRecord');
-const IChingRecord = require('../../src/models/IChingRecord');
-const MarriageRecord = require('../../src/models/MarriageRecord');
-const PdfGeneratorService = require('../../src/services/PdfGeneratorService');
+const BaziRecord = require('../../src/modules/bazi/models/BaziRecord');
+const ZiweiRecord = require('../../src/modules/ziwei/models/ZiweiRecord');
+const IChingRecord = require('../../src/modules/iching/models/IChingRecord');
+const MarriageRecord = require('../../src/modules/bazi/models/MarriageRecord');
+const PdfGeneratorService = require('../../src/modules/export/services/PdfGeneratorService');
 
 describe('ExportController Unit Tests', () => {
     let req, res;

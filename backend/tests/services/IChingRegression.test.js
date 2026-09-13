@@ -1,4 +1,4 @@
-const IChingDataService = require('../../src/services/IChingDataService');
+const IChingDataService = require('../../src/modules/iching/services/IChingDataService');
 
 describe('IChing Hồi Quy & Snapshot Testing (32 Ca)', () => {
     test('Xác thực đầu ra của 32 cấu hình Kinh Dịch đại diện', () => {

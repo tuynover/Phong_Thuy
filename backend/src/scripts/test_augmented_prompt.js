@@ -1,5 +1,5 @@
-const BaziAnalyzer = require('../services/BaziAnalyzer');
-const BaziPrompts = require('../services/BaziPrompts');
+const BaziAnalyzer = require('../modules/bazi/services/BaziAnalyzer');
+const BaziPrompts = require('../modules/bazi/prompts/BaziPrompts');
 
 const testCases = [
     { name: 'Jack Ma (Mã Vân)', date: '10/09/1964', time: '09:15', gender: 1 },

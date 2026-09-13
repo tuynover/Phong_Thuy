@@ -1,20 +1,20 @@
-const MarriageController = require('../../src/controllers/MarriageController');
+const MarriageController = require('../../src/modules/bazi/controllers/MarriageController');
 
 // Mock all dependencies
-jest.mock('../../src/models/MarriageRecord');
-jest.mock('../../src/services/BaziAnalyzer');
-jest.mock('../../src/services/MemoryCacheService', () => ({
+jest.mock('../../src/modules/bazi/models/MarriageRecord');
+jest.mock('../../src/modules/bazi/services/BaziAnalyzer');
+jest.mock('../../src/core/services/MemoryCacheService', () => ({
     clearUserHistoryCache: jest.fn()
 }));
-jest.mock('../../src/services/UserStatsService', () => ({
+jest.mock('../../src/core/services/UserStatsService', () => ({
     incrementRecordCount: jest.fn()
 }));
-jest.mock('../../src/services/SseService', () => ({
+jest.mock('../../src/core/services/SseService', () => ({
     sendToAdmins: jest.fn()
 }));
 
-const MarriageRecord = require('../../src/models/MarriageRecord');
-const BaziAnalyzer = require('../../src/services/BaziAnalyzer');
+const MarriageRecord = require('../../src/modules/bazi/models/MarriageRecord');
+const BaziAnalyzer = require('../../src/modules/bazi/services/BaziAnalyzer');
 
 const mockBaziResult = {
     solarTimeline: 'Test',

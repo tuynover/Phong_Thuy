@@ -1,4 +1,4 @@
-const pdfTemplateService = require('../../src/services/PdfTemplateService');
+const pdfTemplateService = require('../../src/modules/export/services/PdfTemplateService');
 
 describe('PdfTemplateService Unit Tests', () => {
     describe('Bazi PDF Generation', () => {

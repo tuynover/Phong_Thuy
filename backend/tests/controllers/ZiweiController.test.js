@@ -1,20 +1,20 @@
-const ZiweiController = require('../../src/controllers/ZiweiController');
+const ZiweiController = require('../../src/modules/ziwei/controllers/ZiweiController');
 
 // Mock dependencies
-jest.mock('../../src/models/ZiweiRecord');
-jest.mock('../../src/services/InputValidator');
-jest.mock('../../src/services/ZiweiFormatter');
-jest.mock('../../src/services/ZiweiCache');
+jest.mock('../../src/modules/ziwei/models/ZiweiRecord');
+jest.mock('../../src/core/services/InputValidator');
+jest.mock('../../src/modules/ziwei/services/ZiweiFormatter');
+jest.mock('../../src/modules/ziwei/services/ZiweiCache');
 jest.mock('../../src/shared/engines/AstrologyEngine', () => ({
     generate: jest.fn()
 }));
-jest.mock('../../src/services/MemoryCacheService', () => ({
+jest.mock('../../src/core/services/MemoryCacheService', () => ({
     clearUserHistoryCache: jest.fn()
 }));
-jest.mock('../../src/services/UserStatsService', () => ({
+jest.mock('../../src/core/services/UserStatsService', () => ({
     incrementRecordCount: jest.fn()
 }));
-jest.mock('../../src/services/SseService', () => ({
+jest.mock('../../src/core/services/SseService', () => ({
     sendToAdmins: jest.fn()
 }));
 jest.mock('mongoose', () => {
@@ -27,10 +27,10 @@ jest.mock('mongoose', () => {
     };
 });
 
-const ZiweiRecord = require('../../src/models/ZiweiRecord');
-const InputValidator = require('../../src/services/InputValidator');
-const ZiweiFormatter = require('../../src/services/ZiweiFormatter');
-const ZiweiCache = require('../../src/services/ZiweiCache');
+const ZiweiRecord = require('../../src/modules/ziwei/models/ZiweiRecord');
+const InputValidator = require('../../src/core/services/InputValidator');
+const ZiweiFormatter = require('../../src/modules/ziwei/services/ZiweiFormatter');
+const ZiweiCache = require('../../src/modules/ziwei/services/ZiweiCache');
 const AstrologyEngine = require('../../src/shared/engines/AstrologyEngine');
 
 describe('ZiweiController Comprehensive Unit Tests', () => {

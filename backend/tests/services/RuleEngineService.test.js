@@ -1,4 +1,4 @@
-const RuleEngineService = require('../../src/services/RuleEngineService');
+const RuleEngineService = require('../../src/modules/iching/services/RuleEngineService');
 
 describe('RuleEngineService Unit Tests', () => {
     // ==================== EXISTING TESTS (4) ====================

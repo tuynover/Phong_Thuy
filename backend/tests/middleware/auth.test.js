@@ -1,15 +1,15 @@
 // Mock dependencies BEFORE requiring the middleware
 jest.mock('jsonwebtoken');
-jest.mock('../../src/models/User');
-jest.mock('../../src/config/redis', () => ({
+jest.mock('../../src/core/models/User');
+jest.mock('../../src/core/config/redis', () => ({
     getUserProfileCache: jest.fn(),
     setUserProfileCache: jest.fn()
 }));
 
 const jwt = require('jsonwebtoken');
-const User = require('../../src/models/User');
-const { getUserProfileCache, setUserProfileCache } = require('../../src/config/redis');
-const authMiddleware = require('../../src/middleware/auth');
+const User = require('../../src/core/models/User');
+const { getUserProfileCache, setUserProfileCache } = require('../../src/core/config/redis');
+const authMiddleware = require('../../src/core/middleware/auth');
 
 describe('Auth Middleware Unit Tests', () => {
     let req, res, next;

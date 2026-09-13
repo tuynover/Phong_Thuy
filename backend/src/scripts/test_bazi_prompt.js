@@ -1,5 +1,5 @@
-const BaziAnalyzer = require('../services/BaziAnalyzer');
-const BaziPrompts = require('../services/BaziPrompts');
+const BaziAnalyzer = require('../modules/bazi/services/BaziAnalyzer');
+const BaziPrompts = require('../modules/bazi/prompts/BaziPrompts');
 
 try {
     const baziData = BaziAnalyzer.analyze('15/12/1995', '10:30', 1);

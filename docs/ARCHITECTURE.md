@@ -48,60 +48,96 @@ graph TD
         end
     end
 
-    subgraph Backend [Express.js v5]
-        Routes[routes/index.js] --> Middleware{Middleware}
-        Middleware --> AuthM[auth.js / adminAuth.js]
-        Middleware --> CreditM[creditCheck.js]
-        Middleware --> LogM[logging.js]
-        Middleware --> RateLim[rateLimiter.js]
+    subgraph Backend [Express.js v5 - Kiến Trúc Modular / Domain-Driven]
+        Routes[routes/index.js] --> CoreMW[core/middleware/*]
+        CoreMW --> AuthM[auth.js / adminAuth.js]
+        CoreMW --> CreditM[creditCheck.js]
+        CoreMW --> LogM[logging.js]
+        CoreMW --> RateLim[rateLimiter.js]
         
-        AuthM & CreditM & LogM & RateLim --> Controllers[Controllers]
+        Routes --> CoreControllers[core/controllers/*]
+        Routes --> Modules[modules/*]
         
-        Controllers --> AuthC[AuthController.js]
-        Controllers --> IChingC[IChingController.js]
-        Controllers --> BaziC[BaziController.js]
-        Controllers --> ZiweiC[ZiweiController.js]
-        Controllers --> MarriageC[MarriageController.js]
-        Controllers --> AiC[AiInterpretationController.js]
-        Controllers --> HistC[HistoryController.js]
-        Controllers --> AdminC[AdminController.js]
-        Controllers --> ConceptC[ConceptController.js]
-        Controllers --> NotifC[NotificationController.js]
+        subgraph CoreLayer [src/core/* - Nền Tảng Dùng Chung]
+            CoreControllers --> HealthC[HealthController.js]
+            CoreAI[core/ai/*] --> AiS[AiService.js]
+            CoreAI --> ConvCtxS[ConversationContextService.js]
+            CoreAI --> AiStreamH[AiStreamHelper.js]
+            CoreServices[core/services/*] --> LoggerS[LoggerService.js]
+            CoreServices --> MemCacheS[MemoryCacheService.js]
+            CoreServices --> UserStatsS[UserStatsService.js]
+            CoreServices --> SseS[SseService.js]
+            CoreServices --> RedisQueueS[RedisQueueService.js]
+            CoreServices --> GoogleIndexS[GoogleIndexingService.js]
+            CoreModels[core/models/*] --> UserM[User.js]
+            CoreModels --> ConvM[Conversation.js]
+            CoreModels --> MsgM[Message.js]
+        end
         
-        Controllers --> Services[Services & Logic]
-        
-        Services --> RuleEng[RuleEngineService.js]
-        Services --> BaziAna[BaziAnalyzer.js]
-        Services --> ZiweiF[ZiweiFormatter.js]
-        Services --> AiS[AiService.js]
-        Services --> DeepCore[deep-interpretation/DeepInterpretationCore.js]
-        Services --> DeepConfigs[deep-interpretation/DeepInterpretationConfigs.js]
-        Services --> DeepPipelines[deep-interpretation/DeepInterpretationPipelines.js]
-        Services --> MultiAgent[MultiAgentPipelineService.js / Facade]
-        Services --> SseS[SseService.js]
-        Services --> SchedS[NotificationScheduler.js]
-        Services --> ConvCtxS[ConversationContextService.js]
-        Services --> EmailS[EmailService.js]
-        Services --> IChingDataS[IChingDataService.js]
-        Services --> InputVal[InputValidator.js]
-        Services --> LoggerS[LoggerService.js]
-        Services --> MemCacheS[MemoryCacheService.js]
-        Services --> UserStatsS[UserStatsService.js]
-        Services --> ZiweiCache[ZiweiCache.js]
-        Services --> ZiweiVal[ZiweiValidators.js]
-        Services --> PdfGen[PdfGeneratorService.js]
-        Services --> AiLimiter[deep-interpretation/AiConcurrencyLimiter.js]
+        subgraph DomainModules [src/modules/* - Phân Hệ Chuyên Trách Độc Lập]
+            Modules --> BaziMod[modules/bazi/ - Bát Tự & Hôn Nhân]
+            Modules --> ZiweiMod[modules/ziwei/ - Tử Vi Đẩu Số]
+            Modules --> IChingMod[modules/iching/ - Kinh Dịch Lục Hào]
+            Modules --> DateMod[modules/date/ - Xem Ngày Tốt Xấu]
+            Modules --> BlogMod[modules/blog/ - Blog & Khái Niệm]
+            Modules --> AuthMod[modules/auth/ - Xác Thực & Tag]
+            Modules --> AdminMod[modules/admin/ - Quản Trị Hệ Thống]
+            Modules --> NotifMod[modules/notification/ - Thông Báo]
+            Modules --> TtsMod[modules/tts/ - Chuyển Văn Bản Âm Thanh]
+            Modules --> ExportMod[modules/export/ - Xuất Bản PDF A4]
+            Modules --> HistMod[modules/history/ - Lịch Sử Đa Phân Hệ]
+        end
+
+        subgraph SharedEngines [src/shared/* - Cổ Học Dùng Chung]
+            AstrologyEngine[engines/AstrologyEngine.js]
+            SymbolicAnalyzer[knowledge-engine/SymbolicAnalyzer.js]
+            UngKyParser[utils/ungKyParser.js]
+            AstrologyHelpers[utils/astrologyHelpers.js]
+        end
     end
 
     subgraph Database [MongoDB]
-        Models[Mongoose Models]
-        Models --> DB[(MongoDB Collections)]
+        CoreModels --> DB[(MongoDB Collections)]
+        BaziMod --> DB
+        ZiweiMod --> DB
+        IChingMod --> DB
+        BlogMod --> DB
+        AdminMod --> DB
     end
 
     Frontend -- REST APIs / HTTP --> Routes
     Frontend -- SSE Stream --> Routes
-    Services --> Models
+    DomainModules --> CoreLayer
+    DomainModules --> SharedEngines
 ```
+
+### 1.1 Kiến Trúc Backend Theo Module (Domain-Driven Modular Backend)
+Toàn bộ mã nguồn Backend (`backend/src`) được tái cấu trúc thành 3 tầng phân cấp rõ ràng, tách biệt ranh giới nghiệp vụ:
+- **`src/core/` (Nền Tảng Cốt Lõi Dùng Chung):**
+  + `config/`: Cấu hình hệ thống (`db.js`, `env.js`, `redis.js`, `ai.js`, `swagger.json`).
+  + `models/`: Các mô hình dữ liệu tài khoản và hội thoại (`User.js`, `Conversation.js`, `Message.js`).
+  + `middleware/`: Kiểm soát truy cập và bảo vệ hệ thống (`auth.js`, `adminAuth.js`, `creditCheck.js`, `chatCreditCheck.js`, `rateLimiter.js`, `logging.js`, `checkRecordOwnership.js`, `checkHistoryOwnership.js`, `optionalAuth.js`, `antiSpamLock.js`).
+  + `services/`: Dịch vụ hạ tầng (`LoggerService.js`, `MemoryCacheService.js`, `UserStatsService.js`, `SseService.js`, `RedisQueueService.js`, `GoogleIndexingService.js`, `InputValidator.js`, `HistoryQueryHelper.js`).
+  + `ai/`: Lớp trừu tượng gọi AI (`AiService.js`, `AiStreamHelper.js`, `ConversationContextService.js`).
+  + `controllers/`: Controller dùng chung cấp hệ thống (`HealthController.js`).
+  + `utils/`: Tiện ích dùng chung (`aiFormatters.js`, `escapeRegExp.js`, `transactionHelper.js`).
+- **`src/modules/` (Các Phân Hệ Chuyên Trách Độc Lập):**
+  + **`bazi/` (Bát Tự & Hợp Hôn):** Phân hệ Hôn nhân được tích hợp chung module với Bát Tự theo nghiệp vụ phong thủy. Chứa `controllers/` (`BaziController`, `MarriageController`, `BaziAiController`, `MarriageAiController`), `models/` (`BaziRecord`, `MarriageRecord`), `services/` (`BaziAnalyzer`, `RuleEngineService`, `deep-interpretation/`), `prompts/` (`BaziPrompts`, `MarriagePrompts`), `data/` (`rules.json`), và `routes/` (`bazi.routes.js`, `marriage.routes.js`).
+  + **`ziwei/` (Tử Vi Đẩu Số):** Chuyên trách mệnh bàn 12 cung, sao, hóa tinh. Chứa `controllers/` (`ZiweiController`, `ZiweiAiController`, `ZiweiHistoryController`), `models/` (`ZiweiRecord`), `services/` (`ZiweiFormatter`, `ZiweiCache`, `ZiweiValidators`), `prompts/` (`ZiweiPrompts`), `routes/` (`ziwei.routes.js`).
+  + **`iching/` (Kinh Dịch Lục Hào):** Chuyên trách chiêm bốc 64 quẻ, quái thân, hào động. Chứa `controllers/` (`IChingController`, `IChingAiController`), `models/` (`IChingRecord`), `services/` (`IChingDataService`), `prompts/` (`IChingPrompts`), `routes/` (`iching.routes.js`).
+  + **`date/` (Xem Ngày Lành):** Chuyên trách tra cứu ngày giờ hoàng đạo. Chứa `controllers/` (`DateController`), `services/` (`DateService`), `routes/` (`date.routes.js`).
+  + **`blog/` (Bài Viết & Thuật Ngữ):** Quản lý bài viết và tra cứu khái niệm phong thủy. Chứa `controllers/` (`BlogController`, `ConceptController`), `models/` (`BlogPost`), `services/` (`BlogSeedService`), `routes/` (`blog.routes.js`).
+  + **`auth/` (Xác Thực & Thẻ Tag):** Quản lý đăng ký, đăng nhập, OTP, thẻ cá nhân. Chứa `controllers/` (`AuthController`, `TagController`), `services/` (`EmailService`), `routes/` (`auth.routes.js`, `tag.routes.js`).
+  + **`admin/` (Quản Trị Hệ Thống):** Tách nhỏ thành 4 controller chuyên trách (`AdminUserController`, `AdminRecordController`, `AdminStatsController`, `AdminAppealController`), `models/` (`SystemLog`, `BanAppeal`, `AdminNotification`), `routes/` (`admin.routes.js`).
+  + **`history/` (Lịch Sử Bản Ghi):** Tách nhỏ thành các controller chuyên trách cho từng phân hệ (`GeneralHistoryController`, `BaziHistoryController`, `MarriageHistoryController`, `IChingHistoryController`, `ZiweiHistoryController`), `routes/` (`history.routes.js`).
+  + **`notification/` (Thông Báo Tự Động):** Lập lịch gửi thông báo định kỳ. Chứa `controllers/` (`NotificationController`), `services/` (`NotificationScheduler`), `routes/` (`notification.routes.js`).
+  + **`tts/` (Đọc Luận Giải Âm Thanh):** Chuyển văn bản thành giọng đọc phong thủy. Tách nhỏ thành `TtsController`, `TtsAudioService`, `TtsCacheService`, `TtsTicketService`, `routes/` (`tts.routes.js`).
+  + **`export/` (Xuất Ấn Phẩm PDF):** Render và xuất PDF A4 Imperial. Chứa `controllers/` (`ExportController`), `services/` (`PdfGeneratorService`, `PdfTemplateService` facade), `templates/` (`baziTemplate`, `ziweiTemplate`, `ichingTemplate`, `marriageTemplate`, `templateStyles`, `templateUtils`), `routes/` (`export.routes.js`).
+- **`src/shared/` (Thuật Toán Cổ Học Dùng Chung):**
+  + `engines/AstrologyEngine.js`: Động cơ an sao Tử Vi Đẩu Số.
+  + `knowledge-engine/SymbolicAnalyzer.js`: Bộ phân tích tượng học và tương tác cung vị.
+  + `utils/ungKyParser.js`: Tiện ích định lượng ứng kỳ lịch pháp.
+  + `utils/astrologyHelpers.js`: Bộ hỗ trợ bản đồ can chi, ngũ hành, thập thần.
 
 ---
 

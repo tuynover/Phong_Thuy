@@ -1,16 +1,16 @@
-const AdminController = require('../../src/controllers/AdminController');
-const User = require('../../src/models/User');
-const BanAppeal = require('../../src/models/BanAppeal');
+const AdminController = require('../../src/modules/admin/controllers/AdminController');
+const User = require('../../src/core/models/User');
+const BanAppeal = require('../../src/modules/admin/models/BanAppeal');
 
 // Mock dependencies
-jest.mock('../../src/models/User');
-jest.mock('../../src/models/BanAppeal');
-jest.mock('../../src/models/SystemLog');
-jest.mock('../../src/services/MemoryCacheService', () => ({
+jest.mock('../../src/core/models/User');
+jest.mock('../../src/modules/admin/models/BanAppeal');
+jest.mock('../../src/modules/admin/models/SystemLog');
+jest.mock('../../src/core/services/MemoryCacheService', () => ({
     getUserProfileRamCache: jest.fn(),
     setUserProfileRamCache: jest.fn()
 }));
-jest.mock('../../src/config/redis', () => ({
+jest.mock('../../src/core/config/redis', () => ({
     clearUserProfileCache: jest.fn()
 }));
 

@@ -1,10 +1,10 @@
-jest.mock('../../src/models/IChingRecord');
-jest.mock('../../src/models/BaziRecord');
-jest.mock('../../src/models/ZiweiRecord');
-jest.mock('../../src/models/MarriageRecord');
+jest.mock('../../src/modules/iching/models/IChingRecord');
+jest.mock('../../src/modules/bazi/models/BaziRecord');
+jest.mock('../../src/modules/ziwei/models/ZiweiRecord');
+jest.mock('../../src/modules/bazi/models/MarriageRecord');
 
-const BaziRecord = require('../../src/models/BaziRecord');
-const checkRecordOwnership = require('../../src/middleware/checkRecordOwnership');
+const BaziRecord = require('../../src/modules/bazi/models/BaziRecord');
+const checkRecordOwnership = require('../../src/core/middleware/checkRecordOwnership');
 
 describe('checkRecordOwnership Middleware Unit Tests', () => {
     let req, res, next;

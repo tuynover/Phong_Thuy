@@ -1,7 +1,7 @@
 const AstrologyEngine = require('../../src/shared/engines/AstrologyEngine');
-const ZiweiFormatter = require('../../src/services/ZiweiFormatter');
-const ZiweiValidator = require('../../src/services/ZiweiValidators');
-const ZiweiCache = require('../../src/services/ZiweiCache');
+const ZiweiFormatter = require('../../src/modules/ziwei/services/ZiweiFormatter');
+const ZiweiValidator = require('../../src/modules/ziwei/services/ZiweiValidators');
+const ZiweiCache = require('../../src/modules/ziwei/services/ZiweiCache');
 
 describe('Ziwei Astrology Engine, Formatter & Validator Comprehensive Unit Tests', () => {
 

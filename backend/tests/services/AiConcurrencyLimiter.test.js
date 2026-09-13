@@ -1,10 +1,10 @@
-jest.mock('../../src/services/LoggerService', () => ({
+jest.mock('../../src/core/services/LoggerService', () => ({
   info: jest.fn(),
   warn: jest.fn(),
   error: jest.fn()
 }));
 
-const limiterInstance = require('../../src/services/deep-interpretation/AiConcurrencyLimiter');
+const limiterInstance = require('../../src/modules/bazi/services/deep-interpretation/AiConcurrencyLimiter');
 const { AiConcurrencyLimiter } = limiterInstance;
 
 describe('AiConcurrencyLimiter Unit Tests', () => {

@@ -1,22 +1,22 @@
-const IChingController = require('../../src/controllers/IChingController');
+const IChingController = require('../../src/modules/iching/controllers/IChingController');
 
 // Mock all dependencies
-jest.mock('../../src/models/IChingRecord');
-jest.mock('../../src/services/IChingDataService');
-jest.mock('../../src/services/InputValidator');
-jest.mock('../../src/services/MemoryCacheService', () => ({
+jest.mock('../../src/modules/iching/models/IChingRecord');
+jest.mock('../../src/modules/iching/services/IChingDataService');
+jest.mock('../../src/core/services/InputValidator');
+jest.mock('../../src/core/services/MemoryCacheService', () => ({
     clearUserHistoryCache: jest.fn()
 }));
-jest.mock('../../src/services/UserStatsService', () => ({
+jest.mock('../../src/core/services/UserStatsService', () => ({
     incrementRecordCount: jest.fn()
 }));
-jest.mock('../../src/services/SseService', () => ({
+jest.mock('../../src/core/services/SseService', () => ({
     sendToAdmins: jest.fn()
 }));
 
-const IChingRecord = require('../../src/models/IChingRecord');
-const IChingDataService = require('../../src/services/IChingDataService');
-const InputValidator = require('../../src/services/InputValidator');
+const IChingRecord = require('../../src/modules/iching/models/IChingRecord');
+const IChingDataService = require('../../src/modules/iching/services/IChingDataService');
+const InputValidator = require('../../src/core/services/InputValidator');
 
 describe('IChingController Unit Tests', () => {
     let req, res;

@@ -1,10 +1,10 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
-const BaziRecord = require('../models/BaziRecord');
-const BaziPrompts = require('../services/BaziPrompts');
-const AiService = require('../services/AiService');
+const BaziRecord = require('../core/models/BaziRecord');
+const BaziPrompts = require('../modules/bazi/prompts/BaziPrompts');
+const AiService = require('../core/ai/AiService');
 const { stemElementMap } = require('../shared/utils/astrologyHelpers');
-const { BAZI_PROMPT_VERSION, ACTIVE_MODEL } = require('../config/ai');
+const { BAZI_PROMPT_VERSION, ACTIVE_MODEL } = require('../core/config/ai');
 
 async function fixInvalidRecords() {
     try {

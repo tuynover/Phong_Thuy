@@ -1,27 +1,27 @@
-const AiInterpretationController = require('../../src/controllers/AiInterpretationController');
+const AiInterpretationController = require('../../src/core/ai/AiInterpretationController');
 
 // Mock models
-jest.mock('../../src/models/BaziRecord');
-jest.mock('../../src/models/Conversation');
-jest.mock('../../src/models/Message');
-jest.mock('../../src/models/User');
+jest.mock('../../src/modules/bazi/models/BaziRecord');
+jest.mock('../../src/core/models/Conversation');
+jest.mock('../../src/core/models/Message');
+jest.mock('../../src/core/models/User');
 
 // Mock services
-jest.mock('../../src/services/AiService');
-jest.mock('../../src/services/BaziPrompts');
-jest.mock('../../src/services/ConversationContextService');
-jest.mock('../../src/services/MemoryCacheService', () => ({
+jest.mock('../../src/core/ai/AiService');
+jest.mock('../../src/modules/bazi/services/BaziPrompts');
+jest.mock('../../src/core/ai/ConversationContextService');
+jest.mock('../../src/core/services/MemoryCacheService', () => ({
     clearChatCache: jest.fn()
 }));
-jest.mock('../../src/services/UserStatsService', () => ({
+jest.mock('../../src/core/services/UserStatsService', () => ({
     incrementInterpretTokens: jest.fn()
 }));
 
-const BaziRecord = require('../../src/models/BaziRecord');
-const Conversation = require('../../src/models/Conversation');
-const Message = require('../../src/models/Message');
-const AiService = require('../../src/services/AiService');
-const ConversationContextService = require('../../src/services/ConversationContextService');
+const BaziRecord = require('../../src/modules/bazi/models/BaziRecord');
+const Conversation = require('../../src/core/models/Conversation');
+const Message = require('../../src/core/models/Message');
+const AiService = require('../../src/core/ai/AiService');
+const ConversationContextService = require('../../src/core/ai/ConversationContextService');
 
 describe('AiInterpretationController Unit Tests', () => {
     let req, res;

@@ -1,4 +1,4 @@
-const BaziAnalyzer = require('../../src/services/BaziAnalyzer');
+const BaziAnalyzer = require('../../src/modules/bazi/services/BaziAnalyzer');
 
 describe('Bộ Test Case Dụng Thần & Cách Cục Bát Tự (Dung Than & Pattern Test Suite)', () => {
 

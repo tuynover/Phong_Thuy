@@ -1704,6 +1704,7 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
                 hasInterpretation={Boolean(interpretation)}
                 interpretationMode={interpretationMode}
                 rawInterpretation={interpretation}
+                onDownloadStart={(msg) => setToastMsg(msg)}
             />
             {toastMsg && <FloatingNotificationToast message={toastMsg} onClose={() => setToastMsg('')} />}
             

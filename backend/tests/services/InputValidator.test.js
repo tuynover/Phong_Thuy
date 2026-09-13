@@ -1,4 +1,4 @@
-const InputValidator = require('../../src/services/InputValidator');
+const InputValidator = require('../../src/core/services/InputValidator');
 
 describe('InputValidator Comprehensive Unit Tests', () => {
 

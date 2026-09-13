@@ -1,0 +1,19 @@
+const express = require('express');
+const router = express.Router();
+const BlogController = require('../controllers/BlogController');
+const ConceptController = require('../controllers/ConceptController');
+const optionalAuth = require('../../../core/middleware/optionalAuth');
+const adminAuth = require('../../../core/middleware/adminAuth');
+
+// Public endpoints (optionalAuth allows identifying if request comes from an Admin to see drafts)
+router.get('/', optionalAuth, BlogController.getPosts);
+router.get('/categories', optionalAuth, BlogController.getCategories);
+router.get('/:slug', optionalAuth, BlogController.getPostBySlug);
+
+// Admin-only endpoints
+router.post('/', adminAuth, BlogController.createPost);
+router.put('/:id', adminAuth, BlogController.updatePost);
+router.delete('/:id', adminAuth, BlogController.deletePost);
+router.post('/:id/restore', adminAuth, BlogController.restorePost);
+
+module.exports = router;

@@ -1,5 +1,5 @@
 const IztroEngine = require('../../src/shared/engines/iztro.engine');
-const ZiweiFormatter = require('../../src/services/ZiweiFormatter');
+const ZiweiFormatter = require('../../src/modules/ziwei/services/ZiweiFormatter');
 
 describe('Ziwei Hồi Quy & Snapshot Testing (60+ Ca)', () => {
     test('Xác thực đầu ra của 60+ cấu hình Tử Vi đại diện', () => {

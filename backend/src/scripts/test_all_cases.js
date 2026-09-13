@@ -5,13 +5,13 @@ const MONGODB_URI = 'mongodb+srv://trinhtuyen2004:trinhtuyen2004@phongthuy.a5rqr
 const API_URL = 'http://localhost:3001/api';
 
 // Import models
-const User = require('../models/User');
-const IChingRecord = require('../models/IChingRecord');
-const BaziRecord = require('../models/BaziRecord');
-const ZiweiRecord = require('../models/ZiweiRecord');
-const SystemLog = require('../models/SystemLog');
-const BanAppeal = require('../models/BanAppeal');
-const AdminNotification = require('../models/AdminNotification');
+const User = require('../core/models/User');
+const IChingRecord = require('../core/models/IChingRecord');
+const BaziRecord = require('../core/models/BaziRecord');
+const ZiweiRecord = require('../core/models/ZiweiRecord');
+const SystemLog = require('../core/models/SystemLog');
+const BanAppeal = require('../core/models/BanAppeal');
+const AdminNotification = require('../core/models/AdminNotification');
 const NotificationScheduler = require('../services/NotificationScheduler');
 
 async function runTests() {

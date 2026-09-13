@@ -1,5 +1,5 @@
-const AuthController = require('../../src/controllers/AuthController');
-const User = require('../../src/models/User');
+const AuthController = require('../../src/modules/auth/controllers/AuthController');
+const User = require('../../src/core/models/User');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 

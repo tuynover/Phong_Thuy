@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
-const BaziAnalyzer = require('../services/BaziAnalyzer');
-const BaziPrompts = require('../services/BaziPrompts');
+const BaziAnalyzer = require('../modules/bazi/services/BaziAnalyzer');
+const BaziPrompts = require('../modules/bazi/prompts/BaziPrompts');
 
 // 100 CÁCH CỤC MỆNH LÝ BÁT TỰ ĐA DẠNG (100 DISTINCT PATTERNS)
 const patterns100 = [

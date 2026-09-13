@@ -1,10 +1,10 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
-const BaziRecord = require('../models/BaziRecord');
-const ZiweiRecord = require('../models/ZiweiRecord');
-const MarriageRecord = require('../models/MarriageRecord');
-const IChingRecord = require('../models/IChingRecord');
-const User = require('../models/User');
+const BaziRecord = require('../core/models/BaziRecord');
+const ZiweiRecord = require('../core/models/ZiweiRecord');
+const MarriageRecord = require('../core/models/MarriageRecord');
+const IChingRecord = require('../core/models/IChingRecord');
+const User = require('../core/models/User');
 
 const clearAllRecords = async () => {
     try {

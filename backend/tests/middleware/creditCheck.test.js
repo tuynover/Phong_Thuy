@@ -1,5 +1,5 @@
-const creditCheck = require('../../src/middleware/creditCheck');
-const User = require('../../src/models/User');
+const creditCheck = require('../../src/core/middleware/creditCheck');
+const User = require('../../src/core/models/User');
 const jwt = require('jsonwebtoken');
 
 describe('creditCheck Middleware & Refund Unit Tests', () => {

@@ -1,9 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../../.env') });
-const BaziAnalyzer = require('../services/BaziAnalyzer');
-const BaziPrompts = require('../services/BaziPrompts');
-const AiService = require('../services/AiService');
+const BaziAnalyzer = require('../modules/bazi/services/BaziAnalyzer');
+const BaziPrompts = require('../modules/bazi/prompts/BaziPrompts');
+const AiService = require('../core/ai/AiService');
 
 // 50 NHÓM CUỘC ĐỜI (MỖI NHÓM 3 LÁ SỐ = 150 CA THỰC NGHIỆM ĐA CHIỀU)
 const categories50 = [

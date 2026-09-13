@@ -1,5 +1,5 @@
-const BaziAnalyzer = require('../services/BaziAnalyzer');
-const BaziPrompts = require('../services/BaziPrompts');
+const BaziAnalyzer = require('../modules/bazi/services/BaziAnalyzer');
+const BaziPrompts = require('../modules/bazi/prompts/BaziPrompts');
 
 const figures = [
     { name: 'Steve Jobs', date: '24/02/1955', time: '19:15', gender: 1 },

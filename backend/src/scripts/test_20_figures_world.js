@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const BaziAnalyzer = require('../services/BaziAnalyzer');
+const BaziAnalyzer = require('../modules/bazi/services/BaziAnalyzer');
 
 const figures = [
   { id: 1, country: 'Pháp (Châu Âu)', name: 'Napoléon Bonaparte', role: 'Hoàng đế Pháp, Thiên tài quân sự', date: '15/08/1769', time: '11:30', gender: 1 },

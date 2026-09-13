@@ -1,6 +1,6 @@
 require('dotenv').config();
-require('./config/env');
-const logger = require('./services/LoggerService');
+require('./core/config/env');
+const logger = require('./core/services/LoggerService');
 
 let server = null;
 
@@ -62,11 +62,11 @@ const cors = require('cors');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const compression = require('compression');
-const connectDB = require('./config/db');
+const connectDB = require('./core/config/db');
 const routes = require('./routes');
 const seoRouter = require('./routes/seo');
 
-const auditLogger = require('./middleware/logging');
+const auditLogger = require('./core/middleware/logging');
 
 const app = express();
 
@@ -132,7 +132,7 @@ app.use((req, res, next) => {
 // Premium Audit Logger Middleware (logs User, Time, Action, Parameters, and Performance)
 app.use(auditLogger);
 
-const HealthController = require('./controllers/HealthController');
+const HealthController = require('./core/controllers/HealthController');
 
 // Production Health Check Route for AWS ALB / Nginx / Monitoring
 app.get('/health', HealthController.getHealth);
@@ -143,7 +143,7 @@ app.get('/health/detailed', HealthController.getDetailedHealth);
 // Swagger UI Documentation Route (Only enabled outside production or when explicit)
 if (process.env.NODE_ENV !== 'production') {
   const swaggerUi = require('swagger-ui-express');
-  const swaggerDocument = require('./config/swagger.json');
+  const swaggerDocument = require('./core/config/swagger.json');
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 }
 
@@ -172,6 +172,6 @@ server = app.listen(PORT, () => {
   logger.info(`Backend is running on port ${PORT}`);
 
   // Start notifications scheduler
-  const { startScheduler } = require('./services/NotificationScheduler');
+  const { startScheduler } = require('./modules/notification/services/NotificationScheduler');
   startScheduler();
 });

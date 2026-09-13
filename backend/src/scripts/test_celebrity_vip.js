@@ -3,11 +3,11 @@ const dotenv = require('dotenv');
 const path = require('path');
 dotenv.config({ path: path.join(__dirname, '../../.env') });
 
-const BaziAnalyzer = require('../services/BaziAnalyzer');
-const BaziPrompts = require('../services/BaziPrompts');
-const MultiAgentPipelineService = require('../services/MultiAgentPipelineService');
-const BaziRecord = require('../models/BaziRecord');
-const User = require('../models/User');
+const BaziAnalyzer = require('../modules/bazi/services/BaziAnalyzer');
+const BaziPrompts = require('../modules/bazi/services/BaziPrompts');
+const MultiAgentPipelineService = require('../core/services/MultiAgentPipelineService');
+const BaziRecord = require('../modules/bazi/models/BaziRecord');
+const User = require('../core/models/User');
 
 const CELEBRITIES = [
   {

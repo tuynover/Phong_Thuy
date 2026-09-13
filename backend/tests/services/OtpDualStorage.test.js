@@ -1,4 +1,4 @@
-const { setOtpRedis, getOtpRedis, deleteOtpRedis } = require('../../src/config/redis');
+const { setOtpRedis, getOtpRedis, deleteOtpRedis } = require('../../src/core/config/redis');
 
 describe('OTP Dual-Storage (Redis L2 + RAM L1 Fallback)', () => {
     it('Nên lưu và đọc mã OTP từ RAM fallback khi Redis offline', async () => {

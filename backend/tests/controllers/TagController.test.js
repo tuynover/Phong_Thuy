@@ -1,21 +1,21 @@
-const TagController = require('../../src/controllers/TagController');
+const TagController = require('../../src/modules/auth/controllers/TagController');
 
-jest.mock('../../src/models/User');
-jest.mock('../../src/models/IChingRecord');
-jest.mock('../../src/models/BaziRecord');
-jest.mock('../../src/models/ZiweiRecord');
-jest.mock('../../src/models/MarriageRecord');
-jest.mock('../../src/services/MemoryCacheService', () => ({
+jest.mock('../../src/core/models/User');
+jest.mock('../../src/modules/iching/models/IChingRecord');
+jest.mock('../../src/modules/bazi/models/BaziRecord');
+jest.mock('../../src/modules/ziwei/models/ZiweiRecord');
+jest.mock('../../src/modules/bazi/models/MarriageRecord');
+jest.mock('../../src/core/services/MemoryCacheService', () => ({
     get: jest.fn(),
     set: jest.fn(),
     clearUserHistoryCache: jest.fn()
 }));
 
-const User = require('../../src/models/User');
-const IChingRecord = require('../../src/models/IChingRecord');
-const BaziRecord = require('../../src/models/BaziRecord');
-const ZiweiRecord = require('../../src/models/ZiweiRecord');
-const MarriageRecord = require('../../src/models/MarriageRecord');
+const User = require('../../src/core/models/User');
+const IChingRecord = require('../../src/modules/iching/models/IChingRecord');
+const BaziRecord = require('../../src/modules/bazi/models/BaziRecord');
+const ZiweiRecord = require('../../src/modules/ziwei/models/ZiweiRecord');
+const MarriageRecord = require('../../src/modules/bazi/models/MarriageRecord');
 
 describe('TagController Unit Tests', () => {
     let res;

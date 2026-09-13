@@ -1,4 +1,4 @@
-const BaziAnalyzer = require('../../src/services/BaziAnalyzer');
+const BaziAnalyzer = require('../../src/modules/bazi/services/BaziAnalyzer');
 
 describe('BaziAnalyzer Comprehensive Unit Test Suite', () => {
 
