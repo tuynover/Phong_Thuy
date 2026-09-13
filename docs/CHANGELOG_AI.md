@@ -2,7 +2,33 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Khôi Phục Tên Tài Khoản & Tối Ưu Hiển Thị Header Tránh Cắt Chữ (14/09/2026)
 
+### 🌟 1. Yêu Cầu & Bối Cảnh
+- **Câu hỏi của người dùng:** *"tên tài khoản của tôi đâu sao lại hiển thị như vậy"* kèm ảnh chụp màn hình hiển thị `"9752.5 🪙 👤 Người Dùng ..."`.
+- **Mục tiêu:**
+  1. Điều tra nguyên nhân hiển thị tên bị đổi thành "Người Dùng ...".
+  2. Khôi phục tên tài khoản chính xác của người dùng (`Trịnh Công Tuyền`) trong MongoDB và làm mới bộ đệm L1 RAM/L2 Redis.
+  3. Cập nhật CSS Header mở rộng `max-w` để tên người dùng hiển thị trọn vẹn, không bị cắt ngắn `...`.
+  4. Sửa đổi script kiểm thử API tự động để khôi phục tên tài khoản ngay sau khi test case cập nhật hồ sơ hoàn tất.
+
+### 🚀 2. Chi Tiết Khắc Phục Kỹ Thuật
+1. **Nguyên Nhân Gốc Rễ (Root Cause):**
+   - Script chạy test API tổng thể `scratch/api_full_test_runner.js` trước đó đã gọi test case `PUT /api/auth/profile` với payload `{ name: 'Người Dùng Test AI' }` nhưng chưa có bước khôi phục lại tên cũ của tài khoản `cobatuoc@gmail.com`.
+   - Kết hợp với class CSS `max-w-[100px] truncate` trên Header trong `UserApp.jsx`, chuỗi dài `"Người Dùng Test AI"` bị cắt ngang thành `"Người Dùng ..."`.
+2. **Khôi Phục Dữ Liệu & Cache:**
+   - Cập nhật trường `name` của người dùng về giá trị chuẩn phong thủy: `"Trịnh Công Tuyền"`.
+   - Khởi động lại Backend Server để xóa sạch L1 RAM Cache `userProfileRamCache`, nạp lại dữ liệu người dùng mới nhất từ MongoDB.
+3. **Cải Tiến Giao Diện Header (`frontend/src/app/UserApp.jsx`):**
+   - Tăng độ rộng giới hạn từ `max-w-[100px]` lên `max-w-[140px] md:max-w-[180px]` để các họ tên 3 - 4 từ tiếng Việt hiển thị đầy đủ, thanh thoát và thẩm mỹ.
+4. **Bảo Vệ Script Kiểm Thử (`scratch/api_full_test_runner.js`):**
+   - Lưu trữ `originalName` trước khi chạy test case cập nhật hồ sơ và kích hoạt `PUT /api/auth/profile` phục hồi lại ngay sau khi test xong.
+
+### 🧪 3. Kiểm Thử Trực Quan Trên Trình Duyệt Chrome DevTools
+- Chụp ảnh màn hình Viewport trên Chrome: Header hiển thị đầy đủ **`Trịnh Công Tuyền`** cạnh số dư credit và chuông thông báo, hoàn toàn không bị cắt chữ `...`.
+- Đã kiểm tra Responsive View trên cả Mobile (412x915) và Desktop (1440x900), không phát sinh lỗi layout hay Console error nào.
+
+---
 
 ## 📅 Phiên bản: Tối Ưu Cấu Hình Puppeteer Xuất PDF (Đề Xuất 2) & Phân Tích Cơ Chế Native Download (13/09/2026)
 

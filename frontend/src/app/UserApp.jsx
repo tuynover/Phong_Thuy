@@ -961,7 +961,7 @@ export default function UserApp({ onSwitchToAdmin }) {
                       title="Hồ sơ cá nhân"
                     >
                       <UserCircle size={18} className="text-slate-600 shrink-0" />
-                      <span className="hidden sm:inline truncate max-w-[100px]">{user.name}</span>
+                      <span className="hidden sm:inline truncate max-w-[140px] md:max-w-[180px]">{user.name}</span>
                     </button>
 
                     {isUserMenuOpen && (
