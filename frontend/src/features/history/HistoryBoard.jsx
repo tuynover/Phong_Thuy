@@ -4,242 +4,15 @@ import { getIChingHistory, getBaziHistory, getZiweiHistory, getMarriageHistory, 
 import { Star, Clock, Calendar, Trash2, X, Info, Check, AlertTriangle, Loader2, ChevronLeft, ChevronRight, Pin, Eye, Share2, Tag, Filter, Search, Globe, Plus, Folder, User, ChevronDown, ChevronUp } from 'lucide-react';
 import FloatingNotificationToast from '@/components/common/FloatingNotificationToast';
 import CustomSelect from '@/components/common/CustomSelect';
+import CustomDatePicker from '@/components/common/CustomDatePicker';
+import IChingHistoryCard from './components/IChingHistoryCard';
+import BaziHistoryCard from './components/BaziHistoryCard';
+import ZiweiHistoryCard from './components/ZiweiHistoryCard';
+import MarriageHistoryCard from './components/MarriageHistoryCard';
 
 const LUNAR_HOURS_MAP = [
   "Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"
 ];
-
-const CustomDatePicker = ({ value, onChange, label, activeTheme, activeTab, align = 'left', minDate, maxDate }) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const [currentDate, setCurrentDate] = useState(value ? new Date(value) : new Date());
-    const containerRef = useRef(null);
-
-    useEffect(() => {
-        const handleClickOutside = (e) => {
-            if (containerRef.current && !containerRef.current.contains(e.target)) {
-                setIsOpen(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
-
-    useEffect(() => {
-        if (value) {
-            setCurrentDate(new Date(value));
-        }
-    }, [value]);
-
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
-
-    const getDaysInMonth = (y, m) => {
-        const date = new Date(y, m, 1);
-        const days = [];
-        let dayOfWeek = date.getDay();
-        let startOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-
-        const prevMonthLastDate = new Date(y, m, 0).getDate();
-        for (let i = startOffset - 1; i >= 0; i--) {
-            days.push({
-                day: prevMonthLastDate - i,
-                isCurrentMonth: false,
-                dateObj: new Date(y, m - 1, prevMonthLastDate - i)
-            });
-        }
-
-        const totalDays = new Date(y, m + 1, 0).getDate();
-        for (let i = 1; i <= totalDays; i++) {
-            days.push({
-                day: i,
-                isCurrentMonth: true,
-                dateObj: new Date(y, m, i)
-            });
-        }
-
-        const remainingCells = 42 - days.length;
-        for (let i = 1; i <= remainingCells; i++) {
-            days.push({
-                day: i,
-                isCurrentMonth: false,
-                dateObj: new Date(y, m + 1, i)
-            });
-        }
-
-        return days;
-    };
-
-    const days = getDaysInMonth(year, month);
-
-    const handlePrevMonth = (e) => {
-        e.stopPropagation();
-        setCurrentDate(new Date(year, month - 1, 1));
-    };
-
-    const handleNextMonth = (e) => {
-        e.stopPropagation();
-        setCurrentDate(new Date(year, month + 1, 1));
-    };
-
-    const handleSelectDay = (dateObj, e) => {
-        e.stopPropagation();
-        const localDateStr = dateObj.getFullYear() + '-' + 
-            String(dateObj.getMonth() + 1).padStart(2, '0') + '-' + 
-            String(dateObj.getDate()).padStart(2, '0');
-        onChange(localDateStr);
-        setIsOpen(false);
-    };
-
-    const handleClear = (e) => {
-        e.stopPropagation();
-        onChange('');
-        setIsOpen(false);
-    };
-
-    const handleToday = (e) => {
-        e.stopPropagation();
-        const todayStr = new Date().toISOString().split('T')[0];
-        onChange(todayStr);
-        setIsOpen(false);
-    };
-
-    const formatDisplayDate = (val) => {
-        if (!val) return '';
-        const parts = val.split('-');
-        if (parts.length !== 3) return val;
-        return `${parts[2]}/${parts[1]}/${parts[0]}`;
-    };
-
-    const themeBg = activeTab === 'iching' ? 'bg-amber-800 text-white hover:bg-amber-900' : activeTab === 'bazi' ? 'bg-blue-800 text-white hover:bg-blue-900' : activeTab === 'ziwei' ? 'bg-purple-800 text-white hover:bg-purple-900' : 'bg-rose-800 text-white hover:bg-rose-900';
-    const themeText = activeTab === 'iching' ? 'text-amber-800 hover:bg-amber-50' : activeTab === 'bazi' ? 'text-blue-800 hover:bg-blue-50' : activeTab === 'ziwei' ? 'text-purple-800 hover:bg-purple-50' : 'text-rose-800 hover:bg-rose-50';
-    const themeBorder = activeTab === 'iching' ? 'focus:border-amber-600 focus:ring-amber-500/20' : activeTab === 'bazi' ? 'focus:border-blue-600 focus:ring-blue-500/20' : activeTab === 'ziwei' ? 'focus:border-purple-600 focus:ring-purple-500/20' : 'focus:border-rose-600 focus:border-rose-500/20';
-
-    return (
-        <div className="relative flex-1 sm:flex-none" ref={containerRef}>
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-400 pointer-events-none">{label}</span>
-            <button
-                type="button"
-                onClick={() => setIsOpen(!isOpen)}
-                className={`w-full sm:w-44 text-left pl-11 pr-3 py-2.5 text-sm border border-gray-200 rounded-2xl bg-white shadow-sm transition-all duration-300 flex items-center justify-between hover:border-gray-300 focus:outline-none focus:ring-4 ${themeBorder}`}
-            >
-                <span className={value ? 'text-gray-800 font-semibold' : 'text-gray-405'}>
-                    {formatDisplayDate(value) || 'Chọn ngày...'}
-                </span>
-                <Calendar size={14} className="text-gray-400 ml-1.5 flex-shrink-0" />
-            </button>
-
-            {isOpen && (
-                <>
-                    {/* Backdrop blur overlay for Mobile only */}
-                    <div 
-                        className="fixed inset-0 bg-black/40 backdrop-blur-[1.5px] z-50 sm:hidden animate-in fade-in duration-200"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            setIsOpen(false);
-                        }}
-                    />
-                    
-                    {/* Calendar Popup Container */}
-                    <div 
-                        onClick={(e) => e.stopPropagation()}
-                        className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-[310px] bg-white rounded-[2rem] p-5 shadow-2xl border border-gray-100 z-50 animate-in fade-in zoom-in-95 duration-200 
-                            sm:absolute sm:top-auto sm:left-auto sm:translate-x-0 sm:translate-y-0 sm:w-72 sm:p-4 sm:border-gray-150 sm:shadow-xl sm:mt-2 sm:rounded-3xl
-                            ${align === 'right' ? 'sm:right-0 sm:left-auto' : 'sm:left-0 sm:right-auto'}`}
-                    >
-                        <div className="flex items-center justify-between mb-3.5 pb-2 border-b border-gray-100">
-                            <div className="flex items-center gap-1.5">
-                                <span className="text-sm font-bold text-gray-800">
-                                    Tháng {month + 1}
-                                </span>
-                                <span className="text-xs font-bold text-gray-400">
-                                    {year}
-                                </span>
-                            </div>
-                            <div className="flex gap-1">
-                                <button
-                                    type="button"
-                                    onClick={handlePrevMonth}
-                                    className="p-2 sm:p-1.5 rounded-xl hover:bg-gray-100 text-gray-650 transition-colors"
-                                >
-                                    <ChevronLeft size={18} className="sm:w-4 sm:h-4" />
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={handleNextMonth}
-                                    className="p-2 sm:p-1.5 rounded-xl hover:bg-gray-100 text-gray-650 transition-colors"
-                                >
-                                    <ChevronRight size={18} className="sm:w-4 sm:h-4" />
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-7 gap-1 text-center mb-2">
-                            {['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'].map((dayName) => (
-                                <span key={dayName} className="text-xs sm:text-[10px] font-bold text-gray-400 select-none">
-                                    {dayName}
-                                </span>
-                            ))}
-                        </div>
-
-                        <div className="grid grid-cols-7 gap-1 text-center">
-                            {days.map((dayItem, idx) => {
-                                let isDisabled = !dayItem.isCurrentMonth;
-                                if (dayItem.isCurrentMonth) {
-                                    const dateStr = dayItem.dateObj.getFullYear() + '-' + 
-                                        String(dayItem.dateObj.getMonth() + 1).padStart(2, '0') + '-' + 
-                                        String(dayItem.dateObj.getDate()).padStart(2, '0');
-                                    if (minDate && dateStr < minDate) isDisabled = true;
-                                    if (maxDate && dateStr > maxDate) isDisabled = true;
-                                }
-
-                                const isSelected = value && value === dayItem.dateObj.toISOString().split('T')[0];
-                                const isToday = new Date().toISOString().split('T')[0] === dayItem.dateObj.toISOString().split('T')[0];
-                                return (
-                                    <button
-                                        key={idx}
-                                        type="button"
-                                        onClick={(e) => !isDisabled && handleSelectDay(dayItem.dateObj, e)}
-                                        disabled={isDisabled}
-                                        className={`aspect-square text-sm sm:text-xs font-semibold rounded-full flex items-center justify-center transition-all p-2 sm:p-0 ${
-                                            !dayItem.isCurrentMonth
-                                                ? 'text-gray-200 cursor-default pointer-events-none'
-                                                : isDisabled
-                                                    ? 'text-gray-300 bg-gray-50/50 cursor-not-allowed pointer-events-none'
-                                                    : isSelected
-                                                        ? themeBg + ' shadow-md font-bold scale-105'
-                                                        : isToday
-                                                            ? 'border border-gray-350 font-bold ' + themeText
-                                                            : 'text-gray-705 hover:bg-gray-105'
-                                        }`}
-                                    >
-                                        {dayItem.day}
-                                    </button>
-                                );
-                            })}
-                        </div>
-
-                        <div className="flex items-center justify-between mt-3.5 pt-2 border-t border-gray-100 text-xs">
-                            <button
-                                type="button"
-                                onClick={handleClear}
-                                className="text-red-500 hover:text-red-750 font-bold px-3 py-2 sm:px-2.5 sm:py-1 rounded-xl hover:bg-red-50 transition-colors"
-                            >
-                                Xóa
-                            </button>
-                            <button
-                                type="button"
-                                onClick={handleToday}
-                                className={`${themeText} font-bold px-3 py-2 sm:px-2.5 sm:py-1 rounded-xl transition-colors`}
-                            >
-                                Hôm nay
-                            </button>
-                        </div>
-                    </div>
-                </>
-            )}
-        </div>
-    );
-};
 
 const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage, preloadedData, onCacheInvalidate, active, onSaveCache }) => {
     const { user } = useContext(AuthContext);
@@ -1041,486 +814,71 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
             <div className="space-y-4">
                 {activeTab === 'iching' && hexagrams.length === 0 && <p className="text-center text-gray-500">Không có</p>}
                 {activeTab === 'iching' && paginatedList.map((record) => (
-                    <div 
-                        key={record._id} 
-                        onClick={() => handleViewHexagramDetail(record)} 
-                        onMouseEnter={() => preloadRecord('iching', record._id)}
-                        onTouchStart={() => preloadRecord('iching', record._id)}
-                        className={`border ${record.isPinned ? 'border-amber-300 bg-amber-50/45 shadow-sm' : 'border-amber-100 bg-amber-50/20'} rounded-2xl p-4 sm:p-5 hover:shadow-md transition-all cursor-pointer`}
-                    >
-                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-3">
-                            <div className="space-y-1.5 flex-1 min-w-0">
-                                <h3 className="font-bold text-base sm:text-lg text-amber-900 break-words">{record.primaryHexagram.name} {record.transformedHexagram?.name ? `→ ${record.transformedHexagram.name}` : ''}</h3>
-                                <p className="text-xs sm:text-sm text-slate-650 italic break-words">Hỏi: {record.question}</p>
-                                <div className="flex flex-wrap items-center gap-2 mt-1">
-                                    <span className="text-[10px] sm:text-xs text-slate-400 flex items-center gap-1.5">
-                                        <Clock size={12}/> 
-                                        {new Date(record.dateCast).toLocaleString('vi-VN')}
-                                    </span>
-                                    {record.isPinned && (
-                                        <span className="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
-                                            Đã ghim
-                                        </span>
-                                    )}
-                                    <button
-                                        type="button"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setTagModalRecord({ type: 'iching', record });
-                                        }}
-                                        className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-amber-100/70 text-amber-900 hover:bg-amber-200/80 border border-amber-300/60 transition-all shadow-2xs cursor-pointer"
-                                        title="Chọn thẻ (thư mục) cho quẻ này"
-                                    >
-                                        <Tag size={10} className="text-amber-700 shrink-0" />
-                                        <span>{(record.tags && record.tags.length > 0) ? record.tags.join(', ') : 'Chung'}</span>
-                                    </button>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-2 self-end sm:self-start shrink-0" onClick={(e) => e.stopPropagation()}>
-                                <div className="flex items-center gap-1.5 mr-1">
-                                    <span className="text-[10px] font-bold text-slate-500 hidden md:inline">Chia sẻ:</span>
-                                    <button
-                                        type="button"
-                                        onClick={() => handleTogglePublic('iching', record._id, record.isPublic)}
-                                        className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${record.isPublic ? 'bg-amber-600' : 'bg-gray-300'}`}
-                                        title={record.isPublic ? "Đang chia sẻ công khai - Nhấp để tắt" : "Đã tắt chia sẻ - Nhấp để bật"}
-                                    >
-                                        <span
-                                            className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${record.isPublic ? 'translate-x-4' : 'translate-x-0'}`}
-                                        />
-                                    </button>
-                                </div>
-                                {record.isPublic && (
-                                    <button 
-                                        onClick={() => handleCopyLink('iching', record._id)} 
-                                        className="p-1.5 rounded-xl hover:bg-amber-50 text-amber-700 hover:text-amber-850 transition-colors cursor-pointer"
-                                        title="Sao chép liên kết chia sẻ công khai"
-                                    >
-                                        <Share2 size={15} />
-                                    </button>
-                                )}
-                                <button 
-                                    onClick={() => handleTogglePin('iching', record._id)} 
-                                    className={`p-1.5 rounded-xl transition-colors hover:bg-amber-50 ${record.isPinned ? 'text-amber-600' : 'text-slate-350 hover:text-amber-500'}`}
-                                    title={record.isPinned ? "Bỏ ghim" : "Ghim lên đầu"}
-                                >
-                                    <Pin size={15} className={record.isPinned ? 'fill-current' : ''} />
-                                </button>
-                                <button 
-                                    onClick={() => setTagModalRecord({ type: 'iching', record })} 
-                                    className="p-1.5 rounded-xl hover:bg-amber-50 text-amber-700 hover:text-amber-850 transition-colors cursor-pointer"
-                                    title="Chọn thẻ (thư mục)"
-                                >
-                                    <Tag size={15} />
-                                </button>
-                                <button 
-                                    onClick={() => handleViewHexagramDetail(record)} 
-                                    className="flex items-center gap-1 px-3 py-1 bg-amber-50 text-amber-850 border border-amber-200/50 rounded-xl hover:bg-amber-100 transition-all text-xs font-bold shadow-sm"
-                                >
-                                    <Eye size={13} />
-                                    <span className="hidden sm:inline">Xem chi tiết</span>
-                                </button>
-                                <button 
-                                    onClick={() => handleDelete('iching', record._id)} 
-                                    className="p-1.5 rounded-xl hover:bg-red-50 text-red-500 hover:text-red-750 transition-colors"
-                                    title="Xóa vĩnh viễn"
-                                >
-                                    <Trash2 size={15} />
-                                </button>
-                            </div>
-                        </div>
-                        
-                        {/* Rating Section */}
-                        <div onClick={(e) => e.stopPropagation()} className="mt-4 pt-4 border-t border-amber-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-default">
-                            <div className="flex items-center gap-2 shrink-0">
-                                <span className="text-xs sm:text-sm font-bold text-slate-700">Độ chính xác:</span>
-                                {renderStars(record.rating, (rating) => handleRate('iching', record._id, rating, document.getElementById(`feedback-hex-${record._id}`)?.value || record.feedback))}
-                            </div>
-                            <div className="w-full sm:flex-1 flex items-center gap-2">
-                                <input 
-                                    type="text" 
-                                    id={`feedback-hex-${record._id}`}
-                                    placeholder="Ghi chú ứng kỳ..." 
-                                    className="flex-1 text-xs px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-amber-400 focus:outline-none transition-all"
-                                    defaultValue={record.feedback}
-                                  />
-                                  <button 
-                                      onClick={() => {
-                                          const val = document.getElementById(`feedback-hex-${record._id}`).value;
-                                          if (val !== record.feedback || !record.rating) {
-                                              handleRate('iching', record._id, record.rating, val);
-                                          }
-                                      }}
-                                      className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all active:scale-95 shrink-0"
-                                  >
-                                      Lưu
-                                  </button>
-                              </div>
-                          </div>
-                      </div>
-                  ))}
-  
-                  {activeTab === 'bazi' && bazis.length === 0 && <p className="text-center text-gray-500">Không có</p>}
-                  {activeTab === 'bazi' && paginatedList.map((record) => (
-                      <div 
-                          key={record._id} 
-                          onClick={() => handleViewBaziDetail(record)} 
-                          onMouseEnter={() => preloadRecord('bazi', record._id)}
-                          onTouchStart={() => preloadRecord('bazi', record._id)}
-                          className={`border ${record.isPinned ? 'border-blue-300 bg-blue-50/45 shadow-sm' : 'border-blue-100 bg-blue-50/20'} rounded-2xl p-4 sm:p-5 hover:shadow-md transition-all cursor-pointer`}
-                      >
-                          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-3">
-                              <div className="space-y-1.5 flex-1 min-w-0">
-                                  <h3 className="font-bold text-base sm:text-lg text-blue-905 break-words">
-                                      {(() => {
-                                          const name = record.inputInfo?.name?.trim();
-                                          const hasCustomName = name && !name.startsWith('Bát Tự -') && !name.startsWith('Tử Vi -') && name.toLowerCase() !== 'bát tự' && name.toLowerCase() !== 'tử vi';
-                                          const dateInfo = `${record.inputInfo?.date || ''} ${record.inputInfo?.time || ''} (${record.inputInfo?.gender === 1 || record.inputInfo?.gender === 'Nam' ? 'Nam' : 'Nữ'})`.trim();
-                                          return hasCustomName ? `${name} : ${dateInfo}` : dateInfo;
-                                      })()}
-                                  </h3>
-                                  <div className="flex flex-wrap items-center gap-2 mt-1">
-                                      <span className="text-[10px] sm:text-xs text-slate-400 flex items-center gap-1">
-                                          <Calendar size={12}/> 
-                                          Tiết khí: {record.tietKhiTimeline}
-                                      </span>
-                                      {record.isPinned && (
-                                          <span className="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200">
-                                              Đã ghim
-                                          </span>
-                                      )}
-                                      <button
-                                          type="button"
-                                          onClick={(e) => {
-                                              e.stopPropagation();
-                                              setTagModalRecord({ type: 'bazi', record });
-                                          }}
-                                          className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-blue-100/70 text-blue-900 hover:bg-blue-200/80 border border-blue-300/60 transition-all shadow-2xs cursor-pointer"
-                                          title="Chọn thẻ (thư mục) cho lá số này"
-                                      >
-                                          <Tag size={10} className="text-blue-700 shrink-0" />
-                                          <span>{(record.tags && record.tags.length > 0) ? record.tags.join(', ') : 'Chung'}</span>
-                                      </button>
-                                  </div>
-                              </div>
-                              <div className="flex items-center gap-2 self-end sm:self-start shrink-0" onClick={(e) => e.stopPropagation()}>
-                                  <div className="flex items-center gap-1.5 mr-1">
-                                      <span className="text-[10px] font-bold text-slate-500 hidden md:inline">Chia sẻ:</span>
-                                      <button
-                                          type="button"
-                                          onClick={() => handleTogglePublic('bazi', record._id, record.isPublic)}
-                                          className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${record.isPublic ? 'bg-emerald-600' : 'bg-gray-300'}`}
-                                          title={record.isPublic ? "Đang chia sẻ công khai - Nhấp để tắt" : "Đã tắt chia sẻ - Nhấp để bật"}
-                                      >
-                                          <span
-                                              className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${record.isPublic ? 'translate-x-4' : 'translate-x-0'}`}
-                                          />
-                                      </button>
-                                  </div>
-                                  {record.isPublic && (
-                                      <button 
-                                          onClick={() => handleCopyLink('bazi', record._id)} 
-                                          className="p-1.5 rounded-xl hover:bg-blue-50 text-blue-800 hover:text-blue-900 transition-colors cursor-pointer"
-                                          title="Sao chép liên kết chia sẻ công khai"
-                                      >
-                                          <Share2 size={15} />
-                                      </button>
-                                  )}
-                                  <button 
-                                      onClick={() => handleTogglePin('bazi', record._id)} 
-                                      className={`p-1.5 rounded-xl transition-colors hover:bg-blue-50 ${record.isPinned ? 'text-blue-600' : 'text-slate-350 hover:text-blue-500'}`}
-                                      title={record.isPinned ? "Bỏ ghim" : "Ghim lên đầu"}
-                                  >
-                                      <Pin size={15} className={record.isPinned ? 'fill-current' : ''} />
-                                  </button>
-                                  <button 
-                                      onClick={() => setTagModalRecord({ type: 'bazi', record })} 
-                                      className="p-1.5 rounded-xl hover:bg-blue-50 text-blue-800 hover:text-blue-900 transition-colors cursor-pointer"
-                                      title="Chọn thẻ (thư mục)"
-                                  >
-                                      <Tag size={15} />
-                                  </button>
-                                  <button 
-                                      onClick={() => handleViewBaziDetail(record)} 
-                                      className="flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-850 border border-blue-200/50 rounded-xl hover:bg-blue-100 transition-all text-xs font-bold shadow-sm"
-                                  >
-                                      <Eye size={13} />
-                                      <span className="hidden sm:inline">Xem chi tiết</span>
-                                  </button>
-                                  <button 
-                                      onClick={() => handleDelete('bazi', record._id)} 
-                                      className="p-1.5 rounded-xl hover:bg-red-50 text-red-500 hover:text-red-750 transition-colors"
-                                      title="Xóa vĩnh viễn"
-                                  >
-                                      <Trash2 size={15} />
-                                  </button>
-                              </div>
-                          </div>
-                          
-                          {/* Rating Section */}
-                          <div onClick={(e) => e.stopPropagation()} className="mt-4 pt-4 border-t border-blue-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-default">
-                              <div className="flex items-center gap-2 shrink-0">
-                                  <span className="text-xs sm:text-sm font-bold text-slate-700">Đánh giá:</span>
-                                  {renderStars(record.rating, (rating) => handleRate('bazi', record._id, rating, document.getElementById(`feedback-bazi-${record._id}`)?.value || record.feedback))}
-                              </div>
-                              <div className="w-full sm:flex-1 flex items-center gap-2">
-                                  <input 
-                                      type="text" 
-                                      id={`feedback-bazi-${record._id}`}
-                                      placeholder="Nhận xét..." 
-                                      className="flex-1 text-xs px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-blue-400 focus:outline-none transition-all"
-                                      defaultValue={record.feedback}
-                                  />
-                                  <button 
-                                      onClick={() => {
-                                          const val = document.getElementById(`feedback-bazi-${record._id}`).value;
-                                          if (val !== record.feedback || !record.rating) {
-                                              handleRate('bazi', record._id, record.rating, val);
-                                          }
-                                      }}
-                                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all active:scale-95 shrink-0"
-                                  >
-                                      Lưu
-                                  </button>
-                              </div>
-                          </div>
-                      </div>
-                  ))}
-  
-                  {activeTab === 'ziwei' && ziweis.length === 0 && <p className="text-center text-gray-500">Không có</p>}
-                  {activeTab === 'ziwei' && paginatedList.map((record) => (
-                      <div 
-                          key={record._id} 
-                          onClick={() => onViewZiwei(record)} 
-                          onMouseEnter={() => preloadRecord('ziwei', record._id)}
-                          onTouchStart={() => preloadRecord('ziwei', record._id)}
-                          className={`border ${record.isPinned ? 'border-purple-300 bg-purple-50/45 shadow-sm' : 'border-purple-100 bg-purple-50/20'} rounded-2xl p-4 sm:p-5 hover:shadow-md transition-all cursor-pointer`}
-                      >
-                          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-3">
-                              <div className="space-y-1.5 flex-1 min-w-0">
-                                  <h3 className="font-bold text-base sm:text-lg text-purple-900 break-words">
-                                      {(() => {
-                                          const name = record.inputInfo?.name?.trim();
-                                          const hasCustomName = name && !name.startsWith('Bát Tự -') && !name.startsWith('Tử Vi -') && name.toLowerCase() !== 'bát tự' && name.toLowerCase() !== 'tử vi';
-                                          const dateInfo = `${record.inputInfo?.date || ''} (${record.inputInfo?.gender || ''} Mệnh)`.trim();
-                                          return hasCustomName ? `${name} : ${dateInfo}` : dateInfo;
-                                      })()}
-                                  </h3>
-                                  <div className="flex flex-wrap items-center gap-2 mt-1">
-                                      <span className="text-[10px] sm:text-xs text-slate-400 flex items-center gap-1">
-                                          <Clock size={12}/> 
-                                          Giờ sinh: {record.inputInfo?.hour !== undefined ? LUNAR_HOURS_MAP[record.inputInfo.hour] : ''}
-                                      </span>
-                                      {record.isPinned && (
-                                          <span className="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 border border-purple-200">
-                                              Đã ghim
-                                          </span>
-                                      )}
-                                  </div>
-                              </div>
-                              <div className="flex items-center gap-2 self-end sm:self-start shrink-0" onClick={(e) => e.stopPropagation()}>
-                                  <div className="flex items-center gap-1.5 mr-1">
-                                      <span className="text-[10px] font-bold text-slate-500 hidden md:inline">Chia sẻ:</span>
-                                      <button
-                                          type="button"
-                                          onClick={() => handleTogglePublic('ziwei', record._id, record.isPublic)}
-                                          className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${record.isPublic ? 'bg-purple-600' : 'bg-gray-300'}`}
-                                          title={record.isPublic ? "Đang chia sẻ công khai - Nhấp để tắt" : "Đã tắt chia sẻ - Nhấp để bật"}
-                                      >
-                                          <span
-                                              className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${record.isPublic ? 'translate-x-4' : 'translate-x-0'}`}
-                                          />
-                                      </button>
-                                  </div>
-                                  {record.isPublic && (
-                                      <button 
-                                          onClick={() => handleCopyLink('ziwei', record._id)} 
-                                          className="p-1.5 rounded-xl hover:bg-purple-50 text-purple-800 hover:text-purple-900 transition-colors cursor-pointer"
-                                          title="Sao chép liên kết chia sẻ công khai"
-                                      >
-                                          <Share2 size={15} />
-                                      </button>
-                                  )}
-                                  <button 
-                                      onClick={() => handleTogglePin('ziwei', record._id)} 
-                                      className={`p-1.5 rounded-xl transition-colors hover:bg-purple-50 ${record.isPinned ? 'text-purple-600' : 'text-slate-350 hover:text-purple-500'}`}
-                                      title={record.isPinned ? "Bỏ ghim" : "Ghim lên đầu"}
-                                  >
-                                      <Pin size={15} className={record.isPinned ? 'fill-current' : ''} />
-                                  </button>
-                                  <button 
-                                      onClick={() => setTagModalRecord({ type: 'ziwei', record })} 
-                                      className="p-1.5 rounded-xl hover:bg-purple-50 text-purple-800 hover:text-purple-900 transition-colors cursor-pointer"
-                                      title="Chọn thẻ (thư mục)"
-                                  >
-                                      <Tag size={15} />
-                                  </button>
-                                  <button 
-                                      onClick={() => onViewZiwei(record)} 
-                                      className="flex items-center gap-1 px-3 py-1 bg-purple-50 text-purple-855 border border-purple-200/50 rounded-xl hover:bg-purple-100 transition-all text-xs font-bold shadow-sm"
-                                  >
-                                      <Eye size={13} />
-                                      <span className="hidden sm:inline">Xem chi tiết</span>
-                                  </button>
-                                  <button 
-                                      onClick={() => handleDelete('ziwei', record._id)} 
-                                      className="p-1.5 rounded-xl hover:bg-red-50 text-red-500 hover:text-red-755 transition-colors"
-                                      title="Xóa vĩnh viễn"
-                                  >
-                                      <Trash2 size={15} />
-                                  </button>
-                              </div>
-                          </div>
-                          
-                          {/* Rating Section */}
-                          <div onClick={(e) => e.stopPropagation()} className="mt-4 pt-4 border-t border-purple-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-default">
-                              <div className="flex items-center gap-2 shrink-0">
-                                  <span className="text-xs sm:text-sm font-bold text-slate-700">Đánh giá:</span>
-                                  {renderStars(record.rating, (rating) => handleRate('ziwei', record._id, rating, document.getElementById(`feedback-ziwei-${record._id}`)?.value || record.feedback))}
-                              </div>
-                              <div className="w-full sm:flex-1 flex items-center gap-2">
-                                  <input 
-                                      type="text" 
-                                      id={`feedback-ziwei-${record._id}`}
-                                      placeholder="Nhận xét..." 
-                                      className="flex-1 text-xs px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-purple-400 focus:outline-none transition-all"
-                                      defaultValue={record.feedback}
-                                  />
-                                  <button 
-                                      onClick={() => {
-                                          const val = document.getElementById(`feedback-ziwei-${record._id}`).value;
-                                          if (val !== record.feedback || !record.rating) {
-                                              handleRate('ziwei', record._id, record.rating, val);
-                                          }
-                                      }}
-                                      className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all active:scale-95 shrink-0"
-                                  >
-                                      Lưu
-                                  </button>
-                              </div>
-                          </div>
-                      </div>
-                  ))}
+                    <IChingHistoryCard
+                        key={record._id}
+                        record={record}
+                        onView={handleViewHexagramDetail}
+                        onPreload={preloadRecord}
+                        onTogglePublic={handleTogglePublic}
+                        onCopyLink={handleCopyLink}
+                        onTogglePin={handleTogglePin}
+                        onOpenTagModal={setTagModalRecord}
+                        onDelete={handleDelete}
+                        onRate={handleRate}
+                        renderStars={renderStars}
+                    />
+                ))}
 
-                  {activeTab === 'marriage' && marriages.length === 0 && <p className="text-center text-gray-500">Không có</p>}
-                  {activeTab === 'marriage' && paginatedList.map((record) => (
-                      <div 
-                          key={record._id} 
-                          onClick={() => handleViewMarriageDetail(record)} 
-                          onMouseEnter={() => preloadRecord('marriage', record._id)}
-                          onTouchStart={() => preloadRecord('marriage', record._id)}
-                          className={`border ${record.isPinned ? 'border-rose-300 bg-rose-50/45 shadow-sm' : 'border-rose-100 bg-rose-50/20'} rounded-2xl p-4 sm:p-5 hover:shadow-md transition-all cursor-pointer`}
-                      >
-                          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-3">
-                              <div className="space-y-1.5 flex-1 min-w-0">
-                                  <h3 className="font-bold text-base sm:text-lg text-rose-900 break-words">Hợp Hôn: Nam ({record.inputInfo?.male?.date || ''}) & Nữ ({record.inputInfo?.female?.date || ''})</h3>
-                                  <div className="flex flex-wrap items-center gap-2 mt-1">
-                                      <span className="text-[10px] sm:text-xs text-slate-400 flex items-center gap-1.5">
-                                          <Clock size={12}/> 
-                                          {new Date(record.createdAt).toLocaleString('vi-VN')}
-                                      </span>
-                                      {record.isPinned && (
-                                          <span className="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-200">
-                                              Đã ghim
-                                          </span>
-                                      )}
-                                      <button
-                                          type="button"
-                                          onClick={(e) => {
-                                              e.stopPropagation();
-                                              setTagModalRecord({ type: 'marriage', record });
-                                          }}
-                                          className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-rose-100/70 text-rose-900 hover:bg-rose-200/80 border border-rose-300/60 transition-all shadow-2xs cursor-pointer"
-                                          title="Chọn thẻ (thư mục) cho lá số này"
-                                      >
-                                          <Tag size={10} className="text-rose-700 shrink-0" />
-                                          <span>{(record.tags && record.tags.length > 0) ? record.tags.join(', ') : 'Chung'}</span>
-                                      </button>
-                                  </div>
-                              </div>
-                              <div className="flex items-center gap-2 self-end sm:self-start shrink-0" onClick={(e) => e.stopPropagation()}>
-                                  <div className="flex items-center gap-1.5 mr-1">
-                                      <span className="text-[10px] font-bold text-slate-500 hidden md:inline">Chia sẻ:</span>
-                                      <button
-                                          type="button"
-                                          onClick={() => handleTogglePublic('marriage', record._id, record.isPublic)}
-                                          className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${record.isPublic ? 'bg-rose-600' : 'bg-gray-300'}`}
-                                          title={record.isPublic ? "Đang chia sẻ công khai - Nhấp để tắt" : "Đã tắt chia sẻ - Nhấp để bật"}
-                                      >
-                                          <span
-                                              className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${record.isPublic ? 'translate-x-4' : 'translate-x-0'}`}
-                                          />
-                                      </button>
-                                  </div>
-                                  {record.isPublic && (
-                                      <button 
-                                          onClick={() => handleCopyLink('marriage', record._id)} 
-                                          className="p-1.5 rounded-xl hover:bg-rose-50 text-rose-800 hover:text-rose-900 transition-colors cursor-pointer"
-                                          title="Sao chép liên kết chia sẻ công khai"
-                                      >
-                                          <Share2 size={15} />
-                                      </button>
-                                  )}
-                                  <button 
-                                      onClick={() => handleTogglePin('marriage', record._id)} 
-                                      className={`p-1.5 rounded-xl transition-colors hover:bg-rose-50 ${record.isPinned ? 'text-rose-600' : 'text-slate-350 hover:text-rose-500'}`}
-                                      title={record.isPinned ? "Bỏ ghim" : "Ghim lên đầu"}
-                                  >
-                                      <Pin size={15} className={record.isPinned ? 'fill-current' : ''} />
-                                  </button>
-                                  <button 
-                                      onClick={() => setTagModalRecord({ type: 'marriage', record })} 
-                                      className="p-1.5 rounded-xl hover:bg-rose-50 text-rose-800 hover:text-rose-900 transition-colors cursor-pointer"
-                                      title="Chọn thẻ (thư mục)"
-                                  >
-                                      <Tag size={15} />
-                                  </button>
-                                  <button 
-                                      onClick={() => handleViewMarriageDetail(record)} 
-                                      className="flex items-center gap-1 px-3 py-1 bg-rose-50 text-rose-850 border border-rose-200/50 rounded-xl hover:bg-rose-100 transition-all text-xs font-bold shadow-sm"
-                                  >
-                                      <Eye size={13} />
-                                      <span className="hidden sm:inline">Xem chi tiết</span>
-                                  </button>
-                                  <button 
-                                      onClick={() => handleDelete('marriage', record._id)} 
-                                      className="p-1.5 rounded-xl hover:bg-red-50 text-red-500 hover:text-red-755 transition-colors"
-                                      title="Xóa vĩnh viễn"
-                                  >
-                                      <Trash2 size={15} />
-                                  </button>
-                              </div>
-                          </div>
-                          
-                          {/* Rating Section */}
-                          <div onClick={(e) => e.stopPropagation()} className="mt-4 pt-4 border-t border-rose-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-default">
-                              <div className="flex items-center gap-2 shrink-0">
-                                  <span className="text-xs sm:text-sm font-bold text-slate-700">Đánh giá:</span>
-                                  {renderStars(record.rating, (rating) => handleRate('marriage', record._id, rating, document.getElementById(`feedback-marr-${record._id}`)?.value || record.feedback))}
-                              </div>
-                              <div className="w-full sm:flex-1 flex items-center gap-2">
-                                  <input 
-                                      type="text" 
-                                      id={`feedback-marr-${record._id}`}
-                                      placeholder="Nhận xét..." 
-                                      className="flex-1 text-xs px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-rose-400 focus:outline-none transition-all"
-                                      defaultValue={record.feedback}
-                                  />
-                                  <button 
-                                      onClick={() => {
-                                          const val = document.getElementById(`feedback-marr-${record._id}`).value;
-                                          if (val !== record.feedback || !record.rating) {
-                                              handleRate('marriage', record._id, record.rating, val);
-                                          }
-                                      }}
-                                      className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all active:scale-95 shrink-0"
-                                  >
-                                      Lưu
-                                  </button>
-                              </div>
-                          </div>
-                      </div>
-                  ))}
+                {activeTab === 'bazi' && bazis.length === 0 && <p className="text-center text-gray-500">Không có</p>}
+                {activeTab === 'bazi' && paginatedList.map((record) => (
+                    <BaziHistoryCard
+                        key={record._id}
+                        record={record}
+                        onView={handleViewBaziDetail}
+                        onPreload={preloadRecord}
+                        onTogglePublic={handleTogglePublic}
+                        onCopyLink={handleCopyLink}
+                        onTogglePin={handleTogglePin}
+                        onOpenTagModal={setTagModalRecord}
+                        onDelete={handleDelete}
+                        onRate={handleRate}
+                        renderStars={renderStars}
+                    />
+                ))}
+
+                {activeTab === 'ziwei' && ziweis.length === 0 && <p className="text-center text-gray-500">Không có</p>}
+                {activeTab === 'ziwei' && paginatedList.map((record) => (
+                    <ZiweiHistoryCard
+                        key={record._id}
+                        record={record}
+                        onView={onViewZiwei}
+                        onPreload={preloadRecord}
+                        onTogglePublic={handleTogglePublic}
+                        onCopyLink={handleCopyLink}
+                        onTogglePin={handleTogglePin}
+                        onOpenTagModal={setTagModalRecord}
+                        onDelete={handleDelete}
+                        onRate={handleRate}
+                        renderStars={renderStars}
+                    />
+                ))}
+
+                {activeTab === 'marriage' && marriages.length === 0 && <p className="text-center text-gray-500">Không có</p>}
+                {activeTab === 'marriage' && paginatedList.map((record) => (
+                    <MarriageHistoryCard
+                        key={record._id}
+                        record={record}
+                        onView={handleViewMarriageDetail}
+                        onPreload={preloadRecord}
+                        onTogglePublic={handleTogglePublic}
+                        onCopyLink={handleCopyLink}
+                        onTogglePin={handleTogglePin}
+                        onOpenTagModal={setTagModalRecord}
+                        onDelete={handleDelete}
+                        onRate={handleRate}
+                        renderStars={renderStars}
+                    />
+                ))}
             </div>
 
             {/* Pagination Controls */}

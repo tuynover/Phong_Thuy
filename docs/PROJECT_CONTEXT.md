@@ -126,5 +126,30 @@ Hệ thống máy chủ Express.js v5 đã được tái cấu trúc toàn diệ
   + `src/shared/`: Động cơ cổ học an sao và tri thức dùng chung (`AstrologyEngine`, `SymbolicAnalyzer`, `ungKyParser`, `astrologyHelpers`).
 - **Đường Dẫn Mới Trực Tiếp 100%:** Cập nhật trực tiếp 100% các câu lệnh `require` sang đường dẫn mới ở tất cả các routes, controllers, scripts và toàn bộ 35 Test Suites (257 bài test Jest), xóa bỏ hoàn toàn các tệp và thư mục cũ. Tỷ lệ kiểm thử thành công: **35/35 Test Suites PASSED (100%)**.
 
+### 4.12 Tái Cấu Trúc Toàn Diện Frontend & Chuẩn Hóa 100% CustomDatePicker (09/2026)
+Tiếp nối thành công tái cấu trúc Backend, hệ thống Frontend đã được phân rã toàn diện chuẩn Zero UI Regression:
+- **Tách Component Layout Header (`src/components/layout/Header.jsx`):**
+  + Tách thanh Sticky Header khỏi `UserApp.jsx`, quản lý logo, điều hướng tab, auth dropdown, credit badge, chuông thông báo và sliding pill chuyển ADMIN/USER APP.
+- **Phân Rã Toàn Diện Mô-đun Bát Tự (`src/features/bazi/components/`):**
+  + Rút gọn `BaziBoard.jsx` từ **1.848 dòng xuống 445 dòng (-76%)**.
+  + Tách 7 component con: `BaziPillarsTable.jsx`, `BaziPillar.jsx`, `BaziFiveElementsChart.jsx`, `BaziDaiYunTimeline.jsx`, `BaziProfileHeader.jsx`, `BaziRemedyAndRelations.jsx`, `ThapThanStrengthTable.jsx`.
+- **Phân Rã Toàn Diện Bảng Quản Trị Hệ Thống (`src/features/admin/tabs/`):**
+  + Rút gọn `AdminApp.jsx` từ **3.338 dòng xuống 340 dòng (-90%)**.
+  + Tách 5 tab độc lập: `AdminOverviewTab.jsx`, `AdminUsersTab.jsx`, `AdminCalculationsTab.jsx`, `AdminAlertsTab.jsx`, `AdminBlogTab.jsx` và modal `AdminUserStatsModal.jsx`.
+- **Phân Rã Mô-đun Lịch Sử (`src/features/history/components/`):**
+  + Rút gọn `HistoryBoard.jsx` từ **1.736 dòng xuống 1.090 dòng (-37%)**.
+  + Tách 4 card chuyên biệt: `IChingHistoryCard.jsx`, `BaziHistoryCard.jsx`, `ZiweiHistoryCard.jsx`, `MarriageHistoryCard.jsx`.
+- **Trích Xuất 3 Custom Hooks Dùng Chung (`src/hooks/`):**
+  + `useInterpretationStream.js`, `useRecordRating.js`, `usePublicToggle.js`.
+- **Chuẩn Hóa 100% CustomDatePicker (Zero Native Date Inputs):**
+  + Thay thế toàn bộ các thẻ `<input type="date">` thô của trình duyệt tại `AdminOverviewTab.jsx` và `MyFoldersModal.jsx` sang component `CustomDatePicker` tùy chỉnh cao cấp, đồng bộ theme màu phong thủy, hỗ trợ modal backdrop trên thiết bị di động.
+- **Dọn Dẹp Mã Nguồn TTS Engine & Khôi Phục Kết Nối Atlas:**
+  + Loại bỏ duplicate class methods trong `ttsEngine.js`. Cấu hình trực tiếp kết nối MongoDB Atlas với `serverSelectionTimeoutMS: 15000`.
+- **Kiểm Thử Nghiệm Thu Hoàn Hảo:**
+  + Frontend: 4/4 test files PASS (29/29 tests), `npm run build` thành công trong 1.64s.
+  + Backend: 35/35 test suites PASS (257/257 tests).
+  + Chrome DevTools MCP: 0 lỗi console, xác thực đầy đủ luồng Đăng nhập, Đăng xuất, Bát tự, Lịch sử và Admin Dashboard.
+
+
 
 

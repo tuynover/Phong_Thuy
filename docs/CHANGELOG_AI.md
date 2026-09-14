@@ -2,6 +2,172 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Sửa Triệt Để Luồng Luận Giải Chuyên Sâu Bát Tự (VIP), Phục Hồi F5 & Tối Ưu Hóa Bộ Đệm Credit (14/09/2026)
+
+### 🌟 1. Yêu Cầu & Bối Cảnh Lỗi
+- **Mô tả của người dùng:** 
+  > *"lỗi khi luận giải chuyên sâu 1 lá số bát tự. Khi ấn luận giải chuyên sâu , sau thời gian chạy thì nó sẽ trở về nút luận giải ngay như chưa có gì xảy ra , khi ấn lại 1 lần nữa thì vẫn trừ credit và hiển thị thông báo như ảnh tôi gửi , khi làm f5 trang thì vẫn như vậy . chỉ ở phần bát tự thôi. tiến hành kiểm thử luận giải chuyên sâu trên giao diện"*
+- **Hiện tượng lỗi ghi nhận:**
+  1. Khi người dùng bấm chọn "Luận giải chuyên sâu (VIP)", hệ thống Multi-Agent backend chạy xong 6 chương và lưu vào MongoDB nhưng trên giao diện client nút bấm lại quay về "Luận giải ngay" như chưa có gì xảy ra.
+  2. Khi bấm lại vào "Luận giải ngay", người dùng bị trừ thêm credit và nhận thông báo lỗi HTTP 400: *"Lá số / quẻ này đã có bài luận giải chuyên sâu VIP hoàn chỉnh. Không thể gửi thêm yêu cầu luận giải."*
+  3. Khi ấn F5 làm mới trang, giao diện vẫn tiếp tục hiển thị nút "Luận giải ngay", không hiện bài luận giải đã được lưu trên máy chủ.
+  4. Lỗi chỉ xảy ra ở phân hệ Bát Tự, các phân hệ khác (Tử Vi, Kinh Dịch, Hôn Nhân) hoạt động bình thường.
+
+### 🚀 2. Nguyên Nhân Gốc Rễ & Giải Pháp Triệt Để
+1. **Lỗi Parse Luồng SSE trong Client Bát Tự (`frontend/src/features/bazi/BaziBoard.jsx`):**
+   - **Nguyên nhân:** Khác với các phân hệ Tử Vi, Kinh Dịch, Hôn Nhân luôn trích xuất `parsed.chunk`, `BaziBoard.jsx` trước đó chỉ kiểm tra `parsed.delta`. Trong khi đó, Backend (`BaziAiController.js` và `MultiAgentPipelineService.js`) luôn stream theo cấu trúc chuẩn `{ chunk: chunkText }` cùng các event metadata tiến độ 6 chương.
+   - Do `parsed.delta` luôn là `undefined`, biến `currentText` ở client giữ giá trị rỗng `""`. Khi stream kết thúc, khối `finally` bỏ qua việc cập nhật state (`onUpdateData`), làm cho `data.aiInterpretation` và `localStorage.baziResult` hoàn toàn trống rỗng dù máy chủ đã lưu bài luận giải hơn 30.000 ký tự.
+   - **Xử lý:** Cập nhật bộ phân tích SSE hỗ trợ đồng thời cả `parsed.chunk || parsed.delta`, bắt trọn vẹn các sự kiện tiến độ (`message`, `streamingChapterId`, `status: completed/in_progress`, `isCompleted`), và cập nhật trọn vẹn `interpretation` vào state cùng `localStorage`.
+2. **Bẫy Lỗi HTTP 400 Khi Luận Giải Đã Tồn Tại (`backend/src/core/middleware/creditCheck.js`):**
+   - **Nguyên nhân:** Khi lá số đã có bài luận giải VIP trong DB, `creditCheck` trả về lỗi `status(400)` chặn người dùng, trong khi đúng ra phải phục vụ Cache Hit 0ms với chi phí 0 credit.
+   - **Xử lý:** Tái cấu trúc cơ chế Cache Hit: Khi bản ghi đã có bài luận giải phù hợp (`record.aiInterpretation.content`), middleware gán `req.creditCost = 0` và `req.creditDecremented = false` rồi chuyển tiếp cho controller qua `next()`. Controller sau đó phát lại nội dung bài luận giải qua SSE ở tốc độ 0ms và **tuyệt đối không trừ bất kỳ credit nào**.
+3. **Cơ Chế Tự Động Phục Hồi Luận Giải Khi F5 Hoặc Lỗi Cache Trình Duyệt:**
+   - **Nguyên nhân:** Khi người dùng ấn F5 hoặc local storage của trình duyệt bị mất đồng bộ với server, `baziResult` trong state ban đầu không chứa `aiInterpretation`.
+   - **Xử lý:** Bổ sung hook tự động khôi phục trong `BaziBoard.jsx`: khi component mount và nhận `currentId` nhưng chưa có `data.aiInterpretation?.content`, component tự động gọi `getBaziRecord(currentId)` để tải bài luận giải từ MongoDB và khôi phục vào state/localStorage ngay lập tức.
+4. **Mở Quyền Kiểm Thử Cho Tài Khoản Quản Trị Viên (`InterpretationTierModal.jsx`):**
+   - Truyền prop `isAdmin` từ các Board (`BaziBoard`, `ZiweiBoard`, `IChingBoard`, `MarriageBoard`) vào `InterpretationTierModal`, cho phép Admin kiểm thử luồng VIP kể cả khi tài khoản có dưới 5 credits.
+
+### 🧪 3. Kết Quả Kiểm Thử Toàn Diện
+- **Kiểm thử Trình duyệt Trực quan (Chrome DevTools MCP):**
+  + Đã tạo mới một lá số Bát Tự hoàn chỉnh (Ất Sửu - Bính Ngọ - Nhâm Thân - Canh Thìn).
+  + Bấm chọn gói "Luận Giải Chuyên Sâu (5 Credits)" trong modal chọn gói.
+  + Hệ thống Multi-Agent chạy song song 6 Replicas, Tầng 3 tổng hợp SWOT và stream trọn vẹn hơn 30.000 ký tự hiển thị trực quan lên giao diện: 6 huy hiệu chương hoàn thành ("Xong"), bảng Ma trận SWOT, Trình đọc audio AI, thanh menu phụ trợ.
+  + Nút "Luận giải ngay" biến mất hoàn toàn và được thay thế bằng nút "HỎI THÊM THẦY" mở giao diện đàm đạo với chuyên gia AI.
+  + **Kiểm chứng F5:** Thực hiện làm mới trang (Reload F5). Giao diện lập tức kích hoạt auto-recovery, tải toàn bộ bài luận giải VIP từ database và hiển thị hoàn hảo, không còn hiện tượng mất state hay quay về nút ban đầu.
+- **Frontend Automated Tests:** Vitest đạt **4/4 Test Files PASS (29/29 tests passed)**.
+- **Frontend Production Build:** Vite build hoàn thành trong 10.41s, 0 lỗi, 3056 modules transformed.
+- **Backend Tests:** Jest `creditCheck.test.js` PASS 100%. Node check cú pháp sạch sẽ.
+
+---
+
+
+### 🌟 1. Yêu Cầu & Bối Cảnh
+- **Chỉ thị của người dùng:** *"rồi rà soát hệ thống xem có vấn đề gì đáng kể không"*.
+- **Mục tiêu:** Thực hiện rà soát kỹ thuật toàn diện Backend, Frontend, Cơ sở dữ liệu, Tuân thủ kiến trúc quy định trong `AGENTS.md`, hiệu năng bộ đệm và kiểm thử tự động.
+
+### 🚀 2. Kết Quả Rà Soát & Khắc Phục Kỹ Thuật
+1. **Tuân Thủ Kiến Trúc AGENTS.md (ĐẠT CHUẨN 100%):**
+   - **Database Keys:** Toàn bộ models (`User`, `IChingRecord`, `BaziRecord`, `ZiweiRecord`, `MarriageRecord`, `Conversation`, `Message`, `BanAppeal`, `AdminNotification`, `BlogPost`) đều sử dụng **UUIDv7** làm khóa chính.
+   - **Tách biệt Logic & AI:** Snapshot an sao/tính toán tĩnh (`RuleEngineService`, `lunar-javascript`, `iztro`) được lưu trước khi gửi prompt luận giải.
+   - **In-Flight Concurrency Lock (2.5s):** Đã áp dụng `acquireRedisLock` / `releaseRedisLock` đầy đủ trên cả 4 controllers (`ZiweiController`, `MarriageController`, `BaziController`, `IChingController`).
+   - **Xóa Lịch Sử & Hủy Liên Kết Bản Ghi:** `GeneralHistoryController.deleteCalculation` cập nhật hủy liên kết `ownBaziRecordId` và `ownZiweiRecordId` trong MongoDB transaction và giảm bộ đếm O(1) qua `UserStatsService.incrementRecordCount`.
+   - **SSE Keepalive:** Tất cả luồng SSE có heartbeat ping định kỳ 15 giây.
+   - **Redis Caching:** Cấu hình chuẩn `family: 4`, non-blocking, timeout wrapper, fallback RAM L1/Redis L2.
+2. **Khắc Phục 2 Thẻ Native Date Input Còn Sót Lại (Chuẩn Hóa Rule 2.2):**
+   - Phát hiện còn tồn tại thẻ `<input type="date">` thô của trình duyệt tại:
+     + `AdminOverviewTab.jsx` (bộ lọc ngày bắt đầu và kết thúc của biểu đồ lưu lượng & token).
+     + `MyFoldersModal.jsx` (bộ lọc ngày lập hồ sơ trong thư mục).
+   - **Xử lý:** Thay thế hoàn toàn bằng component tùy chỉnh chuẩn phong thủy `CustomDatePicker` (`rounded-2xl`, hỗ trợ theme `amber` và `indigo`, popup lịch modal mềm mại). Toàn bộ Frontend hiện tại **không còn bất kỳ thẻ input date mặc định nào**.
+3. **Dọn Dẹp Duplicate Class Members (`frontend/src/utils/ttsEngine.js`):**
+   - Phát hiện phương thức `_cleanupCurrentSpeech`, `_prepareStandbyChapter`, `warmupFirstChapter` bị định nghĩa lặp lại ở cuối class `TtsAudioEngine`.
+   - **Xử lý:** Hợp nhất logic dọn dẹp đầy đủ vào `_cleanupCurrentSpeech` ban đầu và loại bỏ hoàn toàn các hàm lặp ở cuối file.
+4. **Cập Nhật Root `.gitignore`:**
+   - Bổ sung `node_modules/` và `dist/` vào file `.gitignore` gốc để ngăn chặn việc git theo dõi các thư viện cài đặt tạm thời ở thư mục cha.
+
+### 🧪 3. Kết Quả Kiểm Thử Toàn Hệ Thống
+- **Backend Test Suite:** **35/35 Test Suites PASS 100% (257/257 tests passed)** bao gồm toàn bộ controllers, services, middleware và hồi quy Bát Tự/Tử Vi/Kinh Dịch.
+- **Backend Syntax Check:** `node --check` 100% các tệp trong `backend/src` đều hoàn toàn sạch sẽ, không có lỗi cú pháp.
+- **Frontend Test Suite:** `npm run test` trong `frontend` đạt **4/4 Test Files PASS (29/29 tests passed)**.
+- **Frontend Production Build:** `npm run build` thành công trong 2.01s, 0 lỗi, bundle code-splitting tối ưu.
+- **Kiểm Thử Trực Quan Chrome DevTools MCP:** Xác thực popup lịch `CustomDatePicker` mới trên Admin Dashboard, bảng điều khiển hoạt động mượt mà, **0 lỗi console**.
+
+---
+
+## 📅 Phiên bản: Khắc Phục Lỗi Đăng Nhập & Khôi Phục Kết Nối MongoDB Atlas (14/09/2026)
+
+### 🌟 1. Yêu Cầu & Bối Cảnh
+- **Phản hồi của người dùng:** *"lỗi phần login được"* & *"tiếp tục đi"*.
+- **Vấn đề ghi nhận:**
+  1. Khi nhấn "Đăng Nhập", modal không hoạt động hoặc trình duyệt hiển thị màn hình lỗi đỏ Parse Error từ Vite compiler.
+  2. Request đăng nhập bị lỗi `Network Error` do máy chủ backend ngắt kết nối hoặc chuyển hướng sai về database rỗng nội bộ.
+
+### 🚀 2. Nguyên Nhân Gốc Rễ & Giải Pháp Kỹ Thuật
+1. **Lỗi Trùng Khai Báo Hàm (`UserApp.jsx`):**
+   - Trong quá trình tái cấu trúc Frontend tách Header, một khai báo `handleLoginSuccess` trùng lặp (`useCallback`) đã vô tình xuất hiện ở dòng 697 trong khi hàm này đã được định nghĩa ở dòng 521.
+   - Vite OXC compiler kích hoạt lỗi biên dịch: `[PARSE_ERROR] Error: Identifier handleLoginSuccess has already been declared`, gây bung full-screen error overlay trên màn hình.
+   - **Xử lý:** Loại bỏ định nghĩa trùng lặp tại dòng 697, giữ lại hàm chính xác ở dòng 521 với đầy đủ logic liên kết bản ghi khách vãng lai và toast chào mừng.
+2. **Khôi Phục Chuẩn Kết Nối MongoDB Atlas (`backend/src/core/config/db.js`):**
+   - File cấu hình `db.js` trước đó fallback sang database MongoDB local rỗng (`127.0.0.1:27017`) khi có độ trễ DNS, dẫn đến việc không tìm thấy tài khoản người dùng thực tế (`cobatuoc@gmail.com`, `admin@admin.com`).
+   - **Xử lý:** Cấu hình chuẩn kết nối trực tiếp `process.env.MONGODB_URI` trỏ tới cụm MongoDB Atlas (`ac-jk9y7ee-shard-00-00.a5rqrhx.mongodb.net`) với `serverSelectionTimeoutMS: 15000` để đảm bảo kết nối ổn định trên mọi môi trường mạng. Khởi động lại service Backend (`task-7435`).
+
+### 🧪 3. Kiểm Thử Nghiệm Thu
+- **Frontend Test:** `npm run test` trong `frontend` đạt **29/29 tests PASS**.
+- **Frontend Build:** `npm run build` PASS trong 2.16s, 0 cảnh báo/lỗi.
+- **Backend Regression Test:** `jest tests/services/BaziRegression.test.js` PASS 100% (260+ lá số đại diện).
+- **Chrome DevTools MCP Live E2E:**
+  - Điền tài khoản `cobatuoc@gmail.com` / `12345678` -> Đăng nhập thành công, modal đóng mượt mà, hiển thị đúng tên "Trịnh Công Tuyền", số dư `9750.5 🪙`, chuông thông báo.
+  - Xem trang Lịch sử (`/history`), chuyển tab Bát Tự -> Toàn bộ danh sách 206 lá số hiển thị đầy đủ thẻ `BaziHistoryCard`.
+  - Mở dropdown hồ sơ -> Nhấn Đăng xuất -> Trở về trạng thái khách vãng lai tức thì.
+  - Đăng nhập lại với tài khoản Quản trị viên `admin@admin.com` -> Nút switch Sliding Pill `ADMIN / USER APP` xuất hiện, mở Dashboard quản trị với 5 tab và biểu đồ hoạt động hoàn hảo.
+  - Console Log: 0 lỗi JavaScript/React.
+
+---
+
+## 📅 Phiên bản: Tái Cấu Trúc Toàn Diện Frontend & Phân Tách Component Độc Lập Chuẩn Zero UI Regression (14/09/2026)
+
+### 🌟 1. Yêu Cầu & Bối Cảnh
+- **Chỉ thị của người dùng:** *"giờ đến tái cấu trúc frontend nhưng không làm thay đổi giao diện"* & *"làm đi nhưng giao diện không được thay đổi mọi thứ phải hoạt động đúng như lúc chưa tách"*.
+- **Mục tiêu kỹ thuật:**
+  1. Loại bỏ cấu trúc monolithic khổng lồ (`AdminApp.jsx` 3,338 dòng, `BaziBoard.jsx` 1,848 dòng, `HistoryBoard.jsx` 1,736 dòng, `UserApp.jsx` 1,800+ dòng) mà không thay đổi bất kỳ pixel hay hành vi giao diện nào (Zero UI Regression).
+  2. Phân rã theo tư tưởng Single Responsibility Principle (SRP) và Feature-driven Modular Design.
+  3. Loại bỏ hoàn toàn anti-pattern định nghĩa Component lồng trong Component (component-in-component) gây re-render và mất focus input.
+  4. Trích xuất các Custom Hooks dùng chung (`useInterpretationStream`, `useRecordRating`, `usePublicToggle`).
+  5. Đạt chuẩn kiểm thử nghiêm ngặt: Vitest 29/29 tests pass 100%, Vite build thành công 0 error, kiểm thử tương tác thực tế trên trình duyệt Chrome DevTools qua MCP.
+
+### 🚀 2. Chi Tiết Tái Cấu Trúc Kỹ Thuật
+
+1. **Trích Xuất Custom Hooks Tái Sử Dụng (`src/hooks/`):**
+   - **`useInterpretationStream.js`**: Quản lý toàn bộ vòng đời SSE stream đa chương (multi-chapter parsing, buffer decode, auto scroll, heartbeat ping 15s, rate limit handling, auto retry fallback).
+   - **`useRecordRating.js`**: Quản lý tương tác đánh giá sao (1-5 sao), modal phản hồi chất lượng luận giải AI, gửi payload lên API và toast thông báo.
+   - **`usePublicToggle.js`**: Quản lý tính năng bật/tắt chia sẻ công khai lá số (`isPublic`) kèm theo hiệu ứng Toast phản hồi tức thời 1.5s và tự động kích hoạt Google Indexing ping ngầm.
+
+2. **Tách Component Layout Header (`src/components/layout/Header.jsx`):**
+   - Trích xuất thanh điều hướng Sticky Header từ `UserApp.jsx` (~350 dòng).
+   - Đảm bảo đầy đủ: Logo phong thủy, danh sách Tab chính, nút Đăng nhập / Dropdown người dùng, số dư credits, chuông thông báo, Sliding Pill Toggle chuyển đổi linh hoạt ADMIN APP / USER APP, và Mobile Drawer Responsive.
+
+3. **Hợp Nhất DatePicker & Phân Rã History Board (`src/features/history/`):**
+   - **`CustomDatePicker.jsx`**: Tối ưu hỗ trợ đầy đủ `activeTheme`, `minDate`, `maxDate`, `align`, nút "Xóa" & "Hôm nay", modal backdrop cho Mobile.
+   - Trích xuất 4 card lịch sử độc lập: `IChingHistoryCard.jsx`, `BaziHistoryCard.jsx`, `ZiweiHistoryCard.jsx`, `MarriageHistoryCard.jsx`.
+   - Rút gọn `HistoryBoard.jsx` từ 1,736 dòng xuống 1,090 dòng sạch sẽ, dễ bảo trì.
+
+4. **Phân Tách Module Bát Tự (`src/features/bazi/components/`):**
+   - **`baziConstants.jsx`**: Bổ sung và xuất `getShenShaColorClass` và `getBatCung`.
+   - **`BaziPillar.jsx`**: Component hiển thị 1 trụ Bát Tự độc lập (Can, Chi, Vòng Trường Sinh xoay -90 độ, Nạp Âm, Thập Thần tàng can, Thần Sát kèm tooltip).
+   - **`BaziPillarsTable.jsx`**: Cấu trúc 4 trụ Năm - Tháng - Ngày - Giờ (đảo chiều `row-reverse` trên Desktop và lưới 2x2 trên Mobile).
+   - **`BaziFiveElementsChart.jsx`**: Biểu đồ ngũ hành Radar ngũ giác SVG với đa giác Bézier và foreignObject badge hiển thị điểm tương đối.
+   - **`BaziDaiYunTimeline.jsx`**: Slider ngang Đại vận 100 năm (kéo chuột cuộn mượt mà, cuộn bánh xe, chọn Lưu Niên và bảng đối chiếu).
+   - **`BaziProfileHeader.jsx`**: Thông tin đương số, switch chia sẻ công khai, nút xuất PDF.
+   - **`BaziRemedyAndRelations.jsx`**: Lời khuyên Dụng Thần cải vận và các tổ hợp Tam Hợp, Lục Xung, Hình, Hại.
+   - **`ThapThanStrengthTable.jsx`**: Bảng lực lượng 10 Thập Thần.
+   - **`BaziBoard.jsx`**: Rút gọn ngoạn mục từ **1,848 dòng xuống 445 dòng** (giảm 76%).
+
+5. **Phân Tách Toàn Diện Bảng Điều Khiển Admin (`src/features/admin/tabs/` & `AdminApp.jsx`):**
+   - **`AdminOverviewTab.jsx`**: KPI Cards, biểu đồ Recharts (Lưu lượng truy cập, phân tích tiêu thụ Token), bộ lọc khoảng ngày và các nút preset 7N/30N/90N.
+   - **`AdminUsersTab.jsx`**: Quản lý thành viên, tìm kiếm, lọc theo vai trò & trạng thái, modal cộng/trừ credit, modal khóa tài khoản, phân trang cursor.
+   - **`AdminCalculationsTab.jsx`**: Quản lý 4 phân hệ (Kinh Dịch, Bát Tự, Tử Vi, Hôn Nhân), lọc trạng thái, modal chi tiết kèm JSON viewer và ReactMarkdown luận giải AI, thao tác khóa/xóa mềm.
+   - **`AdminAlertsTab.jsx`**: Cảnh báo lưu lượng spike và danh sách khiếu nại tài khoản (xử lý phê duyệt / bác bỏ).
+   - **`AdminBlogTab.jsx`**: Quản lý bài viết, lọc danh mục, modal soạn thảo Markdown kèm xem trước (Live Preview), xóa mềm và khôi phục.
+   - **`AdminUserStatsModal.jsx`**: Modal chi tiết thành viên và thống kê mức tiêu thụ Token theo từng phân hệ.
+   - **`AdminApp.jsx`**: Biến đổi từ **3,338 dòng xuống 340 dòng** (giảm 90%), đóng vai trò là Orchestrator gọn gàng điều phối Router, Context, SSE events và Modal quản trị.
+
+### 🧪 3. Kiểm Thử & Nghiệm Thu Trực Quan
+- **Vitest Unit Tests:** 29/29 tests PASS 100% (`ttsEngine.test.js`, `api.test.js`, `CustomSelect.test.jsx`, `CustomDatePicker.test.jsx`).
+- **Production Build:** `npm run build` PASS thành công trong 1.91s, tách chunk bundle tối ưu (`AdminApp`: 112 kB, `UserApp`: 896 kB).
+- **Kiểm Thử Trình Duyệt Thực Tế (Chrome DevTools MCP):**
+  1. *Landing Page & Header:* Navbar, logo, nút Đăng nhập, breadcrumb hiển thị sắc nét.
+  2. *Phân hệ Bát Tự (`/bazi`):* Bảng 4 trụ, timeline Đại vận, biểu đồ ngũ hành SVG, bảng Thập Thần, lời khuyên Dụng Thần hoạt động hoàn hảo.
+  3. *Đăng nhập Admin:* Đăng nhập tài khoản Admin, Header hiển thị số dư credit 9999, sliding pill ADMIN/USER.
+  4. *Admin Dashboard (5 tabs):*
+     - *Tổng Quan:* Hiển thị đầy đủ biểu đồ Recharts và thẻ KPI.
+     - *Thành Viên:* Bảng danh sách thành viên, mở `AdminUserStatsModal` kiểm tra thống kê token.
+     - *Dịch Bản / Lá Số:* 4 subtabs hoạt động chuẩn xác.
+     - *Cảnh Báo & Khiếu Nại:* Danh sách cảnh báo và khiếu nại hiển thị chuẩn.
+     - *Quản Lý Blog:* Bảng bài viết đã seed, mở modal "+ Viết Bài Mới" với trình soạn thảo Markdown.
+  5. *Lịch Sử Tra Cứu (`/history`):* Danh mục lịch sử, bộ lọc ngày với component `CustomDatePicker` mở lịch mượt mà.
+  6. *Console Log:* 100% không có lỗi JavaScript (0 console errors).
+
+---
+
 ## 📅 Phiên bản: Khôi Phục Tên Tài Khoản & Tối Ưu Hiển Thị Header Tránh Cắt Chữ (14/09/2026)
 
 ### 🌟 1. Yêu Cầu & Bối Cảnh

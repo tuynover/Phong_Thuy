@@ -6,6 +6,7 @@ import {
     Sparkles, Eye, Lock, Globe, ChevronLeft, ChevronRight, Plus, Check, Loader2, Tag, Clock
 } from 'lucide-react';
 import CustomSelect from '@/components/common/CustomSelect';
+import CustomDatePicker from '@/components/common/CustomDatePicker';
 
 const LUNAR_HOURS_MAP = [
     "Tý (23h - 1h)", "Sửu (1h - 3h)", "Dần (3h - 5h)", "Mão (5h - 7h)", 
@@ -488,19 +489,21 @@ export default function MyFoldersModal({ isOpen, onClose, onViewHexagram, onView
 
                                     {/* Creation Date From/To */}
                                     <div className="flex gap-2">
-                                        <input
-                                            type="date"
+                                        <CustomDatePicker
                                             value={startDateFilter}
-                                            onChange={(e) => setStartDateFilter(e.target.value)}
-                                            className="w-1/2 px-2.5 py-2 border border-slate-200 rounded-2xl bg-white text-[11px] font-semibold text-slate-700 shadow-2xs"
-                                            title="Từ ngày lập"
+                                            onChange={(val) => setStartDateFilter(val)}
+                                            label="Từ:"
+                                            activeTheme="indigo"
+                                            maxDate={endDateFilter}
+                                            align="left"
                                         />
-                                        <input
-                                            type="date"
+                                        <CustomDatePicker
                                             value={endDateFilter}
-                                            onChange={(e) => setEndDateFilter(e.target.value)}
-                                            className="w-1/2 px-2.5 py-2 border border-slate-200 rounded-2xl bg-white text-[11px] font-semibold text-slate-700 shadow-2xs"
-                                            title="Đến ngày lập"
+                                            onChange={(val) => setEndDateFilter(val)}
+                                            label="Đến:"
+                                            activeTheme="indigo"
+                                            minDate={startDateFilter}
+                                            align="right"
                                         />
                                     </div>
                                 </div>

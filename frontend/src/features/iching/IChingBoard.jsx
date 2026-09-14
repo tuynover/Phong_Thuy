@@ -1059,6 +1059,7 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
                 onClose={() => setShowTierModal(false)}
                 onConfirm={triggerLuanGiai}
                 userCredits={user?.credits || 0}
+                isAdmin={user?.role === 'admin' || user?.role === 'co-admin'}
                 isUpgrade={isUpgradeModal}
                 system="iching"
             />

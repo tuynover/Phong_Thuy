@@ -885,6 +885,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
         onClose={() => setShowTierModal(false)}
         onConfirm={handleTriggerInterpretation}
         userCredits={activeUser?.credits || 0}
+        isAdmin={activeUser?.role === 'admin' || activeUser?.role === 'co-admin'}
         isUpgrade={isUpgradeModal}
         system="ziwei"
       />

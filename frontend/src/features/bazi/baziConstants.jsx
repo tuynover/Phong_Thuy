@@ -252,3 +252,42 @@ export const SHEN_SHA_COLORS = {
     'Bát Chuyên': 'text-amber-600',
     'Cửu Tiêu': 'text-amber-600'
 };
+
+export const getShenShaColorClass = (ss) => {
+    if (!ss) return 'text-slate-800';
+    if (SHEN_SHA_COLORS[ss]) return SHEN_SHA_COLORS[ss];
+
+    const baseTerm = ss.split(' (')[0].trim();
+    if (SHEN_SHA_COLORS[baseTerm]) return SHEN_SHA_COLORS[baseTerm];
+
+    const lower = ss.toLowerCase();
+    // Cát Thần (Xanh)
+    if (lower.includes('lộc') || lower.includes('đức') || lower.includes('quý nhân') || lower.includes('ấn') || lower.includes('y') || lower.includes('hỷ') || lower.includes('xương') || lower.includes('đường') || lower.includes('quán') || lower.includes('dư') || lower.includes('tinh') || lower.includes('phúc')) {
+        return 'text-emerald-600';
+    }
+    // Hung Sát (Đỏ)
+    if (lower.includes('sát') || lower.includes('phù') || lower.includes('đại bại') || lower.includes('vong') || lower.includes('cô') || lower.includes('tú') || lower.includes('dương') || lower.includes('đà') || lower.includes('hao') || lower.includes('nhận') || lower.includes('kiến quan') || lower.includes('phế') || lower.includes('quỷ') || lower.includes('giác') || lower.includes('môn') || lower.includes('khách') || lower.includes('hổ')) {
+        return 'text-rose-600';
+    }
+
+    return 'text-slate-800';
+};
+
+export const getBatCung = (zhi) => {
+    if (!zhi) return '';
+    const map = {
+        'Tý': 'Cung Khảm Thủy',
+        'Sửu': 'Cung Cấn Thổ',
+        'Dần': 'Cung Cấn Thổ',
+        'Mão': 'Cung Chấn Mộc',
+        'Thìn': 'Cung Tốn Mộc',
+        'Tỵ': 'Cung Tốn Mộc',
+        'Ngọ': 'Cung Ly Hỏa',
+        'Mùi': 'Cung Khôn Thổ',
+        'Thân': 'Cung Khôn Thổ',
+        'Dậu': 'Cung Đoài Kim',
+        'Tuất': 'Cung Càn Kim',
+        'Hợi': 'Cung Càn Kim'
+    };
+    return map[zhi.trim()] || '';
+};

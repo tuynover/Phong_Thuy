@@ -42,20 +42,24 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
     ├── features/                # Các phân hệ nghiệp vụ độc lập (Domain-Driven Features)
     │   ├── iching/              # Kinh Dịch: IChingBoard.jsx, IChingInput.jsx
     │   ├── bazi/                # Bát Tự: BaziBoard.jsx, BaziInput.jsx, baziConstants.jsx
+    │   │   └── components/      # Component con Bát Tự: BaziPillarsTable, BaziPillar, BaziFiveElementsChart, BaziDaiYunTimeline, BaziProfileHeader, BaziRemedyAndRelations, ThapThanStrengthTable
     │   ├── ziwei/               # Tử Vi: ZiweiBoard.jsx, ZiweiChart.jsx, ZiweiInput.jsx
     │   ├── marriage/            # Hợp Hôn: MarriageBoard.jsx, MarriageInput.jsx
     │   ├── xemngay/             # Xem Ngày Đẹp: DateSelectionBoard.jsx
     │   ├── blog/                # Kiến Thức Phong Thủy: BlogBoard.jsx
     │   ├── history/             # Lịch Sử Phân Tích: HistoryBoard.jsx
+    │   │   └── components/      # Card lịch sử độc lập: IChingHistoryCard, BaziHistoryCard, ZiweiHistoryCard, MarriageHistoryCard
     │   ├── profile/             # Hồ Sơ Cá Nhân & Quản Trị: ProfileBoard.jsx
     │   ├── home/                # Trang Chủ Giới Thiệu: HomeBoard.jsx
     │   └── admin/               # Quản Trị Hệ Thống: AdminConfirmModal.jsx
+    │       └── tabs/            # Tabs Admin chuyên trách: AdminOverviewTab, AdminUsersTab, AdminCalculationsTab, AdminAlertsTab, AdminBlogTab, AdminUserStatsModal
     ├── components/
     │   ├── common/              # Thành phần dùng chung (CustomDatePicker, CustomSelect, Tooltip...)
-    │   ├── layout/              # Khung giao diện (Footer.jsx, Header...)
+    │   ├── layout/              # Khung giao diện (Header.jsx, Footer.jsx...)
     │   ├── modals/              # Hộp thoại modal (AuthModal, PdfExportModal, MyFoldersModal...)
     │   ├── widgets/             # Widget tiện ích nổi (AiChatWidget, AudioPlayerDock, NotificationBell...)
     │   └── ...                  # Proxy Re-exports đảm bảo 100% tương thích ngược
+    ├── hooks/                   # Custom Hooks dùng chung (useInterpretationStream, useRecordRating, usePublicToggle)
     ├── context/                 # Quản lý ngữ cảnh React (AuthContext.jsx)
     ├── services/                # Giao tiếp API & Giọng đọc AI (api.js, ttsEngine.js)
     └── utils/                   # Hàm tiện ích bổ trợ (baziUtils.js)
@@ -81,13 +85,14 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
   * **Mai Hoa Dịch Số (Mai Hoa Input):** Hỗ trợ lập quẻ theo 2 phương thức: **Giờ Động Tâm** (tính toán dựa trên ngày giờ) và **Seri Tiền 8 Số** (dãy số ngẫu nhiên). Công thức Số Lý Động Tâm được hiển thị trực quan và chi tiết ngay trên màn hình.
   * **Nhập Thủ Công (Manual Input):** Nhập trực tiếp các âm dương của 6 hào.
 * **Thầy Dịch Giải AI & Luận Giải Chuyên Sâu 6 Chương:** Cung cấp 2 tầng luận giải: Cơ bản (1 Credit) và Chuyên sâu (5 Credits). Bản chuyên sâu áp dụng cấu trúc 6 Chương Biện Chứng Tượng - Hào: Khởi Quái Tượng Pháp Chu Dịch, Biện Chứng Lục Hào Dụng Thần 100% câu hỏi cốt lõi, Động Hào Biến Khí, Đối Chiếu Biện Chứng Tượng - Hào Ma Trận Biểu vs Lý, Định Lượng Thời Khắc Ứng Kỳ theo 4 nhóm ngữ cảnh (Phương án B: tích hợp Bảng Tra Cứu Lịch Pháp Gần Nhất - Calendar Ground Truth từ `lunar-javascript` nạp sẵn tọa độ gieo quẻ, bảng các ngày vàng gần nhất trong vòng 1 - 14 ngày tới để chủ động hành động ngay kết hợp tháng mục tiêu), quy đổi song song sang ngày/tháng Dương lịch cụ thể (`DD/MM/YYYY`) trong Bảng Ma Trận Ứng Kỳ 4 cột, và Kim Chỉ Nam Đạo Dịch Diệu Kế Hành Động.
-* Tệp tin liên quan: [IChingBoard.jsx](file:///t:/Phongthuy/frontend/src/components/IChingBoard.jsx), [IChingInput.jsx](file:///t:/Phongthuy/frontend/src/components/IChingInput.jsx).
+* Tệp tin liên quan: [IChingBoard.jsx](file:///t:/Phongthuy/frontend/src/features/iching/IChingBoard.jsx), [IChingInput.jsx](file:///t:/Phongthuy/frontend/src/features/iching/IChingInput.jsx).
 
 #### B. Mệnh Số Bát Tự (Bazi Board)
 * Nhập ngày giờ sinh để lập lá số Tứ Trụ.
 * Phân tích bản mệnh ngũ hành, xác định Nhật Chủ (Day Master) mạnh/yếu, định Dụng Thần (Useful God) dựa trên Nguyệt Lệnh, phân tích Thập Thần và vòng Trường Sinh.
+* Cấu trúc module phân rã sạch sẽ gồm 7 component con chuyên trách: `BaziPillarsTable.jsx`, `BaziPillar.jsx`, `BaziFiveElementsChart.jsx`, `BaziDaiYunTimeline.jsx`, `BaziProfileHeader.jsx`, `BaziRemedyAndRelations.jsx`, `ThapThanStrengthTable.jsx`.
 * Màu sắc trực quan được tùy biến theo quy luật tương sinh tương khắc của Ngũ Hành.
-* Tệp tin liên quan: [BaziBoard.jsx](file:///t:/Phongthuy/frontend/src/components/BaziBoard.jsx), [BaziInput.jsx](file:///t:/Phongthuy/frontend/src/components/BaziInput.jsx).
+* Tệp tin liên quan: [BaziBoard.jsx](file:///t:/Phongthuy/frontend/src/features/bazi/BaziBoard.jsx), [BaziInput.jsx](file:///t:/Phongthuy/frontend/src/features/bazi/BaziInput.jsx).
 
 #### C. Lá Số Tử Vi (Ziwei Board & Chart)
 * **Form Nhập Liệu Tách Riêng (`ZiweiInput.jsx`):** Được tách thành component độc lập theo cấu trúc của `BaziInput.jsx`. Hỗ trợ vừa nhập vừa chọn (Combobox `editable={true}`), không khởi tạo sẵn giá trị mặc định cho Ngày, Tháng, Năm, Giờ, Phút (khởi tạo rỗng `''`), tích hợp component lịch chọn ngày tùy chỉnh `CustomDatePicker`.
@@ -96,28 +101,28 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
 * **Vòng Trường Sinh & Hạn:** Hiển thị Đại Hạn, Tiểu Hạn, Nguyệt Hạn tương ứng trên các cung vị.
 * **Mobile List View:** Tự động tối ưu hóa và thu gọn bố cục thành danh sách rút gọn mượt mà trên thiết bị di động.
 * **Thầy Tử Vi AI:** Gửi yêu cầu giải đoán trực tiếp. Hệ thống hiển thị dòng văn bản luận giải trực quan qua luồng SSE Stream thời gian thực tương tự như Kinh Dịch và Bát Tự.
-* Tệp tin liên quan: [ZiweiBoard.jsx](file:///t:/Phongthuy/frontend/src/components/ZiweiBoard.jsx), [ZiweiChart.jsx](file:///t:/Phongthuy/frontend/src/components/ZiweiChart.jsx), [ZiweiInput.jsx](file:///t:/Phongthuy/frontend/src/components/ZiweiInput.jsx).
+* Tệp tin liên quan: [ZiweiBoard.jsx](file:///t:/Phongthuy/frontend/src/features/ziwei/ZiweiBoard.jsx), [ZiweiChart.jsx](file:///t:/Phongthuy/frontend/src/features/ziwei/ZiweiChart.jsx), [ZiweiInput.jsx](file:///t:/Phongthuy/frontend/src/features/ziwei/ZiweiInput.jsx).
 
 #### D. Hợp Hôn - Xem Tuổi Kết Hôn (Marriage Board)
 * Cho phép nhập đầy đủ thông tin ngày giờ sinh của cả Nam và Nữ để kiểm tra mức độ hòa hợp.
 * Đối chiếu bản mệnh ngũ hành, Bát Tự, Mệnh Quái (Đông/Tây tứ mệnh), Cung Phi bát trạch.
 * AI hỗ trợ giải đoán chi tiết về hôn nhân gia đạo, ưu nhược điểm của cặp đôi và giải pháp hóa giải xung khắc.
-* Tệp tin liên quan: [MarriageBoard.jsx](file:///t:/Phongthuy/frontend/src/components/MarriageBoard.jsx), [MarriageInput.jsx](file:///t:/Phongthuy/frontend/src/components/MarriageInput.jsx).
+* Tệp tin liên quan: [MarriageBoard.jsx](file:///t:/Phongthuy/frontend/src/features/marriage/MarriageBoard.jsx), [MarriageInput.jsx](file:///t:/Phongthuy/frontend/src/features/marriage/MarriageInput.jsx).
 
 #### E. Kiến Thức Phong Thủy & Chia Sẻ (Blog Board)
 * Trang tin tức và bài viết chiêm nghiệm học thuật công khai với 6 danh mục phong thủy chính.
 * Đồng bộ đường dẫn tĩnh Deep-Linking dạng `https://tuynover.ddns.net/?post={slug}` cho từng bài viết.
 * Tích hợp thanh chia sẻ đa nền tảng (Sao chép link, Facebook Sharer, Web Share API di động).
 * Trình diễn bài viết với `ReactMarkdown` & `remark-gfm`, tự động định dạng bảng GFM (`Vertical Pipe Normalizer`) và chèn ảnh minh họa sắc nét.
-* Tệp tin liên quan: [BlogBoard.jsx](file:///t:/Phongthuy/frontend/src/components/BlogBoard.jsx).
+* Tệp tin liên quan: [BlogBoard.jsx](file:///t:/Phongthuy/frontend/src/features/blog/BlogBoard.jsx).
 
 #### F. Trang Quản Trị (Admin App)
-* Dashboard chuyên sâu dành cho Quản trị viên và Đồng quản trị viên (Admin / Co-Admin).
+* Dashboard chuyên sâu dành cho Quản trị viên và Đồng quản trị viên (Admin / Co-Admin). Phân rã gọn gàng thành 5 tab độc lập (`AdminOverviewTab`, `AdminUsersTab`, `AdminCalculationsTab`, `AdminAlertsTab`, `AdminBlogTab`) và modal thống kê token `AdminUserStatsModal`.
 * Quản lý người dùng, khóa/mở tài khoản, cấp phát Credits/Coins.
 * **Quản lý bài viết Blog:** Viết bài mới với bộ chuyển đổi **Soạn Thảo Markdown** vs **Xem Trước (Preview)**, tự động sinh slug thời gian thực, lưu bản nháp/công khai.
 * Kiểm tra lịch sử tính toán, khóa/mở hoặc xóa các bản ghi phong thủy vi phạm.
 * Quản lý khiếu nại (Ban Appeals) và xem nhật ký hệ thống thời gian thực qua Server-Sent Events (SSE).
-* Tệp tin liên quan: [AdminApp.jsx](file:///t:/Phongthuy/frontend/src/components/AdminApp.jsx).
+* Tệp tin liên quan: [AdminApp.jsx](file:///t:/Phongthuy/frontend/src/app/AdminApp.jsx).
 
 #### F. Tiện ích Phụ trợ & UI/UX Đột phá
 * **Luận Giải Chuyên Sâu VIP & Gói Luận Giải Đa Tầng:**
@@ -295,7 +300,7 @@ Hệ thống API Backend sử dụng tiền tố `/api` và phân chia thành c�
    ```bash
    npm run dev
    ```
-5. Khởi chạy Unit Test Suite (Jest - 31 Test Suites, 241/241 Tests PASSED 100%):
+5. Khởi chạy Unit Test Suite (Jest - 35 Test Suites, 257/257 Tests PASSED 100%):
    ```bash
    npm test
    ```
@@ -327,7 +332,7 @@ Hệ thống API Backend sử dụng tiền tố `/api` và phân chia thành c�
 
 Dự án đã được tích hợp quy trình **Tích hợp và Triển khai Liên tục (CI/CD)** đa tầng qua GitHub Actions:
 - **Frontend CI (`.github/workflows/frontend-ci.yml`)**: Tự động kích hoạt khi có push/PR vào nhánh `main`, chạy 29 bài unit tests Vitest và đóng gói bundle `npm run build`.
-- **Backend CI (`.github/workflows/backend-ci.yml`)**: Kiểm tra cú pháp và chạy toàn bộ 252 bài tests Jest tự động.
+- **Backend CI (`.github/workflows/backend-ci.yml`)**: Kiểm tra cú pháp và chạy toàn bộ 257 bài tests Jest tự động.
 - **Deploy Pipeline (`.github/workflows/deploy.yml`)**: Kiểm tra nghiêm ngặt cả Frontend lẫn Backend trước khi build Docker, đẩy lên Docker Hub và tự động cập nhật lên máy chủ AWS EC2.
 (Xem chi tiết tại [DEVELOPMENT_GUIDE.md](file:///t:/Phongthuy/docs/DEVELOPMENT_GUIDE.md)).
 

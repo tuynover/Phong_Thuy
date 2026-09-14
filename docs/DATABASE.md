@@ -11,10 +11,10 @@ Hệ thống sử dụng **MongoDB** làm cơ sở dữ liệu chính, được 
 - **Tinh gọn Chỉ mục Trùng lặp Tiền tố (Prefix Redundancy Elimination):**
   Trong 4 bảng bản ghi (`BaziRecord`, `IChingRecord`, `ZiweiRecord`, `MarriageRecord`), compound index `{ userId: 1, isDeleted: 1, isPinned: -1, createdAt: -1 }` đã bao quát hoàn toàn các tiền tố `{ userId: 1, isDeleted: 1, createdAt: -1 }` và `{ userId: 1, createdAt: -1 }`. Loại bỏ các index tiền tố thừa giúp giảm 30-40% bộ nhớ RAM WiredTiger dành cho index và tăng tốc độ ghi (Write IOPS) khi tạo bản ghi mới.
 - **Cấu hình Connection Pool & Sức chịu tải (Production Readiness):**
-  - Trong `backend/src/config/db.js`, cấu hình Mongoose kết nối với các tham số tối ưu cho môi trường chịu tải cao (mục tiêu 100 concurrent users):
+  - Trong `backend/src/core/config/db.js`, cấu hình Mongoose kết nối với các tham số tối ưu cho môi trường chịu tải cao (mục tiêu 100 concurrent users):
     - `maxPoolSize: 100`: Giữ tối đa 100 socket TCP đồng thời, đáp ứng tải đỉnh mà không nghẽn hàng đợi kết nối.
     - `minPoolSize: 10`: Luôn duy trì 10 socket ấm (warm connections), triệt tiêu độ trễ bắt tay TCP/TLS SSL khi có yêu cầu đột ngột.
-    - `serverSelectionTimeoutMS: 5000`: Fast-fail sau 5 giây nếu không kết nối được cụm MongoDB, tránh treo request vô thời hạn.
+    - `serverSelectionTimeoutMS: 15000`: 15s để đảm bảo kết nối MongoDB Atlas ổn định, chịu được độ trễ phân giải DNS SRV và kết nối mạng chập chờn mà không bị timeout sớm.
     - `socketTimeoutMS: 45000`: Tự động ngắt socket sau 45s nếu truy vấn bị treo hoặc máy chủ cơ sở dữ liệu không phản hồi.
 
 ---
@@ -23,62 +23,62 @@ Hệ thống sử dụng **MongoDB** làm cơ sở dữ liệu chính, được 
 
 ### 2.1 Bảng Người dùng (`users`)
 Lưu trữ thông tin tài khoản, hồ sơ Bát Tự mặc định, số dư credit và thống kê sử dụng token AI.
-- **Model:** [User.js](file:///t:/Phongthuy/backend/src/models/User.js)
+- **Model:** [User.js](file:///t:/Phongthuy/backend/src/core/models/User.js)
 - **Cấu trúc Schema:**
-  ```javascript
-  {
+```javascript
+{
+  _id: { type: String, default: uuidv7 },
+  email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+  password: { type: String, required: true },
+  name: { type: String, default: 'User' },
+  phone: { type: String, default: '' },
+  isEmailVerified: { type: Boolean, default: false },
+  /* Mã OTP được lưu trữ & tự động hết hạn hoàn toàn trên Redis (otp:verify_email & otp:reset_password), không lưu rác trong MongoDB */
+  gender: { type: Number, default: 1 }, // 1: Nam, 0: Nữ
+  role: { type: String, enum: ['admin', 'co-admin', 'vip', 'user'], default: 'user' },
+  credits: { type: Number, default: 2 },
+  status: { type: String, enum: ['active', 'locked'], default: 'active' },
+  lockReason: { type: String, default: '' },
+  isDeleted: { type: Boolean, default: false },
+  tokenVersion: { type: Number, default: 0 },
+  baziInfo: {
+    day: Number, month: Number, year: Number, hour: Number, minute: Number,
+    ownBaziRecordId: { type: String, default: null },
+    ownZiweiRecordId: { type: String, default: null }
+  },
+  stats: {
+    ichingCount: { type: Number, default: 0 },
+    baziCount: { type: Number, default: 0 },
+    ziweiCount: { type: Number, default: 0 },
+    marriageCount: { type: Number, default: 0 },
+    ichingTokens: { type: Number, default: 0 },
+    baziTokens: { type: Number, default: 0 },
+    ziweiTokens: { type: Number, default: 0 },
+    marriageTokens: { type: Number, default: 0 },
+    ichingChatTokens: { type: Number, default: 0 },
+    baziChatTokens: { type: Number, default: 0 },
+    ziweiChatTokens: { type: Number, default: 0 },
+    marriageChatTokens: { type: Number, default: 0 },
+    totalInterpretTokens: { type: Number, default: 0 },
+    totalChatTokens: { type: Number, default: 0 },
+    totalTokens: { type: Number, default: 0 },
+    lastUpdated: { type: Date, default: null }
+  },
+  tags: [{
     _id: { type: String, default: uuidv7 },
-    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-    password: { type: String, required: true },
-    name: { type: String, default: 'User' },
-    phone: { type: String, default: '' },
-    isEmailVerified: { type: Boolean, default: false },
-    /* Mã OTP được lưu trữ & tự động hết hạn hoàn toàn trên Redis (otp:verify_email & otp:reset_password), không lưu rác trong MongoDB */
-    gender: { type: Number, default: 1 }, // 1: Nam, 0: Nữ
-    role: { type: String, enum: ['admin', 'co-admin', 'vip', 'user'], default: 'user' },
-    credits: { type: Number, default: 2 },
-    status: { type: String, enum: ['active', 'locked'], default: 'active' },
-    lockReason: { type: String, default: '' },
-    isDeleted: { type: Boolean, default: false },
-    tokenVersion: { type: Number, default: 0 },
-    baziInfo: {
-      day: Number, month: Number, year: Number, hour: Number, minute: Number,
-      ownBaziRecordId: { type: String, default: null },
-      ownZiweiRecordId: { type: String, default: null }
-    },
-    stats: {
-      ichingCount: { type: Number, default: 0 },
-      baziCount: { type: Number, default: 0 },
-      ziweiCount: { type: Number, default: 0 },
-      marriageCount: { type: Number, default: 0 },
-      ichingTokens: { type: Number, default: 0 },
-      baziTokens: { type: Number, default: 0 },
-      ziweiTokens: { type: Number, default: 0 },
-      marriageTokens: { type: Number, default: 0 },
-      ichingChatTokens: { type: Number, default: 0 },
-      baziChatTokens: { type: Number, default: 0 },
-      ziweiChatTokens: { type: Number, default: 0 },
-      marriageChatTokens: { type: Number, default: 0 },
-      totalInterpretTokens: { type: Number, default: 0 },
-      totalChatTokens: { type: Number, default: 0 },
-      totalTokens: { type: Number, default: 0 },
-      lastUpdated: { type: Date, default: null }
-    },
-    tags: [{
-      _id: { type: String, default: uuidv7 },
-      name: { type: String, required: true },
-      isDefault: { type: Boolean, default: false },
-      createdAt: { type: Date, default: Date.now }
-    }]
-  }
-  ```
+    name: { type: String, required: true },
+    isDefault: { type: Boolean, default: false },
+    createdAt: { type: Date, default: Date.now }
+  }]
+}
+```
 - **Chỉ mục phụ:**
-  - `{"stats.totalTokens": -1}`
-  - `{isDeleted: 1, status: 1, role: 1, _id: -1}`
+- `{"stats.totalTokens": -1}`
+- `{isDeleted: 1, status: 1, role: 1, _id: -1}`
 
 ### 2.2 Bảng Kỷ lục Gieo Quẻ Kinh Dịch (`ichingrecords`)
 Lưu trữ thông tin câu hỏi, quẻ chính/quẻ biến được gieo, snapshot dữ liệu Rule Engine và mảng Ứng Kỳ thông báo.
-- **Model:** [IChingRecord.js](file:///t:/Phongthuy/backend/src/models/IChingRecord.js)
+- **Model:** [IChingRecord.js](file:///t:/Phongthuy/backend/src/modules/iching/models/IChingRecord.js)
 - **Cấu trúc Schema:**
   ```javascript
   {
@@ -120,7 +120,7 @@ Lưu trữ thông tin câu hỏi, quẻ chính/quẻ biến được gieo, snaps
 
 ### 2.3 Bảng Kỷ lục Lá số Bát Tự (`bazirecords`)
 Lưu trữ thông tin lá số Tứ Trụ học thuật và các bài phân tích Dụng Thần cát hung của người dùng.
-- **Model:** [BaziRecord.js](file:///t:/Phongthuy/backend/src/models/BaziRecord.js)
+- **Model:** [BaziRecord.js](file:///t:/Phongthuy/backend/src/modules/bazi/models/BaziRecord.js)
 - **Cấu trúc Schema:**
   ```javascript
   {
@@ -160,7 +160,7 @@ Lưu trữ thông tin lá số Tứ Trụ học thuật và các bài phân tíc
 
 ### 2.4 Bảng Kỷ lục Lá số Tử Vi (`ziweirecords`)
 Lưu trữ thông số bản mệnh Tử Vi thô lập từ thư viện iztro và các bài giải đoán ngầm.
-- **Model:** [ZiweiRecord.js](file:///t:/Phongthuy/backend/src/models/ZiweiRecord.js)
+- **Model:** [ZiweiRecord.js](file:///t:/Phongthuy/backend/src/modules/ziwei/models/ZiweiRecord.js)
 - **Cấu trúc Schema:**
   ```javascript
   {
@@ -197,7 +197,7 @@ Lưu trữ thông số bản mệnh Tử Vi thô lập từ thư viện iztro v�
 
 ### 2.5 Bảng Kỷ lục Xem tuổi Kết Hôn (`marriagerecords`)
 Lưu trữ kết quả so sánh Bát Tự và độ hòa hợp của hai đối tượng Nam và Nữ.
-- **Model:** [MarriageRecord.js](file:///t:/Phongthuy/backend/src/models/MarriageRecord.js)
+- **Model:** [MarriageRecord.js](file:///t:/Phongthuy/backend/src/modules/bazi/models/MarriageRecord.js)
 - **Cấu trúc Schema:**
   ```javascript
   {
@@ -218,7 +218,7 @@ Lưu trữ kết quả so sánh Bát Tự và độ hòa hợp của hai đối 
   ```
 
 ### 2.6 Bảng Hội thoại dùng chung (`conversations`)
-- **Model:** [Conversation.js](file:///t:/Phongthuy/backend/src/models/Conversation.js)
+- **Model:** [Conversation.js](file:///t:/Phongthuy/backend/src/core/models/Conversation.js)
 - **Cấu trúc Schema:**
   ```javascript
   {
@@ -236,7 +236,7 @@ Lưu trữ kết quả so sánh Bát Tự và độ hòa hợp của hai đối 
   - `{"userId": 1, "system": 1, "updatedAt": -1}`: Tối ưu hóa việc lấy danh sách các phiên chat gần nhất theo từng phân hệ.
 
 ### 2.7 Bảng Tin nhắn dùng chung (`messages`)
-- **Model:** [Message.js](file:///t:/Phongthuy/backend/src/models/Message.js)
+- **Model:** [Message.js](file:///t:/Phongthuy/backend/src/core/models/Message.js)
 - **Cấu trúc Schema:**
   ```javascript
   {
@@ -266,7 +266,7 @@ Lưu trữ kết quả so sánh Bát Tự và độ hòa hợp của hai đối 
 
 #### a. Bảng Nhật ký Hệ thống (`systemlogs`)
 Lưu trữ lịch sử thao tác của người dùng, IP, Endpoint và thời gian phản hồi.
-- **Model:** [SystemLog.js](file:///t:/Phongthuy/backend/src/models/SystemLog.js)
+- **Model:** [SystemLog.js](file:///t:/Phongthuy/backend/src/modules/admin/models/SystemLog.js)
 - **Cấu trúc Schema:**
   ```javascript
   {
@@ -290,7 +290,7 @@ Lưu trữ lịch sử thao tác của người dùng, IP, Endpoint và thời g
 
 #### b. Bảng Cảnh báo Quản trị (`adminnotifications`)
 Các cảnh báo vi phạm chính sách hoặc sử dụng token đột biến gửi tới Admin.
-- **Model:** [AdminNotification.js](file:///t:/Phongthuy/backend/src/models/AdminNotification.js)
+- **Model:** [AdminNotification.js](file:///t:/Phongthuy/backend/src/modules/admin/models/AdminNotification.js)
 - **Cấu trúc Schema:**
   ```javascript
   {
@@ -307,7 +307,7 @@ Các cảnh báo vi phạm chính sách hoặc sử dụng token đột biến g
 
 #### c. Bảng Thông báo Người dùng (`notifications`)
 Thông báo nhắc nhở sự kiện Ứng Kỳ gửi tới người dùng cuối.
-- **Model:** [Notification.js](file:///t:/Phongthuy/backend/src/models/Notification.js)
+- **Model:** [Notification.js](file:///t:/Phongthuy/backend/src/modules/notification/models/Notification.js)
 - **Cấu trúc Schema:**
   ```javascript
   {
@@ -323,7 +323,7 @@ Thông báo nhắc nhở sự kiện Ứng Kỳ gửi tới người dùng cuố
 
 #### d. Bảng Đơn Khiếu nại (`banappeals`)
 Đơn khiếu nại yêu cầu mở khóa tài khoản của người dùng bị khóa.
-- **Model:** [BanAppeal.js](file:///t:/Phongthuy/backend/src/models/BanAppeal.js)
+- **Model:** [BanAppeal.js](file:///t:/Phongthuy/backend/src/modules/admin/models/BanAppeal.js)
 - **Cấu trúc Schema:**
   ```javascript
   {
@@ -340,7 +340,7 @@ Thông báo nhắc nhở sự kiện Ứng Kỳ gửi tới người dùng cuố
 
 #### e. Bảng Bài viết Tin tức & Học thuật (`blogposts`)
 Lưu trữ các bài viết kiến thức phong thủy và học thuật chuyên sâu.
-- **Model:** [BlogPost.js](file:///t:/Phongthuy/backend/src/models/BlogPost.js)
+- **Model:** [BlogPost.js](file:///t:/Phongthuy/backend/src/modules/blog/models/BlogPost.js)
 - **Cấu trúc Schema:**
   ```javascript
   {
@@ -367,7 +367,7 @@ Lưu trữ các bài viết kiến thức phong thủy và học thuật chuyên
 
 #### f. Bảng Nhật ký Hệ thống & Kiểm toán (`systemlogs`)
 Lưu trữ nhật ký truy vết request, thời gian xử lý, IP và token đã tiêu thụ.
-- **Model:** [SystemLog.js](file:///t:/Phongthuy/backend/src/models/SystemLog.js)
+- **Model:** [SystemLog.js](file:///t:/Phongthuy/backend/src/modules/admin/models/SystemLog.js)
 - **Cấu trúc Schema:**
   ```javascript
   {

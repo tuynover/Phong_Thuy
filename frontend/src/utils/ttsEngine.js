@@ -502,13 +502,35 @@ class TtsAudioEngine {
     }
 
     _cleanupCurrentSpeech() {
-        if (this.synth) {
-            try { this.synth.cancel(); } catch (e) {}
+        if (this._prefetchTimer) {
+            clearTimeout(this._prefetchTimer);
+            this._prefetchTimer = null;
         }
         if (this._abortController) {
             try { this._abortController.abort(); } catch (e) {}
             this._abortController = null;
         }
+        if (this._prefetchAbortController) {
+            try { this._prefetchAbortController.abort(); } catch (e) {}
+            this._prefetchAbortController = null;
+        }
+        if (this._activeAudio) {
+            this._activeAudio.pause();
+            this._activeAudio.removeAttribute('src');
+            this._activeAudio.load();
+        }
+        if (this._standbyAudio) {
+            this._standbyAudio.pause();
+            this._standbyAudio.removeAttribute('src');
+            this._standbyAudio.load();
+        }
+        this._standbyChapterIndex = -1;
+        if (this.synth) {
+            try { this.synth.cancel(); } catch (e) {}
+        }
+        this._stopKeepAlive();
+        this.currentTime = 0;
+        this.duration = 0;
     }
 
     _initVoice() {
@@ -1498,82 +1520,6 @@ class TtsAudioEngine {
             if (this.synth) this.synth.cancel();
             this._speakCurrentSentence();
         }
-        this._notify();
-    }
-
-    async _prepareStandbyChapter(targetIndex) {
-        if (!this.playlist || targetIndex < 0 || targetIndex >= this.playlist.length) return;
-        if (this.currentVoiceId === 'thayluan') return;
-
-        const nextSec = this.playlist[targetIndex];
-        if (!nextSec || !nextSec.content) return;
-
-        this._standbyChapterIndex = targetIndex;
-        const cleanContent = cleanMarkdownForSpeech(nextSec.content);
-
-        try {
-            const ticket = await this._getStreamTicket(cleanContent, this.currentVoiceId, nextSec.id);
-            if (this._standbyChapterIndex !== targetIndex) return;
-
-            const apiBase = getApiBase();
-            const fullStreamUrl = `${apiBase}/tts/stream/${ticket.ticketId}`;
-
-            if (this._standbyAudio) {
-                this._standbyAudio.src = fullStreamUrl;
-                this._standbyAudio.defaultPlaybackRate = this.rate;
-                this._standbyAudio.playbackRate = this.rate;
-                this._standbyAudio.volume = this.isMuted ? 0 : this.volume;
-                this._standbyAudio.preload = 'auto';
-                this._standbyAudio.load();
-            }
-        } catch (e) {
-            console.warn("[TTS Engine] Standby prefetch notice:", e.message);
-        }
-    }
-
-    async warmupFirstChapter(sections) {
-        if (!sections || !Array.isArray(sections) || sections.length === 0) return;
-        if (this.currentVoiceId === 'thayluan') return;
-        const first = sections[0];
-        if (!first || !first.content) return;
-        try {
-            const cleanContent = cleanMarkdownForSpeech(first.content);
-            await this._getStreamTicket(cleanContent, this.currentVoiceId, first.id);
-        } catch (e) {
-            // Warmup silent catch
-        }
-    }
-
-    _cleanupCurrentSpeech() {
-        if (this._prefetchTimer) {
-            clearTimeout(this._prefetchTimer);
-            this._prefetchTimer = null;
-        }
-        if (this._abortController) {
-            try { this._abortController.abort(); } catch (e) {}
-            this._abortController = null;
-        }
-        if (this._prefetchAbortController) {
-            try { this._prefetchAbortController.abort(); } catch (e) {}
-            this._prefetchAbortController = null;
-        }
-        if (this._activeAudio) {
-            this._activeAudio.pause();
-            this._activeAudio.removeAttribute('src');
-            this._activeAudio.load();
-        }
-        if (this._standbyAudio) {
-            this._standbyAudio.pause();
-            this._standbyAudio.removeAttribute('src');
-            this._standbyAudio.load();
-        }
-        this._standbyChapterIndex = -1;
-        if (this.synth) {
-            try { this.synth.cancel(); } catch (e) {}
-        }
-        this._stopKeepAlive();
-        this.currentTime = 0;
-        this.duration = 0;
     }
 }
 

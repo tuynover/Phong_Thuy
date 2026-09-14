@@ -81,15 +81,41 @@ VITE_API_URL=http://localhost:3001/api
 
 ---
 
-## 🧪 5. Kiểm tra mã nguồn trước khi Commit (Verification)
-- **Kiểm tra cú pháp Backend:** Trước khi thực hiện commit mã nguồn backend mới, bạn nên chạy lệnh kiểm tra lỗi biên dịch node:
-  ```bash
-  node --check src/controllers/IChingController.js
-  ```
-- **Kiểm tra Build Frontend:** Đảm bảo toàn bộ import và TypeScript/JSX biên dịch chính xác bằng cách chạy build thử:
-  ```bash
-  npm run build
-  ```
+## 🧪 5. Kiểm tra mã nguồn trước khi Commit (Verification & Quality Gates)
+
+Để đảm bảo chất lượng hệ thống và tuân thủ tuyệt đối quy định trong `AGENTS.md`:
+
+1. **Kiểm tra cú pháp Backend:**
+   Trước khi commit, kiểm tra cú pháp node cho các tệp đã sửa:
+   ```bash
+   node --check src/modules/bazi/controllers/BaziController.js
+   ```
+
+2. **Chạy Unit Test Suite Backend (Jest - 35 Test Suites, 257/257 Tests PASSED):**
+   ```bash
+   cd backend
+   npm test
+   ```
+   *Chạy kiểm thử hồi quy 260+ cấu hình Bát Tự đại diện:*
+   ```bash
+   npm run test:regression
+   ```
+
+3. **Chạy Unit Test Suite Frontend (Vitest - 4 Test Files, 29/29 Tests PASSED):**
+   ```bash
+   cd frontend
+   npm test
+   ```
+
+4. **Kiểm tra Đóng gói Production Build:**
+   Đảm bảo toàn bộ import, CSS và cú pháp JSX biên dịch sạch sẽ không có lỗi:
+   ```bash
+   cd frontend
+   npm run build
+   ```
+
+5. **Quy tắc Kiểm thử Giao diện trên Trình duyệt (Chrome DevTools Verification):**
+   Theo quy định bắt buộc trong `AGENTS.md`, mọi thay đổi liên quan đến giao diện người dùng (UI/Frontend) phải được khởi chạy và tương tác trực tiếp trên trình duyệt bằng `chrome-devtools-mcp` (click button, điền form, mở popup/modal, chuyển tab, kiểm tra console log) để đảm bảo **100% không có lỗi console (0 console errors)** trước khi hoàn thành nhiệm vụ.
 
 ---
 

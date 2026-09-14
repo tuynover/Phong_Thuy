@@ -17,6 +17,8 @@ Mọi nhà phát triển (hoặc AI Agent) khi chỉnh sửa mã nguồn của d
   - *Ví dụ:* `ziwei.js`, `history.js`, `auth.js`.
 - **Frontend Component:** Sử dụng **PascalCase** và có đuôi mở rộng `.jsx`.
   - *Ví dụ:* `IChingBoard.jsx`, `BaziInput.jsx`, `AiChatWidget.jsx`.
+- **Frontend Custom Hook:** Sử dụng tiền tố `use` theo sau bởi **PascalCase** và có đuôi `.js` đặt trong `frontend/src/hooks/`.
+  - *Ví dụ:* `useInterpretationStream.js`, `useRecordRating.js`, `usePublicToggle.js`.
 
 ### 1.2 Biến, Hàm & Thuộc tính cơ sở dữ liệu
 - Sử dụng **camelCase** cho toàn bộ biến cục bộ, tham số hàm, tên hàm, trường thuộc tính của database model và endpoints API.
@@ -52,3 +54,6 @@ Dịch vụ `SseService.js` quản lý danh sách các kết nối client mở (
   Cho phép bỏ qua các biến bắt đầu bằng chữ in hoa hoặc dấu gạch dưới (thường là hằng số hoặc module import cấu hình).
 - **Asynchronous Code:** Ưu tiên sử dụng cú pháp `async/await` kết hợp với khối `try/catch` để xử lý các tác vụ bất đồng bộ (truy vấn DB, gọi API AI).
 - **Ghi log an toàn:** TUYỆT ĐỐI không ghi đè các tham số nhạy cảm như `password` vào logger. Hàm logging trung gian trong `logging.js` phải có cơ chế lọc bỏ trường này trước khi in ra hoặc lưu file log.
+- **Thành phần Giao diện & Cấm Native Date Input (Rule 2.2):**
+  + TUYỆT ĐỐI không sử dụng thẻ `<input type="date">` mặc định của trình duyệt ở bất kỳ phân hệ nào. Bắt buộc sử dụng component React tùy chỉnh `CustomDatePicker`.
+  + Tuân thủ Premium UI Aesthetics: Bo góc lớn (`rounded-2xl` hoặc `rounded-3xl`), sử dụng màu sắc HSL phối hài hòa nhẹ nhàng, tránh dùng màu sắc chói thô cứng, tích hợp modal backdrop ở giữa màn hình trên thiết bị di động.

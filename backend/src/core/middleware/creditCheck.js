@@ -83,20 +83,27 @@ const creditCheck = async (req, res, next) => {
       }
     }
 
-    // 1. Trạng thái: Đã có bài luận giải chuyên sâu (VIP)
-    if (record?.aiInterpretation?.mode === 'vip' && record.aiInterpretation?.content) {
-      return res.status(400).json({
-        error: 'Lá số / quẻ này đã có bài luận giải chuyên sâu VIP hoàn chỉnh. Không thể gửi thêm yêu cầu luận giải.'
-      });
-    }
+    // 1. Kiểm tra trạng thái đã có bài luận giải phù hợp (Cache Hit 0ms):
+    // - Bản ghi đã có luận giải VIP: Trả về cache VIP ở 0ms cho bất kỳ yêu cầu nào (standard hoặc vip)
+    // - Bản ghi đã có luận giải thường và người dùng chỉ yêu cầu bản thường: Trả về cache thường ở 0ms
+    const hasValidCache = 
+      record?.aiInterpretation?.content &&
+      (record.aiInterpretation.mode === 'vip' || !isVipMode);
 
-    // 2. Trạng thái: Đã có bài luận giải thường, và client chỉ yêu cầu bản thường -> Trả về cache ngay ở 0ms, không gọi AI, không trừ credit
-    if (!isVipMode && record?.aiInterpretation?.content) {
-      return res.json({
-        content: record.aiInterpretation.content,
-        mode: record.aiInterpretation.mode || 'standard',
-        fromCache: true
-      });
+    if (hasValidCache) {
+      const acceptsJson = req.headers['accept']?.includes('application/json') && !req.headers['accept']?.includes('text/event-stream');
+      if (acceptsJson) {
+        return res.json({
+          content: record.aiInterpretation.content,
+          mode: record.aiInterpretation.mode || 'standard',
+          fromCache: true
+        });
+      }
+      // Với SSE stream, cho qua controller để phát lại stream 0ms, đảm bảo KHÔNG trừ bất kỳ credit nào
+      req.creditCost = 0;
+      req.creditDecremented = false;
+      req.user = user;
+      return next();
     }
 
     // 3. Tính toán chi phí credit:

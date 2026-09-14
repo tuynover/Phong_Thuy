@@ -137,6 +137,7 @@ const InterpretationTierModal = ({
   onClose,
   onConfirm,
   userCredits = 0,
+  isAdmin = false,
   isUpgrade = false,
   system = 'bazi'
 }) => {
@@ -149,7 +150,7 @@ const InterpretationTierModal = ({
   // Trường hợp 1: Nâng cấp từ bài Thường lên bài Chuyên Sâu (Modal xác nhận nhanh 4 Credits)
   if (isUpgrade) {
     const cost = 4;
-    const canAfford = userCredits >= cost;
+    const canAfford = isAdmin || userCredits >= cost;
 
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs animate-fadeIn">
@@ -221,8 +222,8 @@ const InterpretationTierModal = ({
   }
 
   // Trường hợp 2: Khi chưa có luận giải nào -> Hiển thị Modal 2 cột chọn gói
-  const canAffordStandard = userCredits >= 1;
-  const canAffordVip = userCredits >= 5;
+  const canAffordStandard = isAdmin || userCredits >= 1;
+  const canAffordVip = isAdmin || userCredits >= 5;
   const isSelectedVip = selectedTier === 'vip';
   const selectedCost = isSelectedVip ? 5 : 1;
   const canAffordSelected = isSelectedVip ? canAffordVip : canAffordStandard;

@@ -11,6 +11,8 @@ graph TD
         App --> UserApp[app/UserApp.jsx]
         App --> AdminApp[app/AdminApp.jsx]
         
+        UserApp --> Header[components/layout/Header.jsx]
+        
         subgraph Features [src/features/*]
             UserApp --> IChingB[features/iching/IChingBoard.jsx]
             UserApp --> BaziB[features/bazi/BaziBoard.jsx]
@@ -21,12 +23,33 @@ graph TD
             UserApp --> DateB[features/xemngay/DateSelectionBoard.jsx]
             UserApp --> BlogB[features/blog/BlogBoard.jsx]
             UserApp --> HomeB[features/home/HomeBoard.jsx]
+            
+            AdminApp --> AdminOverview[features/admin/tabs/AdminOverviewTab.jsx]
+            AdminApp --> AdminUsers[features/admin/tabs/AdminUsersTab.jsx]
+            AdminApp --> AdminCalcs[features/admin/tabs/AdminCalculationsTab.jsx]
+            AdminApp --> AdminAlerts[features/admin/tabs/AdminAlertsTab.jsx]
+            AdminApp --> AdminBlog[features/admin/tabs/AdminBlogTab.jsx]
+            AdminApp --> AdminStatsM[features/admin/components/AdminUserStatsModal.jsx]
             AdminApp --> AdminConf[features/admin/AdminConfirmModal.jsx]
             
+            BaziB --> BaziPillars[features/bazi/components/BaziPillarsTable.jsx]
+            BaziB --> BaziRadar[features/bazi/components/BaziFiveElementsChart.jsx]
+            BaziB --> BaziDaiYun[features/bazi/components/BaziDaiYunTimeline.jsx]
+            BaziB --> BaziProf[features/bazi/components/BaziProfileHeader.jsx]
+            BaziB --> BaziRemedy[features/bazi/components/BaziRemedyAndRelations.jsx]
+            BaziB --> ThapThanTbl[features/bazi/components/ThapThanStrengthTable.jsx]
+            
+            HistoryB --> HistCards[features/history/components/*Cards.jsx]
+            
             IChingB --> IChingIn[features/iching/IChingInput.jsx]
-            BaziB --> BaziIn[features/bazi/BaziInput.jsx]
             MarriageB --> MarriageIn[features/marriage/MarriageInput.jsx]
             ZiweiB --> ZiweiCh[features/ziwei/ZiweiChart.jsx] & ZiweiIn[features/ziwei/ZiweiInput.jsx]
+        end
+
+        subgraph SharedHooks [src/hooks/*]
+            IChingB & BaziB & ZiweiB & MarriageB --> HookStream[useInterpretationStream.js]
+            IChingB & BaziB & ZiweiB & MarriageB --> HookRating[useRecordRating.js]
+            BaziB & ZiweiB & MarriageB --> HookPublic[usePublicToggle.js]
         end
 
         subgraph SharedWidgets [src/components/widgets/* & modals/* & common/*]
@@ -36,10 +59,11 @@ graph TD
             IChingB & BaziB & ZiweiB & MarriageB --> TierM[modals/InterpretationTierModal.jsx]
             IChingB & BaziB & ZiweiB & MarriageB --> VipB[widgets/VipUpgradeBanner.jsx]
             IChingB & BaziB & ZiweiB & MarriageB --> VipT[widgets/VipProgressTracker.jsx]
+            HistoryB --> DatePicker[common/CustomDatePicker.jsx]
             ChatW --> SecR[common/SectionRenderer.jsx]
             SecR --> TtsE[services/ttsEngine.js]
             
-            UserApp --> NotifB[widgets/NotificationBell.jsx]
+            Header --> NotifB[widgets/NotificationBell.jsx]
             UserApp --> AudioDock[widgets/AudioPlayerDock.jsx]
             AudioDock --> TtsE
             UserApp -.-> AuthModal[modals/AuthModal.jsx]
@@ -138,6 +162,28 @@ Toàn bộ mã nguồn Backend (`backend/src`) được tái cấu trúc thành 
   + `knowledge-engine/SymbolicAnalyzer.js`: Bộ phân tích tượng học và tương tác cung vị.
   + `utils/ungKyParser.js`: Tiện ích định lượng ứng kỳ lịch pháp.
   + `utils/astrologyHelpers.js`: Bộ hỗ trợ bản đồ can chi, ngũ hành, thập thần.
+
+### 1.2 Kiến Trúc Frontend Phân Rã Toàn Diện (Zero UI Regression Modular Frontend)
+Mã nguồn Frontend (`frontend/src`) được chuẩn hóa theo mô hình phân rã linh hoạt, loại bỏ hoàn toàn các tệp monolithic cồng kềnh nhằm tối ưu khả năng bảo trì và tốc độ biên dịch HMR:
+- **Layout Header Độc Lập (`src/components/layout/Header.jsx`):**
+  + Tách toàn bộ thanh điều hướng Sticky Header ra khỏi `UserApp.jsx` (~350 dòng).
+  + Quản lý logo, điều hướng tab, menu thả xuống người dùng, số dư credits, chuông thông báo và thanh trượt chuyển đổi ADMIN / USER APP.
+- **Phân Rã Mô-đun Bát Tự (`src/features/bazi/components/`):**
+  + Rút gọn `BaziBoard.jsx` từ **1.848 dòng xuống 445 dòng (-76%)**.
+  + Tách 7 component con chuyên trách: `BaziPillarsTable.jsx` (cấu trúc 4 trụ), `BaziPillar.jsx` (hiển thị 1 trụ kèm vòng trường sinh xoay -90 độ, thập thần, thần sát), `BaziFiveElementsChart.jsx` (biểu đồ ngũ hành radar SVG đa giác), `BaziDaiYunTimeline.jsx` (slider ngang Đại vận 100 năm), `BaziProfileHeader.jsx` (thông tin đương số, switch chia sẻ, xuất PDF), `BaziRemedyAndRelations.jsx` (lời khuyên dụng thần, tam hợp, lục xung), `ThapThanStrengthTable.jsx` (bảng lực lượng 10 Thập Thần).
+- **Phân Rã Bảng Quản Trị Hệ Thống (`src/features/admin/tabs/`):**
+  + Rút gọn `AdminApp.jsx` từ **3.338 dòng xuống 340 dòng (-90%)**, đóng vai trò là Orchestrator gọn gàng điều phối router và modal.
+  + Tách 5 tab độc lập: `AdminOverviewTab.jsx` (KPI cards, biểu đồ Recharts lưu lượng & token, bộ lọc ngày), `AdminUsersTab.jsx` (danh sách thành viên, phân quyền, cộng/trừ credit, khóa tài khoản), `AdminCalculationsTab.jsx` (quản lý 4 phân hệ lá số/quẻ), `AdminAlertsTab.jsx` (cảnh báo spike và xử lý khiếu nại), `AdminBlogTab.jsx` (quản lý bài viết blog, trình soạn thảo Markdown).
+  + Modal thống kê token chuyên biệt: `AdminUserStatsModal.jsx`.
+- **Phân Rã Mô-đun Lịch Sử (`src/features/history/components/`):**
+  + Rút gọn `HistoryBoard.jsx` từ **1.736 dòng xuống 1.090 dòng (-37%)**.
+  + Tách 4 card lịch sử độc lập: `IChingHistoryCard.jsx`, `BaziHistoryCard.jsx`, `ZiweiHistoryCard.jsx`, `MarriageHistoryCard.jsx`.
+- **Custom Hooks Dùng Chung (`src/hooks/`):**
+  + `useInterpretationStream.js`: Điều phối vòng đời SSE stream đa chương, heartbeat ping 15s, tự động scroll và fallback.
+  + `useRecordRating.js`: Xử lý đánh giá 1-5 sao và modal phản hồi luận giải AI.
+  + `usePublicToggle.js`: Xử lý bật/tắt chia sẻ công khai lá số kèm toast 1.5s và kích hoạt Google Indexing ping.
+- **Chuẩn Hóa 100% CustomDatePicker (Zero Native Date Inputs):**
+  + Toàn bộ giao diện chọn ngày trong toàn hệ thống (bao gồm cả Admin và Thư mục) đều sử dụng component cao cấp `CustomDatePicker` với bo góc mềm mại, đồng bộ theme màu phong thủy, hỗ trợ modal backdrop trên Mobile, triệt tiêu 100% thẻ `<input type="date">` mặc định của hệ điều hành.
 
 ---
 

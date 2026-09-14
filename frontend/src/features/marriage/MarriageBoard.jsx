@@ -1129,6 +1129,7 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
                 onClose={() => setShowTierModal(false)}
                 onConfirm={triggerLuanGiai}
                 userCredits={user?.credits || 0}
+                isAdmin={user?.role === 'admin' || user?.role === 'co-admin'}
                 isUpgrade={isUpgradeModal}
                 system="marriage"
             />
