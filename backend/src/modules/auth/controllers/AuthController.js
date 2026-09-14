@@ -128,6 +128,9 @@ const register = async (req, res) => {
     logger.info(`Đăng ký tài khoản mới thành công cho email [${user.email}] (Tên: ${user.name}).`, { user: user.email, action: 'Đăng ký tài khoản' });
     sseService.sendToAdmins('new_user', { userId: user.id, email: user.email, name: user.name });
 
+    // Đồng bộ tức thời hồ sơ và tokenVersion vào L1 RAM & L2 Redis
+    await setUserProfileCache(user.id, user);
+
     // Create token
     const payload = {
       user: {
@@ -196,6 +199,9 @@ const login = async (req, res) => {
 
     logger.info(`Đăng nhập thành công cho tài khoản [${user.email}] (Tên: ${user.name}).`, { user: user.email, action: 'Đăng nhập' });
 
+    // Đồng bộ tức thời hồ sơ và tokenVersion vào L1 RAM & L2 Redis trước khi trả token
+    await setUserProfileCache(user.id, user);
+
     // Create token
     const payload = {
       user: {
@@ -251,6 +257,9 @@ const updateBaziInfo = async (req, res) => {
     };
     await user.save();
     
+    // Đồng bộ tức thời hồ sơ vào L1 RAM & L2 Redis
+    await setUserProfileCache(user.id, user);
+
     logger.info(`Cập nhật Giờ Sinh thành công cho tài khoản [${user.email}] (Giờ sinh mới: ${hour}:${minute} ngày ${day}/${month}/${year}).`, { user: user.email, action: 'Cập nhật Giờ Sinh Bát Tự' });
 
     res.json({ user: formatUserResponse(user) });
@@ -276,23 +285,18 @@ const googleLogin = async (req, res) => {
     }
 
     let user = await User.findOne({ email });
-    if (!user) {
-      const crypto = require('crypto');
-      const randomPassword = crypto.randomBytes(16).toString('hex');
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(randomPassword, salt);
 
+    if (!user) {
       user = new User({
         email,
-        password: hashedPassword,
-        name: name || 'Google User',
-        gender: 1,
+        password: await bcrypt.hash(uuidv7(), 10), // Random secure password
+        name,
         role: 'user',
         credits: 2,
-        status: 'active'
+        isEmailVerified: true
       });
       await user.save();
-      logger.info(`Đăng ký tài khoản Google mới thành công: [${email}]`, { user: email, action: 'Đăng ký Google' });
+      logger.info(`Đăng ký tài khoản mới thành công qua Google: [${email}]`, { user: email, action: 'Đăng nhập Google' });
       sseService.sendToAdmins('new_user', { userId: user.id, email: user.email, name: user.name });
     } else {
       if (user.isDeleted) {
@@ -323,6 +327,9 @@ const googleLogin = async (req, res) => {
 
       logger.info(`Đăng nhập thành công với Google: [${email}]`, { user: email, action: 'Đăng nhập Google' });
     }
+
+    // Đồng bộ tức thời hồ sơ và tokenVersion vào L1 RAM & L2 Redis
+    await setUserProfileCache(user.id, user);
 
     const tokenPayload = {
       user: {
@@ -395,7 +402,7 @@ const updateProfile = async (req, res) => {
     await user.save();
     
     // Đồng bộ Redis Profile Cache
-    setUserProfileCache(user.id, user);
+    await setUserProfileCache(user.id, user);
 
     logger.info(`Cập nhật Hồ Sơ thành công cho tài khoản [${user.email}].`, { user: user.email, action: 'Cập nhật Hồ Sơ' });
 
@@ -482,7 +489,7 @@ const changePassword = async (req, res) => {
     await user.save();
 
     // Clear Redis profile cache
-    clearUserProfileCache(userId);
+    await clearUserProfileCache(userId);
 
     logger.info(`Đổi mật khẩu thành công cho tài khoản [${user.email}].`, { user: user.email, action: 'Đổi mật khẩu' });
     res.json({ message: 'Đổi mật khẩu thành công.' });
@@ -499,7 +506,7 @@ const logout = async (req, res) => {
     if (user) {
       user.tokenVersion = (user.tokenVersion || 0) + 1;
       await user.save();
-      clearUserProfileCache(userId);
+      await clearUserProfileCache(userId);
       logger.info(`Đăng xuất thành công cho tài khoản [${user.email}] (Vô hiệu hóa token & xóa cache).`, { user: user.email, action: 'Đăng xuất' });
     }
     res.json({ message: 'Đăng xuất thành công.' });
@@ -576,7 +583,7 @@ const verifyEmail = async (req, res) => {
     
     // Xóa OTP khỏi Redis & cập nhật Profile Cache
     await deleteOtpRedis(`verify_email:${user.id}`);
-    setUserProfileCache(user.id, user);
+    await setUserProfileCache(user.id, user);
 
     logger.info(`Tài khoản [${user.email}] xác thực email thành công và được cộng 2 credits.`, { user: user.email, action: 'Xác thực Email' });
 
@@ -677,7 +684,7 @@ const resetPassword = async (req, res) => {
 
     // Xóa OTP khỏi Redis & vô hiệu hóa Profile Cache
     await deleteOtpRedis(`reset_password:${email.toLowerCase()}`);
-    clearUserProfileCache(user.id);
+    await clearUserProfileCache(user.id);
 
     logger.info(`Khôi phục mật khẩu thành công cho tài khoản [${user.email}].`, { user: user.email, action: 'Khôi phục mật khẩu' });
     res.json({ message: 'Khôi phục mật khẩu thành công! Vui lòng đăng nhập lại với mật khẩu mới.' });

@@ -57,7 +57,8 @@ export const AuthProvider = ({ children }) => {
     const interceptor = axios.interceptors.response.use(
       response => response,
       error => {
-        if (error.response && (error.response.status === 401 || (error.response.status === 403 && (error.response.data?.error === 'suspended' || error.response.data?.error === 'deleted')))) {
+        const isAuthRequest = error.config?.url?.includes('/auth/login') || error.config?.url?.includes('/auth/register');
+        if (!isAuthRequest && error.response && (error.response.status === 401 || (error.response.status === 403 && (error.response.data?.error === 'suspended' || error.response.data?.error === 'deleted')))) {
           setToken(null);
           setUser(null);
           localStorage.removeItem('user');

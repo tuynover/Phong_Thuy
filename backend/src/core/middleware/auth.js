@@ -31,7 +31,18 @@ module.exports = async (req, res, next) => {
       if (mongoUser) {
         dbUser = mongoUser.toObject ? mongoUser.toObject() : mongoUser;
         // Populate Redis cache for subsequent requests
-        setUserProfileCache(userId, dbUser);
+        await setUserProfileCache(userId, dbUser);
+      }
+    }
+
+    // 3. Self-Healing: If cache returned a user whose tokenVersion does NOT match token,
+    // the cache might be stale! Re-verify with MongoDB before rejecting!
+    const payloadTokenVersion = tokenVersion !== undefined ? tokenVersion : 0;
+    if (dbUser && (dbUser.tokenVersion || 0) !== payloadTokenVersion) {
+      const freshMongoUser = await User.findById(userId);
+      if (freshMongoUser) {
+        dbUser = freshMongoUser.toObject ? freshMongoUser.toObject() : freshMongoUser;
+        await setUserProfileCache(userId, dbUser);
       }
     }
 
@@ -40,7 +51,6 @@ module.exports = async (req, res, next) => {
     }
 
     const currentTokenVersion = dbUser.tokenVersion || 0;
-    const payloadTokenVersion = tokenVersion !== undefined ? tokenVersion : 0;
 
     if (payloadTokenVersion !== currentTokenVersion) {
       return res.status(401).json({ message: 'Phiên đăng nhập đã hết hạn hoặc đã đăng xuất.' });

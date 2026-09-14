@@ -189,7 +189,7 @@ const clearUserProfileCache = async (userId) => {
     userProfileRamCache.delete(key);
     if (isRedisConnected()) {
         try {
-            withTimeout(redisClient.del(key), 500, null).catch(() => {});
+            await withTimeout(redisClient.del(key), 500, null);
         } catch (err) {
             logger.warn(`[Redis] Failed to delete user profile cache for [${userId}]: ${err.message}`);
         }

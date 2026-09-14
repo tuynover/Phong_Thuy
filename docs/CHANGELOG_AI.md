@@ -2,6 +2,77 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Khắc Phục Triệt Để Lỗi Đăng Nhập Trên Production - Cơ Chế Tự Phục Hồi Bộ Nhớ Đệm (Self-Healing Cache) & Đồng Bộ Toàn Diện tokenVersion (14/09/2026)
+
+### 🌟 1. Yêu Cầu & Bối Cảnh Lỗi Production
+- **Nhật ký lỗi người dùng cung cấp từ container `phongthuy-backend`:**
+  ```text
+  [ReqID: 01a0a018-998d-7276-8e47-21fded78aa6e] [User: cobatuoc@gmail.com] [Action: Đăng nhập] Yêu cầu bắt đầu: POST /api/auth/login
+  [INFO] [User: cobatuoc@gmail.com] [Action: Đăng nhập] Đăng nhập thành công cho tài khoản [cobatuoc@gmail.com] (Tên: Trịnh Công Tuyền).
+  [INFO] [ReqID: 01a0a018-998d-7276-8e47-21fded78aa6e] [User: cobatuoc@gmail.com] [Duration: 253ms] Hoàn thành: Phản hồi thành công (200)
+  [INFO] [ReqID: 01a0a018-9b02-756c-89ee-5d48d72ee4de] [Action: GET /api/notifications] Yêu cầu bắt đầu: GET /api/notifications
+  [WARN] GET /api/notifications -> 401 Unauthorized
+  GET /api/tags -> 401 Unauthorized
+  GET /api/history/iching/019e594f-5fb3-701e-916a-d6ce37d424bd -> 403 Forbidden
+  GET /api/history/bazi/019e594f-5fb3-701e-916a-d6ce37d424bd -> 403 Forbidden
+  GET /api/auth/events -> 401 Unauthorized
+  GET /api/auth/me -> 401 Unauthorized
+  ```
+- **Hiện tượng lỗi:** Người dùng đăng nhập thành công nhận HTTP 200 kèm JWT token, nhưng chỉ trong vòng 100-120ms sau đó, hàng loạt API chạy nền của client (`/notifications`, `/tags`, `/history/*`, `/auth/events`, `/auth/me`) đồng loạt nhận lỗi **401 Unauthorized** (*"Phiên đăng nhập đã hết hạn hoặc đã được thay thế. Vui lòng đăng nhập lại."*) hoặc **403 Forbidden**. Bộ chặn Axios phản hồi trong `AuthContext.jsx` bắt được lỗi 401 lập tức xóa trắng `token` và `user` khỏi `localStorage`, ép người dùng văng ra khỏi phiên đăng nhập ngay tức khắc.
+
+### 🔍 2. Phân Tích Nguyên Nhân Gốc Rễ (Root Cause Analysis)
+1. **Lệch Phiên Giữa JWT Mới Và Bộ Nhớ Đệm Profile Cache Cũ (Stale Redis/RAM Cache):**
+   - Tài khoản `cobatuoc@gmail.com` có ID `019e594f-5fb3-701e-916a-d6ce37d424bd` và `tokenVersion: 53` trong MongoDB Atlas.
+   - Khi người dùng đăng nhập qua `POST /api/auth/login`, hàm `AuthController.login` đọc người dùng từ MongoDB và tạo JWT token mang `tokenVersion: 53`.
+   - Tuy nhiên, trước đây `AuthController.login` **không gọi** `setUserProfileCache(user.id, user)` để làm mới bộ nhớ đệm Redis/RAM.
+   - Do đó, nếu Redis hoặc RAM L1 vẫn còn lưu cache của phiên trước đó với `tokenVersion: 52` (với TTL 24h = 86.400s), Redis vẫn giữ `tokenVersion: 52`.
+2. **Điểm Yếu Kiến Trúc: Tin Tưởng Tuyệt Đối Vào Cache (Blind Trust in Cache):**
+   - Khi API `/api/notifications` hoặc các API khác được gọi, middleware `auth.js`, `optionalAuth.js`, `adminAuth.js`, `creditCheck.js`, `chatCreditCheck.js` đọc `dbUser` từ Redis cache.
+   - Sau đó tiến hành so khớp `payloadTokenVersion (53) !== currentTokenVersion (52)`.
+   - Do trước đó các middleware **hoàn toàn tin tưởng vào cache mà không kiểm tra lại MongoDB**, hệ thống lập tức kết luận sai là token bị thu hồi và trả về 401 (hoặc `optionalAuth.js` bỏ qua `req.dbUser`, dẫn tới `checkHistoryOwnership.js` trả về 403 khi so khớp `:userId`).
+3. **Thao Tác Xóa Cache Không Chờ Hoàn Thành (Unawaited Cache Eviction):**
+   - Trong `AuthController.js` (`logout`, `changePassword`, `resetPassword`) và `AdminUserController.js`, hàm `clearUserProfileCache` được gọi bất đồng bộ nhưng không có từ khóa `await`, dẫn tới hiện tượng race condition khi key cache cũ chưa kịp xóa trên Redis thì phiên mới đã truy cập.
+
+### 🛠️ 3. Giải Pháp Kỹ Thuật Đã Triển Khai
+1. **Cơ Chế Tự Phục Hồi Bộ Nhớ Đệm (Self-Healing Cache Verification):**
+   - Nâng cấp đồng bộ cả 5 middleware xác thực cốt lõi:
+     * `backend/src/core/middleware/auth.js`
+     * `backend/src/core/middleware/optionalAuth.js`
+     * `backend/src/core/middleware/adminAuth.js`
+     * `backend/src/core/middleware/creditCheck.js`
+     * `backend/src/core/middleware/chatCreditCheck.js`
+   - **Cơ chế hoạt động:** Khi đọc từ Profile Cache (RAM/Redis) mà phát hiện `(dbUser.tokenVersion || 0) !== payloadTokenVersion`, middleware **không vội vàng từ chối 401** mà tự động truy vấn bản ghi tươi mới nhất từ MongoDB Atlas (`User.findById(userId)`).
+   - Nếu MongoDB xác nhận `freshUser.tokenVersion === payloadTokenVersion`, hệ thống tự động ghi đè làm mới bộ nhớ đệm (`await setUserProfileCache(userId, dbUser)`) và cho phép request đi qua an toàn trong 1ms. Chỉ khi bản ghi thực tế trong MongoDB cũng lệch `tokenVersion` thì mới trả về lỗi 401.
+2. **Đồng Bộ Bộ Nhớ Đệm Toàn Diện (Comprehensive Cache Synchronization):**
+   - Bổ sung `await setUserProfileCache(user.id, user)` tại tất cả các điểm thay đổi phiên/thông tin người dùng:
+     * `AuthController.login`: Đồng bộ cache ngay khi đăng nhập thành công.
+     * `AuthController.register`: Đồng bộ cache khi đăng ký mới.
+     * `AuthController.googleLogin`: Đồng bộ cache khi đăng nhập Google.
+     * `AuthController.updateBaziInfo`: Đồng bộ cache khi cập nhật ngày giờ sinh Bát Tự.
+     * `AuthController.updateProfile`: Đồng bộ cache khi cập nhật hồ sơ cá nhân.
+     * `AuthController.verifyEmail`: Đồng bộ cache khi xác thực email thành công.
+   - Thêm `await` trước mọi lệnh `clearUserProfileCache` tại:
+     * `AuthController.logout`, `AuthController.changePassword`, `AuthController.resetPassword`.
+     * `AdminUserController.updateUserRole`, `AdminUserController.updateUserCredits`, `AdminUserController.lockUser`, `AdminUserController.unlockUser`.
+3. **Cải Tiến Bộ Chặn Axios Phía Client (`frontend/src/context/AuthContext.jsx`):**
+   - Đảm bảo các yêu cầu xác thực (`/auth/login`, `/auth/register`) khi trả về 401 do sai mật khẩu sẽ không kích hoạt hàm xóa trắng token của phiên hiện hành trong interceptor.
+4. **Viết Unit Test Tự Động Hóa Kiểm Thử Cache Self-Healing (`backend/tests/middleware/auth.test.js`):**
+   - Viết test case `stale cache with old tokenVersion should self-heal from MongoDB and succeed`. Kiểm chứng khi Redis có `tokenVersion: 52`, token có `53`, MongoDB có `53` -> Middleware tự động gọi `User.findById`, cập nhật `setUserProfileCache` và gọi `next()` thành công 100%.
+
+### 🧪 4. Kiểm Thử Nghiệm Thu Thực Tế (Chrome DevTools MCP)
+- **Kiểm thử tự động:**
+  + Backend Jest Tests: 5/5 tests `auth.test.js` PASS, `creditCheck.test.js` PASS, `AuthController.test.js` PASS, `AdminController.test.js` PASS, `checkRecordOwnership.test.js` PASS.
+  + Frontend Vitest Tests: 4/4 suites PASS (29/29 tests).
+- **Kiểm thử trực quan trên Trình duyệt thật (Chrome DevTools MCP):**
+  + Mở trang giao diện `http://localhost:5173/login`, bấm "Đăng Nhập".
+  + Nhập tài khoản thực tế `cobatuoc@gmail.com` / `12345678`, nhấn gửi form.
+  + **Kết quả:** Đăng nhập thành công tức thì, modal đóng mượt mà, thông báo chào mừng *"Xin chào Trịnh Công Tuyền, đăng nhập thành công!"*, hiển thị số dư `9711.5 🪙`, chuông thông báo hiển thị `2`.
+  + Không bị văng phiên, không có bất kỳ request nào bị 401 hoặc 403.
+  + Bấm vào tab "LỊCH SỬ": Toàn bộ lịch sử 4 phân hệ (Kinh Dịch 47, Bát Tự 100, Tử Vi 43, Hôn Nhân 58) tải lên đầy đủ, bộ lọc hoạt động mượt mà.
+  + Kiểm tra Console: **0 lỗi**.
+
+---
+
 ## 📅 Phiên bản: Sửa Triệt Để Luồng Luận Giải Chuyên Sâu Bát Tự (VIP), Phục Hồi F5 & Tối Ưu Hóa Bộ Đệm Credit (14/09/2026)
 
 ### 🌟 1. Yêu Cầu & Bối Cảnh Lỗi

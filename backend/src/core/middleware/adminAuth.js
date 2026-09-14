@@ -28,7 +28,17 @@ const adminAuth = async (req, res, next) => {
       const mongoUser = await User.findById(userId);
       if (mongoUser) {
         user = mongoUser.toObject ? mongoUser.toObject() : mongoUser;
-        setUserProfileCache(userId, user);
+        await setUserProfileCache(userId, user);
+      }
+    }
+
+    // 3. Self-Healing: Re-verify with MongoDB if cached tokenVersion mismatches
+    const payloadTokenVersion = tokenVersion !== undefined ? tokenVersion : 0;
+    if (user && (user.tokenVersion || 0) !== payloadTokenVersion) {
+      const freshMongoUser = await User.findById(userId);
+      if (freshMongoUser) {
+        user = freshMongoUser.toObject ? freshMongoUser.toObject() : freshMongoUser;
+        await setUserProfileCache(userId, user);
       }
     }
 
@@ -41,7 +51,6 @@ const adminAuth = async (req, res, next) => {
     }
 
     const currentTokenVersion = user.tokenVersion || 0;
-    const payloadTokenVersion = tokenVersion !== undefined ? tokenVersion : 0;
     if (payloadTokenVersion !== currentTokenVersion) {
       return res.status(401).json({ error: 'Phiên đăng nhập đã hết hạn hoặc đã đăng xuất.' });
     }

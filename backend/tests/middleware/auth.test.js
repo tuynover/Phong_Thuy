@@ -99,4 +99,38 @@ describe('Auth Middleware Unit Tests', () => {
         );
         expect(next).not.toHaveBeenCalled();
     });
+
+    test('stale cache with old tokenVersion should self-heal from MongoDB and succeed', async () => {
+        const staleCachedUser = {
+            _id: 'user-123',
+            id: 'user-123',
+            role: 'user',
+            tokenVersion: 52, // Stale cache in Redis/RAM
+            isDeleted: false,
+            status: 'active'
+        };
+        const freshDbUser = {
+            _id: 'user-123',
+            id: 'user-123',
+            role: 'user',
+            tokenVersion: 53, // Fresh in MongoDB
+            isDeleted: false,
+            status: 'active'
+        };
+
+        req.header.mockReturnValue('Bearer fresh-token-53');
+        jwt.verify.mockReturnValue({
+            user: { id: 'user-123', tokenVersion: 53 }
+        });
+        getUserProfileCache.mockResolvedValue(staleCachedUser);
+        User.findById.mockResolvedValue(freshDbUser);
+
+        await authMiddleware(req, res, next);
+
+        expect(User.findById).toHaveBeenCalledWith('user-123');
+        expect(setUserProfileCache).toHaveBeenCalledWith('user-123', freshDbUser);
+        expect(next).toHaveBeenCalled();
+        expect(req.user).toEqual({ id: 'user-123', tokenVersion: 53 });
+        expect(req.dbUser.tokenVersion).toBe(53);
+    });
 });

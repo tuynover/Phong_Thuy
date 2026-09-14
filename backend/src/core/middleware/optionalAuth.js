@@ -29,13 +29,23 @@ module.exports = async (req, res, next) => {
         const mongoUser = await User.findById(userId);
         if (mongoUser) {
           dbUser = mongoUser.toObject ? mongoUser.toObject() : mongoUser;
-          setUserProfileCache(userId, dbUser);
+          await setUserProfileCache(userId, dbUser);
+        }
+      }
+
+      // 3. Self-Healing: If cache returned a user whose tokenVersion does NOT match token,
+      // the cache might be stale! Re-verify with MongoDB before dropping user
+      const payloadTokenVersion = tokenVersion !== undefined ? tokenVersion : 0;
+      if (dbUser && (dbUser.tokenVersion || 0) !== payloadTokenVersion) {
+        const freshMongoUser = await User.findById(userId);
+        if (freshMongoUser) {
+          dbUser = freshMongoUser.toObject ? freshMongoUser.toObject() : freshMongoUser;
+          await setUserProfileCache(userId, dbUser);
         }
       }
 
       if (dbUser && !dbUser.isDeleted && dbUser.status !== 'locked') {
         const currentTokenVersion = dbUser.tokenVersion || 0;
-        const payloadTokenVersion = tokenVersion !== undefined ? tokenVersion : 0;
         
         if (payloadTokenVersion === currentTokenVersion) {
           dbUser.id = dbUser.id || dbUser._id;
@@ -43,7 +53,6 @@ module.exports = async (req, res, next) => {
           req.user = decoded.user;
           req.dbUser = dbUser;
         }
-
       }
     }
     next();

@@ -456,7 +456,7 @@ Hệ thống Express.js sử dụng chuỗi Middleware để bảo vệ tài ngu
    - Masking (ẩn) các thông tin nhạy cảm như mật khẩu trước khi lưu vào `SystemLog` trong MongoDB.
 2. **`auth.js` / `adminAuth.js` (Authentication & Authorization):**
    - Xác thực JWT token từ Header Authorization `Bearer <token>` hoặc query parameter `?token=`.
-   - Đối chiếu trường `tokenVersion` từ payload token JWT với giá trị thực tế trong cơ sở dữ liệu. Nếu người dùng đã thực hiện đăng xuất (logout), `tokenVersion` của họ trong DB sẽ tăng lên, lập tức làm vô hiệu hóa token cũ này và trả về `401 Unauthorized`.
+   - **Tự phục hồi Bộ nhớ Đệm (Self-Healing Cache Verification):** Đối chiếu trường `tokenVersion` từ payload token JWT với User Profile Cache (RAM L1 + Redis L2). Nếu phát hiện lệch `tokenVersion`, hệ thống không vội vàng từ chối 401 mà tự động kích hoạt cơ chế Self-Healing: truy vấn trực tiếp bản ghi người dùng mới nhất từ MongoDB Atlas (Single Source of Truth). Nếu MongoDB xác nhận phiên hợp lệ, hệ thống tự động đồng bộ ghi đè lại bộ nhớ đệm L1/L2 (`setUserProfileCache`) và cho phép request đi qua bình thường. Chỉ khi MongoDB cũng xác nhận `tokenVersion` đã bị thu hồi/cũ hơn thì mới trả về `401 Unauthorized`.
    - Kiểm tra tài khoản có bị khóa (`status === 'locked'`) hoặc xóa mềm (`isDeleted === true`) không.
    - `adminAuth.js` đính kèm thêm helper `req.hasAuthorityOver(targetUser)` để ngăn Co-Admin thao tác trên Admin khác.
 3. **`creditCheck.js` (Credit Quota Protection):**
@@ -468,6 +468,7 @@ Hệ thống Express.js sử dụng chuỗi Middleware để bảo vệ tài ngu
 5. **`MemoryCacheService.js` & `redis.js` (Hybrid L1 RAM + L2 Redis Caching):**
    - Bộ nhớ đệm 2 tầng chuẩn mực: **L1 RAM JS `Map`** (đọc trong 0.001ms từ RAM Node.js Heap) + **L2 Redis** (độ trễ 2ms).
    - Tích hợp cơ chế **Hard Timeout Wrapper (`withTimeout`) tối đa 300ms - 500ms** cho tất cả thao tác Redis, kích hoạt `family: 4` chống trễ DNS IPv6 AAAA trên AWS EC2, cùng TCP Keep-Alive 5000ms ngăn ngắt socket từ AWS NAT Gateway.
+   - Đồng bộ hóa toàn diện: Tự động ghi đè đệm (`setUserProfileCache`) khi người dùng Đăng nhập, Đăng ký, Đăng nhập Google, Cập nhật thông tin Bát Tự, Xác thực Email; đồng thời xóa đệm triệt để (`clearUserProfileCache`) có `await` khi Đăng xuất, Đổi mật khẩu, Khôi phục mật khẩu hoặc Quản trị viên thay đổi trạng thái tài khoản.
 6. **`checkRecordOwnership.js` (Record Privacy Protection):**
    - Tự động xác định loại bản ghi (Kinh Dịch, Bát Tự, Tử Vi, Hợp Hôn) dựa trên URL API và thực hiện truy vấn cơ sở dữ liệu để bảo vệ quyền riêng tư.
    - Chỉ cho phép chủ sở hữu của bản ghi hoặc quản trị viên (Admin/Co-Admin) xem chi tiết, yêu cầu giải đoán AI, hoặc chat AI liên quan đến bản ghi đó. Chặn đứng các hành vi dùng ID để xem lén dữ liệu của người khác.

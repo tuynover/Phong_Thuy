@@ -84,7 +84,7 @@ Sử dụng phương pháp Tử Vi Bắc Phái định vị Mệnh - Thân:
 - **Hiệu lực phiên đăng nhập & Thu hồi Token:**
   - Phiên đăng nhập (token JWT) có thời hạn tối đa là **7 ngày** kể từ khi đăng nhập thành công.
   - Khi người dùng chủ động nhấn **Đăng xuất (Logout)** hoặc đổi mật khẩu, hệ thống tăng `tokenVersion` trên máy chủ để vô hiệu hóa token cũ.
-  - **Đồng bộ Kiểm tra tokenVersion Toàn Hệ Thống:** Việc so khớp `tokenVersion` đã được áp dụng đồng bộ tại tất cả các middleware xác thực và kiểm tra tài nguyên: `middleware/auth.js`, `middleware/adminAuth.js`, `middleware/creditCheck.js`, và `middleware/chatCreditCheck.js`. Bất kỳ token JWT nào cũ hơn `tokenVersion` hiện tại của tài khoản đều bị từ chối 401 ngay lập tức.
+  - **Đồng bộ Kiểm tra tokenVersion & Tự Phục Hồi Bộ Nhớ Đệm (Self-Healing Cache):** Việc so khớp `tokenVersion` được áp dụng đồng bộ tại tất cả các middleware xác thực và kiểm tra tài nguyên: `middleware/auth.js`, `middleware/optionalAuth.js`, `middleware/adminAuth.js`, `middleware/creditCheck.js`, và `middleware/chatCreditCheck.js`. Nếu phát hiện lệch `tokenVersion` giữa JWT và Profile Cache (RAM L1/Redis L2), hệ thống thực hiện cơ chế tự phục hồi: truy vấn MongoDB Atlas để xác nhận. Nếu MongoDB xác nhận token hợp lệ, hệ thống tự động làm mới bộ nhớ đệm và chấp thuận yêu cầu. Bất kỳ token JWT nào cũ hơn `tokenVersion` thực tế của tài khoản trên cơ sở dữ liệu MongoDB đều bị từ chối 401 ngay lập tức.
 
 ### 4.5 Quy trình Xác thực & Khôi phục mật khẩu qua Email OTP
 - **Sinh mã OTP:** Khi yêu cầu khôi phục mật khẩu (`POST /forgot-password`), hệ thống tự động kiểm tra tài khoản, sinh mã OTP ngẫu nhiên gồm 6 chữ số (`000000 - 999999`) và cập nhật thời hạn hết hạn là **15 phút**.

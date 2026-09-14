@@ -104,7 +104,7 @@ class AdminUserController {
       
       // Invalidate cache
       MemoryCacheService.clearUserHistoryCache(targetUser.id);
-      clearUserProfileCache(targetUser.id);
+      await clearUserProfileCache(targetUser.id);
 
       sseService.sendToUser(id, 'account_updated', { role: targetUser.role, credits: targetUser.credits });
       sseService.sendToAdmins('user_updated', { userId: id, action: 'role' });
@@ -140,7 +140,7 @@ class AdminUserController {
       }
 
       await targetUser.save();
-      clearUserProfileCache(targetUser.id);
+      await clearUserProfileCache(targetUser.id);
 
       sseService.sendToUser(id, 'account_updated', { role: targetUser.role, credits: targetUser.credits });
       sseService.sendToAdmins('user_updated', { userId: id, action: 'credits' });
@@ -173,7 +173,7 @@ class AdminUserController {
       targetUser.status = 'locked';
       targetUser.lockReason = reason;
       await targetUser.save();
-      clearUserProfileCache(targetUser.id);
+      await clearUserProfileCache(targetUser.id);
 
       sseService.sendToUser(id, 'account_locked', { reason: targetUser.lockReason });
       sseService.sendToAdmins('user_updated', { userId: id, action: 'lock' });
@@ -203,7 +203,7 @@ class AdminUserController {
       targetUser.status = 'active';
       targetUser.lockReason = '';
       await targetUser.save();
-      clearUserProfileCache(targetUser.id);
+      await clearUserProfileCache(targetUser.id);
 
       // Automatically resolve appeals for this user
       await BanAppeal.updateMany({ userId: id }, { status: 'resolved' });
