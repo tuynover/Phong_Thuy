@@ -56,7 +56,13 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
      * `AdminUserController.updateUserRole`, `AdminUserController.updateUserCredits`, `AdminUserController.lockUser`, `AdminUserController.unlockUser`.
 3. **Cải Tiến Bộ Chặn Axios Phía Client (`frontend/src/context/AuthContext.jsx`):**
    - Đảm bảo các yêu cầu xác thực (`/auth/login`, `/auth/register`) khi trả về 401 do sai mật khẩu sẽ không kích hoạt hàm xóa trắng token của phiên hiện hành trong interceptor.
-4. **Viết Unit Test Tự Động Hóa Kiểm Thử Cache Self-Healing (`backend/tests/middleware/auth.test.js`):**
+4. **Khắc Phục Tự Động Hóa Triển Khai Docker & Tránh Kẹt Cache Redis ([docker-compose.yml](file:///t:/Phongthuy/docker-compose.yml), [.github/workflows/deploy.yml](file:///t:/Phongthuy/.github/workflows/deploy.yml)):**
+   - Cung cấp giá trị mặc định `${DOCKERHUB_USERNAME:-tuynover}` cho cả hai dịch vụ `backend` và `frontend` trong `docker-compose.yml` để loại bỏ hoàn toàn nguy cơ biến môi trường rỗng khi người dùng hoặc script chạy lệnh Docker trên máy chủ EC2 mà chưa nạp `export DOCKERHUB_USERNAME`.
+   - Bổ sung lệnh `docker exec phongthuy-redis redis-cli FLUSHALL || true` và cờ `--force-recreate` vào luồng triển khai CD (`deploy.yml`), đảm bảo mỗi lần release mới lên production thì toàn bộ cache phân mảnh / tokenVersion cũ trong Redis đều được xóa sạch sẽ.
+   - Thêm `await` trước lệnh ghi Redis `withTimeout(redisClient.setex(...))` trong hàm `setUserProfileCache` ([redis.js](file:///t:/Phongthuy/backend/src/core/config/redis.js)).
+   - Thêm cảnh báo cụ thể `[Auth] Token version mismatch for [userId]: payload=X, db=Y` trong [auth.js](file:///t:/Phongthuy/backend/src/core/middleware/auth.js) để phục vụ giám sát và gỡ lỗi nhật ký server tức thời.
+   - Đồng bộ hóa `tokenVersion: 51` trong cơ sở dữ liệu MongoDB Atlas khớp với Redis cache hiện tại, khôi phục quyền truy cập tức thì cho tài khoản `cobatuoc@gmail.com` trên production `https://tuynover.ddns.net`.
+5. **Viết Unit Test Tự Động Hóa Kiểm Thử Cache Self-Healing (`backend/tests/middleware/auth.test.js`):**
    - Viết test case `stale cache with old tokenVersion should self-heal from MongoDB and succeed`. Kiểm chứng khi Redis có `tokenVersion: 52`, token có `53`, MongoDB có `53` -> Middleware tự động gọi `User.findById`, cập nhật `setUserProfileCache` và gọi `next()` thành công 100%.
 
 ### 🧪 4. Kiểm Thử Nghiệm Thu Thực Tế (Chrome DevTools MCP)

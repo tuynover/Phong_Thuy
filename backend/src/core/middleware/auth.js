@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const { getUserProfileCache, setUserProfileCache } = require('../config/redis');
+const logger = require('../services/LoggerService');
 
 module.exports = async (req, res, next) => {
   let token = null;
@@ -53,6 +54,7 @@ module.exports = async (req, res, next) => {
     const currentTokenVersion = dbUser.tokenVersion || 0;
 
     if (payloadTokenVersion !== currentTokenVersion) {
+      logger.warn(`[Auth] Token version mismatch for [${userId}]: payload=${payloadTokenVersion}, db=${currentTokenVersion}`);
       return res.status(401).json({ message: 'Phiên đăng nhập đã hết hạn hoặc đã đăng xuất.' });
     }
 

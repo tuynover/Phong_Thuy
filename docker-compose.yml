@@ -1,6 +1,6 @@
 services:
   backend:
-    image: ${DOCKERHUB_USERNAME}/phongthuy-backend:latest
+    image: ${DOCKERHUB_USERNAME:-tuynover}/phongthuy-backend:latest
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -14,7 +14,7 @@ services:
       - phongthuy-network
   
   frontend:
-    image: ${DOCKERHUB_USERNAME}/phongthuy-frontend:latest
+    image: ${DOCKERHUB_USERNAME:-tuynover}/phongthuy-frontend:latest
     build:
       context: ./frontend
       dockerfile: Dockerfile

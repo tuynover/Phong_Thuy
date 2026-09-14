@@ -145,10 +145,10 @@ const setUserProfileCache = async (userId, userObj, ttlSec = 86400) => {
             expiresAt: Date.now() + (ttlSec * 1000)
         });
 
-        // 2. Write to L2 Redis Cache (async non-blocking)
+        // 2. Write to L2 Redis Cache (fast timeout protected)
         if (isRedisConnected()) {
             const payload = JSON.stringify(profile);
-            withTimeout(redisClient.setex(`user:profile:${userId}`, ttlSec, payload), 500, null).catch(() => {});
+            await withTimeout(redisClient.setex(`user:profile:${userId}`, ttlSec, payload), 500, null).catch(() => {});
         }
     } catch (err) {
         logger.warn(`[Redis] Failed to cache user profile for [${userId}]: ${err.message}`);

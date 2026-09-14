@@ -77,11 +77,11 @@ jobs:
             # Kéo image mới nhất từ Docker Hub về (nhanh vì chỉ tải layer đổi)
             docker compose pull
             
-            # Xóa các container cũ để dọn đường, tránh lỗi xung đột tên (Conflict) khi Recreate
-            docker rm -f phongthuy-frontend phongthuy-backend || true
+            # Dọn dẹp cache Redis cũ để tránh kẹt tokenVersion và cache phiên đăng nhập lỗi thời
+            docker exec phongthuy-redis redis-cli FLUSHALL || true
             
-            # Khởi động lại các container mới
-            docker compose up -d
+            # Khởi động lại các container mới với cờ force-recreate
+            docker compose up -d --force-recreate
             
             # Bắt buộc khởi động lại Nginx để làm mới upstream IPs và dọn dẹp cache ẩn
             docker compose restart nginx
