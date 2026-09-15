@@ -343,7 +343,7 @@ Mệnh lý học không chỉ là dự đoán tĩnh, mà còn mở ra con đư�
 
 Thiên Ất Quý Nhân là món quà cát tường quý giá mà vũ trụ ban tặng trong mệnh bàn của mỗi người. Tuy nhiên, cổ nhân dạy rằng: *"Vận do thiên định, mệnh do nhân tạo"*. Cát thần chỉ có thể phò trợ đắc lực nhất khi bản thân mệnh chủ sống chân thành, nỗ lực tự thân và không ngừng tích đức hành thiện. 
 
-Nếu bạn muốn biết trên lá số Bát Tự của mình có bao nhiêu vị Thiên Ất Quý Nhân ngự trị và ở các trụ nào, hãy truy cập ngay công cụ [XEM LÁ SỐ BÁT TỰ](https://tuynover.ddns.net/la-so-bat-tu) của chúng tôi để nhận bài phân tích học thuật chi tiết và chính xác nhất!
+Nếu bạn muốn biết trên lá số Bát Tự của mình có bao nhiêu vị Thiên Ất Quý Nhân ngự trị và ở các trụ nào, hãy truy cập ngay công cụ [XEM LÁ SỐ BÁT TỰ](/bazi) của chúng tôi để nhận bài phân tích học thuật chi tiết và chính xác nhất!
 `
   },
   {
@@ -465,7 +465,7 @@ Do mỗi cột trụ trong Tứ Trụ đại diện cho một thời kỳ vận 
 
 Có bộ đôi cát thần **Thiên Đức & Nguyệt Đức** tọa thủ trên mệnh bàn là một đặc ân phúc báo vô cùng to lớn. Người có Thiên Nguyệt Đức cần thấu hiểu rằng: *"Phúc đức do tích lũy mà thành, cát tinh nhờ hành thiện mới tỏa sáng"*. Khi bản thân tiếp tục duy trì lối sống lương thiện, hay giúp đỡ mọi người, cát khí hộ mệnh của Thiên Nguyệt Đức sẽ luôn hưng vượng và dẫn lối đến sự bình an viên mãn.
 
-Nếu bạn muốn biết trên lá số Tứ Trụ của mình có vị Thiên Đức hay Nguyệt Đức Quý Nhân nào ngự trị hay không, hãy truy cập ngay công cụ [XEM LÁ SỐ BÁT TỰ](https://tuynover.ddns.net/la-so-bat-tu) của chúng tôi để nhận bài phân tích chi tiết và chính xác nhất từ hệ thống học thuật chính tông!
+Nếu bạn muốn biết trên lá số Tứ Trụ của mình có vị Thiên Đức hay Nguyệt Đức Quý Nhân nào ngự trị hay không, hãy truy cập ngay công cụ [XEM LÁ SỐ BÁT TỰ](/bazi) của chúng tôi để nhận bài phân tích chi tiết và chính xác nhất từ hệ thống học thuật chính tông!
 `
   }
 ];

@@ -6,6 +6,7 @@ const User = require('../../../core/models/User');
 const MemoryCacheService = require('../../../core/services/MemoryCacheService');
 const GoogleIndexingService = require('../../../core/services/GoogleIndexingService');
 const UserStatsService = require('../../../core/services/UserStatsService');
+const appConfig = require('../../../core/config/appConfig');
 const { runInTransaction } = require('../../../core/utils/transactionHelper');
 const { 
     findByIdFlex, 
@@ -225,7 +226,7 @@ class GeneralHistoryController {
             MemoryCacheService.clearUserHistoryCache(userId);
 
             // Gửi thông báo Google Indexing API không đồng bộ
-            const targetUrl = `https://tuynover.ddns.net/${typePath}/record/${record._id}`;
+            const targetUrl = `${appConfig.appDomain}/${typePath}/record/${record._id}`;
             const action = publicStatus ? 'URL_UPDATED' : 'URL_DELETED';
             GoogleIndexingService.publishUrl(targetUrl, action).catch(err => {
                 console.error(`[GeneralHistoryController.togglePublicCalculation] Lỗi ping Google Indexing cho ${targetUrl}:`, err);

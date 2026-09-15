@@ -35,6 +35,11 @@ router.get('/notifications', AdminAppealController.getNotifications);
 router.put('/notifications/:id/read', AdminAppealController.markNotificationRead);
 router.post('/appeals/:id/resolve', AdminAppealController.resolveAppeal);
 
+// 5. System Queue & DLQ Management Routes
+router.get('/system/queue', AdminRecordController.getQueueStatus);
+router.post('/system/queue/dlq/retry', AdminRecordController.retryDlqJob);
+router.delete('/system/queue/dlq', AdminRecordController.clearDlq);
+
 router.get('/events', (req, res) => {
   sseService.addAdminClient(req, res);
 });

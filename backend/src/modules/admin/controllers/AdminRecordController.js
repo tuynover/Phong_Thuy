@@ -274,6 +274,54 @@ class AdminRecordController {
       return res.status(500).json({ error: 'Lỗi xóa bản ghi.' });
     }
   }
+
+  static async getQueueStatus(req, res) {
+    try {
+      const RedisQueueService = require('../../../core/services/RedisQueueService');
+      const limit = parseInt(req.query.limit || '50', 10);
+      const [status, dlqJobs] = await Promise.all([
+        RedisQueueService.getQueueStatus(),
+        RedisQueueService.getDlqJobs(limit)
+      ]);
+      return res.json({
+        success: true,
+        queue: status,
+        dlqJobs
+      });
+    } catch (error) {
+      console.error('[AdminRecordController.getQueueStatus] Error:', error);
+      return res.status(500).json({ error: 'Lỗi lấy trạng thái hàng đợi.' });
+    }
+  }
+
+  static async retryDlqJob(req, res) {
+    try {
+      const { jobId } = req.body;
+      if (!jobId) {
+        return res.status(400).json({ error: 'Thiếu jobId cần thử lại.' });
+      }
+      const RedisQueueService = require('../../../core/services/RedisQueueService');
+      const success = await RedisQueueService.retryDlqJob(jobId);
+      if (!success) {
+        return res.status(404).json({ error: 'Không tìm thấy job trong DLQ hoặc Redis không khả dụng.' });
+      }
+      return res.json({ success: true, message: `Đã đưa job ${jobId} trở lại hàng đợi chính.` });
+    } catch (error) {
+      console.error('[AdminRecordController.retryDlqJob] Error:', error);
+      return res.status(500).json({ error: 'Lỗi khi đưa job vào hàng đợi.' });
+    }
+  }
+
+  static async clearDlq(req, res) {
+    try {
+      const RedisQueueService = require('../../../core/services/RedisQueueService');
+      await RedisQueueService.clearDlq();
+      return res.json({ success: true, message: 'Đã dọn dẹp toàn bộ job trong DLQ.' });
+    } catch (error) {
+      console.error('[AdminRecordController.clearDlq] Error:', error);
+      return res.status(500).json({ error: 'Lỗi khi xóa DLQ.' });
+    }
+  }
 }
 
 module.exports = AdminRecordController;

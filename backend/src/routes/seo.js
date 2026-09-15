@@ -6,6 +6,7 @@ const IChingRecord = require('../modules/iching/models/IChingRecord');
 const MarriageRecord = require('../modules/bazi/models/MarriageRecord');
 const BlogPost = require('../modules/blog/models/BlogPost');
 const logger = require('../core/services/LoggerService');
+const appConfig = require('../core/config/appConfig');
 
 // Cache template HTML của Frontend trong RAM
 let htmlTemplateCache = null;
@@ -50,8 +51,8 @@ async function getHtmlTemplate() {
 function injectMetaTags(html, { title, description, url, image }) {
     if (!html) return '';
     
-    const canonicalUrl = url || 'https://tuynover.ddns.net';
-    const ogImage = image || 'https://tuynover.ddns.net/assets/images/og-default.jpg'; // Ảnh mặc định
+    const canonicalUrl = url || appConfig.appDomain;
+    const ogImage = image || `${appConfig.appDomain}/assets/images/og-default.jpg`; // Ảnh mặc định
 
     const metaTags = `
   <title>${title}</title>
@@ -104,7 +105,7 @@ router.get('/bazi/record/:id', async (req, res) => {
         const date = record.inputInfo.date || '';
         const title = `Lá số Bát Tự của ${name} - Phong Thủy Luận Giải AI`;
         const description = `Luận giải chi tiết lá số Bát Tự (Tứ Trụ) cho ${name}, sinh ngày ${date}. Xem phân tích ngũ hành vượng suy, can chi đại vận cuộc đời.`;
-        const url = `https://tuynover.ddns.net/bazi/record/${record._id}`;
+        const url = `${appConfig.appDomain}/bazi/record/${record._id}`;
 
         const ogHtml = injectMetaTags(html, { title, description, url });
         res.setHeader('Content-Type', 'text/html');
@@ -133,7 +134,7 @@ router.get('/ziwei/record/:id', async (req, res) => {
         const date = record.inputInfo.date || '';
         const title = `Lá số Tử Vi của ${name} - Phong Thủy Luận Giải AI`;
         const description = `Bản đồ lá số Tử Vi Đẩu Số khoa học cho ${name}, sinh ngày ${date}. Xem chi tiết cung mệnh, tài bạch, quan lộc và giải đoán tương lai.`;
-        const url = `https://tuynover.ddns.net/ziwei/record/${record._id}`;
+        const url = `${appConfig.appDomain}/ziwei/record/${record._id}`;
 
         const ogHtml = injectMetaTags(html, { title, description, url });
         res.setHeader('Content-Type', 'text/html');
@@ -162,7 +163,7 @@ router.get('/iching/record/:id', async (req, res) => {
         const primaryName = record.primaryHexagram?.name || 'Quẻ gốc';
         const title = `Quẻ Kinh Dịch: ${primaryName} - Phong Thủy Luận Giải AI`;
         const description = `Chi tiết luận giải quẻ Kinh Dịch. Câu hỏi: "${question}". Quẻ chủ: ${primaryName}. Xem giải đoán sự việc hung cát, động hào cát tường.`;
-        const url = `https://tuynover.ddns.net/iching/record/${record._id}`;
+        const url = `${appConfig.appDomain}/iching/record/${record._id}`;
 
         const ogHtml = injectMetaTags(html, { title, description, url });
         res.setHeader('Content-Type', 'text/html');
@@ -191,7 +192,7 @@ router.get('/marriage/record/:id', async (req, res) => {
         const femaleName = record.inputInfo?.female?.name || 'Nữ';
         const title = `Xem Tuổi Hợp Hôn giữa ${maleName} và ${femaleName} - Phong Thủy AI`;
         const description = `Kết quả so tuổi hợp hôn, luận giải cung mệnh gia đạo, ngũ hành tương sinh tương khắc giữa ${maleName} và ${femaleName}.`;
-        const url = `https://tuynover.ddns.net/marriage/record/${record._id}`;
+        const url = `${appConfig.appDomain}/marriage/record/${record._id}`;
 
         const ogHtml = injectMetaTags(html, { title, description, url });
         res.setHeader('Content-Type', 'text/html');
@@ -219,8 +220,8 @@ router.get('/blog/:slug', async (req, res) => {
 
         const title = `${post.title} - Kiến Thức Phong Thủy`;
         const description = post.summary || 'Chia sẻ kiến thức phong thủy học thuật cổ học phương đông sâu sắc.';
-        const url = `https://tuynover.ddns.net/blog/${post.slug}`;
-        const image = post.thumbnailUrl || 'https://tuynover.ddns.net/assets/images/og-blog.jpg';
+        const url = `${appConfig.appDomain}/blog/${post.slug}`;
+        const image = post.thumbnailUrl || `${appConfig.appDomain}/assets/images/og-blog.jpg`;
 
         const ogHtml = injectMetaTags(html, { title, description, url, image });
         res.setHeader('Content-Type', 'text/html');
@@ -239,7 +240,7 @@ router.get('/bazi', async (req, res) => {
 
         const title = 'Lập Lá Số Tứ Trụ Bát Tự Online - Phân Tích Ngũ Hành Vượng Suy & Dụng Thần AI';
         const description = 'Lập lá số Tứ Trụ Bát Tự online miễn phí theo ngày giờ sinh. Phân tích ngũ hành vượng suy, định Dụng Thần cát hung, thập thần và luận giải vận hạn chi tiết cùng AI.';
-        const url = 'https://tuynover.ddns.net/bazi';
+        const url = `${appConfig.appDomain}/bazi`;
 
         const ogHtml = injectMetaTags(html, { title, description, url });
         res.setHeader('Content-Type', 'text/html');
@@ -258,7 +259,7 @@ router.get('/ziwei', async (req, res) => {
 
         const title = 'Tra Cứu Tử Vi Online - Lập Lá Số Tử Vi Đẩu Số 12 Cung, Luận Giải AI';
         const description = 'Tra cứu Tử Vi online miễn phí theo ngày giờ sinh: lập lá số Tử Vi Đẩu Số 12 cung chuẩn cổ học phương Đông, an sao Miếu Vượng Đắc Hãm và luận giải chi tiết cùng AI.';
-        const url = 'https://tuynover.ddns.net/ziwei';
+        const url = `${appConfig.appDomain}/ziwei`;
 
         const ogHtml = injectMetaTags(html, { title, description, url });
         res.setHeader('Content-Type', 'text/html');
@@ -277,7 +278,7 @@ router.get('/iching', async (req, res) => {
 
         const title = 'Gieo Quẻ Kinh Dịch Lục Hào & Mai Hoa Dịch Số Online - Luận Giải AI';
         const description = 'Gieo quẻ Kinh Dịch online miễn phí: gieo quẻ Lục Hào bằng đồng xu ảo, lập quẻ Mai Hoa Dịch Số theo giờ động tâm hoặc seri tiền, phân tích quẻ chủ, quẻ biến và luận đoán hung cát AI.';
-        const url = 'https://tuynover.ddns.net/iching';
+        const url = `${appConfig.appDomain}/iching`;
 
         const ogHtml = injectMetaTags(html, { title, description, url });
         res.setHeader('Content-Type', 'text/html');
@@ -296,7 +297,7 @@ router.get('/marriage', async (req, res) => {
 
         const title = 'Xem Tuổi Kết Hôn & Xem Hợp Hôn Gia Đạo Online - Phong Thủy AI';
         const description = 'Xem tuổi kết hôn hợp hôn Nam Nữ online miễn phí. Phân tích xung hợp Bát Tự, Mệnh Quái, Cung Phi Bát Trạch, ngũ hành tương sinh tương khắc và tư vấn gia đạo cùng AI.';
-        const url = 'https://tuynover.ddns.net/marriage';
+        const url = `${appConfig.appDomain}/marriage`;
 
         const ogHtml = injectMetaTags(html, { title, description, url });
         res.setHeader('Content-Type', 'text/html');
@@ -315,7 +316,7 @@ router.get('/xemngay', async (req, res) => {
 
         const title = 'Xem Ngày Tốt Hoàng Đạo & Tra Cứu Cát Hung Trạch Cát Online';
         const description = 'Xem ngày tốt hoàng đạo online theo tuổi: tra cứu ngày giờ hoàng đạo, hắc đạo, trực, nhị thập bát tú phù hợp cho khởi công, đại sự, cưới hỏi và nhập trạch.';
-        const url = 'https://tuynover.ddns.net/xemngay';
+        const url = `${appConfig.appDomain}/xemngay`;
 
         const ogHtml = injectMetaTags(html, { title, description, url });
         res.setHeader('Content-Type', 'text/html');
@@ -334,7 +335,7 @@ router.get('/blog', async (req, res) => {
 
         const title = 'Kiến Thức Phong Thủy & Chiêm Nghiệm Học Thuật - Phong Thủy AI';
         const description = 'Chuyên mục chia sẻ kiến thức phong thủy học thuật phương Đông, luận giải Tử Vi Đẩu Số, Bát Tự Tứ Trụ, Kinh Dịch và hướng dẫn chiêm nghiệm đời sống khoa học.';
-        const url = 'https://tuynover.ddns.net/blog';
+        const url = `${appConfig.appDomain}/blog`;
 
         const ogHtml = injectMetaTags(html, { title, description, url });
         res.setHeader('Content-Type', 'text/html');
@@ -348,7 +349,7 @@ router.get('/blog', async (req, res) => {
 // 6. Dynamic Sitemap XML
 router.get('/sitemap.xml', async (req, res) => {
     try {
-        const domain = 'https://tuynover.ddns.net';
+        const domain = appConfig.appDomain;
         
         // A. Các URL tĩnh chính của hệ thống
         const staticPages = [

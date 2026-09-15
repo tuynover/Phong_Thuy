@@ -878,36 +878,105 @@ Phục vụ Load Balancer (AWS ALB, Kubernetes, Docker) kiểm tra tính sẵn s
   ```
 
 ### 12.2 Giám Sát Chỉ Số Chi Tiết (Detailed Metrics Probe)
-Cung cấp bức tranh toàn cảnh về tài nguyên hệ thống phục vụ DevOps và Admin Dashboard.
+Cung cấp bức tranh toàn cảnh về tài nguyên hệ thống, độ trễ mạng thực tế của cơ sở dữ liệu/Redis và hàng đợi thư phục vụ DevOps và Admin Dashboard.
 - **Endpoint:** `GET /health/detailed`
 - **Xác thực:** Không yêu cầu (hoặc có thể bọc qua reverse proxy/firewall cho monitoring nội bộ).
 - **Phản hồi (200 OK hoặc 503 Service Unavailable):**
   ```json
   {
-    "status": "ok",
-    "timestamp": "2026-09-12T17:00:00.000Z",
-    "uptime": {
-      "seconds": 1254,
-      "human": "20m 54s"
+    "status": "healthy",
+    "uptimeSeconds": 1254,
+    "timestamp": "2026-09-15T18:00:00.000Z",
+    "database": {
+      "status": "connected",
+      "readyState": 1,
+      "host": "localhost",
+      "name": "phongthuy",
+      "latencyMs": 2
+    },
+    "redis": {
+      "status": "connected",
+      "latencyMs": 1
+    },
+    "queue": {
+      "active": 0,
+      "dlq": 0,
+      "isConnected": true
     },
     "memory": {
-      "rssMB": 85.42,
-      "heapTotalMB": 42.15,
-      "heapUsedMB": 31.8
+      "rss": "85MB",
+      "heapTotal": "42MB",
+      "heapUsed": "31MB",
+      "external": "5MB"
     },
-    "services": {
-      "database": {
-        "status": "connected",
-        "readyState": 1
-      },
-      "redis": {
-        "status": "connected"
-      },
-      "sse": {
-        "adminClients": 1,
-        "uniqueUsers": 12,
-        "totalUserSessions": 15
-      }
+    "sse": {
+      "adminClients": 1,
+      "uniqueUsers": 12,
+      "totalUserSessions": 15
     }
   }
   ```
+
+---
+
+## 📬 13. Quản Trị Hàng Đợi Email & Dead Letter Queue (`/api/admin/system/queue`)
+
+Hệ thống cung cấp API dành riêng cho Quản trị viên (Admin) để giám sát và xử lý các email gặp sự cố mạng/SMTP trong hàng đợi.
+
+### 13.1 Lấy Trạng Thái Hàng Đợi & Danh Sách Thư Lỗi (DLQ)
+- **Endpoint:** `GET /api/admin/system/queue?limit=50`
+- **Headers:** `Authorization: Bearer <admin_token>`
+- **Phản hồi (200 OK):**
+  ```json
+  {
+    "success": true,
+    "queue": {
+      "active": 0,
+      "dlq": 1,
+      "isConnected": true
+    },
+    "dlqJobs": [
+      {
+        "id": "018e45f2-9c3a-7a54-b611-9a706591024a",
+        "to": "user@example.com",
+        "subject": "Nhắc Nhở Ứng Kỳ Gieo Quẻ",
+        "html": "<p>...</p>",
+        "attempts": 3,
+        "maxAttempts": 3,
+        "createdAt": 1726410000000,
+        "lastError": "SMTP connection timeout"
+      }
+    ]
+  }
+  ```
+
+### 13.2 Thử Lại Thư Trong Dead Letter Queue (Retry DLQ Job)
+Chuyển một job từ DLQ quay trở lại hàng đợi chính `queue:emails` và đặt lại số lần thử `attempts = 0`.
+- **Endpoint:** `POST /api/admin/system/queue/dlq/retry`
+- **Headers:** `Authorization: Bearer <admin_token>`
+- **Request Body:**
+  ```json
+  {
+    "jobId": "018e45f2-9c3a-7a54-b611-9a706591024a"
+  }
+  ```
+- **Phản hồi (200 OK):**
+  ```json
+  {
+    "success": true,
+    "message": "Đã đưa job 018e45f2-9c3a-7a54-b611-9a706591024a trở lại hàng đợi chính."
+  }
+  ```
+
+### 13.3 Dọn Dẹp Toàn Bộ Dead Letter Queue (Clear DLQ)
+Xóa vĩnh viễn toàn bộ thư lỗi lưu trữ trong `queue:emails:dlq`.
+- **Endpoint:** `DELETE /api/admin/system/queue/dlq`
+- **Headers:** `Authorization: Bearer <admin_token>`
+- **Phản hồi (200 OK):**
+  ```json
+  {
+    "success": true,
+    "message": "Đã dọn dẹp toàn bộ job trong DLQ."
+  }
+  ```
+

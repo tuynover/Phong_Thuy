@@ -2,6 +2,7 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 const AiService = require('../../../../core/ai/AiService');
 const { AiRotator, GeminiRotator, OpenRouterRotator } = require('../../../../core/ai/AiRotator');
 const logger = require('../../../../core/services/LoggerService');
+const appConfig = require('../../../../core/config/appConfig');
 
 /**
  * Dịch vụ gọi LLM Đa Nền Tảng (OpenRouter, Gemini SDK, OpenAI-Compatible)
@@ -37,7 +38,7 @@ class LlmProviderService {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${apiKey}`,
-            'HTTP-Referer': 'https://tuynover.ddns.net',
+            'HTTP-Referer': appConfig.appDomain,
             'X-Title': 'Phong Thuy AI - Co Hoc Phuong Dong'
           },
           body: JSON.stringify({

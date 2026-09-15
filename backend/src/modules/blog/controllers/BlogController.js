@@ -1,7 +1,7 @@
 const BlogPost = require('../models/BlogPost');
 const escapeRegExp = require('../../../core/utils/escapeRegExp');
 const GoogleIndexingService = require('../../../core/services/GoogleIndexingService');
-const domain = 'https://tuynover.ddns.net';
+const appConfig = require('../../../core/config/appConfig');
 
 // Helper to convert Vietnamese titles into URL-friendly slugs
 function generateSlug(text) {
@@ -167,7 +167,7 @@ class BlogController {
       await newPost.save();
 
       if (newPost.isPublished) {
-        GoogleIndexingService.publishUrl(`${domain}/blog/${newPost.slug}`, 'URL_UPDATED').catch(err => {
+        GoogleIndexingService.publishUrl(`${appConfig.appDomain}/blog/${newPost.slug}`, 'URL_UPDATED').catch(err => {
           console.error('[BlogController.createPost] Lỗi ping Google Indexing:', err);
         });
       }
@@ -220,14 +220,14 @@ class BlogController {
 
       // Ping Google Indexing API dựa vào thay đổi trạng thái
       if (post.isPublished) {
-        GoogleIndexingService.publishUrl(`${domain}/blog/${post.slug}`, 'URL_UPDATED').catch(() => {});
+        GoogleIndexingService.publishUrl(`${appConfig.appDomain}/blog/${post.slug}`, 'URL_UPDATED').catch(() => {});
         if (wasPublished && oldSlug !== post.slug) {
           // Nếu đổi slug bài viết đang xuất bản, báo xóa URL cũ
-          GoogleIndexingService.publishUrl(`${domain}/blog/${oldSlug}`, 'URL_DELETED').catch(() => {});
+          GoogleIndexingService.publishUrl(`${appConfig.appDomain}/blog/${oldSlug}`, 'URL_DELETED').catch(() => {});
         }
       } else if (wasPublished && !post.isPublished) {
         // Chuyển bài viết từ xuất bản về nháp, báo xóa URL
-        GoogleIndexingService.publishUrl(`${domain}/blog/${oldSlug}`, 'URL_DELETED').catch(() => {});
+        GoogleIndexingService.publishUrl(`${appConfig.appDomain}/blog/${oldSlug}`, 'URL_DELETED').catch(() => {});
       }
 
       return res.json({ success: true, post });
@@ -251,7 +251,7 @@ class BlogController {
       await post.save();
 
       if (post.isPublished) {
-        GoogleIndexingService.publishUrl(`${domain}/blog/${post.slug}`, 'URL_DELETED').catch(() => {});
+        GoogleIndexingService.publishUrl(`${appConfig.appDomain}/blog/${post.slug}`, 'URL_DELETED').catch(() => {});
       }
 
       return res.json({ success: true, message: 'Đã xóa bài viết thành công (xóa mềm).' });
@@ -275,7 +275,7 @@ class BlogController {
       await post.save();
 
       if (post.isPublished) {
-        GoogleIndexingService.publishUrl(`${domain}/blog/${post.slug}`, 'URL_UPDATED').catch(() => {});
+        GoogleIndexingService.publishUrl(`${appConfig.appDomain}/blog/${post.slug}`, 'URL_UPDATED').catch(() => {});
       }
 
       return res.json({ success: true, message: 'Đã khôi phục bài viết thành công.' });

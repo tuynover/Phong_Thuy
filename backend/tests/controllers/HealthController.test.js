@@ -7,12 +7,22 @@ jest.mock('mongoose', () => ({
   connection: {
     readyState: 1,
     host: 'mock-mongo-host',
-    name: 'phongthuy'
+    name: 'phongthuy',
+    db: {
+      admin: () => ({
+        ping: jest.fn().mockResolvedValue(true)
+      })
+    }
   }
 }));
 
 jest.mock('../../src/core/config/redis', () => ({
-  isRedisConnected: jest.fn().mockReturnValue(true)
+  isRedisConnected: jest.fn().mockReturnValue(true),
+  redisClient: {
+    ping: jest.fn().mockResolvedValue('PONG'),
+    llen: jest.fn().mockResolvedValue(0)
+  },
+  withTimeout: jest.fn(async (promise) => promise)
 }));
 
 jest.mock('../../src/core/services/SseService', () => ({
@@ -38,7 +48,7 @@ describe('HealthController Unit Tests', () => {
   });
 
   describe('GET /health (Liveness / Readiness Probe)', () => {
-    test('should return 200 "ok" when MongoDB is connected (readyState === 1)', () => {
+    test('should return 200 with ok when database is ready (readyState: 1)', () => {
       mongoose.connection.readyState = 1;
 
       HealthController.getHealth(req, res);
@@ -47,8 +57,8 @@ describe('HealthController Unit Tests', () => {
       expect(res.send).toHaveBeenCalledWith('ok');
     });
 
-    test('should return 503 Service Unavailable when MongoDB is disconnected (readyState !== 1)', () => {
-      mongoose.connection.readyState = 0; // 0 = disconnected
+    test('should return 503 when database is disconnected (readyState: 0)', () => {
+      mongoose.connection.readyState = 0;
 
       HealthController.getHealth(req, res);
 
@@ -56,18 +66,19 @@ describe('HealthController Unit Tests', () => {
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
           status: 'error',
-          database: 'disconnected'
+          database: 'disconnected',
+          timestamp: expect.any(String)
         })
       );
     });
   });
 
   describe('GET /health/detailed (Observability & Metrics)', () => {
-    test('should return 200 with complete system metrics when healthy', () => {
+    test('should return 200 with complete system metrics when healthy', async () => {
       mongoose.connection.readyState = 1;
       isRedisConnected.mockReturnValue(true);
 
-      HealthController.getDetailedHealth(req, res);
+      await HealthController.getDetailedHealth(req, res);
 
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith(
@@ -95,10 +106,10 @@ describe('HealthController Unit Tests', () => {
       );
     });
 
-    test('should return 503 with degraded status when MongoDB is not ready', () => {
+    test('should return 503 with degraded status when MongoDB is not ready', async () => {
       mongoose.connection.readyState = 2; // 2 = connecting
 
-      HealthController.getDetailedHealth(req, res);
+      await HealthController.getDetailedHealth(req, res);
 
       expect(res.status).toHaveBeenCalledWith(503);
       expect(res.json).toHaveBeenCalledWith(
@@ -112,16 +123,16 @@ describe('HealthController Unit Tests', () => {
       );
     });
 
-    test('should report fallback_memory when Redis is not connected', () => {
+    test('should report fallback_memory when Redis is not connected', async () => {
       mongoose.connection.readyState = 1;
       isRedisConnected.mockReturnValue(false);
 
-      HealthController.getDetailedHealth(req, res);
+      await HealthController.getDetailedHealth(req, res);
 
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          redis: { status: 'fallback_memory' }
+          redis: expect.objectContaining({ status: 'fallback_memory' })
         })
       );
     });

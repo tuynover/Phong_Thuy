@@ -2,6 +2,54 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Hoàn Thiện Giai Đoạn 3 - Hàng Đợi Email Bất Đồng Bộ Tin Cậy, AppConfig Tập Trung & Giám Sát Hạ Tầng (15/09/2026)
+
+### 📬 1. Hàng Đợi Email Bất Đồng Bộ Tin Cậy & Dead Letter Queue (Retry + DLQ)
+1. **Nâng Cấp `RedisQueueService.js`:**
+   - Chuẩn hóa cấu trúc gói tin Job với mã định danh UUIDv7: `{ id, to, subject, html, attempts, maxAttempts: 3, createdAt, lastError }`.
+   - Cơ chế tự động thử lại (Retry): Khi SMTP gặp sự cố hoặc timeout, job được tăng `attempts` và ghi nhận `lastError`, sau đó đẩy lại vào hàng đợi `queue:emails` để thử lại (tối đa 3 lần).
+   - Dead Letter Queue (`queue:emails:dlq`): Khi job vượt quá 3 lần gửi thất bại, gói tin được chuyển an toàn sang DLQ để không làm nghẽn luồng xử lý chính.
+   - Bổ sung các phương thức quản trị hàng đợi: `getQueueStatus()`, `getDlqJobs(limit)`, `retryDlqJob(jobId)`, `clearDlq()`.
+2. **Đồng Bộ Hóa Gửi Email Trong `NotificationScheduler.js`:**
+   - Thay thế lệnh gọi trực tiếp `EmailService.sendEmail` đồng bộ bằng `RedisQueueService.enqueueEmail` bất đồng bộ, đảm bảo thông báo nhắc nhở ứng kỳ quẻ dịch được bảo vệ an toàn qua hàng đợi và cơ chế retry.
+
+### 🌐 2. Cấu Hình Tập Trung (`appConfig.js`) & Xóa Bỏ Triệt Để Hardcoded Domains
+1. **Module Cấu Hình Mới `appConfig.js` (`backend/src/core/config/appConfig.js`):**
+   - Độc lập, gọn nhẹ với các getter động: `appDomain`, `apiUrl`, `isProduction`, `nodeEnv`, `corsOrigins`.
+   - Hỗ trợ fallback thông minh từ `APP_DOMAIN` -> `BASE_URL` -> mặc định `https://tuynover.ddns.net`.
+2. **Loại Bỏ Hoàn Toàn 15 Vị Trí Hardcoded Domain Cũ:**
+   - File [seo.js](file:///t:/Phongthuy/backend/src/routes/seo.js): Thay thế 15 chuỗi domain cứng trong meta tags, các route SEO lá số/quẻ và Sitemap XML bằng `appConfig.appDomain`.
+   - File [BlogController.js](file:///t:/Phongthuy/backend/src/modules/blog/controllers/BlogController.js): Thay thế hằng số `domain` trong các cuộc gọi Google Indexing API bằng `appConfig.appDomain`.
+   - File [GeneralHistoryController.js](file:///t:/Phongthuy/backend/src/modules/history/controllers/GeneralHistoryController.js): Cập nhật `targetUrl` chia sẻ bằng `appConfig.appDomain`.
+   - File [DeepInterpretationCore.js](file:///t:/Phongthuy/backend/src/modules/bazi/services/deep-interpretation/DeepInterpretationCore.js): Cập nhật header `HTTP-Referer` gọi OpenRouter bằng `appConfig.appDomain`.
+   - File [index.js](file:///t:/Phongthuy/backend/src/index.js): Cập nhật `allowedOrigins` sử dụng `appConfig.corsOrigins`.
+   - File [BlogSeedService.js](file:///t:/Phongthuy/backend/src/modules/blog/services/BlogSeedService.js): Chuẩn hóa liên kết bài viết nội bộ sang đường dẫn tương đối `/bazi`.
+
+### 🩺 3. Giám Sát Hạ Tầng Thời Gian Thực & API Quản Trị Hàng Đợi Cho Admin
+1. **Nâng Cấp `HealthController.js` (`/api/health/detailed`):**
+   - Đo đạc độ trễ mạng thực tế (latency ms) của MongoDB thông qua `admin().ping()`.
+   - Đo đạc độ trễ ping thực tế của Redis với cơ chế fast-fail timeout 500ms.
+   - Tích hợp số liệu thống kê độ sâu hàng đợi email (`queue: { active, dlq, isConnected }`).
+2. **Bổ Sung 3 Endpoints Quản Trị Hàng Đợi Trong [admin.routes.js](file:///t:/Phongthuy/backend/src/modules/admin/routes/admin.routes.js):**
+   - `GET /api/admin/system/queue`: Xem trạng thái hàng đợi và danh sách job trong DLQ.
+   - `POST /api/admin/system/queue/dlq/retry`: Đưa job từ DLQ quay lại hàng đợi chính.
+   - `DELETE /api/admin/system/queue/dlq`: Dọn dẹp toàn bộ job trong DLQ.
+3. **Cập Nhật Tài Liệu Kỹ Thuật [API.md](file:///t:/Phongthuy/docs/API.md):**
+   - Cập nhật định dạng phản hồi chi tiết của `/api/health/detailed`.
+   - Bổ sung đầy đủ đặc tả Mục 13 cho các endpoint quản trị `/api/admin/system/queue`.
+
+### 🧪 4. Kết Quả Kiểm Thử Toàn Diện
+- **Unit Tests Mới:**
+  - `tests/config/appConfig.test.js`: **6/6 tests PASSED**.
+  - `tests/services/emailQueueDlq.test.js`: **8/8 tests PASSED**.
+  - `tests/controllers/adminQueueController.test.js`: **5/5 tests PASSED**.
+  - `tests/controllers/HealthController.test.js`: **5/5 tests PASSED**.
+- **Docker Redis Live Integration (`npm run test:redis`):** **6/6 tests PASSED**.
+- **Toàn Bộ Test Suites Backend (`npm test`):** **41/41 suites (307/307 tests) PASSED 100%**.
+- **Quy Tắc Quản Trị Git:** Toàn bộ code đã được kiểm thử và xác nhận 100% thành công tại local, tuyệt đối **KHÔNG CHẠY `git push`** theo đúng chỉ thị của người dùng.
+
+---
+
 ## 📅 Phiên bản: Hoàn Thiện Giai Đoạn 2 - Distributed Mutex Lock Token, Triệt Tiêu Memory Leak & Cải Thiện UI Điểm Thưởng (15/09/2026)
 
 ### 🌟 1. Sửa Lỗi Hiển Thị UI (Đổi "Credits" Sang "Points" Đồng Bộ)

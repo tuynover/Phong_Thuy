@@ -2,6 +2,7 @@ const IChingRecord = require('../../iching/models/IChingRecord');
 const User = require('../../../core/models/User');
 const Notification = require('../models/Notification');
 const EmailService = require('../../auth/services/EmailService');
+const RedisQueueService = require('../../../core/services/RedisQueueService');
 const { Solar } = require('lunar-javascript');
 const SystemLog = require('../../admin/models/SystemLog');
 const AdminNotification = require('../../admin/models/AdminNotification');
@@ -212,7 +213,7 @@ async function checkAndSendNotifications() {
                         </div>
                     `;
 
-                    await EmailService.sendEmail({
+                    await RedisQueueService.enqueueEmail({
                         to: user.email,
                         subject: emailSubject,
                         html: emailHtml
