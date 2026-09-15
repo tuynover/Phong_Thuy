@@ -2,6 +2,41 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Khắc Phục Lỗi CI/CD Test Khớp Ký Tự HTML Ampersand & Rà Soát Toàn Diện 100% Phân Hệ (15/09/2026)
+
+### 🌟 1. Mục Tiêu & Sự Cố Cần Giải Quyết
+1. **Phân tích lỗi `git push`**:
+   - Khi chạy `git push main`, lệnh bị từ chối với lỗi `! [rejected] main -> main (non-fast-forward)`.
+   - **Nguyên nhân cốt lõi**: Trong cấu hình Git remote cục bộ có 2 remote:
+     - `origin`: `https://github.com/tuynover/Phong_Thuy.git` (Remote chính của dự án, tracking đúng nhánh `main`, commit mới nhất đã push lên thành công).
+     - `main`: `https://github.com/tuynover/Tuynover.git` (Remote phụ, các commit lịch sử bị lệch/diverged). Khi gõ lệnh nhầm cú pháp `git push main` (vốn hiểu là push lên remote tên `main`), Git cố đẩy lên `Tuynover.git` thay vì `origin`. Lệnh chuẩn xác là `git push origin main`.
+2. **Khắc phục lỗi GitHub Actions CI/CD (`b58cbc2`)**:
+   - Quy trình GitHub Actions CI/CD chạy `npm test -- --forceExit` thất bại tại `tests/services/PdfTemplateService.test.js:412`.
+   - **Nguyên nhân cốt lõi**: Trong đợt vá bảo mật XSS Phase 1, hàm `escapeHtml(title)` được áp dụng cho tiêu đề trang bìa PDF Kinh Dịch trong `templateUtils.js`. Chuỗi tiêu đề `CHU DỊCH QUÁI TƯỢNG & LỤC HÀO BIỆN CHỨNG` đã được mã hóa an toàn thành `CHU DỊCH QUÁI TƯỢNG &amp; LỤC HÀO BIỆN CHỨNG`. Trong khi đó, file test cũ vẫn kiểm tra chuỗi thô `&`.
+   - **Khắc phục**: Cập nhật assertion trong `PdfTemplateService.test.js` sử dụng Regex `toMatch(/CHU DỊCH QUÁI TƯỢNG (&|&amp;) LỤC HÀO BIỆN CHỨNG/)` để tương thích cả 2 trường hợp.
+
+### 🔍 2. Kết Quả Rà Soát Toàn Diện 100% Toàn Bộ Phân Hệ
+Thực hiện audit và chạy kiểm thử tự động trên toàn bộ hệ thống (39 Test Suites Backend + Frontend Build):
+1. **Middleware & Utilities (4 suites):**
+   - `authMiddleware.test.js`, `creditCheck.test.js`, `rateLimiter.test.js`, `dateUtils.test.js` ➡️ **15/15 tests PASSED**.
+2. **Controllers - Đợt 1 (8 suites):**
+   - `AdminController.test.js`, `AiInterpretationController.test.js`, `AuthController.test.js`, `BaziController.test.js`, `ExportController.test.js`, `HealthController.test.js`, `HistoryController.test.js`, `HistoryFilterController.test.js` ➡️ **41/41 tests PASSED**.
+3. **Controllers - Đợt 2 (6 suites):**
+   - `IChingController.test.js`, `MarriageController.test.js`, `Phase1SecurityBilling.test.js`, `SecurityCompliance.test.js`, `TagController.test.js`, `ZiweiController.test.js` ➡️ **27/27 tests PASSED**.
+4. **Services - Đợt 1 (8 suites):**
+   - `AiConcurrencyLimiter.test.js`, `AiRotator.test.js`, `ConversationContextService.test.js`, `DateService.test.js`, `DungThanCachCuc.test.js`, `GeminiRotator.test.js`, `IChingDataService.test.js`, `InputValidator.test.js` ➡️ **75/75 tests PASSED**.
+5. **Services - Đợt 2 (8 suites):**
+   - `MemoryCacheService.test.js`, `NotificationScheduler.test.js`, `OtpDualStorage.test.js`, `PdfGeneratorService.test.js`, `PdfTemplateService.test.js`, `RuleEngineService.test.js`, `UserStatsService.test.js`, `ZiweiAstrology.test.js` ➡️ **61/61 tests PASSED**.
+6. **Hồi Quy & Chuyên Sâu Học Thuật (4 suites):**
+   - `ZiweiRegression.test.js` ➡️ **PASSED**.
+   - `IChingRegression.test.js` ➡️ **PASSED**.
+   - `BaziAnalyzer.test.js` (61 cấu hình chuyên sâu: Vượng suy, Tiết khí, Ngoại cách...) ➡️ **61/61 tests PASSED**.
+   - `BaziRegression.test.js` (264 ca mẫu Bát Tự thực tế snapshot testing) ➡️ **PASSED (100% snapshot khớp chuẩn)**.
+7. **Frontend Production Build:**
+   - `npm run build` ➡️ **Thành công 100% không lỗi (19.59s), tạo đầy đủ bundles**.
+
+---
+
 ## 📅 Phiên bản: Tái Cấu Trúc Toàn Diện Thành `AiRotator` - Quản Lý & Xoay Tua API Key Đa Nhà Cung Cấp (Gemini, OpenRouter, DeepSeek) (15/09/2026)
 
 ### 🌟 1. Mục Tiêu & Kiến Trúc

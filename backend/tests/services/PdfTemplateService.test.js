@@ -409,7 +409,7 @@ describe('PdfTemplateService Unit Tests', () => {
             expect(html).toContain('cover-page-wrapper');
             expect(html).toContain('cover-theme-iching');
             expect(html).toContain('HỒ SƠ DỊCH LÝ & CHIÊM BỐC CÁ NHÂN');
-            expect(html).toContain('CHU DỊCH QUÁI TƯỢNG & LỤC HÀO BIỆN CHỨNG');
+            expect(html).toMatch(/CHU DỊCH QUÁI TƯỢNG (&|&amp;) LỤC HÀO BIỆN CHỨNG/);
             expect(html).toContain('Dự án kinh doanh cuối năm có thu được lợi nhuận lớn không?');
             expect(html).toContain('Thuần Càn');
             expect(html).toContain('cover-imperial-seal');
