@@ -387,9 +387,9 @@ const AiChatWidget = ({
             setMessages(prev => [...prev, aiMsg]);
             setStreamText('');
 
-            // Debits local user credits by 0.5 to keep UI in sync
+            // Debits local user credits by 50 points to keep UI in sync
             if (auth && auth.user && auth.user.role !== 'admin' && auth.user.role !== 'co-admin') {
-                const updatedUser = { ...auth.user, credits: Math.max(0, (auth.user.credits || 0) - 0.5) };
+                const updatedUser = { ...auth.user, credits: Math.max(0, (auth.user.credits || 0) - 50) };
                 if (auth.setUser) {
                     auth.setUser(updatedUser);
                     localStorage.setItem('user', JSON.stringify(updatedUser));

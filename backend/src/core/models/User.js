@@ -40,7 +40,7 @@ const userSchema = new mongoose.Schema({
   },
   credits: {
     type: Number,
-    default: 2
+    default: 200
   },
   status: {
     type: String,

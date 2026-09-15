@@ -50,7 +50,7 @@ module.exports = async (req, res, next) => {
         if (payloadTokenVersion === currentTokenVersion) {
           dbUser.id = dbUser.id || dbUser._id;
           dbUser._id = dbUser._id || dbUser.id;
-          req.user = decoded.user;
+          req.user = dbUser;
           req.dbUser = dbUser;
         }
       }

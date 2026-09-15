@@ -234,7 +234,7 @@ export default function ProfileBoard() {
             </div>
             <div>
               <p className="text-[10px] text-neutral-500 font-extrabold uppercase tracking-wider">Số lượt sử dụng</p>
-              <p className="text-base font-extrabold font-[Montserrat] text-amber-950 mt-0.5">{user?.credits !== undefined ? user.credits : 0} Credits</p>
+              <p className="text-base font-extrabold font-[Montserrat] text-amber-950 mt-0.5">{user?.credits !== undefined ? user.credits : 0} Points</p>
             </div>
           </div>
         </div>
@@ -252,7 +252,7 @@ export default function ProfileBoard() {
             <div>
               <p className="text-[10px] text-neutral-500 font-extrabold uppercase tracking-wider">Trạng thái Email</p>
               <p className={`text-xs font-extrabold mt-0.5 ${user?.isEmailVerified ? 'text-emerald-700' : 'text-rose-700'}`}>
-                {user?.isEmailVerified ? 'Đã xác thực (+2🪙)' : 'Chưa xác thực'}
+                {user?.isEmailVerified ? 'Đã xác thực (+200🪙)' : 'Chưa xác thực'}
               </p>
             </div>
           </div>

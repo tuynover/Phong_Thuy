@@ -337,7 +337,7 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
 
         const isVip = tier === 'vip';
         const isUpgrade = isUpgradeModal || (isVip && !!interpretation);
-        const costToDeduct = isUpgrade ? 4 : (isVip ? 5 : 1);
+        const costToDeduct = isUpgrade ? 400 : (isVip ? 500 : 100);
 
         // 0ms Instant Reset
         setInterpretation('');

@@ -42,6 +42,13 @@ class ZiweiAiController {
 
             sse = AiStreamHelper.initSseSession(req, res);
 
+            let isCompleted = false;
+            req.on('close', async () => {
+                if (!isCompleted && req.refundCredit) {
+                    try { await req.refundCredit(); } catch (e) {}
+                }
+            });
+
             const isVipMode = req.body?.mode === 'vip' || req.query?.mode === 'vip';
             const hasValidCache = 
                 record.aiInterpretation &&
@@ -49,6 +56,7 @@ class ZiweiAiController {
                 (isVipMode ? record.aiInterpretation.mode === 'vip' : true);
 
             if (hasValidCache) {
+                isCompleted = true;
                 if (req.refundCredit) await req.refundCredit();
                 sse.sendSSE({ chunk: record.aiInterpretation.content });
                 sse.sendDone();
@@ -86,7 +94,10 @@ class ZiweiAiController {
                 }
             }
 
-            if (!sse.isOpen()) return res.end();
+            if (!sse.isOpen()) {
+                if (!isCompleted && req.refundCredit) await req.refundCredit();
+                return res.end();
+            }
 
             const cleanedContent = AiService.cleanMarkdown(accumulatedText);
             const { promptTokens, completionTokens, tokensUsed } = AiStreamHelper.calculateTokens(prompt, cleanedContent, usageMetadata);
@@ -111,12 +122,17 @@ class ZiweiAiController {
                 isGeneratingInterpretation: false
             });
 
+            isCompleted = true;
+
             AiStreamHelper.recordInterpretTokens(record.userId, 'ziwei', tokensUsed);
 
             sse.sendDone();
 
         } catch (error) {
             console.error("Ziwei Interpret SSE Error:", error);
+            if (req.refundCredit) {
+                try { await req.refundCredit(); } catch (refErr) { console.error("Refund credit failed:", refErr); }
+            }
             if (sse) sse.sendError(error.message || 'Lỗi xảy ra trong quá trình sinh luận giải AI cho Tử Vi.');
             else res.status(500).json({ error: error.message || 'Lỗi hệ thống' });
         } finally {
@@ -221,6 +237,13 @@ class ZiweiAiController {
 
             sse = AiStreamHelper.initSseSession(req, res);
 
+            let isCompleted = false;
+            req.on('close', async () => {
+                if (!isCompleted && req.refundChatCredit) {
+                    try { await req.refundChatCredit(); } catch (e) {}
+                }
+            });
+
             if (vipContext.matchedSections && vipContext.matchedSections.length > 0) {
                 sse.sendSSE({
                     type: 'context_meta',
@@ -242,7 +265,10 @@ class ZiweiAiController {
                 sse.sendSSE({ chunk: chunkText });
             }
 
-            if (!sse.isOpen()) return res.end();
+            if (!sse.isOpen()) {
+                if (!isCompleted && req.refundChatCredit) await req.refundChatCredit();
+                return res.end();
+            }
 
             const cleanedContent = AiService.cleanMarkdown(accumulatedText);
             let parsed = { answer: "", confidence: 0.85 };
@@ -329,10 +355,14 @@ class ZiweiAiController {
 
             MemoryCacheService.clearChatCache('ziwei', id);
 
+            isCompleted = true;
             sse.sendDone();
 
         } catch (error) {
             console.error("[ZiweiAiController.chatZiwei] Error:", error);
+            if (req.refundChatCredit) {
+                try { await req.refundChatCredit(); } catch (refErr) { console.error("Refund chat credit failed:", refErr); }
+            }
             if (sse) sse.sendError(error.message || 'Lỗi sinh phản hồi từ AI.');
             else res.status(500).json({ error: error.message || 'Lỗi hệ thống' });
         } finally {

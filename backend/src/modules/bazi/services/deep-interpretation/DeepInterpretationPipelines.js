@@ -5,7 +5,7 @@
 
 const logger = require('../../../../core/services/LoggerService');
 const AiService = require('../../../../core/ai/AiService');
-const { OpenRouterRotator, LlmProviderService, SseStreamHelper } = require('./DeepInterpretationCore');
+const { OpenRouterRotator, GeminiRotator, LlmProviderService, SseStreamHelper } = require('./DeepInterpretationCore');
 const { BAZI_VIP_CONFIG, ZIWEI_VIP_CONFIG, MARRIAGE_VIP_CONFIG, ICHING_VIP_CONFIG } = require('./DeepInterpretationConfigs');
 const { generateIChingCalendarGroundTruth } = require('../../../../shared/utils/ungKyParser');
 
@@ -15,7 +15,7 @@ const { generateIChingCalendarGroundTruth } = require('../../../../shared/utils/
 class BaziDeepPipeline {
   static async executeReplica(replica, fullContext) {
     const { id, title, provider, model, keyEnv, subtopics } = replica;
-    const apiKey = process.env[keyEnv] || process.env.GEMINI_API_KEY;
+    const apiKey = provider === 'gemini' ? GeminiRotator.getNextKey() : (process.env[keyEnv] || process.env.GEMINI_API_KEY);
 
     const cleanContext = SseStreamHelper.cleanContextForVip(fullContext);
     const chapterInstruction = BAZI_VIP_CONFIG.getChapterSpecificInstructions(id);
@@ -61,16 +61,7 @@ class BaziDeepPipeline {
             prompt: replicaPrompt
           });
         } catch (orErr) {
-          logger.warn(`[BaziDeepPipeline - Tầng 2] OpenRouter replica ${id} error with [${orModel}]: ${orErr.message}. Trying backup...`);
-          const backupOrModel = 'qwen/qwen-2.5-72b-instruct';
-          try {
-            return await LlmProviderService.callOpenRouterEndpoint({
-              model: backupOrModel,
-              prompt: replicaPrompt
-            });
-          } catch (backupErr) {
-            logger.warn(`[BaziDeepPipeline - Tầng 2] Backup failed: ${backupErr.message}. Falling back to Gemini...`);
-          }
+          logger.warn(`[BaziDeepPipeline - Tầng 2] OpenRouter replica ${id} error: ${orErr.message}. Falling back to Gemini...`);
         }
       }
 
@@ -85,11 +76,18 @@ class BaziDeepPipeline {
           prompt: replicaPrompt
         });
       } else {
-        return await LlmProviderService.callGeminiWithKey(apiKey, replicaPrompt, model);
+        const fallbackGeminiModel = process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite';
+        const fallbackKey = GeminiRotator.getFallbackKey();
+        logger.info(`[BaziDeepPipeline - Fallback] Xoay tua sang [${GeminiRotator.getKeyLabel(fallbackKey)}] cho Replica ${id}...`);
+        return await LlmProviderService.callGeminiWithKey(fallbackKey, replicaPrompt, fallbackGeminiModel);
       }
     } catch (err) {
       logger.warn(`[BaziDeepPipeline - Tầng 2] Replica ${id} error: ${err.message}. Falling back to Gemini...`);
-      return await AiService.generateInterpretation(replicaPrompt, { model: 'gemini-3.1-flash-lite' });
+      const fallbackKey = GeminiRotator.getFallbackKey();
+      return await AiService.generateInterpretation(replicaPrompt, { 
+        model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+        apiKey: fallbackKey
+      });
     }
   }
 
@@ -109,7 +107,7 @@ class BaziDeepPipeline {
           SseStreamHelper.dispatchProgress(onProgress, { stage: 'stage1', step: 'pre_analysis', message: 'Đang khảo cứu tương quan âm dương ngũ hành & Dụng Thần...' });
 
           const geminiPromise = LlmProviderService.callGeminiWithKey(
-            process.env.GEMINI_API_KEY,
+            GeminiRotator.getNextKey(),
             `[BẢN PHÂN TÍCH 1 - TỔNG QUAN HỆ THỐNG NGŨ HÀNH & DỤNG THẦN TỪ GEMINI]:\n` +
             `Dựa trên dữ liệu lá số Bát Tự:\n${prompt}\n` +
             `Hãy khảo sát chuyên sâu: Vượng suy của Nhật chủ, phân bổ năng lượng 5 hành, Thập Thần chủ quản (tuân thủ đúng hệ thống Thập Thần, không nhầm Can ngũ hành khác là Kiếp Tài), Dụng Thần, Hỷ Thần, Kỵ Thần, và trạng thái tạng phủ để làm nền tảng học thuật vững chắc cho 6 chuyên đề.\n` +
@@ -132,18 +130,18 @@ class BaziDeepPipeline {
           const openRouterKeys = OpenRouterRotator.getKeys();
           const qwenPromise = (openRouterKeys.length > 0
             ? LlmProviderService.callOpenRouterEndpoint({
-                model: 'qwen/qwen-plus',
+                model: process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free',
                 prompt: qwenCotPrompt,
-                timeoutMs: 40000
               })
             : LlmProviderService.callGeminiWithKey(
-                process.env.GEMINI_API_KEY_2 || process.env.GEMINI_API_KEY,
+                GeminiRotator.getFallbackKey(),
                 qwenCotPrompt
               )
           ).catch(err => {
-            logger.warn(`[BaziDeepPipeline - Tầng 1] Qwen Plus error: ${err.message}. Falling back to Gemini...`);
+            const fallbackKey = GeminiRotator.getFallbackKey();
+            logger.warn(`[BaziDeepPipeline - Tầng 1] OpenRouter CoT error: ${err.message}. Falling back to Gemini [${GeminiRotator.getKeyLabel(fallbackKey)}]...`);
             return LlmProviderService.callGeminiWithKey(
-              process.env.GEMINI_API_KEY_2 || process.env.GEMINI_API_KEY,
+              fallbackKey,
               qwenCotPrompt
             ).catch(() => 'Dữ liệu Tử Bình CoT đã được xác lập trong phân tích số học nguyên bản.');
           });
@@ -164,7 +162,7 @@ class BaziDeepPipeline {
           SseStreamHelper.dispatchProgress(onProgress, { stage: 'stage2', step: 'replicas_start', message: 'Đang tiến hành luận giải chuyên sâu 6 chương...' });
 
           const replicaPromises = REPLICAS.map((rep, idx) => {
-            const delay = rep.provider === 'gemini' ? 0 : idx * 100;
+            const delay = idx * 250;
             return new Promise(resolve => setTimeout(resolve, delay)).then(async () => {
               SseStreamHelper.dispatchProgress(onProgress, { stage: 'stage2', chapterId: rep.id, status: 'in_progress', title: rep.title, message: `Đang luận giải: Chương ${rep.id} - ${rep.title}...` });
               const output = await BaziDeepPipeline.executeReplica(rep, fullContext);
@@ -230,7 +228,9 @@ NHIỆM VỤ CỦA BẠN (TỔNG HỢP VÀ ĐIỀU HÒA CHIẾN LƯỢC TOÀN DI
   [PHẦN 1: DẪN NHẬP ĐỊNH VỊ BẢN MỆNH & SWOT] và [PHẦN 2: CHIẾN LƯỢC ĐIỀU HÒA ĐA MỤC TIÊU & ĐÚC KẾT NHÂN SINH].
 - TUYỆT ĐỐI KHÔNG dùng từ "VIP", "gói VIP", "báo cáo VIP" hay bất kỳ từ "VIP" nào. Hãy luôn sử dụng từ "luận giải chuyên sâu" hoặc "bản luận giải chuyên sâu".`;
 
-            introAndOutro = await LlmProviderService.callGeminiWithKey(process.env.GEMINI_API_KEY, synthesisPrompt);
+            const chiefKey = GeminiRotator.getFallbackKey();
+            logger.info(`[BaziDeepPipeline - Tầng 3] Chief Editor điều phối qua [${GeminiRotator.getKeyLabel(chiefKey)}]...`);
+            introAndOutro = await LlmProviderService.callGeminiWithKey(chiefKey, synthesisPrompt);
           } catch (synthErr) {
             logger.warn(`[BaziDeepPipeline - Tầng 3] Synthesis warning: ${synthErr.message}`);
           }
@@ -314,15 +314,15 @@ class ZiweiDeepPipeline {
 
     try {
       if (provider === 'gemini') {
-        const geminiKey = process.env[keyEnv] || process.env.GEMINI_API_KEY;
+        const geminiKey = GeminiRotator.getNextKey();
         const geminiModel = model || process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite';
-        logger.info(`[ZiweiDeepPipeline - Tầng 3] Cluster ${id} (${title}) đẩy thẳng Gemini SDK [${geminiModel}]...`);
+        logger.info(`[ZiweiDeepPipeline - Tầng 2] Cluster ${id} (${title}) gọi Gemini [${geminiModel}] qua [${GeminiRotator.getKeyLabel(geminiKey)}]...`);
         return await LlmProviderService.callGeminiWithKey(geminiKey, clusterPrompt, geminiModel);
       }
 
       const openRouterKeys = OpenRouterRotator.getKeys();
       if (openRouterKeys.length > 0) {
-        const orModel = 'qwen/qwen-plus';
+        const orModel = model || process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free';
         try {
           logger.info(`[ZiweiDeepPipeline - Tầng 3] Cluster ${id} (${title}) routing to OpenRouter [${orModel}]...`);
           return await LlmProviderService.callOpenRouterEndpoint({
@@ -330,15 +330,21 @@ class ZiweiDeepPipeline {
             prompt: clusterPrompt
           });
         } catch (orErr) {
-          logger.warn(`[ZiweiDeepPipeline - Tầng 3] OpenRouter error: ${orErr.message}. Trying backup...`);
-          return await LlmProviderService.callGeminiWithKey(process.env.GEMINI_API_KEY, clusterPrompt);
+          logger.warn(`[ZiweiDeepPipeline - Tầng 3] OpenRouter error: ${orErr.message}. Falling back to Gemini...`);
         }
       }
 
-      return await LlmProviderService.callGeminiWithKey(apiKey, clusterPrompt);
+      const fallbackGeminiModel = process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite';
+      const fallbackKey = GeminiRotator.getFallbackKey();
+      logger.info(`[ZiweiDeepPipeline - Fallback] Xoay tua sang [${GeminiRotator.getKeyLabel(fallbackKey)}] cho Cụm ${id}...`);
+      return await LlmProviderService.callGeminiWithKey(fallbackKey, clusterPrompt, fallbackGeminiModel);
     } catch (err) {
-      logger.warn(`[ZiweiDeepPipeline - Tầng 3] Cluster ${id} fallback error: ${err.message}`);
-      return await AiService.generateInterpretation(clusterPrompt, { model: 'gemini-3.1-flash-lite' });
+      logger.warn(`[ZiweiDeepPipeline - Tầng 2] Cluster ${id} fallback error: ${err.message}`);
+      const fallbackKey = GeminiRotator.getFallbackKey();
+      return await AiService.generateInterpretation(clusterPrompt, { 
+        model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+        apiKey: fallbackKey
+      });
     }
   }
 
@@ -373,32 +379,41 @@ class ZiweiDeepPipeline {
             `3. Các thế xung chiếu và phi tinh kích hoạt: Khi gặp Đại Hạn kích hoạt cung nào thì tứ hóa tạo nên bước ngoặt lớn.\n` +
             `LƯU Ý: Xưng hô với đương số là "bạn", không xưng "ngươi".`;
 
-          const openRouterKeys = OpenRouterRotator.getKeys();
-          const callCotModel = async (p) => {
-            if (openRouterKeys.length > 0) {
-              try {
-                return await LlmProviderService.callOpenRouterEndpoint({
-                  model: 'qwen/qwen-plus',
-                  prompt: p,
-                  timeoutMs: 40000
-                });
-              } catch (e) {
-                logger.warn('[ZiweiDeepPipeline - CoT] OpenRouter failed, falling back to Gemini:', e.message);
-              }
-            }
-            return await LlmProviderService.callGeminiWithKey(process.env.GEMINI_API_KEY, p);
-          };
+          const cot1Promise = LlmProviderService.callGeminiWithKey(
+            GeminiRotator.getNextKey(),
+            personalityCotPrompt
+          ).catch((e) => {
+            logger.warn('[ZiweiDeepPipeline - CoT 1] Gemini error:', e.message);
+            return 'Cốt cách Mệnh Thân & Cục đã được ghi nhận trong dữ liệu tinh đồ.';
+          });
 
-          const [cot1, cot2] = await Promise.all([
-            callCotModel(personalityCotPrompt).catch(() => 'Cốt cách Mệnh Thân & Cục đã được ghi nhận trong dữ liệu tinh đồ.'),
-            callCotModel(tuHoaCotPrompt).catch(() => 'Dòng chảy Tứ Hóa Phi Tinh đã được tổng hợp trong tinh đồ.')
-          ]);
+          const openRouterKeys = OpenRouterRotator.getKeys();
+          const cot2Promise = (openRouterKeys.length > 0
+            ? LlmProviderService.callOpenRouterEndpoint({
+                model: process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free',
+                prompt: tuHoaCotPrompt,
+                timeoutMs: 40000
+              })
+            : LlmProviderService.callGeminiWithKey(
+                GeminiRotator.getFallbackKey(),
+                tuHoaCotPrompt
+              )
+          ).catch((e) => {
+            const fallbackKey = GeminiRotator.getFallbackKey();
+            logger.warn(`[ZiweiDeepPipeline - CoT 2] OpenRouter error, falling back to Gemini [${GeminiRotator.getKeyLabel(fallbackKey)}]:`, e.message);
+            return LlmProviderService.callGeminiWithKey(
+              fallbackKey,
+              tuHoaCotPrompt
+            ).catch(() => 'Dòng chảy Tứ Hóa Phi Tinh đã được tổng hợp trong tinh đồ.');
+          });
+
+          const [cot1, cot2] = await Promise.all([cot1Promise, cot2Promise]);
 
           SseStreamHelper.dispatchProgress(onProgress, { stage: 'stage2', step: 'cot_tuhoa', message: 'Đang truy vết dòng chảy Tứ Hóa Phi Tinh & biến động cung vị...' });
 
-          const combinedCot = `\n=== BẢN SUY LUẬN HỌC THUẬT NỀN TẢNG (TẦNG 1 & 2 COT) ===\n` +
-            `[COT 1 - CỐT CÁCH MỆNH THÂN & CỤC]:\n${cot1}\n\n` +
-            `[COT 2 - TỨ HÓA PHI TINH & CỘNG HƯỞNG CUNG VỊ]:\n${cot2}\n` +
+          const combinedCot = `\n=== BẢN SUY LUẬN HỌC THUẬT NỀN TẢNG (TẦNG 1 & 2 DUAL COT) ===\n` +
+            `[COT 1 - CỐT CÁCH MỆNH THÂN & CỤC (GEMINI)]:\n${cot1}\n\n` +
+            `[COT 2 - TỨ HÓA PHI TINH & CỘNG HƯỞNG CUNG VỊ (OPENROUTER)]:\n${cot2}\n` +
             `=======================================================\n`;
 
           const fullContext = `${prompt}\n${combinedCot}`;
@@ -410,7 +425,7 @@ class ZiweiDeepPipeline {
           SseStreamHelper.dispatchProgress(onProgress, { stage: 'stage3', step: 'clusters_start', message: 'Đang tiến hành luận giải chuyên sâu 5 chương tinh đồ...' });
 
           const clusterPromises = REPLICAS.map((rep, idx) => {
-            const delay = rep.provider === 'gemini' ? 0 : idx * 100;
+            const delay = idx * 250;
             return new Promise(resolve => setTimeout(resolve, delay)).then(async () => {
               SseStreamHelper.dispatchProgress(onProgress, { stage: 'stage3', chapterId: rep.id, status: 'in_progress', title: rep.title, message: `Đang luận giải: Chương ${rep.id} - ${rep.title}...` });
               const output = await ZiweiDeepPipeline.executeClusterReplica(rep, fullContext);
@@ -474,7 +489,9 @@ NHIỆM VỤ CỦA BẠN (TỔNG HỢP VÀ ĐIỀU HÒA CHIẾN LƯỢC TOÀN DI
   [PHẦN 1: DẪN NHẬP ĐỊNH VỊ BẢN MỆNH SWOT] và [PHẦN 2: CHIẾN LƯỢC ĐIỀU HÒA & KẾ SÁCH HÓA GIẢI].
 - TUYỆT ĐỐI KHÔNG dùng từ "VIP", "gói VIP", "báo cáo VIP" hay bất kỳ từ "VIP" nào. Hãy luôn sử dụng từ "luận giải chuyên sâu" hoặc "bản luận giải chuyên sâu".`;
 
-            introAndOutro = await LlmProviderService.callGeminiWithKey(process.env.GEMINI_API_KEY, chiefEditorPrompt);
+            const chiefKey = GeminiRotator.getFallbackKey();
+            logger.info(`[ZiweiDeepPipeline - Tầng 4] Chief Editor điều phối qua [${GeminiRotator.getKeyLabel(chiefKey)}]...`);
+            introAndOutro = await LlmProviderService.callGeminiWithKey(chiefKey, chiefEditorPrompt);
           } catch (synthErr) {
             logger.warn(`[ZiweiDeepPipeline - Tầng 4] Synthesis warning: ${synthErr.message}`);
           }
@@ -556,9 +573,9 @@ class MarriageDeepPipeline {
 
     try {
       if (provider === 'gemini') {
-        const geminiKey = process.env[keyEnv] || process.env.GEMINI_API_KEY;
+        const geminiKey = GeminiRotator.getNextKey();
         const geminiModel = model || process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite';
-        logger.info(`[MarriageDeepPipeline - Tầng 2] Chương ${id} (${title}) gọi Google Gemini trực tiếp [${geminiModel}]...`);
+        logger.info(`[MarriageDeepPipeline - Tầng 2] Trụ ${id} (${title}) gọi Gemini [${geminiModel}] qua [${GeminiRotator.getKeyLabel(geminiKey)}]...`);
         return await LlmProviderService.callGeminiWithKey(geminiKey, replicaPrompt, geminiModel);
       }
 
@@ -567,7 +584,7 @@ class MarriageDeepPipeline {
         try {
           logger.info(`[MarriageDeepPipeline - Tầng 2] Chương ${id} (${title}) routing to OpenRouter [${model}]...`);
           return await LlmProviderService.callOpenRouterEndpoint({
-            model: model || 'qwen/qwen-plus',
+            model: model || process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free',
             prompt: replicaPrompt
           });
         } catch (orErr) {
@@ -575,11 +592,17 @@ class MarriageDeepPipeline {
         }
       }
 
-      const apiKey = process.env[keyEnv] || process.env.GEMINI_API_KEY;
-      return await LlmProviderService.callGeminiWithKey(apiKey, replicaPrompt, model);
+      const fallbackGeminiModel = process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite';
+      const fallbackKey = GeminiRotator.getFallbackKey();
+      logger.info(`[MarriageDeepPipeline - Fallback] Xoay tua sang [${GeminiRotator.getKeyLabel(fallbackKey)}] cho Chương ${id}...`);
+      return await LlmProviderService.callGeminiWithKey(fallbackKey, replicaPrompt, fallbackGeminiModel);
     } catch (err) {
       logger.warn(`[MarriageDeepPipeline - Tầng 2] Chương ${id} fallback error: ${err.message}. Using default Gemini...`);
-      return await AiService.generateInterpretation(replicaPrompt, { model: 'gemini-3.1-flash-lite' });
+      const fallbackKey = GeminiRotator.getFallbackKey();
+      return await AiService.generateInterpretation(replicaPrompt, { 
+        model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+        apiKey: fallbackKey
+      });
     }
   }
 
@@ -595,30 +618,55 @@ class MarriageDeepPipeline {
       async start(controller) {
         const encoder = new TextEncoder();
         try {
-          // --- TỔNG QUAN: Phân Tích Cốt Lõi Tương Quan Bản Mệnh ---
+          // --- TỔNG QUAN: Phân Tích Cốt Lõi Tương Quan Bản Mệnh (DUAL COT) ---
           SseStreamHelper.dispatchProgress(onProgress, {
             stage: 'cot_started',
             message: 'Đang khảo cứu tương quan Bát Tự & Cung Phi Bát Trạch...'
           });
 
-          const cotPrompt = `Bạn là Đại sư Mệnh lý & Phong thủy Hợp Hôn. Hãy phân tích ngắn gọn, sắc bén bản chất tương quan mệnh lý giữa hai người:\n${prompt}\n\n` +
-            `YÊU CẦU ĐÚC KẾT CỐT LÕI (200-300 từ):\n` +
-            `1. Bản chất tương tác Nhật Chủ & Ngũ hành Nạp Âm (Tương sinh, tương khắc, hay tương trợ?).\n` +
-            `2. Tương quan Cung Phi Bát Trạch (Thuộc nhóm Sinh Khí, Diên Niên, Thiên Y, Phục Vị hay nhóm Tuyệt Mệnh, Ngũ Quỷ, Họa Hại, Lục Sát?).\n` +
-            `3. Đâu là "ngũ hành cầu nối" trọng yếu nhất để chuyển hung thành cát cho cặp đôi này?`;
+          const cotGeminiPrompt = `Bạn là Bậc thầy Mệnh lý Hợp Hôn. Hãy phân tích ngắn gọn, sắc bén tương quan bản mệnh:\n${prompt}\n\n` +
+            `YÊU CẦU ĐÚC KẾT CỐT LÕI (150-250 từ):\n` +
+            `1. Bản chất tương tác Nhật Chủ & Ngũ hành Nạp Âm của 2 người (Tương sinh, tương khắc hay tương trợ?).\n` +
+            `2. Sự bổ khuyết ngũ hành: Ai có ngũ hành vượng để bổ trợ cho ngũ hành suy khuyết của người kia?`;
 
-          let cotResult = '';
-          try {
-            cotResult = await LlmProviderService.callOpenRouterEndpoint({
-              model: 'qwen/qwen-plus',
-              prompt: cotPrompt,
-              timeoutMs: 30000
-            });
-          } catch (e) {
-            cotResult = await AiService.generateInterpretation(cotPrompt, { model: 'gemini-3.1-flash-lite' });
-          }
+          const cotOrPrompt = `Bạn là Đại sư Phong thủy Bát Trạch & Hôn Phối. Hãy biện chứng phong thủy hợp hôn:\n${prompt}\n\n` +
+            `YÊU CẦU ĐÚC KẾT CỐT LÕI (150-250 từ):\n` +
+            `1. Tương quan Cung Phi Bát Trạch (Thuộc nhóm Sinh Khí, Diên Niên, Thiên Y, Phục Vị hay Tuyệt Mệnh, Ngũ Quỷ, Họa Hại, Lục Sát?).\n` +
+            `2. Đâu là "ngũ hành cầu nối" trọng yếu nhất để chuyển hung thành cát cho cặp đôi này?`;
 
-          const fullContext = `${prompt}\n\n[KHUNG XƯƠNG PHÂN TÍCH TƯƠNG QUAN HỢP HÔN]:\n${cotResult}`;
+          const cotGeminiPromise = LlmProviderService.callGeminiWithKey(
+            GeminiRotator.getNextKey(),
+            cotGeminiPrompt
+          ).catch((e) => {
+            logger.warn('[MarriageDeepPipeline - CoT Gemini] Error:', e.message);
+            return 'Tương quan ngũ hành bản mệnh đã được xác lập trong dữ liệu hợp hôn.';
+          });
+
+          const openRouterKeys = OpenRouterRotator.getKeys();
+          const cotOrPromise = (openRouterKeys.length > 0
+            ? LlmProviderService.callOpenRouterEndpoint({
+                model: process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free',
+                prompt: cotOrPrompt,
+                timeoutMs: 35000
+              })
+            : LlmProviderService.callGeminiWithKey(
+                GeminiRotator.getFallbackKey(),
+                cotOrPrompt
+              )
+          ).catch((e) => {
+            const fallbackKey = GeminiRotator.getFallbackKey();
+            logger.warn(`[MarriageDeepPipeline - CoT OpenRouter] Error, falling back to Gemini [${GeminiRotator.getKeyLabel(fallbackKey)}]:`, e.message);
+            return LlmProviderService.callGeminiWithKey(
+              fallbackKey,
+              cotOrPrompt
+            ).catch(() => 'Tương quan Cung Phi và ngũ hành cầu nối đã được xác lập.');
+          });
+
+          const [cotGemini, cotOr] = await Promise.all([cotGeminiPromise, cotOrPromise]);
+
+          const fullContext = `${prompt}\n\n[BẢN PHÂN TÍCH TƯƠNG QUAN NỀN TẢNG (DUAL COT)]:\n` +
+            `[BẢN 1 - KHẢO CỨU BẢN MỆNH & NGŨ HÀNH (GEMINI)]:\n${cotGemini}\n\n` +
+            `[BẢN 2 - BIỆN CHỨNG CUNG PHI & CẦU NỐI (OPENROUTER)]:\n${cotOr}`;
 
           // --- PHÂN TÍCH SONG SONG 4 CHƯƠNG ---
           SseStreamHelper.dispatchProgress(onProgress, {
@@ -626,21 +674,24 @@ class MarriageDeepPipeline {
             message: 'Đang tiến hành luận giải chuyên sâu 4 chương duyên phận gia đạo...'
           });
 
-          const pillarPromises = PILLARS.map(async (pillar) => {
-            SseStreamHelper.dispatchProgress(onProgress, {
-              chapterId: pillar.id,
-              status: 'in_progress',
-              title: pillar.title,
-              message: `Đang luận giải Chương ${pillar.id}: ${pillar.title}...`
+          const pillarPromises = PILLARS.map((pillar, idx) => {
+            const delay = idx * 250;
+            return new Promise(resolve => setTimeout(resolve, delay)).then(async () => {
+              SseStreamHelper.dispatchProgress(onProgress, {
+                chapterId: pillar.id,
+                status: 'in_progress',
+                title: pillar.title,
+                message: `Đang luận giải Chương ${pillar.id}: ${pillar.title}...`
+              });
+              const text = await MarriageDeepPipeline.executeReplica(pillar, fullContext);
+              SseStreamHelper.dispatchProgress(onProgress, {
+                chapterId: pillar.id,
+                status: 'completed',
+                title: pillar.title,
+                message: `Đã hoàn tất Chương ${pillar.id}: ${pillar.title}`
+              });
+              return { id: pillar.id, title: pillar.title, text };
             });
-            const text = await MarriageDeepPipeline.executeReplica(pillar, fullContext);
-            SseStreamHelper.dispatchProgress(onProgress, {
-              chapterId: pillar.id,
-              status: 'completed',
-              title: pillar.title,
-              message: `Đã hoàn tất Chương ${pillar.id}: ${pillar.title}`
-            });
-            return { id: pillar.id, title: pillar.title, text };
           });
 
           const pillarResults = await Promise.all(pillarPromises);
@@ -670,7 +721,12 @@ class MarriageDeepPipeline {
           let introHeader = '';
           let outroFooter = '';
           try {
-            const editorText = await AiService.generateInterpretation(editorPrompt, { model: 'gemini-3.1-flash-lite' });
+            const chiefKey = GeminiRotator.getFallbackKey();
+            logger.info(`[MarriageDeepPipeline] Chief Editor điều phối qua [${GeminiRotator.getKeyLabel(chiefKey)}]...`);
+            const editorText = await AiService.generateInterpretation(editorPrompt, { 
+              model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+              apiKey: chiefKey
+            });
             if (editorText.includes('<!-- SPLIT_INTRO_OUTRO -->')) {
               const parts = editorText.split('<!-- SPLIT_INTRO_OUTRO -->');
               introHeader = SseStreamHelper.sanitizeMetaIntro(parts[0]);
@@ -758,9 +814,9 @@ class IChingDeepPipeline {
     let generatedText = '';
     try {
       if (provider === 'gemini') {
-        const geminiKey = process.env[keyEnv] || process.env.GEMINI_API_KEY;
+        const geminiKey = GeminiRotator.getNextKey();
         const geminiModel = model || process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite';
-        logger.info(`[IChingDeepPipeline - Phân tích] Chương ${id} (${title}) gọi Google Gemini trực tiếp [${geminiModel}]...`);
+        logger.info(`[IChingDeepPipeline - Phân tích] Chương ${id} (${title}) gọi Gemini [${geminiModel}] qua [${GeminiRotator.getKeyLabel(geminiKey)}]...`);
         generatedText = await LlmProviderService.callGeminiWithKey(geminiKey, replicaPrompt, geminiModel);
       } else {
         const openRouterKeys = OpenRouterRotator.getKeys();
@@ -768,7 +824,7 @@ class IChingDeepPipeline {
           try {
             logger.info(`[IChingDeepPipeline - Phân tích] Chương ${id} (${title}) routing to OpenRouter [${model}]...`);
             generatedText = await LlmProviderService.callOpenRouterEndpoint({
-              model: model || 'qwen/qwen-plus',
+              model: model || process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free',
               prompt: replicaPrompt
             });
           } catch (orErr) {
@@ -776,13 +832,19 @@ class IChingDeepPipeline {
           }
         }
         if (!generatedText) {
-          const apiKey = process.env[keyEnv] || process.env.GEMINI_API_KEY;
-          generatedText = await LlmProviderService.callGeminiWithKey(apiKey, replicaPrompt, model);
+          const fallbackGeminiModel = process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite';
+          const fallbackKey = GeminiRotator.getFallbackKey();
+          logger.info(`[IChingDeepPipeline - Fallback] Xoay tua sang [${GeminiRotator.getKeyLabel(fallbackKey)}] cho Chương ${id}...`);
+          generatedText = await LlmProviderService.callGeminiWithKey(fallbackKey, replicaPrompt, fallbackGeminiModel);
         }
       }
     } catch (err) {
       logger.warn(`[IChingDeepPipeline - Phân tích] Chương ${id} fallback error: ${err.message}. Using default Gemini...`);
-      generatedText = await AiService.generateInterpretation(replicaPrompt, { model: 'gemini-3.1-flash-lite' });
+      const fallbackKey = GeminiRotator.getFallbackKey();
+      generatedText = await AiService.generateInterpretation(replicaPrompt, { 
+        model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+        apiKey: fallbackKey
+      });
     }
 
     return SseStreamHelper.sanitizeMetaIntro(generatedText);
@@ -800,30 +862,55 @@ class IChingDeepPipeline {
       async start(controller) {
         const encoder = new TextEncoder();
         try {
-          // --- TỔNG QUAN: Phân Tích Cốt Cách Quẻ Dịch & Dụng Thần ---
+          // --- TỔNG QUAN: Phân Tích Cốt Cách Quẻ Dịch (DUAL COT) ---
           SseStreamHelper.dispatchProgress(onProgress, {
             stage: 'cot_started',
             message: 'Đang khảo cứu cốt cách quái tượng, Thế - Ứng & Hào Động...'
           });
 
-          const cotPrompt = `Bạn là Bậc thầy Dịch học cổ truyền. Hãy phân tích ngắn gọn, sắc bén cốt cách quẻ dịch sau:\n${prompt}\n\n` +
-            `YÊU CẦU ĐÚC KẾT CỐT LÕI (200-300 từ):\n` +
-            `1. Ý nghĩa cốt lõi của Quẻ Chính (Thể) và hướng phát triển sang Quẻ Biến (Dụng).\n` +
-            `2. Tương quan Hào Thế (Bản thân) vs Hào Ứng (Đối tác/Môi trường) và Hào Động mấu chốt.\n` +
-            `3. Dụng Thần vượng tướng hay hưu tù theo ngày tháng gieo quẻ đối với câu hỏi của đương số.`;
+          const cotGeminiPrompt = `Bạn là Bậc thầy Dịch học cổ truyền. Hãy phân tích ngắn gọn, sắc bén tượng quẻ sau:\n${prompt}\n\n` +
+            `YÊU CẦU ĐÚC KẾT TƯỢNG PHÁP (150-250 từ):\n` +
+            `1. Ý nghĩa cốt lõi của Quẻ Chính (Thể) và xu hướng phát triển sang Quẻ Biến (Dụng).\n` +
+            `2. Ý nghĩa quái tượng thiên nhiên và Thoán Từ then chốt đối với câu hỏi của đương số.`;
 
-          let cotResult = '';
-          try {
-            cotResult = await LlmProviderService.callOpenRouterEndpoint({
-              model: 'qwen/qwen-plus',
-              prompt: cotPrompt,
-              timeoutMs: 30000
-            });
-          } catch (e) {
-            cotResult = await AiService.generateInterpretation(cotPrompt, { model: 'gemini-3.1-flash-lite' });
-          }
+          const cotOrPrompt = `Bạn là Đại sư Lục Hào Dự Trắc. Hãy biện chứng Lục Hào & Khí pháp:\n${prompt}\n\n` +
+            `YÊU CẦU ĐÚC KẾT KHÍ PHÁP (150-250 từ):\n` +
+            `1. Tương quan Hào Thế (Bản thân) vs Hào Ứng (Đối tác/Môi trường) và Hào Động mấu chốt.\n` +
+            `2. Độ vượng tướng hưu tù của Dụng Thần theo ngày tháng gieo quẻ.`;
 
-          const fullContext = `${prompt}\n\n[KHUNG XƯƠNG PHÂN TÍCH BIỆN CHỨNG DỊCH LÝ]:\n${cotResult}`;
+          const cotGeminiPromise = LlmProviderService.callGeminiWithKey(
+            GeminiRotator.getNextKey(),
+            cotGeminiPrompt
+          ).catch((e) => {
+            logger.warn('[IChingDeepPipeline - CoT Gemini] Error:', e.message);
+            return 'Tượng quẻ và Thoán Từ đã được ghi nhận trong quái tượng nguyên bản.';
+          });
+
+          const openRouterKeys = OpenRouterRotator.getKeys();
+          const cotOrPromise = (openRouterKeys.length > 0
+            ? LlmProviderService.callOpenRouterEndpoint({
+                model: process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free',
+                prompt: cotOrPrompt,
+                timeoutMs: 35000
+              })
+            : LlmProviderService.callGeminiWithKey(
+                GeminiRotator.getFallbackKey(),
+                cotOrPrompt
+              )
+          ).catch((e) => {
+            const fallbackKey = GeminiRotator.getFallbackKey();
+            logger.warn(`[IChingDeepPipeline - CoT OpenRouter] Error, falling back to Gemini [${GeminiRotator.getKeyLabel(fallbackKey)}]:`, e.message);
+            return LlmProviderService.callGeminiWithKey(
+              fallbackKey,
+              cotOrPrompt
+            ).catch(() => 'Lục Hào Dụng Thần và hào động đã được xác lập.');
+          });
+
+          const [cotGemini, cotOr] = await Promise.all([cotGeminiPromise, cotOrPromise]);
+
+          const fullContext = `${prompt}\n\n[BẢN PHÂN TÍCH BIỆN CHỨNG DỊCH LÝ NỀN TẢNG (DUAL COT)]:\n` +
+            `[BẢN 1 - TƯỢNG PHÁP & THỜI THẾ (GEMINI)]:\n${cotGemini}\n\n` +
+            `[BẢN 2 - KHÍ PHÁP & LỤC HÀO DỤNG THẦN (OPENROUTER)]:\n${cotOr}`;
 
           // --- PHÂN TÍCH SONG SONG 6 CHƯƠNG ---
           SseStreamHelper.dispatchProgress(onProgress, {
@@ -831,21 +918,24 @@ class IChingDeepPipeline {
             message: 'Đang tiến hành luận giải chuyên sâu 6 chương Dịch lý...'
           });
 
-          const chapterPromises = CHAPTERS.map(async (ch) => {
-            SseStreamHelper.dispatchProgress(onProgress, {
-              chapterId: ch.id,
-              status: 'in_progress',
-              title: ch.title,
-              message: `Đang luận giải Chương ${ch.id}: ${ch.title}...`
+          const chapterPromises = CHAPTERS.map((ch, idx) => {
+            const delay = idx * 250;
+            return new Promise(resolve => setTimeout(resolve, delay)).then(async () => {
+              SseStreamHelper.dispatchProgress(onProgress, {
+                chapterId: ch.id,
+                status: 'in_progress',
+                title: ch.title,
+                message: `Đang luận giải Chương ${ch.id}: ${ch.title}...`
+              });
+              const text = await IChingDeepPipeline.executeReplica(ch, fullContext, options);
+              SseStreamHelper.dispatchProgress(onProgress, {
+                chapterId: ch.id,
+                status: 'completed',
+                title: ch.title,
+                message: `Đã hoàn tất Chương ${ch.id}: ${ch.title}`
+              });
+              return { id: ch.id, title: ch.title, text };
             });
-            const text = await IChingDeepPipeline.executeReplica(ch, fullContext, options);
-            SseStreamHelper.dispatchProgress(onProgress, {
-              chapterId: ch.id,
-              status: 'completed',
-              title: ch.title,
-              message: `Đã hoàn tất Chương ${ch.id}: ${ch.title}`
-            });
-            return { id: ch.id, title: ch.title, text };
           });
 
           const chapterResults = await Promise.all(chapterPromises);
@@ -880,7 +970,12 @@ class IChingDeepPipeline {
           let introHeader = '';
           let outroFooter = '';
           try {
-            const editorText = await AiService.generateInterpretation(editorPrompt, { model: 'gemini-3.1-flash-lite' });
+            const chiefKey = GeminiRotator.getFallbackKey();
+            logger.info(`[IChingDeepPipeline] Chief Editor điều phối qua [${GeminiRotator.getKeyLabel(chiefKey)}]...`);
+            const editorText = await AiService.generateInterpretation(editorPrompt, { 
+              model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+              apiKey: chiefKey
+            });
             if (editorText.includes('<!-- SPLIT_INTRO_OUTRO -->')) {
               const parts = editorText.split('<!-- SPLIT_INTRO_OUTRO -->');
               introHeader = SseStreamHelper.sanitizeMetaIntro(parts[0]);

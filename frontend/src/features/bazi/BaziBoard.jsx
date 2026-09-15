@@ -230,7 +230,7 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
         const isAlreadyVip = data?.aiInterpretation?.mode === 'vip' && !!data?.aiInterpretation?.content;
         const isAlreadyStandard = !isVip && !!data?.aiInterpretation?.content;
         const isCacheHit = isAlreadyVip || isAlreadyStandard;
-        const costToDeduct = isCacheHit ? 0 : (isUpgrade ? 4 : (isVip ? 5 : 1));
+        const costToDeduct = isCacheHit ? 0 : (isUpgrade ? 400 : (isVip ? 500 : 100));
 
         // 0ms Instant Reset
         setInterpretation('');

@@ -36,6 +36,13 @@ class MarriageAiController {
 
             sse = AiStreamHelper.initSseSession(req, res);
 
+            let isCompleted = false;
+            req.on('close', async () => {
+                if (!isCompleted && req.refundCredit) {
+                    try { await req.refundCredit(); } catch (e) {}
+                }
+            });
+
             const isVipMode = req.body?.mode === 'vip' || req.query?.mode === 'vip';
             const hasValidCache = 
                 record.aiInterpretation &&
@@ -43,6 +50,7 @@ class MarriageAiController {
                 (isVipMode ? record.aiInterpretation.mode === 'vip' : true);
 
             if (hasValidCache) {
+                isCompleted = true;
                 if (req.refundCredit) await req.refundCredit();
                 sse.sendSSE({ chunk: record.aiInterpretation.content });
                 sse.sendDone();
@@ -78,7 +86,10 @@ class MarriageAiController {
                 }
             }
 
-            if (!sse.isOpen()) return res.end();
+            if (!sse.isOpen()) {
+                if (!isCompleted && req.refundCredit) await req.refundCredit();
+                return res.end();
+            }
 
             const cleanedContent = AiService.cleanMarkdown(accumulatedText);
             const { promptTokens, completionTokens, tokensUsed } = AiStreamHelper.calculateTokens(prompt, cleanedContent, usageMetadata);
@@ -97,12 +108,17 @@ class MarriageAiController {
                 isGeneratingInterpretation: false
             });
 
+            isCompleted = true;
+
             AiStreamHelper.recordInterpretTokens(record.userId, 'marriage', tokensUsed);
 
             sse.sendDone();
 
         } catch (error) {
             console.error("Marriage Interpret SSE Error:", error);
+            if (req.refundCredit) {
+                try { await req.refundCredit(); } catch (refErr) { console.error("Refund credit failed:", refErr); }
+            }
             if (sse) sse.sendError(error.message || 'Lỗi xảy ra trong quá trình sinh luận giải AI cho Hợp Hôn.');
             else res.status(500).json({ error: error.message || 'Lỗi hệ thống' });
         } finally {
@@ -162,6 +178,13 @@ class MarriageAiController {
 
             sse = AiStreamHelper.initSseSession(req, res);
 
+            let isCompleted = false;
+            req.on('close', async () => {
+                if (!isCompleted && req.refundChatCredit) {
+                    try { await req.refundChatCredit(); } catch (e) {}
+                }
+            });
+
             const context = await ConversationContextService.buildConversationContext('marriage', conversation._id);
 
             const vipContext = (ConversationContextService.extractVipContext && ConversationContextService.extractVipContext({
@@ -204,7 +227,10 @@ class MarriageAiController {
                 sse.sendSSE({ chunk: chunkText });
             }
 
-            if (!sse.isOpen()) return res.end();
+            if (!sse.isOpen()) {
+                if (!isCompleted && req.refundChatCredit) await req.refundChatCredit();
+                return res.end();
+            }
 
             const cleanedContent = AiService.cleanMarkdown(accumulatedText);
             const parsed = parseAiJsonChunk(cleanedContent);
@@ -258,10 +284,14 @@ class MarriageAiController {
 
             MemoryCacheService.clearChatCache('marriage', id);
 
+            isCompleted = true;
             sse.sendDone();
 
         } catch (error) {
             console.error("Marriage Chat Follow-up Error:", error);
+            if (req.refundChatCredit) {
+                try { await req.refundChatCredit(); } catch (refErr) { console.error("Refund chat credit failed:", refErr); }
+            }
             if (sse) sse.sendError(error.message || 'Lỗi xảy ra khi sinh câu hỏi Hôn Nhân.');
             else res.status(500).json({ error: error.message || 'Lỗi hệ thống' });
         } finally {

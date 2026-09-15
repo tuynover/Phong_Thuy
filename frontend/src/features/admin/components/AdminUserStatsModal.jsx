@@ -34,7 +34,7 @@ export default function AdminUserStatsModal({ isOpen, userStats, onClose }) {
               <span className="capitalize font-semibold text-slate-200">{userStats.user.role}</span>
             </div>
             <div className="bg-slate-950/50 p-3.5 rounded-xl border border-slate-800/60">
-              <span className="block text-xs font-bold text-slate-450 uppercase mb-1">Số Credit hiện tại</span>
+              <span className="block text-xs font-bold text-slate-450 uppercase mb-1">Số Điểm (Points) hiện tại</span>
               <span className="font-semibold text-amber-500">{userStats.user.credits}</span>
             </div>
             <div className="bg-slate-950/50 p-3.5 rounded-xl border border-slate-800/60">

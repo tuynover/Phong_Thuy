@@ -367,7 +367,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
     if (activeUser && activeUser.role !== 'admin' && activeUser.role !== 'co-admin') {
       setUser(prev => {
         if (!prev) return prev;
-        const updated = { ...prev, credits: Math.max(0, prev.credits - 1) };
+        const updated = { ...prev, credits: Math.max(0, prev.credits - 100) };
         localStorage.setItem('user', JSON.stringify(updated));
         return updated;
       });
@@ -386,7 +386,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
 
     const isVip = tier === 'vip';
     const isUpgrade = isUpgradeModal || (isVip && !!(interpretation || result.aiInterpretation?.content));
-    const costToDeduct = isUpgrade ? 4 : (isVip ? 5 : 1);
+    const costToDeduct = isUpgrade ? 400 : (isVip ? 500 : 100);
 
     // 0ms Instant Reset
     setInterpretation('');

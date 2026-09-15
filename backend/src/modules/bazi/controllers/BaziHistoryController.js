@@ -104,18 +104,26 @@ class BaziHistoryController {
     static async linkBazi(req, res) {
         try {
             const { id } = req.params;
-            const { userId } = req.body;
+            const currentUserId = req.dbUser ? String(req.dbUser.id || req.dbUser._id) : (req.user ? String(req.user.id || req.user._id) : null);
+            if (!currentUserId) {
+                return res.status(401).json({ error: 'Vui lòng đăng nhập để liên kết bản ghi.' });
+            }
+
+            const existingRecord = await findByIdFlex(BaziRecord, id);
+            if (!existingRecord) return res.status(404).json({ error: 'Không tìm thấy bản ghi Bát Tự.' });
+
+            if (existingRecord.userId && existingRecord.userId !== 'guest' && String(existingRecord.userId) !== currentUserId) {
+                return res.status(403).json({ error: 'Bản ghi này đã thuộc về người dùng khác. Bạn không thể liên kết.' });
+            }
+
+            const record = await updateByIdFlex(BaziRecord, id, { userId: currentUserId });
             
-            const record = await updateByIdFlex(BaziRecord, id, { userId });
-            
-            if (!record) return res.status(404).json({ error: 'Record not found' });
-            
-            MemoryCacheService.clearUserHistoryCache(record.userId);
-            MemoryCacheService.clearUserHistoryCache(userId);
+            MemoryCacheService.clearUserHistoryCache(existingRecord.userId);
+            MemoryCacheService.clearUserHistoryCache(currentUserId);
             
             return res.json(record);
         } catch (error) {
-            console.error(error);
+            console.error('linkBazi error:', error);
             return res.status(500).json({ error: 'Server error' });
         }
     }

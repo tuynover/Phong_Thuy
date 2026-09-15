@@ -5,9 +5,11 @@ const BaziAiController = require('../controllers/BaziAiController');
 const BaziHistoryController = require('../controllers/BaziHistoryController');
 
 const optionalAuth = require('../../../core/middleware/optionalAuth');
+const auth = require('../../../core/middleware/auth');
 const checkRecordOwnership = require('../../../core/middleware/checkRecordOwnership');
 const checkHistoryOwnership = require('../../../core/middleware/checkHistoryOwnership');
 const creditCheck = require('../../../core/middleware/creditCheck');
+const chatRateLimiter = require('../../../core/middleware/chatRateLimiter');
 const chatCreditCheck = require('../../../core/middleware/chatCreditCheck');
 const antiSpamLock = require('../../../core/middleware/antiSpamLock');
 const rateLimiter = require('../../../core/middleware/rateLimiter');
@@ -23,14 +25,14 @@ router.post('/analyze', calcLimiter, BaziController.analyze);
 
 // AI Interpretation & Chat
 router.post('/:id/interpret', optionalAuth, checkRecordOwnership, antiSpamLock(), creditCheck, BaziAiController.interpretBazi);
-router.post('/:id/chat', chatCreditCheck, checkRecordOwnership, BaziAiController.chatBazi);
+router.post('/:id/chat', optionalAuth, checkRecordOwnership, chatRateLimiter, chatCreditCheck, BaziAiController.chatBazi);
 
 // History & Record Management
 router.get('/record/:id', optionalAuth, checkRecordOwnership, BaziHistoryController.getBaziRecord);
 router.get('/history/:userId', optionalAuth, checkHistoryOwnership, BaziHistoryController.getBaziHistory);
 router.get('/:userId', optionalAuth, checkHistoryOwnership, BaziHistoryController.getBaziHistory);
 router.put('/:id/rate', optionalAuth, checkRecordOwnership, BaziHistoryController.rateBazi);
-router.put('/:id/link', optionalAuth, checkRecordOwnership, BaziHistoryController.linkBazi);
+router.put('/:id/link', auth, BaziHistoryController.linkBazi);
 router.get('/:id/messages', optionalAuth, checkRecordOwnership, BaziHistoryController.getBaziChatMessages);
 
 module.exports = router;

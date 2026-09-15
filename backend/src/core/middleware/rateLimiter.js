@@ -57,7 +57,7 @@ const rateLimiter = ({ windowMs = 15 * 60 * 1000, max = 100, message } = {}) => 
             return next();
         }
 
-        const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+        const ip = req.ip || req.socket?.remoteAddress || 'unknown';
         const keyRaw = `${req.baseUrl || ''}${req.path}_${ip}`;
         const redisKey = `ratelimit:${keyRaw}`;
 
@@ -77,11 +77,9 @@ const rateLimiter = ({ windowMs = 15 * 60 * 1000, max = 100, message } = {}) => 
                 const count = results[0][1];
                 let ttlMs = results[1] ? results[1][1] : -1;
 
-                if (count === 1) {
-                    // Đặt TTL cho key khi mới tạo (non-blocking async)
+                if (count === 1 || ttlMs < 0) {
+                    // Đặt TTL cho key khi mới tạo hoặc khi key chưa có TTL (non-blocking async)
                     withTimeout(redisClient.pexpire(redisKey, windowMs), 200, null).catch(() => {});
-                    ttlMs = windowMs;
-                } else if (!ttlMs || ttlMs < 0) {
                     ttlMs = windowMs;
                 }
 

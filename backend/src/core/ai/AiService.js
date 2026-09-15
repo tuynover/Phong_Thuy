@@ -1,12 +1,14 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { AiRotator, GeminiRotator } = require('./AiRotator');
 
 class AiService {
     constructor() {
-        this.genAI = null;
         this.defaultModelName = process.env.GEMINI_MODEL || "gemini-3.1-flash-lite";
-        if (process.env.GEMINI_API_KEY) {
-            this.genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        const primaryKey = process.env.GEMINI_API_KEY || (AiRotator.gemini.getKeys().length > 0 ? AiRotator.gemini.getKeys()[0] : null);
+        if (primaryKey) {
+            this.genAI = AiRotator.gemini.getGenAI(primaryKey);
         } else {
+            this.genAI = null;
             console.warn("GEMINI_API_KEY is not set. AI Features will not work.");
         }
     }
@@ -43,38 +45,69 @@ class AiService {
 
     /**
      * Thực thi hành động gọi AI qua danh sách các mô hình dự phòng (Fallback Chain)
-     * @param {Function} action - Hàm bất đồng bộ nhận tên modelName để thực thi gọi API
+     * Kèm cơ chế xoay tua 2 Gemini Keys khi vào fallback hoặc gặp lỗi Rate Limit (429 / Resource Exhausted)
+     * @param {Function} action - Hàm bất đồng bộ nhận (modelName, activeKey) để thực thi gọi API
      * @param {Object} options - Các tùy chọn bổ sung
      */
     async _executeWithFallback(action, options = {}) {
         const chain = [
             options.model || this.defaultModelName,
-            "gemini-3.1-flash-lite"
+            process.env.GEMINI_MODEL || "gemini-3.1-flash-lite",
+            "gemini-3.1-flash-lite",
+            "gemini-2.5-flash-lite",
+            "gemini-2.5-flash",
+            "gemini-flash-lite-latest"
         ];
         
         // Loại bỏ trùng lặp và giữ nguyên thứ tự ưu tiên thử nghiệm
-        const modelsToTry = Array.from(new Set(chain));
+        const modelsToTry = Array.from(new Set(chain.filter(Boolean)));
         
         let lastError = null;
+        let activeKey = options.apiKey || (options.useFallbackKey ? GeminiRotator.getFallbackKey() : GeminiRotator.getNextKey());
+
         for (const modelName of modelsToTry) {
             try {
-                return await action(modelName);
+                return await action(modelName, activeKey);
             } catch (error) {
                 console.error(`[AiService] Mô hình ${modelName} gặp lỗi:`, error.message);
                 lastError = error;
+
+                // Kiểm tra lỗi Rate Limit (429 / Resource has been exhausted / quota)
+                const isRateLimit =
+                    error.message?.includes('429') ||
+                    error.message?.includes('Resource has been exhausted') ||
+                    error.message?.includes('quota') ||
+                    error.message?.includes('RATE_LIMIT_EXCEEDED');
+
+                if (isRateLimit && activeKey) {
+                    GeminiRotator.markKeyRateLimited(activeKey, 60000);
+                    const alternativeKey = GeminiRotator.getFallbackKey(activeKey);
+                    if (alternativeKey && alternativeKey !== activeKey) {
+                        console.warn(`[AiService] Key [${GeminiRotator.getKeyLabel(activeKey)}] bị Rate Limit (429). Xoay tua sang [${GeminiRotator.getKeyLabel(alternativeKey)}]...`);
+                        activeKey = alternativeKey;
+                        // Thử lại ngay lập tức với key xoay tua
+                        try {
+                            return await action(modelName, activeKey);
+                        } catch (retryErr) {
+                            console.error(`[AiService] Thử lại với key xoay tua thất bại:`, retryErr.message);
+                            lastError = retryErr;
+                        }
+                    }
+                }
             }
         }
         throw lastError;
     }
 
     async generateInterpretation(prompt, options = {}, retries = 4) {
-        if (!this.genAI) {
+        if (!this.genAI && GeminiRotator.getKeys().length === 0) {
             throw new Error("Hệ thống chưa được cấu hình API Key của AI.");
         }
 
         try {
-            return await this._executeWithFallback(async (modelName) => {
-                const model = this.genAI.getGenerativeModel({
+            return await this._executeWithFallback(async (modelName, activeKey) => {
+                const client = activeKey ? GeminiRotator.getGenAI(activeKey) : this.genAI;
+                const model = client.getGenerativeModel({
                     model: modelName,
                     generationConfig: {
                         maxOutputTokens: 8192
@@ -110,13 +143,14 @@ class AiService {
     }
 
     async generateInterpretationStream(prompt, options = {}) {
-        if (!this.genAI) {
+        if (!this.genAI && GeminiRotator.getKeys().length === 0) {
             throw new Error("Hệ thống chưa được cấu hình API Key của AI.");
         }
 
         try {
-            return await this._executeWithFallback(async (modelName) => {
-                const model = this.genAI.getGenerativeModel({
+            return await this._executeWithFallback(async (modelName, activeKey) => {
+                const client = activeKey ? GeminiRotator.getGenAI(activeKey) : this.genAI;
+                const model = client.getGenerativeModel({
                     model: modelName,
                     generationConfig: {
                         maxOutputTokens: 8192
@@ -142,10 +176,11 @@ class AiService {
     }
 
     async countTokens(prompt, options = {}) {
-        if (!this.genAI) return 0;
+        const client = this.genAI || (GeminiRotator.getKeys().length > 0 ? GeminiRotator.getGenAI(GeminiRotator.getNextKey()) : null);
+        if (!client) return 0;
         try {
             const modelName = this.getModelName(options);
-            const model = this.genAI.getGenerativeModel({ model: modelName });
+            const model = client.getGenerativeModel({ model: modelName });
             const countResult = await model.countTokens(prompt);
             return countResult.totalTokens || 0;
         } catch (e) {
@@ -156,13 +191,14 @@ class AiService {
     }
 
     async generateStructuredOutput(prompt, schema, options = {}, retries = 2) {
-        if (!this.genAI) {
+        if (!this.genAI && GeminiRotator.getKeys().length === 0) {
             throw new Error("Hệ thống chưa được cấu hình API Key của AI.");
         }
 
         try {
-            return await this._executeWithFallback(async (modelName) => {
-                const model = this.genAI.getGenerativeModel({
+            return await this._executeWithFallback(async (modelName, activeKey) => {
+                const client = activeKey ? GeminiRotator.getGenAI(activeKey) : this.genAI;
+                const model = client.getGenerativeModel({
                     model: modelName,
                     generationConfig: {
                         responseMimeType: "application/json",
@@ -198,3 +234,4 @@ class AiService {
 }
 
 module.exports = new AiService();
+

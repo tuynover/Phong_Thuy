@@ -13,7 +13,7 @@ const SYSTEM_TIER_INFO = {
     ],
     standard: {
       title: 'Luận Giải Cơ Bản',
-      badge: '1 Credit',
+      badge: '100 Points',
       description: 'Bản phân tích cô đọng, nhanh chóng nắm bắt bức tranh tổng quan về nguyên cục và cát hung cốt lõi.',
       bullets: [
         'Khảo sát nguyên cục: Can Chi, Ngũ Hành, Thần Sát cốt lõi',
@@ -24,7 +24,7 @@ const SYSTEM_TIER_INFO = {
     },
     vip: {
       title: 'Luận Giải Chuyên Sâu',
-      badge: '5 Credits',
+      badge: '500 Points',
       description: 'Công trình học thuật toàn diện 5.000+ từ phân tích sâu sắc cả cuộc đời qua 6 Chuyên đề chuyên biệt.',
       bullets: [
         { bold: '6 Chuyên Đề Luận Giải:', text: ' Sự Nghiệp, Tài Vận, Hôn Nhân, Sức Khỏe, Cải Vận, Đại Vận 100 Năm' },
@@ -45,7 +45,7 @@ const SYSTEM_TIER_INFO = {
     ],
     standard: {
       title: 'Luận Giải Cơ Bản 12 Cung',
-      badge: '1 Credit',
+      badge: '100 Points',
       description: 'Phân tích tổng quan 12 cung số, vị trí các chính tinh đắc hãm và cát hung cơ bản của bản mệnh.',
       bullets: [
         'Khảo sát 12 Cung Số: Mệnh, Thân, Tài Bạch, Quan Lộc, Phu Thê...',
@@ -56,7 +56,7 @@ const SYSTEM_TIER_INFO = {
     },
     vip: {
       title: 'Luận Giải Chuyên Sâu',
-      badge: '5 Credits',
+      badge: '500 Points',
       description: 'Công trình học thuật uyên thâm 5.000+ từ kết hợp Tứ Hóa Phi Tinh, Ma Trận Mệnh Bàn SWOT và Lộ Trình Đại Hạn 10 Năm.',
       bullets: [
         { bold: '5 Chương Chuyên Sâu:', text: ' Mệnh Thân Phúc, Quan Tài Điền, Phu Tử, Tật Di, Nô Phụ Huynh' },
@@ -77,7 +77,7 @@ const SYSTEM_TIER_INFO = {
     ],
     standard: {
       title: 'So Hợp Cơ Bản',
-      badge: '1 Credit',
+      badge: '100 Points',
       description: 'Khảo sát tương hợp Can Chi, Ngũ Hành nạp âm và độ hòa hợp sơ khởi giữa hai đương số.',
       bullets: [
         'Đối soát Cung Phi Bát Trạch & Du Niên Bát Quái',
@@ -88,7 +88,7 @@ const SYSTEM_TIER_INFO = {
     },
     vip: {
       title: 'So Hợp Chuyên Sâu',
-      badge: '5 Credits',
+      badge: '500 Points',
       description: 'Nghiên cứu đối chiếu Tứ Trụ chuyên sâu 5.000+ từ, giải mã 4 chương hôn nhân và pháp hóa giải xung khắc triệt để.',
       bullets: [
         { bold: '4 Chương Gia Đạo:', text: ' Cốt cách tâm lý, Tài chính chung, Con cái và Vận trình trăm năm' },
@@ -109,7 +109,7 @@ const SYSTEM_TIER_INFO = {
     ],
     standard: {
       title: 'Luận Quẻ Cơ Bản',
-      badge: '1 Credit',
+      badge: '100 Points',
       description: 'Luận giải Thoán từ, Hào từ và phân tích Động Hào trả lời trực diện cho câu hỏi thắc mắc.',
       bullets: [
         'Xác lập Quẻ Chủ, Quẻ Biến và Hào Động mấu chốt',
@@ -120,7 +120,7 @@ const SYSTEM_TIER_INFO = {
     },
     vip: {
       title: 'Luận Quẻ Chuyên Sâu',
-      badge: '5 Credits',
+      badge: '500 Points',
       description: 'Công trình Dịch học 6 Chương toàn diện 5.000+ từ, đối chiếu Tượng - Hào khách quan và định vị Ứng Kỳ chuẩn xác.',
       bullets: [
         { bold: 'Tượng Pháp & Lục Hào Biện Chứng:', text: ' Khảo cứu bối cảnh thế cuộc và thực lực Dụng Thần vượng suy' },
@@ -147,9 +147,9 @@ const InterpretationTierModal = ({
 
   const currentInfo = SYSTEM_TIER_INFO[system] || SYSTEM_TIER_INFO.bazi;
 
-  // Trường hợp 1: Nâng cấp từ bài Thường lên bài Chuyên Sâu (Modal xác nhận nhanh 4 Credits)
+  // Trường hợp 1: Nâng cấp từ bài Thường lên bài Chuyên Sâu (Modal xác nhận nhanh 400 Points)
   if (isUpgrade) {
-    const cost = 4;
+    const cost = 400;
     const canAfford = isAdmin || userCredits >= cost;
 
     return (
@@ -169,7 +169,7 @@ const InterpretationTierModal = ({
             <div>
               <h3 className="text-lg sm:text-xl font-bold text-slate-900">Nâng Cấp Luận Giải Chuyên Sâu</h3>
               <p className="text-xs text-slate-500 mt-0.5">
-                Phân hệ: <span className="font-semibold text-slate-700">{currentInfo.systemName}</span> | Số dư: <span className="font-semibold text-amber-600">{userCredits} Credits</span>
+                Phân hệ: <span className="font-semibold text-slate-700">{currentInfo.systemName}</span> | Số dư: <span className="font-semibold text-amber-600">{userCredits} Points</span>
               </p>
             </div>
           </div>
@@ -178,7 +178,7 @@ const InterpretationTierModal = ({
             <div className="flex items-center justify-between mb-2.5">
               <span className="text-sm font-bold text-amber-950">{currentInfo.upgradeTitle}</span>
               <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 font-bold border border-amber-300">
-                Chi phí: 4 Credits
+                Chi phí: 400 Points
               </span>
             </div>
             <p className="text-xs text-slate-600 leading-relaxed mb-3.5">
@@ -213,7 +213,7 @@ const InterpretationTierModal = ({
               <div className="w-5 h-5 rounded-lg bg-white/20 flex items-center justify-center shrink-0">
                 <Zap className="w-3.5 h-3.5 fill-current text-amber-100" />
               </div>
-              <span className="tracking-wide">{canAfford ? 'Xác Nhận Nâng Cấp (4 Cr)' : 'Không Đủ Credits'}</span>
+              <span className="tracking-wide">{canAfford ? 'Xác Nhận Nâng Cấp (400 Points)' : 'Không Đủ Points'}</span>
             </button>
           </div>
         </div>
@@ -222,10 +222,10 @@ const InterpretationTierModal = ({
   }
 
   // Trường hợp 2: Khi chưa có luận giải nào -> Hiển thị Modal 2 cột chọn gói
-  const canAffordStandard = isAdmin || userCredits >= 1;
-  const canAffordVip = isAdmin || userCredits >= 5;
+  const canAffordStandard = isAdmin || userCredits >= 100;
+  const canAffordVip = isAdmin || userCredits >= 500;
   const isSelectedVip = selectedTier === 'vip';
-  const selectedCost = isSelectedVip ? 5 : 1;
+  const selectedCost = isSelectedVip ? 500 : 100;
   const canAffordSelected = isSelectedVip ? canAffordVip : canAffordStandard;
 
   return (
@@ -244,7 +244,7 @@ const InterpretationTierModal = ({
             Chọn Gói Luận Giải {currentInfo.systemName}
           </h3>
           <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">
-            Số dư hiện tại của bạn: <span className="font-bold text-amber-600">{userCredits} Credits</span>
+            Số dư hiện tại của bạn: <span className="font-bold text-amber-600">{userCredits} Points</span>
           </p>
         </div>
 
@@ -349,7 +349,7 @@ const InterpretationTierModal = ({
         {/* Footer */}
         <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-3">
           <p className="text-[10px] sm:text-xs text-slate-500 text-center sm:text-left">
-            * Bạn có thể chọn bản cơ bản trước và nâng cấp lên chuyên sâu bất cứ lúc nào (chỉ bù 4 credits chênh lệch).
+            * Bạn có thể chọn bản cơ bản trước và nâng cấp lên chuyên sâu bất cứ lúc nào (chỉ bù 400 points chênh lệch).
           </p>
           <div className="flex items-center gap-2.5 w-full sm:w-auto shrink-0">
             <button
@@ -374,8 +374,8 @@ const InterpretationTierModal = ({
               </div>
               <span className="tracking-wide">
                 {canAffordSelected
-                  ? `Xác Nhận Luận Giải (${selectedCost} Credit${selectedCost > 1 ? 's' : ''})`
-                  : `Không Đủ Credits (Cần ${selectedCost})`}
+                  ? `Xác Nhận Luận Giải (${selectedCost} Points)`
+                  : `Không Đủ Points (Cần ${selectedCost})`}
               </span>
             </button>
           </div>

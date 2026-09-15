@@ -217,7 +217,7 @@ export default function UserApp({ onSwitchToAdmin }) {
       xemngay: "Tra cứu ngày tốt hoàng đạo, chọn ngày đẹp khai trương, động thổ, cưới hỏi, xuất hành theo lịch pháp Âm Dương và Cát Thần.",
       blog: "Tổng hợp bài viết chiêm nghiệm, kiến thức phong thủy cổ học, Kinh Dịch, Bát Tự và hướng dẫn ứng dụng phong thủy trong cuộc sống.",
       history: "Quản lý và tra cứu lịch sử luận giải Kinh Dịch, lá số Bát Tự, Tử Vi Đẩu Số và Hợp Hôn cá nhân.",
-      profile: "Quản lý thông tin tài khoản, kết nối lá số bản thân Bát Tự - Tử Vi và quản lý lượt credit luận giải AI.",
+      profile: "Quản lý thông tin tài khoản, kết nối lá số bản thân Bát Tự - Tử Vi và quản lý điểm (points) luận giải AI.",
       about: "Tìm hiểu về đội ngũ phát triển Phong Thủy Luận Giải AI, sứ mệnh kết hợp trí tuệ nhân tạo và học thuật phương Đông.",
       privacy: "Chính sách bảo mật thông tin người dùng và cam kết an toàn dữ liệu cá nhân tại Phong Thủy Luận Giải.",
       terms: "Điều khoản dịch vụ và quy định sử dụng hệ thống Phong Thủy Luận Giải AI.",

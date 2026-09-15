@@ -43,60 +43,11 @@ const register = async (req, res) => {
   const { email, password, name, day, month, year, hour, minute, gender } = req.body;
   try {
     // Check if user exists
-    let user = await User.findOne({ email });
+    let user = await User.findOne({ email: email.toLowerCase() });
     if (user) {
       if (user.isDeleted) {
-        // Nếu tài khoản bị xóa mềm, cho phép kích hoạt lại bằng thông tin đăng ký mới
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-
-        user.password = hashedPassword;
-        user.name = name;
-        user.gender = gender !== undefined ? parseInt(gender) : 1;
-        user.baziInfo = (day && month && year && hour && minute) ? {
-          day: parseInt(day),
-          month: parseInt(month),
-          year: parseInt(year),
-          hour: parseInt(hour),
-          minute: parseInt(minute)
-        } : undefined;
-        user.isDeleted = false;
-        user.status = 'active';
-        user.credits = 2;
-        user.lockReason = '';
-        user.stats = {
-          ichingCount: 0,
-          baziCount: 0,
-          ziweiCount: 0,
-          marriageCount: 0,
-          ichingTokens: 0,
-          baziTokens: 0,
-          ziweiTokens: 0,
-          marriageTokens: 0,
-          totalTokens: 0,
-          lastUpdated: null
-        };
-
-        await user.save();
-        logger.info(`Kích hoạt lại tài khoản đã bị xóa mềm thành công cho email [${user.email}] (Tên: ${user.name}).`, { user: user.email, action: 'Đăng ký tài khoản' });
-        sseService.sendToAdmins('new_user', { userId: user.id, email: user.email, name: user.name });
-
-        const payload = {
-          user: {
-            id: user.id,
-            tokenVersion: user.tokenVersion || 0
-          },
-        };
-
-        return jwt.sign(
-          payload,
-          process.env.JWT_SECRET,
-          { expiresIn: '7d' },
-          (err, token) => {
-            if (err) throw err;
-            return res.json({ token, user: formatUserResponse(user) });
-          }
-        );
+        logger.warn(`Đăng ký bị từ chối: Tài khoản [${email}] đã bị xóa trước đó. Yêu cầu khôi phục mật khẩu hoặc liên hệ hỗ trợ.`, { user: email, action: 'Đăng ký tài khoản' });
+        return res.status(400).json({ message: 'Tài khoản này đã từng bị xóa hoặc vô hiệu hóa. Vui lòng sử dụng tính năng khôi phục mật khẩu để lấy lại tài khoản hoặc liên hệ quản trị viên.' });
       }
       logger.warn(`Đăng ký thất bại: Tài khoản với email [${email}] đã tồn tại.`, { user: email, action: 'Đăng ký tài khoản' });
       return res.status(400).json({ message: 'User already exists' });
@@ -120,7 +71,7 @@ const register = async (req, res) => {
       } : undefined,
       gender: gender !== undefined ? parseInt(gender) : 1,
       role: 'user',
-      credits: 2,
+      credits: 200,
       status: 'active'
     });
 
@@ -539,7 +490,7 @@ const sendVerificationEmail = async (req, res) => {
           <div style="background-color: #f9f5f0; padding: 15px; border-radius: 6px; text-align: center; margin: 20px 0;">
             <span style="font-size: 28px; font-weight: bold; letter-spacing: 5px; color: #8b5a2b;">${otp}</span>
           </div>
-          <p style="color: #666; font-size: 13px;">Mã OTP này có hiệu lực trong vòng <strong>10 phút</strong>. Sau khi xác thực thành công, tài khoản của bạn sẽ được tặng thêm <strong>+2 lượt sử dụng (credits)</strong>.</p>
+          <p style="color: #666; font-size: 13px;">Mã OTP này có hiệu lực trong vòng <strong>10 phút</strong>. Sau khi xác thực thành công, tài khoản của bạn sẽ được tặng thêm <strong>+200 points</strong>.</p>
           <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
           <p style="font-size: 12px; color: #999; text-align: center;">Đây là email tự động, vui lòng không phản hồi email này.</p>
         </div>
@@ -577,7 +528,7 @@ const verifyEmail = async (req, res) => {
 
     // Xác thực thành công
     user.isEmailVerified = true;
-    user.credits = (user.credits || 0) + 2;
+    user.credits = (user.credits || 0) + 200;
 
     await user.save();
     
@@ -585,10 +536,10 @@ const verifyEmail = async (req, res) => {
     await deleteOtpRedis(`verify_email:${user.id}`);
     await setUserProfileCache(user.id, user);
 
-    logger.info(`Tài khoản [${user.email}] xác thực email thành công và được cộng 2 credits.`, { user: user.email, action: 'Xác thực Email' });
+    logger.info(`Tài khoản [${user.email}] xác thực email thành công và được cộng 200 points.`, { user: user.email, action: 'Xác thực Email' });
 
     res.json({
-      message: 'Xác thực email thành công! Bạn đã được tặng +2 lượt sử dụng.',
+      message: 'Xác thực email thành công! Bạn đã được tặng +200 points.',
       user: {
         id: user.id,
         email: user.email,

@@ -47,7 +47,7 @@ describe('Auth Middleware Unit Tests', () => {
         await authMiddleware(req, res, next);
 
         expect(next).toHaveBeenCalled();
-        expect(req.user).toEqual({ id: 'user-123', tokenVersion: 1 });
+        expect(req.user).toEqual(mockDbUser);
         expect(req.dbUser).toBeDefined();
         expect(req.dbUser._id).toBe('user-123');
     });
@@ -130,7 +130,7 @@ describe('Auth Middleware Unit Tests', () => {
         expect(User.findById).toHaveBeenCalledWith('user-123');
         expect(setUserProfileCache).toHaveBeenCalledWith('user-123', freshDbUser);
         expect(next).toHaveBeenCalled();
-        expect(req.user).toEqual({ id: 'user-123', tokenVersion: 53 });
+        expect(req.user).toEqual(freshDbUser);
         expect(req.dbUser.tokenVersion).toBe(53);
     });
 });

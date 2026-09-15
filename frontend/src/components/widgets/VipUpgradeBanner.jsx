@@ -24,7 +24,7 @@ const VipUpgradeBanner = ({ onUpgradeClick, userCredits = 0, system = 'bazi' }) 
             </span>
           </h4>
           <p className="text-xs text-slate-300">
-            Nâng cấp sang Luận Giải Chuyên Sâu (5.000+ từ) với chi phí 4 Credits.
+            Nâng cấp sang Luận Giải Chuyên Sâu (5.000+ từ) với chi phí 400 Points.
           </p>
         </div>
       </div>

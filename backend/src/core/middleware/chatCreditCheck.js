@@ -66,29 +66,63 @@ module.exports = async (req, res, next) => {
       return res.status(401).json({ error: 'Phiên đăng nhập đã hết hạn hoặc đã đăng xuất.' });
     }
 
+    user.id = user.id || user._id;
+    user._id = user._id || user.id;
+
+    req.creditDecremented = false;
+    req.refundChatCredit = async () => {
+      if (req.creditDecremented && req.dbUser && (req.dbUser._id || req.dbUser.id)) {
+        try {
+          const refundId = req.dbUser._id || req.dbUser.id;
+          const refundedUser = await User.findByIdAndUpdate(
+            refundId,
+            { $inc: { credits: 50 } },
+            { new: true }
+          );
+          if (refundedUser) {
+            await setUserProfileCache(refundId, refundedUser);
+          }
+          req.creditDecremented = false;
+        } catch (e) {
+          console.error('[chatCreditCheck] Refund chat credit error:', e);
+        }
+      }
+    };
+
     // Bypass check for admins and co-admins
     if (user.role === 'admin' || user.role === 'co-admin') {
-      req.user = decoded.user || user;
+      req.user = user;
       req.dbUser = user;
       return next();
     }
 
-    // Atomic check: require at least 0.5 credits
+    // Atomic check: require at least 50 points
     const updatedUser = await User.findOneAndUpdate(
-      { _id: userId, credits: { $gte: 0.5 } },
-      { $inc: { credits: -0.5 } },
+      { _id: userId, credits: { $gte: 50 } },
+      { $inc: { credits: -50 } },
       { new: true }
     );
 
     if (!updatedUser) {
       return res.status(402).json({ 
-        error: 'Số credit của bạn không đủ để tiếp tục trò chuyện (cần tối thiểu 0.5 credit). Vui lòng quay lại vào hôm sau hoặc nạp thêm credit.' 
+        error: 'Số point của bạn không đủ để tiếp tục trò chuyện (cần tối thiểu 50 points). Vui lòng quay lại vào hôm sau hoặc nạp thêm point.' 
       });
     }
 
+    req.creditDecremented = true;
+
+    // Response Interceptor: Auto-refund on error HTTP status >= 400
+    res.on('finish', async () => {
+      if (res.statusCode >= 400 && req.creditDecremented) {
+        await req.refundChatCredit();
+      }
+    });
+
     await setUserProfileCache(userId, updatedUser);
 
-    req.user = decoded.user || updatedUser;
+    updatedUser.id = updatedUser.id || updatedUser._id;
+    updatedUser._id = updatedUser._id || updatedUser.id;
+    req.user = updatedUser;
     req.dbUser = updatedUser;
     next();
   } catch (error) {

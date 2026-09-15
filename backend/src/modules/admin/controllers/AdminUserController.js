@@ -93,11 +93,11 @@ class AdminUserController {
 
       targetUser.role = role;
       
-      // Auto assign 9999 credits for administrative accounts
+      // Auto assign 999900 credits (points) for administrative accounts
       if (role === 'admin' || role === 'co-admin') {
-        targetUser.credits = 9999;
-      } else if (targetUser.credits === 9999) {
-        targetUser.credits = 1; // reset if demoted
+        targetUser.credits = 999900;
+      } else if (targetUser.credits >= 9999) {
+        targetUser.credits = 100; // reset if demoted
       }
 
       await targetUser.save();

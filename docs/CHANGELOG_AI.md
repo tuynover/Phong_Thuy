@@ -2,6 +2,273 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Tái Cấu Trúc Toàn Diện Thành `AiRotator` - Quản Lý & Xoay Tua API Key Đa Nhà Cung Cấp (Gemini, OpenRouter, DeepSeek) (15/09/2026)
+
+### 🌟 1. Mục Tiêu & Kiến Trúc
+- Theo định hướng kiến trúc chuẩn mực (Clean Architecture & DRY), hợp nhất các module xoay tua đơn lẻ (`GeminiRotator` và `OpenRouterRotator`) thành một trung tâm điều phối chìa khóa duy nhất: `AiRotator` (`src/core/ai/AiRotator.js`).
+- Thiết kế lớp tổng quát hóa `ProviderKeyRotator` có thể tái sử dụng trọn vẹn cho bất kỳ nhà cung cấp LLM nào hiện tại và tương lai (Gemini, OpenRouter, DeepSeek, Mistral, OpenAI, Groq...).
+
+### 🛡️ 2. Các Thành Phần Kỹ Thuật
+1. **Lớp Điều Phối Tổng Quát `ProviderKeyRotator`:**
+   - **Dynamic Discovery:** Quét tự động danh sách chuỗi (vd `OPENROUTER_API_KEYS`, `GEMINI_API_KEYS`) và các biến riêng lẻ `PREFIX`, `PREFIX_2`, `PREFIX_3`, `PREFIX_*`.
+   - **Per-request Rotation:** Xoay tua nguyên tử theo vòng tròn Round-Robin.
+   - **Circuit Breaker Đa Cấp:** Hỗ trợ cả cách ly rate limit 429 (`markKeyRateLimited`) và ngắt mạch cạn số dư 402 (`markCreditExhausted`).
+   - **Fallback Handover:** Bàn giao tức thời sang key khác khi key hiện tại gặp lỗi.
+   - **Singleton Client Cache:** Cache client instance (`GoogleGenerativeAI`, v.v.) an toàn bộ nhớ.
+2. **Trung Tâm `AiRotator`:**
+   - Cung cấp sẵn các instance: `AiRotator.gemini`, `AiRotator.openrouter`, `AiRotator.deepseek`.
+   - Cung cấp Factory method `AiRotator.for('gemini' | 'openrouter' | 'deepseek')`.
+3. **Tương Thích Ngược Tuyệt Đối (Zero Breaking Changes):**
+   - File `src/core/ai/GeminiRotator.js` re-export `AiRotator.gemini`.
+   - `DeepInterpretationCore.js` export `{ AiRotator, OpenRouterRotator, GeminiRotator }` với `OpenRouterRotator` trỏ thẳng tới `AiRotator.openrouter`.
+   - `AiService.js` sử dụng `AiRotator` trực tiếp.
+
+### 🧪 3. Kết Quả Kiểm Thử Toàn Diện
+1. **Unit Tests:**
+   - `tests/services/AiRotator.test.js`: **8/8 PASSED**.
+   - `tests/services/GeminiRotator.test.js`: **8/8 PASSED**.
+   - Tổng cộng: **16/16 Unit Tests PASSED 100%**.
+2. **Kiểm Thử Tích Hợp Luận Giải Standard (`test_interpretation_all3.js`):**
+   - Bát Tự Standard: Hoàn tất trong **9.6s** (7,097 ký tự).
+   - Kinh Dịch Standard: Hoàn tất trong **8.6s** (5,476 ký tự).
+   - Hôn Nhân Standard: Hoàn tất trong **11.1s** (8,253 ký tự).
+   - **100% thành công không lỗi.**
+
+---
+
+## 📅 Phiên bản: Kiến Trúc Xoay Tua API Key Gemini Theo Request (Per-Request Dynamic Round-Robin Rotator) & Circuit Breaker (15/09/2026)
+
+### 🌟 1. Mục Tiêu & Yêu Cầu Người Dùng
+- Người dùng đã cấu hình thêm 2 API Key Gemini (nâng tổng số lên 3 Gemini API keys).
+- Yêu cầu: Triển khai cơ chế xoay tua tự động (Round-Robin), cứ mỗi 1 request tới 1 API key là lập tức đổi sang key kế tiếp ngay để dàn đều tải, không bị nghẽn và nhân băng thông xử lý.
+- Phân tích chi tiết rủi ro, giải pháp kỹ thuật trước khi triển khai và kiểm thử tự động toàn diện.
+
+### 🔍 2. Phân Tích Kỹ Thuật Trước Triển Khai
+1. **Lợi ích:**
+   - **Nhân 3 lần RPM (Requests Per Minute):** Nâng từ 15 RPM lên 45 RPM (Free Tier) hoặc từ 1,000 lên 3,000 RPM (Pay-as-you-go).
+   - **Nhân 3 lần RPD (Requests Per Day):** Nâng từ 1,500 RPD lên 4,500 RPD.
+   - **Tăng tốc xử lý song song (Concurrency Scale):** Các pipeline VIP bắn đồng thời 6 replicas + CoT + Chief Editor hoàn toàn không lo chạm trần rate limit.
+2. **Rủi ro & Giải pháp Phòng Ngừa:**
+   - *Rủi ro Trap Key Chết (Exhausted Key):* Nếu 1 key hết quota mà thuật toán vẫn xoay tua vào đó, cứ mỗi 3 request sẽ có 1 request bị lỗi. ➡️ **Giải pháp:** Xây dựng **Circuit Breaker per-key** với thời gian hồi sức `cooldownMs = 60s`. Key nào dính lỗi 429 / Resource Exhausted sẽ lập tức bị cách ly tạm thời, tự động nhảy cóc sang key khỏe mạnh kế tiếp.
+   - *Rủi ro Trùng Client Instance & Memory Leak:* Tạo `new GoogleGenAI(key)` liên tục sẽ gây tràn RAM. ➡️ **Giải pháp:** Thiết kế **Singleton Cache Map** (`genAiClients = new Map()`), mỗi API key chỉ khởi tạo đúng 1 instance GoogleGenAI duy nhất dùng trọn đời.
+   - *Rủi ro Bàn Giao Thất Bại (Fallback Handover):* Nếu key đang dùng trong replica bị 429 giữa chừng. ➡️ **Giải pháp:** Hàm `getFallbackKey(excludeKey)` tự động tìm ngay 1 key khác ngoài key bị lỗi để chuyển tiếp tức thì mà không gián đoạn luồng stream.
+
+### 🛡️ 3. Các Thành Phần Kỹ Thuật Đã Triển Khai
+1. **Module Điều Phối Động `GeminiRotator` (`backend/src/core/ai/GeminiRotator.js`):**
+   - Tự động nhận diện không giới hạn các khóa từ môi trường: `GEMINI_API_KEYS` (danh sách cách nhau bởi dấu phẩy), `GEMINI_API_KEY`, `GEMINI_API_KEY_2`, `GEMINI_API_KEY_3`,..., `GEMINI_API_KEY_*`.
+   - Thuật toán `getNextKey()`: Xoay tua nguyên tử theo từng request (`currentIndex = (currentIndex + 1) % keys.length`). Bỏ qua tự động các key đang bị Circuit Breaker rate limit.
+   - Hàm `markKeyRateLimited(key, durationMs)` & `isKeyRateLimited(key)`: Cách ly key lỗi 429 trong 60 giây.
+   - Hàm `getGenAI(key)`: Quản lý Singleton instance tối ưu bộ nhớ RAM.
+2. **Tích Hợp Vào Lớp Dịch Vụ AI Cốt Lõi (`AiService.js`):**
+   - Áp dụng `GeminiRotator` cho: `_executeWithFallback`, `generateInterpretation`, `generateInterpretationStream` (SSE), `countTokens`, `generateStructuredOutput`.
+   - Tự động bắt lỗi `RESOURCE_EXHAUSTED` / 429 để mark rate limit và retry với key kế tiếp ngay lập tức.
+3. **Tích Hợp Vào Lớp Pipeline Đa Tác Nhân VIP (`DeepInterpretationCore.js` & `DeepInterpretationPipelines.js`):**
+   - Hàm `callGeminiWithKey`: Mặc định tự động lấy `GeminiRotator.getNextKey()` cho mọi request nếu không truyền key tĩnh. Khi gặp lỗi 429, tự động lấy `getFallbackKey` để thử lại.
+   - Bát Tự, Tử Vi, Hôn Nhân, Kinh Dịch: Cả 3 tầng (Tầng 1 Dual CoT, Tầng 2 Replicas, Tầng 3 Chief Editor) đều lấy key qua `GeminiRotator.getNextKey()`. Khi fallback từ OpenRouter sang Gemini cũng lấy key qua `GeminiRotator.getFallbackKey()`.
+
+### 🧪 4. Kết Quả Kiểm Thử Toàn Diện
+1. **Unit Tests (`GeminiRotator.test.js`):**
+   - **8/8 test cases ĐẠT 100%**:
+     - Dynamic key discovery từ các biến môi trường khác nhau.
+     - Xoay tua Round-Robin chuẩn xác (Key 1 -> Key 2 -> Key 3 -> Key 1...).
+     - Bỏ qua key bị rate limit (Circuit Breaker).
+     - Hồi sinh key sau khi hết thời gian cooldown.
+     - Hàm fallback handover không trả về key bị loại trừ.
+     - Singleton caching cho `GoogleGenAI` instance.
+2. **Kiểm Thử Tích Hợp Luận Giải Chuẩn (Standard Mode - `test_interpretation_all3.js`):**
+   - Bát Tự Standard: Hoàn thành trong **10.1s** (7,949 ký tự).
+   - Kinh Dịch Standard: Hoàn thành trong **6.7s** (5,214 ký tự).
+   - Hôn Nhân Standard: Hoàn thành trong **9.0s** (6,766 ký tự).
+   - 100% các request xoay tua nhịp nhàng qua 3 Gemini keys.
+3. **Kiểm Thử Tích Hợp Luận Giải Chuyên Sâu Đa Luồng (VIP Mode - `test_interpretation_vip.js`):**
+   - Bát Tự VIP: 6 chương + Chief Editor hoàn tất trong **32.6s** (33,857 ký tự).
+   - Hôn Nhân VIP: 4 chương + Chief Editor hoàn tất trong **30.7s** (22,408 ký tự).
+   - Kinh Dịch VIP: 6 chương + Chief Editor hoàn tất trong **33.5s** (32,653 ký tự).
+   - **Tất cả các pipeline VIP hoàn thành 100% không gặp bất kỳ lỗi 429 hay ngắt kết nối nào.**
+
+---
+
+## 📅 Phiên bản: Kiến Trúc Phân Tầng Hybrid 3-Tier (Tầng 1 Dual CoT có Gemini, Tầng 2 Xoay Tua, Tầng 3 Gemini Tối Cao) (15/09/2026)
+
+### 🌟 1. Mục Tiêu & Yêu Cầu Người Dùng
+Triển khai nguyên tắc phân tầng chặt chẽ cho toàn bộ các pipeline luận giải chuyên sâu (Bát Tự, Tử Vi, Hôn Nhân, Kinh Dịch):
+- **Tầng 1 (Tiền Phân Tích / CoT):** Luôn luôn có **1 luồng Google Gemini SDK** chạy song song cùng **1 luồng OpenRouter Free** (`nvidia/nemotron-3.5-lightning:free` -> fallback `openrouter/free`).
+- **Tầng 2 (Các Chương Chuyên Sâu / Replicas):** Luân phiên xoay tua 50/50 đan xen (Round-Robin) giữa OpenRouter Free và Google Gemini SDK.
+- **Tầng 3 (Tổng Biên Tập / Chief Editor & Hài Hòa Hóa):** Luôn luôn là **Google Gemini SDK** trực tiếp (`gemini-3.1-flash-lite`, fallback `gemini-2.5-flash-lite`) với ngữ cảnh 1M tokens để tổng hợp SWOT và Đạo Dịch Chỉ Nam.
+
+### 🔍 2. Phân Tích Hiện Trạng & Khám Phá Kỹ Thuật
+1. **Khảo sát Trực tiếp OpenRouter API (Live Verification):**
+   - Các ID mô hình cũ như `qwen/qwen-plus`, `qwen/qwen-2.5-72b-instruct` là các mô hình tính phí theo token, tài khoản cạn số dư sẽ lập tức bị chặn với mã `HTTP 402 Payment Required`.
+   - Một số ID miễn phí cũ như `qwen/qwen-2.5-72b-instruct:free` hay `meta-llama/llama-3.3-70b-instruct:free` đã bị OpenRouter đóng bản free và chuyển sang trả phí (trả về mã 404).
+   - Kiểm tra trực tiếp API OpenRouter xác nhận mô hình `nvidia/nemotron-3.5-lightning:free` (1.000.000 context tokens) và bộ định tuyến thông minh `openrouter/free` đang hoạt động ổn định và thành công 100% với tài khoản của người dùng.
+
+### 🛡️ 3. Các Cải Tiến Triển Khai Trong Mã Nguồn
+1. **Kiến Trúc Tầng 1 (Dual CoT song song):**
+   - Nâng cấp đồng bộ cả 4 pipeline (Bát Tự, Tử Vi, Hôn Nhân, Kinh Dịch) trong [`DeepInterpretationPipelines.js`](file:///t:/Phongthuy/backend/src/modules/bazi/services/deep-interpretation/DeepInterpretationPipelines.js) chạy song song 1 CoT từ Gemini SDK (`gemini-3.1-flash-lite`) và 1 CoT từ OpenRouter Free. Hai dòng suy luận bổ trợ và hoàn thiện lẫn nhau.
+2. **Kiến Trúc Tầng 2 (Xoay tua 50/50 đan xen):**
+   - Cập nhật [`DeepInterpretationConfigs.js`](file:///t:/Phongthuy/backend/src/modules/bazi/services/deep-interpretation/DeepInterpretationConfigs.js):
+     - *Bát Tự (6 replicas):* Ch1 (OpenRouter), Ch2 (Gemini), Ch3 (OpenRouter), Ch4 (Gemini), Ch5 (OpenRouter), Ch6 (Gemini).
+     - *Tử Vi (5 cụm cung):* Cụm 1 (OpenRouter), Cụm 2 (Gemini), Cụm 3 (OpenRouter), Cụm 4 (Gemini), Cụm 5 (OpenRouter).
+     - *Hôn Nhân (4 trụ cột):* Trụ 1 (OpenRouter), Trụ 2 (Gemini), Trụ 3 (OpenRouter), Trụ 4 (Gemini).
+     - *Kinh Dịch (6 chương):* Ch1 (OpenRouter), Ch2 (Gemini), Ch3 (OpenRouter), Ch4 (Gemini), Ch5 (OpenRouter), Ch6 (Gemini).
+3. **Kiến Trúc Tầng 3 (Chief Editor Gemini Tối Cao):**
+   - 100% các phân hệ chuyển giao bản thảo cho Google Gemini SDK ở tầng cuối cùng để loại bỏ mâu thuẫn học thuật, lập ma trận SWOT và định hướng cải vận với năng lực xử lý 1.000.000 tokens.
+4. **Cơ Chế Cascading Fallback & Fast-Fail An Toàn (`DeepInterpretationCore.js`):**
+   - Khi OpenRouter gặp mã 400 (Invalid ID) hoặc 404 (Model Không Tồn Tại), hệ thống Fast-Fail dừng retry lãng phí, chuyển ngay sang `openrouter/free` trong ~2 giây.
+   - Khi gặp 402 hoặc cạn số dư, kích hoạt Circuit Breaker ngắt mạch 15 phút, fallback ngay lập tức sang Gemini SDK truyền đúng `process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite'`.
+
+---
+
+## 📅 Phiên bản: Khắc Phục Triệt Để Sự Cố Luận Giải AI 3 Phân Hệ (Kinh Dịch, Bát Tự, Hôn Nhân) & Thiết Lập Chuỗi Đa Mô Hình Fallback Bền Vững (15/09/2026)
+
+### 🌟 1. Mục Tiêu & Bối Cảnh
+Người dùng báo cáo sự cố luận giải AI bị lỗi hàng loạt trên cả 3 phân hệ: **Bát Tự, Kinh Dịch và Hôn Nhân** với thông báo: `[Lỗi tạo bài Chuyên Sâu: Tính năng luận giải AI đang bảo trì, quý khách vui lòng thử lại sau.]`. Nhiệm vụ là truy tìm nguyên nhân gốc rễ, triệt tiêu lỗi tận gốc và bảo đảm tính ổn định 100% cho cả chế độ Cơ bản (Standard) và Chuyên sâu (VIP) trên toàn hệ thống.
+
+### 🔍 2. Nguyên Nhân Gốc Rễ Đã Xác Định
+1. **Tài Khoản OpenRouter & DeepSeek Hết Hạn Mức:**
+   - Các API Key OpenRouter (`OPENROUTER_API_KEY`, `OPENROUTER_API_KEY_2`) và DeepSeek cạn số dư (~$0.19 balance), khi request với context lớn (32k tokens) đều trả về lỗi HTTP 402 (`Payment Required: This request requires more credits, or fewer max_tokens`).
+   - Bộ xoay vòng `OpenRouterRotator` thiếu cơ chế Circuit Breaker, dẫn đến việc lặp đi lặp lại các lần thử vô ích làm kéo dài thời gian chờ 15-20 giây trước khi chuyển sang fallback.
+2. **Nút Thắt Fallback Cứng Vào Mô Hình Quá Tải `gemini-3.1-flash-lite`:**
+   - Khi OpenRouter thất bại, các pipeline luận giải chuyển sang gọi Google Gemini với mô hình cố định duy nhất là `gemini-3.1-flash-lite`.
+   - Mô hình `gemini-3.1-flash-lite` từ Google API liên tục gặp tình trạng nghẽn tải cục bộ và trả về mã lỗi `HTTP 503 Service Unavailable` (*"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later."*).
+   - Vì không có mô hình thay thế trong chuỗi fallback, `AiService` và `DeepInterpretationPipelines` cạn kiệt số lần retry và ném ra biệt lệ "Tính năng luận giải AI đang bảo trì".
+
+### 🛡️ 3. Các Giải Pháp Kỹ Thuật Đã Triển Khai
+
+1. **Cơ Chế Circuit Breaker Cho OpenRouter (`DeepInterpretationCore.js`):**
+   - Bổ sung `creditExhaustedUntil`, `isCreditExhausted()`, `markCreditExhausted()` vào `OpenRouterRotator`.
+   - Khi OpenRouter trả về mã 402 hoặc lỗi cạn kiệt credit, hệ thống kích hoạt ngắt mạch trong 15 phút, bỏ qua OpenRouter ngay lập tức cho các request tiếp theo để chuyển thẳng sang Gemini SDK chính thức, giảm độ trễ từ 20s xuống < 1s.
+
+2. **Chuỗi Đa Mô Hình Fallback Động với `gemini-3.1-flash-lite` là Default Ưu Tiên:**
+   - **Trong `DeepInterpretationCore.js` (`LlmProviderService.callGeminiWithKey`):**
+     Tích hợp chuỗi thử nghiệm đa tầng lấy `gemini-3.1-flash-lite` làm mặc định: `[modelName, process.env.GEMINI_MODEL, 'gemini-3.1-flash-lite', 'gemini-2.5-flash-lite', 'gemini-2.5-flash', 'gemini-flash-lite-latest']`.
+   - **Trong `AiService.js` (`_executeWithFallback`):**
+     Đồng bộ chuỗi fallback tương tự với `gemini-3.1-flash-lite` là mặc định cho toàn bộ các tác vụ sinh văn bản và stream SSE chuẩn.
+   - Khi `gemini-3.1-flash-lite` gặp quá tải (503/429/high demand), hệ thống tự động trượt êm sang `gemini-2.5-flash-lite` và `gemini-2.5-flash` ngay lập tức để bảo đảm 100% không bao giờ gián đoạn.
+
+3. **Chuẩn Hóa Cấu Hình Mô Hình:**
+   - `backend/.env`: Cập nhật `GEMINI_MODEL=gemini-3.1-flash-lite`.
+   - `backend/src/core/config/ai.js`: `ACTIVE_MODEL: process.env.GEMINI_MODEL || "gemini-3.1-flash-lite"`.
+   - `DeepInterpretationConfigs.js`: Cập nhật toàn bộ mô hình mặc định của các replicas trong Bát Tự, Tử Vi, Hợp Hôn, Kinh Dịch sang `process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite'`.
+   - `DeepInterpretationPipelines.js`: Cập nhật 100% các lệnh gọi sang `process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite'`.
+
+4. **Kỹ Thuật Giãn Cách Khởi Tạo Replicas Đa Luồng (Stagger Delay):**
+   - Trước đây các replicas bắn đồng thời tại `t = 0ms`, gây hiện tượng thundering herd và dễ chạm rate limit concurrent của Gemini.
+   - Bổ sung cơ chế giãn cách `idx * 250ms` giữa các replicas trong `BaziDeepPipeline`, `ZiweiDeepPipeline`, `MarriageDeepPipeline`, và `IChingDeepPipeline`, đảm bảo các luồng phân tích khởi tạo mượt mà, phân bổ đều tải mạng.
+
+### 🧪 4. Kết Quả Kiểm Thử & Nghiệm Thu Toàn Diện
+
+1. **Kiểm thử Tích hợp Tự động (Automated Integration Tests):**
+   - **Chế độ Cơ Bản (Standard Mode - `test_interpretation_all3.js`):**
+     - Bát Tự: Hoàn tất trong **9.0s**, đạt **6,766 ký tự** stream mượt mà.
+     - Kinh Dịch: Hoàn tất trong **7.4s**, đạt **5,545 ký tự** stream mượt mà.
+     - Hôn Nhân: Hoàn tất trong **10.1s**, đạt **7,369 ký tự** stream mượt mà.
+   - **Chế độ Chuyên Sâu (VIP Mode - `test_interpretation_vip.js`):**
+     - Bát Tự VIP: 6 chương + Chief Editor hoàn tất trong **36.1s**, đạt **31,292 ký tự**.
+     - Hôn Nhân VIP: 4 chương + Chief Editor hoàn tất trong **39.8s**, đạt **21,568 ký tự**.
+     - Kinh Dịch VIP: 6 chương + Chief Editor hoàn tất trong **39.9s**, đạt **32,766 ký tự**.
+   - Tất cả đều không còn bất kỳ thông báo lỗi bảo trì hay lỗi timeout nào.
+
+2. **Kiểm thử Trình duyệt Trực tiếp (Chrome DevTools Test):**
+   - Trực tiếp thao tác trên `http://localhost:5174/bazi`: Lập lá số Bát Tự, bấm "Thầy Luận Giải Bát Tự", chọn gói 100 Points -> Luận giải stream về giao diện theo thời gian thực chuẩn đẹp.
+   - Trực tiếp thao tác trên `http://localhost:5174/iching`: Gieo quẻ Mai Hoa Lục Hào, kích hoạt luận giải chuyên sâu 500 Points -> Tiến trình 6 chương cập nhật trực quan thời gian thực, stream toàn văn báo cáo phân tích, các nút TTS và Hỏi thêm hoạt động hoàn hảo.
+   - Console log trình duyệt: **0 errors**.
+
+---
+
+## 📅 Phiên bản: Chuyển Đổi Hệ Tiền Tệ Hệ Thống - 1 Credit Thành 100 Points Toàn Diện (14/09/2026)
+
+### 🌟 1. Mục Tiêu & Bối Cảnh
+Theo yêu cầu hệ thống, chuyển đổi toàn bộ đơn vị tiền tệ từ Credit sang **Point** theo tỷ lệ **1 Credit = 100 Points** (và 0.5 Credit chat = 50 Points) trên toàn bộ hệ thống (Backend, Database MongoDB Atlas, Frontend UI, API tests và tài liệu nghiệp vụ). Việc chuyển sang số nguyên 100/500/50 giúp triệt tiêu hoàn toàn lỗi làm tròn số thực (floating-point imprecision) khi trừ 0.5 credit bằng `$inc` trong MongoDB.
+
+### 🛡️ 2. Các Thay Đổi Cốt Lõi Đã Thực Hiện
+
+1. **Mô Hình Dữ Liệu & Khởi Tạo Tài Khoản:**
+   - `User.js`: Cập nhật `credits.default` từ 2 thành 200 points.
+   - `AuthController.js`: Đăng ký mới mặc định 200 points; xác thực email OTP thành công tặng thưởng +200 points (thay vì +2 credits); cập nhật nội dung email template.
+   - `AdminUserController.js`: Tự động nâng cấp tài khoản Admin gán 999,900 points; hạ cấp tài khoản reset về 100 points.
+
+2. **Middleware Kiểm Soát Chi Phí Học Thuật & Chat:**
+   - `creditCheck.js`: 
+     - Luận giải cơ bản (`standard`): 100 points.
+     - Luận giải chuyên sâu VIP (`vip`): 500 points.
+     - Nâng cấp từ cơ bản lên VIP (`upgrade`): 400 points.
+     - Thao tác trừ nguyên tử `{ $gte: cost }, { $inc: -cost }` và tự động hoàn trả `refundCredit()` theo đúng số points tương ứng.
+   - `chatCreditCheck.js`: Chi phí mỗi tin nhắn chat follow-up chuyển thành 50 points (số nguyên sạch, loại bỏ số thập phân 0.5). Cơ chế hoàn trả `refundChatCredit()` hoàn lại 50 points khi gặp lỗi.
+
+3. **Migration Toàn Bộ Dữ Liệu MongoDB Atlas:**
+   - Xây dựng và thực thi script di chuyển `backend/scripts/migrateCreditsToPoints.js` nhân 100 toàn bộ trường `credits` của người dùng hiện có trên MongoDB Atlas (`admin@admin.com`: 999,900 points, `bc@gmail.com`: 6,250 points...).
+
+4. **Giao Diện Người Dùng (Frontend UI):**
+   - `InterpretationTierModal.jsx`: Cập nhật toàn bộ các phân hệ Bát Tự, Tử Vi, Hợp Hôn, Kinh Dịch sang '100 Points' / '500 Points', modal nâng cấp '400 Points', thông báo chi phí và nút xác nhận 'Xác Nhận Luận Giải (${cost} Points)'.
+   - `VipUpgradeBanner.jsx`: Hiển thị chi phí nâng cấp 400 Points.
+   - `useInterpretationStream.js`, `BaziBoard.jsx`, `ZiweiBoard.jsx`, `IChingBoard.jsx`, `MarriageBoard.jsx`: Khấu trừ lạc quan cục bộ đồng bộ 100 / 400 / 500 points.
+   - `AiChatWidget.jsx`: Khấu trừ lạc quan 50 points cho mỗi lượt chat.
+   - `Header.jsx` & `ProfileBoard.jsx`: Hiển thị số dư Points/Xu chuẩn xác (`Points`, `+200🪙`).
+   - `AdminUsersTab.jsx` & `AdminUserStatsModal.jsx`: Bảng thành viên đổi cột thành `Points (Xu)`, modal điều chỉnh credit cập nhật các phím tắt nhanh `[50, 100, 200, 500, 1000, 5000, 10000, 999900]` và nhãn Points.
+
+5. **Kiểm Thử & Nghiệm Thu:**
+   - `tests/middleware/creditCheck.test.js`: Viết mới bộ test toàn diện cho hệ thống points (Standard 100, VIP 500, Insufficient 402, Chat 50 decrement & refund). Đạt 5/5 tests PASS.
+   - Chạy 4 bộ test suites liên quan (`Phase1SecurityBilling`, `AdminController`, `SecurityCompliance`, `AuthController`): Đạt 16/16 tests PASS.
+   - Kiểm tra cú pháp `node --check` 100% tệp Backend thành công.
+   - Build frontend `vite build` thành công trong 2.58s không lỗi.
+   - Kiểm thử thực tế trên Chrome DevTools (`chrome-devtools-mcp`): Test giao diện AdminApp, Users Tab, modal điều chỉnh Points, giao diện UserApp, Profile Board và modal chọn gói luận giải Bát Tự (100 / 500 Points) có chụp ảnh màn hình lưu vết.
+
+---
+
+## 📅 Phiên bản: Hoàn Thành Giai Đoạn 1 - Vá Lỗ Hổng Bảo Mật Khẩn Cấp & Tối Ưu Quản Trị Credit AI (14/09/2026)
+
+### 🌟 1. Mục Tiêu & Bối Cảnh
+Sau đợt kiểm toán mã nguồn toàn diện dự án hướng tới tiêu chuẩn Production, hệ thống đã phát hiện một số lỗ hổng bảo mật cấp cao (IDOR, SSRF, Account Takeover) và khiếm khuyết trong luồng trừ/hoàn credit của AI stream. Giai đoạn 1 tập trung giải quyết triệt để các rủi ro này.
+
+### 🛡️ 2. Các Thay Đổi Cốt Lõi Đã Thực Hiện
+
+1. **Vá Lỗ Hổng IDOR Trong Liên Kết Bản Ghi (`PUT /:id/link`):**
+   - **Tệp sửa đổi:** `IChingHistoryController.js`, `BaziHistoryController.js`, `ZiweiHistoryController.js`, các tệp router tương ứng (`iching.routes.js`, `bazi.routes.js`, `ziwei.routes.js`, `history.routes.js`).
+   - **Cơ chế:**
+     - Bắt buộc đi qua middleware xác thực `auth`.
+     - Lấy danh tính người dùng độc quyền từ `req.dbUser._id`, loại bỏ hoàn toàn việc đọc `req.body.userId` từ client.
+     - Chặn tuyệt đối hành vi gán bản ghi của người khác sang tài khoản của mình (trả về 403 Forbidden).
+
+2. **Chặn Đứng SSRF & HTML Injection Trong Puppeteer PDF Export:**
+   - **Tệp sửa đổi:** `templateUtils.js`, `PdfGeneratorService.js`.
+   - **Cơ chế:**
+     - Tạo và áp dụng hàm `escapeHtml()` cho toàn bộ các trường dữ liệu động (`safeClientName`, `safeDateStr`, `safeLunarStr`, `safeTitle`, `extraInfo`, `activeSeal`).
+     - Tích hợp bộ chặn URL mạng trong Puppeteer request interception: Chặn mọi yêu cầu trỏ tới `localhost`, `127.0.0.1`, `::1`, link Cloud Metadata (`169.254.169.254`), dải mạng nội bộ RFC 1918 (`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`) và giao thức tệp `file:`.
+
+3. **Cơ Chế Tự Động Hoàn Trả Credit Khi Luồng SSE Stream Bị Ngắt / Lỗi:**
+   - **Tệp sửa đổi:** `IChingAiController.js`, `BaziAiController.js`, `ZiweiAiController.js`, `MarriageAiController.js`.
+   - **Cơ chế:**
+     - Bổ sung cờ `isCompleted = false` ngay khi khởi tạo SSE stream.
+     - Lắng nghe sự kiện ngắt kết nối của client `req.on('close')`: Nếu client đóng tab hoặc ngắt kết nối trước khi stream hoàn tất (`!isCompleted`), tự động hoàn trả credit (`req.refundCredit()`).
+     - Bắt lỗi trong khối `catch (error)` và tự động kích hoạt hoàn trả credit nếu AI sinh phản hồi thất bại.
+
+4. **Tách Biệt Kiểm Tra Chat & Tự Động Hoàn Trả Credit Chat (`chatRateLimiter.js`):**
+   - **Tệp tạo mới:** `backend/src/core/middleware/chatRateLimiter.js`.
+   - **Tệp sửa đổi:** `chatCreditCheck.js`, `iching.routes.js`, `bazi.routes.js`, `ziwei.routes.js`, `marriage.routes.js`, `routes/ai.js`, và 4 controllers chat (`IChingAiController`, `BaziAiController`, `ZiweiAiController`, `MarriageAiController`).
+   - **Cơ chế:**
+     - Di chuyển logic kiểm tra câu hỏi rỗng, câu hỏi lệch đề (`isDivinationRelated`), cooldown 10 giây và hạn mức 10 câu hỏi/giờ vào middleware `chatRateLimiter.js` chạy **TRƯỚC** khi trừ credit.
+     - Trong `chatCreditCheck.js`, bổ sung `req.refundChatCredit()` nguyên tử và hook `res.on('finish')` tự động hoàn tiền khi `statusCode >= 400`.
+     - Trong các controller chat, tích hợp `req.on('close')` và khối `catch` để hoàn credit chat nếu luồng stream bị gián đoạn.
+
+5. **Chống Chiếm Đoạt Tài Khoản Bị Xóa Mềm (Soft-deleted Account Takeover):**
+   - **Tệp sửa đổi:** `AuthController.js` (`register`).
+   - **Cơ chế:**
+     - Từ chối đăng ký mới nếu email thuộc về một tài khoản đã bị xóa mềm (`isDeleted: true`).
+     - Yêu cầu người dùng sử dụng luồng OTP Khôi phục mật khẩu hoặc liên hệ Quản trị viên để mở lại tài khoản, ngăn chặn kẻ tấn công tự ý chiếm đoạt dữ liệu lịch sử của tài khoản cũ.
+
+6. **Chống Giả Mạo IP (IP Spoofing) & Đảm Bảo TTL Bền Vững Trong Rate Limiter:**
+   - **Tệp sửa đổi:** `rateLimiter.js`.
+   - **Cơ chế:**
+     - Chuyển sang sử dụng `req.ip` đã được Express xác thực qua cấu hình `trust proxy` thay vì đọc trực tiếp header `x-forwarded-for`.
+     - Tự động đặt lại TTL khi key chưa có TTL (`ttlMs < 0`), ngăn ngừa rò rỉ khóa vĩnh viễn trên Redis.
+
+7. **Chuẩn Hóa Đối Tượng Xác Thực (`req.user` = `dbUser`):**
+   - **Tệp sửa đổi:** `auth.js`, `optionalAuth.js`, `tests/middleware/auth.test.js`.
+   - **Cơ chế:** Đồng bộ `req.user` mang đầy đủ thông tin người dùng (`role`, `credits`, `status`, `name`...) thay vì chỉ chứa payload JWT tối giản.
+
+---
+
 ## 📅 Phiên bản: Khắc Phục Triệt Để Lỗi Đăng Nhập Trên Production - Cơ Chế Tự Phục Hồi Bộ Nhớ Đệm (Self-Healing Cache) & Đồng Bộ Toàn Diện tokenVersion (14/09/2026)
 
 ### 🌟 1. Yêu Cầu & Bối Cảnh Lỗi Production

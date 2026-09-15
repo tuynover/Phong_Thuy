@@ -39,6 +39,13 @@ class IChingAiController {
 
             sse = AiStreamHelper.initSseSession(req, res);
 
+            let isCompleted = false;
+            req.on('close', async () => {
+                if (!isCompleted && req.refundCredit) {
+                    try { await req.refundCredit(); } catch (e) {}
+                }
+            });
+
             const isVipMode = req.body?.mode === 'vip' || req.query?.mode === 'vip';
             const hasValidCache = 
                 record.aiInterpretation &&
@@ -46,6 +53,7 @@ class IChingAiController {
                 (isVipMode ? record.aiInterpretation.mode === 'vip' : true);
 
             if (hasValidCache) {
+                isCompleted = true;
                 if (req.refundCredit) await req.refundCredit();
                 sse.sendSSE({ chunk: record.aiInterpretation.content });
                 sse.sendDone();
@@ -107,7 +115,10 @@ class IChingAiController {
                 }
             }
 
-            if (!sse.isOpen()) return res.end();
+            if (!sse.isOpen()) {
+                if (!isCompleted && req.refundCredit) await req.refundCredit();
+                return res.end();
+            }
 
             const { cleanedText: textWithoutUngKyTags, ungKyList } = parseUngKyBlock(accumulatedText, record.dateCast || new Date());
             const cleanedContent = AiService.cleanMarkdown(textWithoutUngKyTags);
@@ -129,12 +140,17 @@ class IChingAiController {
                 isGeneratingInterpretation: false
             });
 
+            isCompleted = true;
+
             AiStreamHelper.recordInterpretTokens(record.userId, 'iching', tokensUsed);
 
             sse.sendDone();
 
         } catch (error) {
             console.error("Hexagram Interpret SSE Error:", error);
+            if (req.refundCredit) {
+                try { await req.refundCredit(); } catch (refErr) { console.error("Refund credit failed:", refErr); }
+            }
             if (sse) sse.sendError(error.message || 'Lỗi xảy ra trong quá trình sinh luận giải AI.');
             else res.status(500).json({ error: error.message || 'Lỗi hệ thống' });
         } finally {
@@ -193,6 +209,13 @@ class IChingAiController {
             }
 
             sse = AiStreamHelper.initSseSession(req, res);
+
+            let isCompleted = false;
+            req.on('close', async () => {
+                if (!isCompleted && req.refundChatCredit) {
+                    try { await req.refundChatCredit(); } catch (e) {}
+                }
+            });
 
             const reconstructed = IChingDataService.parseLines({
                 primaryHexagram: record.primaryHexagram,
@@ -263,7 +286,10 @@ class IChingAiController {
                 sse.sendSSE({ chunk: chunkText });
             }
 
-            if (!sse.isOpen()) return res.end();
+            if (!sse.isOpen()) {
+                if (!isCompleted && req.refundChatCredit) await req.refundChatCredit();
+                return res.end();
+            }
 
             const cleanedContent = AiService.cleanMarkdown(accumulatedText);
             const parsed = parseAiJsonChunk(cleanedContent);
@@ -317,10 +343,14 @@ class IChingAiController {
 
             MemoryCacheService.clearChatCache('iching', id);
 
+            isCompleted = true;
             sse.sendDone();
 
         } catch (error) {
             console.error("IChing Chat Follow-up Error:", error);
+            if (req.refundChatCredit) {
+                try { await req.refundChatCredit(); } catch (refErr) { console.error("Refund chat credit failed:", refErr); }
+            }
             if (sse) sse.sendError(error.message || 'Lỗi xảy ra khi sinh câu hỏi Kinh Dịch.');
             else res.status(500).json({ error: error.message || 'Lỗi hệ thống' });
         } finally {

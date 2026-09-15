@@ -61,12 +61,13 @@ Sử dụng phương pháp Tử Vi Bắc Phái định vị Mệnh - Thân:
 
 ### 4.1 Cơ chế Chống Spam & Kiểm soát AI
 - **Chống spam yêu cầu đồng thời (In-Flight Mutex Lock):** Áp dụng middleware `antiSpamLock.js` sử dụng Redis/RAM lock (TTL 3000ms) tự động giải phóng khi response kết thúc (`res.on('finish')`) để chặn việc click đúp hoặc spam liên tục trên cùng một route.
-- **Kiểm soát chi phí Chat:** Mỗi tin nhắn hỏi đáp AI tiêu thụ **0.5 Credit** (xác thực nguyên tử qua `chatCreditCheck.js`). Miễn phí cho tài khoản có vai trò `admin` hoặc `co-admin`.
-- **Lưu ý cấu hình tĩnh:** Hai biến `COOLDOWN_TIME_SECONDS = 10` và `CHAT_LIMIT_PER_HOUR = 10` trong `config/ai.js` hiện là hằng số tham chiếu chưa được nối middleware chặn độc lập. Phía Frontend hiện tự quản lý bộ đếm cooldown trên giao diện.
+- **Kiểm soát chi phí Chat & Hoàn Credit/Point Tự Động:** Mỗi tin nhắn hỏi đáp AI tiêu thụ **50 Points** (xác thực nguyên tử qua `chatCreditCheck.js`). Miễn phí cho tài khoản có vai trò `admin` hoặc `co-admin`. Nếu luồng stream bị ngắt kết nối (`req.on('close')`), gặp lỗi AI hoặc mã lỗi HTTP >= 400, hệ thống tự động kích hoạt hàm hoàn trả `req.refundChatCredit()` nguyên tử và làm mới Profile Cache.
+- **Middleware Kiểm soát Tần suất & Câu hỏi Chat Độc lập (`chatRateLimiter.js`):** Kiểm tra nội dung câu hỏi (không được để trống, phải thuộc lĩnh vực số lý/chiêm bái `isDivinationRelated`), khoảng cách giữa các câu hỏi (`COOLDOWN_TIME_SECONDS = 10` giây) và giới hạn (`CHAT_LIMIT_PER_HOUR = 10` câu hỏi/giờ cho cuộc hội thoại) TRƯỚC KHI `chatCreditCheck.js` trừ credit. Bảo đảm người dùng không bao giờ bị trừ credit oan khi câu hỏi không hợp lệ hoặc bị chặn tần suất.
+- **Hoàn Credit Tự Động Khi Luận Giải AI Bị Lỗi (SSE Stream Refund):** Tất cả các phân hệ (`IChingAiController`, `BaziAiController`, `ZiweiAiController`, `MarriageAiController`) đều được tích hợp biến cờ `isCompleted`, lắng nghe sự kiện ngắt kết nối sớm của client (`req.on('close')`) và bắt lỗi `catch (error)` để hoàn trả 100% point (`req.refundCredit()`) nếu bài luận giải chưa hoàn thành.
 - **Lọc chủ đề chat (`isDivinationRelated`):** Dịch vụ phân tích ý định (`ConversationContextService.js`) sẽ từ chối trả lời nếu người dùng hỏi lệch hướng (ví dụ: hỏi viết code, làm toán, lập trình...). Ngoại trừ việc hỏi về thời tiết và chọn ngày cát lành được phép thông qua.
 
-### 4.2 Cấp phát Credits & Xóa tài khoản soft-delete
-- **Quản trị Credit:** Đã loại bỏ hoàn toàn cơ chế tự động tặng credit miễn phí hàng ngày (`DAILY_CREDIT_INCREMENT`) để đảm bảo giá trị của Credits và duy trì kiểm soát tài nguyên chặt chẽ.
+### 4.2 Cấp phát Credits/Points & Xóa tài khoản soft-delete
+- **Quản trị Points (1 Credit = 100 Points):** Đơn vị tiền tệ chính thức hiển thị trên toàn hệ thống là **Points** (hoặc Xu). Đăng ký tài khoản mới được cấp mặc định 200 points (2 credits cũ), xác thực email tặng thêm +200 points. Đã loại bỏ hoàn toàn cơ chế tự động tặng credit miễn phí hàng ngày (`DAILY_CREDIT_INCREMENT`) để đảm bảo giá trị của Points và duy trì kiểm soát tài nguyên chặt chẽ.
 - **Dọn dẹp database:** Tìm kiếm những tài khoản bị xóa mềm (`isDeleted: true`) quá **30 ngày** thông qua `NotificationScheduler.js` (`purgeSoftDeletedUsers`). Hệ thống tự động xóa sạch toàn bộ dữ liệu liên quan ở 9 bảng (`BaziRecord`, `IChingRecord`, `ZiweiRecord`, `MarriageRecord`, `Conversation`, `Message`, `BanAppeal`, `Notification` và `User`), ngăn chặn triệt để bản ghi mồ côi.
 
 ### 4.3 Quét lịch thông báo Ứng Kỳ
@@ -81,6 +82,9 @@ Sử dụng phương pháp Tử Vi Bắc Phái định vị Mệnh - Thân:
   - Mỗi bản ghi học thuật (Kinh Dịch, Bát Tự, Tử Vi, Hợp Hôn) và các đoạn hội thoại chat AI đều được gắn nhãn sở hữu bởi ID người dùng lập ra nó.
   - Một người dùng thông thường tuyệt đối không được quyền truy cập chéo để xem chi tiết hoặc gọi AI luận giải trên các bản ghi của người khác (ngay cả khi biết ID bản ghi). Hành vi vi phạm sẽ bị chặn bởi hệ thống kiểm soát quyền riêng tư (`checkRecordOwnership`, `checkHistoryOwnership`).
   - Chỉ có quản trị viên (Admin/Co-Admin) hoặc chính chủ sở hữu mới có quyền truy cập. Khách vãng lai (guest) chỉ được xem các bản ghi do khách tự lập.
+  - **Chống IDOR khi Liên Kết Bản Ghi (Record Linking Protection):** Các API liên kết lá số (`PUT /link`) bắt buộc đi qua middleware xác thực `auth`, lấy danh tính `currentUserId` tuyệt đối từ `req.dbUser._id` (bỏ qua mọi giá trị do client gửi trong `req.body.userId`). Nếu bản ghi đã thuộc về một tài khoản khác, hệ thống nghiêm cấm hành vi chiếm quyền và trả về lỗi 403 Forbidden.
+- **Bảo Vệ Tài Khoản Xóa Mềm Khỏi Nguy Cơ Chiếm Đoạt (Deleted Account Takeover Protection):**
+  - Khi một tài khoản đã bị xóa mềm (`isDeleted: true`), API đăng ký mới (`POST /register`) từ chối tiếp nhận đăng ký lại và yêu cầu người dùng sử dụng luồng OTP Khôi phục mật khẩu hoặc liên hệ Quản trị viên. Ngăn chặn triệt để lỗ hổng kẻ tấn công dùng email người cũ để tạo mới và chiếm đoạt toàn bộ lịch sử dữ liệu cũ.
 - **Hiệu lực phiên đăng nhập & Thu hồi Token:**
   - Phiên đăng nhập (token JWT) có thời hạn tối đa là **7 ngày** kể từ khi đăng nhập thành công.
   - Khi người dùng chủ động nhấn **Đăng xuất (Logout)** hoặc đổi mật khẩu, hệ thống tăng `tokenVersion` trên máy chủ để vô hiệu hóa token cũ.
@@ -92,11 +96,11 @@ Sử dụng phương pháp Tử Vi Bắc Phái định vị Mệnh - Thân:
 - **Xác thực đặt lại mật khẩu (`POST /reset-password`):** Người dùng nhập đúng mã OTP còn hiệu lực kèm mật khẩu mới (độ dài tối thiểu 6 ký tự). Sau khi cập nhật thành công mật khẩu mới (mã hóa bcrypt), hệ thống sẽ tăng `tokenVersion` lên 1 để tự động đăng xuất tất cả phiên đăng nhập cũ của tài khoản.
 - **Rate Limit:** Cả hai endpoint quên mật khẩu và khôi phục mật khẩu đều được bảo vệ bởi middleware `authLimiter` nhằm chống brute-force và spam email.
 
-### 4.6 Quy tắc Luận giải Cơ bản (1 Credit) & Chuyên sâu VIP (5 Credits / 4 Credits Upgrade)
-- **Luận giải Cơ bản (`mode: standard`):** Tiêu thụ **1 Credit**. Phân tích tổng quan ngắn gọn (800 - 1.200 từ), phản hồi nhanh.
-- **Luận giải Chuyên sâu VIP (`mode: vip`):** Tiêu thụ **5 Credits**. Chạy qua Multi-Agent VIP Pipeline 3 Tầng với 6 Replicas song song, xuất ra 5.000+ từ trải dài qua 6 Chương chuyên sâu (Sự Nghiệp, Tài Chính, Hôn Nhân, Sức Khỏe, Cải Vận, Mốc Đại Vận 100 Năm).
-- **Nâng Cấp từ Cơ Bản lên VIP:** Người dùng chỉ cần thanh toán chênh lệch **4 Credits** (`5 - 1 = 4 credits`). Hệ thống áp dụng 0ms Instant Reset trên giao diện người dùng, làm mới bài viết cũ và phát dòng bản VIP.
-- **Bảo toàn Bản quyền VIP:** Một khi lá số đã có luận giải VIP hoàn chỉnh, hệ thống ẩn vĩnh viễn banner và nút nâng cấp, đồng thời chặn việc gọi trừ credit thừa.
+### 4.6 Quy tắc Luận giải Cơ bản (100 Points) & Chuyên sâu VIP (500 Points / 400 Points Upgrade)
+- **Luận giải Cơ bản (`mode: standard`):** Tiêu thụ **100 Points** (1 credit cũ). Phân tích tổng quan ngắn gọn (800 - 1.200 từ), phản hồi nhanh.
+- **Luận giải Chuyên sâu VIP (`mode: vip`):** Tiêu thụ **500 Points** (5 credits cũ). Chạy qua Multi-Agent VIP Pipeline 3 Tầng với 6 Replicas song song, xuất ra 5.000+ từ trải dài qua 6 Chương chuyên sâu (Sự Nghiệp, Tài Chính, Hôn Nhân, Sức Khỏe, Cải Vận, Mốc Đại Vận 100 Năm).
+- **Nâng Cấp từ Cơ Bản lên VIP:** Người dùng chỉ cần thanh toán chênh lệch **400 Points** (`500 - 100 = 400 points`). Hệ thống áp dụng 0ms Instant Reset trên giao diện người dùng, làm mới bài viết cũ và phát dòng bản VIP.
+- **Bảo toàn Bản quyền VIP:** Một khi lá số đã có luận giải VIP hoàn chỉnh, hệ thống ẩn vĩnh viễn banner và nút nâng cấp, đồng thời chặn việc gọi trừ credit/point thừa.
 
 ### 4.7 Quy tắc Tạo Lá số Độc lập & Khóa Tranh chấp Tức thời (Concurrency Lock 2.5s)
 - **Bỏ kiểm tra trùng lặp cũ:** Mọi thao tác lập lá số Bát Tự, Tử Vi, Hợp Hôn hoặc gieo quẻ Kinh Dịch hợp lệ đều được tạo thành bản ghi mới độc lập nhằm phục vụ chiêm nghiệm đa thời điểm của người dùng.

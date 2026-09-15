@@ -1,35 +1,7 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const AiService = require('../../../../core/ai/AiService');
+const { AiRotator, GeminiRotator, OpenRouterRotator } = require('../../../../core/ai/AiRotator');
 const logger = require('../../../../core/services/LoggerService');
-
-/**
- * Bộ quản lý xoay tua tài khoản OpenRouter (Round-Robin & Fallback)
- */
-class OpenRouterRotator {
-  static currentIndex = 0;
-
-  static getKeys() {
-    const keys = [];
-    if (process.env.OPENROUTER_API_KEYS) {
-      keys.push(...process.env.OPENROUTER_API_KEYS.split(',').map(k => k.trim()).filter(Boolean));
-    }
-    if (process.env.OPENROUTER_API_KEY && !keys.includes(process.env.OPENROUTER_API_KEY.trim())) {
-      keys.push(process.env.OPENROUTER_API_KEY.trim());
-    }
-    if (process.env.OPENROUTER_API_KEY_2 && !keys.includes(process.env.OPENROUTER_API_KEY_2.trim())) {
-      keys.push(process.env.OPENROUTER_API_KEY_2.trim());
-    }
-    return keys;
-  }
-
-  static getNextKey() {
-    const keys = this.getKeys();
-    if (keys.length === 0) return null;
-    const key = keys[this.currentIndex % keys.length];
-    this.currentIndex = (this.currentIndex + 1) % keys.length;
-    return key;
-  }
-}
 
 /**
  * Dịch vụ gọi LLM Đa Nền Tảng (OpenRouter, Gemini SDK, OpenAI-Compatible)
@@ -38,7 +10,11 @@ class LlmProviderService {
   /**
    * Gọi OpenRouter API endpoint với cơ chế xoay tua 2+ key & tự động retry khi gặp Rate Limit (429/502/503)
    */
-  static async callOpenRouterEndpoint({ model, systemPrompt, prompt, timeoutMs = 75000, temperature = 0.7, maxTokens = 3000 }) {
+  static async _callOpenRouterSingleModel({ model, systemPrompt, prompt, timeoutMs = 75000, temperature = 0.7, maxTokens = 3000 }) {
+    if (OpenRouterRotator.isCreditExhausted()) {
+      throw new Error('OpenRouter credit currently exhausted (circuit breaker active). Bypassing to fallback provider.');
+    }
+
     const keys = OpenRouterRotator.getKeys();
     if (keys.length === 0) {
       throw new Error('OPENROUTER_API_KEY is not configured.');
@@ -83,15 +59,20 @@ class LlmProviderService {
           const errMessage = `OpenRouter Error ${res.status}: ${errText.slice(0, 250)}`;
           logger.warn(`[OpenRouter] Key [${maskedKey}] returned ${res.status}: ${errMessage}`);
 
+          if (res.status === 402 || errText.includes('requires more credits') || errText.includes('Insufficient Balance')) {
+            OpenRouterRotator.markCreditExhausted(15 * 60 * 1000);
+            throw new Error(errMessage);
+          }
+
           if (res.status === 429 || res.status === 502 || res.status === 503) {
             lastError = new Error(errMessage);
             const waitMs = 1500 * (attempt + 1);
-            logger.info(`[OpenRouter] Rate limited (429/503). Waiting ${waitMs}ms before retry/rotation...`);
+            logger.info(`[OpenRouter] Rate limited (${res.status}). Waiting ${waitMs}ms before retry/rotation...`);
             await new Promise(r => setTimeout(r, waitMs));
             continue;
           }
 
-          if ((res.status === 402 || res.status === 401) && keys.length > 1) {
+          if (res.status === 401 && keys.length > 1) {
             lastError = new Error(errMessage);
             continue;
           }
@@ -100,7 +81,8 @@ class LlmProviderService {
         }
 
         const data = await res.json();
-        const content = data.choices?.[0]?.message?.content || '';
+        const msg = data.choices?.[0]?.message;
+        const content = msg?.content || msg?.reasoning || '';
         if (!content) {
           throw new Error(`OpenRouter returned empty content for model ${model}`);
         }
@@ -109,13 +91,54 @@ class LlmProviderService {
         clearTimeout(timeout);
         lastError = err;
         logger.warn(`[OpenRouter] Attempt ${attempt + 1} failed: ${err.message}.`);
+        if (OpenRouterRotator.isCreditExhausted() || err.message.includes('Error 400') || err.message.includes('Error 404')) {
+          throw err;
+        }
         if (attempt < maxAttempts - 1) {
           await new Promise(r => setTimeout(r, 1200));
         }
       }
     }
 
-    throw lastError || new Error('All OpenRouter keys/attempts failed.');
+    throw lastError || new Error(`All OpenRouter keys/attempts failed for model ${model}.`);
+  }
+
+  /**
+   * Gọi OpenRouter API endpoint: thử model ưu tiên trước, nếu hết/lỗi tự động fallback sang openrouter/free
+   */
+  static async callOpenRouterEndpoint({ model, systemPrompt, prompt, timeoutMs = 75000, temperature = 0.7, maxTokens = 3000 }) {
+    const primaryModel = model || process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free';
+    try {
+      return await this._callOpenRouterSingleModel({
+        model: primaryModel,
+        systemPrompt,
+        prompt,
+        timeoutMs,
+        temperature,
+        maxTokens
+      });
+    } catch (primaryErr) {
+      if (OpenRouterRotator.isCreditExhausted()) {
+        throw primaryErr;
+      }
+      if (primaryModel !== 'openrouter/free') {
+        logger.info(`[OpenRouter] Model [${primaryModel}] gặp sự cố (${primaryErr.message}). Tự động fallback sang [openrouter/free]...`);
+        try {
+          return await this._callOpenRouterSingleModel({
+            model: 'openrouter/free',
+            systemPrompt,
+            prompt,
+            timeoutMs,
+            temperature,
+            maxTokens
+          });
+        } catch (freeErr) {
+          logger.warn(`[OpenRouter] Fallback sang [openrouter/free] cũng thất bại: ${freeErr.message}`);
+          throw freeErr;
+        }
+      }
+      throw primaryErr;
+    }
   }
 
   /**
@@ -164,29 +187,77 @@ class LlmProviderService {
   }
 
   /**
-   * Gọi Google Gemini với key chỉ định (Sử dụng 100% Google Gemini SDK chính thức)
+   * Gọi Google Gemini với key chỉ định (Sử dụng 100% Google Gemini SDK chính thức) kèm chuỗi đa mô hình fallback
+   * Khi vào fallback hoặc gặp lỗi Rate Limit (429 / Resource Exhausted), tự động xoay tua sang khóa Gemini thứ hai
    */
-  static async callGeminiWithKey(apiKey, prompt, modelName = 'gemini-3.1-flash-lite', retries = 2) {
-    const key = apiKey || process.env.GEMINI_API_KEY;
+  static async callGeminiWithKey(apiKey, prompt, modelName = process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite', retries = 2) {
+    let key = apiKey || GeminiRotator.getNextKey();
     if (!key) throw new Error('GEMINI_API_KEY is not set');
-    const genAI = new GoogleGenerativeAI(key);
-    for (let attempt = 0; attempt <= retries; attempt++) {
-      try {
-        const model = genAI.getGenerativeModel({
-          model: modelName,
-          generationConfig: { maxOutputTokens: 4096, temperature: 0.7 }
-        });
-        const result = await model.generateContent(prompt);
-        return result.response.text();
-      } catch (err) {
-        if (attempt < retries && (err.message?.includes('503') || err.message?.includes('429'))) {
-          logger.warn(`[Gemini SDK] Attempt ${attempt + 1} hit ${err.message}. Retrying in 1.5s...`);
-          await new Promise(r => setTimeout(r, 1500 * (attempt + 1)));
-          continue;
+
+    const fallbackModels = Array.from(new Set([
+      modelName,
+      process.env.GEMINI_MODEL,
+      'gemini-3.1-flash-lite',
+      'gemini-2.5-flash-lite',
+      'gemini-2.5-flash',
+      'gemini-flash-lite-latest'
+    ].filter(Boolean)));
+
+    let lastError = null;
+
+    for (const activeModel of fallbackModels) {
+      for (let attempt = 0; attempt <= retries; attempt++) {
+        try {
+          const genAI = GeminiRotator.getGenAI(key);
+          const model = genAI.getGenerativeModel({
+            model: activeModel,
+            generationConfig: { maxOutputTokens: 4096, temperature: 0.7 }
+          });
+          const result = await model.generateContent(prompt);
+          return result.response.text();
+        } catch (err) {
+          lastError = err;
+
+          const isRateLimit = 
+            err.message?.includes('429') || 
+            err.message?.includes('Resource has been exhausted') ||
+            err.message?.includes('quota') ||
+            err.message?.includes('RATE_LIMIT_EXCEEDED');
+
+          if (isRateLimit) {
+            GeminiRotator.markKeyRateLimited(key, 60000);
+            const alternateKey = GeminiRotator.getFallbackKey(key);
+            if (alternateKey && alternateKey !== key) {
+              logger.warn(`[Gemini SDK] Key [${GeminiRotator.getKeyLabel(key)}] bị Rate Limit (429/Exhausted). Xoay tua tức thì sang [${GeminiRotator.getKeyLabel(alternateKey)}]...`);
+              key = alternateKey;
+              // Thử lại ngay lập tức với key mới
+              continue;
+            }
+          }
+
+          const isOverloadedOrUnavailable = 
+            err.message?.includes('503') || 
+            err.message?.includes('429') || 
+            err.message?.includes('high demand') ||
+            err.message?.includes('Resource has been exhausted') ||
+            err.message?.includes('not found') ||
+            err.message?.includes('Service Unavailable');
+
+          if (isOverloadedOrUnavailable) {
+            logger.warn(`[Gemini SDK] Model [${activeModel}] attempt ${attempt + 1} hit: ${err.message}.`);
+            if (attempt < retries) {
+              await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
+              continue;
+            }
+            logger.warn(`[Gemini SDK] Model [${activeModel}] exhausted retries, falling back to next candidate model...`);
+            break;
+          }
+          throw err;
         }
-        throw err;
       }
     }
+
+    throw lastError || new Error('All Gemini fallback models failed.');
   }
 }
 
@@ -273,7 +344,9 @@ class SseStreamHelper {
 }
 
 module.exports = {
+  AiRotator,
   OpenRouterRotator,
+  GeminiRotator,
   LlmProviderService,
   SseStreamHelper
 };

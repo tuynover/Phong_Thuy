@@ -233,17 +233,40 @@ class PdfGeneratorService {
       // Đặt timeout 25s
       page.setDefaultNavigationTimeout(25000);
 
-      // Chặn tài nguyên media, websocket không cần thiết để tăng tốc
+      // Chặn tài nguyên media, websocket và chặn SSRF tới các dải IP nội bộ/metadata
       if (typeof page.setRequestInterception === 'function') {
         try {
           await page.setRequestInterception(true);
           page.on('request', req => {
             const resource = req.resourceType();
             if (resource === 'media' || resource === 'websocket') {
-              req.abort();
-            } else {
-              req.continue();
+              return req.abort();
             }
+
+            try {
+              const reqUrl = typeof req.url === 'function' ? req.url() : (req.url || '');
+              if (reqUrl) {
+                const parsed = new URL(reqUrl);
+                const host = parsed.hostname.toLowerCase();
+                const isPrivateOrMetadata = 
+                  host === 'localhost' ||
+                  host === '127.0.0.1' ||
+                  host === '::1' ||
+                  host === '169.254.169.254' ||
+                  /^10\./.test(host) ||
+                  /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(host) ||
+                  /^192\.168\./.test(host);
+
+                if (isPrivateOrMetadata || parsed.protocol === 'file:') {
+                  logger.warn(`[PdfGeneratorService] Blocked potential SSRF request to: ${reqUrl}`);
+                  return req.abort('accessdenied');
+                }
+              }
+            } catch (urlErr) {
+              return req.abort();
+            }
+
+            req.continue();
           });
         } catch (e) {
           // Bỏ qua nếu môi trường test không hỗ trợ interception

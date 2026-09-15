@@ -4,6 +4,19 @@
 
 const { getCorePrintStyles } = require('./templateStyles');
 
+/**
+ * Mã hóa ký tự đặc biệt để chống XSS và SSRF khi render HTML in ấn
+ */
+function escapeHtml(unsafe) {
+  if (unsafe === null || unsafe === undefined) return '';
+  return String(unsafe)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 // Bảng màu chuẩn Ngũ Hành Cổ Pháp
 const ELEMENT_COLORS = {
   Kim: { text: '#475569', bg: '#f1f5f9', border: '#cbd5e1', name: 'Kim' },
@@ -671,7 +684,17 @@ function renderCoverPage({
   sealText = null
 }) {
   const sys = SYSTEM_COVER_CONFIGS[system] || SYSTEM_COVER_CONFIGS.bazi;
-  const activeSeal = (Array.isArray(sealText) && sealText.length === 4) ? sealText : sys.defaultSeal;
+  const activeSeal = (Array.isArray(sealText) && sealText.length === 4) 
+    ? sealText.map(s => escapeHtml(s)) 
+    : sys.defaultSeal.map(s => escapeHtml(s));
+
+  const safeClientName = escapeHtml(clientName);
+  const safeGender = escapeHtml(gender);
+  const safeDateStr = escapeHtml(dateStr);
+  const safeLunarStr = escapeHtml(lunarStr);
+  const safeTitle = escapeHtml(title);
+  const safeSubtitle = escapeHtml(subtitle);
+  const safeRecordId = escapeHtml(recordId);
 
   return `
     <div class="cover-page-wrapper">
@@ -718,8 +741,8 @@ function renderCoverPage({
               <circle cx="0" cy="20" r="5.5" fill="#ffffff" stroke="${sys.primaryColor}" stroke-width="0.6"/>
             </svg>
           </div>
-          <h1 class="cover-title serif-title">${title}</h1>
-          <div class="cover-subtitle serif-title">${subtitle}</div>
+          <h1 class="cover-title serif-title">${safeTitle}</h1>
+          <div class="cover-subtitle serif-title">${safeSubtitle}</div>
 
           <!-- KHỐI THÔNG TIN ĐƯƠNG SỐ TRANG TRỌNG -->
           <div class="cover-client-card">
@@ -727,27 +750,27 @@ function renderCoverPage({
             <div class="cover-card-grid">
               <div class="cover-info-row">
                 <span class="cover-info-label">Chủ sự:</span>
-                <span class="cover-info-val highlight-name">${clientName}</span>
+                <span class="cover-info-val highlight-name">${safeClientName}</span>
               </div>
-              ${gender ? `
+              ${safeGender ? `
               <div class="cover-info-row">
                 <span class="cover-info-label">Giới tính:</span>
-                <span class="cover-info-val">${gender}</span>
+                <span class="cover-info-val">${safeGender}</span>
               </div>` : ''}
-              ${dateStr ? `
+              ${safeDateStr ? `
               <div class="cover-info-row">
                 <span class="cover-info-label">Dương lịch:</span>
-                <span class="cover-info-val">${dateStr}</span>
+                <span class="cover-info-val">${safeDateStr}</span>
               </div>` : ''}
-              ${lunarStr ? `
+              ${safeLunarStr ? `
               <div class="cover-info-row">
                 <span class="cover-info-label">Âm lịch:</span>
-                <span class="cover-info-val">${lunarStr}</span>
+                <span class="cover-info-val">${safeLunarStr}</span>
               </div>` : ''}
               ${extraInfo.map(item => `
               <div class="cover-info-row ${item.fullWidth ? 'full-width' : ''}">
-                <span class="cover-info-label">${item.label}:</span>
-                <span class="cover-info-val ${item.highlight ? 'highlight-text' : ''}">${item.value}</span>
+                <span class="cover-info-label">${escapeHtml(item.label)}:</span>
+                <span class="cover-info-val ${item.highlight ? 'highlight-text' : ''}">${escapeHtml(item.value)}</span>
               </div>`).join('')}
             </div>
           </div>
@@ -770,7 +793,7 @@ function renderCoverPage({
 
           <div class="cover-motto">
             <div class="motto-main">${sys.motto}</div>
-            <div class="motto-sub">${sys.footerDesc} — MÃ SỐ ĐỊNH DANH: ${recordId ? String(recordId).slice(0, 20) : 'IMP-' + Date.now()}</div>
+            <div class="motto-sub">${sys.footerDesc} — MÃ SỐ ĐỊNH DANH: ${safeRecordId ? safeRecordId.slice(0, 20) : 'IMP-' + Date.now()}</div>
           </div>
         </div>
       </div>
@@ -825,5 +848,6 @@ module.exports = {
   parseInterpretationSections,
   markdownToHtml,
   renderCoverPage,
-  wrapCompleteHtml
+  wrapCompleteHtml,
+  escapeHtml
 };

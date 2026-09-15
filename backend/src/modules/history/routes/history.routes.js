@@ -25,28 +25,28 @@ const auth = require('../../../core/middleware/auth');
 router.get('/iching/record/:id', optionalAuth, checkRecordOwnership, HistoryController.getHexagramRecord);
 router.get('/iching/:userId', optionalAuth, checkHistoryOwnership, HistoryController.getHexagramHistory);
 router.put('/iching/:id/rate', optionalAuth, checkRecordOwnership, HistoryController.rateHexagram);
-router.put('/iching/:id/link', optionalAuth, checkRecordOwnership, HistoryController.linkHexagram);
+router.put('/iching/:id/link', auth, HistoryController.linkHexagram);
 router.get('/iching/:id/messages', optionalAuth, checkRecordOwnership, HistoryController.getHexagramChatMessages);
 
 // Legacy Hexagrams endpoints (alias for iching)
 router.get('/hexagrams/record/:id', optionalAuth, checkRecordOwnership, HistoryController.getHexagramRecord);
 router.get('/hexagrams/:userId', optionalAuth, checkHistoryOwnership, HistoryController.getHexagramHistory);
 router.put('/hexagrams/:id/rate', optionalAuth, checkRecordOwnership, HistoryController.rateHexagram);
-router.put('/hexagrams/:id/link', optionalAuth, checkRecordOwnership, HistoryController.linkHexagram);
+router.put('/hexagrams/:id/link', auth, HistoryController.linkHexagram);
 router.get('/hexagrams/:id/messages', optionalAuth, checkRecordOwnership, HistoryController.getHexagramChatMessages);
 
 // Bazi (Bát Tự) endpoints
 router.get('/bazi/record/:id', optionalAuth, checkRecordOwnership, HistoryController.getBaziRecord);
 router.get('/bazi/:userId', optionalAuth, checkHistoryOwnership, HistoryController.getBaziHistory);
 router.put('/bazi/:id/rate', optionalAuth, checkRecordOwnership, HistoryController.rateBazi);
-router.put('/bazi/:id/link', optionalAuth, checkRecordOwnership, HistoryController.linkBazi);
+router.put('/bazi/:id/link', auth, HistoryController.linkBazi);
 router.get('/bazi/:id/messages', optionalAuth, checkRecordOwnership, HistoryController.getBaziChatMessages);
 
 // Ziwei (Tử Vi) endpoints
 router.get('/ziwei/record/:id', optionalAuth, checkRecordOwnership, HistoryController.getZiweiRecord);
 router.get('/ziwei/:userId', optionalAuth, checkHistoryOwnership, HistoryController.getZiweiHistory);
 router.put('/ziwei/:id/rate', optionalAuth, checkRecordOwnership, HistoryController.rateZiwei);
-router.put('/ziwei/:id/link', optionalAuth, checkRecordOwnership, HistoryController.linkZiwei);
+router.put('/ziwei/:id/link', auth, HistoryController.linkZiwei);
 router.get('/ziwei/:id/messages', optionalAuth, checkRecordOwnership, HistoryController.getZiweiChatMessages);
 
 // Marriage (Kết Hôn) endpoints

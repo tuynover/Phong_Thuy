@@ -333,12 +333,12 @@ export default function AdminUsersTab({
                 <tr className="border-b border-slate-800 bg-slate-950/60 text-slate-400 font-bold uppercase tracking-wider text-[11px]">
                   <th className="py-4 px-4">Thành Viên</th>
                   <th className="py-4 px-3 text-center">Vai Trò</th>
-                  <th className="py-4 px-3 text-center">Credit</th>
+                  <th className="py-4 px-3 text-center">Points (Xu)</th>
                   <th className="py-4 px-3 text-center">Trạng Thái</th>
                   <th className="py-4 px-4 text-center">Thao Tác</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-850">
+              <tbody className="divide-y divide-slate-855">
                 {users.map((u) => {
                   const managed = canManage(u);
                   return (
@@ -382,7 +382,7 @@ export default function AdminUsersTab({
                                 setCreditMode('add');
                               }}
                               className="p-1 hover:bg-slate-800 rounded text-slate-400 hover:text-amber-550 transition-colors cursor-pointer"
-                              title="Điều chỉnh Credit"
+                              title="Điều chỉnh Points"
                             >
                               <Coins size={14} />
                             </button>
@@ -503,7 +503,7 @@ export default function AdminUsersTab({
                   {/* Credits & Status */}
                   <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-800/30">
                     <div className="flex items-center gap-1.5">
-                      <span className="text-slate-400">Credits:</span>
+                      <span className="text-slate-400">Points:</span>
                       <span className="font-mono font-bold text-amber-500">{u.credits}</span>
                       {managed && (
                         <button
@@ -513,7 +513,7 @@ export default function AdminUsersTab({
                             setCreditMode('add');
                           }}
                           className="p-1 hover:bg-slate-800 rounded text-slate-400 hover:text-amber-550 transition-colors cursor-pointer"
-                          title="Điều chỉnh Credit"
+                          title="Điều chỉnh Points"
                         >
                           <Coins size={12} />
                         </button>
@@ -633,11 +633,11 @@ export default function AdminUsersTab({
             </button>
             <h3 className="text-lg font-serif font-bold text-amber-500 flex items-center gap-2">
               <Coins size={20} />
-              Chỉnh Sửa Lượt Sử Dụng (Credits)
+              Chỉnh Sửa Lượt Sử Dụng (Points)
             </h3>
             <p className="text-xs text-slate-400">
               Tài khoản: <span className="font-bold text-slate-250">{selectedUser.name}</span> ({selectedUser.email})<br />
-              Số credit hiện tại: <span className="font-extrabold text-amber-450">{selectedUser.credits}</span>
+              Số points hiện tại: <span className="font-extrabold text-amber-450">{selectedUser.credits} Points</span>
             </p>
 
             <form onSubmit={handleUpdateCreditsSubmit} className="space-y-4 pt-2">
@@ -662,18 +662,18 @@ export default function AdminUsersTab({
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-350 mb-1">Số lượt credit</label>
+                <label className="block text-xs font-bold text-slate-350 mb-1">Số điểm (Points)</label>
                 <input
                   type="number"
                   required
                   min="0"
                   value={creditChange}
                   onChange={(e) => setCreditChange(e.target.value)}
-                  placeholder="Nhập số lượng credit..."
+                  placeholder="Nhập số lượng points..."
                   className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-amber-500 text-slate-200 focus:ring-0"
                 />
                 <div className="flex flex-wrap gap-1.5 mt-2">
-                  {[1, 5, 10, 50, 100, 500, 1000, 9999].map(val => (
+                  {[50, 100, 200, 500, 1000, 5000, 10000, 999900].map(val => (
                     <button
                       key={val}
                       type="button"

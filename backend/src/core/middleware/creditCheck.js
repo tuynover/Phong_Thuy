@@ -115,14 +115,14 @@ const creditCheck = async (req, res, next) => {
       return next();
     }
 
-    // 3. Tính toán chi phí credit:
-    // - Luận giải thường mới: 1 credit
-    // - Nâng cấp từ thường lên VIP: 4 credits (chênh lệch 5 - 1 = 4)
-    // - Luận giải VIP mới từ đầu: 5 credits
-    let requiredCost = 1;
+    // 3. Tính toán chi phí point:
+    // - Luận giải thường mới: 100 points
+    // - Nâng cấp từ thường lên VIP: 400 points (chênh lệch 500 - 100 = 400)
+    // - Luận giải VIP mới từ đầu: 500 points
+    let requiredCost = 100;
     if (isVipMode) {
       const hasStandard = !!(record?.aiInterpretation?.content);
-      requiredCost = hasStandard ? 4 : 5;
+      requiredCost = hasStandard ? 400 : 500;
     }
     req.creditCost = requiredCost;
 
@@ -161,7 +161,7 @@ const creditCheck = async (req, res, next) => {
 
     if (!updatedUser) {
       return res.status(402).json({ 
-        error: `Bạn không đủ lượt sử dụng (cần ${requiredCost} credits, hiện có ${user.credits || 0} credits). Vui lòng nạp thêm lượt sử dụng để tiếp tục.` 
+        error: `Bạn không đủ lượt sử dụng (cần ${requiredCost} points, hiện có ${user.credits || 0} points). Vui lòng nạp thêm point để tiếp tục.` 
       });
     }
 

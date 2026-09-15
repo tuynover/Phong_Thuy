@@ -8,6 +8,7 @@ const optionalAuth = require('../../../core/middleware/optionalAuth');
 const checkRecordOwnership = require('../../../core/middleware/checkRecordOwnership');
 const checkHistoryOwnership = require('../../../core/middleware/checkHistoryOwnership');
 const creditCheck = require('../../../core/middleware/creditCheck');
+const chatRateLimiter = require('../../../core/middleware/chatRateLimiter');
 const chatCreditCheck = require('../../../core/middleware/chatCreditCheck');
 const antiSpamLock = require('../../../core/middleware/antiSpamLock');
 const rateLimiter = require('../../../core/middleware/rateLimiter');
@@ -23,7 +24,7 @@ router.post('/analyze', calcLimiter, MarriageController.analyze);
 
 // AI Interpretation & Chat
 router.post('/:id/interpret', optionalAuth, checkRecordOwnership, antiSpamLock(), creditCheck, MarriageAiController.interpretMarriage);
-router.post('/:id/chat', chatCreditCheck, checkRecordOwnership, MarriageAiController.chatMarriage);
+router.post('/:id/chat', optionalAuth, checkRecordOwnership, chatRateLimiter, chatCreditCheck, MarriageAiController.chatMarriage);
 
 // History & Record Management
 router.get('/record/:id', optionalAuth, checkRecordOwnership, MarriageHistoryController.getMarriageRecord);

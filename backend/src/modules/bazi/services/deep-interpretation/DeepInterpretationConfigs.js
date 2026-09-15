@@ -12,7 +12,7 @@ const BAZI_VIP_CONFIG = {
       id: 1,
       title: 'Sự Nghiệp & Công Danh',
       provider: 'openrouter',
-      model: 'qwen/qwen-plus',
+      model: process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free',
       keyEnv: 'OPENROUTER_API_KEY',
       subtopics: [
         'Năng lực cốt lõi và thiên hướng nghề nghiệp vượt trội (ánh xạ kinh tế tri thức)',
@@ -25,9 +25,9 @@ const BAZI_VIP_CONFIG = {
     {
       id: 2,
       title: 'Tài Chính & Dòng Tiền',
-      provider: 'openrouter',
-      model: 'qwen/qwen-plus',
-      keyEnv: 'OPENROUTER_API_KEY_2',
+      provider: 'gemini',
+      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Chính Tài vs Thiên Tài: Nguồn thu chủ lực và bản chất dòng tiền',
         'Khả năng tích lũy và chiến lược bảo toàn của cải (Mộ Khố nếu có, hoặc chuyển hóa tài sản cứng)',
@@ -39,9 +39,9 @@ const BAZI_VIP_CONFIG = {
     {
       id: 3,
       title: 'Hôn Nhân & Gia Đạo',
-      provider: 'gemini',
-      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
-      keyEnv: 'GEMINI_API_KEY',
+      provider: 'openrouter',
+      model: process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free',
+      keyEnv: 'OPENROUTER_API_KEY_2',
       subtopics: [
         'Mô hình nhân duyên chủ đạo và xu hướng gắn kết tình cảm',
         'Chân dung, tính cách và ngũ hành bổ khuyết của người bạn đời tương hợp',
@@ -55,7 +55,7 @@ const BAZI_VIP_CONFIG = {
       title: 'Sức Khỏe & Tạng Phủ',
       provider: 'gemini',
       model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
-      keyEnv: 'GEMINI_API_KEY',
+      keyEnv: 'GEMINI_API_KEY_2',
       subtopics: [
         'Cân bằng Ngũ hành và trạng thái 5 tạng phủ theo lý luận Đông Y',
         'Nhận diện tạng phủ suy yếu tương đối và nguy cơ bệnh lý cần phòng ngừa từ sớm',
@@ -67,9 +67,9 @@ const BAZI_VIP_CONFIG = {
     {
       id: 5,
       title: 'Phong Thủy & Cải Vận',
-      provider: 'gemini',
-      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
-      keyEnv: 'GEMINI_API_KEY_2',
+      provider: 'openrouter',
+      model: process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free',
+      keyEnv: 'OPENROUTER_API_KEY',
       subtopics: [
         'Định hình Persona phong cách sống kích hoạt vận may theo độ tuổi',
         'Phương vị, hướng nhà, hướng làm việc và màu sắc bổ khuyết Dụng Thần',
@@ -83,7 +83,7 @@ const BAZI_VIP_CONFIG = {
       title: 'Mốc Đại Vận 100 Năm',
       provider: 'gemini',
       model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
-      keyEnv: 'GEMINI_API_KEY_2',
+      keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Bảng ma trận chu kỳ 10 năm từng bước Đại Vận suốt cuộc đời',
         '10 năm hoàng kim rực rỡ nhất để dốc sức kiến tạo đại nghiệp',
@@ -161,14 +161,14 @@ const BAZI_VIP_CONFIG = {
 
   getOpenRouterModelForChapter(chapterId) {
     const DEFAULT_MAP = {
-      1: process.env.OPENROUTER_MODEL_CH1 || 'qwen/qwen-plus',
-      2: process.env.OPENROUTER_MODEL_CH2 || 'qwen/qwen-plus',
-      3: process.env.OPENROUTER_MODEL_CH3 || 'gemini-direct',
-      4: process.env.OPENROUTER_MODEL_CH4 || 'gemini-direct',
-      5: process.env.OPENROUTER_MODEL_CH5 || 'gemini-direct',
-      6: process.env.OPENROUTER_MODEL_CH6 || 'gemini-direct'
+      1: process.env.OPENROUTER_MODEL_CH1 || process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free',
+      2: 'gemini-direct',
+      3: process.env.OPENROUTER_MODEL_CH3 || process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free',
+      4: 'gemini-direct',
+      5: process.env.OPENROUTER_MODEL_CH5 || process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free',
+      6: 'gemini-direct'
     };
-    return DEFAULT_MAP[chapterId] || 'qwen/qwen-plus';
+    return DEFAULT_MAP[chapterId] || process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free';
   }
 };
 
@@ -181,7 +181,7 @@ const ZIWEI_VIP_CONFIG = {
       id: 1,
       title: 'Mệnh - Thân - Phúc Đức (Cốt Cách & Bài Học Nghiệp Duyên)',
       provider: 'openrouter',
-      model: 'qwen/qwen-plus',
+      model: process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free',
       keyEnv: 'OPENROUTER_API_KEY',
       subtopics: [
         'Cung Mệnh: Cốt cách tinh đẩu tọa thủ, ngũ hành bản mệnh, diện mạo, tư chất và thiên phú trời sinh',
@@ -194,9 +194,9 @@ const ZIWEI_VIP_CONFIG = {
     {
       id: 2,
       title: 'Quan Lộc - Tài Bạch - Điền Trạch (Công Danh, Tài Lộc & Sản Nghiệp)',
-      provider: 'openrouter',
-      model: 'qwen/qwen-plus',
-      keyEnv: 'OPENROUTER_API_KEY_2',
+      provider: 'gemini',
+      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Cung Quan Lộc: Khả năng nắm giữ chức quyền, tư chất làm chủ (khởi nghiệp) hay làm tướng (quản trị), định hướng ngành nghề mũi nhọn',
         'Cung Tài Bạch: Nguồn thu chủ lực (chính tài bền vững hay hoạnh tài đột biến), khả năng quản trị dòng tiền và tích lũy',
@@ -208,9 +208,9 @@ const ZIWEI_VIP_CONFIG = {
     {
       id: 3,
       title: 'Phu Thê - Tử Tức (Hôn Nhân, Bạn Đời & Hậu Duệ)',
-      provider: 'gemini',
-      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
-      keyEnv: 'GEMINI_API_KEY',
+      provider: 'openrouter',
+      model: process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free',
+      keyEnv: 'OPENROUTER_API_KEY_2',
       subtopics: [
         'Cung Phu Thê: Khí chất, tính cách, gia thế người bạn đời; các tinh đẩu chủ quản và ngũ hành bổ trợ',
         'Duyên nợ và xung đột hôn nhân: Các thời điểm biến động tình cảm lớn, cạm bẫy đào hoa sát hoặc hình khắc',
@@ -224,7 +224,7 @@ const ZIWEI_VIP_CONFIG = {
       title: 'Tật Ách - Thiên Di (Sức Khỏe Tạng Phủ & Xuất Ngoại Giao Tế)',
       provider: 'gemini',
       model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
-      keyEnv: 'GEMINI_API_KEY',
+      keyEnv: 'GEMINI_API_KEY_2',
       subtopics: [
         'Cung Tật Ách: Cân bằng tạng phủ theo ngũ hành tinh đẩu (Kim - Phế, Mộc - Can, Thủy - Thận, Hỏa - Tâm, Thổ - Tỳ)',
         'Nguy cơ tai ương tiềm ẩn: Cảnh báo huyết quang, tai nạn hoặc bệnh lý mãn tính cần phòng bị từ sớm',
@@ -236,9 +236,9 @@ const ZIWEI_VIP_CONFIG = {
     {
       id: 5,
       title: 'Nô Bộc - Phụ Mẫu - Huynh Đệ (Bằng Hữu, Quý Nhân & Dòng Tộc)',
-      provider: 'gemini',
-      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
-      keyEnv: 'GEMINI_API_KEY_2',
+      provider: 'openrouter',
+      model: process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free',
+      keyEnv: 'OPENROUTER_API_KEY',
       subtopics: [
         'Cung Nô Bộc: Mạng lưới bằng hữu, đồng sự cấp dưới, đối tác làm ăn; tiêu chí nhận diện bạn hiền vs kẻ trắc trở',
         'Chiến lược dụng nhân: Mẫu người nên kết giao, nghệ thuật quản trị nhân sự thuận sao tọa thủ',
@@ -289,7 +289,7 @@ const MARRIAGE_VIP_CONFIG = {
       id: 1,
       title: 'Cốt Cách & Tâm Lý Hai Bản Thể',
       provider: 'openrouter',
-      model: 'qwen/qwen-plus',
+      model: process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free',
       keyEnv: 'OPENROUTER_API_KEY',
       subtopics: [
         'So sánh Nhật Chủ, ngũ hành bản mệnh và bản chất khí chất của Chồng vs Vợ',
@@ -302,9 +302,9 @@ const MARRIAGE_VIP_CONFIG = {
     {
       id: 2,
       title: 'Tài Chính & Quản Trị Tổ Ấm Gia Đình',
-      provider: 'openrouter',
-      model: 'qwen/qwen-plus',
-      keyEnv: 'OPENROUTER_API_KEY_2',
+      provider: 'gemini',
+      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Đối chiếu Thập Thần Tài Tinh: Chính Tài (thu nhập vững) vs Thiên Tài (đầu tư, kinh doanh)',
         'Khả năng tụ tài và quản lý chi tiêu của vợ chồng (Mộ Khố / Kho Tài)',
@@ -316,9 +316,9 @@ const MARRIAGE_VIP_CONFIG = {
     {
       id: 3,
       title: 'Hóa Giải Xung Khắc & Phong Thủy Phòng Cưới',
-      provider: 'gemini',
-      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
-      keyEnv: 'GEMINI_API_KEY',
+      provider: 'openrouter',
+      model: process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free',
+      keyEnv: 'OPENROUTER_API_KEY_2',
       subtopics: [
         'Phân tích Cung Phi Bát Trạch (Đông Tứ Mệnh vs Tây Tứ Mệnh, Diên Niên/Thiên Y vs Tuyệt Mệnh/Họa Hại)',
         'Hóa giải các cặp Can Chi hình xung hại phá giữa hai lá số',
@@ -376,7 +376,7 @@ const ICHING_VIP_CONFIG = {
       id: 1,
       title: 'Khởi Quái & Tượng Pháp Chu Dịch (Bản Chất Thời Thế & Quái Tượng Vĩ Mô)',
       provider: 'openrouter',
-      model: 'qwen/qwen-plus',
+      model: process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free',
       keyEnv: 'OPENROUTER_API_KEY',
       subtopics: [
         'Bản chất Quẻ Chủ (Thể) và xu hướng chuyển hóa sang Quẻ Biến (Dụng), Quẻ Hỗ tiềm ẩn',
@@ -389,9 +389,9 @@ const ICHING_VIP_CONFIG = {
     {
       id: 2,
       title: 'Biện Chứng Lục Hào & Vị Thế Dụng Thần (Thực Lực Cốt Lõi Trọng Tâm)',
-      provider: 'openrouter',
-      model: 'qwen/qwen-plus',
-      keyEnv: 'OPENROUTER_API_KEY_2',
+      provider: 'gemini',
+      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Định vị Dụng Thần chuẩn xác duy nhất theo câu hỏi cốt lõi (Tài, Quan, Phụ, Tử, Huynh)',
         'Thẩm định độ Vượng - Tướng - Hưu - Tù của Dụng Thần dưới ảnh hưởng của Nguyệt Kiến (Tháng) và Nhật Thần (Ngày)',
@@ -403,9 +403,9 @@ const ICHING_VIP_CONFIG = {
     {
       id: 3,
       title: 'Động Hào Biến Khí & Yếu Tố Ẩn Tàng (Dòng Chảy Biến Động & Tâm Lý Vi Mô)',
-      provider: 'gemini',
-      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
-      keyEnv: 'GEMINI_API_KEY',
+      provider: 'openrouter',
+      model: process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free',
+      keyEnv: 'OPENROUTER_API_KEY_2',
       subtopics: [
         'Giải phẫu chi tiết các Hào Động: Hào phát động sinh hay khắc Dụng Thần, hỗ trợ hay phá hoại',
         'Biến Hóa Hào: Hóa Tiến thần (ngày càng mạnh), Hóa Thoái thần (dần tiêu hao), Hóa Hồi Đầu Khắc (tự gây họa)',
@@ -431,9 +431,9 @@ const ICHING_VIP_CONFIG = {
     {
       id: 5,
       title: 'Định Lượng Thời Khắc Ứng Kỳ & Bản Đồ Không - Thời Gian Theo Ngữ Cảnh',
-      provider: 'gemini',
-      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
-      keyEnv: 'GEMINI_API_KEY_2',
+      provider: 'openrouter',
+      model: process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free',
+      keyEnv: 'OPENROUTER_API_KEY',
       subtopics: [
         'Phân loại câu hỏi theo 4 Nhóm Thời Gian: Chu kỳ sinh học (theo tháng) vs Chuyển dịch cơ hội (tháng + ngày vàng gần nhất) vs Ngắn hạn/Giao dịch (ngày gần nhất + giờ hoàng đạo) vs Tìm đồ/Người (còn/mất + giờ/ngày gần nhất)',
         'Bắt buộc tra cứu trực tiếp mốc ngày/tháng từ [BẢNG TRA CỨU MỐC DƯƠNG LỊCH GẦN NHẤT CHÍNH XÁC], tuyệt đối không bịa ngày xa xôi vô căn cứ',
