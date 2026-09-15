@@ -36,8 +36,9 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
      - Thay thế vòng lặp $N \times 9$ câu lệnh xóa đơn lẻ bằng gom nhóm mảng `userIds` và xóa hàng loạt (batch delete) qua `Promise.all` trên 9 collections.
 
 ### 🧪 3. Kết Quả Kiểm Thử Toàn Diện
-- **Unit Test Mutex Lock mới (`redisLock.test.js`):** **6/6 tests PASSED**.
-- **Toàn bộ Test Suites Backend:** **38/38 suites (288/288 tests) PASSED 100%**.
+- **Kiểm Thử Tích Hợp Trực Tiếp Với Docker Redis (`npm run test:redis` - `redisDockerIntegration.test.js`):** **6/6 tests PASSED (0.55s)** (Kết nối container Docker Redis `127.0.0.1:6379`, kiểm tra lệnh `SET NX PX`, TTL thực tế, Lua script nguyên tử giải phóng lock, mô phỏng 10 request race condition đồng thời chỉ 1 winner duy nhất, OTP dual-storage và User Profile L2 cache).
+- **Unit Test Mutex Lock (`redisLock.test.js`):** **6/6 tests PASSED**.
+- **Toàn bộ Test Suites Backend Chuẩn:** **38/38 suites (288/288 tests) PASSED 100%**.
 - **Frontend Production Build:** **Hoàn tất trong 2.70s với 0 errors**.
 - **Kiểm tra Chrome DevTools:** Widget chat mở mượt mà, hiển thị chuẩn `Còn 999900 Points (Trừ 50 Points/câu)`.
 

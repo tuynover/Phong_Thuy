@@ -7,7 +7,8 @@
     "start": "node src/index.js",
     "dev": "node src/index.js",
     "test": "jest",
-    "test:regression": "jest tests/services/BaziRegression.test.js --testTimeout=300000",
+    "test:redis": "jest tests/services/redisDockerIntegration.test.js --testPathIgnorePatterns=/node_modules/ --forceExit",
+    "test:regression": "jest tests/services/BaziRegression.test.js --testPathIgnorePatterns=/node_modules/ --testTimeout=300000",
     "test:full": "jest --testPathIgnorePatterns=/node_modules/ --testTimeout=300000",
     "security:audit": "npm audit --audit-level=high"
   },
@@ -17,7 +18,8 @@
     },
     "testPathIgnorePatterns": [
       "/node_modules/",
-      "BaziRegression.test.js"
+      "BaziRegression.test.js",
+      "redisDockerIntegration.test.js"
     ]
   },
   "keywords": [],
