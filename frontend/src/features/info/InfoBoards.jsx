@@ -164,9 +164,9 @@ export function TermsOfService({ onBack }) {
                         </p>
                     </div>
 
-                    <h2 className="text-xl font-bold text-amber-900 font-serif mt-6">3. Quản lý Tín dụng (Credits) & Quota</h2>
+                    <h2 className="text-xl font-bold text-amber-900 font-serif mt-6">3. Quản lý Điểm Thưởng (Points) & Quota</h2>
                     <p>
-                        Các lượt gọi AI luận giải chuyên sâu yêu cầu sử dụng Credit tài khoản. Người dùng cam kết sử dụng hệ thống đúng mục đích học thuật, không cố tình gửi các yêu cầu có nội dung bạo lực, xúc phạm, đồi trụy hoặc spam tấn công làm nghẽn hạ tầng của hệ thống.
+                        Các lượt gọi AI luận giải chuyên sâu yêu cầu sử dụng Điểm thưởng (Points) tài khoản. Người dùng cam kết sử dụng hệ thống đúng mục đích học thuật, không cố tình gửi các yêu cầu có nội dung bạo lực, xúc phạm, đồi trụy hoặc spam tấn công làm nghẽn hạ tầng của hệ thống.
                     </p>
 
                     <h2 className="text-xl font-bold text-amber-900 font-serif mt-6">4. Thay đổi điều khoản</h2>

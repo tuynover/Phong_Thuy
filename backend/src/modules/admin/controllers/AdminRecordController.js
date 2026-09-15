@@ -30,17 +30,44 @@ class AdminRecordController {
       };
       
       if (search) {
-        const safeSearch = escapeRegExp(search.trim());
-        const searchConditions = [
-          { userId: { $regex: safeSearch, $options: 'i' } }
-        ];
+        const trimmedSearch = search.trim();
+        const safeSearch = escapeRegExp(trimmedSearch);
+
+        // Tối ưu tìm kiếm: Tìm User trước theo name/email để lấy danh sách userId (tránh Table Scan unindexed regex trên userId)
+        const matchedUsers = await User.find({
+          $or: [
+            { name: { $regex: safeSearch, $options: 'i' } },
+            { email: { $regex: safeSearch, $options: 'i' } }
+          ]
+        }).select('_id').limit(100).lean();
+
+        const matchedUserIds = matchedUsers.map(u => u._id.toString());
+        const searchConditions = [];
+
+        if (matchedUserIds.length > 0) {
+          searchConditions.push({ userId: { $in: matchedUserIds } });
+        }
+
+        // Nếu chuỗi tìm kiếm khớp định dạng UUID (hoặc prefix UUID), so khớp trực tiếp index userId
+        const isUuidLike = /^[0-9a-f-]{4,36}$/i.test(trimmedSearch);
+        if (isUuidLike) {
+          searchConditions.push({ userId: trimmedSearch });
+        }
+
         if (normType === 'iching') {
           searchConditions.push({ question: { $regex: safeSearch, $options: 'i' } });
         } else if (normType === 'marriage') {
           searchConditions.push({ 'inputInfo.male.name': { $regex: safeSearch, $options: 'i' } });
           searchConditions.push({ 'inputInfo.female.name': { $regex: safeSearch, $options: 'i' } });
+        } else if (normType === 'bazi' || normType === 'ziwei') {
+          searchConditions.push({ 'inputInfo.name': { $regex: safeSearch, $options: 'i' } });
         }
-        query.$or = searchConditions;
+
+        if (searchConditions.length > 0) {
+          query.$or = searchConditions;
+        } else {
+          query._id = '00000000-0000-0000-0000-000000000000'; // Không có kết quả nào khớp
+        }
       }
 
       if (status) {

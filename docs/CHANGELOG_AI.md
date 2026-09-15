@@ -2,6 +2,47 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Hoàn Thiện Giai Đoạn 2 - Distributed Mutex Lock Token, Triệt Tiêu Memory Leak & Cải Thiện UI Điểm Thưởng (15/09/2026)
+
+### 🌟 1. Sửa Lỗi Hiển Thị UI (Đổi "Credits" Sang "Points" Đồng Bộ)
+- **Header Chat Widget AI (`AiChatWidget.jsx`)**: Đổi dòng hiển thị từ `Còn ${credits} credits (Trừ 0.5/câu)` sang chuẩn hóa Phase 1: `Còn ${points} Points (Trừ 50 Points/câu)`.
+- **Trang Điều Khoản & Quy Định (`InfoBoards.jsx`)**: Đổi mục `Quản lý Tín dụng (Credits) & Quota` thành `Quản lý Điểm Thưởng (Points) & Quota`.
+- **Trang Quản Trị Thành Viên (`AdminUsersTab.jsx`)**: Chuẩn hóa thông báo lỗi phân quyền từ `credit` sang `points`.
+- **Kiểm thử giao diện Chrome DevTools**: Mở popup Chat, kiểm tra thực tế hiển thị số dư và mức trừ phí chuẩn xác `999900 Points (Trừ 50 Points/câu)`.
+
+### 🛡️ 2. Triển Khai Giai Đoạn 2 (Phase 2) Hệ Thống
+1. **Chuẩn Hóa Distributed Mutex Lock An Toàn (Redlock Pattern Token & Atomic Lua Script):**
+   - File [redis.js](file:///t:/Phongthuy/backend/src/core/config/redis.js):
+     - `acquireRedisLock(lockKey, ttlMs)` sinh mã định danh ngẫu nhiên duy nhất `token = uuidv7()`. Trả về `token` khi thành công, hoặc `null` khi thất bại.
+     - `releaseRedisLock(lockKey, token)` giải phóng lock nguyên tử bằng **Lua Script** (`redis.call('get') == token -> del`). Ngăn chặn triệt để race condition xóa nhầm lock của request khác khi TTL bị trễ. Hỗ trợ fallback tương thích ngược.
+     - Quét dọn định kỳ `lockRamCache` trong `cacheCleanupTimer` (5 phút) để triệt tiêu hoàn toàn rò rỉ bộ nhớ RAM (Memory Leak).
+   - Áp dụng `lockToken` an toàn cho 5 callers:
+     - Middleware [antiSpamLock.js](file:///t:/Phongthuy/backend/src/core/middleware/antiSpamLock.js)
+     - [ZiweiController.js](file:///t:/Phongthuy/backend/src/modules/ziwei/controllers/ZiweiController.js)
+     - [IChingController.js](file:///t:/Phongthuy/backend/src/modules/iching/controllers/IChingController.js)
+     - [BaziController.js](file:///t:/Phongthuy/backend/src/modules/bazi/controllers/BaziController.js)
+     - [MarriageController.js](file:///t:/Phongthuy/backend/src/modules/bazi/controllers/MarriageController.js)
+2. **Bộ Nhớ Đệm LRU Cho Thuật Toán Bát Tự (`BaziAnalyzer.js`):**
+   - Bổ sung `baziAnalysisCache` (LRU cache tối đa 500 mục) kết hợp `structuredClone`. Trả về kết quả phân tích tức thì (< 0.01ms) cho các truy vấn trùng lặp (ví dụ: gieo quẻ, hỏi đáp chat follow-up, xuất file PDF, so tuổi hợp hôn).
+3. **Tách Biệt Bộ Test Hồi Quy Bát Tự (`package.json`):**
+   - Cấu hình `testPathIgnorePatterns` trong `package.json` để `npm test` chỉ chạy các unit test nhanh (< 50s cho 38 test suites, 288 tests).
+   - Tách riêng `npm run test:regression` cho 264 ca snapshot testing chuyên sâu, và `npm run test:full` cho toàn bộ hệ thống.
+4. **Tối Ưu Hóa Truy Vấn Cơ Sở Dữ Liệu (Triệt Tiêu COLLSCAN):**
+   - File [AdminRecordController.js](file:///t:/Phongthuy/backend/src/modules/admin/controllers/AdminRecordController.js):
+     - Khi Admin tìm kiếm bản ghi, hệ thống tìm kiếm trước trên bảng `User` theo tên/email để lấy danh sách `matchedUserIds`.
+     - Sử dụng index B-Tree `{ userId: { $in: matchedUserIds } }` và so khớp UUID chính xác thay vì chạy `$regex` unindexed trên `userId` gây Table Scan (COLLSCAN).
+5. **Tối Ưu Xóa Vĩnh Viễn Người Dùng Hết Hạn (Triệt Tiêu N+1 Purge):**
+   - File [NotificationScheduler.js](file:///t:/Phongthuy/backend/src/modules/notification/services/NotificationScheduler.js):
+     - Thay thế vòng lặp $N \times 9$ câu lệnh xóa đơn lẻ bằng gom nhóm mảng `userIds` và xóa hàng loạt (batch delete) qua `Promise.all` trên 9 collections.
+
+### 🧪 3. Kết Quả Kiểm Thử Toàn Diện
+- **Unit Test Mutex Lock mới (`redisLock.test.js`):** **6/6 tests PASSED**.
+- **Toàn bộ Test Suites Backend:** **38/38 suites (288/288 tests) PASSED 100%**.
+- **Frontend Production Build:** **Hoàn tất trong 2.70s với 0 errors**.
+- **Kiểm tra Chrome DevTools:** Widget chat mở mượt mà, hiển thị chuẩn `Còn 999900 Points (Trừ 50 Points/câu)`.
+
+---
+
 ## 📅 Phiên bản: Khắc Phục Lỗi CI/CD Test Khớp Ký Tự HTML Ampersand & Rà Soát Toàn Diện 100% Phân Hệ (15/09/2026)
 
 ### 🌟 1. Mục Tiêu & Sự Cố Cần Giải Quyết

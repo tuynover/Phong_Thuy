@@ -8,6 +8,7 @@ const { acquireRedisLock, releaseRedisLock } = require('../../../core/config/red
 class IChingController {
     static async calculate(req, res) {
         let lockKey = null;
+        let lockToken = null;
         try {
             const validation = InputValidator.validateIChingInput(req.body);
             if (!validation.isValid) {
@@ -26,15 +27,15 @@ class IChingController {
             // Chống spam 10 request đồng thời cùng bộ dữ liệu (In-Flight Concurrency Protection 2.5s)
             lockKey = `inflight:iching:${userId}:${resultPayload.primary.binary_code}:${movingLinesArray.join('-')}:${question}`;
 
-            const acquired = await acquireRedisLock(lockKey, 2500);
-            if (!acquired) {
+            lockToken = await acquireRedisLock(lockKey, 2500);
+            if (!lockToken) {
                 return res.status(429).json({
                     error: 'Yêu cầu của bạn đang được hệ thống xử lý, vui lòng không nhấn gửi liên tục.'
                 });
             }
             if (typeof res.on === 'function') {
                 res.on('finish', () => {
-                    releaseRedisLock(lockKey);
+                    releaseRedisLock(lockKey, lockToken);
                 });
             }
 
@@ -61,11 +62,11 @@ class IChingController {
                 sseService.sendToAdmins('new_calculation', { type: 'iching', userId, recordId: record._id });
             } catch (e) {}
 
-            releaseRedisLock(lockKey);
+            releaseRedisLock(lockKey, lockToken);
             return res.json({ ...resultPayload, recordId: record._id });
         } catch (error) {
             if (lockKey) {
-                releaseRedisLock(lockKey);
+                releaseRedisLock(lockKey, lockToken);
             }
             console.error('IChing Calculate Error:', error);
             return res.status(500).json({ error: error.message || 'Server error' });

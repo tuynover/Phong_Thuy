@@ -72,6 +72,7 @@ const formatBaziData = (baziData) => {
 class MarriageController {
     static async analyze(req, res) {
         let lockKey = null;
+        let lockToken = null;
         try {
             const valResult = InputValidator.validateMarriageInput(req.body);
             if (!valResult.isValid) {
@@ -87,15 +88,15 @@ class MarriageController {
             // Chống spam 10 request đồng thời cùng bộ dữ liệu (In-Flight Concurrency Protection 2.5s)
             lockKey = `inflight:marriage:${uid}:${male.date}:${male.time}:${female.date}:${female.time}`;
 
-            const acquired = await acquireRedisLock(lockKey, 2500);
-            if (!acquired) {
+            lockToken = await acquireRedisLock(lockKey, 2500);
+            if (!lockToken) {
                 return res.status(429).json({
                     error: 'Yêu cầu của bạn đang được hệ thống xử lý, vui lòng không nhấn gửi liên tục.'
                 });
             }
             if (typeof res.on === 'function') {
                 res.on('finish', () => {
-                    releaseRedisLock(lockKey);
+                    releaseRedisLock(lockKey, lockToken);
                 });
             }
 
@@ -142,7 +143,7 @@ class MarriageController {
                 sseService.sendToAdmins('new_calculation', { type: 'marriage', userId: uid, recordId: record._id });
             } catch (e) {}
 
-            releaseRedisLock(lockKey);
+            releaseRedisLock(lockKey, lockToken);
             return res.json({
                 _id: record._id,
                 recordId: record._id,
@@ -153,7 +154,7 @@ class MarriageController {
 
         } catch (error) {
             if (lockKey) {
-                releaseRedisLock(lockKey);
+                releaseRedisLock(lockKey, lockToken);
             }
             console.error('Marriage Analyze Error:', error);
             return res.status(500).json({ error: 'Lỗi máy chủ khi lập lá số hợp hôn.' });

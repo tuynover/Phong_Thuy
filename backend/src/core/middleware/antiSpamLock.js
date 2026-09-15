@@ -13,16 +13,16 @@ const antiSpamLock = ({ ttlMs = 3000, prefix = 'antispam' } = {}) => {
         const routePath = req.baseUrl + req.path;
         const lockKey = `${prefix}:${routePath}:${userId}`;
 
-        const acquired = await acquireRedisLock(lockKey, ttlMs);
-        if (!acquired) {
+        const lockToken = await acquireRedisLock(lockKey, ttlMs);
+        if (!lockToken) {
             return res.status(429).json({
                 error: 'Yêu cầu của bạn đang được xử lý. Vui lòng không nhấn liên tục.'
             });
         }
 
-        // Tự động giải phóng lock khi request hoàn tất
+        // Tự động giải phóng lock khi request hoàn tất (an toàn với lockToken)
         res.on('finish', () => {
-            releaseRedisLock(lockKey);
+            releaseRedisLock(lockKey, lockToken);
         });
 
         next();

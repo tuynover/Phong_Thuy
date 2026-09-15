@@ -64,6 +64,7 @@ const calculateMenhQuai = (solarYear, gender) => {
 class BaziController {
     static async analyze(req, res) {
         let lockKey = null;
+        let lockToken = null;
         try {
             const valResult = InputValidator.validateBaziInput(req.body);
             if (!valResult.isValid) {
@@ -106,15 +107,15 @@ class BaziController {
                 : `${uid}:${date}:${time}:${gender}:${dayBoundaryMode || 'midnight'}`;
             lockKey = `inflight:bazi:${payloadKey}`;
 
-            const acquired = await acquireRedisLock(lockKey, 2500);
-            if (!acquired) {
+            lockToken = await acquireRedisLock(lockKey, 2500);
+            if (!lockToken) {
                 return res.status(429).json({
                     error: 'Yêu cầu của bạn đang được hệ thống xử lý, vui lòng không nhấn gửi liên tục.'
                 });
             }
             if (typeof res.on === 'function') {
                 res.on('finish', () => {
-                    releaseRedisLock(lockKey);
+                    releaseRedisLock(lockKey, lockToken);
                 });
             }
 
@@ -181,7 +182,7 @@ class BaziController {
                 sseService.sendToAdmins('new_calculation', { type: 'bazi', userId: uid, recordId: record._id });
             } catch (e) {}
 
-            releaseRedisLock(lockKey);
+            releaseRedisLock(lockKey, lockToken);
             return res.json({ 
                 ...result, 
                 gender: parseInt(gender),
@@ -192,7 +193,7 @@ class BaziController {
             });
         } catch (error) {
             if (lockKey) {
-                releaseRedisLock(lockKey);
+                releaseRedisLock(lockKey, lockToken);
             }
             console.error('Bazi Analyze Error:', error);
             return res.status(500).json({ error: 'Internal Server Error' });

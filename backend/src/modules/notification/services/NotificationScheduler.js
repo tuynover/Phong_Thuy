@@ -41,19 +41,23 @@ async function purgeSoftDeletedUsers() {
 
         console.log(`[NotificationScheduler] Found ${expiredUsers.length} users to purge.`);
 
-        for (const user of expiredUsers) {
-            const userId = user._id;
-            await BaziRecord.deleteMany({ userId });
-            await IChingRecord.deleteMany({ userId });
-            await ZiweiRecord.deleteMany({ userId });
-            await MarriageRecord.deleteMany({ userId });
-            await Conversation.deleteMany({ userId });
-            await Message.deleteMany({ userId });
-            await BanAppeal.deleteMany({ userId });
-            await Notification.deleteMany({ userId });
-            await User.deleteOne({ _id: userId });
-            console.log(`[NotificationScheduler] Permanently purged user: ${user.email}`);
-        }
+        if (expiredUsers.length === 0) return;
+
+        const userIds = expiredUsers.map(u => u._id);
+
+        await Promise.all([
+            BaziRecord.deleteMany({ userId: { $in: userIds } }),
+            IChingRecord.deleteMany({ userId: { $in: userIds } }),
+            ZiweiRecord.deleteMany({ userId: { $in: userIds } }),
+            MarriageRecord.deleteMany({ userId: { $in: userIds } }),
+            Conversation.deleteMany({ userId: { $in: userIds } }),
+            Message.deleteMany({ userId: { $in: userIds } }),
+            BanAppeal.deleteMany({ userId: { $in: userIds } }),
+            Notification.deleteMany({ userId: { $in: userIds } }),
+            User.deleteMany({ _id: { $in: userIds } })
+        ]);
+
+        console.log(`[NotificationScheduler] Permanently purged ${expiredUsers.length} soft-deleted users in batch.`);
     } catch (err) {
         console.error('[NotificationScheduler] Error during purging soft-deleted users:', err);
     }

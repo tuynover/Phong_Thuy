@@ -14,6 +14,7 @@ class ZiweiController {
    */
   static async createChart(req, res) {
     let lockKey = null;
+    let lockToken = null;
     try {
       const valResult = InputValidator.validateZiweiInput(req.body);
       if (!valResult.isValid) {
@@ -41,15 +42,15 @@ class ZiweiController {
       const chartHash = ZiweiCache.generateChartHash({ date, hour, gender, timezone, school, calendarType });
       lockKey = `inflight:ziwei:${userId}:${chartHash}`;
 
-      const acquired = await acquireRedisLock(lockKey, 2500);
-      if (!acquired) {
+      lockToken = await acquireRedisLock(lockKey, 2500);
+      if (!lockToken) {
         return res.status(429).json({
           error: 'Yêu cầu của bạn đang được hệ thống xử lý, vui lòng không nhấn gửi liên tục.'
         });
       }
       if (typeof res.on === 'function') {
         res.on('finish', () => {
-          releaseRedisLock(lockKey);
+          releaseRedisLock(lockKey, lockToken);
         });
       }
 
@@ -94,11 +95,11 @@ class ZiweiController {
         sseService.sendToAdmins('new_calculation', { type: 'ziwei', userId, recordId: newRecord._id });
       } catch (e) {}
 
-      releaseRedisLock(lockKey);
+      releaseRedisLock(lockKey, lockToken);
       return res.json(newRecord);
     } catch (error) {
       if (lockKey) {
-        releaseRedisLock(lockKey);
+        releaseRedisLock(lockKey, lockToken);
       }
       console.error("[ZiweiController.createChart] Error:", error);
       return res.status(500).json({ error: error.message || 'Lỗi xảy ra khi tính toán lá số Tử Vi.' });

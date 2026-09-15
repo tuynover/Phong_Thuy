@@ -579,7 +579,7 @@ const AiChatWidget = ({
                             <div>
                                 <h4 className="font-serif font-bold text-sm">Phong Thủy Luận Giải</h4>
                                 <p className="text-[10px] text-white/70">
-                                    {auth && auth.user ? `Còn ${auth.user.credits || 0} credits (Trừ 0.5/câu)` : 'Tham vấn sâu về Quẻ & Lá số'}
+                                    {auth && auth.user ? `Còn ${auth.user.credits !== undefined ? auth.user.credits : 0} Points (Trừ 50 Points/câu)` : 'Tham vấn sâu về Quẻ & Lá số'}
                                 </p>
                             </div>
                         </div>

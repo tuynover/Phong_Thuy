@@ -1,4 +1,5 @@
 const Redis = require('ioredis');
+const { v7: uuidv7 } = require('uuid');
 const logger = require('../services/LoggerService');
 
 let isConnected = false;
@@ -106,6 +107,8 @@ const withTimeout = (promise, ms = 500, fallbackValue = null) => {
 const userProfileRamCache = new Map();
 // --- Local L1 RAM Cache for OTP (Dual-Storage Fallback when Redis is offline) ---
 const otpRamCache = new Map();
+// --- Local L1 RAM Cache for Distributed Mutex Lock ---
+const lockRamCache = new Map();
 
 const cacheCleanupTimer = setInterval(() => {
     const now = Date.now();
@@ -114,6 +117,9 @@ const cacheCleanupTimer = setInterval(() => {
     }
     for (const [k, v] of otpRamCache.entries()) {
         if (now > v.expiresAt) otpRamCache.delete(k);
+    }
+    for (const [k, v] of lockRamCache.entries()) {
+        if (now > v.expiresAt) lockRamCache.delete(k);
     }
 }, 5 * 60 * 1000);
 if (cacheCleanupTimer.unref) cacheCleanupTimer.unref();
@@ -247,35 +253,75 @@ const deleteOtpRedis = async (otpKey) => {
 };
 
 // --- Helper 3: Distributed Mutex Lock (Anti-Spam & Race Condition Protection) ---
-const lockRamCache = new Map();
-
+/**
+ * Acquire distributed lock.
+ * @param {string} lockKey - Identifier to lock
+ * @param {number} ttlMs - Time to live in milliseconds (default: 3000ms)
+ * @returns {Promise<string|null>} Returns lock token (string) if acquired successfully, or null if lock is held.
+ */
 const acquireRedisLock = async (lockKey, ttlMs = 3000) => {
     const now = Date.now();
-    const existingExpiry = lockRamCache.get(lockKey);
-    if (existingExpiry && existingExpiry > now) {
-        return false; // Lock active in RAM
+    const existing = lockRamCache.get(lockKey);
+    if (existing && existing.expiresAt > now) {
+        return null; // Lock active in RAM
     }
-    lockRamCache.set(lockKey, now + ttlMs);
 
-    if (!isRedisConnected()) return true;
+    const token = uuidv7();
+    lockRamCache.set(lockKey, { token, expiresAt: now + ttlMs });
+
+    if (!isRedisConnected()) {
+        return token; // Redis offline fallback -> acquired via L1 RAM
+    }
+
     try {
-        const result = await withTimeout(redisClient.set(`lock:${lockKey}`, '1', 'PX', ttlMs, 'NX'), 500, 'OK');
+        const result = await withTimeout(
+            redisClient.set(`lock:${lockKey}`, token, 'PX', ttlMs, 'NX'),
+            500,
+            null
+        );
         if (result !== 'OK') {
             lockRamCache.delete(lockKey);
-            return false;
+            return null; // Lock already held in Redis
         }
-        return true;
+        return token;
     } catch (err) {
         logger.warn(`[Redis] Failed to acquire lock [${lockKey}]: ${err.message}`);
-        return true;
+        // If Redis failed or timed out, retain L1 RAM lock and return token
+        return token;
     }
 };
 
-const releaseRedisLock = async (lockKey) => {
-    lockRamCache.delete(lockKey);
+/**
+ * Release distributed lock safely using token.
+ * Prevents releasing another process's lock if TTL expired.
+ * @param {string} lockKey - Identifier of the lock
+ * @param {string} [token] - Token received from acquireRedisLock. If omitted, performs force release (backward compatible).
+ */
+const releaseRedisLock = async (lockKey, token = null) => {
+    const cached = lockRamCache.get(lockKey);
+    if (cached) {
+        if (!token || cached.token === token) {
+            lockRamCache.delete(lockKey);
+        }
+    }
+
     if (!isRedisConnected()) return;
+
     try {
-        await withTimeout(redisClient.del(`lock:${lockKey}`), 500, null);
+        if (token) {
+            // Atomic Lua script to only delete if token matches
+            const luaScript = `
+                if redis.call("get", KEYS[1]) == ARGV[1] then
+                    return redis.call("del", KEYS[1])
+                else
+                    return 0
+                end
+            `;
+            await withTimeout(redisClient.eval(luaScript, 1, `lock:${lockKey}`, token), 500, null);
+        } else {
+            // Legacy / force delete
+            await withTimeout(redisClient.del(`lock:${lockKey}`), 500, null);
+        }
     } catch (err) {
         logger.warn(`[Redis] Failed to release lock [${lockKey}]: ${err.message}`);
     }

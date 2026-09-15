@@ -155,7 +155,7 @@ export default function AdminUsersTab({
     e.preventDefault();
     if (!selectedUser) return;
     if (!canManage(selectedUser)) {
-      showAlert('Bạn không có quyền chỉnh sửa credit của tài khoản này.', 'error');
+      showAlert('Bạn không có quyền chỉnh sửa points của tài khoản này.', 'error');
       return;
     }
     const amount = parseInt(creditChange);

@@ -993,6 +993,10 @@ const getLuuNienShenShaForPillar = (pillarZhi, pillarGan, luuNienGan, luuNienZhi
     return list;
 };
 
+// LRU in-memory cache for Bazi Analysis results to eliminate redundant CPU-heavy calculations
+const baziAnalysisCache = new Map();
+const MAX_BAZI_CACHE_SIZE = 500;
+
 class BaziAnalyzer {
     constructor() {
         const rulesPath = path.join(__dirname, '../data/rules.json');
@@ -1878,6 +1882,15 @@ class BaziAnalyzer {
         let day = 1, month = 1, year = 1990, hour = 12, minute = 0;
         const genderInt = parseInt(gender) === 0 ? 0 : 1;
         const sect = dayBoundaryMode === 'zi_hour' ? 1 : 2;
+
+        let cacheKey = null;
+        if (!manualData && dateStr && timeStr) {
+            cacheKey = `${dateStr}_${timeStr}_${genderInt}_${sect}`;
+            const cached = baziAnalysisCache.get(cacheKey);
+            if (cached) {
+                return structuredClone(cached);
+            }
+        }
 
         let solarLocal, lunarLocal, baziLocal, solarAdjusted, lunarAdjusted, baziAdjusted;
         let solarTimeline, tietKhiTimeline, tietKhiName, tuLenhCan, lunarDateStr, lunarYear;
@@ -3905,7 +3918,7 @@ class BaziAnalyzer {
             }
         }
 
-        return {
+        const finalResult = {
             solarTimeline,
             tietKhiTimeline,
             lunarDateStr,
@@ -3935,6 +3948,17 @@ class BaziAnalyzer {
                 solarTimestamp: new Date(Date.UTC(year, month - 1, day, hour, minute)).getTime()
             }
         };
+
+        if (cacheKey) {
+            if (baziAnalysisCache.size >= MAX_BAZI_CACHE_SIZE) {
+                const firstKey = baziAnalysisCache.keys().next().value;
+                baziAnalysisCache.delete(firstKey);
+            }
+            baziAnalysisCache.set(cacheKey, finalResult);
+            return structuredClone(finalResult);
+        }
+
+        return finalResult;
     }
 
     calculateDungThanDetail(dmGan, monthZhi, canChi, scores, thanDegree, isTongCach, cachCuc) {
