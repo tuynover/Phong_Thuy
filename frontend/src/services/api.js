@@ -152,6 +152,12 @@ export const updateBlogPost = (id, postData) => axios.put(`${API_URL}/blog/${id}
 export const deleteBlogPost = (id) => axios.delete(`${API_URL}/blog/${id}`);
 export const restoreBlogPost = (id) => axios.post(`${API_URL}/blog/${id}/restore`);
 
+// System Health & Queue Monitoring (DevOps)
+export const getSystemHealthDetailed = () => axios.get(`${API_URL}/health/detailed`);
+export const getAdminQueueStatus = (limit = 50) => axios.get(`${API_URL}/admin/system/queue?limit=${limit}`);
+export const retryAdminDlqJob = (jobId) => axios.post(`${API_URL}/admin/system/queue/dlq/retry`, { jobId });
+export const clearAdminDlq = () => axios.delete(`${API_URL}/admin/system/queue/dlq`);
+
 // Backward compatibility legacy aliases
 const getHexagramHistory = getIChingHistory;
 const getHexagramRecord = getIChingRecord;

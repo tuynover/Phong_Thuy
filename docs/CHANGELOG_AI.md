@@ -2,6 +2,51 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Hoàn Thiện Giai Đoạn 4 - Giám Sát Hạ Tầng DevOps Trực Quan, Quản Trị DLQ, TTL Data Retention & Dọn Dẹp Bộ Nhớ Đệm PDF Tự Động (15/09/2026)
+
+### 🩺 1. Giám Sát Hạ Tầng DevOps Trực Quan & Quản Trị Dead Letter Queue (DLQ)
+1. **Thẻ Giám Sát Hạ Tầng DevOps (`AdminSystemHealthCard.jsx`):**
+   - Tích hợp trực tiếp vào trang tổng quan quản trị [AdminOverviewTab.jsx](file:///t:/Phongthuy/frontend/src/features/admin/tabs/AdminOverviewTab.jsx).
+   - Hiển thị trực quan: Trạng thái tổng quan (Khỏe mạnh / Cảnh báo), Thời gian máy chủ hoạt động liên tục (Uptime), Độ trễ mạng MongoDB Atlas (ms), Độ trễ Redis (ms), Bộ nhớ RAM tiêu thụ (RSS / Heap Used), và Trạng thái hàng đợi Email (Active / DLQ).
+   - Nút "Làm mới" hỗ trợ tải lại chỉ số tức thời và cơ chế tự động cập nhật ngầm mỗi 30 giây.
+2. **Modal Quản Trị Thư Lỗi Dead Letter Queue (`AdminDlqModal.jsx`):**
+   - Cho phép Quản trị viên xem chi tiết toàn bộ các thư gửi thất bại (vượt quá 3 lần thử lại) trong Dead Letter Queue: Mã Job, Người nhận, Tiêu đề, Thời gian gửi, Lỗi chi tiết cuối cùng.
+   - Hỗ trợ nút "Thử lại" (`retryAdminDlqJob`): Đưa job lỗi trở lại hàng đợi chính để gửi lại.
+   - Hỗ trợ nút "Xóa sạch DLQ" (`clearAdminDlq`): Hộp thoại xác nhận an toàn trước khi dọn sạch hàng đợi thư rác.
+3. **Đồng Bộ Endpoint Sức Khỏe Máy Chủ ([index.js](file:///t:/Phongthuy/backend/src/index.js)):**
+   - Ánh xạ đồng thời cả 2 tiền tố đường dẫn: `['/health', '/api/health']` và `['/health/detailed', '/api/health/detailed']` để đảm bảo tương thích 100% khi client gọi trực tiếp hoặc đi qua Reverse Proxy Nginx.
+
+### 🧹 2. Chính Sách Tự Động Lưu Trữ Dữ Liệu (MongoDB TTL Retention) & Dọn Dẹp PDF Đệm
+1. **Chỉ Mục TTL Tự Động Thu Hồi Dữ Liệu Cũ (MongoDB Data Retention Policy):**
+   - [SystemLog.js](file:///t:/Phongthuy/backend/src/modules/admin/models/SystemLog.js): Bổ sung chỉ mục TTL `{"timestamp": 1, expireAfterSeconds: 2592000}` tự động xóa nhật ký request cũ hơn 30 ngày, ngăn chặn phình to dung lượng ổ cứng.
+   - [AdminNotification.js](file:///t:/Phongthuy/backend/src/modules/admin/models/AdminNotification.js): Bổ sung chỉ mục TTL `{"createdAt": 1, expireAfterSeconds: 5184000}` tự động xóa thông báo quản trị cũ hơn 60 ngày.
+   - [Notification.js](file:///t:/Phongthuy/backend/src/modules/notification/models/Notification.js): Bổ sung chỉ mục TTL `{"createdAt": 1, expireAfterSeconds: 7776000}` tự động xóa thông báo người dùng cũ hơn 90 ngày.
+2. **Tự Động Dọn Dẹp Bộ Nhớ Đệm PDF Xuất Ra ([PdfGeneratorService.js](file:///t:/Phongthuy/backend/src/modules/export/services/PdfGeneratorService.js)):**
+   - Xây dựng phương thức `cleanExpiredCache(maxAgeMs = 24h)` quét thư mục `temp_pdf/` và xóa toàn bộ các tệp PDF đệm đã tạo quá 24 giờ.
+   - Thiết lập hẹn giờ định kỳ (`setInterval`) tự động quét dọn mỗi 6 giờ một lần với `unref()` để không treo tiến trình Node.js.
+
+### 🌐 3. Trải Nghiệm Người Dùng (UX/UI): Phát Hiện Mất Mạng & Nạp Trang Nhận Diện Thương Hiệu
+1. **Thanh Cảnh Báo Mất Mạng Thời Gian Thực (`NetworkStatusBanner.jsx` & `useNetworkStatus.js`):**
+   - Lắng nghe sự kiện `window.online` và `window.offline`.
+   - Hiển thị banner cảnh báo màu vàng nhẹ nhàng cố định đỉnh màn hình khi thiết bị mất kết nối Internet.
+   - Tự động chuyển sang màu xanh thông báo "Đã khôi phục kết nối mạng!" và tự biến mất sau 3.5 giây khi có mạng trở lại.
+2. **Hiệu Ứng Nạp Trang Thẩm Mỹ Cao ([App.jsx](file:///t:/Phongthuy/frontend/src/App.jsx)):**
+   - Nâng cấp fallback loading của `React.Suspense` với hiệu ứng vòng tròn quay đa sắc, tích hợp logo thương hiệu Phong Thủy và thông điệp động theo ngữ cảnh người dùng / quản trị.
+
+### 🧪 4. Kiểm Thử Nghiệm Thu Toàn Diện
+- **Unit Tests Backend**:
+  * `backend/tests/models/ttlIndexes.test.js`: 3/3 tests pass (Kiểm chứng chính xác cấu trúc TTL 30 ngày, 60 ngày, 90 ngày).
+  * `backend/tests/services/pdfCacheCleanup.test.js`: 2/2 tests pass (Kiểm chứng xóa file > 24h và giữ nguyên file < 24h).
+- **Unit Tests Frontend**:
+  * Vitest: 4/4 suites pass (29/29 tests).
+- **Kiểm tra đóng gói (Vite Build Check)**:
+  * `npm run build` thành công trong 2.10s, 0 lỗi TypeScript / bundling.
+- **Kiểm thử thực tế Endpoints**:
+  * `GET /api/health` -> 200 OK.
+  * `GET /api/health/detailed` -> 200 OK (Đo latency MongoDB: 64ms, Redis: 1ms, RAM RSS: 119MB, Queue: 0 active, 0 DLQ).
+
+---
+
 ## 📅 Phiên bản: Hoàn Thiện Giai Đoạn 3 - Hàng Đợi Email Bất Đồng Bộ Tin Cậy, AppConfig Tập Trung & Giám Sát Hạ Tầng (15/09/2026)
 
 ### 📬 1. Hàng Đợi Email Bất Đồng Bộ Tin Cậy & Dead Letter Queue (Retry + DLQ)

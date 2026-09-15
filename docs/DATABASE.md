@@ -320,6 +320,8 @@ Thông báo nhắc nhở sự kiện Ứng Kỳ gửi tới người dùng cuố
     type: { type: String, default: 'ung_ky' }
   }
   ```
+- **Chỉ mục phụ:**
+  - `{"createdAt": 1, expireAfterSeconds: 7776000}`: Tự động dọn dẹp thông báo cũ hơn 90 ngày (Data Retention Policy).
 
 #### d. Bảng Đơn Khiếu nại (`banappeals`)
 Đơn khiếu nại yêu cầu mở khóa tài khoản của người dùng bị khóa.
@@ -390,6 +392,7 @@ Lưu trữ nhật ký truy vết request, thời gian xử lý, IP và token đ�
 - **Chỉ mục phụ:**
   - `{"timestamp": -1}`
   - `{"userId": 1, "timestamp": -1}`
+  - `{"timestamp": 1, expireAfterSeconds: 2592000}`: Tự động xóa nhật ký hết hạn sau 30 ngày (Data Retention Policy).
 
 ---
 

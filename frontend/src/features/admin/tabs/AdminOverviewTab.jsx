@@ -22,6 +22,7 @@ import {
   Legend
 } from 'recharts';
 import CustomDatePicker from '@/components/common/CustomDatePicker';
+import AdminSystemHealthCard from '@/features/admin/components/AdminSystemHealthCard';
 
 export default function AdminOverviewTab({
   analytics,
@@ -38,7 +39,12 @@ export default function AdminOverviewTab({
   setTokenChartMetric,
   onPresetClick,
   onNavigateToAlerts,
-  onUserClick
+  onUserClick,
+  health,
+  queueStatus,
+  healthLoading,
+  onRefreshHealth,
+  onOpenDlqModal
 }) {
   const handlePresetClick = (days) => {
     if (onPresetClick) {
@@ -54,6 +60,15 @@ export default function AdminOverviewTab({
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
       
+      {/* SYSTEM HEALTH & QUEUE MONITORING CARD */}
+      <AdminSystemHealthCard
+        health={health}
+        queueStatus={queueStatus}
+        loading={healthLoading}
+        onRefresh={onRefreshHealth}
+        onOpenDlqModal={onOpenDlqModal}
+      />
+
       {/* STATS OVERVIEW CARDS */}
       {analytics && (
         <div className="grid grid-cols-2 md:grid-cols-6 gap-3 sm:gap-4">

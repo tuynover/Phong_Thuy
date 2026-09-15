@@ -136,10 +136,10 @@ app.use(auditLogger);
 const HealthController = require('./core/controllers/HealthController');
 
 // Production Health Check Route for AWS ALB / Nginx / Monitoring
-app.get('/health', HealthController.getHealth);
+app.get(['/health', '/api/health'], HealthController.getHealth);
 
 // Detailed System Health & Metrics Observability Endpoint
-app.get('/health/detailed', HealthController.getDetailedHealth);
+app.get(['/health/detailed', '/api/health/detailed'], HealthController.getDetailedHealth);
 
 // Swagger UI Documentation Route (Only enabled outside production or when explicit)
 if (process.env.NODE_ENV !== 'production') {

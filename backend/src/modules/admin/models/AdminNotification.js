@@ -18,5 +18,6 @@ const adminNotificationSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 adminNotificationSchema.index({ status: 1, createdAt: -1 });
+adminNotificationSchema.index({ createdAt: 1 }, { expireAfterSeconds: 60 * 24 * 60 * 60 }); // 60-day TTL retention
 
 module.exports = mongoose.model('AdminNotification', adminNotificationSchema);

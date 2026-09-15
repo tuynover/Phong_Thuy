@@ -95,6 +95,48 @@ class PdfGeneratorService {
 
     this.semaphore = new PdfSemaphoreQueue(maxConcurrent, maxQueueSize, queueTimeoutMs);
     this.idleTimer = null;
+    this.cleanupTimer = null;
+
+    if (process.env.NODE_ENV !== 'test') {
+      this.cleanExpiredCache().catch(() => {});
+      this.cleanupTimer = setInterval(() => {
+        this.cleanExpiredCache().catch(() => {});
+      }, 6 * 60 * 60 * 1000); // Tự động dọn dẹp mỗi 6 giờ
+      if (this.cleanupTimer.unref) this.cleanupTimer.unref();
+    }
+  }
+
+  /**
+   * Tự động quét và dọn dẹp các tệp PDF đệm cũ hơn maxAgeMs (mặc định 24 giờ)
+   * @param {number} maxAgeMs
+   * @returns {Promise<number>} Số lượng tệp đã xóa
+   */
+  async cleanExpiredCache(maxAgeMs = 24 * 60 * 60 * 1000) {
+    if (!fs.existsSync(PDF_CACHE_DIR)) return 0;
+    let deletedCount = 0;
+    try {
+      const files = await fs.promises.readdir(PDF_CACHE_DIR);
+      const now = Date.now();
+      for (const file of files) {
+        if (!file.endsWith('.pdf')) continue;
+        const filePath = path.join(PDF_CACHE_DIR, file);
+        try {
+          const stat = await fs.promises.stat(filePath);
+          if (now - stat.mtimeMs > maxAgeMs) {
+            await fs.promises.unlink(filePath);
+            deletedCount++;
+          }
+        } catch (e) {
+          // File có thể bị xóa đồng thời từ tiến trình khác
+        }
+      }
+      if (deletedCount > 0) {
+        logger.info(`[PdfGeneratorService] Đã dọn dẹp ${deletedCount} tệp PDF đệm hết hạn (> ${Math.round(maxAgeMs / 3600000)}h).`);
+      }
+    } catch (err) {
+      logger.warn(`[PdfGeneratorService] Lỗi khi dọn dẹp thư mục PDF cache: ${err.message}`);
+    }
+    return deletedCount;
   }
 
   get activeWorkers() {

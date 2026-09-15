@@ -980,3 +980,57 @@ Xóa vĩnh viễn toàn bộ thư lỗi lưu trữ trong `queue:emails:dlq`.
   }
   ```
 
+---
+
+## 🩺 14. Giám Sát Sức Khỏe Máy Chủ & Hạ Tầng (Health Checks & Observability)
+
+### 14.1 Liveness Health Check (Ping)
+Dành cho Load Balancer (AWS ALB / Nginx), Docker Healthcheck và các công cụ Uptime Monitor bên ngoài.
+- **Endpoints:** `GET /health` hoặc `GET /api/health`
+- **Xác thực:** Công khai (Không yêu cầu JWT).
+- **Phản hồi (200 OK):**
+  ```text
+  ok
+  ```
+
+### 14.2 Detailed System Health & Metrics Observability
+Cung cấp bức tranh toàn cảnh về sức khỏe của Node.js process, MongoDB, Redis, Email Queue và SSE sessions.
+- **Endpoints:** `GET /health/detailed` hoặc `GET /api/health/detailed`
+- **Xác thực:** Công khai (Hoặc tích hợp vào Dashboard Quản trị).
+- **Phản hồi (200 OK):**
+  ```json
+  {
+    "status": "healthy",
+    "uptimeSeconds": 3600,
+    "timestamp": "2026-09-15T16:30:00.000Z",
+    "database": {
+      "status": "connected",
+      "readyState": 1,
+      "host": "ac-jk9y7ee-shard-00-00.a5rqrhx.mongodb.net",
+      "name": "phongthuy",
+      "latencyMs": 64
+    },
+    "redis": {
+      "status": "connected",
+      "latencyMs": 1
+    },
+    "queue": {
+      "active": 0,
+      "dlq": 0,
+      "isConnected": true
+    },
+    "memory": {
+      "rss": "119MB",
+      "heapTotal": "52MB",
+      "heapUsed": "44MB",
+      "external": "22MB"
+    },
+    "sse": {
+      "adminClients": 1,
+      "uniqueUsers": 2,
+      "totalUserSessions": 4
+    }
+  }
+  ```
+
+

@@ -8,10 +8,15 @@ import AdminUsersTab from '@/features/admin/tabs/AdminUsersTab';
 import AdminCalculationsTab from '@/features/admin/tabs/AdminCalculationsTab';
 import AdminAlertsTab from '@/features/admin/tabs/AdminAlertsTab';
 import AdminBlogTab from '@/features/admin/tabs/AdminBlogTab';
+import AdminDlqModal from '@/features/admin/components/AdminDlqModal';
 import {
   getAdminAnalytics,
   getAdminNotifications,
-  getAdminUserStats
+  getAdminUserStats,
+  getSystemHealthDetailed,
+  getAdminQueueStatus,
+  retryAdminDlqJob,
+  clearAdminDlq
 } from '@/services/api';
 import { Shield, LogOut } from 'lucide-react';
 
@@ -49,6 +54,13 @@ export default function AdminApp({ onSwitchToUser }) {
   // User details stats modal state
   const [userStats, setUserStats] = useState(null);
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
+
+  // System Health & Queue Monitoring (DevOps)
+  const [health, setHealth] = useState(null);
+  const [queueStatus, setQueueStatus] = useState(null);
+  const [dlqJobs, setDlqJobs] = useState([]);
+  const [isDlqModalOpen, setIsDlqModalOpen] = useState(false);
+  const [healthLoading, setHealthLoading] = useState(false);
 
   // Navigation filter to users tab
   const [initialUserSearch, setInitialUserSearch] = useState('');
@@ -140,6 +152,56 @@ export default function AdminApp({ onSwitchToUser }) {
     setStartDate(start);
     setEndDate(end);
   }, []);
+
+  // DevOps System Health & Queue Fetching
+  const fetchHealthAndQueue = useCallback(async () => {
+    setHealthLoading(true);
+    try {
+      const [healthRes, queueRes] = await Promise.allSettled([
+        getSystemHealthDetailed(),
+        getAdminQueueStatus(50)
+      ]);
+      if (healthRes.status === 'fulfilled') {
+        setHealth(healthRes.value.data);
+      }
+      if (queueRes.status === 'fulfilled') {
+        setQueueStatus(queueRes.value.data.queue);
+        setDlqJobs(queueRes.value.data.dlqJobs || []);
+      }
+    } catch (err) {
+      console.error('Error fetching system health & queue:', err);
+    } finally {
+      setHealthLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchHealthAndQueue();
+    const timer = setInterval(fetchHealthAndQueue, 30000); // 30s auto-refresh
+    return () => clearInterval(timer);
+  }, [fetchHealthAndQueue]);
+
+  const handleRetryDlqJob = async (jobId) => {
+    try {
+      await retryAdminDlqJob(jobId);
+      showAlert(`Đã đưa job ${jobId?.slice(0, 8)}... trở lại hàng đợi chính.`);
+      fetchHealthAndQueue();
+    } catch (err) {
+      showAlert(err.response?.data?.error || 'Lỗi khi đưa job vào hàng đợi.', 'error');
+    }
+  };
+
+  const handleClearDlq = () => {
+    showConfirm('Bạn có chắc chắn muốn xóa vĩnh viễn toàn bộ thư lỗi trong Dead Letter Queue không?', async () => {
+      try {
+        await clearAdminDlq();
+        showAlert('Đã dọn sạch toàn bộ thư lỗi trong Dead Letter Queue.');
+        fetchHealthAndQueue();
+      } catch (err) {
+        showAlert('Lỗi khi dọn dẹp DLQ.', 'error');
+      }
+    });
+  };
 
   // Fetch initial system warnings and appeals
   useEffect(() => {
@@ -373,6 +435,11 @@ export default function AdminApp({ onSwitchToUser }) {
           onPresetClick={handlePresetClick}
           onNavigateToAlerts={() => setActiveTab('alerts')}
           onUserClick={handleUserClick}
+          health={health}
+          queueStatus={queueStatus}
+          healthLoading={healthLoading}
+          onRefreshHealth={fetchHealthAndQueue}
+          onOpenDlqModal={() => setIsDlqModalOpen(true)}
         />
       )}
 
@@ -442,6 +509,17 @@ export default function AdminApp({ onSwitchToUser }) {
           setIsStatsModalOpen(false);
           setUserStats(null);
         }}
+      />
+
+      {/* DEAD LETTER QUEUE (DLQ) MODAL */}
+      <AdminDlqModal
+        isOpen={isDlqModalOpen}
+        onClose={() => setIsDlqModalOpen(false)}
+        dlqJobs={dlqJobs}
+        onRetryJob={handleRetryDlqJob}
+        onClearDlq={handleClearDlq}
+        onRefresh={fetchHealthAndQueue}
+        loading={healthLoading}
       />
 
       {/* CUSTOM CONFIRMATION AND NOTIFICATION DIALOG */}

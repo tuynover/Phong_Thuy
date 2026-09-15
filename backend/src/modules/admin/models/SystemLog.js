@@ -18,5 +18,6 @@ const systemLogSchema = new mongoose.Schema({
 
 systemLogSchema.index({ timestamp: -1 });
 systemLogSchema.index({ userId: 1, timestamp: -1 });
+systemLogSchema.index({ timestamp: 1 }, { expireAfterSeconds: 30 * 24 * 60 * 60 }); // 30-day TTL retention
 
 module.exports = mongoose.model('SystemLog', systemLogSchema);

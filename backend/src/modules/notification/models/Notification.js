@@ -36,4 +36,6 @@ const notificationSchema = new mongoose.Schema({
   timestamps: true
 });
 
+notificationSchema.index({ createdAt: 1 }, { expireAfterSeconds: 90 * 24 * 60 * 60 }); // 90-day TTL retention
+
 module.exports = mongoose.model('Notification', notificationSchema);
