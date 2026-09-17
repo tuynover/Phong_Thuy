@@ -11,9 +11,9 @@ const BAZI_VIP_CONFIG = {
     {
       id: 1,
       title: 'Sự Nghiệp & Công Danh',
-      provider: 'openrouter',
-      model: process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free',
-      keyEnv: 'OPENROUTER_API_KEY',
+      provider: 'gemini',
+      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Năng lực cốt lõi và thiên hướng nghề nghiệp vượt trội (ánh xạ kinh tế tri thức)',
         'Định vị vai trò: Lãnh đạo độc lập hay Chuyên gia cố vấn/quản trị cấp cao',
@@ -39,9 +39,9 @@ const BAZI_VIP_CONFIG = {
     {
       id: 3,
       title: 'Hôn Nhân & Gia Đạo',
-      provider: 'openrouter',
-      model: process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free',
-      keyEnv: 'OPENROUTER_API_KEY_2',
+      provider: 'gemini',
+      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Mô hình nhân duyên chủ đạo và xu hướng gắn kết tình cảm',
         'Chân dung, tính cách và ngũ hành bổ khuyết của người bạn đời tương hợp',
@@ -55,7 +55,7 @@ const BAZI_VIP_CONFIG = {
       title: 'Sức Khỏe & Tạng Phủ',
       provider: 'gemini',
       model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
-      keyEnv: 'GEMINI_API_KEY_2',
+      keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Cân bằng Ngũ hành và trạng thái 5 tạng phủ theo lý luận Đông Y',
         'Nhận diện tạng phủ suy yếu tương đối và nguy cơ bệnh lý cần phòng ngừa từ sớm',
@@ -67,9 +67,9 @@ const BAZI_VIP_CONFIG = {
     {
       id: 5,
       title: 'Phong Thủy & Cải Vận',
-      provider: 'openrouter',
-      model: process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free',
-      keyEnv: 'OPENROUTER_API_KEY',
+      provider: 'gemini',
+      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Định hình Persona phong cách sống kích hoạt vận may theo độ tuổi',
         'Phương vị, hướng nhà, hướng làm việc và màu sắc bổ khuyết Dụng Thần',
@@ -180,9 +180,9 @@ const ZIWEI_VIP_CONFIG = {
     {
       id: 1,
       title: 'Mệnh - Thân - Phúc Đức (Cốt Cách & Bài Học Nghiệp Duyên)',
-      provider: 'openrouter',
-      model: process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free',
-      keyEnv: 'OPENROUTER_API_KEY',
+      provider: 'gemini',
+      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Cung Mệnh: Cốt cách tinh đẩu tọa thủ, ngũ hành bản mệnh, diện mạo, tư chất và thiên phú trời sinh',
         'Cung Thân: Vị trí cư ngụ của Thân (Thân cư Mệnh, Tài, Quan, Thiên Di hay Phúc), chiều hướng chuyển hóa nhân sinh quan từ trung niên',
@@ -208,9 +208,9 @@ const ZIWEI_VIP_CONFIG = {
     {
       id: 3,
       title: 'Phu Thê - Tử Tức (Hôn Nhân, Bạn Đời & Hậu Duệ)',
-      provider: 'openrouter',
-      model: process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free',
-      keyEnv: 'OPENROUTER_API_KEY_2',
+      provider: 'gemini',
+      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Cung Phu Thê: Khí chất, tính cách, gia thế người bạn đời; các tinh đẩu chủ quản và ngũ hành bổ trợ',
         'Duyên nợ và xung đột hôn nhân: Các thời điểm biến động tình cảm lớn, cạm bẫy đào hoa sát hoặc hình khắc',
@@ -224,7 +224,7 @@ const ZIWEI_VIP_CONFIG = {
       title: 'Tật Ách - Thiên Di (Sức Khỏe Tạng Phủ & Xuất Ngoại Giao Tế)',
       provider: 'gemini',
       model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
-      keyEnv: 'GEMINI_API_KEY_2',
+      keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Cung Tật Ách: Cân bằng tạng phủ theo ngũ hành tinh đẩu (Kim - Phế, Mộc - Can, Thủy - Thận, Hỏa - Tâm, Thổ - Tỳ)',
         'Nguy cơ tai ương tiềm ẩn: Cảnh báo huyết quang, tai nạn hoặc bệnh lý mãn tính cần phòng bị từ sớm',
@@ -236,9 +236,9 @@ const ZIWEI_VIP_CONFIG = {
     {
       id: 5,
       title: 'Nô Bộc - Phụ Mẫu - Huynh Đệ (Bằng Hữu, Quý Nhân & Dòng Tộc)',
-      provider: 'openrouter',
-      model: process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free',
-      keyEnv: 'OPENROUTER_API_KEY',
+      provider: 'gemini',
+      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Cung Nô Bộc: Mạng lưới bằng hữu, đồng sự cấp dưới, đối tác làm ăn; tiêu chí nhận diện bạn hiền vs kẻ trắc trở',
         'Chiến lược dụng nhân: Mẫu người nên kết giao, nghệ thuật quản trị nhân sự thuận sao tọa thủ',
@@ -280,7 +280,7 @@ const ZIWEI_VIP_CONFIG = {
   }
 };
 
-// =========================================================================
+/// =========================================================================
 // 3. CẤU HÌNH HỢP HÔN CHUYÊN SÂU (MARRIAGE VIP CONFIG)
 // =========================================================================
 const MARRIAGE_VIP_CONFIG = {
@@ -288,9 +288,9 @@ const MARRIAGE_VIP_CONFIG = {
     {
       id: 1,
       title: 'Cốt Cách & Tâm Lý Hai Bản Thể',
-      provider: 'openrouter',
-      model: process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free',
-      keyEnv: 'OPENROUTER_API_KEY',
+      provider: 'gemini',
+      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'So sánh Nhật Chủ, ngũ hành bản mệnh và bản chất khí chất của Chồng vs Vợ',
         'Nhu cầu cảm xúc nội tâm và phong cách giao tiếp vợ chồng',
@@ -316,9 +316,9 @@ const MARRIAGE_VIP_CONFIG = {
     {
       id: 3,
       title: 'Hóa Giải Xung Khắc & Phong Thủy Phòng Cưới',
-      provider: 'openrouter',
-      model: process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free',
-      keyEnv: 'OPENROUTER_API_KEY_2',
+      provider: 'gemini',
+      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Phân tích Cung Phi Bát Trạch (Đông Tứ Mệnh vs Tây Tứ Mệnh, Diên Niên/Thiên Y vs Tuyệt Mệnh/Họa Hại)',
         'Hóa giải các cặp Can Chi hình xung hại phá giữa hai lá số',
@@ -332,7 +332,7 @@ const MARRIAGE_VIP_CONFIG = {
       title: 'Con Cái, Dòng Tộc & Lộ Trình Vận Trình Trăm Năm',
       provider: 'gemini',
       model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
-      keyEnv: 'GEMINI_API_KEY_2',
+      keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Đường con cái (Tử Tức) qua Trụ Giờ và Cung Phúc: Cơ duyên thụ thai và phúc trạch con cái',
         'Mối quan hệ với cha mẹ hai bên (Nội - Ngoại) và bài học đối nhân xử thế',
@@ -350,7 +350,7 @@ const MARRIAGE_VIP_CONFIG = {
 - Phân tích rõ: Điểm tương hợp tự nhiên nằm ở đâu (ví dụ: cùng hướng ngoại, hoặc người điềm tĩnh bù cho người nóng tính).
 - Nhận diện vùng xung đột: Chỉ ra chính xác thói quen ngôn ngữ hay hành vi nào dễ khiến đối phương tổn thương và đưa ra câu nói "cứu nguy" hóa giải ngay tại chỗ.`,
 
-      2: `NGUYÊN TẮC HỌC THUẬT CHƯƠNG 2 (TÀI CHÍNH & QUẢN TRỊ TỔ ẤM GIA ĐÌNH):
+      2: `NGUYÊN TẮC HỌC THUẬT CHƯƠNG 2 (TÀI CHÍNH & QUẢN TRỊ TỔ Ấm GIA ĐÌNH):
 - Phân tích thực chất dòng tiền gia đình: Đánh giá ai là người kiếm tiền giỏi hơn, ai là người giữ tiền cẩn trọng hơn dựa trên Chính Tài/Thiên Tài và Kho Tài.
 - Đưa ra giải pháp phân bổ ngân sách: Tránh mập mờ, gợi ý cơ chế quỹ chung - quỹ riêng minh bạch.
 - Cảnh báo năm hao tài: Chỉ cảnh báo nếu có xung khắc thực tế ở Cung Tài hoặc vận hạn xung phá.`,
@@ -375,9 +375,9 @@ const ICHING_VIP_CONFIG = {
     {
       id: 1,
       title: 'Khởi Quái & Tượng Pháp Chu Dịch (Bản Chất Thời Thế & Quái Tượng Vĩ Mô)',
-      provider: 'openrouter',
-      model: process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free',
-      keyEnv: 'OPENROUTER_API_KEY',
+      provider: 'gemini',
+      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Bản chất Quẻ Chủ (Thể) và xu hướng chuyển hóa sang Quẻ Biến (Dụng), Quẻ Hỗ tiềm ẩn',
         'Ý nghĩa quái tượng thiên nhiên (Trời, Đất, Sấm, Gió, Nước, Lửa, Núi, Đầm) ứng vào hoàn cảnh câu hỏi',
@@ -403,9 +403,9 @@ const ICHING_VIP_CONFIG = {
     {
       id: 3,
       title: 'Động Hào Biến Khí & Yếu Tố Ẩn Tàng (Dòng Chảy Biến Động & Tâm Lý Vi Mô)',
-      provider: 'openrouter',
-      model: process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free',
-      keyEnv: 'OPENROUTER_API_KEY_2',
+      provider: 'gemini',
+      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Giải phẫu chi tiết các Hào Động: Hào phát động sinh hay khắc Dụng Thần, hỗ trợ hay phá hoại',
         'Biến Hóa Hào: Hóa Tiến thần (ngày càng mạnh), Hóa Thoái thần (dần tiêu hao), Hóa Hồi Đầu Khắc (tự gây họa)',
@@ -431,9 +431,9 @@ const ICHING_VIP_CONFIG = {
     {
       id: 5,
       title: 'Định Lượng Thời Khắc Ứng Kỳ & Bản Đồ Không - Thời Gian Theo Ngữ Cảnh',
-      provider: 'openrouter',
-      model: process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free',
-      keyEnv: 'OPENROUTER_API_KEY',
+      provider: 'gemini',
+      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Phân loại câu hỏi theo 4 Nhóm Thời Gian: Chu kỳ sinh học (theo tháng) vs Chuyển dịch cơ hội (tháng + ngày vàng gần nhất) vs Ngắn hạn/Giao dịch (ngày gần nhất + giờ hoàng đạo) vs Tìm đồ/Người (còn/mất + giờ/ngày gần nhất)',
         'Bắt buộc tra cứu trực tiếp mốc ngày/tháng từ [BẢNG TRA CỨU MỐC DƯƠNG LỊCH GẦN NHẤT CHÍNH XÁC], tuyệt đối không bịa ngày xa xôi vô căn cứ',
@@ -447,7 +447,7 @@ const ICHING_VIP_CONFIG = {
       title: 'Kim Chỉ Nam Đạo Dịch & Diệu Kế Hành Động "Tùy Thời Biến Dịch"',
       provider: 'gemini',
       model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
-      keyEnv: 'GEMINI_API_KEY_2',
+      keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Phác đồ hành động từng bước (Step-by-step Action Blueprint) giải quyết nút thắt câu hỏi',
         'Sách lược điều hòa: Cách ứng xử khi gặp Quẻ Hung Hào Cát (nhẫn nại tích lũy) vs Quẻ Cát Hào Hung (tỉnh táo phòng thủ)',

@@ -188,10 +188,25 @@ class LlmProviderService {
   }
 
   /**
+   * Hướng dẫn hệ thống mặc định (Persona VIP): Bình dân hóa xuyên suốt, ấm áp, thấu cảm, xưng hô "bạn"
+   */
+  static SYSTEM_PERSONA_VIP = 
+    `Bạn là Bậc Thầy Tri Mệnh Đông Phương (Tử Bình Bát Tự, Tử Vi Đẩu Số, Kinh Dịch Lục Hào, Hợp Hôn) với trí tuệ uyên bác, ngôn phong trầm tĩnh, ấm áp, thấu cảm và sâu sắc.\n` +
+    `NGUYÊN TẮC VĂN PHONG & TIẾP CẬN BẮT BUỘC:\n` +
+    `1. BẮT BUỘC xưng hô với đương số là "bạn", xưng "tôi" hoặc góc nhìn học thuật khách quan. TUYỆT ĐỐI NGHIÊM CẤM dùng từ "ngươi", "kẻ hèn".\n` +
+    `2. BÌNH DÂN HÓA XUYÊN SUỐT QUÁ TRÌNH (BẮT ĐẦU NGAY TỪ DÒNG ĐẦU TIÊN & TRONG TỪNG ĐOẠN VĂN):\n` +
+    `   - Bạn đang luận giải cho một người hoàn toàn không biết gì về thuật ngữ phong thủy, Bát Tự hay Kinh Dịch.\n` +
+    `   - Bất kỳ khi nào đề cập tới một thuật ngữ chuyên môn (Nhật Chủ, Dụng Thần, Thập Thần, Can Chi, Xung Hợp, Hóa Kỵ, Cung Chức, Hào Quẻ...), BẮT BUỘC phải lồng ghép ngay lời giải thích bằng ngôn ngữ đời thường, gần gũi, kèm hình tượng ẩn dụ sinh động (như ngọn lửa trong đêm, dòng nước lớn, cỗ xe leo dốc, mảnh đất màu mỡ, con thuyền xuôi gió...).\n` +
+    `   - TUYỆT ĐỐI KHÔNG viết lý thuyết hàn lâm khô cứng rồi mới tóm tắt máy móc ở cuối. Hãy để hơi thở đời thường thấm đượm trong từng câu chữ, giúp người đọc thấu suốt bản mệnh và an tâm hành động.\n` +
+    `3. 100% tiếng Việt thuần túy, không dùng chữ Hán / tiếng Trung thô.\n` +
+    `4. TUYỆT ĐỐI KHÔNG dùng từ "VIP", "CoT", "Prompt", "Replica", "Stage", "Gemini" hay bất kỳ thuật ngữ kỹ thuật nội bộ nào.`;
+
+  /**
    * Gọi Google Gemini với key chỉ định (Sử dụng 100% Google Gemini SDK chính thức) kèm chuỗi đa mô hình fallback
+   * Hỗ trợ systemInstruction để tận dụng cơ chế Implicit Context Caching máy chủ Google
    * Khi vào fallback hoặc gặp lỗi Rate Limit (429 / Resource Exhausted), tự động xoay tua sang khóa Gemini thứ hai
    */
-  static async callGeminiWithKey(apiKey, prompt, modelName = process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite', retries = 2) {
+  static async callGeminiWithKey(apiKey, prompt, modelName = process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite', retries = 2, systemInstruction = null) {
     let key = apiKey || GeminiRotator.getNextKey();
     if (!key) throw new Error('GEMINI_API_KEY is not set');
 
@@ -204,16 +219,21 @@ class LlmProviderService {
       'gemini-flash-lite-latest'
     ].filter(Boolean)));
 
+    const activeSystemInstruction = systemInstruction || this.SYSTEM_PERSONA_VIP;
     let lastError = null;
 
     for (const activeModel of fallbackModels) {
       for (let attempt = 0; attempt <= retries; attempt++) {
         try {
           const genAI = GeminiRotator.getGenAI(key);
-          const model = genAI.getGenerativeModel({
+          const modelParams = {
             model: activeModel,
             generationConfig: { maxOutputTokens: 4096, temperature: 0.7 }
-          });
+          };
+          if (activeSystemInstruction) {
+            modelParams.systemInstruction = activeSystemInstruction;
+          }
+          const model = genAI.getGenerativeModel(modelParams);
           const result = await model.generateContent(prompt);
           return result.response.text();
         } catch (err) {
@@ -311,15 +331,17 @@ class SseStreamHelper {
       '--- CẤU TRÚC BẢN LUẬN GIẢI YÊU CẦU ĐẦU RA',
       '--- YÊU CẦU ĐẦU RA CHI TIẾT ---',
       '--- YÊU CẦU ĐẦU RA',
-      '--- CẤU TRÚC BẢN LUẬN GIẢI'
+      '--- CẤU TRÚC BẢN LUẬN GIẢI',
+      '--- YÊU CẦU ĐẦU RA BẮT BUỘC'
     ];
+    let result = rawContext;
     for (const marker of markers) {
-      const idx = rawContext.indexOf(marker);
+      const idx = result.indexOf(marker);
       if (idx !== -1) {
-        return rawContext.substring(0, idx).trim();
+        result = result.substring(0, idx).trim();
       }
     }
-    return rawContext.trim();
+    return result.replace(/\r\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
   }
 
   static async streamTextChunks(controller, encoder, text, { chunkSize = 120, delayMs = 15 } = {}) {

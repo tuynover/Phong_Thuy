@@ -110,7 +110,7 @@ class ZiweiAiController {
                     summary: "", 
                     sections: [], 
                     generatedAt: new Date(),
-                    model: isVipMode ? 'Multi-Agent Chuyên Sâu (Qwen Plus + Gemini 3.1 Flash Lite)' : ACTIVE_MODEL,
+                    model: isVipMode ? 'Chuyên Sâu' : 'Tiêu Chuẩn',
                     promptVersion: ZIWEI_PROMPT_VERSION,
                     knowledgeVersion: ZIWEI_KNOWLEDGE_VERSION,
                     promptTokens,

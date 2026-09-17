@@ -225,44 +225,42 @@ Tất cả các phân hệ Kinh Dịch, Bát Tự, Tử Vi và Hợp Hôn hiện
 Hạ tầng Luận giải Chuyên sâu VIP được tổ chức tập trung tại `backend/src/services/deep-interpretation/` (gồm `DeepInterpretationCore.js`, `DeepInterpretationConfigs.js`, `DeepInterpretationPipelines.js`, và facade `MultiAgentPipelineService.js`).
 
 #### A. Quy trình Bát Tự VIP Pipeline (3 Tầng Phân Tích Chuyên Sâu)
-Tạo ra công trình nghiên cứu mệnh lý toàn diện 6.500+ từ (~34.000 ký tự) qua 6 Chương học thuật và chuyên đề Điều Hòa Chiến Lược:
+Tạo ra công trình nghiên cứu mệnh lý toàn diện 6.500+ từ (~30.000 - 35.000 ký tự) qua 6 Chương học thuật và chuyên đề Điều Hòa Chiến Lược, 100% vận hành trên nền tảng **Google Gemini SDK Đa Khóa (Multi-Key Rotation)**:
 
 ```mermaid
 sequenceDiagram
     participant User as Người dùng (Frontend)
     participant Ctrl as AiInterpretationController
     participant Pipeline as BaziDeepPipeline
-    participant Tier1 as Tầng 1: CoT & Master Timeline (Gemini + Qwen Plus)
-    participant Tier2 as Tầng 2: 6 Replicas Parallel (Qwen Plus / Gemini Flash Lite)
+    participant Tier1 as Tầng 1: CoT & Master Timeline (Gemini Flash-Lite Dual)
+    participant Tier2 as Tầng 2: 6 Replicas Parallel (Gemini Flash-Lite Xoay Tua 3 Khóa)
     participant Tier3 as Tầng 3: Gemini Chief Editor & Strategic Harmonizer
 
     User->>Ctrl: POST /api/ai/bazi/:id/interpret (mode: 'vip')
     Ctrl->>Pipeline: runBaziVipPipelineStream(prompt, birthYear)
     
     rect rgb(240, 245, 255)
-    Note over Pipeline,Tier1: TẦNG 1: Phân Tích Cốt Lõi Song Song & Khóa Master Timeline (~20s)
-    Pipeline->>Tier1: Gọi đồng thời Qwen Plus (Mệnh Cách CoT + Timeline) + Gemini (Dụng Thần)
+    Note over Pipeline,Tier1: TẦNG 1: Phân Tích Cốt Lõi Song Song & Khóa Master Timeline (~12-15s)
+    Pipeline->>Tier1: Gọi đồng thời 2 luồng Gemini SDK (Mệnh Cách CoT + Timeline & Dụng Thần)
     Tier1-->>Pipeline: Trả về 2 bản phân tích xương sống & mốc niên biểu vàng
     end
 
     rect rgb(255, 250, 240)
-    Note over Pipeline,Tier2: TẦNG 2: 6 Replicas Chuyên Sâu Song Song (~35s)
-    Pipeline->>Tier2: Kích hoạt đồng thời 6 Replicas cho 6 Chương
-    Note over Tier2: Ch1, Ch2 (Qwen Plus); Ch3, Ch4, Ch5, Ch6 (Gemini SDK trực tiếp)
-    Tier2-->>Pipeline: 6 bài phân tích chi tiết của 6 Chương (~32.000 ký tự)
+    Note over Pipeline,Tier2: TẦNG 2: 6 Replicas & Intro SWOT Khởi Chạy Song Song (~8s)
+    Pipeline->>Tier2: Kích hoạt đồng thời 6 Replicas & Khối Dẫn Nhập SWOT qua Gemini SDK (Round-Robin 3 Keys)
+    Tier2-->>Pipeline: Intro SWOT hoàn thành sớm (~3-4s)
+    Pipeline-->>User: Phát dòng tức thì Intro SWOT (TTFT đạt chỉ sau ~15-20s!)
+    loop Phát dòng lũy tiến từng Chương ngay khi hoàn tất (Progressive Replica Streaming)
+        Tier2-->>Pipeline: Chương 1..6 lần lượt hoàn tất (~8s)
+        Pipeline-->>User: Phát dòng trực tiếp Chương 1 -> Chương 6 (Ngôn ngữ bình dân hóa xuyên suốt)
+    end
     end
 
     rect rgb(240, 255, 240)
-    Note over Pipeline,Tier3: TẦNG 3: Gemini Tổng Biên Tập Thẩm Định & Điều Hòa (~8s)
-    Pipeline->>Tier3: Gửi TOÀN BỘ 6 Chương + CoT Tầng 1 vào Gemini 1M Context Window
-    Tier3-->>Pipeline: 1. Dẫn nhập & SWOT thực chiến 100% chiết xuất từ 6 chương
-    Tier3-->>Pipeline: 2. Chiến lược điều hòa đa mục tiêu & Master Action Roadmap
-    
-    loop Phát dòng toàn văn 100% không nén
-        Pipeline-->>User: Phát dòng Dẫn nhập SWOT
-        Pipeline-->>User: Phát dòng 100% nguyên bản Chương 1 -> Chương 6
-        Pipeline-->>User: Phát dòng Chiến lược Điều hòa Đa mục tiêu & Đúc kết
-    end
+    Note over Pipeline,Tier3: TẦNG 3: Gemini Tổng Biên Tập Thẩm Định & Điều Hòa (~5s)
+    Pipeline->>Tier3: Gửi toàn văn 6 Chương vào Gemini để tổng hợp Chiến Lược Điều Hòa
+    Tier3-->>Pipeline: Chiến lược điều hòa đa mục tiêu & Master Action Roadmap
+    Pipeline-->>User: Phát dòng Chiến lược Điều hòa Đa mục tiêu & Đúc kết
     Pipeline-->>User: data: [DONE]
     end
 ```
@@ -336,6 +334,23 @@ Tổ chức biện chứng Chu Dịch cổ điển kết hợp Lục Hào Nạp 
   + Chương 5: Định Lượng Thời Khắc Ứng Kỳ & Bản Đồ Không - Thời Gian (Phân định chặt chẽ 3 tình thái: sự kiện ngắn hạn mốc ấn định, tìm kiếm đồ thất lạc/mất mát, và kỳ vọng mở tương lai).
   + Chương 6: Kim Chỉ Nam Đạo Dịch & Diệu Kế Hành Động (Triết lý "Tùy Thời Biến Dịch", phương sách xử thế thực tế và hóa giải nghịch cảnh).
 - **Tầng 3 (Gemini Chief Editor & Strategic Harmonizer):** Tổng kết Ma Trận SWOT Dịch Lý (Thế mạnh, Nguy cơ, Cơ hội, Thách thức) và Đạo Dịch Chỉ Nam cô đọng. Toàn bộ tiến trình được khử sạch 100% các từ ngữ nội bộ hệ thống (Gemini, CoT, Replicas, Tầng, Chief Editor).
+
+#### E. Hạ Tầng Xoay Tua Đa Khóa Google Gemini SDK, Progressive Streaming & Bình Dân Hóa Xuyên Suốt
+1. **Kiến Trúc Multi-Key Round-Robin 100% Google Gemini SDK:**
+   - Hệ thống đã loại bỏ hoàn toàn OpenRouter để triệt tiêu các rủi ro treo kết nối, nghẽn mạng upstream và lỗi cạn số dư (HTTP 402).
+   - Sử dụng trung tâm điều phối `AiRotator.gemini` (hoặc `GeminiRotator`) tự động phát hiện và nạp danh sách `GEMINI_API_KEY`, `GEMINI_API_KEY_2`, `GEMINI_API_KEY_3...`.
+   - Cơ chế xoay vòng liên tục theo chu kỳ (Round-Robin) chia đều tải API trên từng luồng song song (Stage 1 Dual CoT, Stage 2 Replicas, Stage 3 Chief Editor), đảm bảo không bao giờ chạm ngưỡng giới hạn RPM/TPM của Google.
+   - Nhãn nhận diện model lưu trữ database được chuẩn hóa thành `'Chuyên Sâu'` (thay vì lộ các chuỗi kỹ thuật nội bộ).
+2. **Quy Chuẩn Bình Dân Hóa Tự Nhiên Xuyên Suốt (Continuous Plain-Language Narrative):**
+   - Loại bỏ hoàn toàn hình thức tóm tắt máy móc ở cuối bài.
+   - Yêu cầu AI bình dân hóa **ngay từ dòng đầu tiên và xuyên suốt toàn bộ quá trình** phân tích.
+   - Mỗi khi nhắc đến thuật ngữ học thuật (Nhật Chủ, Dụng Thần, Thập Thần, Can Chi, Tinh Cung, Hóa Kỵ, Hào Quẻ...), AI lập tức lồng ghép lời giải thích bằng ngôn ngữ đời thường, giàu hình ảnh ẩn dụ (ngọn lửa soi đêm, dòng nước lớn, cỗ xe leo dốc, mảnh đất phì nhiêu, con thuyền xuôi gió...), gắn liền với thực tế cuộc sống, tâm lý, tiền tài, sự nghiệp của đương số.
+3. **Tiến Trình Phát Dòng Tức Thì (Progressive Replica Streaming - Phương án 1):**
+   - Ngay sau khi Stage 1 Pre-Analysis hoàn tất, khối Intro SWOT được khởi chạy song song và phát dòng ngay lập tức về client (giảm TTFT từ 35.8s xuống chỉ còn ~18-22s).
+   - Các chuyên đề tiếp theo (Chương 1..6) được phát dòng liên tục lũy tiến ngay khi từng replica hoàn thành, tạo trải nghiệm đọc liền mạch, không thời gian chết.
+4. **Tối Ưu Hóa Prompt Caching & Token Density (Phương án 3):**
+   - Tận dụng `systemInstruction` trong Google Gemini SDK để kích hoạt cơ chế Server-side Context Caching cho Persona và bộ quy tắc chung.
+   - Hàm `cleanContextForVip` khử sạch toàn bộ các chỉ dẫn định dạng thừa của chế độ tiêu chuẩn, nén khoảng trắng và tối ưu mật độ thông tin, tiết kiệm tới 18.000 tokens cho mỗi lượt luận giải chuyên sâu.
 
 ### 2.4 Cơ Chế Đồng Bộ Ngữ Cảnh VIP Chat Follow-up & Động Cơ Ngữ Nghĩa BM25 In-Memory (Hybrid VIP Context Memory)
 Để hỗ trợ người dùng hỏi đáp chuyên sâu (Follow-up Chat) trên các bài luận giải VIP có độ dài từ 4.000 - 7.000 từ mà không làm quá tải token context window (~11.000 tokens) và tránh AI bị loãng thông tin, hệ thống triển khai kiến trúc **Native In-Memory Semantic Engine** tại `ConversationContextService.js` gồm 3 thành phần chính:

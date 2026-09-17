@@ -14,9 +14,7 @@ const { generateIChingCalendarGroundTruth } = require('../../../../shared/utils/
  */
 class BaziDeepPipeline {
   static async executeReplica(replica, fullContext) {
-    const { id, title, provider, model, keyEnv, subtopics } = replica;
-    const apiKey = provider === 'gemini' ? GeminiRotator.getNextKey() : (process.env[keyEnv] || process.env.GEMINI_API_KEY);
-
+    const { id, title, model, subtopics } = replica;
     const cleanContext = SseStreamHelper.cleanContextForVip(fullContext);
     const chapterInstruction = BAZI_VIP_CONFIG.getChapterSpecificInstructions(id);
 
@@ -41,53 +39,22 @@ class BaziDeepPipeline {
       `13. RANH GIỚI ĐỊA BÀN & CHỐNG LẶP Ý: Bám sát chuyên đề của Chương ${id}, TUYỆT ĐỐI KHÔNG lặp lại các ý của các chương khác (như không nhắc chuyện tình cảm ở chương tài chính, không nhai lại tính nóng giận ở chương sự nghiệp).\n` +
       `14. KHO TÀI & THẬP THẦN: Bắt buộc tuân thủ dữ liệu Mộ Khố và Thập Thần đã tính sẵn. Nếu có Kho Tài Thìn ở Trụ Giờ thì phải luận khả năng tích lũy qua Thìn, tuyệt đối cấm nói không có kho tài!\n` +
       `15. TUYỆT ĐỐI CẤM TỪ "VIP": TUYỆT ĐỐI KHÔNG dùng từ "VIP", "gói VIP", "báo cáo VIP" hay bất kỳ từ "VIP" nào trong bài viết. Hãy luôn sử dụng từ "luận giải chuyên sâu" hoặc "bản luận giải chuyên sâu".\n` +
+      `16. QUY TẮC BÌNH DÂN HÓA XUYÊN SUỐT (BẮT ĐẦU NGAY TỪ DÒNG ĐẦU TIÊN & TRONG TỪNG ĐOẠN VĂN):\n` +
+      `    - BẮT BUỘC viết cho người HOÀN TOÀN KHÔNG BIẾT GÌ VỀ BÁT TỰ, không biết Can Chi, Thập Thần hay Ngũ Hành là gì.\n` +
+      `    - TUYỆT ĐỐI KHÔNG viết theo kiểu lý thuyết hàn lâm khô cứng rồi mới tóm tắt máy móc ở cuối! Thay vào đó, BẮT BUỘC phải bình dân hóa NGAY TỪ DÒNG ĐẦU TIÊN và XUYÊN SUỐT TOÀN BỘ BÀI VIẾT.\n` +
+      `    - Mỗi khi đề cập đến một thuật ngữ học thuật (Nhật Chủ, Dụng Thần, Thập Thần, Can Chi, Mộ Khố, Thần Sát, Tương Xung...), BẮT BUỘC phải lồng ghép ngay lời giải thích bằng ngôn ngữ đời thường, gần gũi, kèm hình tượng ẩn dụ sinh động (như ngọn lửa trong đêm, dòng nước lớn, cỗ xe leo dốc, mảnh đất màu mỡ, con thuyền xuôi gió...).\n` +
+      `    - Mọi phân tích phải liên hệ trực diện với cuộc sống thực tế: Bạn có điểm mạnh gì? Tâm lý ra sao? Tài chính, sự nghiệp, tình cảm bị ảnh hưởng thế nào? Cụ thể cần làm gì và tránh làm gì để chuyển hung thành cát?\n` +
       `Bắt đầu trực tiếp bằng: ## CHƯƠNG ${id}: ${title.toUpperCase()}`;
 
     try {
-      if (provider === 'gemini') {
-        const geminiKey = process.env[keyEnv] || process.env.GEMINI_API_KEY;
-        const geminiModel = model || process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite';
-        logger.info(`[BaziDeepPipeline - Tầng 2] Replica ${id} (${title}) đẩy thẳng Google Gemini trực tiếp [${geminiModel}]...`);
-        return await LlmProviderService.callGeminiWithKey(geminiKey, replicaPrompt, geminiModel);
-      }
-
-      const openRouterKeys = OpenRouterRotator.getKeys();
-      if (openRouterKeys.length > 0) {
-        const orModel = BAZI_VIP_CONFIG.getOpenRouterModelForChapter(id);
-        try {
-          logger.info(`[BaziDeepPipeline - Tầng 2] Replica ${id} (${title}) routing to OpenRouter [${orModel}]...`);
-          return await LlmProviderService.callOpenRouterEndpoint({
-            model: orModel,
-            prompt: replicaPrompt
-          });
-        } catch (orErr) {
-          logger.warn(`[BaziDeepPipeline - Tầng 2] OpenRouter replica ${id} error: ${orErr.message}. Falling back to Gemini...`);
-        }
-      }
-
-      if (provider === 'grok' && apiKey) {
-        const isGroq = apiKey.startsWith('gsk_');
-        const url = isGroq ? 'https://api.groq.com/openai/v1/chat/completions' : 'https://api.x.ai/v1/chat/completions';
-        const modelToUse = isGroq ? 'llama-3.3-70b-versatile' : (model || 'grok-2-latest');
-        return await LlmProviderService.callOpenAiEndpoint({
-          url,
-          apiKey,
-          model: modelToUse,
-          prompt: replicaPrompt
-        });
-      } else {
-        const fallbackGeminiModel = process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite';
-        const fallbackKey = GeminiRotator.getFallbackKey();
-        logger.info(`[BaziDeepPipeline - Fallback] Xoay tua sang [${GeminiRotator.getKeyLabel(fallbackKey)}] cho Replica ${id}...`);
-        return await LlmProviderService.callGeminiWithKey(fallbackKey, replicaPrompt, fallbackGeminiModel);
-      }
+      const geminiKey = GeminiRotator.getNextKey();
+      const geminiModel = model || process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite';
+      logger.info(`[BaziDeepPipeline - Tầng 2] Replica ${id} (${title}) gọi Google Gemini SDK [${geminiModel}] qua [${GeminiRotator.getKeyLabel(geminiKey)}]...`);
+      return await LlmProviderService.callGeminiWithKey(geminiKey, replicaPrompt, geminiModel);
     } catch (err) {
-      logger.warn(`[BaziDeepPipeline - Tầng 2] Replica ${id} error: ${err.message}. Falling back to Gemini...`);
+      logger.warn(`[BaziDeepPipeline - Tầng 2] Replica ${id} error: ${err.message}. Xoay tua sang Gemini fallback key...`);
       const fallbackKey = GeminiRotator.getFallbackKey();
-      return await AiService.generateInterpretation(replicaPrompt, { 
-        model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
-        apiKey: fallbackKey
-      });
+      return await LlmProviderService.callGeminiWithKey(fallbackKey, replicaPrompt, process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite');
     }
   }
 
@@ -101,9 +68,9 @@ class BaziDeepPipeline {
 
         try {
           // =========================================================================
-          // TẦNG 1: DUAL PRE-ANALYSIS SONG SONG (GEMINI + QWEN PLUS)
+          // TẦNG 1: DUAL PRE-ANALYSIS SONG SONG (2 LUỒNG GEMINI SDK XOAY TUA KEY)
           // =========================================================================
-          logger.info('[BaziDeepPipeline - TẦNG 1] Bắt đầu Gemini & Qwen Plus chạy SONG SONG...');
+          logger.info('[BaziDeepPipeline - TẦNG 1] Bắt đầu 2 luồng Gemini SDK Pre-Analysis chạy SONG SONG...');
           SseStreamHelper.dispatchProgress(onProgress, { stage: 'stage1', step: 'pre_analysis', message: 'Đang khảo cứu tương quan âm dương ngũ hành & Dụng Thần...' });
 
           const geminiPromise = LlmProviderService.callGeminiWithKey(
@@ -117,7 +84,7 @@ class BaziDeepPipeline {
             return 'Dữ liệu Ngũ hành và Dụng Thần đã được tính toán trong snapshot nguyên bản.';
           });
 
-          const qwenCotPrompt = `[BẢN PHÂN TÍCH 2 - BIỆN CHỨNG TỬ BÌNH CỔ HỌC & CHAIN-OF-THOUGHT TỪ QWEN PLUS]:\n` +
+          const cotPrompt = `[BẢN PHÂN TÍCH 2 - BIỆN CHỨNG TỬ BÌNH CỔ HỌC & CHAIN-OF-THOUGHT TỪ GEMINI]:\n` +
             `Dựa trên dữ liệu lá số Bát Tự:\n${prompt}\n` +
             `Căn cứ kinh điển Tử Bình Chân Thuyên và Tích Thiên Tủy, hãy suy luận Chain-of-Thought (CoT) chuyên sâu về:\n` +
             `1. Mệnh cách và tương tác sinh khắc chế hóa cốt lõi (tuân thủ đúng ngũ hành theo hệ thống Thập Thần của Nhật Chủ).\n` +
@@ -127,42 +94,66 @@ class BaziDeepPipeline {
             `5. ĐỊNH HƯỚNG TRỤC THỜI GIAN ĐỒNG BỘ: Chỉ rõ mốc năm/đại vận ĐẠI CÁT bứt phá và mốc năm/đại vận THẬN TRỌNG để 6 chuyên đề sau đối chiếu đồng bộ.\n` +
             `LƯU Ý XƯNG HÔ & VĂN PHONG: BẮT BUỘC xưng hô với đương số là "bạn", TUYỆT ĐỐI KHÔNG xưng "ngươi". TUYỆT ĐỐI KHÔNG dùng các cụm từ lộ prompt kỹ thuật như "theo bảng khóa cứng"...`;
 
-          const openRouterKeys = OpenRouterRotator.getKeys();
-          const qwenPromise = (openRouterKeys.length > 0
-            ? LlmProviderService.callOpenRouterEndpoint({
-                model: process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free',
-                prompt: qwenCotPrompt,
-              })
-            : LlmProviderService.callGeminiWithKey(
-                GeminiRotator.getFallbackKey(),
-                qwenCotPrompt
-              )
+          const cotPromise = LlmProviderService.callGeminiWithKey(
+            GeminiRotator.getNextKey(),
+            cotPrompt
           ).catch(err => {
             const fallbackKey = GeminiRotator.getFallbackKey();
-            logger.warn(`[BaziDeepPipeline - Tầng 1] OpenRouter CoT error: ${err.message}. Falling back to Gemini [${GeminiRotator.getKeyLabel(fallbackKey)}]...`);
+            logger.warn(`[BaziDeepPipeline - Tầng 1] Gemini CoT error: ${err.message}. Retrying with [${GeminiRotator.getKeyLabel(fallbackKey)}]...`);
             return LlmProviderService.callGeminiWithKey(
               fallbackKey,
-              qwenCotPrompt
+              cotPrompt
             ).catch(() => 'Dữ liệu Tử Bình CoT đã được xác lập trong phân tích số học nguyên bản.');
           });
 
-          const [geminiAnalysis, cotAnalysis] = await Promise.all([geminiPromise, qwenPromise]);
+          const [geminiAnalysis, cotAnalysis] = await Promise.all([geminiPromise, cotPromise]);
 
           const combinedPreAnalysis = `\n=== BẢN PHÂN TÍCH HỌC THUẬT NỀN TẢNG TẦNG 1 (DUAL PRE-ANALYSIS) ===\n` +
-            `[BẢN 1 - GEMINI]:\n${geminiAnalysis}\n\n` +
-            `[BẢN 2 - QWEN TỬ BÌNH CHAIN-OF-THOUGHT]:\n${cotAnalysis}\n` +
+            `[BẢN 1 - GEMINI NGŨ HÀNH & DỤNG THẦN]:\n${geminiAnalysis}\n\n` +
+            `[BẢN 2 - GEMINI TỬ BÌNH CHAIN-OF-THOUGHT]:\n${cotAnalysis}\n` +
             `===================================================================\n`;
 
           const fullContext = `${prompt}\n${combinedPreAnalysis}`;
 
           // =========================================================================
-          // TẦNG 2: 6 REPLICAS CHUYÊN ĐỀ SONG SONG
+          // TẦNG 2: KHỞI CHẠY SONG SONG 6 REPLICAS & INTRO SWOT (PROGRESSIVE STREAMING)
           // =========================================================================
-          logger.info('[BaziDeepPipeline - TẦNG 2] Khởi chạy 6 Replicas song song...');
-          SseStreamHelper.dispatchProgress(onProgress, { stage: 'stage2', step: 'replicas_start', message: 'Đang tiến hành luận giải chuyên sâu 6 chương...' });
+          logger.info('[BaziDeepPipeline - TẦNG 2] Khởi chạy song song 6 Replicas và Intro SWOT...');
+          SseStreamHelper.dispatchProgress(onProgress, { stage: 'stage2', step: 'replicas_start', message: 'Đang tiến hành luận giải chuyên sâu các chương...' });
 
+          // Khởi chạy Intro SWOT ngay trên nền Tầng 1 Pre-Analysis
+          const introPrompt = `Bạn là Bậc Thầy Mệnh Lý Đông Phương uyên bác.
+Dựa trên dữ liệu lá số Bát Tự và bản phân tích học thuật nền tảng:
+${combinedPreAnalysis}
+
+NHIỆM VỤ CỦA BẠN: SOẠN THẢO PHẦN MỞ ĐẦU (Định vị bản thể & Ma trận SWOT thực chiến):
+BẮT ĐẦU CHÍNH XÁC BẰNG TIÊU ĐỀ: "## ĐỊNH VỊ BẢN MỆNH: BẢN ĐỒ CHIẾN LƯỢC NHÂN SINH & MA TRẬN SWOT"
+Bao gồm 2 mục con rõ ràng:
+### 1. Bản Thể & Chân Dung Cốt Cách Nhật Chủ (khoảng 250 - 300 từ): Khắc họa thần thái cốt cách, năng lượng ngũ hành chủ đạo, điểm đắc lực và sứ mệnh gốc rễ của Nhật Chủ. Dùng ngôn ngữ đời thường, giàu hình ảnh ẩn dụ (ngọn đuốc, dòng nước, đất đai, cỗ xe...), bình dân hóa cho người không biết gì về Bát Tự.
+### 2. Ma Trận Định Vị Bản Mệnh SWOT:
+BẮT BUỘC thiết lập 1 BẢNG MARKDOWN chuẩn xác gồm 3 cột:
+| Chiều Phân Tích | Yếu Tố Mệnh Lý Biện Chứng | Ý Nghĩa Thực Tế & Lời Khuyên Hành Động |
+- Hàng 1: **S - Strengths (Thế Mạnh Cốt Lõi)**: Năng lực vượt trội, quý nhân, điểm tựa tinh thần.
+- Hàng 2: **W - Weaknesses (Tử Huyệt Cần Khắc Phục)**: Điểm yếu, cạm bẫy tâm lý, thói quen bất lợi.
+- Hàng 3: **O - Opportunities (Thời Cơ Thiên Thời)**: Mốc đại vận, năm bứt phá hoàng kim.
+- Hàng 4: **T - Threats (Cạm Bẫy Cần Đề Phòng)**: Giai đoạn biến động, xung khắc cần phòng thủ.
+
+‼️ BỘ QUY TẮC BẮT BUỘC:
+- Đi thẳng vào tiêu đề Markdown, TUYỆT ĐỐI CẤM mọi lời chào hỏi hay xưng danh rác.
+- Xưng hô với đương số là "bạn", TUYỆT ĐỐI KHÔNG dùng từ "ngươi".
+- TUYỆT ĐỐI KHÔNG dùng từ "VIP".`;
+
+          const introPromise = LlmProviderService.callGeminiWithKey(
+            GeminiRotator.getNextKey(),
+            introPrompt
+          ).catch(err => {
+            logger.warn(`[BaziDeepPipeline] Intro SWOT warning: ${err.message}`);
+            return '## ĐỊNH VỊ BẢN MỆNH: BẢN ĐỒ CHIẾN LƯỢC NHÂN SINH & MA TRẬN SWOT\n\nBản mệnh đã được định vị qua tương quan ngũ hành và đại vận.';
+          });
+
+          // Khởi chạy 6 Replicas song song
           const replicaPromises = REPLICAS.map((rep, idx) => {
-            const delay = idx * 250;
+            const delay = idx * 200;
             return new Promise(resolve => setTimeout(resolve, delay)).then(async () => {
               SseStreamHelper.dispatchProgress(onProgress, { stage: 'stage2', chapterId: rep.id, status: 'in_progress', title: rep.title, message: `Đang luận giải: Chương ${rep.id} - ${rep.title}...` });
               const output = await BaziDeepPipeline.executeReplica(rep, fullContext);
@@ -171,102 +162,65 @@ class BaziDeepPipeline {
             });
           });
 
-          const chaptersOutput = await Promise.all(replicaPromises);
-          logger.info('[BaziDeepPipeline - TẦNG 2] 6 Replicas đã hoàn thành 100% bản thảo.');
-
           // =========================================================================
-          // TẦNG 3: GEMINI TỔNG BIÊN TẬP (CHIEF EDITOR)
+          // TIẾN TRÌNH PHÁT DÒNG TỨC THÌ (PROGRESSIVE REPLICA STREAMING)
           // =========================================================================
-          logger.info('[BaziDeepPipeline - TẦNG 3] Gemini đọc TOÀN BỘ 6 chương để tạo SWOT & Điều Hòa...');
-          SseStreamHelper.dispatchProgress(onProgress, { stage: 'stage3', step: 'synthesis_start', message: 'Đang tổng hợp ma trận định vị bản mệnh & điều hòa chiến lược...' });
-
-          const fullChaptersContext = chaptersOutput.map((content, idx) => {
-            const rep = REPLICAS[idx];
-            return `=== VĂN BẢN ĐÃ LUẬN GIẢI: CHƯƠNG ${rep.id} - ${rep.title.toUpperCase()} ===\n${(content || '').trim()}`;
-          }).join('\n\n----------------------------------------\n\n');
-
-          let introAndOutro = null;
-          try {
-            const synthesisPrompt = `Bạn là Đại Sư Mệnh Lý Đông Phương uyên bác.
-Dưới đây là 2 nguồn dữ liệu học thuật hoàn chỉnh của lá số:
-
-[NGUỒN 1: DỮ LIỆU LÁ SỐ BÁT TỰ & BẢN PHÂN TÍCH HỌC THUẬT NỀN TẢNG (TẦNG 1)]:
-${combinedPreAnalysis}
-
-[NGUỒN 2: TOÀN VĂN 6 CHUYÊN ĐỀ ĐÃ ĐƯỢC 6 CHUYÊN GIA ĐỘC LẬP LUẬN GIẢI CHI TIẾT (TẦNG 2)]:
-${fullChaptersContext}
-
-NHIỆM VỤ CỦA BẠN (TỔNG HỢP VÀ ĐIỀU HÒA CHIẾN LƯỢC TOÀN DIỆN CHO ĐƯƠNG SỐ):
-
-1. SOẠN THẢO PHẦN MỞ ĐẦU (Định vị bản thể & Ma trận SWOT thực chiến):
-   BẮT ĐẦU CHÍNH XÁC BẰNG TIÊU ĐỀ: "## ĐỊNH VỊ BẢN MỆNH: BẢN ĐỒ CHIẾN LƯỢC NHÂN SINH & MA TRẬN SWOT"
-   Bao gồm 2 mục con rõ ràng:
-   ### 1. Bản Thể & Chân Dung Cốt Cách Nhật Chủ (khoảng 250 - 300 từ): Khắc họa thần thái cốt cách, năng lượng ngũ hành chủ đạo, điểm đắc lực và sứ mệnh gốc rễ của Nhật Chủ.
-   ### 2. Ma Trận Định Vị Bản Mệnh SWOT (Chiết Xuất 100% Từ 6 Phân Hệ Thực Chiến):
-   BẮT BUỘC thiết lập 1 BẢNG MARKDOWN chuẩn xác gồm 3 cột:
-   | Chiều Phân Tích | Yếu Tố Mệnh Lý Biện Chứng (Tổng hợp từ 6 chương) | Ý Nghĩa Thực Tế & Lời Khuyên Hành Động |
-   - Hàng 1: **S - Strengths (Thế Mạnh Cốt Lõi)**: Tổng hợp trực tiếp từ Ch1 & Ch2.
-   - Hàng 2: **W - Weaknesses (Tử Huyệt Cần Khắc Phục)**: Tổng hợp trực tiếp từ Ch3 & Ch4.
-   - Hàng 3: **O - Opportunities (Thời Cơ Thiên Thời)**: Tổng hợp trực tiếp từ Ch1, Ch2 & Ch6.
-   - Hàng 4: **T - Threats (Cạm Bẫy Cần Đề Phòng)**: Tổng hợp trực tiếp từ Ch3, Ch4 & Ch6.
-
-2. SOẠN THẢO PHẦN KẾT THÚC (Chiến lược điều hòa đa mục tiêu & Đúc kết nhân sinh):
-   BẮT ĐẦU CHÍNH XÁC BẰNG TIÊU ĐỀ: "## CHIẾN LƯỢC ĐIỀU HÒA ĐA MỤC TIÊU & HÓA GIẢI XUNG KHẮC BẢN MỆNH"
-   ### 1. Cân Bằng Giữa Dòng Tiền & Tạng Phủ (Tài Chính vs Sức Khỏe)
-   ### 2. Cân Bằng Giữa Danh Vọng & Hạnh Phúc Gia Đạo (Sự Nghiệp vs Hôn Nhân)
-   ### 3. Bảng Lộ Trình Đồng Bộ Hành Động Theo Chu Kỳ (Master Action Roadmap)
-   Lập BẢNG MARKDOWN 4 cột:
-   | Giai Đoạn Vận Hạn | Mục Tiêu Trọng Tâm Ưu Tiên | Thách Thức Cần Phòng Thủ | Lời Khuyên Hành Động Thực Chiến |
-   
-   Tiếp theo là mục:
-   ## ĐÚC KẾT NHÂN SINH & LỜI KHUYÊN HÀNH ĐẠO (khoảng 250 - 350 từ).
-
-‼️ BỘ QUY TẮC BẮT BUỘC:
-- TUYỆT ĐỐI CẤM mọi lời chào hỏi, xưng danh hay kể lể quy trình biên tập (CẤM: "Chào bạn", "Với tư cách là...", "Tổng biên tập", "Tôi đã thẩm định...", "Theo yêu cầu của bạn", "Dưới đây là phần trình bày...", "Sau khi đọc 6 chương..."). Đi thẳng ngay vào tiêu đề Markdown!
-- Xưng hô với đương số là "bạn", TUYỆT ĐỐI KHÔNG dùng từ "ngươi".
-- TUYỆT ĐỐI KHÔNG tóm tắt hay rút gọn 6 chương vì hệ thống sẽ chèn 100% nguyên văn 6 chương chi tiết vào giữa. Bạn CHỈ XUẤT ĐÚNG 2 PHẦN:
-  [PHẦN 1: DẪN NHẬP ĐỊNH VỊ BẢN MỆNH & SWOT] và [PHẦN 2: CHIẾN LƯỢC ĐIỀU HÒA ĐA MỤC TIÊU & ĐÚC KẾT NHÂN SINH].
-- TUYỆT ĐỐI KHÔNG dùng từ "VIP", "gói VIP", "báo cáo VIP" hay bất kỳ từ "VIP" nào. Hãy luôn sử dụng từ "luận giải chuyên sâu" hoặc "bản luận giải chuyên sâu".`;
-
-            const chiefKey = GeminiRotator.getFallbackKey();
-            logger.info(`[BaziDeepPipeline - Tầng 3] Chief Editor điều phối qua [${GeminiRotator.getKeyLabel(chiefKey)}]...`);
-            introAndOutro = await LlmProviderService.callGeminiWithKey(chiefKey, synthesisPrompt);
-          } catch (synthErr) {
-            logger.warn(`[BaziDeepPipeline - Tầng 3] Synthesis warning: ${synthErr.message}`);
-          }
-
-          let introHeader = '';
-          let outroFooter = '';
-          if (introAndOutro) {
-            const cleanedSynthesis = SseStreamHelper.cleanMarkdown(introAndOutro);
-            const splitRegex = /(?=##\s*CHIẾN LƯỢC ĐIỀU HÒA|##\s*ĐÚC KẾT)/i;
-            const parts = cleanedSynthesis.split(splitRegex);
-            if (parts.length > 1) {
-              introHeader = SseStreamHelper.sanitizeMetaIntro(parts[0]);
-              outroFooter = parts.slice(1).join('\n\n').trim();
-            } else {
-              introHeader = SseStreamHelper.sanitizeMetaIntro(cleanedSynthesis);
-            }
-          }
-
-          // 1. Stream Intro SWOT
+          // 1. Stream Intro SWOT ngay khi hoàn tất (TTFT đạt cực sớm sau ~15-18s!)
+          const rawIntro = await introPromise;
+          const introHeader = SseStreamHelper.sanitizeMetaIntro(rawIntro);
           if (introHeader) {
-            await SseStreamHelper.streamTextChunks(controller, encoder, introHeader, { chunkSize: 120, delayMs: 15 });
+            SseStreamHelper.dispatchProgress(onProgress, { stage: 'streaming', step: 'intro', message: 'Đang trình bày: Bản đồ chiến lược nhân sinh & Ma trận SWOT...' });
+            await SseStreamHelper.streamTextChunks(controller, encoder, introHeader, { chunkSize: 120, delayMs: 12 });
             controller.enqueue(encoder.encode('\n\n---\n\n'));
           }
 
-          // 2. Stream 6 Chapters Full Text
+          // 2. Stream tuần tự từng Chương ngay khi hoàn thành
+          const chaptersOutput = [];
           for (let i = 0; i < REPLICAS.length; i++) {
             const rep = REPLICAS[i];
             SseStreamHelper.dispatchProgress(onProgress, { stage: 'streaming', streamingChapterId: rep.id, title: rep.title, message: `Đang xuất nội dung: Chương ${rep.id} - ${rep.title}...` });
-            const chapterText = SseStreamHelper.cleanMarkdown(chaptersOutput[i] || '');
-            await SseStreamHelper.streamTextChunks(controller, encoder, chapterText, { chunkSize: 120, delayMs: 15 });
+            const rawChapter = await replicaPromises[i];
+            const chapterText = SseStreamHelper.cleanMarkdown(rawChapter || '');
+            chaptersOutput.push(chapterText);
+            await SseStreamHelper.streamTextChunks(controller, encoder, chapterText, { chunkSize: 120, delayMs: 12 });
             controller.enqueue(encoder.encode('\n\n---\n\n'));
           }
 
-          // 3. Stream Outro Strategy
+          // =========================================================================
+          // TẦNG 3: GEMINI TỔNG BIÊN TẬP (OUTRO STRATEGY & ROADMAP)
+          // =========================================================================
+          logger.info('[BaziDeepPipeline - TẦNG 3] Soạn thảo Chiến lược Điều hòa & Master Roadmap...');
+          SseStreamHelper.dispatchProgress(onProgress, { stage: 'stage3', step: 'outro', message: 'Đang đúc kết chiến lược điều hòa đa mục tiêu & lộ trình hành động...' });
+
+          const outroPrompt = `Bạn là Bậc Thầy Mệnh Lý Đông Phương uyên bác.
+Dựa trên toàn bộ bản phân tích 6 chương chuyên sâu:
+${chaptersOutput.map((c, idx) => `[CHƯƠNG ${idx + 1}]:\n${c.slice(0, 1000)}...`).join('\n\n')}
+
+NHIỆM VỤ CỦA BẠN: SOẠN THẢO PHẦN KẾT THÚC (Chiến lược điều hòa đa mục tiêu & Đúc kết nhân sinh):
+BẮT ĐẦU CHÍNH XÁC BẰNG TIÊU ĐỀ: "## CHIẾN LƯỢC ĐIỀU HÒA ĐA MỤC TIÊU & HÓA GIẢI XUNG KHẮC BẢN MỆNH"
+### 1. Cân Bằng Giữa Dòng Tiền & Tạng Phủ (Tài Chính vs Sức Khỏe)
+### 2. Cân Bằng Giữa Danh Vọng & Hạnh Phúc Gia Đạo (Sự Nghiệp vs Hôn Nhân)
+### 3. Bảng Lộ Trình Đồng Bộ Hành Động Theo Chu Kỳ (Master Action Roadmap)
+Lập BẢNG MARKDOWN 4 cột:
+| Giai Đoạn Vận Hạn | Mục Tiêu Trọng Tâm Ưu Tiên | Thách Thức Cần Phòng Thủ | Lời Khuyên Hành Động Thực Chiến |
+
+Tiếp theo là mục:
+## ĐÚC KẾT NHÂN SINH & LỜI KHUYÊN HÀNH ĐẠO (khoảng 250 - 350 từ).
+
+‼️ BỘ QUY TẮC BẮT BUỘC:
+- Đi thẳng ngay vào tiêu đề Markdown, TUYỆT ĐỐI CẤM chào hỏi hay xưng danh rác.
+- Xưng hô "bạn", TUYỆT ĐỐI KHÔNG dùng từ "ngươi".
+- TUYỆT ĐỐI KHÔNG dùng từ "VIP".`;
+
+          const chiefKey = GeminiRotator.getFallbackKey();
+          const rawOutro = await LlmProviderService.callGeminiWithKey(chiefKey, outroPrompt).catch(err => {
+            logger.warn(`[BaziDeepPipeline - Tầng 3] Outro warning: ${err.message}`);
+            return '## CHIẾN LƯỢC ĐIỀU HÒA ĐA MỤC TIÊU & HÓA GIẢI XUNG KHẮC BẢN MỆNH\n\nChúc bạn luôn giữ vững tâm định và gặt hái thành công.';
+          });
+
+          const outroFooter = SseStreamHelper.cleanMarkdown(rawOutro || '');
           if (outroFooter) {
-            await SseStreamHelper.streamTextChunks(controller, encoder, outroFooter, { chunkSize: 120, delayMs: 15 });
+            await SseStreamHelper.streamTextChunks(controller, encoder, outroFooter, { chunkSize: 120, delayMs: 12 });
           }
 
           SseStreamHelper.dispatchProgress(onProgress, { stage: 'completed', isCompleted: true, message: 'Hoàn tất toàn bộ luận giải chuyên sâu!' });
@@ -310,41 +264,22 @@ class ZiweiDeepPipeline {
       `7. DUNG LƯỢNG: Phân tích sâu sắc, độ dài khoảng 800 - 1.200 từ cho chương này.\n` +
       `8. 100% TIẾNG VIỆT THUẦN TÚY: Không dùng chữ Hán / tiếng Trung.\n` +
       `9. TUYỆT ĐỐI CẤM TỪ "VIP": TUYỆT ĐỐI KHÔNG dùng từ "VIP", "gói VIP", "báo cáo VIP" hay bất kỳ từ "VIP" nào trong bài viết. Hãy luôn sử dụng từ "luận giải chuyên sâu" hoặc "bản luận giải chuyên sâu".\n` +
+      `10. QUY TẮC BÌNH DÂN HÓA XUYÊN SUỐT (BẮT ĐẦU NGAY TỪ DÒNG ĐẦU TIÊN & TRONG TỪNG ĐOẠN VĂN):\n` +
+      `    - BẮT BUỘC viết cho người HOÀN TOÀN KHÔNG BIẾT GÌ VỀ TỬ VI, không biết cung chức, chính tinh, sát tinh hay tứ hóa là gì.\n` +
+      `    - TUYỆT ĐỐI KHÔNG viết theo kiểu lý thuyết hàn lâm khô cứng rồi mới tóm tắt máy móc ở cuối! Thay vào đó, BẮT BUỘC phải bình dân hóa NGAY TỪ DÒNG ĐẦU TIÊN và XUYÊN SUỐT TOÀN BỘ BÀI VIẾT.\n` +
+      `    - Mỗi khi đề cập đến một thuật ngữ học thuật (Chính Tinh, Sát Tinh, Tứ Hóa, Đắc Hãm, Cung Vị, Triệt, Tuần...), BẮT BUỘC phải lồng ghép ngay lời giải thích bằng ngôn ngữ đời thường, gần gũi, kèm hình tượng ẩn dụ sinh động (cỗ xe leo dốc, dòng nước chảy, người cầm lái, mảnh đất màu mỡ, ngọn đèn soi đường...).\n` +
+      `    - Mọi phân tích phải liên hệ trực diện với cuộc sống thực tế: Bạn có điểm mạnh gì? Tâm lý ra sao? Tiền tài, sự nghiệp, gia đạo bị ảnh hưởng thế nào? Cụ thể cần làm gì và tránh làm gì để chuyển hung thành cát?\n` +
       `Bắt đầu trực tiếp bằng: ## CHƯƠNG ${id}: ${title.replace(/^Cụm\s*/i, '').toUpperCase()}`;
 
     try {
-      if (provider === 'gemini') {
-        const geminiKey = GeminiRotator.getNextKey();
-        const geminiModel = model || process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite';
-        logger.info(`[ZiweiDeepPipeline - Tầng 2] Cluster ${id} (${title}) gọi Gemini [${geminiModel}] qua [${GeminiRotator.getKeyLabel(geminiKey)}]...`);
-        return await LlmProviderService.callGeminiWithKey(geminiKey, clusterPrompt, geminiModel);
-      }
-
-      const openRouterKeys = OpenRouterRotator.getKeys();
-      if (openRouterKeys.length > 0) {
-        const orModel = model || process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free';
-        try {
-          logger.info(`[ZiweiDeepPipeline - Tầng 3] Cluster ${id} (${title}) routing to OpenRouter [${orModel}]...`);
-          return await LlmProviderService.callOpenRouterEndpoint({
-            model: orModel,
-            prompt: clusterPrompt
-          });
-        } catch (orErr) {
-          logger.warn(`[ZiweiDeepPipeline - Tầng 3] OpenRouter error: ${orErr.message}. Falling back to Gemini...`);
-        }
-      }
-
-      const fallbackGeminiModel = process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite';
-      const fallbackKey = GeminiRotator.getFallbackKey();
-      logger.info(`[ZiweiDeepPipeline - Fallback] Xoay tua sang [${GeminiRotator.getKeyLabel(fallbackKey)}] cho Cụm ${id}...`);
-      return await LlmProviderService.callGeminiWithKey(fallbackKey, clusterPrompt, fallbackGeminiModel);
+      const geminiKey = GeminiRotator.getNextKey();
+      const geminiModel = model || process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite';
+      logger.info(`[ZiweiDeepPipeline - Tầng 2] Cluster ${id} (${title}) gọi Gemini [${geminiModel}] qua [${GeminiRotator.getKeyLabel(geminiKey)}]...`);
+      return await LlmProviderService.callGeminiWithKey(geminiKey, clusterPrompt, geminiModel);
     } catch (err) {
       logger.warn(`[ZiweiDeepPipeline - Tầng 2] Cluster ${id} fallback error: ${err.message}`);
       const fallbackKey = GeminiRotator.getFallbackKey();
-      return await AiService.generateInterpretation(clusterPrompt, { 
-        model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
-        apiKey: fallbackKey
-      });
+      return await LlmProviderService.callGeminiWithKey(fallbackKey, clusterPrompt, process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite');
     }
   }
 
@@ -358,9 +293,9 @@ class ZiweiDeepPipeline {
 
         try {
           // =========================================================================
-          // TẦNG 1 & TẦNG 2: DUAL CHAIN-OF-THOUGHT (CỐT CÁCH & TỨ HÓA PHI TINH)
+          // TẦNG 1 & TẦNG 2: DUAL CHAIN-OF-THOUGHT (2 LUỒNG GEMINI SDK XOAY TUA KEY)
           // =========================================================================
-          logger.info('[ZiweiDeepPipeline - TẦNG 1 & 2] Bắt đầu suy luận CoT Cốt Cách & Tứ Hóa Phi Tinh...');
+          logger.info('[ZiweiDeepPipeline - TẦNG 1 & 2] Bắt đầu suy luận CoT Cốt Cách & Tứ Hóa Phi Tinh qua Gemini SDK...');
           SseStreamHelper.dispatchProgress(onProgress, { stage: 'stage1', step: 'cot_personality', message: 'Đang thẩm định cốt cách Mệnh Thân & Cục vị tinh đồ...' });
 
           const personalityCotPrompt = `[BẢN SUY LUẬN 1 - GIÁM ĐỊNH CỐT CÁCH MỆNH THÂN & CỤC]:\n` +
@@ -387,20 +322,12 @@ class ZiweiDeepPipeline {
             return 'Cốt cách Mệnh Thân & Cục đã được ghi nhận trong dữ liệu tinh đồ.';
           });
 
-          const openRouterKeys = OpenRouterRotator.getKeys();
-          const cot2Promise = (openRouterKeys.length > 0
-            ? LlmProviderService.callOpenRouterEndpoint({
-                model: process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free',
-                prompt: tuHoaCotPrompt,
-                timeoutMs: 40000
-              })
-            : LlmProviderService.callGeminiWithKey(
-                GeminiRotator.getFallbackKey(),
-                tuHoaCotPrompt
-              )
+          const cot2Promise = LlmProviderService.callGeminiWithKey(
+            GeminiRotator.getNextKey(),
+            tuHoaCotPrompt
           ).catch((e) => {
             const fallbackKey = GeminiRotator.getFallbackKey();
-            logger.warn(`[ZiweiDeepPipeline - CoT 2] OpenRouter error, falling back to Gemini [${GeminiRotator.getKeyLabel(fallbackKey)}]:`, e.message);
+            logger.warn(`[ZiweiDeepPipeline - CoT 2] Gemini error, retrying with [${GeminiRotator.getKeyLabel(fallbackKey)}]:`, e.message);
             return LlmProviderService.callGeminiWithKey(
               fallbackKey,
               tuHoaCotPrompt
@@ -413,19 +340,48 @@ class ZiweiDeepPipeline {
 
           const combinedCot = `\n=== BẢN SUY LUẬN HỌC THUẬT NỀN TẢNG (TẦNG 1 & 2 DUAL COT) ===\n` +
             `[COT 1 - CỐT CÁCH MỆNH THÂN & CỤC (GEMINI)]:\n${cot1}\n\n` +
-            `[COT 2 - TỨ HÓA PHI TINH & CỘNG HƯỞNG CUNG VỊ (OPENROUTER)]:\n${cot2}\n` +
+            `[COT 2 - TỨ HÓA PHI TINH & CỘNG HƯỞNG CUNG VỊ (GEMINI)]:\n${cot2}\n` +
             `=======================================================\n`;
 
           const fullContext = `${prompt}\n${combinedCot}`;
 
           // =========================================================================
-          // TẦNG 3: 5 REPLICAS CHƯƠNG CHUYÊN ĐỀ SONG SONG
+          // TẦNG 3: KHỞI CHẠY SONG SONG 5 CỤM CUNG & INTRO SWOT (PROGRESSIVE STREAMING)
           // =========================================================================
-          logger.info('[ZiweiDeepPipeline - TẦNG 3] Khởi chạy 5 Chương chuyên đề song song...');
+          logger.info('[ZiweiDeepPipeline - TẦNG 3] Khởi chạy song song 5 Cụm Cung và Intro SWOT...');
           SseStreamHelper.dispatchProgress(onProgress, { stage: 'stage3', step: 'clusters_start', message: 'Đang tiến hành luận giải chuyên sâu 5 chương tinh đồ...' });
 
+          const introPrompt = `Bạn là Bậc Thầy Tử Vi Đẩu Số uyên bác.
+Dựa trên dữ liệu lá số Tử Vi và bản suy luận cốt cách nền tảng:
+${combinedCot}
+
+NHIỆM VỤ CỦA BẠN: SOẠN THẢO PHẦN MỞ ĐẦU (Định vị bản thể & Ma trận SWOT Mệnh Bàn):
+BẮT ĐẦU CHÍNH XÁC BẰNG TIÊU ĐỀ: "## ĐỊNH VỊ BẢN MỆNH: MA TRẬN MỆNH BÀN SWOT & TỔNG QUAN TINH ĐỒ"
+### 1. Thần Thái & Chân Dung Cốt Cách Tinh Đẩu (khoảng 250 - 300 từ): Khắc họa khí chất, điểm mạnh cốt tử và bản lĩnh nội tại bằng ngôn ngữ đời thường, hình tượng sinh động.
+### 2. Ma Trận Mệnh Bàn SWOT 4 Chiều:
+BẮT BUỘC lập BẢNG MARKDOWN chuẩn xác gồm 3 cột:
+| Chiều Phân Tích | Tinh Đẩu & Cung Vị Biện Chứng | Ý Nghĩa Thực Tế & Lời Khuyên Hành Động |
+- **S - Strengths**: Cát tinh đắc địa, Hóa Lộc, Hóa Quyền, thế tam hợp đắc lực.
+- **W - Weaknesses**: Hung sát tinh hãm địa, cung Vô Chính Diệu, tử huyệt tâm lý.
+- **O - Opportunities**: Thời vận hanh thông, Hóa Khoa, Quý Nhân trợ mệnh.
+- **T - Threats**: Hóa Kỵ xung phá, cạm bẫy Không Kiếp, Kình Đà và các đại hạn hiểm ác.
+
+‼️ BỘ QUY TẮC BẮT BUỘC:
+- Đi thẳng ngay vào tiêu đề Markdown, TUYỆT ĐỐI CẤM chào hỏi hay xưng danh rác.
+- Xưng hô "bạn", TUYỆT ĐỐI KHÔNG dùng từ "ngươi".
+- TUYỆT ĐỐI KHÔNG dùng từ "VIP".`;
+
+          const introPromise = LlmProviderService.callGeminiWithKey(
+            GeminiRotator.getNextKey(),
+            introPrompt
+          ).catch(err => {
+            logger.warn(`[ZiweiDeepPipeline] Intro SWOT warning: ${err.message}`);
+            return '## ĐỊNH VỊ BẢN MỆNH: MA TRẬN MỆNH BÀN SWOT & TỔNG QUAN TINH ĐỒ\n\nBản mệnh đã được định vị qua cốt cách Mệnh Thân và Tứ Hóa.';
+          });
+
+          // Khởi chạy 5 Clusters song song
           const clusterPromises = REPLICAS.map((rep, idx) => {
-            const delay = idx * 250;
+            const delay = idx * 200;
             return new Promise(resolve => setTimeout(resolve, delay)).then(async () => {
               SseStreamHelper.dispatchProgress(onProgress, { stage: 'stage3', chapterId: rep.id, status: 'in_progress', title: rep.title, message: `Đang luận giải: Chương ${rep.id} - ${rep.title}...` });
               const output = await ZiweiDeepPipeline.executeClusterReplica(rep, fullContext);
@@ -434,100 +390,65 @@ class ZiweiDeepPipeline {
             });
           });
 
-          const clustersOutput = await Promise.all(clusterPromises);
-          logger.info('[ZiweiDeepPipeline - TẦNG 3] 5 Chương đã hoàn thành 100%.');
-
           // =========================================================================
-          // TẦNG 4: GEMINI CHIEF EDITOR (SWOT MỆNH BÀN & ĐIỀU HÒA CHIẾN LƯỢC ĐẠI HẠN)
+          // TIẾN TRÌNH PHÁT DÒNG TỨC THÌ (PROGRESSIVE REPLICA STREAMING)
           // =========================================================================
-          logger.info('[ZiweiDeepPipeline - TẦNG 4] Gemini đọc TOÀN BỘ 5 chương để xuất SWOT & Hóa Giải...');
-          SseStreamHelper.dispatchProgress(onProgress, { stage: 'stage4', step: 'synthesis_start', message: 'Đang tổng hợp ma trận mệnh bàn & kế sách điều hòa phi tinh...' });
-
-          const fullClustersContext = clustersOutput.map((content, idx) => {
-            const rep = REPLICAS[idx];
-            return `=== VĂN BẢN ĐÃ LUẬN GIẢI: CHƯƠNG ${rep.id} - ${rep.title.toUpperCase()} ===\n${(content || '').trim()}`;
-          }).join('\n\n----------------------------------------\n\n');
-
-          let introAndOutro = null;
-          try {
-            const chiefEditorPrompt = `Bạn là Đại Sư Tử Vi Đẩu Số uyên bác.
-Dưới đây là 2 nguồn dữ liệu hoàn chỉnh của lá số:
-
-[NGUỒN 1: TINH ĐỒ FACT DATA & SUY LUẬN TẦNG 1-2 COT]:
-${combinedCot}
-
-[NGUỒN 2: TOÀN VĂN 5 CHƯƠNG ĐÃ ĐƯỢC 5 CHUYÊN GIA ĐỘC LẬP LUẬN GIẢI CHI TIẾT (TẦNG 3)]:
-${fullClustersContext}
-
-NHIỆM VỤ CỦA BẠN (TỔNG HỢP VÀ ĐIỀU HÒA CHIẾN LƯỢC TOÀN DIỆN CHO ĐƯƠNG SỐ):
-1. SOẠN THẢO PHẦN MỞ ĐẦU (Định vị bản thể & Ma trận SWOT Mệnh Bàn):
-   BẮT ĐẦU CHÍNH XÁC BẰNG TIÊU ĐỀ: "## ĐỊNH VỊ BẢN MỆNH: MA TRẬN MỆNH BÀN SWOT & TỔNG QUAN TINH ĐỒ"
-   ### 1. Thần Thái & Chân Dung Cốt Cách Tinh Đẩu (khoảng 250 - 300 từ)
-   ### 2. Ma Trận Mệnh Bàn SWOT 4 Chiều (Tổng hợp từ 5 chương & Tứ Hóa):
-   BẮT BUỘC lập BẢNG MARKDOWN chuẩn xác gồm 3 cột:
-   | Chiều Phân Tích | Tinh Đẩu & Cung Vị Biện Chứng | Ý Nghĩa Thực Tế & Lời Khuyên Hành Động |
-   - **S - Strengths**: Các cát tinh đắc địa, Hóa Lộc, Hóa Quyền, thế tam hợp đắc lực.
-   - **W - Weaknesses**: Các hung sát tinh hãm địa, cung Vô Chính Diệu, tử huyệt tâm lý.
-   - **O - Opportunities**: Thiên thời từ Hóa Khoa, Quý Nhân trợ mệnh, vận trình hanh thông.
-   - **T - Threats**: Hóa Kỵ xung phá, cạm bẫy Không Kiếp, Kình Đà và các hạn hiểm ác.
-
-2. SOẠN THẢO PHẦN KẾT THÚC (Chiến lược điều hòa & Kế sách hóa giải tinh đồ):
-   BẮT ĐẦU CHÍNH XÁC BẰNG TIÊU ĐỀ: "## CHIẾN LƯỢC ĐIỀU HÒA & ĐẠI HẠN 10 NĂM: KẾ SÁCH PHI TINH HÓA GIẢI"
-   ### 1. Kế Sách Phi Tinh Điều Hòa Năng Lượng & Hóa Giải Hung Sát
-   (Cách hóa giải Hóa Kỵ, cách thuần hóa Không Kiếp, Kình Đà dựa trên hành vi và môi trường).
-   ### 2. Bảng Dự Phóng Đại Vận 10 Năm (Master Lifepath Roadmap)
-   Lập BẢNG MARKDOWN 4 cột:
-   | Đại Hạn / Độ Tuổi | Cung Vị Đại Hạn | Cát Tinh & Hung Sát Chủ Quản | Chiến Lược Hành Động Tối Ưu |
-   
-   Tiếp theo là mục:
-   ## ĐÚC KẾT NHÂN SINH & LỜI KHUYÊN HÀNH ĐẠO (khoảng 250 - 350 từ).
-
-‼️ BỘ QUY TẮC BẮT BUỘC:
-- TUYỆT ĐỐI CẤM mọi lời chào hỏi, xưng danh hay kể lể quy trình biên tập (CẤM: "Chào bạn", "Với tư cách là...", "Tổng biên tập", "Tôi đã thẩm định...", "Theo yêu cầu của bạn", "Dưới đây là phần trình bày...", "Sau khi đọc 5 chương..."). Đi thẳng ngay vào tiêu đề Markdown!
-- Xưng hô với đương số là "bạn", TUYỆT ĐỐI KHÔNG dùng từ "ngươi".
-- TUYỆT ĐỐI KHÔNG tóm tắt hay rút gọn 5 chương vì hệ thống sẽ chèn 100% nguyên văn 5 chương vào giữa. Bạn CHỈ XUẤT ĐÚNG 2 PHẦN:
-  [PHẦN 1: DẪN NHẬP ĐỊNH VỊ BẢN MỆNH SWOT] và [PHẦN 2: CHIẾN LƯỢC ĐIỀU HÒA & KẾ SÁCH HÓA GIẢI].
-- TUYỆT ĐỐI KHÔNG dùng từ "VIP", "gói VIP", "báo cáo VIP" hay bất kỳ từ "VIP" nào. Hãy luôn sử dụng từ "luận giải chuyên sâu" hoặc "bản luận giải chuyên sâu".`;
-
-            const chiefKey = GeminiRotator.getFallbackKey();
-            logger.info(`[ZiweiDeepPipeline - Tầng 4] Chief Editor điều phối qua [${GeminiRotator.getKeyLabel(chiefKey)}]...`);
-            introAndOutro = await LlmProviderService.callGeminiWithKey(chiefKey, chiefEditorPrompt);
-          } catch (synthErr) {
-            logger.warn(`[ZiweiDeepPipeline - Tầng 4] Synthesis warning: ${synthErr.message}`);
-          }
-
-          let introHeader = '';
-          let outroFooter = '';
-          if (introAndOutro) {
-            const cleanedSynthesis = SseStreamHelper.cleanMarkdown(introAndOutro);
-            const splitRegex = /(?=##\s*CHIẾN LƯỢC ĐIỀU HÒA|##\s*ĐÚC KẾT)/i;
-            const parts = cleanedSynthesis.split(splitRegex);
-            if (parts.length > 1) {
-              introHeader = SseStreamHelper.sanitizeMetaIntro(parts[0]);
-              outroFooter = parts.slice(1).join('\n\n').trim();
-            } else {
-              introHeader = SseStreamHelper.sanitizeMetaIntro(cleanedSynthesis);
-            }
-          }
-
-          // 1. Stream Intro SWOT
+          // 1. Stream Intro SWOT ngay khi hoàn tất (TTFT đạt cực sớm sau ~15-18s!)
+          const rawIntro = await introPromise;
+          const introHeader = SseStreamHelper.sanitizeMetaIntro(rawIntro);
           if (introHeader) {
-            await SseStreamHelper.streamTextChunks(controller, encoder, introHeader, { chunkSize: 120, delayMs: 15 });
+            SseStreamHelper.dispatchProgress(onProgress, { stage: 'streaming', step: 'intro', message: 'Đang trình bày: Bản đồ tinh đồ & Ma trận SWOT Mệnh Bàn...' });
+            await SseStreamHelper.streamTextChunks(controller, encoder, introHeader, { chunkSize: 120, delayMs: 12 });
             controller.enqueue(encoder.encode('\n\n---\n\n'));
           }
 
-          // 2. Stream 5 Clusters Full Text
+          // 2. Stream tuần tự từng Cụm Cung ngay khi hoàn thành
+          const clustersOutput = [];
           for (let i = 0; i < REPLICAS.length; i++) {
             const rep = REPLICAS[i];
             SseStreamHelper.dispatchProgress(onProgress, { stage: 'streaming', streamingChapterId: rep.id, title: rep.title, message: `Đang xuất nội dung: Chương ${rep.id} - ${rep.title}...` });
-            const clusterText = SseStreamHelper.cleanMarkdown(clustersOutput[i] || '');
-            await SseStreamHelper.streamTextChunks(controller, encoder, clusterText, { chunkSize: 120, delayMs: 15 });
+            const rawCluster = await clusterPromises[i];
+            const clusterText = SseStreamHelper.cleanMarkdown(rawCluster || '');
+            clustersOutput.push(clusterText);
+            await SseStreamHelper.streamTextChunks(controller, encoder, clusterText, { chunkSize: 120, delayMs: 12 });
             controller.enqueue(encoder.encode('\n\n---\n\n'));
           }
 
-          // 3. Stream Outro Strategy & Conclusion
+          // =========================================================================
+          // TẦNG 4: GEMINI TỔNG BIÊN TẬP (OUTRO STRATEGY & ROADMAP)
+          // =========================================================================
+          logger.info('[ZiweiDeepPipeline - TẦNG 4] Soạn thảo Kế sách Phi Tinh & Master Lifepath Roadmap...');
+          SseStreamHelper.dispatchProgress(onProgress, { stage: 'stage4', step: 'outro', message: 'Đang đúc kết kế sách điều hòa phi tinh & dự phóng đại vận 10 năm...' });
+
+          const outroPrompt = `Bạn là Bậc Thầy Tử Vi Đẩu Số uyên bác.
+Dựa trên toàn bộ 5 chương phân tích 12 cung tinh đồ:
+${clustersOutput.map((c, idx) => `[CHƯƠNG ${idx + 1}]:\n${c.slice(0, 1000)}...`).join('\n\n')}
+
+NHIỆM VỤ CỦA BẠN: SOẠN THẢO PHẦN KẾT THÚC (Chiến lược điều hòa & Kế sách hóa giải tinh đồ):
+BẮT ĐẦU CHÍNH XÁC BẰNG TIÊU ĐỀ: "## CHIẾN LƯỢC ĐIỀU HÒA & ĐẠI HẠN 10 NĂM: KẾ SÁCH PHI TINH HÓA GIẢI"
+### 1. Kế Sách Phi Tinh Điều Hòa Năng Lượng & Hóa Giải Hung Sát
+(Cách hóa giải Hóa Kỵ, cách thuần hóa Không Kiếp, Kình Đà dựa trên hành vi và môi trường thực tế).
+### 2. Bảng Dự Phóng Đại Vận 10 Năm (Master Lifepath Roadmap)
+Lập BẢNG MARKDOWN 4 cột:
+| Đại Hạn / Độ Tuổi | Cung Vị Đại Hạn | Cát Tinh & Hung Sát Chủ Quản | Chiến Lược Hành Động Tối Ưu |
+
+Tiếp theo là mục:
+## ĐÚC KẾT NHÂN SINH & LỜI KHUYÊN HÀNH ĐẠO (khoảng 250 - 350 từ).
+
+‼️ BỘ QUY TẮC BẮT BUỘC:
+- Đi thẳng ngay vào tiêu đề Markdown, TUYỆT ĐỐI CẤM chào hỏi hay xưng danh rác.
+- Xưng hô "bạn", TUYỆT ĐỐI KHÔNG dùng từ "ngươi".
+- TUYỆT ĐỐI KHÔNG dùng từ "VIP".`;
+
+          const chiefKey = GeminiRotator.getFallbackKey();
+          const rawOutro = await LlmProviderService.callGeminiWithKey(chiefKey, outroPrompt).catch(err => {
+            logger.warn(`[ZiweiDeepPipeline - Tầng 4] Outro warning: ${err.message}`);
+            return '## CHIẾN LƯỢC ĐIỀU HÒA & ĐẠI HẠN 10 NĂM: KẾ SÁCH PHI TINH HÓA GIẢI\n\nChúc bạn luôn vững vàng tâm thế và chuyển hóa vận mệnh.';
+          });
+
+          const outroFooter = SseStreamHelper.cleanMarkdown(rawOutro || '');
           if (outroFooter) {
-            await SseStreamHelper.streamTextChunks(controller, encoder, outroFooter, { chunkSize: 120, delayMs: 15 });
+            await SseStreamHelper.streamTextChunks(controller, encoder, outroFooter, { chunkSize: 120, delayMs: 12 });
           }
 
           SseStreamHelper.dispatchProgress(onProgress, { stage: 'completed', isCompleted: true, message: 'Hoàn tất toàn bộ luận giải chuyên sâu Tử Vi Đẩu Số!' });
@@ -569,40 +490,22 @@ class MarriageDeepPipeline {
       `6. 100% TIẾNG VIỆT THUẦN TÚY: Không dùng chữ Hán / tiếng Trung.\n` +
       `7. DUNG LƯỢNG: Phân tích sâu sắc, độ dài khoảng 800 - 1.200 từ cho Chương này.\n` +
       `8. TUYỆT ĐỐI CẤM TỪ "VIP": TUYỆT ĐỐI KHÔNG dùng từ "VIP", "gói VIP", "báo cáo VIP" hay bất kỳ từ "VIP" nào trong bài viết. Hãy luôn sử dụng từ "luận giải chuyên sâu" hoặc "bản luận giải chuyên sâu".\n` +
+      `9. QUY TẮC BÌNH DÂN HÓA XUYÊN SUỐT (BẮT ĐẦU NGAY TỪ DÒNG ĐẦU TIÊN & TRONG TỪNG ĐOẠN VĂN):\n` +
+      `    - BẮT BUỘC viết cho người HOÀN TOÀN KHÔNG BIẾT GÌ VỀ BÁT TỰ, HỢP HÔN hay CUNG PHI BÁT TRẠCH.\n` +
+      `    - TUYỆT ĐỐI KHÔNG viết theo kiểu lý thuyết hàn lâm khô cứng rồi mới tóm tắt máy móc ở cuối! Thay vào đó, BẮT BUỘC phải bình dân hóa NGAY TỪ DÒNG ĐẦU TIÊN và XUYÊN SUỐT TOÀN BỘ BÀI VIẾT.\n` +
+      `    - Mỗi khi đề cập đến một thuật ngữ học thuật (Cung Phi, Nạp Âm, Tương Xung, Tuyệt Mệnh, Dụng Thần, Hóa Giải...), BẮT BUỘC phải lồng ghép ngay lời giải thích bằng ngôn ngữ đời thường, gần gũi, kèm hình tượng ẩn dụ sinh động (như hai bánh xe cùng trục, dòng sông và con thuyền, chiếc kiềng ba chân, người giữ lửa tổ ấm...).\n` +
+      `    - Mọi phân tích phải liên hệ trực diện với đời sống hôn nhân thường nhật: Hai bạn có điểm tựa gắn kết gì? Điểm nhạy cảm dễ cãi vã là gì? Tài chính, con cái ra sao? Cụ thể cần cư xử và làm gì để hòa hợp trăm năm?\n` +
       `Bắt đầu trực tiếp bằng: ## CHƯƠNG ${id}: ${title.toUpperCase()}`;
 
     try {
-      if (provider === 'gemini') {
-        const geminiKey = GeminiRotator.getNextKey();
-        const geminiModel = model || process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite';
-        logger.info(`[MarriageDeepPipeline - Tầng 2] Trụ ${id} (${title}) gọi Gemini [${geminiModel}] qua [${GeminiRotator.getKeyLabel(geminiKey)}]...`);
-        return await LlmProviderService.callGeminiWithKey(geminiKey, replicaPrompt, geminiModel);
-      }
-
-      const openRouterKeys = OpenRouterRotator.getKeys();
-      if (openRouterKeys.length > 0) {
-        try {
-          logger.info(`[MarriageDeepPipeline - Tầng 2] Chương ${id} (${title}) routing to OpenRouter [${model}]...`);
-          return await LlmProviderService.callOpenRouterEndpoint({
-            model: model || process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free',
-            prompt: replicaPrompt
-          });
-        } catch (orErr) {
-          logger.warn(`[MarriageDeepPipeline - Tầng 2] OpenRouter Chương ${id} error: ${orErr.message}. Falling back to Gemini...`);
-        }
-      }
-
-      const fallbackGeminiModel = process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite';
-      const fallbackKey = GeminiRotator.getFallbackKey();
-      logger.info(`[MarriageDeepPipeline - Fallback] Xoay tua sang [${GeminiRotator.getKeyLabel(fallbackKey)}] cho Chương ${id}...`);
-      return await LlmProviderService.callGeminiWithKey(fallbackKey, replicaPrompt, fallbackGeminiModel);
+      const geminiKey = GeminiRotator.getNextKey();
+      const geminiModel = model || process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite';
+      logger.info(`[MarriageDeepPipeline - Tầng 2] Trụ ${id} (${title}) gọi Gemini [${geminiModel}] qua [${GeminiRotator.getKeyLabel(geminiKey)}]...`);
+      return await LlmProviderService.callGeminiWithKey(geminiKey, replicaPrompt, geminiModel);
     } catch (err) {
-      logger.warn(`[MarriageDeepPipeline - Tầng 2] Chương ${id} fallback error: ${err.message}. Using default Gemini...`);
+      logger.warn(`[MarriageDeepPipeline - Tầng 2] Chương ${id} fallback error: ${err.message}`);
       const fallbackKey = GeminiRotator.getFallbackKey();
-      return await AiService.generateInterpretation(replicaPrompt, { 
-        model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
-        apiKey: fallbackKey
-      });
+      return await LlmProviderService.callGeminiWithKey(fallbackKey, replicaPrompt, process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite');
     }
   }
 
@@ -618,10 +521,10 @@ class MarriageDeepPipeline {
       async start(controller) {
         const encoder = new TextEncoder();
         try {
-          // --- TỔNG QUAN: Phân Tích Cốt Lõi Tương Quan Bản Mệnh (DUAL COT) ---
+          // --- TỔNG QUAN: Phân Tích Cốt Lõi Tương Quan Bản Mệnh (2 LUỒNG GEMINI SDK XOAY TUA KEY) ---
           SseStreamHelper.dispatchProgress(onProgress, {
             stage: 'cot_started',
-            message: 'Đang khảo cứu tương quan Bát Tự & Cung Phi Bát Trạch...'
+            message: 'Đang khảo cứu tương quan Bát Tự & Cung Phi Bát Trạch qua Gemini SDK...'
           });
 
           const cotGeminiPrompt = `Bạn là Bậc thầy Mệnh lý Hợp Hôn. Hãy phân tích ngắn gọn, sắc bén tương quan bản mệnh:\n${prompt}\n\n` +
@@ -629,7 +532,7 @@ class MarriageDeepPipeline {
             `1. Bản chất tương tác Nhật Chủ & Ngũ hành Nạp Âm của 2 người (Tương sinh, tương khắc hay tương trợ?).\n` +
             `2. Sự bổ khuyết ngũ hành: Ai có ngũ hành vượng để bổ trợ cho ngũ hành suy khuyết của người kia?`;
 
-          const cotOrPrompt = `Bạn là Đại sư Phong thủy Bát Trạch & Hôn Phối. Hãy biện chứng phong thủy hợp hôn:\n${prompt}\n\n` +
+          const cotPhiTrachPrompt = `Bạn là Đại sư Phong thủy Bát Trạch & Hôn Phối. Hãy biện chứng phong thủy hợp hôn:\n${prompt}\n\n` +
             `YÊU CẦU ĐÚC KẾT CỐT LÕI (150-250 từ):\n` +
             `1. Tương quan Cung Phi Bát Trạch (Thuộc nhóm Sinh Khí, Diên Niên, Thiên Y, Phục Vị hay Tuyệt Mệnh, Ngũ Quỷ, Họa Hại, Lục Sát?).\n` +
             `2. Đâu là "ngũ hành cầu nối" trọng yếu nhất để chuyển hung thành cát cho cặp đôi này?`;
@@ -642,40 +545,61 @@ class MarriageDeepPipeline {
             return 'Tương quan ngũ hành bản mệnh đã được xác lập trong dữ liệu hợp hôn.';
           });
 
-          const openRouterKeys = OpenRouterRotator.getKeys();
-          const cotOrPromise = (openRouterKeys.length > 0
-            ? LlmProviderService.callOpenRouterEndpoint({
-                model: process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free',
-                prompt: cotOrPrompt,
-                timeoutMs: 35000
-              })
-            : LlmProviderService.callGeminiWithKey(
-                GeminiRotator.getFallbackKey(),
-                cotOrPrompt
-              )
+          const cotPhiTrachPromise = LlmProviderService.callGeminiWithKey(
+            GeminiRotator.getNextKey(),
+            cotPhiTrachPrompt
           ).catch((e) => {
             const fallbackKey = GeminiRotator.getFallbackKey();
-            logger.warn(`[MarriageDeepPipeline - CoT OpenRouter] Error, falling back to Gemini [${GeminiRotator.getKeyLabel(fallbackKey)}]:`, e.message);
+            logger.warn(`[MarriageDeepPipeline - CoT Phi Trạch] Error, retrying with [${GeminiRotator.getKeyLabel(fallbackKey)}]:`, e.message);
             return LlmProviderService.callGeminiWithKey(
               fallbackKey,
-              cotOrPrompt
+              cotPhiTrachPrompt
             ).catch(() => 'Tương quan Cung Phi và ngũ hành cầu nối đã được xác lập.');
           });
 
-          const [cotGemini, cotOr] = await Promise.all([cotGeminiPromise, cotOrPromise]);
+          const [cotGemini, cotPhiTrach] = await Promise.all([cotGeminiPromise, cotPhiTrachPromise]);
 
-          const fullContext = `${prompt}\n\n[BẢN PHÂN TÍCH TƯƠNG QUAN NỀN TẢNG (DUAL COT)]:\n` +
+          const fullContext = `${prompt}\n\n[BẢN PHÂN TÍCH TƯƠNG QUAN NỀN TẢNG (DUAL COT GEMINI)]:\n` +
             `[BẢN 1 - KHẢO CỨU BẢN MỆNH & NGŨ HÀNH (GEMINI)]:\n${cotGemini}\n\n` +
-            `[BẢN 2 - BIỆN CHỨNG CUNG PHI & CẦU NỐI (OPENROUTER)]:\n${cotOr}`;
+            `[BẢN 2 - BIỆN CHỨNG CUNG PHI & CẦU NỐI (GEMINI)]:\n${cotPhiTrach}`;
 
-          // --- PHÂN TÍCH SONG SONG 4 CHƯƠNG ---
+          // --- KHỞI CHẠY SONG SONG 4 CHƯƠNG & INTRO SWOT (PROGRESSIVE STREAMING) ---
           SseStreamHelper.dispatchProgress(onProgress, {
             stage: 'replicas_started',
             message: 'Đang tiến hành luận giải chuyên sâu 4 chương duyên phận gia đạo...'
           });
 
+          const introPrompt = `Bạn là Bậc Thầy Phong Thủy & Hôn Nhân Gia Đạo uyên thâm.
+Dựa trên phân tích tương quan bản mệnh hai người:
+${fullContext}
+
+NHIỆM VỤ CỦA BẠN: SOẠN THẢO PHẦN MỞ ĐẦU (Tổng quan hôn phối & Ma trận SWOT Hôn Nhân):
+BẮT ĐẦU CHÍNH XÁC BẰNG TIÊU ĐỀ: "## TỔNG QUAN HÔN PHỐI & KHÍ TRƯỜNG NHÂN DUYÊN"
+### 1. Điểm Số Hòa Hợp & Khí Trường Duyên Phận (khoảng 200 - 250 từ): Điểm số hòa hợp (thang điểm 100/100) và Tỷ lệ tương thích (%), phân tích bức tranh tổng thể bằng ngôn ngữ đời thường, giàu hình ảnh ẩn dụ (hai bánh xe, dòng sông và con thuyền...).
+### 2. Ma Trận SWOT Hôn Nhân & Duyên Phận:
+BẮT BUỘC lập BẢNG MARKDOWN 3 cột:
+| Chiều Phân Tích | Yếu Tố Hợp Hôn Biện Chứng | Ý Nghĩa Thực Tế & Lời Khuyên Hành Động |
+- **S - Strengths**: Điểm tựa gắn kết, tương sinh ngũ hành, sự thấu hiểu tự nhiên.
+- **W - Weaknesses**: Điểm nhạy cảm dễ xung đột, thói quen trái ngược cần bao dung.
+- **O - Opportunities**: Cơ hội tài lộc thịnh vượng khi hai người đồng lòng.
+- **T - Threats**: Nguy cơ rủi ro ngoại cảnh, năm xung khắc cần đề phòng.
+
+‼️ BỘ QUY TẮC BẮT BUỘC:
+- Đi thẳng ngay vào tiêu đề Markdown, TUYỆT ĐỐI CẤM chào hỏi hay xưng danh rác.
+- Xưng hô "hai bạn" hoặc "anh chị", TUYỆT ĐỐI KHÔNG dùng từ "ngươi".
+- TUYỆT ĐỐI KHÔNG dùng từ "VIP".`;
+
+          const introPromise = LlmProviderService.callGeminiWithKey(
+            GeminiRotator.getNextKey(),
+            introPrompt
+          ).catch(err => {
+            logger.warn(`[MarriageDeepPipeline] Intro warning: ${err.message}`);
+            return '## TỔNG QUAN HÔN PHỐI & KHÍ TRƯỜNG NHÂN DUYÊN\n\nKhí trường duyên phận của hai bạn đã được xác lập qua tương quan Bát Tự và Cung Phi.';
+          });
+
+          // Khởi chạy 4 Pillars song song
           const pillarPromises = PILLARS.map((pillar, idx) => {
-            const delay = idx * 250;
+            const delay = idx * 200;
             return new Promise(resolve => setTimeout(resolve, delay)).then(async () => {
               SseStreamHelper.dispatchProgress(onProgress, {
                 chapterId: pillar.id,
@@ -694,68 +618,65 @@ class MarriageDeepPipeline {
             });
           });
 
-          const pillarResults = await Promise.all(pillarPromises);
-
-          // --- TỔNG HỢP MA TRẬN DUYÊN PHẬN & HÒA GIẢI ---
-          SseStreamHelper.dispatchProgress(onProgress, {
-            stage: 'chief_editor',
-            message: 'Đang tổng hợp ma trận duyên phận tương hợp & phác đồ hòa giải...'
-          });
-
-          const editorPrompt = `Bạn là Bậc Thầy Phong Thủy & Hôn Nhân Gia Đạo uyên thâm. Đọc toàn bộ phân tích 4 Chương sau đây để viết phần Dẫn Nhập Đánh Giá Tương Hợp và Phác Đồ Hòa Giải trực tiếp cho hai đương số:\n\n` +
-            pillarResults.map(p => `=== CHƯƠNG ${p.id}: ${p.title} ===\n${p.text}`).join('\n\n') +
-            `\n\nNHIỆM VỤ CỦA BẠN:\n` +
-            `1. Viết phần DẪN NHẬP & MA TRẬN ĐÁNH GIÁ MỨC ĐỘ TƯƠNG HỢP đặt lên ĐẦU bài viết:\n` +
-            `   - BẮT ĐẦU CHÍNH XÁC BẰNG TIÊU ĐỀ: "## TỔNG QUAN HÔN PHỐI & KHÍ TRƯỜNG NHÂN DUYÊN"\n` +
-            `   - Điểm số hòa hợp (thang điểm 100/100) và Tỷ lệ tương thích (%)\n` +
-            `   - Ma trận SWOT Hôn Nhân: S (Điểm tựa gắn kết), W (Điểm nhạy cảm xung đột), O (Cơ hội tài lộc khi đồng lòng), T (Nguy cơ rủi ro cần lường trước)\n` +
-            `2. Viết phần KẾT LUẬN & PHÁC ĐỒ HÓA GIẢI đặt ở CUỐI bài viết:\n` +
-            `   - BẮT ĐẦU CHÍNH XÁC BẰNG TIÊU ĐỀ: "## CHIẾN LƯỢC ĐIỀU HÒA & PHÁC ĐỒ HÓA GIẢI HÔN NHÂN"\n` +
-            `   - 3 NGUYÊN TẮC VÀNG GÌN GIỮ HẠNH PHÚC GIA ĐẠO\n` +
-            `   - PHÁC ĐỒ HÓA GIẢI TOÀN DIỆN & LỜI CHÚC PHÚC TRĂM NĂM\n\n` +
-            `‼️ BỘ QUY TẮC BẮT BUỘC:\n` +
-            `- TUYỆT ĐỐI CẤM mọi lời chào hỏi, xưng danh hay kể lể quy trình biên tập (CẤM: "Chào bạn", "Với tư cách là...", "Tổng biên tập", "Tôi đã thẩm định...", "Theo yêu cầu của bạn", "Dưới đây là phần trình bày..."). Đi thẳng ngay vào tiêu đề Markdown!\n` +
-            `- TUYỆT ĐỐI KHÔNG dùng từ "VIP", hãy luôn sử dụng từ "luận giải chuyên sâu" hoặc "bản luận giải chuyên sâu".\n\n` +
-            `Phân tách rõ ràng 2 phần bằng thẻ: <!-- SPLIT_INTRO_OUTRO -->`;
-
-          let introHeader = '';
-          let outroFooter = '';
-          try {
-            const chiefKey = GeminiRotator.getFallbackKey();
-            logger.info(`[MarriageDeepPipeline] Chief Editor điều phối qua [${GeminiRotator.getKeyLabel(chiefKey)}]...`);
-            const editorText = await AiService.generateInterpretation(editorPrompt, { 
-              model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
-              apiKey: chiefKey
-            });
-            if (editorText.includes('<!-- SPLIT_INTRO_OUTRO -->')) {
-              const parts = editorText.split('<!-- SPLIT_INTRO_OUTRO -->');
-              introHeader = SseStreamHelper.sanitizeMetaIntro(parts[0]);
-              outroFooter = parts[1].trim();
-            } else {
-              outroFooter = editorText.trim();
-            }
-          } catch (edErr) {
-            logger.warn('[MarriageDeepPipeline] Chief Editor error:', edErr.message);
-          }
-
-          // --- PHÁT DÒNG KẾT QUẢ SSE MƯỢT MÀ ---
+          // =========================================================================
+          // TIẾN TRÌNH PHÁT DÒNG TỨC THÌ (PROGRESSIVE REPLICA STREAMING)
+          // =========================================================================
+          // 1. Stream Intro SWOT ngay khi hoàn tất (TTFT đạt chỉ sau ~15-18s!)
+          const rawIntro = await introPromise;
+          const introHeader = SseStreamHelper.sanitizeMetaIntro(rawIntro);
           if (introHeader) {
-            await SseStreamHelper.streamTextChunks(controller, encoder, introHeader, { chunkSize: 120, delayMs: 15 });
+            SseStreamHelper.dispatchProgress(onProgress, { stage: 'streaming', step: 'intro', message: 'Đang trình bày: Tổng quan hôn phối & Ma trận SWOT Duyên Phận...' });
+            await SseStreamHelper.streamTextChunks(controller, encoder, introHeader, { chunkSize: 120, delayMs: 12 });
             controller.enqueue(encoder.encode('\n\n---\n\n'));
           }
 
-          for (const p of pillarResults) {
+          // 2. Stream tuần tự từng Trụ Cột Hôn Nhân ngay khi hoàn thành
+          const pillarResults = [];
+          for (let i = 0; i < PILLARS.length; i++) {
+            const p = PILLARS[i];
             SseStreamHelper.dispatchProgress(onProgress, {
               stage: 'streaming',
               streamingChapterId: p.id,
               message: `Đang xuất Chương ${p.id}: ${p.title}...`
             });
-            await SseStreamHelper.streamTextChunks(controller, encoder, p.text, { chunkSize: 120, delayMs: 15 });
+            const rawPillar = await pillarPromises[i];
+            const cleanText = SseStreamHelper.cleanMarkdown(rawPillar.text || '');
+            pillarResults.push({ id: p.id, title: p.title, text: cleanText });
+            await SseStreamHelper.streamTextChunks(controller, encoder, cleanText, { chunkSize: 120, delayMs: 12 });
             controller.enqueue(encoder.encode('\n\n---\n\n'));
           }
 
+          // =========================================================================
+          // TẦNG 3: GEMINI TỔNG BIÊN TẬP (OUTRO PHÁC ĐỒ HÓA GIẢI)
+          // =========================================================================
+          SseStreamHelper.dispatchProgress(onProgress, {
+            stage: 'chief_editor',
+            message: 'Đang tổng hợp phác đồ hòa giải hôn nhân & lời chúc phúc trăm năm...'
+          });
+
+          const editorPrompt = `Bạn là Bậc Thầy Phong Thủy & Hôn Nhân Gia Đạo uyên thâm.
+Dựa trên 4 chương phân tích duyên phận hôn phối:
+${pillarResults.map(p => `=== CHƯƠNG ${p.id}: ${p.title} ===\n${p.text.slice(0, 1000)}...`).join('\n\n')}
+
+NHIỆM VỤ CỦA BẠN: SOẠN THẢO PHẦN KẾT LUẬN & PHÁC ĐỒ HÓA GIẢI:
+BẮT ĐẦU CHÍNH XÁC BẰNG TIÊU ĐỀ: "## CHIẾN LƯỢC ĐIỀU HÒA & PHÁC ĐỒ HÓA GIẢI HÔN NHÂN"
+### 1. 3 NGUYÊN TẮC VÀNG GÌN GIỮ HẠNH PHÚC GIA ĐẠO
+### 2. PHÁC ĐỒ HÓA GIẢI TOÀN DIỆN & LỜI CHÚC PHÚC TRĂM NĂM (khoảng 250 - 350 từ).
+
+‼️ BỘ QUY TẮC BẮT BUỘC:
+- Đi thẳng ngay vào tiêu đề Markdown, TUYỆT ĐỐI CẤM chào hỏi hay xưng danh rác.
+- Xưng hô "hai bạn" hoặc "anh chị", TUYỆT ĐỐI KHÔNG dùng từ "ngươi".
+- TUYỆT ĐỐI KHÔNG dùng từ "VIP".`;
+
+          const chiefKey = GeminiRotator.getFallbackKey();
+          const rawOutro = await LlmProviderService.callGeminiWithKey(chiefKey, editorPrompt).catch(err => {
+            logger.warn(`[MarriageDeepPipeline] Outro warning: ${err.message}`);
+            return '## CHIẾN LƯỢC ĐIỀU HÒA & PHÁC ĐỒ HÓA GIẢI HÔN NHÂN\n\nChúc hai bạn luôn hòa thuận, bao dung và hạnh phúc bền lâu.';
+          });
+
+          const outroFooter = SseStreamHelper.cleanMarkdown(rawOutro || '');
           if (outroFooter) {
-            await SseStreamHelper.streamTextChunks(controller, encoder, outroFooter, { chunkSize: 120, delayMs: 15 });
+            await SseStreamHelper.streamTextChunks(controller, encoder, outroFooter, { chunkSize: 120, delayMs: 12 });
           }
 
           SseStreamHelper.dispatchProgress(onProgress, {
@@ -808,43 +729,24 @@ class IChingDeepPipeline {
       `6. 100% TIẾNG VIỆT THUẦN TÚY: Không dùng chữ Hán / tiếng Trung.\n` +
       `7. DUNG LƯỢNG: Phân tích sâu sắc, độ dài khoảng 600 - 900 từ cho Chương này.\n` +
       `8. TUYỆT ĐỐI CẤM TỪ "VIP": TUYỆT ĐỐI KHÔNG dùng từ "VIP", "gói VIP", "báo cáo VIP" hay bất kỳ từ "VIP" nào trong bài viết. Hãy luôn sử dụng từ "luận giải chuyên sâu" hoặc "bản luận giải chuyên sâu".\n` +
-      `9. TUYỆT ĐỐI CẤM MỌI LỜI CHÀO HỎI, XƯNG DANH: TUYỆT ĐỐI CẤM mọi câu chào hỏi, tự xưng danh (CẤM: 'Chào bạn', 'Với tư cách là...'). Bắt đầu trực tiếp bằng tiêu đề: ## CHƯƠNG ${id}: ${title.toUpperCase()} và đi thẳng vào nội dung học thuật.\n\n` +
+      `9. TUYỆT ĐỐI CẤM MỌI LỜI CHÀO HỎI, XƯNG DANH: TUYỆT ĐỐI CẤM mọi câu chào hỏi, tự xưng danh (CẤM: 'Chào bạn', 'Với tư cách là...'). Bắt đầu trực tiếp bằng tiêu đề: ## CHƯƠNG ${id}: ${title.toUpperCase()} và đi thẳng vào nội dung học thuật.\n` +
+      `10. QUY TẮC BÌNH DÂN HÓA XUYÊN SUỐT (BẮT ĐẦU NGAY TỪ DÒNG ĐẦU TIÊN & TRONG TỪNG ĐOẠN VĂN):\n` +
+      `    - BẮT BUỘC viết cho người HOÀN TOÀN KHÔNG BIẾT GÌ VỀ KINH DỊCH, không biết Quái Tượng, Thoán Từ, Thế - Ứng, Hào Động hay Dụng Thần là gì.\n` +
+      `    - TUYỆT ĐỐI KHÔNG viết theo kiểu lý thuyết cổ thư khô cứng rồi mới tóm tắt máy móc ở cuối! Thay vào đó, BẮT BUỘC phải bình dân hóa NGAY TỪ DÒNG ĐẦU TIÊN và XUYÊN SUỐT TOÀN BỘ BÀI VIẾT.\n` +
+      `    - Mỗi khi đề cập đến một thuật ngữ Dịch lý (Thế - Ứng, Hào Động, Thoán Từ, Dụng Thần, Hóa Tiến/Thoái, Phục Thần, Ứng Kỳ...), BẮT BUỘC phải lồng ghép ngay lời giải thích bằng ngôn ngữ đời thường, gần gũi, kèm hình tượng ẩn dụ sinh động (như người leo dốc, con thuyền xuôi gió hay ngược dòng, chuẩn bị hạt giống trước mùa mưa giông...).\n` +
+      `    - Mọi phân tích phải bám sát 100% câu hỏi cốt lõi của đương số và trả lời thực tế: Tình thế hiện tại ra sao? Thuận lợi hay cản trở? Thời điểm nào nên tiến, khi nào nên thủ? Cụ thể cần làm gì ngay lúc này để đắc thời đắc vị?\n` +
       `Bắt đầu trực tiếp bằng: ## CHƯƠNG ${id}: ${title.toUpperCase()}`;
 
     let generatedText = '';
     try {
-      if (provider === 'gemini') {
-        const geminiKey = GeminiRotator.getNextKey();
-        const geminiModel = model || process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite';
-        logger.info(`[IChingDeepPipeline - Phân tích] Chương ${id} (${title}) gọi Gemini [${geminiModel}] qua [${GeminiRotator.getKeyLabel(geminiKey)}]...`);
-        generatedText = await LlmProviderService.callGeminiWithKey(geminiKey, replicaPrompt, geminiModel);
-      } else {
-        const openRouterKeys = OpenRouterRotator.getKeys();
-        if (openRouterKeys.length > 0) {
-          try {
-            logger.info(`[IChingDeepPipeline - Phân tích] Chương ${id} (${title}) routing to OpenRouter [${model}]...`);
-            generatedText = await LlmProviderService.callOpenRouterEndpoint({
-              model: model || process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free',
-              prompt: replicaPrompt
-            });
-          } catch (orErr) {
-            logger.warn(`[IChingDeepPipeline - Phân tích] OpenRouter Chương ${id} error: ${orErr.message}. Falling back to Gemini...`);
-          }
-        }
-        if (!generatedText) {
-          const fallbackGeminiModel = process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite';
-          const fallbackKey = GeminiRotator.getFallbackKey();
-          logger.info(`[IChingDeepPipeline - Fallback] Xoay tua sang [${GeminiRotator.getKeyLabel(fallbackKey)}] cho Chương ${id}...`);
-          generatedText = await LlmProviderService.callGeminiWithKey(fallbackKey, replicaPrompt, fallbackGeminiModel);
-        }
-      }
+      const geminiKey = GeminiRotator.getNextKey();
+      const geminiModel = model || process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite';
+      logger.info(`[IChingDeepPipeline - Phân tích] Chương ${id} (${title}) gọi Gemini [${geminiModel}] qua [${GeminiRotator.getKeyLabel(geminiKey)}]...`);
+      generatedText = await LlmProviderService.callGeminiWithKey(geminiKey, replicaPrompt, geminiModel);
     } catch (err) {
-      logger.warn(`[IChingDeepPipeline - Phân tích] Chương ${id} fallback error: ${err.message}. Using default Gemini...`);
+      logger.warn(`[IChingDeepPipeline - Phân tích] Chương ${id} fallback error: ${err.message}`);
       const fallbackKey = GeminiRotator.getFallbackKey();
-      generatedText = await AiService.generateInterpretation(replicaPrompt, { 
-        model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
-        apiKey: fallbackKey
-      });
+      generatedText = await LlmProviderService.callGeminiWithKey(fallbackKey, replicaPrompt, process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite');
     }
 
     return SseStreamHelper.sanitizeMetaIntro(generatedText);
@@ -862,10 +764,10 @@ class IChingDeepPipeline {
       async start(controller) {
         const encoder = new TextEncoder();
         try {
-          // --- TỔNG QUAN: Phân Tích Cốt Cách Quẻ Dịch (DUAL COT) ---
+          // --- TỔNG QUAN: Phân Tích Cốt Cách Quẻ Dịch (2 LUỒNG GEMINI SDK XOAY TUA KEY) ---
           SseStreamHelper.dispatchProgress(onProgress, {
             stage: 'cot_started',
-            message: 'Đang khảo cứu cốt cách quái tượng, Thế - Ứng & Hào Động...'
+            message: 'Đang khảo cứu cốt cách quái tượng, Thế - Ứng & Hào Động qua Gemini SDK...'
           });
 
           const cotGeminiPrompt = `Bạn là Bậc thầy Dịch học cổ truyền. Hãy phân tích ngắn gọn, sắc bén tượng quẻ sau:\n${prompt}\n\n` +
@@ -873,7 +775,7 @@ class IChingDeepPipeline {
             `1. Ý nghĩa cốt lõi của Quẻ Chính (Thể) và xu hướng phát triển sang Quẻ Biến (Dụng).\n` +
             `2. Ý nghĩa quái tượng thiên nhiên và Thoán Từ then chốt đối với câu hỏi của đương số.`;
 
-          const cotOrPrompt = `Bạn là Đại sư Lục Hào Dự Trắc. Hãy biện chứng Lục Hào & Khí pháp:\n${prompt}\n\n` +
+          const cotLucHaoPrompt = `Bạn là Đại sư Lục Hào Dự Trắc. Hãy biện chứng Lục Hào & Khí pháp:\n${prompt}\n\n` +
             `YÊU CẦU ĐÚC KẾT KHÍ PHÁP (150-250 từ):\n` +
             `1. Tương quan Hào Thế (Bản thân) vs Hào Ứng (Đối tác/Môi trường) và Hào Động mấu chốt.\n` +
             `2. Độ vượng tướng hưu tù của Dụng Thần theo ngày tháng gieo quẻ.`;
@@ -886,40 +788,61 @@ class IChingDeepPipeline {
             return 'Tượng quẻ và Thoán Từ đã được ghi nhận trong quái tượng nguyên bản.';
           });
 
-          const openRouterKeys = OpenRouterRotator.getKeys();
-          const cotOrPromise = (openRouterKeys.length > 0
-            ? LlmProviderService.callOpenRouterEndpoint({
-                model: process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3.5-lightning:free',
-                prompt: cotOrPrompt,
-                timeoutMs: 35000
-              })
-            : LlmProviderService.callGeminiWithKey(
-                GeminiRotator.getFallbackKey(),
-                cotOrPrompt
-              )
+          const cotLucHaoPromise = LlmProviderService.callGeminiWithKey(
+            GeminiRotator.getNextKey(),
+            cotLucHaoPrompt
           ).catch((e) => {
             const fallbackKey = GeminiRotator.getFallbackKey();
-            logger.warn(`[IChingDeepPipeline - CoT OpenRouter] Error, falling back to Gemini [${GeminiRotator.getKeyLabel(fallbackKey)}]:`, e.message);
+            logger.warn(`[IChingDeepPipeline - CoT Lục Hào] Error, retrying with [${GeminiRotator.getKeyLabel(fallbackKey)}]:`, e.message);
             return LlmProviderService.callGeminiWithKey(
               fallbackKey,
-              cotOrPrompt
+              cotLucHaoPrompt
             ).catch(() => 'Lục Hào Dụng Thần và hào động đã được xác lập.');
           });
 
-          const [cotGemini, cotOr] = await Promise.all([cotGeminiPromise, cotOrPromise]);
+          const [cotGemini, cotLucHao] = await Promise.all([cotGeminiPromise, cotLucHaoPromise]);
 
-          const fullContext = `${prompt}\n\n[BẢN PHÂN TÍCH BIỆN CHỨNG DỊCH LÝ NỀN TẢNG (DUAL COT)]:\n` +
+          const fullContext = `${prompt}\n\n[BẢN PHÂN TÍCH BIỆN CHỨNG DỊCH LÝ NỀN TẢNG (DUAL COT GEMINI)]:\n` +
             `[BẢN 1 - TƯỢNG PHÁP & THỜI THẾ (GEMINI)]:\n${cotGemini}\n\n` +
-            `[BẢN 2 - KHÍ PHÁP & LỤC HÀO DỤNG THẦN (OPENROUTER)]:\n${cotOr}`;
+            `[BẢN 2 - KHÍ PHÁP & LỤC HÀO DỤNG THẦN (GEMINI)]:\n${cotLucHao}`;
 
-          // --- PHÂN TÍCH SONG SONG 6 CHƯƠNG ---
+          // --- KHỞI CHẠY SONG SONG 6 CHƯƠNG & INTRO SWOT (PROGRESSIVE STREAMING) ---
           SseStreamHelper.dispatchProgress(onProgress, {
             stage: 'replicas_started',
             message: 'Đang tiến hành luận giải chuyên sâu 6 chương Dịch lý...'
           });
 
+          const introPrompt = `Bạn là Bậc Thầy Dịch Lý Cổ Học Phương Đông.
+Dựa trên phân tích quẻ Dịch và biện chứng nền tảng:
+${fullContext}
+
+NHIỆM VỤ CỦA BẠN: SOẠN THẢO PHẦN MỞ ĐẦU (Tổng quan định vị thời thế & Ma trận SWOT Dịch Lý):
+BẮT ĐẦU CHÍNH XÁC BẰNG TIÊU ĐỀ: "## TỔNG QUAN QUÁI TƯỢNG & ĐỊNH VỊ THỜI THẾ"
+### 1. Bức Tranh Toàn Cảnh & Khí Thế Quái Tượng (khoảng 200 - 250 từ): Khắc họa thời thế hiện tại của đương số đối với câu hỏi bằng ngôn ngữ đời thường, hình tượng sinh động.
+### 2. Ma Trận Đối Chiếu Quái Tượng SWOT Dịch Lý:
+BẮT BUỘC lập BẢNG MARKDOWN 3 cột:
+| Chiều Kích | Yếu Tố Dịch Lý Biện Chứng | Ý Nghĩa Thực Tế & Lời Khuyên Hành Động |
+- **S - Strengths**: Thế mạnh, nội lực Hào Thế, sự ủng hộ của thời thế.
+- **W - Weaknesses**: Điểm yếu, lực cản nội tại, chỗ hổng cần khắc phục.
+- **O - Opportunities**: Thời cơ thuận lợi từ Hào Động, điểm đột phá hanh thông.
+- **T - Threats**: Rủi ro hung sát, hào thoái, đối tượng khắc phá cần đề phòng.
+
+‼️ BỘ QUY TẮC BẮT BUỘC:
+- Đi thẳng ngay vào tiêu đề Markdown, TUYỆT ĐỐI CẤM chào hỏi hay xưng danh rác.
+- Xưng hô "bạn", TUYỆT ĐỐI KHÔNG dùng từ "ngươi".
+- TUYỆT ĐỐI KHÔNG dùng từ "VIP".`;
+
+          const introPromise = LlmProviderService.callGeminiWithKey(
+            GeminiRotator.getNextKey(),
+            introPrompt
+          ).catch(err => {
+            logger.warn(`[IChingDeepPipeline] Intro warning: ${err.message}`);
+            return '## TỔNG QUAN QUÁI TƯỢNG & ĐỊNH VỊ THỜI THẾ\n\nThời thế quái tượng đã được xác lập qua tương quan Thể - Dụng và Lục Hào.';
+          });
+
+          // Khởi chạy 6 Chapters song song
           const chapterPromises = CHAPTERS.map((ch, idx) => {
-            const delay = idx * 250;
+            const delay = idx * 200;
             return new Promise(resolve => setTimeout(resolve, delay)).then(async () => {
               SseStreamHelper.dispatchProgress(onProgress, {
                 chapterId: ch.id,
@@ -938,73 +861,65 @@ class IChingDeepPipeline {
             });
           });
 
-          const chapterResults = await Promise.all(chapterPromises);
-
-          // --- TỔNG HỢP MA TRẬN QUÁI TƯỢNG & KIM CHỈ NAM ---
-          SseStreamHelper.dispatchProgress(onProgress, {
-            stage: 'chief_editor',
-            message: 'Đang tổng hợp ma trận quái tượng & kim chỉ nam Đạo Dịch...'
-          });
-
-          const editorPrompt = `Bạn là Bậc Thầy Dịch Lý Cổ Học Phương Đông. Đọc toàn bộ 6 chương luận giải Kinh Dịch sau đây để viết phần Tổng Quan Định Vị và Đúc Kết Chỉ Nam trực tiếp cho đương số:\n\n` +
-            chapterResults.map(s => `=== CHƯƠNG ${s.id}: ${s.title} ===\n${s.text}`).join('\n\n') +
-            `\n\nNHIỆM VỤ CỦA BẠN:\n` +
-            `1. Viết phần DẪN NHẬP & MA TRẬN ĐỐI CHIẾU QUÁI TƯỢNG (SWOT DỊCH LÝ) đặt lên ĐẦU bài viết:\n` +
-            `   - BẮT ĐẦU CHÍNH XÁC BẰNG TIÊU ĐỀ: "## TỔNG QUAN QUÁI TƯỢNG & ĐỊNH VỊ THỜI THẾ"\n` +
-            `   - Khắc họa bức tranh toàn cảnh và định vị tình thế hiện tại của đương số đối với câu hỏi cốt lõi\n` +
-            `   - Ma trận SWOT Dịch Lý (Bảng 3 cột: Chiều Kích | Yếu Tố Dịch Lý | Ý Nghĩa Thực Tế):\n` +
-            `     + S (Thế mạnh & Nội lực Hào Thế)\n` +
-            `     + W (Điểm yếu & Cạm bẫy tiềm ẩn)\n` +
-            `     + O (Thời cơ hanh thông & Điểm đột phá)\n` +
-            `     + T (Rủi ro hung sát & Đối tượng khắc phá)\n` +
-            `2. Viết phần KẾT LUẬN & ĐẠO DỊCH CHỈ NAM đặt ở CUỐI bài viết:\n` +
-            `   - BẮT ĐẦU CHÍNH XÁC BẰNG TIÊU ĐỀ: "## KẾT LUẬN & ĐẠO DỊCH CHỈ NAM"\n` +
-            `   - ĐÚC KẾT CHIẾN LƯỢC: NGUYÊN TẮC HÀNH ĐỘNG TÙY THỜI BIẾN DỊCH\n` +
-            `   - 3 ĐIỀU TỐI QUAN TRỌNG ĐỂ THÀNH CÔNG VÀ GIỮ GÌN PHÚC ĐỨC\n\n` +
-            `‼️ BỘ QUY TẮC BẮT BUỘC:\n` +
-            `- TUYỆT ĐỐI CẤM mọi lời chào hỏi, xưng danh hay kể lể quy trình biên tập (CẤM: "Chào bạn", "Với tư cách là...", "Tổng biên tập", "Tôi đã thẩm định...", "Theo yêu cầu của bạn", "Dưới đây là phần trình bày...", "Sau khi đọc 6 chương..."). Đi thẳng ngay vào tiêu đề Markdown!\n` +
-            `- Xưng hô với đương số là "bạn", giọng văn uyên bác, trang trọng, đồng cảm sâu sắc.\n` +
-            `- TUYỆT ĐỐI KHÔNG dùng từ "VIP", hãy luôn sử dụng từ "luận giải chuyên sâu" hoặc "bản luận giải chuyên sâu".\n\n` +
-            `Phân tách rõ ràng 2 phần bằng thẻ: <!-- SPLIT_INTRO_OUTRO -->`;
-
-          let introHeader = '';
-          let outroFooter = '';
-          try {
-            const chiefKey = GeminiRotator.getFallbackKey();
-            logger.info(`[IChingDeepPipeline] Chief Editor điều phối qua [${GeminiRotator.getKeyLabel(chiefKey)}]...`);
-            const editorText = await AiService.generateInterpretation(editorPrompt, { 
-              model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
-              apiKey: chiefKey
-            });
-            if (editorText.includes('<!-- SPLIT_INTRO_OUTRO -->')) {
-              const parts = editorText.split('<!-- SPLIT_INTRO_OUTRO -->');
-              introHeader = SseStreamHelper.sanitizeMetaIntro(parts[0]);
-              outroFooter = parts[1].trim();
-            } else {
-              outroFooter = editorText.trim();
-            }
-          } catch (edErr) {
-            logger.warn('[IChingDeepPipeline] Chief Editor error:', edErr.message);
-          }
-
-          // --- PHÁT DÒNG KẾT QUẢ SSE MƯỢT MÀ ---
+          // =========================================================================
+          // TIẾN TRÌNH PHÁT DÒNG TỨC THÌ (PROGRESSIVE REPLICA STREAMING)
+          // =========================================================================
+          // 1. Stream Intro SWOT ngay khi hoàn tất (TTFT đạt chỉ sau ~15-18s!)
+          const rawIntro = await introPromise;
+          const introHeader = SseStreamHelper.sanitizeMetaIntro(rawIntro);
           if (introHeader) {
-            await SseStreamHelper.streamTextChunks(controller, encoder, introHeader, { chunkSize: 120, delayMs: 15 });
+            SseStreamHelper.dispatchProgress(onProgress, { stage: 'streaming', step: 'intro', message: 'Đang trình bày: Tổng quan quái tượng & Ma trận SWOT Dịch Lý...' });
+            await SseStreamHelper.streamTextChunks(controller, encoder, introHeader, { chunkSize: 120, delayMs: 12 });
             controller.enqueue(encoder.encode('\n\n---\n\n'));
           }
 
-          for (const s of chapterResults) {
+          // 2. Stream tuần tự từng Chương ngay khi hoàn thành
+          const chapterResults = [];
+          for (let i = 0; i < CHAPTERS.length; i++) {
+            const s = CHAPTERS[i];
             SseStreamHelper.dispatchProgress(onProgress, {
               stage: 'streaming',
               streamingChapterId: s.id,
               message: `Đang xuất nội dung: Chương ${s.id} - ${s.title}...`
             });
-            await SseStreamHelper.streamTextChunks(controller, encoder, s.text, { chunkSize: 120, delayMs: 15 });
+            const rawChapter = await chapterPromises[i];
+            const cleanText = SseStreamHelper.cleanMarkdown(rawChapter.text || '');
+            chapterResults.push({ id: s.id, title: s.title, text: cleanText });
+            await SseStreamHelper.streamTextChunks(controller, encoder, cleanText, { chunkSize: 120, delayMs: 12 });
             controller.enqueue(encoder.encode('\n\n---\n\n'));
           }
 
+          // =========================================================================
+          // TẦNG 3: GEMINI TỔNG BIÊN TẬP (OUTRO ĐẠO DỊCH CHỈ NAM)
+          // =========================================================================
+          SseStreamHelper.dispatchProgress(onProgress, {
+            stage: 'chief_editor',
+            message: 'Đang tổng hợp Đạo Dịch chỉ nam & diệu kế hành động...'
+          });
+
+          const editorPrompt = `Bạn là Bậc Thầy Dịch Lý Cổ Học Phương Đông.
+Dựa trên toàn bộ 6 chương luận giải Kinh Dịch sau đây:
+${chapterResults.map(s => `=== CHƯƠNG ${s.id}: ${s.title} ===\n${s.text.slice(0, 1000)}...`).join('\n\n')}
+
+NHIỆM VỤ CỦA BẠN: SOẠN THẢO PHẦN KẾT LUẬN & ĐẠO DỊCH CHỈ NAM:
+BẮT ĐẦU CHÍNH XÁC BẰNG TIÊU ĐỀ: "## KẾT LUẬN & ĐẠO DỊCH CHỈ NAM"
+### 1. ĐÚC KẾT CHIẾN LƯỢC: NGUYÊN TẮC HÀNH ĐỘNG TÙY THỜI BIẾN DỊCH
+### 2. 3 ĐIỀU TỐI QUAN TRỌNG ĐỂ THÀNH CÔNG VÀ GIỮ GÌN PHÚC ĐỨC (khoảng 250 - 350 từ).
+
+‼️ BỘ QUY TẮC BẮT BUỘC:
+- Đi thẳng ngay vào tiêu đề Markdown, TUYỆT ĐỐI CẤM chào hỏi hay xưng danh rác.
+- Xưng hô với đương số là "bạn", TUYỆT ĐỐI KHÔNG dùng từ "ngươi".
+- TUYỆT ĐỐI KHÔNG dùng từ "VIP".`;
+
+          const chiefKey = GeminiRotator.getFallbackKey();
+          const rawOutro = await LlmProviderService.callGeminiWithKey(chiefKey, editorPrompt).catch(err => {
+            logger.warn(`[IChingDeepPipeline] Outro warning: ${err.message}`);
+            return '## KẾT LUẬN & ĐẠO DỊCH CHỈ NAM\n\nChúc bạn luôn sáng suốt thuận theo Đạo Dịch và gặt hái đại cát.';
+          });
+
+          const outroFooter = SseStreamHelper.cleanMarkdown(rawOutro || '');
           if (outroFooter) {
-            await SseStreamHelper.streamTextChunks(controller, encoder, outroFooter, { chunkSize: 120, delayMs: 15 });
+            await SseStreamHelper.streamTextChunks(controller, encoder, outroFooter, { chunkSize: 120, delayMs: 12 });
           }
 
           SseStreamHelper.dispatchProgress(onProgress, {

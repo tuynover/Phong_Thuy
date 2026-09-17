@@ -105,7 +105,7 @@ class BaziAiController {
                     content: cleanedContent,
                     mode: isVipMode ? 'vip' : 'standard',
                     generatedAt: new Date(),
-                    model: isVipMode ? 'Multi-Agent Chuyên Sâu (Qwen Plus + Gemini 3.1 Flash Lite)' : ACTIVE_MODEL,
+                    model: isVipMode ? 'Chuyên Sâu' : 'Tiêu Chuẩn',
                     promptVersion: BAZI_PROMPT_VERSION,
                     promptTokens,
                     completionTokens,
