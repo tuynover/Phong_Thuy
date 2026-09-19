@@ -125,7 +125,7 @@ const cacheCleanupTimer = setInterval(() => {
 if (cacheCleanupTimer.unref) cacheCleanupTimer.unref();
 
 // --- Helper 1: User Profile Cache (Auth & Session Optimization - Hybrid L1 RAM + L2 Redis) ---
-const setUserProfileCache = async (userId, userObj, ttlSec = 86400) => {
+const setUserProfileCache = async (userId, userObj, ttlSec = 300) => {
     if (!userId || !userObj) return;
     try {
         const profile = {
@@ -145,10 +145,11 @@ const setUserProfileCache = async (userId, userObj, ttlSec = 86400) => {
             baziInfo: userObj.baziInfo || null
         };
 
-        // 1. Write to L1 RAM Cache (0.001ms)
+        // 1. Write to L1 RAM Cache (0.001ms - 5 minutes TTL for single-server freshness)
+        const ramTtl = Math.min(ttlSec, 300);
         userProfileRamCache.set(`user:profile:${userId}`, {
             value: profile,
-            expiresAt: Date.now() + (ttlSec * 1000)
+            expiresAt: Date.now() + (ramTtl * 1000)
         });
 
         // 2. Write to L2 Redis Cache (fast timeout protected)
@@ -277,8 +278,14 @@ const acquireRedisLock = async (lockKey, ttlMs = 3000) => {
         const result = await withTimeout(
             redisClient.set(`lock:${lockKey}`, token, 'PX', ttlMs, 'NX'),
             500,
-            null
+            '__TIMEOUT__'
         );
+        if (result === '__TIMEOUT__') {
+            // Safe cleanup if timeout occurred to prevent ghost lock
+            releaseRedisLock(lockKey, token).catch(() => {});
+            lockRamCache.delete(lockKey);
+            return null;
+        }
         if (result !== 'OK') {
             lockRamCache.delete(lockKey);
             return null; // Lock already held in Redis
@@ -286,7 +293,7 @@ const acquireRedisLock = async (lockKey, ttlMs = 3000) => {
         return token;
     } catch (err) {
         logger.warn(`[Redis] Failed to acquire lock [${lockKey}]: ${err.message}`);
-        // If Redis failed or timed out, retain L1 RAM lock and return token
+        // If Redis failed, retain L1 RAM lock and return token
         return token;
     }
 };

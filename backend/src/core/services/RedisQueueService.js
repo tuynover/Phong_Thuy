@@ -8,6 +8,8 @@ class RedisQueueService {
         this.queueName = 'queue:emails';
         this.dlqName = 'queue:emails:dlq';
         this.isProcessing = false;
+        this.maxConcurrency = 3;
+        this.activeJobs = 0;
         this.startWorker();
     }
 
@@ -104,34 +106,41 @@ class RedisQueueService {
     }
 
     /**
-     * Tiến trình Worker chạy ngầm liên tục rút job từ Redis Queue để gửi mail (Non-blocking LPOP)
+     * Tiến trình Worker chạy ngầm liên tục rút job từ Redis Queue để gửi mail (Non-blocking LPOP với concurrency pool)
      */
     async startWorker() {
         if (process.env.NODE_ENV === 'test') return;
         if (this.isProcessing) return;
         this.isProcessing = true;
 
-        const processNextJob = async () => {
-            let nextDelayMs = 3000; // Mặc định nghỉ 3 giây khi queue rỗng
+        const processLoop = async () => {
+            let nextDelayMs = 2000; // Mặc định nghỉ 2 giây khi queue rỗng
 
             if (isRedisConnected()) {
-                try {
-                    const result = await this.processNextJobOnce();
-                    if (result) {
-                        nextDelayMs = result.success ? 100 : 500;
-                    }
-                } catch (err) {
-                    if (err.message && !err.message.includes('Connection is closed')) {
-                        logger.warn(`[RedisQueue Worker] Error processing job: ${err.message}`);
+                while (this.activeJobs < this.maxConcurrency) {
+                    try {
+                        const rawJob = await redisClient.lpop(this.queueName);
+                        if (!rawJob) break; // Queue trống
+
+                        this.activeJobs++;
+                        this.processJob(rawJob).finally(() => {
+                            this.activeJobs = Math.max(0, this.activeJobs - 1);
+                        });
+                        nextDelayMs = 150; // Có job, kiểm tra tiếp nhanh
+                    } catch (err) {
+                        if (err.message && !err.message.includes('Connection is closed')) {
+                            logger.warn(`[RedisQueue Worker] Error pulling job: ${err.message}`);
+                        }
+                        break;
                     }
                 }
             }
 
-            const timer = setTimeout(processNextJob, nextDelayMs);
+            const timer = setTimeout(processLoop, nextDelayMs);
             if (timer.unref) timer.unref();
         };
 
-        processNextJob();
+        processLoop();
     }
 
     /**

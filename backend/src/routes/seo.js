@@ -13,8 +13,23 @@ let htmlTemplateCache = null;
 let lastCacheTime = 0;
 const CACHE_TTL = 10 * 60 * 1000; // 10 phút
 
+const DEFAULT_FALLBACK_HTML = `<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Phong Thủy & Cổ Học Phương Đông</title>
+</head>
+<body style="margin:0;font-family:system-ui,-apple-system,sans-serif;background:#0d1117;color:#c9d1d9;display:flex;align-items:center;justify-content:center;min-height:100vh;">
+  <div style="text-align:center;padding:2rem;">
+    <h2 style="color:#e6edf3;">Phong Thủy & Cổ Học Phương Đông</h2>
+    <p style="color:#8b949e;">Đang kết nối ứng dụng...</p>
+  </div>
+</body>
+</html>`;
+
 /**
- * Lấy index.html gốc từ container frontend
+ * Lấy index.html gốc từ container frontend (kèm template dự phòng)
  */
 async function getHtmlTemplate() {
     const now = Date.now();
@@ -23,9 +38,9 @@ async function getHtmlTemplate() {
     }
 
     try {
-        // Sử dụng AbortController để thiết lập timeout 3 giây cho fetch
+        // Sử dụng AbortController để thiết lập timeout 2.5 giây cho fetch
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3000);
+        const timeoutId = setTimeout(() => controller.abort(), 2500);
 
         // Gọi qua mạng nội bộ Docker tới container frontend
         const response = await fetch('http://frontend:80/index.html', { signal: controller.signal });
@@ -39,9 +54,8 @@ async function getHtmlTemplate() {
         lastCacheTime = now;
         return htmlTemplateCache;
     } catch (error) {
-        logger.error('[SEO Router] Lỗi lấy index.html từ container frontend:', error.message);
-        // Nếu lỗi, trả về cache cũ nếu có
-        return htmlTemplateCache;
+        logger.warn('[SEO Router] Không thể lấy index.html từ container frontend, dùng template dự phòng:', error.message);
+        return htmlTemplateCache || DEFAULT_FALLBACK_HTML;
     }
 }
 

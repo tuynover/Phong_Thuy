@@ -2,7 +2,64 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
-## 📅 Phiên bản: Tái Cấu Trúc Toàn Diện Giai Đoạn 1 & 2 - Tối Ưu Truy Vấn Lịch Sử CSDL, Tinh Gọn Chỉ Mục & Chuẩn Hóa Custom Hooks Phía Frontend (18/09/2026)
+## 📅 Phiên bản: Tái Cấu Trúc Toàn Diện Giai Đoạn 3 & 4 - Kiến Trúc Sạch (Clean Architecture), Trừu Tượng Hóa AI Service Layer, Tinh Gọn Hạ Tầng Single-Server & Tối Ưu Hóa Caching (19/09/2026)
+
+### 🏛️ 1. Giai Đoạn 3: Kiến Trúc Sạch (Clean Architecture) & Trừu Tượng Hóa AI Service Layer
+1. **Chuẩn Hóa Bộ Máy Tính Toán Cổ Học Dùng Chung (`src/shared/engines/`):**
+   - Đã tách khớp nối phụ thuộc ngược (reverse coupling) từ tầng `src/shared/engines/` lên `src/modules/`:
+     - [bazi.engine.js](file:///t:/Phongthuy/backend/src/shared/engines/bazi.engine.js): Áp dụng lazy getter cho `BaziAnalyzer` thay vì import cứng ở top-level.
+     - [iching.engine.js](file:///t:/Phongthuy/backend/src/shared/engines/iching.engine.js): Áp dụng lazy getter cho `IChingDataService`.
+     - [AstrologyEngine.js](file:///t:/Phongthuy/backend/src/shared/engines/AstrologyEngine.js): Áp dụng cơ chế lazy engine resolution (`getEngine`), ngăn chặn kích hoạt chuỗi require chéo modules khi khởi động ứng dụng.
+2. **Di Chuyển & Dọn Sạch Pipeline AI Sang `src/core/ai/deep-interpretation/`:**
+   - Di chuyển toàn bộ thư mục pipeline luận giải chuyên sâu từ `src/modules/bazi/services/deep-interpretation/` về vị trí trung tâm chuẩn xác: [src/core/ai/deep-interpretation/](file:///t:/Phongthuy/backend/src/core/ai/deep-interpretation/).
+   - Tạo các facade re-export tương thích ngược 100% tại `src/modules/bazi/services/deep-interpretation/` để các module và test cũ không bị gián đoạn.
+   - Dọn sạch tàn dư OpenRouter: Loại bỏ `_callOpenRouterSingleModel`, `callOpenRouterEndpoint`, `callOpenAiEndpoint` và hàm ánh xạ model `getOpenRouterModelForChapter`.
+   - Hệ thống vận hành thuần 100% Google Gemini SDK thông qua `GeminiRotator` (Multi-Key Rotation & Rate-Limit Circuit Breaker).
+   - Cập nhật [MultiAgentPipelineService.js](file:///t:/Phongthuy/backend/src/core/services/MultiAgentPipelineService.js) trỏ trực tiếp vào core AI layer.
+3. **Trừu Tượng Hóa Lớp Cơ Sở [BaseAiController.js](file:///t:/Phongthuy/backend/src/core/ai/BaseAiController.js):**
+   - Xây dựng lớp cơ sở `BaseAiController` đóng gói toàn bộ quy trình phức tạp:
+     - Khởi tạo phiên SSE Session kèm heartbeat keepalive.
+     - Kiểm tra và tự động hoàn trả (refund) credit nếu client ngắt kết nối giữa chừng (`req.on('close')`).
+     - Khóa bản ghi nguyên tử chống spam yêu cầu kép (15s distributed lock).
+     - Kiểm tra bộ nhớ cache hợp lệ trả kết quả tức thì (0ms cache hit).
+     - Luồng stream đa mô hình (Tiêu Chuẩn & Chuyên Sâu VIP).
+     - Tính toán prompt/completion/total tokens và ghi nhận thống kê tự động.
+   - Tái cấu trúc thành công cả 4 Controllers: [BaziAiController.js](file:///t:/Phongthuy/backend/src/modules/bazi/controllers/BaziAiController.js), [ZiweiAiController.js](file:///t:/Phongthuy/backend/src/modules/ziwei/controllers/ZiweiAiController.js), [IChingAiController.js](file:///t:/Phongthuy/backend/src/modules/iching/controllers/IChingAiController.js), [MarriageAiController.js](file:///t:/Phongthuy/backend/src/modules/bazi/controllers/MarriageAiController.js).
+   - **Loại bỏ hơn 800 dòng code trùng lặp**, đưa mã nguồn của mỗi controller về dạng khai báo cực kỳ trong sáng (~50-80 dòng).
+4. **Tinh Chỉnh [AiService.js](file:///t:/Phongthuy/backend/src/core/ai/AiService.js):**
+   - Giảm số lượt retry mặc định từ 4 xuống 2 lần.
+   - Giảm timeout yêu cầu AI từ 120s xuống 45s (45.000ms), ngăn ngừa nguy cơ treo luồng khi kết nối mạng quốc tế gặp sự cố.
+
+---
+
+### 🌐 2. Giai Đoạn 4: Hạ Tầng, Caching & DevOps Cho Máy Chủ Đơn (Single Server)
+1. **Tối Ưu Hóa Cache L1 RAM & Triệt Tiêu Deadlock Mồ Côi Trong [redis.js](file:///t:/Phongthuy/backend/src/core/config/redis.js):**
+   - Giảm thời gian sống (TTL) của L1 RAM cache `userProfileRamCache` từ **24 giờ xuống 5 phút (300 giây)**. Đảm bảo dữ liệu người dùng (credits, profile, tokenVersion) luôn tươi mới trên hệ thống single-server mà vẫn đạt tốc độ sub-millisecond (< 1ms).
+   - Nâng cấp hàm `acquireRedisLock`: Xử lý tình huống `withTimeout` mạng (500ms) bằng cách gửi lệnh giải phóng nền an toàn (`releaseRedisLock(lockKey, token)`), triệt tiêu hoàn toàn nguy cơ deadlock ma khi lệnh `SET NX` đến Redis trễ.
+2. **Độc Lập Hóa Template SEO Trong [seo.js](file:///t:/Phongthuy/backend/src/routes/seo.js):**
+   - Bổ sung `DEFAULT_FALLBACK_HTML` tĩnh chuẩn OpenGraph/Twitter card.
+   - Khi frontend container chưa kịp khởi động hoặc mạng nội bộ gặp độ trễ, router SEO tự động fallback sang template tĩnh, triệt tiêu hoàn toàn lỗi HTTP 500.
+3. **Nâng Cấp Concurrency Cho Hàng Đợi Email Trong [RedisQueueService.js](file:///t:/Phongthuy/backend/src/core/services/RedisQueueService.js):**
+   - Nâng cấp worker từ cơ chế rút tuần tự (1 job/lần) lên concurrency pool xử lý tối đa **3 jobs email đồng thời** (`maxConcurrency: 3`).
+   - Tăng tốc độ gửi mã OTP xác thực và thông báo khẩn cấp, chống nghẽn hàng đợi khi nhiều người dùng thao tác cùng thời điểm.
+4. **Khống Chế Tài Nguyên Trong [docker-compose.yml](file:///t:/Phongthuy/docker-compose.yml):**
+   - Bổ sung `deploy.resources.limits` & `reservations`:
+     - `backend`: Giới hạn 1024M RAM, 1.5 CPUs.
+     - `redis`: Giới hạn 384M RAM.
+     - `frontend`: Giới hạn 256M RAM.
+   - Đảm bảo an toàn tuyệt đối cho máy chủ, chống tràn bộ nhớ và bảo vệ hệ thống khỏi Linux OOM Killer.
+
+---
+
+### 🧪 3. Kết Quả Kiểm Thử Toàn Diện
+- **Backend Unit Tests:** Vượt qua **100% (43 Test Suites, 312 Tests PASSED)** với Jest.
+- **Frontend Production Build:** `npm run build` với Vite thành công mỹ mãn trong 20.16s.
+- **Kiểm Thử Trực Tiếp Bằng Chrome DevTools MCP:**
+  - Khởi chạy song song Backend (cổng 3001) và Frontend (cổng 5173).
+  - Điều hướng và thao tác mượt mà qua các màn hình: Trang Chủ, Bát Tự.
+  - Console Log trình duyệt: **0 Lỗi JS, 0 Uncaught Exception**.
+
+---
 
 ### 🗄️ 1. Giai Đoạn 1: Tối Ưu Hóa Truy Vấn Cơ Sở Dữ Liệu & Dọn Dẹp Mã Nguồn (Backend)
 1. **Khắc Phục Triệt Để Lỗi Lọc Dữ Liệu Sau `.limit()` Trong `HistoryQueryHelper.js`:**

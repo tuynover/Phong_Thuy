@@ -84,9 +84,11 @@ graph TD
         
         subgraph CoreLayer [src/core/* - Nền Tảng Dùng Chung]
             CoreControllers --> HealthC[HealthController.js]
-            CoreAI[core/ai/*] --> AiS[AiService.js]
+            CoreAI[core/ai/*] --> BaseAiC[BaseAiController.js]
+            CoreAI --> AiS[AiService.js]
             CoreAI --> ConvCtxS[ConversationContextService.js]
             CoreAI --> AiStreamH[AiStreamHelper.js]
+            CoreAI --> DeepPipe[deep-interpretation/*]
             CoreServices[core/services/*] --> LoggerS[LoggerService.js]
             CoreServices --> MemCacheS[MemoryCacheService.js]
             CoreServices --> UserStatsS[UserStatsService.js]

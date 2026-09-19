@@ -8,15 +8,14 @@ const {
   DeepInterpretationManager,
   BaziDeepPipeline,
   ZiweiDeepPipeline,
-  OpenRouterRotator,
   LlmProviderService,
   SseStreamHelper,
   BAZI_VIP_CONFIG,
   AiConcurrencyLimiter
-} = require('../../modules/bazi/services/deep-interpretation');
+} = require('../ai/deep-interpretation');
 
 class MultiAgentPipelineService {
-  static OpenRouterRotator = OpenRouterRotator;
+  static OpenRouterRotator = null;
   static AiConcurrencyLimiter = AiConcurrencyLimiter;
 
   static async callOpenRouterEndpoint(params) {

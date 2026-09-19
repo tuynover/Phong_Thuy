@@ -12,6 +12,13 @@ services:
       - "3001"
     networks:
       - phongthuy-network
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+          cpus: '1.5'
+        reservations:
+          memory: 256M
   
   frontend:
     image: ${DOCKERHUB_USERNAME:-tuynover}/phongthuy-frontend:latest
@@ -24,6 +31,12 @@ services:
       - "80"
     networks:
       - phongthuy-network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 64M
 
   nginx:
     image: nginx:alpine
@@ -53,6 +66,12 @@ services:
       - redis-data:/data
     networks:
       - phongthuy-network
+    deploy:
+      resources:
+        limits:
+          memory: 384M
+        reservations:
+          memory: 64M
 
 networks:
   phongthuy-network:

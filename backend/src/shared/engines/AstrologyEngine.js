@@ -1,12 +1,23 @@
 const IztroEngine = require('./iztro.engine');
-const BaziEngine = require('./bazi.engine');
-const IChingEngine = require('./iching.engine');
 
 const engines = {
-  tu_vi: new IztroEngine(),
-  bat_tu: new BaziEngine(),
-  kinh_dich: new IChingEngine()
+  tu_vi: new IztroEngine()
 };
+
+function getEngine(system) {
+  if (engines[system]) return engines[system];
+  if (system === 'bat_tu') {
+    const BaziEngine = require('./bazi.engine');
+    engines[system] = new BaziEngine();
+    return engines[system];
+  }
+  if (system === 'kinh_dich') {
+    const IChingEngine = require('./iching.engine');
+    engines[system] = new IChingEngine();
+    return engines[system];
+  }
+  return null;
+}
 
 class AstrologyEngine {
   /**
@@ -25,7 +36,7 @@ class AstrologyEngine {
    * @returns {Object} Kết quả lá số thô từ engine
    */
   static generate(system, params) {
-    const engine = engines[system];
+    const engine = getEngine(system);
     if (!engine) {
       throw new Error(`Astrology Engine cho phân hệ '${system}' chưa được đăng ký.`);
     }

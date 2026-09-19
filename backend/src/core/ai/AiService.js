@@ -99,7 +99,7 @@ class AiService {
         throw lastError;
     }
 
-    async generateInterpretation(prompt, options = {}, retries = 4) {
+    async generateInterpretation(prompt, options = {}, retries = 2) {
         if (!this.genAI && GeminiRotator.getKeys().length === 0) {
             throw new Error("Hệ thống chưa được cấu hình API Key của AI.");
         }
@@ -116,7 +116,7 @@ class AiService {
                 for (let attempt = 1; attempt <= retries + 1; attempt++) {
                     try {
                         const timeoutPromise = new Promise((_, reject) =>
-                            setTimeout(() => reject(new Error('AI Request Timeout')), 120000)
+                            setTimeout(() => reject(new Error('AI Request Timeout')), 45000)
                         );
 
                         const generatePromise = model.generateContent(prompt);
