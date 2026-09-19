@@ -16,6 +16,8 @@ import FloatingErrorToast from '@/components/common/FloatingErrorToast';
 import CustomSelect from '@/components/common/CustomSelect';
 import ZiweiInput from '@/features/ziwei/ZiweiInput';
 import PdfExportModal from '@/components/modals/PdfExportModal';
+import useInterpretationStream from '@/hooks/useInterpretationStream';
+import useRecordRating from '@/hooks/useRecordRating';
 
 // 12 Can Chi Giờ Sinh trong Tử Vi
 const LUNAR_HOURS = [
@@ -66,32 +68,56 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
   });
 
   // AI Interpretation States
-  const [interpretation, setInterpretation] = useState('');
-  const [interpretationMode, setInterpretationMode] = useState(result?.aiInterpretation?.mode || 'standard');
-  const [isInterpreting, setIsInterpreting] = useState(false);
   const [showTierModal, setShowTierModal] = useState(false);
   const [isUpgradeModal, setIsUpgradeModal] = useState(false);
-  const [vipChapter, setVipChapter] = useState(1);
-  const [vipCompletedChapters, setVipCompletedChapters] = useState([]);
-  const [vipActiveChapters, setVipActiveChapters] = useState([]);
-  const [vipStreamingChapter, setVipStreamingChapter] = useState(null);
-  const [vipStatusMessage, setVipStatusMessage] = useState('');
-  const [isVipCompleted, setIsVipCompleted] = useState(false);
-  const [abortController, setAbortController] = useState(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [activeConsultSection, setActiveConsultSection] = useState(null);
-  const [error, setError] = useState('');
+  const [uiError, setUiError] = useState('');
   const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
 
-  useEffect(() => {
-    if (result?.aiInterpretation?.content) {
-      setInterpretation(result.aiInterpretation.content);
-      setInterpretationMode(result.aiInterpretation.mode || 'standard');
-    } else {
-      setInterpretation('');
-      setInterpretationMode('standard');
-    }
-  }, [result]);
+  const {
+    interpretation,
+    setInterpretation,
+    interpretationMode,
+    setInterpretationMode,
+    isInterpreting,
+    vipChapter,
+    vipCompletedChapters,
+    vipActiveChapters,
+    vipStreamingChapter,
+    vipStatusMessage,
+    isVipCompleted,
+    streamError,
+    setStreamError,
+    startStream,
+    abortStream,
+    resetStream
+  } = useInterpretationStream({
+    initialContent: result?.aiInterpretation?.content || '',
+    initialMode: result?.aiInterpretation?.mode || 'standard',
+    scrollTargetId: 'ziwei-interpretation-section'
+  });
+
+  const error = uiError || streamError;
+  const setError = (msg) => {
+    setUiError(msg);
+    setStreamError(msg);
+  };
+
+  const {
+    rating,
+    setRating,
+    feedback,
+    setFeedback,
+    justRated,
+    setJustRated,
+    submitRating
+  } = useRecordRating({
+    recordId: result?._id || result?.id,
+    initialRating: result?.rating || 0,
+    initialFeedback: result?.feedback || '',
+    onInvalidateHistory
+  });
 
   // Auto-clamp Day when Month or Year changes (e.g. 29/02/2023 -> automatically pushes to 28)
   useEffect(() => {
@@ -118,11 +144,6 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
     }
   }, [day, month, year]);
 
-  // Đánh giá sao
-  const [rating, setRating] = useState(0);
-  const [feedback, setFeedback] = useState('');
-  const [justRated, setJustRated] = useState(false);
-
   const prevIdRef = useRef(null);
 
   useEffect(() => {
@@ -130,35 +151,15 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
       localStorage.setItem('tuViResult', JSON.stringify(result));
       const currentId = result._id || result.id;
       if (currentId !== prevIdRef.current) {
-        setJustRated(false);
         prevIdRef.current = currentId;
       }
-      if (result.aiInterpretation && result.aiInterpretation.content) {
-        setInterpretation(result.aiInterpretation.content);
-      } else {
-        setInterpretation('');
-      }
-      setRating(result.rating || 0);
-      setFeedback(result.feedback || '');
       if (onResultChange) onResultChange(true);
     } else {
       localStorage.removeItem('tuViResult');
-      setInterpretation('');
-      setRating(0);
-      setFeedback('');
-      setJustRated(false);
+      resetStream();
       if (onResultChange) onResultChange(false);
     }
-  }, [result, onResultChange]);
-
-  // Clean up abort controller on unmount
-  useEffect(() => {
-    return () => {
-      if (abortController) {
-        abortController.abort();
-      }
-    };
-  }, [abortController]);
+  }, [result, onResultChange, resetStream]);
 
   const [isPublicState, setIsPublicState] = useState(false);
   const [toastMsg, setToastMsg] = useState('');
@@ -381,131 +382,28 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
     }
     if (!result || !result._id) return;
     setShowTierModal(false);
-    setIsInterpreting(true);
     setError('');
 
     const isVip = tier === 'vip';
     const isUpgrade = isUpgradeModal || (isVip && !!(interpretation || result.aiInterpretation?.content));
     const costToDeduct = isUpgrade ? 400 : (isVip ? 500 : 100);
 
-    // 0ms Instant Reset
-    setInterpretation('');
-    setInterpretationMode(isVip ? 'vip' : 'standard');
-    setVipChapter(1);
-    setVipCompletedChapters([]);
-    setVipActiveChapters([]);
-    setVipStreamingChapter(null);
-    setVipStatusMessage(isVip ? 'Đang khởi động hệ thống phân tích...' : '');
-    setIsVipCompleted(false);
-
-    const abortCtrl = new AbortController();
-    setAbortController(abortCtrl);
-
-    let currentText = "";
-    try {
-      const url = getInterpretationStreamUrl('tu_vi', result._id);
-      const headers = {
-        'Content-Type': 'application/json'
-      };
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-      const response = await fetch(url, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ 
-          userId: activeUser.id || activeUser._id || 'guest',
-          mode: isVip ? 'vip' : 'standard'
-        }),
-        signal: abortCtrl.signal
-      });
-
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error || `Lỗi kết nối từ server (HTTP ${response.status})`);
-      }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder('utf-8');
-      let done = false;
-      let buffer = '';
-
-      while (!done) {
-        const { value, done: doneReading } = await reader.read();
-        done = doneReading;
-        if (value) {
-          buffer += decoder.decode(value, { stream: !done });
-          const lines = buffer.split('\n');
-          buffer = lines.pop();
-          for (const line of lines) {
-            const trimmed = line.trim();
-            if (trimmed.startsWith('data: ')) {
-              const dataStr = trimmed.slice(6);
-              if (dataStr === '[DONE]') {
-                done = true;
-                break;
-              }
-              try {
-                const parsed = JSON.parse(dataStr);
-                if (parsed.error) {
-                  throw new Error(parsed.error);
-                }
-                if (parsed.message) {
-                  setVipStatusMessage(parsed.message);
-                }
-                if (parsed.stage === 'streaming' && parsed.streamingChapterId) {
-                  setVipStreamingChapter(parsed.streamingChapterId);
-                }
-                if (parsed.chapterId) {
-                  setVipChapter(parsed.chapterId);
-                  if (parsed.status === 'completed') {
-                    setVipCompletedChapters(prev => prev.includes(parsed.chapterId) ? prev : [...prev, parsed.chapterId]);
-                    setVipActiveChapters(prev => prev.filter(id => id !== parsed.chapterId));
-                  } else if (parsed.status === 'in_progress') {
-                    setVipActiveChapters(prev => prev.includes(parsed.chapterId) ? prev : [...prev, parsed.chapterId]);
-                  }
-                }
-                if (parsed.isCompleted || (parsed.stage === 'completed')) {
-                  setIsVipCompleted(true);
-                }
-                if (parsed.chunk) {
-                  const isFirstChunk = !currentText;
-                  currentText += parsed.chunk;
-                  setInterpretation(currentText);
-                  if (isFirstChunk) {
-                    setTimeout(() => {
-                      const element = document.getElementById('ziwei-interpretation-section');
-                      element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }, 100);
-                  }
-                }
-              } catch (e) {
-                if (e.message.includes('bảo trì') || e.message.includes('SAFETY') || e.message.includes('luận giải') || e.message.includes('quá tải')) {
-                  throw e;
-                }
-              }
-            }
-          }
-        }
-      }
-    } catch (err) {
-      if (err.name === 'AbortError') {
-        console.log("Interpretation stream aborted.");
-      } else {
-        console.error(err);
-        setError(err.message || "Hệ thống luận giải đang bận hoặc gặp lỗi. Vui lòng thử lại sau.");
-      }
-    } finally {
-      setIsInterpreting(false);
-      setAbortController(null);
-      if (isVip) setIsVipCompleted(true);
-
-      if (currentText) {
+    const url = getInterpretationStreamUrl('tu_vi', result._id);
+    await startStream({
+      streamUrl: url,
+      body: { 
+        userId: activeUser.id || activeUser._id || 'guest',
+        mode: isVip ? 'vip' : 'standard'
+      },
+      token,
+      isVip,
+      onCreditDeduct: () => {
+        if (onInvalidateHistory) onInvalidateHistory();
         setResult(prev => ({
           ...prev,
           aiInterpretation: {
-            ...prev.aiInterpretation,
-            content: currentText,
+            ...prev?.aiInterpretation,
+            content: interpretation,
             mode: isVip ? 'vip' : 'standard'
           }
         }));
@@ -518,7 +416,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
           });
         }
       }
-    }
+    });
   };
 
   // Auto-resume polling if the loaded record is currently generating AI interpretation
@@ -540,13 +438,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
   const handleRatingSubmit = async (e) => {
     e.preventDefault();
     if (!result?._id) return;
-    try {
-      await rateZiwei(result._id, rating, feedback);
-      setJustRated(true);
-      if (onInvalidateHistory) onInvalidateHistory();
-    } catch (err) {
-      console.error(err);
-    }
+    await submitRating(rateZiwei);
   };
 
   return (

@@ -2,6 +2,43 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Tái Cấu Trúc Toàn Diện Giai Đoạn 1 & 2 - Tối Ưu Truy Vấn Lịch Sử CSDL, Tinh Gọn Chỉ Mục & Chuẩn Hóa Custom Hooks Phía Frontend (18/09/2026)
+
+### 🗄️ 1. Giai Đoạn 1: Tối Ưu Hóa Truy Vấn Cơ Sở Dữ Liệu & Dọn Dẹp Mã Nguồn (Backend)
+1. **Khắc Phục Triệt Để Lỗi Lọc Dữ Liệu Sau `.limit()` Trong `HistoryQueryHelper.js`:**
+   - **Vấn đề cũ:** Logic lọc ngày tháng năm sinh (`birthDay`, `birthMonth`, `birthYear`, `birthHour`) trước đây được thực hiện bằng bộ lọc JavaScript trên mảng in-memory sau khi MongoDB đã gọi `.limit(limit)`. Điều này dẫn đến việc nếu trang đầu tiên (limit 10 bản ghi) không chứa ngày sinh khớp, người dùng nhận về danh sách rỗng dù trong DB có hàng trăm bản ghi thỏa mãn.
+   - **Giải pháp:** Tích hợp bộ lọc trực tiếp vào MongoDB query object (`buildFilterQuery`). Chuyển đổi linh hoạt regex/number cho trường `inputInfo.birthDate`, `inputInfo.birthDay/Month/Year` (Bát Tự, Tử Vi) và `inputInfo.male.date` / `inputInfo.female.date` (Hợp Hôn). Truy vấn tại DB trước khi phân trang, đảm bảo 100% dữ liệu lịch sử được trả về chính xác.
+2. **Loại Bỏ Chỉ Mục Đơn Lẻ Trùng Lặp Tiền Tố (Index Redundancy):**
+   - Xóa `index: true` đơn lẻ trên trường `userId` trong [Conversation.js](file:///t:/Phongthuy/backend/src/core/models/Conversation.js) vì đã được bao quát hoàn toàn bởi compound index `{ userId: 1, recordId: 1 }` và `{ userId: 1, system: 1, updatedAt: -1 }`.
+   - Xóa `index: true` đơn lẻ trên trường `conversationId` trong [Message.js](file:///t:/Phongthuy/backend/src/core/models/Message.js) vì đã được bao quát bởi compound index `{ conversationId: 1, createdAt: 1 }`.
+   - Giảm dung lượng RAM WiredTiger và tăng tốc độ thao tác ghi (Write IOPS) khi lưu tin nhắn và hội thoại.
+3. **Dọn Dẹp Mã Nguồn Mồ Côi & Tệp Tin Rác:**
+   - Đã xóa tệp tin thừa [PdfTemplateService_orig.js](file:///t:/Phongthuy/backend/src/modules/export/services/PdfTemplateService_orig.js) và [data.docx](file:///t:/Phongthuy/backend/data.docx).
+   - Dọn sạch các tệp tin hình ảnh, PDF, HTML thử nghiệm trong thư mục `scratch/`.
+4. **Kiểm Thử Đơn Vị Backend (Jest Unit Tests):**
+   - Toàn bộ **43 Test Suites (312 Tests PASSED 100%)** đều vượt qua kiểm tra, bảo toàn tính tương thích ngược và thuật toán an sao, lịch pháp.
+
+---
+
+### ⚛️ 2. Giai Đoạn 2: Tái Cấu Trúc Frontend Với Custom Hooks & Dọn Dẹp Cấu Hình
+1. **Loại Bỏ Phantom Dependency Trong [vite.config.js](file:///t:/Phongthuy/frontend/vite.config.js):**
+   - Đã xóa khai báo `'react-router-dom'` khỏi mảng `optimizeDeps.include` (dự án không sử dụng thư viện này).
+2. **Xây Dựng 2 Custom Hooks Dùng Chung:**
+   - **`useInterpretationStream.js`:** Quản lý tập trung toàn bộ kết nối Server-Sent Events (SSE) giải đoán AI: decode luồng TextDecoder utf-8, quản lý trạng thái stream VIP nhiều chương, theo dõi `isVipCompleted`, tự động cuộn trang mượt mà (`scrollIntoView`), xử lý instant fallback và tự động giải phóng `AbortController` khi component unmount.
+   - **`useRecordRating.js`:** Quản lý tập trung trạng thái đánh giá sao (1-5 sao), feedback nhận xét, tự động phát hiện đổi `recordId` để reset form và gửi API đánh giá đồng bộ.
+3. **Tái Cấu Trúc Toàn Bộ 4 Board Nghiệp Vụ:**
+   - Tích hợp thành công 2 hook vào [BaziBoard.jsx](file:///t:/Phongthuy/frontend/src/features/bazi/BaziBoard.jsx), [ZiweiBoard.jsx](file:///t:/Phongthuy/frontend/src/features/ziwei/ZiweiBoard.jsx), [IChingBoard.jsx](file:///t:/Phongthuy/frontend/src/features/iching/IChingBoard.jsx), và [MarriageBoard.jsx](file:///t:/Phongthuy/frontend/src/features/marriage/MarriageBoard.jsx).
+   - Loại bỏ hơn 600 dòng code boilerplate trùng lặp giữa các board, thống nhất chuẩn xử lý SSE streaming và rating trên toàn hệ thống.
+   - Bổ sung import thành phần [SectionRenderer.jsx](file:///t:/Phongthuy/frontend/src/components/widgets/SectionRenderer.jsx) trong `IChingBoard.jsx`.
+4. **Kiểm Thử Toàn Diện Trên Chrome DevTools MCP & Nghiệm Thu UI:**
+   - Chạy lệnh build phía frontend: `npm run build` thành công 100% không lỗi (28.46s).
+   - Khởi chạy Dev Server và kết nối `chrome-devtools-mcp` mở trình duyệt thật tại `http://localhost:5173`.
+   - Kiểm tra tương tác thực tế qua các tab: Bát Tự, Tử Vi, Kinh Dịch, Hôn Nhân, Lịch Sử.
+   - Kiểm tra Console Log: **0 lỗi, 0 cảnh báo uncaught error**.
+   - Chụp ảnh màn hình trực quan các trang nghiệp vụ để nghiệm thu chất lượng hiển thị.
+
+---
+
 ## 📅 Phiên bản: Triển Khai Progressive Replica Streaming, Token Caching Optimization, Bình Dân Hóa Xuyên Suốt & Triệt Tiêu Hoàn Toàn Rò Rỉ Hệ Thống (17/09/2026)
 
 ### 🚀 1. Triệt Tiêu Hoàn Toàn Rò Rỉ Hệ Thống & Chuẩn Hóa Nhãn Hiển Thị

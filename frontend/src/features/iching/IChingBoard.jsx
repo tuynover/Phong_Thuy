@@ -10,11 +10,13 @@ import AiChatWidget from '@/components/widgets/AiChatWidget';
 import InterpretationTierModal from '@/components/modals/InterpretationTierModal';
 import VipUpgradeBanner from '@/components/widgets/VipUpgradeBanner';
 import VipProgressTracker from '@/components/widgets/VipProgressTracker';
-import { parseMarkdownSections } from '@/utils/markdownParser';
 import SectionRenderer from '@/components/widgets/SectionRenderer';
+import { parseMarkdownSections } from '@/utils/markdownParser';
 import PdfExportModal from '@/components/modals/PdfExportModal';
 import { getColorClass, getBgColorClass, HAO_VI_MEANING, getChiOnly } from '@/utils/astrologyHelpers';
 import { AuthContext } from '@/context/AuthContext';
+import useInterpretationStream from '@/hooks/useInterpretationStream';
+import useRecordRating from '@/hooks/useRecordRating';
 
 const LineVisual = ({ type, isRed }) => {
     const colorClass = isRed ? 'bg-red-600' : 'bg-blue-800';
@@ -211,17 +213,12 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
     const activeUser = ctxUser || user;
     const [selectedHex, setSelectedHex] = useState(null);
     const [isChatOpen, setIsChatOpen] = useState(false);
-    const [isInterpreting, setIsInterpreting] = useState(false);
     const [showTierModal, setShowTierModal] = useState(false);
     const [isUpgradeModal, setIsUpgradeModal] = useState(false);
-    const [vipChapter, setVipChapter] = useState(1);
-    const [vipCompletedChapters, setVipCompletedChapters] = useState([]);
-    const [vipActiveChapters, setVipActiveChapters] = useState([]);
-    const [vipStreamingChapter, setVipStreamingChapter] = useState(null);
-    const [vipStatusMessage, setVipStatusMessage] = useState('');
-    const [isVipCompleted, setIsVipCompleted] = useState(false);
-    const [abortController, setAbortController] = useState(null);
-    
+    const [uiError, setUiError] = useState('');
+    const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
+    const [activeConsultSection, setActiveConsultSection] = useState(null);
+
     // Help parse legacy and structured interpretations cleanly
     const getInitialInterpretationText = (aiInt) => {
         if (!aiInt) return '';
@@ -229,58 +226,58 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
         return aiInt.content || '';
     };
 
-    const [interpretation, setInterpretation] = useState(getInitialInterpretationText(result?.aiInterpretation));
-    const [interpretationMode, setInterpretationMode] = useState(result?.aiInterpretation?.mode || 'standard');
-    const [error, setError] = useState('');
-    const [loadingStep, setLoadingStep] = useState(0);
+    const {
+        interpretation,
+        setInterpretation,
+        interpretationMode,
+        setInterpretationMode,
+        isInterpreting,
+        vipChapter,
+        vipCompletedChapters,
+        vipActiveChapters,
+        vipStreamingChapter,
+        vipStatusMessage,
+        isVipCompleted,
+        streamError,
+        setStreamError,
+        startStream,
+        abortStream,
+        resetStream
+    } = useInterpretationStream({
+        initialContent: getInitialInterpretationText(result?.aiInterpretation),
+        initialMode: result?.aiInterpretation?.mode || 'standard',
+        scrollTargetId: 'iching-interpretation-section'
+    });
 
-    const [rating, setRating] = useState(0);
-    const [feedback, setFeedback] = useState('');
-    const [justRated, setJustRated] = useState(false);
-    const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
-    const [activeConsultSection, setActiveConsultSection] = useState(null);
+    const error = uiError || streamError;
+    const setError = (msg) => {
+        setUiError(msg);
+        setStreamError(msg);
+    };
+
+    const {
+        rating,
+        setRating,
+        feedback,
+        setFeedback,
+        justRated,
+        setJustRated,
+        submitRating
+    } = useRecordRating({
+        recordId: result?._id || result?.recordId,
+        initialRating: result?.rating || 0,
+        initialFeedback: result?.feedback || '',
+        onInvalidateHistory
+    });
 
     const prevIdRef = useRef(null);
 
-    // Update interpretation if result changes (e.g. user clicks another history item)
     useEffect(() => {
         const currentId = result?._id || result?.recordId;
         if (currentId !== prevIdRef.current) {
-            setJustRated(false);
             prevIdRef.current = currentId;
         }
-        setInterpretation(getInitialInterpretationText(result?.aiInterpretation));
-        setInterpretationMode(result?.aiInterpretation?.mode || 'standard');
-        setRating(result?.rating || 0);
-        setFeedback(result?.feedback || '');
     }, [result]);
-
-    // Elegant minimalist loading texts
-    const loadingTexts = [
-        "Đang tra cứu Tượng Quẻ...",
-        "Đang luận giải Thế Ứng...",
-        "Đang định vị Hào Động..."
-    ];
-
-    useEffect(() => {
-        let interval;
-        if (isInterpreting) {
-            setLoadingStep(0);
-            interval = setInterval(() => {
-                setLoadingStep(prev => (prev < loadingTexts.length - 1 ? prev + 1 : prev));
-            }, 3500);
-        }
-        return () => clearInterval(interval);
-    }, [isInterpreting]);
-
-    // Auto abort on component destruction
-    useEffect(() => {
-        return () => {
-            if (abortController) {
-                abortController.abort();
-            }
-        };
-    }, [abortController]);
 
     const [isPublicState, setIsPublicState] = useState(false);
     const [toastMsg, setToastMsg] = useState('');
@@ -312,166 +309,57 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
 
     const handleRatingSubmit = async (e) => {
         e.preventDefault();
-        const resolvedId = result?._id || result?.recordId;
-        if (!resolvedId) return;
-        try {
-            await rateIChing(resolvedId, rating, feedback);
-            setJustRated(true);
-            if (onInvalidateHistory) onInvalidateHistory();
-            if (onUpdateResult) {
-                onUpdateResult({
-                    ...result,
-                    rating,
-                    feedback
-                });
-            }
-        } catch (err) {
-            console.error(err);
+        const success = await submitRating(rateIChing);
+        if (success && onUpdateResult) {
+            onUpdateResult({
+                ...result,
+                rating,
+                feedback
+            });
         }
     };
 
     const triggerLuanGiai = async (tier = 'standard') => {
         setShowTierModal(false);
-        setIsInterpreting(true);
         setError('');
 
         const isVip = tier === 'vip';
         const isUpgrade = isUpgradeModal || (isVip && !!interpretation);
-        const costToDeduct = isUpgrade ? 400 : (isVip ? 500 : 100);
+        const isAlreadyVip = result?.aiInterpretation?.mode === 'vip' && !!result?.aiInterpretation?.content;
+        const isAlreadyStandard = !isVip && !!result?.aiInterpretation?.content;
+        const isCacheHit = isAlreadyVip || isAlreadyStandard;
+        const costToDeduct = isCacheHit ? 0 : (isUpgrade ? 400 : (isVip ? 500 : 100));
 
-        // 0ms Instant Reset
-        setInterpretation('');
-        setInterpretationMode(isVip ? 'vip' : 'standard');
-        setVipChapter(1);
-        setVipCompletedChapters([]);
-        setVipActiveChapters([]);
-        setVipStreamingChapter(null);
-        setVipStatusMessage(isVip ? 'Đang khởi động hệ thống phân tích...' : '');
-        setIsVipCompleted(false);
-
-        const abortCtrl = new AbortController();
-        setAbortController(abortCtrl);
-
-        let currentText = "";
-        try {
-            const url = getInterpretationStreamUrl('hexagrams', result.recordId);
-            const headers = {
-                'Content-Type': 'application/json'
-            };
-            if (token) {
-                headers['Authorization'] = `Bearer ${token}`;
-            }
-            const response = await fetch(url, {
-                method: 'POST',
-                headers,
-                body: JSON.stringify({ 
-                    userId: user?.id || user?._id || 'guest',
-                    mode: isVip ? 'vip' : 'standard'
-                }),
-                signal: abortCtrl.signal
-            });
-
-            if (!response.ok) {
-                const errData = await response.json().catch(() => ({}));
-                throw new Error(errData.error || `Lỗi kết nối từ server (HTTP ${response.status})`);
-            }
-
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder('utf-8');
-            let done = false;
-            let buffer = '';
-
-            while (!done) {
-                const { value, done: doneReading } = await reader.read();
-                done = doneReading;
-                if (value) {
-                    buffer += decoder.decode(value, { stream: !done });
-                    const lines = buffer.split('\n');
-                    buffer = lines.pop();
-                    for (const line of lines) {
-                        const trimmed = line.trim();
-                        if (trimmed.startsWith('data: ')) {
-                            const dataStr = trimmed.slice(6);
-                            if (dataStr === '[DONE]') {
-                                done = true;
-                                break;
-                            }
-                            try {
-                                const parsed = JSON.parse(dataStr);
-                                if (parsed.error) {
-                                    throw new Error(parsed.error);
-                                }
-                                if (parsed.message) {
-                                    setVipStatusMessage(parsed.message);
-                                }
-                                if (parsed.stage === 'streaming' && parsed.streamingChapterId) {
-                                    setVipStreamingChapter(parsed.streamingChapterId);
-                                }
-                                if (parsed.chapterId) {
-                                    setVipChapter(parsed.chapterId);
-                                    if (parsed.status === 'completed') {
-                                        setVipCompletedChapters(prev => prev.includes(parsed.chapterId) ? prev : [...prev, parsed.chapterId]);
-                                        setVipActiveChapters(prev => prev.filter(id => id !== parsed.chapterId));
-                                    } else if (parsed.status === 'in_progress') {
-                                        setVipActiveChapters(prev => prev.includes(parsed.chapterId) ? prev : [...prev, parsed.chapterId]);
-                                    }
-                                }
-                                if (parsed.isCompleted || (parsed.stage === 'completed')) {
-                                    setIsVipCompleted(true);
-                                }
-                                if (parsed.chunk) {
-                                    const isFirstChunk = !currentText;
-                                    currentText += parsed.chunk;
-                                    setInterpretation(currentText);
-                                    if (isFirstChunk) {
-                                        setTimeout(() => {
-                                            const element = document.getElementById('iching-interpretation-section');
-                                            element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                                        }, 100);
-                                    }
-                                }
-                            } catch (e) {
-                                if (e.message.includes('SAFETY') || e.message.includes('luận giải') || e.message.includes('quá tải')) {
-                                    throw e;
-                                }
-                            }
+        const url = getInterpretationStreamUrl('hexagrams', result.recordId || result._id);
+        await startStream({
+            streamUrl: url,
+            body: {
+                userId: user?.id || user?._id || 'guest',
+                mode: isVip ? 'vip' : 'standard'
+            },
+            token,
+            isVip,
+            onCreditDeduct: () => {
+                if (onInvalidateHistory) onInvalidateHistory();
+                if (onUpdateResult) {
+                    onUpdateResult({
+                        ...result,
+                        aiInterpretation: {
+                            content: interpretation,
+                            mode: isVip ? 'vip' : 'standard'
                         }
-                    }
+                    });
                 }
-            }
-        } catch (err) {
-            if (err.name === 'AbortError') {
-                console.log("Interpretation aborted.");
-            } else {
-                console.error(err);
-                setError(err.message || "Hệ thống luận giải đang bận hoặc gặp lỗi. Vui lòng thử lại sau.");
-            }
-        } finally {
-            setIsInterpreting(false);
-            setAbortController(null);
-            if (isVip) setIsVipCompleted(true);
-
-            if (currentText && onUpdateResult) {
-                onUpdateResult({
-                    ...result,
-                    aiInterpretation: {
-                        ...result.aiInterpretation,
-                        content: currentText,
-                        mode: isVip ? 'vip' : 'standard'
-                    }
-                });
-
-                // Decrement credit locally for non-admin accounts
                 if (user && user.role !== 'admin' && user.role !== 'co-admin') {
                     setUser(prev => {
                         if (!prev) return prev;
-                        const updated = { ...prev, credits: Math.max(0, prev.credits - costToDeduct) };
+                        const updated = { ...prev, credits: Math.max(0, (prev.credits || 0) - costToDeduct) };
                         localStorage.setItem('user', JSON.stringify(updated));
                         return updated;
                     });
                 }
             }
-        }
+        });
     };
 
     const handleAILuanGiai = async () => {

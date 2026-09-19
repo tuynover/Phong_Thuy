@@ -740,8 +740,14 @@ Hệ thống được thiết kế và chuẩn hóa để đáp ứng lưu lư�
 - **Detailed Metrics Probe (`GET /health/detailed`):** Báo cáo thời gian chạy thực tế (`uptime`), mức tiêu thụ bộ nhớ RAM (`rssMB`, `heapUsedMB`), trạng thái Redis, và số lượng phiên kết nối SSE người dùng / Admin đang hoạt động.
 
 ### 9.5 Tinh Gọn Chỉ Mục Cơ Sở Dữ Liệu (MongoDB Index Optimization)
-- Loại bỏ các chỉ mục trùng lặp tiền tố (Prefix Redundant Indexes) trên 4 bảng dữ liệu lớn (`BaziRecord`, `ZiweiRecord`, `IChingRecord`, `MarriageRecord`).
-- Chỉ mục kết hợp đa trường `{ userId: 1, isDeleted: 1, isPinned: -1, createdAt: -1 }` tự động thỏa mãn các truy vấn tiền tố `{ userId: 1 }` và `{ userId: 1, isDeleted: 1 }`. Việc loại bỏ 8 B-trees thừa giúp giảm dung lượng RAM MongoDB và tăng tốc độ thao tác ghi/cập nhật bản ghi.
+- Loại bỏ các chỉ mục trùng lặp tiền tố (Prefix Redundant Indexes) trên 4 bảng dữ liệu lớn (`BaziRecord`, `ZiweiRecord`, `IChingRecord`, `MarriageRecord`) cùng các bảng hội thoại (`Conversation`, `Message`).
+- Chỉ mục kết hợp đa trường `{ userId: 1, isDeleted: 1, isPinned: -1, createdAt: -1 }` tự động thỏa mãn các truy vấn tiền tố `{ userId: 1 }` và `{ userId: 1, isDeleted: 1 }`. Chỉ mục `{ conversationId: 1, createdAt: 1 }` bao quát tiền tố `conversationId: 1`. Việc loại bỏ các B-trees thừa giúp giảm dung lượng RAM MongoDB và tăng tốc độ thao tác ghi/cập nhật bản ghi.
 
-
-
+### 9.6 Tái Cấu Trúc Custom Hooks & Tối Ưu Truy Vấn Lịch Sử (Custom Hooks & Database Query Optimization)
+- **Tái Cấu Trúc Logic Phía Frontend qua Custom Hooks:**
+  - `useInterpretationStream`: Quản lý toàn bộ vòng đời của kết nối Server-Sent Events (SSE) giải đoán AI (chuẩn hóa luồng TextDecoder utf-8, quản lý trạng thái stream VIP nhiều chương, theo dõi `isVipCompleted`, cuộn mượt tự động tới vùng luận giải, cơ chế instant fallback và dọn dẹp AbortController khi unmount).
+  - `useRecordRating`: Quản lý logic gửi đánh giá sao 1-5 và nhận xét phản hồi, tự động nhận diện `recordId` và reset form khi chuyển đổi bản ghi.
+  - Tích hợp thành công vào 4 phân hệ cốt lõi (`BaziBoard`, `ZiweiBoard`, `IChingBoard`, `MarriageBoard`), loại bỏ hoàn toàn hơn 600 dòng mã boilerplate trùng lặp giữa các board.
+- **Tối Ưu Hóa Truy Vấn Lịch Sử Backend (`HistoryQueryHelper.js`):**
+  - Chuyển toàn bộ logic lọc theo `birthDay`, `birthMonth`, `birthYear`, `birthHour` vào trực tiếp MongoDB filter object (`buildFilterQuery`) bằng RegExp/Number cho các collection Bát Tự, Tử Vi, Hợp Hôn.
+  - Khắc phục hoàn toàn lỗi logic nghiêm trọng khi lọc sau `.limit()`, đảm bảo phân trang hiển thị đầy đủ và chính xác 100% dữ liệu lịch sử của người dùng.

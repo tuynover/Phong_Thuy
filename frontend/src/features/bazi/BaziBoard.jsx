@@ -11,6 +11,8 @@ import SectionRenderer from '@/components/widgets/SectionRenderer';
 import Tooltip from '@/components/common/Tooltip';
 import FloatingNotificationToast from '@/components/common/FloatingNotificationToast';
 import PdfExportModal from '@/components/modals/PdfExportModal';
+import useInterpretationStream from '@/hooks/useInterpretationStream';
+import useRecordRating from '@/hooks/useRecordRating';
 
 import {
     getColorClass,
@@ -50,41 +52,65 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
         };
     }, [rawData]);
 
-    // AI Interpretation States
-    const [interpretation, setInterpretation] = useState('');
-    const [interpretationMode, setInterpretationMode] = useState(data?.aiInterpretation?.mode || 'standard');
     const [isChatOpen, setIsChatOpen] = useState(false);
     const [activeConsultSection, setActiveConsultSection] = useState(null);
-    const [isInterpreting, setIsInterpreting] = useState(false);
     const [showTierModal, setShowTierModal] = useState(false);
     const [isUpgradeModal, setIsUpgradeModal] = useState(false);
-    const [vipChapter, setVipChapter] = useState(1);
-    const [vipCompletedChapters, setVipCompletedChapters] = useState([]);
-    const [vipActiveChapters, setVipActiveChapters] = useState([]);
-    const [vipStreamingChapter, setVipStreamingChapter] = useState(null);
-    const [vipStatusMessage, setVipStatusMessage] = useState('');
-    const [isVipCompleted, setIsVipCompleted] = useState(false);
-    const [error, setError] = useState('');
-    const [loadingStep, setLoadingStep] = useState(0);
-    const [abortController, setAbortController] = useState(null);
-
-    // Đánh giá sao
-    const [rating, setRating] = useState(0);
-    const [feedback, setFeedback] = useState('');
-    const [justRated, setJustRated] = useState(false);
     const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
+    const [uiError, setUiError] = useState('');
 
     const structureSectionRef = useRef(null);
     const prevIdRef = useRef(null);
 
-    // Set initial interpretation and rating if cached in data & auto scroll to structure section
+    const {
+        interpretation,
+        setInterpretation,
+        interpretationMode,
+        setInterpretationMode,
+        isInterpreting,
+        vipChapter,
+        vipCompletedChapters,
+        vipActiveChapters,
+        vipStreamingChapter,
+        vipStatusMessage,
+        isVipCompleted,
+        streamError,
+        setStreamError,
+        startStream,
+        resetStream
+    } = useInterpretationStream({
+        initialContent: data?.aiInterpretation?.content || '',
+        initialMode: data?.aiInterpretation?.mode || 'standard',
+        scrollTargetId: 'interpretation-section'
+    });
+
+    const error = uiError || streamError;
+    const setError = (msg) => {
+        setUiError(msg);
+        setStreamError(msg);
+    };
+
+    const {
+        rating,
+        setRating,
+        feedback,
+        setFeedback,
+        justRated,
+        setJustRated,
+        submitRating
+    } = useRecordRating({
+        recordId: data?.recordId || data?._id,
+        initialRating: data?.rating || 0,
+        initialFeedback: data?.feedback || '',
+        onInvalidateHistory
+    });
+
+    // Auto-scroll to structure section on mobile & desktop & restore remote interpretation if cached
     useEffect(() => {
         const currentId = data?.recordId || data?._id;
         if (currentId && currentId !== prevIdRef.current) {
-            setJustRated(false);
             prevIdRef.current = currentId;
             
-            // Auto-scroll to structure section on mobile & desktop
             setTimeout(() => {
                 if (structureSectionRef.current) {
                     structureSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -95,33 +121,22 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
             }, 300);
         }
 
-        if (data?.aiInterpretation?.content) {
-            setInterpretation(data.aiInterpretation.content);
-            setInterpretationMode(data.aiInterpretation.mode || 'standard');
-        } else {
-            setInterpretation('');
-            setInterpretationMode('standard');
-
-            // Phục hồi từ server nếu bản ghi đã có bài luận giải trên database (khắc phục mất state khi F5)
-            if (currentId) {
-                getBaziRecord(currentId).then(res => {
-                    const remoteInterpretation = res.data?.aiInterpretation;
-                    if (remoteInterpretation?.content) {
-                        setInterpretation(remoteInterpretation.content);
-                        setInterpretationMode(remoteInterpretation.mode || 'standard');
-                        if (onUpdateData) {
-                            onUpdateData(prev => ({
-                                ...(prev || data),
-                                aiInterpretation: remoteInterpretation
-                            }));
-                        }
+        if (!data?.aiInterpretation?.content && currentId) {
+            getBaziRecord(currentId).then(res => {
+                const remoteInterpretation = res.data?.aiInterpretation;
+                if (remoteInterpretation?.content) {
+                    setInterpretation(remoteInterpretation.content);
+                    setInterpretationMode(remoteInterpretation.mode || 'standard');
+                    if (onUpdateData) {
+                        onUpdateData(prev => ({
+                            ...(prev || data),
+                            aiInterpretation: remoteInterpretation
+                        }));
                     }
-                }).catch(() => {});
-            }
+                }
+            }).catch(() => {});
         }
-        setRating(data?.rating || 0);
-        setFeedback(data?.feedback || '');
-    }, [data, onUpdateData]);
+    }, [data, onUpdateData, setInterpretation, setInterpretationMode]);
 
     const [result, setResult] = useState(data);
     const [isPublicState, setIsPublicState] = useState(false);
@@ -157,51 +172,15 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
         }
     };
 
-    // Loading texts
-    const loadingTexts = [
-        "Đang phân tích Nhật Chủ...",
-        "Đang cân bằng Ngũ Hành...",
-        "Đang suy diễn Đại Vận..."
-    ];
-
-    // Progressive fake steps transition
-    useEffect(() => {
-        let interval;
-        if (isInterpreting) {
-            setLoadingStep(0);
-            interval = setInterval(() => {
-                setLoadingStep(prev => (prev < loadingTexts.length - 1 ? prev + 1 : prev));
-            }, 3500);
-        }
-        return () => clearInterval(interval);
-    }, [isInterpreting]);
-
-    // Cancel active stream on unmount
-    useEffect(() => {
-        return () => {
-            if (abortController) {
-                abortController.abort();
-            }
-        };
-    }, [abortController]);
-
     const handleRatingSubmit = async (e) => {
         e.preventDefault();
-        const resolvedId = data?.recordId || data?._id;
-        if (!resolvedId) return;
-        try {
-            await rateBazi(resolvedId, rating, feedback);
-            setJustRated(true);
-            if (onInvalidateHistory) onInvalidateHistory();
-            if (onUpdateData) {
-                onUpdateData({
-                    ...data,
-                    rating,
-                    feedback
-                });
-            }
-        } catch (err) {
-            console.error(err);
+        const success = await submitRating(rateBazi);
+        if (success && onUpdateData) {
+            onUpdateData({
+                ...data,
+                rating,
+                feedback
+            });
         }
     };
 
@@ -222,7 +201,6 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
 
     const triggerLuanGiai = async (tier = 'standard') => {
         setShowTierModal(false);
-        setIsInterpreting(true);
         setError('');
 
         const isVip = tier === 'vip';
@@ -232,158 +210,26 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
         const isCacheHit = isAlreadyVip || isAlreadyStandard;
         const costToDeduct = isCacheHit ? 0 : (isUpgrade ? 400 : (isVip ? 500 : 100));
 
-        // 0ms Instant Reset
-        setInterpretation('');
-        setInterpretationMode(isVip ? 'vip' : 'standard');
-        setVipChapter(1);
-        setVipCompletedChapters([]);
-        setVipActiveChapters([]);
-        setVipStreamingChapter(null);
-        setVipStatusMessage(isVip ? 'Đang khởi động hệ thống phân tích...' : '');
-        setIsVipCompleted(false);
-
-        const abortCtrl = new AbortController();
-        setAbortController(abortCtrl);
-
-        let currentText = "";
-        try {
-            const url = getInterpretationStreamUrl('bazi', data.recordId);
-            const headers = {
-                'Content-Type': 'application/json'
-            };
-            if (token) {
-                headers['Authorization'] = `Bearer ${token}`;
-            }
-            const response = await fetch(url, {
-                method: 'POST',
-                headers,
-                body: JSON.stringify({ 
-                    userId: user?.id || user?._id || 'guest',
-                    mode: isVip ? 'vip' : 'standard'
-                }),
-                signal: abortCtrl.signal
-            });
-
-            if (!response.ok) {
-                const errData = await response.json().catch(() => ({}));
-                throw new Error(errData.error || `Lỗi kết nối từ server (HTTP ${response.status})`);
-            }
-
-            // Xử lý nếu server trả về JSON từ cache 0ms
-            if (response.headers.get('content-type')?.includes('application/json')) {
-                const json = await response.json();
-                if (json.error) throw new Error(json.error);
-                if (json.content) {
-                    currentText = json.content;
-                    setInterpretation(currentText);
-                    setInterpretationMode(json.mode || (isVip ? 'vip' : 'standard'));
-                    setIsVipCompleted(true);
-                }
-            } else {
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder('utf-8');
-                let done = false;
-                let buffer = '';
-
-                while (!done) {
-                    const { value, done: doneReading } = await reader.read();
-                    done = doneReading;
-                    if (value) {
-                        buffer += decoder.decode(value, { stream: !done });
-                        const lines = buffer.split('\n');
-                        buffer = lines.pop(); // Keep incomplete chunk in buffer
-                        for (const line of lines) {
-                            const trimmed = line.trim();
-                            if (trimmed.startsWith('data: ')) {
-                                const dataStr = trimmed.slice(6);
-                                if (dataStr === '[DONE]') {
-                                    done = true;
-                                    break;
-                                }
-                                try {
-                                    const parsed = JSON.parse(dataStr);
-                                    if (parsed.error) {
-                                        throw new Error(parsed.error);
-                                    }
-                                    if (parsed.message) {
-                                        setVipStatusMessage(parsed.message);
-                                    }
-                                    if (parsed.stage === 'streaming' && parsed.streamingChapterId) {
-                                        setVipStreamingChapter(parsed.streamingChapterId);
-                                        setVipChapter(parsed.streamingChapterId);
-                                    }
-                                    if (parsed.chapterId) {
-                                        setVipChapter(parsed.chapterId);
-                                        if (parsed.status === 'completed') {
-                                            setVipCompletedChapters(prev => prev.includes(parsed.chapterId) ? prev : [...prev, parsed.chapterId]);
-                                            setVipActiveChapters(prev => prev.filter(id => id !== parsed.chapterId));
-                                        } else if (parsed.status === 'in_progress') {
-                                            setVipActiveChapters(prev => prev.includes(parsed.chapterId) ? prev : [...prev, parsed.chapterId]);
-                                        }
-                                    }
-                                    if (parsed.meta) {
-                                        if (parsed.meta.chapter) {
-                                            setVipChapter(parsed.meta.chapter);
-                                            setVipStreamingChapter(parsed.meta.chapter);
-                                            setVipActiveChapters(prev => Array.from(new Set([...prev, parsed.meta.chapter])));
-                                        }
-                                        if (parsed.meta.status) {
-                                            setVipStatusMessage(parsed.meta.status);
-                                        }
-                                        if (parsed.meta.completedChapter) {
-                                            setVipCompletedChapters(prev => Array.from(new Set([...prev, parsed.meta.completedChapter])));
-                                        }
-                                    }
-                                    if (parsed.isCompleted || (parsed.stage === 'completed')) {
-                                        setIsVipCompleted(true);
-                                    }
-                                    
-                                    // Hỗ trợ cả parsed.chunk và parsed.delta
-                                    const textChunk = parsed.chunk !== undefined ? parsed.chunk : (parsed.delta !== undefined ? parsed.delta : '');
-                                    if (textChunk) {
-                                        const isFirstChunk = !currentText;
-                                        currentText += textChunk;
-                                        setInterpretation(currentText);
-                                        if (isFirstChunk) {
-                                            setTimeout(() => {
-                                                const element = document.getElementById('interpretation-section');
-                                                element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                                            }, 100);
-                                        }
-                                    }
-                                } catch (e) {
-                                    if (dataStr !== '[DONE]') {
-                                        console.warn("Lỗi parse SSE Bazi:", e);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (err) {
-            if (err.name === 'AbortError') {
-                console.log('Stream Bazi bị hủy bởi người dùng.');
-            } else {
-                console.error("Lỗi khi kết nối SSE Bazi:", err);
-                setError(err.message || "Đã xảy ra lỗi khi tạo luận giải. Vui lòng thử lại!");
-            }
-        } finally {
-            setIsInterpreting(false);
-            setIsVipCompleted(true);
-            setVipStreamingChapter(null);
-            setAbortController(null);
-            if (currentText) {
+        const url = getInterpretationStreamUrl('bazi', data.recordId);
+        await startStream({
+            streamUrl: url,
+            body: {
+                userId: user?.id || user?._id || 'guest',
+                mode: isVip ? 'vip' : 'standard'
+            },
+            token,
+            isVip,
+            onCreditDeduct: () => {
                 if (onInvalidateHistory) onInvalidateHistory();
-                onUpdateData && onUpdateData(prev => ({
-                    ...(prev || data),
-                    aiInterpretation: {
-                        content: currentText,
-                        mode: isVip ? 'vip' : 'standard'
-                    }
-                }));
-
-                // Decrement credit locally for non-admin accounts
+                if (onUpdateData) {
+                    onUpdateData(prev => ({
+                        ...(prev || data),
+                        aiInterpretation: {
+                            content: interpretation,
+                            mode: isVip ? 'vip' : 'standard'
+                        }
+                    }));
+                }
                 if (user && user.role !== 'admin' && user.role !== 'co-admin') {
                     setUser(prev => {
                         if (!prev) return prev;
@@ -393,7 +239,7 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
                     });
                 }
             }
-        }
+        });
     };
 
     if (!data) return null;

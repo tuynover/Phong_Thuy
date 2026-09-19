@@ -95,6 +95,73 @@ const buildFilterQuery = (system, queryParams, userId) => {
         }
     }
 
+    // Lọc theo thông tin ngày/tháng/năm/giờ sinh trực tiếp tại tầng CSDL
+    const { birthDay, birthMonth, birthYear, birthHour } = queryParams;
+    const bd = birthDay ? parseInt(birthDay) : null;
+    const bm = birthMonth ? parseInt(birthMonth) : null;
+    const by = birthYear ? parseInt(birthYear) : null;
+    const bh = (birthHour !== undefined && birthHour !== null && birthHour !== '') ? parseInt(birthHour) : null;
+
+    if (bd !== null || bm !== null || by !== null || bh !== null) {
+        const pad = (n) => String(n).padStart(2, '0');
+
+        const buildPersonDateConditions = (prefix = 'inputInfo') => {
+            const conds = [];
+            const dateField = prefix ? `${prefix}.date` : 'date';
+            const timeField = prefix ? `${prefix}.time` : 'time';
+            const hourField = prefix ? `${prefix}.hour` : 'hour';
+
+            if (by !== null) {
+                conds.push({
+                    $or: [
+                        { [dateField]: new RegExp(`[/\\-]${by}$|^${by}[/\\-]`) },
+                        { [`${prefix}.birthSolarYear`]: by }
+                    ]
+                });
+            }
+            if (bm !== null) {
+                const pMonth = pad(bm);
+                conds.push({
+                    [dateField]: new RegExp(`[/\\-]0?${bm}[/\\-]|[/\\-]${pMonth}[/\\-]`)
+                });
+            }
+            if (bd !== null) {
+                const pDay = pad(bd);
+                conds.push({
+                    [dateField]: new RegExp(`^0?${bd}[/\\-]|[/\\-]${pDay}$`)
+                });
+            }
+            if (bh !== null) {
+                if (system === 'ziwei') {
+                    conds.push({ [hourField]: bh });
+                } else {
+                    conds.push({
+                        [timeField]: new RegExp(`^0?${bh}:`)
+                    });
+                }
+            }
+            return conds;
+        };
+
+        if (system === 'bazi' || system === 'ziwei') {
+            const baziConds = buildPersonDateConditions('inputInfo');
+            baziConds.forEach(c => andConditions.push(c));
+        } else if (system === 'marriage') {
+            const maleConds = buildPersonDateConditions('inputInfo.male');
+            const femaleConds = buildPersonDateConditions('inputInfo.female');
+            if (maleConds.length > 0 && femaleConds.length > 0) {
+                andConditions.push({
+                    $or: [
+                        { $and: maleConds },
+                        { $and: femaleConds }
+                    ]
+                });
+            } else if (maleConds.length > 0) {
+                andConditions.push({ $or: [ { $and: maleConds }, { $and: femaleConds } ] });
+            }
+        }
+    }
+
     if (andConditions.length > 0) {
         query.$and = andConditions;
     }

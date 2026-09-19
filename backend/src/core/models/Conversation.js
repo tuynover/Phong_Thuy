@@ -18,8 +18,7 @@ const conversationSchema = new mongoose.Schema({
   },
   userId: {
     type: String,
-    required: true,
-    index: true
+    required: true
   },
   summary: {
     type: String,

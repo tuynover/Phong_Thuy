@@ -225,14 +225,14 @@ Lưu trữ kết quả so sánh Bát Tự và độ hòa hợp của hai đối 
     _id: { type: String, default: uuidv7 },
     system: { type: String, required: true, enum: ['iching', 'bazi', 'ziwei', 'marriage'] },
     recordId: { type: String, required: true, index: true },
-    userId: { type: String, required: true, index: true },
+    userId: { type: String, required: true },
     summary: { type: String, default: '' },
     summarizedMemory: { type: String, default: '' },
     totalTokens: { type: Number, default: 0 }
   }
   ```
 - **Chỉ mục phụ (Compound Indexes):**
-  - `{"userId": 1, "recordId": 1}`: Tối ưu hóa việc tìm nhanh cuộc trò chuyện gắn với một bản ghi cụ thể của người dùng.
+  - `{"userId": 1, "recordId": 1}`: Tối ưu hóa việc tìm nhanh cuộc trò chuyện gắn với một bản ghi cụ thể của người dùng (bao quát luôn tiền tố `userId: 1`, không cần index đơn lẻ trên `userId`).
   - `{"userId": 1, "system": 1, "updatedAt": -1}`: Tối ưu hóa việc lấy danh sách các phiên chat gần nhất theo từng phân hệ.
 
 ### 2.7 Bảng Tin nhắn dùng chung (`messages`)
@@ -241,7 +241,7 @@ Lưu trữ kết quả so sánh Bát Tự và độ hòa hợp của hai đối 
   ```javascript
   {
     _id: { type: String, default: uuidv7 },
-    conversationId: { type: String, required: true, ref: 'Conversation', index: true },
+    conversationId: { type: String, required: true, ref: 'Conversation' },
     role: { type: String, required: true, enum: ['user', 'ai'] },
     content: { type: String, required: true },
     sectionId: { type: String, default: null },

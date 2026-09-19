@@ -9,8 +9,7 @@ const messageSchema = new mongoose.Schema({
   conversationId: {
     type: String,
     required: true,
-    ref: 'Conversation',
-    index: true
+    ref: 'Conversation'
   },
   role: {
     type: String,

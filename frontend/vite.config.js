@@ -18,7 +18,6 @@ export default defineConfig({
     include: [
       'react',
       'react-dom',
-      'react-router-dom',
       'lunar-javascript',
       'framer-motion',
       'lucide-react',

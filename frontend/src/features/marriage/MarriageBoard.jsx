@@ -12,6 +12,8 @@ import { parseMarkdownSections } from '@/utils/markdownParser';
 import AiChatWidget from '@/components/widgets/AiChatWidget';
 import FloatingNotificationToast from '@/components/common/FloatingNotificationToast';
 import PdfExportModal from '@/components/modals/PdfExportModal';
+import { useInterpretationStream } from '@/hooks/useInterpretationStream';
+import { useRecordRating } from '@/hooks/useRecordRating';
 
 import {
     stemElements,
@@ -42,76 +44,62 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
         };
     }, [rawData]);
 
-    // AI Interpretation States
-    const [interpretation, setInterpretation] = useState('');
-    const [interpretationMode, setInterpretationMode] = useState(data?.aiInterpretation?.mode || 'standard');
-    const [isInterpreting, setIsInterpreting] = useState(false);
+    const [isChatOpen, setIsChatOpen] = useState(false);
     const [showTierModal, setShowTierModal] = useState(false);
     const [isUpgradeModal, setIsUpgradeModal] = useState(false);
-    const [vipChapter, setVipChapter] = useState(1);
-    const [vipCompletedChapters, setVipCompletedChapters] = useState([]);
-    const [vipActiveChapters, setVipActiveChapters] = useState([]);
-    const [vipStreamingChapter, setVipStreamingChapter] = useState(null);
-    const [vipStatusMessage, setVipStatusMessage] = useState('');
-    const [isVipCompleted, setIsVipCompleted] = useState(false);
-    const [error, setError] = useState('');
-    const [loadingStep, setLoadingStep] = useState(0);
-    const [abortController, setAbortController] = useState(null);
-    const [isChatOpen, setIsChatOpen] = useState(false);
+    const [uiError, setUiError] = useState('');
+    const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
     const [activeConsultSection, setActiveConsultSection] = useState(null);
 
-    const [rating, setRating] = useState(0);
-    const [feedback, setFeedback] = useState('');
-    const [justRated, setJustRated] = useState(false);
-    const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
+    const getInitialInterpretationText = (aiInt) => {
+        if (!aiInt) return '';
+        if (typeof aiInt === 'string') return aiInt;
+        return aiInt.content || '';
+    };
 
-    const prevIdRef = useRef(null);
+    const {
+        interpretation,
+        setInterpretation,
+        interpretationMode,
+        setInterpretationMode,
+        isInterpreting,
+        vipChapter,
+        vipCompletedChapters,
+        vipActiveChapters,
+        vipStreamingChapter,
+        vipStatusMessage,
+        isVipCompleted,
+        streamError,
+        setStreamError,
+        startStream,
+        abortStream,
+        resetStream
+    } = useInterpretationStream({
+        initialContent: getInitialInterpretationText(data?.aiInterpretation),
+        initialMode: data?.aiInterpretation?.mode || 'standard',
+        scrollTargetId: 'marriage-interpretation-section'
+    });
 
-    // Set initial interpretation and rating if cached
-    useEffect(() => {
-        const currentId = data?.recordId || data?._id;
-        if (currentId !== prevIdRef.current) {
-            setJustRated(false);
-            prevIdRef.current = currentId;
-        }
-        if (data?.aiInterpretation && data.aiInterpretation.content) {
-            setInterpretation(data.aiInterpretation.content);
-            setInterpretationMode(data.aiInterpretation.mode || 'standard');
-        } else {
-            setInterpretation('');
-            setInterpretationMode('standard');
-        }
-        setRating(data?.rating || 0);
-        setFeedback(data?.feedback || '');
-    }, [data]);
+    const error = uiError || streamError;
+    const setError = (msg) => {
+        setUiError(msg);
+        setStreamError(msg);
+    };
 
-    // Fake progressive loading steps
-    const loadingTexts = [
-        "Đang tính toán Cung Phi...",
-        "Đang hòa hợp Nhật Can...",
-        "Đang đối chiếu Cung Phu Thê...",
-        "Đang phân tích Dụng Thần..."
-    ];
-
-    useEffect(() => {
-        let interval;
-        if (isInterpreting) {
-            setLoadingStep(0);
-            interval = setInterval(() => {
-                setLoadingStep(prev => (prev < loadingTexts.length - 1 ? prev + 1 : prev));
-            }, 3000);
-        }
-        return () => clearInterval(interval);
-    }, [isInterpreting]);
-
-    // Clean up abort controller on unmount
-    useEffect(() => {
-        return () => {
-            if (abortController) {
-                abortController.abort();
-            }
-        };
-    }, [abortController]);
+    const {
+        rating,
+        setRating,
+        feedback,
+        setFeedback,
+        justRated,
+        setJustRated,
+        submitRating
+    } = useRecordRating({
+        recordId: data?.recordId || data?._id,
+        initialRating: data?.rating || 0,
+        initialFeedback: data?.feedback || '',
+        onInvalidateHistory
+    });
 
     const [result, setResult] = useState(data);
     const [isPublicState, setIsPublicState] = useState(false);
@@ -149,21 +137,13 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
 
     const handleRatingSubmit = async (e) => {
         e.preventDefault();
-        const resolvedId = data?.recordId || data?._id;
-        if (!resolvedId) return;
-        try {
-            await rateMarriage(resolvedId, rating, feedback);
-            setJustRated(true);
-            if (onInvalidateHistory) onInvalidateHistory();
-            if (onUpdateData) {
-                onUpdateData(prev => ({
-                    ...prev,
-                    rating,
-                    feedback
-                }));
-            }
-        } catch (err) {
-            console.error(err);
+        const success = await submitRating(rateMarriage);
+        if (success && onUpdateData) {
+            onUpdateData(prev => ({
+                ...prev,
+                rating,
+                feedback
+            }));
         }
     };
 
@@ -389,146 +369,46 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
 
     const triggerLuanGiai = async (tier = 'standard') => {
         setShowTierModal(false);
-        setIsInterpreting(true);
         setError('');
 
         const isVip = tier === 'vip';
         const isUpgrade = isUpgradeModal || (isVip && !!interpretation);
-        const costToDeduct = isUpgrade ? 400 : (isVip ? 500 : 100);
+        const isAlreadyVip = data?.aiInterpretation?.mode === 'vip' && !!data?.aiInterpretation?.content;
+        const isAlreadyStandard = !isVip && !!data?.aiInterpretation?.content;
+        const isCacheHit = isAlreadyVip || isAlreadyStandard;
+        const costToDeduct = isCacheHit ? 0 : (isUpgrade ? 400 : (isVip ? 500 : 100));
 
-        // 0ms Instant Reset
-        setInterpretation('');
-        setInterpretationMode(isVip ? 'vip' : 'standard');
-        setVipChapter(1);
-        setVipCompletedChapters([]);
-        setVipActiveChapters([]);
-        setVipStreamingChapter(null);
-        setVipStatusMessage(isVip ? 'Đang khởi động hệ thống phân tích...' : '');
-        setIsVipCompleted(false);
-
-        const controller = new AbortController();
-        setAbortController(controller);
-
-        let currentText = "";
-        try {
-            const streamUrl = getInterpretationStreamUrl('marriage', resolvedRecordId);
-            const headers = {
-                'Content-Type': 'application/json'
-            };
-            if (token) {
-                headers['Authorization'] = `Bearer ${token}`;
-            }
-            const response = await fetch(streamUrl, {
-                method: 'POST',
-                headers,
-                body: JSON.stringify({ 
-                    userId: user?.id || user?._id || 'guest',
-                    mode: isVip ? 'vip' : 'standard'
-                }),
-                signal: controller.signal
-            });
-
-            if (!response.ok) {
-                const errData = await response.json().catch(() => ({}));
-                throw new Error(errData.error || 'Lỗi khi gọi dịch vụ giải đoán.');
-            }
-
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder('utf-8');
-            let buffer = "";
-
-            while (true) {
-                const { value, done } = await reader.read();
-                if (done) break;
-
-                buffer += decoder.decode(value, { stream: true });
-                const lines = buffer.split('\n');
-                buffer = lines.pop(); // Keep partial line in buffer
-
-                for (const line of lines) {
-                    if (line.startsWith('data: ')) {
-                        const dataStr = line.slice(6).trim();
-                        if (dataStr === '[DONE]') {
-                            break;
+        const streamUrl = getInterpretationStreamUrl('marriage', resolvedRecordId);
+        await startStream({
+            streamUrl,
+            body: {
+                userId: user?.id || user?._id || 'guest',
+                mode: isVip ? 'vip' : 'standard'
+            },
+            token,
+            isVip,
+            onCreditDeduct: () => {
+                if (onInvalidateHistory) onInvalidateHistory();
+                if (onUpdateData) {
+                    onUpdateData(prev => ({
+                        ...prev,
+                        aiInterpretation: {
+                            content: interpretation,
+                            mode: isVip ? 'vip' : 'standard',
+                            generatedAt: new Date()
                         }
-                        try {
-                            const parsed = JSON.parse(dataStr);
-                            if (parsed.error) {
-                                throw new Error(parsed.error);
-                            }
-                            if (parsed.message) {
-                                setVipStatusMessage(parsed.message);
-                            }
-                            if (parsed.stage === 'streaming' && parsed.streamingChapterId) {
-                                setVipStreamingChapter(parsed.streamingChapterId);
-                            }
-                            if (parsed.chapterId) {
-                                setVipChapter(parsed.chapterId);
-                                if (parsed.status === 'completed') {
-                                    setVipCompletedChapters(prev => prev.includes(parsed.chapterId) ? prev : [...prev, parsed.chapterId]);
-                                    setVipActiveChapters(prev => prev.filter(id => id !== parsed.chapterId));
-                                } else if (parsed.status === 'in_progress') {
-                                    setVipActiveChapters(prev => prev.includes(parsed.chapterId) ? prev : [...prev, parsed.chapterId]);
-                                }
-                            }
-                            if (parsed.isCompleted || (parsed.stage === 'completed')) {
-                                setIsVipCompleted(true);
-                            }
-                            if (parsed.chunk) {
-                                const isFirstChunk = !currentText;
-                                currentText += parsed.chunk;
-                                setInterpretation(currentText);
-                                if (isFirstChunk) {
-                                    setTimeout(() => {
-                                        const element = document.getElementById('marriage-interpretation-section');
-                                        element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                                    }, 100);
-                                }
-                            }
-                            if (parsed.error) {
-                                setError(parsed.error);
-                            }
-                        } catch (e) {
-                            console.error("Lỗi parse SSE chunk:", e);
-                        }
-                    }
+                    }));
+                }
+                if (user && user.role !== 'admin' && user.role !== 'co-admin') {
+                    setUser(prev => {
+                        if (!prev) return prev;
+                        const updated = { ...prev, credits: Math.max(0, (prev.credits || 0) - costToDeduct) };
+                        localStorage.setItem('user', JSON.stringify(updated));
+                        return updated;
+                    });
                 }
             }
-
-            // Sync updated record interpretation to parent if exists
-            if (onUpdateData) {
-                onUpdateData(prev => ({
-                    ...prev,
-                    aiInterpretation: {
-                        content: currentText,
-                        mode: isVip ? 'vip' : 'standard',
-                        generatedAt: new Date()
-                    }
-                }));
-            }
-
-            // Decrement credit locally for non-admin accounts
-            if (user && user.role !== 'admin' && user.role !== 'co-admin') {
-                setUser(prev => {
-                    if (!prev) return prev;
-                    const updated = { ...prev, credits: Math.max(0, prev.credits - costToDeduct) };
-                    localStorage.setItem('user', JSON.stringify(updated));
-                    return updated;
-                });
-            }
-
-        } catch (err) {
-            if (err.name === 'AbortError') {
-                console.log("Interpretation aborted.");
-            } else {
-                console.error(err);
-                setError(err.message || "Hệ thống luận giải đang bận hoặc gặp lỗi. Vui lòng thử lại sau.");
-            }
-        } finally {
-            setIsInterpreting(false);
-            setAbortController(null);
-            if (isVip) setIsVipCompleted(true);
-        }
+        });
     };
 
     const SHEN_SHA_COLORS = {
@@ -1037,7 +917,7 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
                 <div className="bg-[#faf6f0] p-10 md:p-20 rounded-[2rem] border border-amber-200/50 shadow-sm text-center space-y-4">
                     <div className="w-12 h-12 border-4 border-amber-200 border-t-amber-800 rounded-full animate-spin mx-auto"></div>
                     <p className="text-amber-900 font-bold text-base animate-pulse">
-                        {interpretationMode === 'vip' ? `Đang Phân Tích C${vipChapter}...` : loadingTexts[loadingStep]}
+                        {interpretationMode === 'vip' ? (vipStatusMessage || `Đang Phân Tích C${vipChapter}...`) : "Đang phân tích..."}
                     </p>
                 </div>
             )}
@@ -1070,7 +950,7 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
                         <>
                             <div className="w-5 h-5 border-2 border-rose-600 border-t-transparent rounded-full animate-spin"></div>
                             <span className="text-sm">
-                                {interpretationMode === 'vip' ? `Đang Phân Tích C${vipChapter}...` : loadingTexts[loadingStep]}
+                                {interpretationMode === 'vip' ? (vipStatusMessage || `Đang Phân Tích C${vipChapter}...`) : "Đang phân tích..."}
                             </span>
                         </>
                     ) : (
