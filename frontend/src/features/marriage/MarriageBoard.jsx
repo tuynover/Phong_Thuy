@@ -838,6 +838,15 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
                         />
                     )}
 
+                    {isInterpreting && !interpretation && interpretationMode !== 'vip' && (
+                        <div className="bg-rose-50/50 p-8 md:p-12 rounded-2xl border border-rose-200/60 shadow-xs text-center space-y-4 my-6 animate-in fade-in">
+                            <div className="w-12 h-12 border-4 border-rose-200 border-t-rose-800 rounded-full animate-spin mx-auto"></div>
+                            <p className="text-rose-900 font-bold text-base animate-pulse">
+                                Thầy đang đối soát tứ trụ và hòa hợp bản mệnh...
+                            </p>
+                        </div>
+                    )}
+
                     {interpretation && (
                         <SectionRenderer 
                             sections={parseMarkdownSections(interpretation, 'marriage')} 

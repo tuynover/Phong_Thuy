@@ -390,6 +390,15 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
                             />
                         )}
 
+                        {isInterpreting && !interpretation && interpretationMode !== 'vip' && (
+                            <div className="bg-blue-50/50 p-8 md:p-12 rounded-2xl border border-blue-200/60 shadow-xs text-center space-y-4 my-6 animate-in fade-in">
+                                <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-700 rounded-full animate-spin mx-auto"></div>
+                                <p className="text-blue-900 font-bold text-base animate-pulse">
+                                    Thầy đang khảo sát nguyên cục và soạn thảo luận giải...
+                                </p>
+                            </div>
+                        )}
+
                         {interpretation && (
                             <SectionRenderer 
                                 sections={parseMarkdownSections(interpretation, 'bazi')} 
@@ -483,7 +492,7 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
                         <>
                             <div className="w-5 h-5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin"></div>
                             <span className="text-sm text-amber-300">
-                                {interpretationMode === 'vip' ? `Đang Phân Tích C${vipChapter}...` : loadingTexts[loadingStep]}
+                                {interpretationMode === 'vip' ? (vipStatusMessage || `Đang Phân Tích C${vipChapter}...`) : 'Thầy luận giải Bát Tự...'}
                             </span>
                         </>
                     ) : (
@@ -563,6 +572,7 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
                 isAdmin={user?.role === 'admin' || user?.role === 'co-admin'}
                 isUpgrade={isUpgradeModal}
                 system="bazi"
+                recordData={data}
             />
             {/* PDF EXPORT MODAL */}
             <PdfExportModal

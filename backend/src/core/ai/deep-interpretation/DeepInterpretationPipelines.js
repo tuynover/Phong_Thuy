@@ -8,15 +8,16 @@ const AiService = require('../AiService');
 const { GeminiRotator, LlmProviderService, SseStreamHelper } = require('./DeepInterpretationCore');
 const { BAZI_VIP_CONFIG, ZIWEI_VIP_CONFIG, MARRIAGE_VIP_CONFIG, ICHING_VIP_CONFIG } = require('./DeepInterpretationConfigs');
 const { generateIChingCalendarGroundTruth } = require('../../../shared/utils/ungKyParser');
+const AgeClassifier = require('../../../shared/utils/AgeClassifier');
 
 /**
  * Pipeline Bát Tự Đa Tầng (3 Tầng: Dual CoT -> 6 Replicas -> Chief Editor)
  */
 class BaziDeepPipeline {
-  static async executeReplica(replica, fullContext) {
+  static async executeReplica(replica, fullContext, ageInfo = null) {
     const { id, title, model, subtopics } = replica;
     const cleanContext = SseStreamHelper.cleanContextForVip(fullContext);
-    const chapterInstruction = BAZI_VIP_CONFIG.getChapterSpecificInstructions(id);
+    const chapterInstruction = BAZI_VIP_CONFIG.getChapterSpecificInstructions(id, ageInfo);
 
     const replicaPrompt = `Dựa trên dữ liệu lá số phong thủy và phân tích học thuật nền tảng:\n${cleanContext}\n\n` +
       `----------------------------------------\n` +
@@ -60,7 +61,8 @@ class BaziDeepPipeline {
 
   static async runVipPipelineStream(prompt, birthYear, options = {}) {
     const { onProgress } = options;
-    const REPLICAS = BAZI_VIP_CONFIG.REPLICAS;
+    const ageInfo = options.ageInfo || AgeClassifier.getLunarAgeInfo({ birthSolarYear: birthYear });
+    const REPLICAS = BAZI_VIP_CONFIG.getReplicas(ageInfo);
 
     const stream = new ReadableStream({
       async start(controller) {
@@ -156,7 +158,7 @@ BẮT BUỘC thiết lập 1 BẢNG MARKDOWN chuẩn xác gồm 3 cột:
             const delay = idx * 200;
             return new Promise(resolve => setTimeout(resolve, delay)).then(async () => {
               SseStreamHelper.dispatchProgress(onProgress, { stage: 'stage2', chapterId: rep.id, status: 'in_progress', title: rep.title, message: `Đang luận giải: Chương ${rep.id} - ${rep.title}...` });
-              const output = await BaziDeepPipeline.executeReplica(rep, fullContext);
+              const output = await BaziDeepPipeline.executeReplica(rep, fullContext, ageInfo);
               SseStreamHelper.dispatchProgress(onProgress, { stage: 'stage2', chapterId: rep.id, status: 'completed', title: rep.title, message: `Đã hoàn tất: Chương ${rep.id} - ${rep.title}` });
               return output;
             });
@@ -243,11 +245,11 @@ Tiếp theo là mục:
  * Pipeline Tử Vi Đẩu Số Đa Tầng (4 Tầng: Cốt Cách CoT + Tứ Hóa CoT + 5 Cụm Cung Replicas + Chief Editor)
  */
 class ZiweiDeepPipeline {
-  static async executeClusterReplica(replica, fullContext) {
+  static async executeClusterReplica(replica, fullContext, ageInfo = null) {
     const { id, title, provider, model, keyEnv, subtopics } = replica;
     const apiKey = process.env[keyEnv] || process.env.GEMINI_API_KEY;
 
-    const clusterInstruction = ZIWEI_VIP_CONFIG.getClusterSpecificInstructions(id);
+    const clusterInstruction = ZIWEI_VIP_CONFIG.getClusterSpecificInstructions(id, ageInfo);
 
     const clusterPrompt = `Dựa trên dữ liệu lá số Tử Vi Đẩu Số và bản phân tích CoT học thuật nền tảng:\n${fullContext}\n\n` +
       `----------------------------------------\n` +
@@ -285,7 +287,8 @@ class ZiweiDeepPipeline {
 
   static async runVipPipelineStream(prompt, birthYear, options = {}) {
     const { onProgress } = options;
-    const REPLICAS = ZIWEI_VIP_CONFIG.REPLICAS;
+    const ageInfo = options.ageInfo || AgeClassifier.getLunarAgeInfo({ birthSolarYear: birthYear });
+    const REPLICAS = ZIWEI_VIP_CONFIG.getReplicas(ageInfo);
 
     const stream = new ReadableStream({
       async start(controller) {
@@ -384,7 +387,7 @@ BẮT BUỘC lập BẢNG MARKDOWN chuẩn xác gồm 3 cột:
             const delay = idx * 200;
             return new Promise(resolve => setTimeout(resolve, delay)).then(async () => {
               SseStreamHelper.dispatchProgress(onProgress, { stage: 'stage3', chapterId: rep.id, status: 'in_progress', title: rep.title, message: `Đang luận giải: Chương ${rep.id} - ${rep.title}...` });
-              const output = await ZiweiDeepPipeline.executeClusterReplica(rep, fullContext);
+              const output = await ZiweiDeepPipeline.executeClusterReplica(rep, fullContext, ageInfo);
               SseStreamHelper.dispatchProgress(onProgress, { stage: 'stage3', chapterId: rep.id, status: 'completed', title: rep.title, message: `Đã hoàn tất: Chương ${rep.id} - ${rep.title}` });
               return output;
             });

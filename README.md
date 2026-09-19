@@ -90,6 +90,7 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
 #### B. Mệnh Số Bát Tự (Bazi Board)
 * Nhập ngày giờ sinh để lập lá số Tứ Trụ.
 * Phân tích bản mệnh ngũ hành, xác định Nhật Chủ (Day Master) mạnh/yếu, định Dụng Thần (Useful God) dựa trên Nguyệt Lệnh, phân tích Thập Thần và vòng Trường Sinh.
+* **Tối Ưu Hóa Prompt Theo Độ Tuổi Âm Lịch (Age-Adaptive AI Interpretation):** Tự động nhận diện độ tuổi mụ của lá số để cá nhân hóa toàn bộ nội dung luận giải (Cơ bản 100 Points & Chuyên sâu 500 Points). Đối với trẻ em (< 18 tuổi), tập trung 100% vào tài năng bẩm sinh, định hướng học tập khối ngành, giáo dục uốn nắn, sức khỏe thiếu thời, phong thủy bàn học Văn Xương và bỏ qua hoàn toàn tình duyên, kiếm tiền. Đối với thanh niên (18-29 tuổi), bổ sung luận giải tính cách cốt lõi ở Replica 1 chuyên sâu và luận giải đầy đủ các phương diện ở bản cơ bản.
 * Cấu trúc module phân rã sạch sẽ gồm 7 component con chuyên trách: `BaziPillarsTable.jsx`, `BaziPillar.jsx`, `BaziFiveElementsChart.jsx`, `BaziDaiYunTimeline.jsx`, `BaziProfileHeader.jsx`, `BaziRemedyAndRelations.jsx`, `ThapThanStrengthTable.jsx`.
 * Màu sắc trực quan được tùy biến theo quy luật tương sinh tương khắc của Ngũ Hành.
 * Tệp tin liên quan: [BaziBoard.jsx](file:///t:/Phongthuy/frontend/src/features/bazi/BaziBoard.jsx), [BaziInput.jsx](file:///t:/Phongthuy/frontend/src/features/bazi/BaziInput.jsx).
@@ -100,7 +101,7 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
 * **Phân tích Tinh Tú:** Hiển thị Chính tinh kèm độ sáng (Miếu, Vượng, Đắc, Bình, Hãm), Lục cát tinh, Lục sát tinh và tạp tinh được chia thành các cột Cát/Sát rõ ràng, phân biệt màu sắc ngũ hành từng sao.
 * **Vòng Trường Sinh & Hạn:** Hiển thị Đại Hạn, Tiểu Hạn, Nguyệt Hạn tương ứng trên các cung vị.
 * **Mobile List View:** Tự động tối ưu hóa và thu gọn bố cục thành danh sách rút gọn mượt mà trên thiết bị di động.
-* **Thầy Tử Vi AI:** Gửi yêu cầu giải đoán trực tiếp. Hệ thống hiển thị dòng văn bản luận giải trực quan qua luồng SSE Stream thời gian thực tương tự như Kinh Dịch và Bát Tự.
+* **Thầy Tử Vi AI & Tối Ưu Hóa Theo Độ Tuổi:** Gửi yêu cầu giải đoán trực tiếp qua luồng SSE Stream thời gian thực. Hệ thống tích hợp bộ điều phối Replicas và Prompts thích ứng theo độ tuổi âm lịch: tự động chuyển hóa 5 Chương Chuyên Sâu thành 5 Chương Học Đường & Giáo Dục khi xem cho trẻ em (< 18 tuổi), bổ sung phân tích tính cách khí chất cho thanh niên (18-29 tuổi), và hiển thị Modal xác nhận thân thiện mà không để lộ cơ chế nội bộ.
 * Tệp tin liên quan: [ZiweiBoard.jsx](file:///t:/Phongthuy/frontend/src/features/ziwei/ZiweiBoard.jsx), [ZiweiChart.jsx](file:///t:/Phongthuy/frontend/src/features/ziwei/ZiweiChart.jsx), [ZiweiInput.jsx](file:///t:/Phongthuy/frontend/src/features/ziwei/ZiweiInput.jsx).
 
 #### D. Hợp Hôn - Xem Tuổi Kết Hôn (Marriage Board)

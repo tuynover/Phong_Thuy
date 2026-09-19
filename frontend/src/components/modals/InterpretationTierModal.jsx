@@ -132,6 +132,106 @@ const SYSTEM_TIER_INFO = {
   }
 };
 
+const getLunarAgeInfo = (recordData) => {
+  if (!recordData) return { lunarAge: 30, ageGroup: 'ADULT' };
+
+  const currentYear = new Date().getFullYear();
+  let birthYear = null;
+
+  if (recordData.inputInfo?.birthSolarYear) {
+    birthYear = parseInt(recordData.inputInfo.birthSolarYear, 10);
+  } else if (recordData.birthSolarYear) {
+    birthYear = parseInt(recordData.birthSolarYear, 10);
+  } else {
+    const dateStr = recordData.inputInfo?.date 
+      || recordData.date 
+      || recordData.solarTimeline 
+      || recordData.solarDate
+      || recordData.chart_data?.solarDate
+      || recordData.chartData?.chart_data?.solarDate
+      || recordData.chartData?.solarDate;
+    if (typeof dateStr === 'string') {
+      const match = dateStr.match(/\b(19\d{2}|20\d{2})\b/);
+      if (match) birthYear = parseInt(match[1], 10);
+    }
+  }
+
+  if (!birthYear || isNaN(birthYear)) {
+    return { lunarAge: 30, ageGroup: 'ADULT' };
+  }
+
+  const lunarAge = currentYear - birthYear + 1;
+  const ageGroup = lunarAge < 18 ? 'CHILD' : (lunarAge < 30 ? 'YOUNG_ADULT' : (lunarAge <= 55 ? 'ADULT' : 'SENIOR'));
+  return { lunarAge, ageGroup };
+};
+
+const getDynamicTierInfo = (system, recordData) => {
+  const baseInfo = SYSTEM_TIER_INFO[system] || SYSTEM_TIER_INFO.bazi;
+  const ageInfo = getLunarAgeInfo(recordData);
+
+  if (system === 'bazi' && ageInfo.ageGroup === 'CHILD') {
+    return {
+      ...baseInfo,
+      upgradeTitle: 'Bản Chuyên Sâu 6 Chương Học Thuật & Giáo Dục',
+      upgradeDescription: `Hệ thống phân tích chuyên sâu 5.000+ từ thiết kế chuyên biệt cho lứa tuổi học đường (${ageInfo.lunarAge} tuổi Âm lịch): Khí chất trí tuệ, Định hướng học vấn & khối ngành thế mạnh, Phương pháp giáo dục nuôi dạy của cha mẹ, Sức khỏe nhi khoa, Phong thủy phòng học Văn Xương và Lộ trình thi cử đầu đời.`,
+      standard: {
+        title: 'Luận Giải Cơ Bản',
+        badge: '100 Points',
+        description: `Bản phân tích cô đọng định hướng phát triển, học tập và sức khỏe cho lứa tuổi học đường (${ageInfo.lunarAge} tuổi).`,
+        bullets: [
+          'Khảo sát nguyên cục: Can Chi, Ngũ Hành, Dụng Thần học vấn',
+          'Tư chất trí tuệ bẩm sinh (IQ, EQ) & 3 điểm mạnh vượt trội',
+          'Định hướng học tập & khối ngành học thế mạnh tối ưu',
+          'Phương pháp giáo dục uốn nắn & Sức khỏe tạng phủ thiếu thời'
+        ]
+      },
+      vip: {
+        title: 'Luận Giải Chuyên Sâu',
+        badge: '500 Points',
+        description: 'Công trình nghiên cứu toàn diện 5.000+ từ đồng hành cùng cha mẹ định hướng tương lai cho con.',
+        bullets: [
+          { bold: '6 Chuyên Đề Học Đường:', text: ' Trí Tuệ, Định Hướng Khối Ngành, Giáo Dục Gia Đình, Sức Khỏe Nhi Khoa, Phong Thủy Bàn Học, Lộ Trình Thi Cử' },
+          { bold: 'Khảo cứu sâu sắc 5.000+ từ:', text: ' Giải mã tư chất thiên bẩm, phương pháp nuôi dạy kích hoạt Dụng Thần' },
+          { bold: 'Niên Biểu Các Kỳ Thi Quan Trọng:', text: ' Định vị các mốc năm thi chuyển cấp, đại học và thời điểm bứt phá' },
+          { bold: 'Phong Thủy Kích Hoạt Văn Xương:', text: ' Phương vị bàn học, màu sắc hỗ trợ tập trung và dưỡng sinh thể chất' }
+        ]
+      }
+    };
+  }
+
+  if (system === 'ziwei' && ageInfo.ageGroup === 'CHILD') {
+    return {
+      ...baseInfo,
+      upgradeTitle: 'Bản Chuyên Sâu 5 Chương Tinh Đồ Học Đường',
+      upgradeDescription: `Hệ thống phân tích 5 Chương Tinh Đồ chuyên sâu 5.000+ từ tối ưu cho lứa tuổi học đường (${ageInfo.lunarAge} tuổi Âm lịch): Khí chất Mệnh Thân Phúc, Học vấn thi cử Quan Lộc, Môi trường giáo dưỡng gia đình, Sức khỏe nhi khoa và Bạn bè trường lớp.`,
+      standard: {
+        title: 'Luận Giải Cơ Bản 12 Cung',
+        badge: '100 Points',
+        description: `Phân tích tổng quan 12 cung số, tập trung vào học vấn, tư chất và môi trường gia đình của bé (${ageInfo.lunarAge} tuổi).`,
+        bullets: [
+          'Khảo sát các cung cốt lõi: Mệnh, Phụ Mẫu, Quan Lộc, Tật Ách, Nô Bộc...',
+          'Tư chất thông minh, điểm mạnh bẩm sinh và điểm yếu tâm lý tuổi nhỏ',
+          'Định hướng con đường học hành thi cử và khối ngành học tương lai',
+          'Lời khuyên nuôi dạy cho cha mẹ và dự báo vận trình năm hiện tại'
+        ]
+      },
+      vip: {
+        title: 'Luận Giải Chuyên Sâu',
+        badge: '500 Points',
+        description: 'Công trình Tử Vi uyên thâm 5.000+ từ kết hợp Tứ Hóa Phi Tinh, Ma Trận Mệnh Bàn SWOT và Lộ Trình Thi Cử Học Đường.',
+        bullets: [
+          { bold: '5 Chương Học Đường:', text: ' Tư Chất Bẩm Sinh, Học Vấn Quan Lộc, Gia Đạo Nuôi Dạy, Sức Khỏe Nhi Khoa, Bạn Bè Thầy Cô' },
+          { bold: 'Biện Chứng Tứ Hóa Học Vấn:', text: ' Kích hoạt Hóa Khoa, Hóa Lộc trợ duyên thi cử và phát huy tài năng' },
+          { bold: 'Ma Trận Mệnh Bàn SWOT:', text: ' Định vị 4 chiều Thế Mạnh, Điểm Yếu Tâm Lý, Cơ Hội Học Tập, Cạm Bẫy Xao Nhãng' },
+          { bold: 'Kế Sách Văn Vận & Phòng Học:', text: ' Phong thủy kích hoạt Văn Xương, Văn Khúc & Lộ trình thi cử' }
+        ]
+      }
+    };
+  }
+
+  return baseInfo;
+};
+
 const InterpretationTierModal = ({
   isOpen,
   onClose,
@@ -139,13 +239,14 @@ const InterpretationTierModal = ({
   userCredits = 0,
   isAdmin = false,
   isUpgrade = false,
-  system = 'bazi'
+  system = 'bazi',
+  recordData = null
 }) => {
   const [selectedTier, setSelectedTier] = useState('vip');
 
   if (!isOpen) return null;
 
-  const currentInfo = SYSTEM_TIER_INFO[system] || SYSTEM_TIER_INFO.bazi;
+  const currentInfo = getDynamicTierInfo(system, recordData);
 
   // Trường hợp 1: Nâng cấp từ bài Thường lên bài Chuyên Sâu (Modal xác nhận nhanh 400 Points)
   if (isUpgrade) {

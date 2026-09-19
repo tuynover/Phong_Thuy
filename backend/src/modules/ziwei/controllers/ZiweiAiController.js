@@ -5,6 +5,7 @@ const ZiweiFormatter = require('../services/ZiweiFormatter');
 const ZiweiPrompts = require('../services/ZiweiPrompts');
 const MultiAgentPipelineService = require('../../../core/services/MultiAgentPipelineService');
 const { ZIWEI_PROMPT_VERSION } = require('../../../core/config/ai');
+const AgeClassifier = require('../../../shared/utils/AgeClassifier');
 
 class ZiweiAiController {
   static async interpretZiwei(req, res) {
@@ -15,13 +16,15 @@ class ZiweiAiController {
       notFoundMessage: 'Không tìm thấy bản ghi Tử Vi.',
       errorMessage: 'Lỗi xảy ra trong quá trình sinh luận giải AI cho Tử Vi.',
       buildPrompt: (record) => {
+        const ageInfo = AgeClassifier.getLunarAgeInfo(record);
         const symbolicAnalysis = SymbolicAnalyzer.analyze(record.chartData);
         const compressed = ZiweiFormatter.compressForAi(record);
-        return ZiweiPrompts.buildMarkdownPrompt(compressed, symbolicAnalysis);
+        return ZiweiPrompts.buildMarkdownPrompt(compressed, symbolicAnalysis, ageInfo);
       },
       runVipPipeline: async ({ prompt, record, onProgress }) => {
+        const ageInfo = AgeClassifier.getLunarAgeInfo(record);
         const birthYear = record.inputInfo?.birthSolarYear || record.inputInfo?.date?.split('/')?.[2];
-        return await MultiAgentPipelineService.runZiweiVipPipelineStream(prompt, birthYear, { onProgress });
+        return await MultiAgentPipelineService.runZiweiVipPipelineStream(prompt, birthYear, { onProgress, ageInfo });
       }
     });
   }

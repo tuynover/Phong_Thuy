@@ -77,6 +77,66 @@ const CONCEPT_FALLBACK = {
         short_description: 'Trộm cắp, gian dối, mờ ám, tình ái kín đáo.',
         full_detail: '▸ Bản chất: Thuộc Thủy — phương Bắc. Chủ về điều tối tăm, bí ẩn.\n▸ Gian lận: Trộm cắp, lừa đảo, giấu giếm, thủ đoạn ngầm.\n▸ Tình ái: Huyền Vũ lâm Thê Tài (hoặc Quan Quỷ) → ngoại tình, tình ái bí mật.\n▸ Xấu: Bị lừa, mất đồ, sự việc không minh bạch, bị phản bội sau lưng.\n▸ Tốt (hiếm): Trong gián điệp, điều tra — Huyền Vũ có thể là bí mật có lợi.'
     },
+    'Kiếp Sát': {
+        term: 'Kiếp Sát', category: 'Thần Sát Bát Tự',
+        short_description: 'Sát tinh uy quyền & biến động. Khí thế mãnh liệt, chủ về quyền uy thao lược hoặc tranh chấp rủi ro.',
+        full_detail: '▸ Bản chất: Một trong Tứ Đại Hung Sát, mang khí sát phạt quyết liệt và biến động đột ngột.\n▸ Ý nghĩa hung: Gặp Kỵ thần dễ phát sinh tranh chấp tài sản, họa hình thương dao kéo, thị phi hoặc hao tổn bất ngờ.\n▸ Ý nghĩa cát: Đắc Cát thần hoặc Dụng thần nâng đỡ thì hóa Sát vi Quyền, tính cách quả cảm dũng mãnh, túc trí đa mưu, đạt quyền uy lãnh đạo lớn trong quân sự, tư pháp, y khoa phẫu thuật hoặc thương trường quyết liệt.\n▸ Lời khuyên: Giữ tâm chính trực, hành sự thận trọng tuân thủ pháp luật, kiểm soát tính khí nóng nảy bốc đồng.'
+    },
+    'Hoa Cái': {
+        term: 'Hoa Cái', category: 'Thần Sát Bát Tự',
+        short_description: 'Lọng che nghệ thuật. Tư duy triết học, tài hoa xuất chúng.',
+        full_detail: '▸ Loại tinh: Nghệ thuật & Tâm linh.\n▸ Ý nghĩa: Tư duy sâu sắc uyên bác, đam mê nghệ thuật tôn giáo, trí tuệ vượt trội, phong thái thanh cao thoát tục.'
+    },
+    'Thiên Tài': {
+        term: 'Thiên Tài', category: 'Thập Thần',
+        short_description: 'Thần bị Nhật Chủ khắc nhưng cùng âm dương. Tài sản ngoài luồng, cơ hội đầu tư kinh doanh.',
+        full_detail: '▸ Bản chất: Thập Thần do Nhật Chủ khắc (đồng tính âm dương), đại diện cho của cải động, tài lộc phi chính ngạch.\n▸ Hình tượng: Nguồn lợi đầu tư bất ngờ, cổ phiếu, bất động sản, tài hoa buôn bán nhạy bén.\n▸ Đại diện: Tài sản lưu động, kinh doanh thương mại, người cha (phụ thân), nhân duyên tình ái (nam giới).\n▸ Tốt: Nắm bắt thời cơ làm giàu xuất chúng, hào sảng rộng lượng, giao thiệp rộng khắp, dễ đạt đại phú đại quý.\n▸ Xấu: Tiêu xài hoang phí, thiếu tích lũy bền vững; thân nhược tài vượng dễ tham tài rước họa, vướng nợ nần hoặc đào hoa rắc rối.\n▸ Tính cách: Phóng khoáng, nhạy bén, nhiệt tình, trọng nghĩa khinh tài, thích sự mạo hiểm và đột phá.'
+    },
+    'Thất Sát': {
+        term: 'Thất Sát', category: 'Thập Thần',
+        short_description: 'Thần khắc Nhật Chủ và cùng âm dương (còn gọi là Thiên Quan). Uy quyền mãnh liệt, tài thao lược.',
+        full_detail: '▸ Hình tượng: Uy quyền dũng tướng, ngọn lửa thử thách bản lĩnh phi thường.\n▸ Đại diện: Quyền lực tuyệt đối, tài thao lược biến nguy thành an, sự nghiệp đột phá, người tình/chồng cá tính (nữ giới).\n▸ Tốt: Hóa Sát vi Quyền, lập đại công nghiệp, thăng tiến thần tốc trong môi trường cạnh tranh khốc liệt hoặc binh nghiệp, tư pháp.\n▸ Xấu: Tính tình nóng nảy, dễ gặp tai ương họa nạn, thị phi kiện tụng hoặc xung đột thương tích nếu không có chế hóa.\n▸ Tính cách: Quả cảm, kiên cường, dũng khí ngút trời, quyết đoán dứt khoát, dám nghĩ dám làm.'
+    },
+    'Chính Tài': {
+        term: 'Chính Tài', category: 'Thập Thần',
+        short_description: 'Thần bị Nhật Chủ khắc nhưng khác âm dương.',
+        full_detail: '▸ Hình tượng: Lương bổng ổn định, tài sản tích lũy chính đáng.\n▸ Đại diện: Thu nhập từ sức lao động, người vợ chính thức (nam giới).\n▸ Tốt: Tài lộc bền vững, gia đình êm ấm hạnh phúc, được tín nhiệm.\n▸ Xấu: Quá thực dụng, keo kiệt chi li, thiếu chí khí mạo hiểm lớn.\n▸ Tính cách: Chăm chỉ, tiết kiệm, thực tế, coi trọng kỷ luật gia đình.'
+    },
+    'Chính Quan': {
+        term: 'Chính Quan', category: 'Thập Thần',
+        short_description: 'Thần khắc Nhật Chủ nhưng khác âm dương.',
+        full_detail: '▸ Hình tượng: Vị quan tòa chính trực, người chồng danh chính ngôn thuận.\n▸ Đại diện: Địa vị danh vọng, uy tín xã hội, kỷ luật tự giác, người chồng (nữ).\n▸ Tốt: Thăng quan tiến chức bền vững, sống chuẩn mực được người tôn kính.\n▸ Xấu: Bảo thủ, cứng nhắc theo lối mòn, sợ thay đổi đột phá lớn.\n▸ Tính cách: Chính trực, đáng tin cậy, tôn trọng trật tự và quy củ.'
+    },
+    'Thiên Ấn': {
+        term: 'Thiên Ấn', category: 'Thập Thần',
+        short_description: 'Thần sinh Nhật Chủ và cùng âm dương (còn gọi là Kiêu Thần).',
+        full_detail: '▸ Hình tượng: Người mẹ kế, người thầy truyền dạy kỹ nghệ độc môn.\n▸ Đại diện: Bằng cấp chuyên môn sâu, trực giác nhạy bén, y học huyền học.\n▸ Tốt: Trí tuệ xuất chúng lập dị, trực giác tâm linh nhạy, giỏi kỹ nghệ.\n▸ Xấu: Cô độc lẻ loi, dễ bỏ dở giữa chừng, khắc Thập thần tốt (khắc Thực).\n▸ Tính cách: Hướng nội, sắc sảo nhạy cảm, thích nghiên cứu sâu lập dị.'
+    },
+    'Chính Ấn': {
+        term: 'Chính Ấn', category: 'Thập Thần',
+        short_description: 'Thần sinh Nhật Chủ nhưng khác âm dương.',
+        full_detail: '▸ Hình tượng: Người mẹ hiền từ che chở, ấn tín quyền lực tối thượng.\n▸ Đại diện: Mẹ đẻ, sự bảo bọc che chở, học vấn khoa bảng, đạo đức.\n▸ Tốt: Gặp nhiều quý nhân giúp đỡ, thi cử đỗ đạt, cuộc đời an lành.\n▸ Xấu: Thiếu chủ động chịu trách nhiệm, ỷ lại vào sự giúp đỡ nâng đỡ.\n▸ Tính cách: Ôn hòa, từ bi bác ái, hiếu học, sống trọng tình cảm danh dự.'
+    },
+    'Thực Thần': {
+        term: 'Thực Thần', category: 'Thập Thần',
+        short_description: 'Thần được Nhật Chủ sinh ra và cùng âm dương.',
+        full_detail: '▸ Hình tượng: Vị phúc thần hiền hòa, người đầu bếp tài hoa, nghệ sĩ nhàn nhã.\n▸ Đại diện: Con cái (nữ), phúc thọ, năng khiếu nghệ thuật ẩm thực, tài lộc tự nhiên.\n▸ Tốt: Cuộc sống an nhàn, hóa giải tai ương rất mạnh, tài lộc dồi dào.\n▸ Xấu: Quá nhiều Thực Thần biến thành Thương Quan, gây lười biếng.\n▸ Tính cách: Ôn hòa, rộng lượng, thích tự do tự tại, chuộng hưởng thụ.'
+    },
+    'Thương Quan': {
+        term: 'Thương Quan', category: 'Thập Thần',
+        short_description: 'Thần được Nhật Chủ sinh ra nhưng khác âm dương.',
+        full_detail: '▸ Hình tượng: Nhà cách mạng nổi loạn, thiên tài sáng tạo phá cách.\n▸ Đại diện: Con cái (nữ), trí tuệ vượt bậc, ngôn từ sắc bén, chống đối quan quyền.\n▸ Tốt: Cực kỳ thông minh, sáng tạo đột phá, giỏi kinh doanh và nghệ thuật.\n▸ Xấu: Khắc Quan hại chồng (nữ), dễ gây thị phi, kiêu ngạo tự phụ.\n▸ Tính cách: Cá tính mạnh mẽ, thích tự do, nhạy bén nhưng hay ngạo mạn.'
+    },
+    'Tỷ Kiên': {
+        term: 'Tỷ Kiên', category: 'Thập Thần',
+        short_description: 'Thần đồng hành cùng ngũ hành và cùng âm dương với Nhật Chủ.',
+        full_detail: '▸ Hình tượng: Người anh em sinh đôi, hình bóng của chính bản thân.\n▸ Đại diện: Anh em đồng giới, bạn bè, tính tự lập, ý chí tự cường.\n▸ Tốt: Giúp bản thân mạnh mẽ chịu đựng khó khăn, tự lập nghiệp tốt.\n▸ Xấu: Quá vượng sẽ khắc Thê Tài (hao tài, lận đận tình cảm), cô độc.\n▸ Tính cách: Kiên định, độc lập, tự trọng rất cao, ghét dựa dẫm.'
+    },
+    'Kiếp Tài': {
+        term: 'Kiếp Tài', category: 'Thập Thần',
+        short_description: 'Thần đồng hành cùng ngũ hành nhưng khác âm dương với Nhật Chủ.',
+        full_detail: '▸ Hình tượng: Đối thủ tranh giành trực diện, sự cướp đoạt tài sản.\n▸ Đại diện: Anh em khác giới, bạn bè cạnh tranh, sự hao tài đột ngột.\n▸ Tốt: Thích mạo hiểm, hào sảng phóng khoáng, giỏi giao thiệp rộng.\n▸ Xấu: Khắc cực mạnh Thê Tài, dễ gây tán tài, bất hòa trong hôn nhân.\n▸ Tính cách: Nhiệt tình bên ngoài, lạnh lùng bên trong, thích chinh phục.'
+    }
 };
 
 class ConceptController {

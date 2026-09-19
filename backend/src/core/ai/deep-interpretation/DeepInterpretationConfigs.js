@@ -94,10 +94,150 @@ const BAZI_VIP_CONFIG = {
     }
   ],
 
-  getChapterSpecificInstructions(chapterId) {
+  getReplicas(ageInfo = null) {
+    const defaultModel = process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite';
+
+    // Nhóm 1: Trẻ nhỏ & Học đường (< 18 tuổi)
+    if (ageInfo?.ageGroup === 'CHILD') {
+      return [
+        {
+          id: 1,
+          title: 'Tư Chất & Khí Chất Trí Tuệ (IQ, EQ & Điểm Mạnh Bẩm Sinh)',
+          provider: 'gemini',
+          model: defaultModel,
+          keyEnv: 'GEMINI_API_KEY',
+          subtopics: [
+            'Chân dung cốt cách trí tuệ: Trí thông minh logic, ngôn ngữ, trừu tượng hay thẩm mỹ nghệ thuật',
+            '3 Điểm mạnh bẩm sinh vượt trội trời phú cần tập trung phát triển mũi nhọn',
+            '3 Điểm mù tâm lý, tính khí tuổi nhỏ dễ vấp ngã cha mẹ cần thấu hiểu để uốn nắn',
+            'Khả năng tập trung, tiếp thu bài giảng và cách xử lý áp lực thi cử',
+            'Sứ mệnh cốt lõi và tiềm năng tinh thần chưa khai phá'
+          ]
+        },
+        {
+          id: 2,
+          title: 'Định Hướng Học Vấn & Khối Ngành Nghề Tương Lai',
+          provider: 'gemini',
+          model: defaultModel,
+          keyEnv: 'GEMINI_API_KEY',
+          subtopics: [
+            'Ánh xạ Dụng Thần & Ngũ hành vào khối ngành học tối ưu (Tự nhiên, Kỹ thuật/Công nghệ, Xã hội, Nghệ thuật hay Kinh tế/Quản trị)',
+            'Môn học và lĩnh vực thế mạnh bé dễ đạt thành tích xuất sắc và huy chương/giải thưởng',
+            'Môi trường học tập phù hợp (trường chuyên, công lập, quốc tế, du học hay năng khiếu)',
+            'Định vị vai trò tương lai: Nhà nghiên cứu chuyên sâu, Lãnh đạo quản trị hay Sáng tạo tự do',
+            'Lộ trình chuẩn bị học vấn từ sớm giúp con đi đúng đường không uổng phí thời gian'
+          ]
+        },
+        {
+          id: 3,
+          title: 'Tương Tác Gia Đình & Phương Pháp Giáo Dục Tối Ưu',
+          provider: 'gemini',
+          model: defaultModel,
+          keyEnv: 'GEMINI_API_KEY',
+          subtopics: [
+            'Mối liên kết giữa bé với cha mẹ (Cung Phụ Mẫu & Trụ Năm/Tháng): Hợp tính cha hay mẹ hơn',
+            'Phương pháp giáo dục vàng: Cha mẹ nên nhu hay cương, khen ngợi hay đặt kỷ luật',
+            'Cách giải tỏa bức xúc tâm lý tuổi dậy thì và xây dựng sự tin tưởng với con',
+            'Gìn giữ hòa khí gia đình và kiến tạo môi trường nuôi dưỡng nhân cách thuận thiên nhiên',
+            'Đạo hiếu và sự nâng đỡ tương hỗ giữa các thế hệ trong nhà'
+          ]
+        },
+        {
+          id: 4,
+          title: 'Sức Khỏe Thể Chất & Tạng Phủ Nhi Khoa',
+          provider: 'gemini',
+          model: defaultModel,
+          keyEnv: 'GEMINI_API_KEY',
+          subtopics: [
+            'Cân bằng ngũ hành tạng phủ: Nhận diện tạng phủ yếu thế bẩm sinh cần chăm sóc',
+            'Cảnh báo các bệnh lý học đường thường gặp (hô hấp, tiêu hóa, thị lực, cơ xương khớp hoặc dị ứng)',
+            'Vận hạn thể chất thiếu thời: Phòng ngừa té ngã, chấn thương vận động hoặc đuối nước (nếu có hung sát)',
+            'Nhịp sinh học, giấc ngủ và chế độ dinh dưỡng tối ưu theo ngũ hành Dụng Thần',
+            'Môn thể thao và hình thức rèn luyện thể chất bổ trợ sinh khí tốt nhất cho bé'
+          ]
+        },
+        {
+          id: 5,
+          title: 'Phong Thủy Phòng Học & Kích Hoạt Cát Tinh Văn Xương',
+          provider: 'gemini',
+          model: defaultModel,
+          keyEnv: 'GEMINI_API_KEY',
+          subtopics: [
+            'Xác định phương vị sao Văn Xương, Học Đường theo tuổi để đặt bàn học chuẩn phong thủy',
+            'Màu sắc trang trí phòng ngủ, góc học tập và trang phục bổ khuyết Dụng Thần',
+            'Vật phẩm phong thủy trợ văn vận thi cử (tháp Văn Xương, cây xanh, thạch anh thuận hành)',
+            'Thói quen sinh hoạt và không gian sống giúp tâm trí tập trung, minh mẫn',
+            'Tích phúc hành thiện và gieo mầm nhân cách hướng thiện từ nhỏ'
+          ]
+        },
+        {
+          id: 6,
+          title: 'Lộ Trình Thi Cử & Mốc Trưởng Thành Đầu Đời',
+          provider: 'gemini',
+          model: defaultModel,
+          keyEnv: 'GEMINI_API_KEY',
+          subtopics: [
+            'Bảng niên biểu các mốc năm thi cử chuyển cấp, thi tốt nghiệp và đại học quan trọng',
+            'Năm đại cát: Thời điểm trí tuệ hanh thông, dễ bứt phá đỗ đạt điểm cao',
+            'Năm biến động / khắc xung: Thời điểm dễ xao nhãng hoặc áp lực học tập cần cha mẹ đồng hành',
+            'Bước ngoặt trưởng thành đầu đời khi bước chân vào giảng đường đại học hoặc tự lập',
+            'Kim chỉ nam hành trang nhân sinh cha mẹ dành tặng con cái'
+          ]
+        }
+      ];
+    }
+
+    // Nhóm 2: Thanh niên & Khởi nghiệp (18 - 29 tuổi) - Replica 1 thêm phân tích sâu tính cách
+    if (ageInfo?.ageGroup === 'YOUNG_ADULT') {
+      const replicas = JSON.parse(JSON.stringify(this.REPLICAS));
+      replicas[0].title = 'Sự Nghiệp, Vị Thế Khởi Đầu & Khí Chất Cốt Lõi';
+      replicas[0].subtopics = [
+        'Phân tích chuyên sâu về tính cách, khí chất cốt lõi, tâm lý nội tâm và thói quen bản năng',
+        'Năng lực cốt lõi và thiên hướng nghề nghiệp vượt trội trong kỷ nguyên số',
+        'Định vị vai trò khởi đầu: Làm chủ (start-up), Làm chuyên môn kỹ thuật hay Làm quản trị',
+        'Môi trường làm việc, phong cách cộng sự và cách nhận diện quý nhân dẫn đường',
+        'Thời điểm vàng bứt phá danh vọng và thành tựu đầu đời ở lứa tuổi 20s'
+      ];
+      return replicas;
+    }
+
+    // Mặc định hoặc Nhóm 3, 4: Dùng bộ Replicas chuẩn
+    return this.REPLICAS;
+  },
+
+  getChapterSpecificInstructions(chapterId, ageInfo = null) {
+    if (ageInfo?.ageGroup === 'CHILD') {
+      const CHILD_INSTRUCTIONS = {
+        1: `NGUYÊN TẮC HỌC THUẬT CHƯƠNG 1 (TƯ CHẤT & KHÍ CHẤT TRÍ TUỆ BẨM SINH):
+- ĐỊNH HƯỚNG CỐT LÕI: Phân tích sâu sắc tư chất thông minh, chỉ số IQ/EQ, năng khiếu tự nhiên của trẻ dựa trên Nhật Chủ, Nguyệt Lệnh và Thập Thần.
+- CHỈ RÕ: 3 thế mạnh bẩm sinh nổi bật và 3 điểm yếu tâm lý tuổi nhỏ cần uốn nắn.
+- TUYỆT ĐỐI CẤM: Không nói chuyện công danh sự nghiệp lớn hay tiền tài danh vọng của người lớn. Bắt đầu bằng: ## CHƯƠNG 1: TƯ CHẤT & KHÍ CHẤT TRÍ TUỆ`,
+
+        2: `NGUYÊN TẮC HỌC THUẬT CHƯƠNG 2 (ĐỊNH HƯỚNG HỌC VẤN & KHỐI NGÀNH NGHỀ TƯƠNG LAI):
+- ĐỊNH HƯỚNG CỐT LÕI: Ánh xạ Dụng Thần sang các khối ngành học cụ thể (Toán-Khoa học, Kỹ thuật-Công nghệ AI, Xã hội nhân văn, Nghệ thuật sáng tạo...).
+- Cung cấp lộ trình học vấn rõ ràng để cha mẹ định hướng giáo dục sớm. Bắt đầu bằng: ## CHƯƠNG 2: ĐỊNH HƯỚNG HỌC VẤN & KHỐI NGÀNH NGHỀ TƯƠNG LAI`,
+
+        3: `NGUYÊN TẮC HỌC THUẬT CHƯƠNG 3 (TƯƠNG TÁC GIA ĐÌNH & PHƯƠNG PHÁP GIÁO DỤC):
+- TUYỆT ĐỐI CẤM nhắc đến chuyện tình duyên, vợ chồng, hôn nhân hay con cái của đương số! Đương số là đứa trẻ!
+- TẬP TRUNG: Mối quan hệ giữa bé với cha mẹ (Cung Phụ Mẫu, Trụ Năm/Tháng), phương pháp uốn nắn, tâm lý tuổi dậy thì. Bắt đầu bằng: ## CHƯƠNG 3: TƯƠNG TÁC GIA ĐÌNH & PHƯƠNG PHÁP GIÁO DỤC TỐI ƯU`,
+
+        4: `NGUYÊN TẮC HỌC THUẬT CHƯƠNG 4 (SỨC KHỎE THỂ CHẤT & TẠNG PHỦ NHI KHOA):
+- Quy chiếu ngũ hành sang thể trạng nhi đồng: Tiêu hóa, hô hấp, thị lực, dinh dưỡng và an toàn vận động.
+- Tuyệt đối cấm dọa nạt bệnh hiểm nghèo hay tai nạn chết người. Bắt đầu bằng: ## CHƯƠNG 4: SỨC KHỎE THỂ CHẤT & TẠNG PHỦ NHI KHOA`,
+
+        5: `NGUYÊN TẮC HỌC THUẬT CHƯƠNG 5 (PHONG THỦY PHÒNG HỌC & KÍCH HOẠT VĂN XƯƠNG):
+- Hướng dẫn bố trí bàn học, hướng ngồi theo sao Văn Xương/Dụng Thần, màu sắc không gian học tập. Bắt đầu bằng: ## CHƯƠNG 5: PHONG THỦY PHÒNG HỌC & KÍCH HOẠT CÁT TINH VĂN XƯƠNG`,
+
+        6: `NGUYÊN TẮC HỌC THUẬT CHƯƠNG 6 (LỘ TRÌNH THI CỬ & MỐC TRƯỞNG THÀNH ĐẦU ĐỜI):
+- Lập bảng Markdown các năm thi cử quan trọng (chuyển cấp, thi đại học) và lời khuyên chuẩn bị tâm lý. Bắt đầu bằng: ## CHƯƠNG 6: LỘ TRÌNH THI CỬ & MỐC TRƯỞNG THÀNH ĐẦU ĐỜI`
+      };
+      return CHILD_INSTRUCTIONS[chapterId] || '';
+    }
+
     const INSTRUCTIONS = {
       1: `NGUYÊN TẮC HỌC THUẬT CHƯƠNG 1 (SỰ NGHIỆP & CÔNG DANH):
 - ĐỊNH HƯỚNG CỐT LÕI: Phân tích sâu sắc năng lực vượt trội và vị thế nghề nghiệp MŨI NHỌN trong kỷ nguyên số (AI, Dữ liệu, Quản trị rủi ro tài chính, Tư vấn chiến lược, Công nghệ cao). Tránh đưa ra các định hướng chung chung nước đôi kiểu "làm gì cũng được".
+${ageInfo?.ageGroup === 'YOUNG_ADULT' ? '- ĐẶC BIỆT VỚI LỨA TUỔI THANH NIÊN (18 - 29 TUỔI): BẮT BUỘC dành dung lượng phân tích chuyên sâu về tính cách, khí chất cốt lõi, tâm lý nội tâm và thói quen bản năng để giúp đương số định vị bản thân sắc bén.' : ''}
 - RANH GIỚI ĐỊA BÀN (CHỐNG LẶP Ý):
   + CẤM lấn sân sang chuyện hôn nhân, gia đạo hay tiền bạc đầu tư (đã có chương riêng).
   + CẤM lặp lại điệp khúc "tính nóng nảy do Dần - Thân xung" (để dành việc này cho Chương 3).
@@ -237,10 +377,124 @@ const ZIWEI_VIP_CONFIG = {
     }
   ],
 
-  getClusterSpecificInstructions(clusterId) {
+  getReplicas(ageInfo = null) {
+    const defaultModel = process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite';
+    if (ageInfo?.ageGroup === 'CHILD') {
+      return [
+        {
+          id: 1,
+          title: 'Mệnh - Thân - Phúc Đức (Tư Chất Bẩm Sinh & Trí Tuệ Nội Tâm)',
+          provider: 'gemini',
+          model: defaultModel,
+          keyEnv: 'GEMINI_API_KEY',
+          subtopics: [
+            'Cung Mệnh: Cốt cách tinh đẩu tọa thủ, diện mạo, tư chất thông minh và thiên phú trời sinh',
+            'Cung Thân: Vị trí Cung Thân và định hình nhân cách khi trưởng thành',
+            'Cung Phúc Đức: Phúc trạch tổ tiên, thế giới nội tâm tinh thần và bài học rèn luyện tâm tính',
+            'Cát hung hội tụ: Tương tác các sao cát hung ảnh hưởng đến tính khí tuổi nhỏ',
+            'Khung phát triển cốt cách: Rèn luyện ý chí và bồi đắp nhân cách thiện lương'
+          ]
+        },
+        {
+          id: 2,
+          title: 'Quan Lộc - Tài Bạch - Điền Trạch (Học Vấn, Thi Cử & Tiềm Năng Tương Lai)',
+          provider: 'gemini',
+          model: defaultModel,
+          keyEnv: 'GEMINI_API_KEY',
+          subtopics: [
+            'Cung Quan Lộc: Con đường học vấn, khả năng đỗ đạt giải thưởng và định hướng khối ngành chuyên sâu',
+            'Cung Tài Bạch: Tiềm năng tự lập và bài học giáo dục trân trọng giá trị tài sản từ nhỏ',
+            'Cung Điền Trạch: Môi trường nơi chốn ăn ở học tập thuận lợi phát triển trí tuệ',
+            'Cảnh báo rủi ro học tập: Nhận diện sao hung sát gây phân tán chú ý, lười biếng hay áp lực thi cử',
+            'Bảng các năm thi cử quan trọng chuyển cấp và đại học đỗ đạt'
+          ]
+        },
+        {
+          id: 3,
+          title: 'Phu Thê - Tử Tức (Gia Đạo, Môi Trường Nuôi Dạy & Xu Hướng Tình Cảm Tương Lai)',
+          provider: 'gemini',
+          model: defaultModel,
+          keyEnv: 'GEMINI_API_KEY',
+          subtopics: [
+            'Cung Phu Thê: Xu hướng khí chất tình cảm khi lớn lên (TUYỆT ĐỐI KHÔNG bàn kết hôn hay vợ/chồng sớm)',
+            'Môi trường gia đình: Tác động của không khí hòa thuận trong gia đình đến tâm lý tuổi nhỏ',
+            'Cung Tử Tức: Sự gắn kết và tính hiếu nghĩa, tương ái với người nhỏ tuổi hơn',
+            'Định hướng cảm xúc lành mạnh tuổi dậy thì'
+          ]
+        },
+        {
+          id: 4,
+          title: 'Tật Ách - Thiên Di (Sức Khỏe Nhi Khoa & Năng Lực Thích Ứng Xã Hội)',
+          provider: 'gemini',
+          model: defaultModel,
+          keyEnv: 'GEMINI_API_KEY',
+          subtopics: [
+            'Cung Tật Ách: Nhận diện ngũ hành tạng phủ yếu thế và các bệnh lý học đường cần phòng ngừa',
+            'Cảnh báo an toàn: Phòng ngừa té ngã, chấn thương vận động khi nô đùa',
+            'Cung Thiên Di: Biểu hiện khi ra ngoài xã hội, trường lớp, khả năng hòa nhập và cơ hội du học',
+            'Phác đồ sinh hoạt, thể dục thể thao và dinh dưỡng tối ưu theo sao tọa thủ'
+          ]
+        },
+        {
+          id: 5,
+          title: 'Nô Bộc - Phụ Mẫu - Huynh Đệ (Tình Cảm Cha Mẹ, Anh Em & Bạn Bè Thầy Cô)',
+          provider: 'gemini',
+          model: defaultModel,
+          keyEnv: 'GEMINI_API_KEY',
+          subtopics: [
+            'Cung Phụ Mẫu: Mối liên kết với cha mẹ, mức độ nâng đỡ và phương pháp giáo dưỡng của song thân',
+            'Cung Huynh Đệ: Tình cảm anh chị em trong nhà, sự hòa thuận và chia sẻ',
+            'Cung Nô Bộc: Bạn bè trường lớp, thầy cô giáo; nhận diện bạn hiền giúp đỡ vs bạn xấu rủ rê',
+            'Cát tinh trợ mệnh học đường: Khôi Việt, Xương Khúc trợ lực văn vận'
+          ]
+        }
+      ];
+    }
+
+    if (ageInfo?.ageGroup === 'YOUNG_ADULT') {
+      const replicas = JSON.parse(JSON.stringify(this.REPLICAS));
+      replicas[0].subtopics.unshift('Phân tích chuyên sâu tính cách, khí chất cốt lõi và nội tâm người trẻ trong giai đoạn định hình nhân sinh quan');
+      return replicas;
+    }
+
+    return this.REPLICAS;
+  },
+
+  getClusterSpecificInstructions(clusterId, ageInfo = null) {
+    if (ageInfo?.ageGroup === 'CHILD') {
+      const CHILD_INSTRUCTIONS = {
+        1: `NGUYÊN TẮC HỌC THUẬT CỤM 1 (MỆNH - THÂN - PHÚC ĐỨC TRẺ EM):
+- Đi sâu vào tư chất bẩm sinh, IQ/EQ, năng khiếu tự nhiên và điểm yếu tâm lý tuổi nhỏ cần uốn nắn.
+- Phúc Đức: Đời sống nội tâm, bài học rèn luyện nhân cách đầu đời.
+- Bắt đầu bằng: ## CHƯƠNG 1: MỆNH - THÂN - PHÚC ĐỨC`,
+
+        2: `NGUYÊN TẮC HỌC THUẬT CỤM 2 (QUAN LỘC - TÀI BẠCH - ĐIỀN TRẠCH HỌC ĐƯỜNG):
+- Trọng tâm 100% vào học vấn, thi cử đỗ đạt, định hướng khối ngành tương lai.
+- TUYỆT ĐỐI CẤM bàn chuyện mua bán bất động sản Điền Trạch hay tích lũy đầu tư làm giàu Tài Bạch!
+- Bắt đầu bằng: ## CHƯƠNG 2: QUAN LỘC - TÀI BẠCH - ĐIỀN TRẠCH`,
+
+        3: `NGUYÊN TẮC HỌC THUẬT CỤM 3 (PHU THÊ - TỬ TỨC GIA ĐẠO):
+- TUYỆT ĐỐI CẤM bàn chuyện hôn nhân, vợ/chồng hay đường con cái của đứa trẻ!
+- Hướng dẫn cảm xúc lành mạnh khi lớn lên và vai trò của hòa khí gia đình đối với sự phát triển của bé.
+- Bắt đầu bằng: ## CHƯƠNG 3: PHU THÊ - TỬ TỨC`,
+
+        4: `NGUYÊN TẮC HỌC THUẬT CỤM 4 (TẬT ÁCH - THIÊN DI NHI KHOA):
+- Sức khỏe thể chất tuổi nhỏ, bệnh lý học đường và an toàn vận động.
+- Thiên Di: Khả năng thích ứng môi trường trường lớp và cơ hội du học tương lai.
+- Bắt đầu bằng: ## CHƯƠNG 4: TẬT ÁCH - THIÊN DI`,
+
+        5: `NGUYÊN TẮC HỌC THUẬT CỤM 5 (NÔ BỘC - PHỤ MẪU - HUYNH ĐỆ):
+- Tình cảm cha mẹ (Phụ Mẫu), anh chị em (Huynh Đệ) và bạn bè thầy cô (Nô Bộc).
+- Cảnh báo tránh bạn bè xấu lôi kéo và phát huy các cát tinh học đường Khôi Việt, Xương Khúc.
+- Bắt đầu bằng: ## CHƯƠNG 5: NÔ BỘC - PHỤ MẪU - HUYNH ĐỆ`
+      };
+      return CHILD_INSTRUCTIONS[clusterId] || '';
+    }
+
     const INSTRUCTIONS = {
       1: `NGUYÊN TẮC HỌC THUẬT CHƯƠNG 1 (MỆNH - THÂN - PHÚC ĐỨC):
 - Đi sâu vào căn cơ gốc rễ: Bản tính, cốt cách, khí chất tự nhiên của Mệnh.
+${ageInfo?.ageGroup === 'YOUNG_ADULT' ? '- BẮT BUỘC phân tích chuyên sâu về tính cách, khí chất cốt lõi và nội tâm người trẻ trong giai đoạn định hình bản thân.' : ''}
 - Phân tích vị trí Cung Thân: Thân cư cung nào, cách thức đương số tương tác với cuộc đời khi bước sang giai đoạn hậu vận.
 - Phúc Đức là điểm tựa tâm linh: Phân tích nghiệp duyên, phúc ấm tổ tiên và bài học tinh thần cần tu dưỡng.
 - Tuyệt đối không phán bế tắc, luôn đưa ra giải pháp nâng cao tần số tâm thức.`,

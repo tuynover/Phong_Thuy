@@ -9,6 +9,7 @@ const {
     getMoKhoAndTaiKhoAnalysis,
     getActualPresentTenGodsSummary
 } = require('../../../shared/utils/astrologyHelpers');
+const AgeClassifier = require('../../../shared/utils/AgeClassifier');
 
 class BaziPrompts {
     /**
@@ -83,12 +84,14 @@ class BaziPrompts {
 
     /**
      * Dành riêng cho LUẬN GIẢI CƠ BẢN (1 Credit, 6 Bước cô đọng)
+     * Tự động điều chỉnh cấu trúc chương theo độ tuổi Âm lịch của đương số
      */
-    static getStandardPrompt(baziRecord) {
+    static getStandardPrompt(baziRecord, customAgeInfo = null) {
         const { inputInfo, baziData } = baziRecord;
         const genderText = inputInfo.gender === 1 ? 'Nam' : 'Nữ';
         const canChi = baziData.canChi;
         const safety = getSafetyGuidelines();
+        const ageInfo = customAgeInfo || AgeClassifier.getLunarAgeInfo(baziRecord);
         
         const dayCan = canChi.day.gan;
         const dayElement = stemElementMap(dayCan);
@@ -107,6 +110,44 @@ class BaziPrompts {
 
         const detailedTimelineText = formatDetailedBaziTimeline(baziData);
 
+        let chapter3Content = '';
+        let chapter4Title = '## CHƯƠNG 4: GIẢI MÃ THẦN SÁT : GIA VỊ CỦA LÁ SỐ';
+        let chapter4Desc = '- Tra cứu và giải mã tổng hòa các Thần Sát trên 4 trụ và Thai Mệnh. Dung lượng: 225 - 275 từ.';
+        let chapter5Title = '## CHƯƠNG 5: LUẬN ĐẠI VẬN & LƯU NIÊN : DÒNG CHẢY THỜI GIAN';
+        let chapter5Desc = '- Phân tích các bước Đại vận quan trọng và Lưu niên hiện tại. Dung lượng: 350 - 450 từ.';
+        let chapter6Title = '## CHƯƠNG 6: TỔNG KẾT & CHIẾN LƯỢC HÀNH ĐỘNG';
+        let chapter6Desc = '- Đúc kết kim chỉ nam và lời khuyên phong thủy cải vận thực tế. Dung lượng: 200 - 250 từ.';
+
+        if (ageInfo.ageGroup === 'CHILD') {
+            chapter3Content = `## CHƯƠNG 3: LUẬN GIẢI CHI TIẾT : ĐỊNH HƯỚNG PHÁT TRIỂN & GIÁO DỤC
+‼️ LƯU Ý BẮT BUỘC VỀ ĐỘ TUỔI: Đương số hiện ${ageInfo.lunarAge} tuổi (tuổi Âm lịch), đang trong giai đoạn ấu thơ và học đường. BẮT BUỘC BỎ QUA HOÀN TOÀN các vấn đề tình duyên, hôn nhân, kiếm tiền hay đầu tư tài sản. Tập trung 100% dung lượng vào giáo dục, nuôi dạy và sức khỏe:
+**Phân Tích Tư Chất Trí Tuệ & Điểm Mạnh/Yếu Bẩm Sinh**: Phân tích chỉ số thông minh (IQ), trí tuệ cảm xúc (EQ), khả năng tiếp thu bài vở, điểm mạnh trí tuệ bẩm sinh và điểm mù tâm lý tuổi nhỏ cần uốn nắn. Dung lượng: 300 - 375 từ.
+**Phân Tích Định Hướng Học Tập & Khối Ngành Phù Hợp**: Chỉ rõ khối ngành, môn học và lĩnh vực thế mạnh (Khoa học tự nhiên, Kỹ thuật - Công nghệ, Xã hội nhân văn, Ngôn ngữ, Nghệ thuật sáng tạo hay Quản trị) phù hợp với Dụng Thần và ngũ hành bản mệnh để phụ huynh định hướng từ sớm. Dung lượng: 300 - 375 từ.
+**Phân Tích Phương Pháp Nuôi Dạy & Môi Trường Giáo Dục Tối Ưu**: Lời khuyên thiết thực cho phụ huynh về phương pháp giao tiếp, đồng hành, khuyến khích hay kỷ luật phù hợp với tính khí của bé, cách uốn nắn tật xấu bản năng mà không làm thui chột cá tính. Dung lượng: 300 - 375 từ.
+**Phân Tích Sức Khỏe Thiếu Thời & Tạng Phủ Nhi Khoa**: Nhận diện tạng phủ suy yếu tương đối theo ngũ hành, các nguy cơ bệnh lý học đường (hô hấp, tiêu hóa, thị lực, dị ứng hoặc chấn thương vận động) và phác đồ dinh dưỡng, giờ giấc sinh hoạt phòng ngừa. Dung lượng: 300 - 375 từ.`;
+            
+            chapter4Title = '## CHƯƠNG 4: GIẢI MÃ THẦN SÁT : CÁT TINH HỌC ĐƯỜNG & QUÝ NHÂN PHÙ TRỢ';
+            chapter4Desc = '- Tra cứu và giải mã các Thần Sát trên 4 trụ, tập trung vào các sao học vấn, thi cử, nghệ thuật (Văn Xương, Học Đường, Hoa Cái, Thiên Ất Quý Nhân...) và cách hóa giải các hung sát nếu có. Dung lượng: 225 - 275 từ.';
+            chapter5Title = '## CHƯƠNG 5: VẬN TRÌNH HỌC HÀNH & CÁC MỐC THI CỬ ĐẦU ĐỜI';
+            chapter5Desc = '- Phân tích bước vận đầu đời và dòng chảy Lưu niên, định vị các mốc năm thi cử chuyển cấp, thi đại học, thời điểm trí tuệ phát tiết thuận lợi và những năm cần lưu ý kèm cặp. Dung lượng: 350 - 450 từ.';
+            chapter6Title = '## CHƯƠNG 6: TỔNG KẾT & PHONG THỦY PHÒNG HỌC CẢI VẬN';
+            chapter6Desc = '- Hướng dẫn bố trí không gian học tập, phương vị bàn học kích hoạt sao Văn Xương, màu sắc bổ trợ Dụng Thần và đúc kết kim chỉ nam nuôi dạy cho cha mẹ. Dung lượng: 200 - 250 từ.';
+        } else if (ageInfo.ageGroup === 'SENIOR') {
+            chapter3Content = `## CHƯƠNG 3: LUẬN GIẢI CHI TIẾT : AN DƯỠNG & HẬU VẬN NHÂN SINH
+‼️ LƯU Ý BẮT BUỘC VỀ ĐỘ TUỔI: Đương số hiện ${ageInfo.lunarAge} tuổi (tuổi Âm lịch), đang ở giai đoạn hậu vận cao niên. Không đặt nặng vấn đề cạnh tranh thương trường khốc liệt hay tình cảm đôi lứa; tập trung vào dưỡng sinh, gia đạo con cháu và di sản:
+**Phân Tích Dưỡng Sinh Tạng Phủ & Sức Khỏe Trường Thọ (Ngũ Hành Biện Chứng)**: Dung lượng: 300 - 375 từ.
+**Phân Tích Phúc Đức Gia Tộc & Sự Thành Đạt Của Con Cháu (Tử Tức & Gia Đạo)**: Dung lượng: 300 - 375 từ.
+**Phân Tích Quản Trị & Chuyển Giao Sản Nghiệp (Bảo Toàn Thành Quả & Truyền Thừa)**: Dung lượng: 300 - 375 từ.
+**Phân Tích Tâm Tính An Lạc & Đạo Tu Thân Hậu Vận**: Dung lượng: 300 - 375 từ.`;
+        } else {
+            // YOUNG_ADULT (18 - 29 tuổi) và ADULT (30 - 55 tuổi): Luận giải đầy đủ tất cả các phương diện
+            chapter3Content = `## CHƯƠNG 3: LUẬN GIẢI CHI TIẾT : CÁC PHƯƠNG DIỆN ĐỜI NGƯỜI
+**Phân Tích Sự Nghiệp & Công Danh (Quan/Sát/Thương)**: Dung lượng: 300 - 375 từ.
+**Phân Tích Tiền Bạc & Tài Chính (Tài/Thương)**: Dung lượng: 300 - 375 từ.
+**Phân Tích Tình Duyên & Hôn Nhân (Phối Ngẫu & Cung Thê/Phu)**: Dung lượng: 300 - 375 từ.
+**Phân Tích Sức Khỏe & Tật Ách (Ngũ Hành Biện Chứng & Bệnh Lý Tạng Phủ)**: Dung lượng: 300 - 375 từ.`;
+        }
+
         return `Bạn là một Chuyên gia Thượng thừa về Tử Bình (Bát Tự) có hơn 20 năm kinh nghiệm thực chiến, kết hợp nhuần nhuyễn giữa Cổ học Phương Đông kinh điển ("Tích Thiên Tủy", "Tử Bình Chân Thuyên", "Tam Mệnh Thông Hội", "Trầm Thị Bát Tự") và Tư duy Phân tích Thời đại Mới (Tâm lý học hành vi, Kinh tế tri thức, Y học cổ truyền biện chứng và Bình đẳng giới).
 Nhiệm vụ của bạn là lập và luận giải chi tiết lá số Tử Bình cho đương số dựa trên dữ liệu Tứ Trụ, Phụ Trụ, Đại Vận và Thần Sát đã được tính toán chính xác dưới đây.
 
@@ -122,11 +163,12 @@ Nhiệm vụ của bạn là lập và luận giải chi tiết lá số Tử B�
 1. Ngũ hành là gốc rễ, Thần Sát là gia vị hỗ trợ cát hung.
 2. Thân Nhược phân biệt rõ 2 nhánh: Đắc cứu (có Ấn hóa Sát hoặc Thực Thương chế Sát, đại nghiệp bứt phá) vs Vô cứu (phòng thủ, chuyên môn).
 3. Ánh xạ nghề nghiệp sang kỷ nguyên số và kinh tế tri thức hiện đại.
-4. Hôn nhân khảo sát theo 4 mô hình thực tế, tôn trọng sự độc lập của bạn đời.
+4. Đối với người trưởng thành: Hôn nhân khảo sát theo 4 mô hình thực tế, tôn trọng sự độc lập của bạn đời. Đối với trẻ nhỏ: Tuyệt đối không luận hôn nhân, tập trung giáo dục định hướng.
 5. Sức khỏe theo lý luận Đông y tạng phủ và bệnh học hiện đại.
 
 --- THÔNG TIN ĐỐI TƯỢNG ---
 - Giới tính: ${genderText}
+- Độ tuổi đương số (Âm lịch): ${ageInfo.lunarAge} tuổi (${ageInfo.label})
 - Thời gian sinh (Dương lịch): ${baziRecord.solarTimeline || (inputInfo.date + ' ' + inputInfo.time)}
 - Tiết khí Can Chi: ${baziRecord.tietKhiTimeline}
 
@@ -167,30 +209,27 @@ Hãy viết bản luận giải bằng tiếng Việt, định dạng Markdown t
 - Định danh chính xác Cách Cục (Chính Cách hoặc Ngoại Cách).
 - Xác định Dụng Thần (chìa khóa), Hỷ Thần (trợ lực) và Kỵ Thần (yếu tố phá cách). Dung lượng: 150 - 200 từ.
 
-## CHƯƠNG 3: LUẬN GIẢI CHI TIẾT : CÁC PHƯƠNG DIỆN ĐỜI NGƯỜI
-**Phân Tích Sự Nghiệp & Công Danh (Quan/Sát/Thương)**: Dung lượng: 300 - 375 từ.
-**Phân Tích Tiền Bạc & Tài Chính (Tài/Thương)**: Dung lượng: 300 - 375 từ.
-**Phân Tích Tình Duyên & Hôn Nhân (Phối Ngẫu & Cung Thê/Phu)**: Dung lượng: 300 - 375 từ.
-**Phân Tích Sức Khỏe & Tật Ách (Ngũ Hành Biện Chứng & Bệnh Lý Tạng Phủ)**: Dung lượng: 300 - 375 từ.
+${chapter3Content}
 
-## CHƯƠNG 4: GIẢI MÃ THẦN SÁT : GIA VỊ CỦA LÁ SỐ
-- Tra cứu và giải mã tổng hòa các Thần Sát trên 4 trụ và Thai Mệnh. Dung lượng: 225 - 275 từ.
+${chapter4Title}
+${chapter4Desc}
 
-## CHƯƠNG 5: LUẬN ĐẠI VẬN & LƯU NIÊN : DÒNG CHẢY THỜI GIAN
-- Phân tích các bước Đại vận quan trọng và Lưu niên hiện tại. Dung lượng: 350 - 450 từ.
+${chapter5Title}
+${chapter5Desc}
 
-## CHƯƠNG 6: TỔNG KẾT & CHIẾN LƯỢC HÀNH ĐỘNG
-- Đúc kết kim chỉ nam và lời khuyên phong thủy cải vận thực tế. Dung lượng: 200 - 250 từ.`;
+${chapter6Title}
+${chapter6Desc}`;
     }
 
     /**
      * Dành riêng cho LUẬN GIẢI CHUYÊN SÂU (6 Chương Chuyên Sâu, Tích Hợp Ma Trận Thần Sát Trực Quan Toàn Diện)
      */
-    static getDeepPrompt(baziRecord) {
+    static getDeepPrompt(baziRecord, customAgeInfo = null) {
         const { inputInfo, baziData } = baziRecord;
         const genderText = inputInfo.gender === 1 ? 'Nam' : 'Nữ';
         const canChi = baziData.canChi;
         const safety = getSafetyGuidelines();
+        const ageInfo = customAgeInfo || AgeClassifier.getLunarAgeInfo(baziRecord);
         
         const dayCan = canChi.day.gan;
         const dayElement = stemElementMap(dayCan);
@@ -214,6 +253,21 @@ Hãy viết bản luận giải bằng tiếng Việt, định dạng Markdown t
         const moKhoAnalysisText = getMoKhoAndTaiKhoAnalysis(canChi, dayCan);
         const presentTenGodsText = getActualPresentTenGodsSummary(canChi, dayCan);
 
+        let ageDirective = '';
+        if (ageInfo.ageGroup === 'CHILD') {
+            ageDirective = `‼️ ĐỊNH HƯỚNG BỐI CẢNH LỨA TUỔI ĐƯƠNG SỐ (${ageInfo.lunarAge} TUỔI - ẤU THƠ & HỌC ĐƯỜNG):
+- Đương số hiện ${ageInfo.lunarAge} tuổi (tuổi Âm lịch), đang trong giai đoạn học hành và hoàn thiện nhân cách.
+- TUYỆT ĐỐI BỎ QUA HOÀN TOÀN các vấn đề tình cảm đôi lứa, hôn nhân, phối ngẫu, sinh nở hoặc đầu tư tài chính mạo hiểm.
+- TẬP TRUNG TỐI ĐA VÀO: Tư chất trí tuệ bẩm sinh (IQ, EQ), định hướng khối ngành học tập tương lai, phương pháp giáo dục uốn nắn của cha mẹ, sức khỏe nhi khoa và môi trường phong thủy phòng học kích hoạt Văn Xương.`;
+        } else if (ageInfo.ageGroup === 'YOUNG_ADULT') {
+            ageDirective = `‼️ ĐỊNH HƯỚNG BỐI CẢNH LỨA TUỔI ĐƯƠNG SỐ (${ageInfo.lunarAge} TUỔI - THANH NIÊN & KHỞI NGHIỆP):
+- Đương số đang ở giai đoạn thanh xuân lập nghiệp. Bên cạnh định hướng nghề nghiệp, BẮT BUỘC phân tích chuyên sâu về tính cách, khí chất cốt lõi, tâm lý nội tâm và thói quen bản năng để giúp đương số thấu hiểu điểm mạnh/điểm mù của bản thân.
+- Luận giải toàn diện sự nghiệp, tài chính bước đầu, định hướng nhân duyên bạn đời lành mạnh và sức khỏe thói quen sinh hoạt.`;
+        } else if (ageInfo.ageGroup === 'SENIOR') {
+            ageDirective = `‼️ ĐỊNH HƯỚNG BỐI CẢNH LỨA TUỔI ĐƯƠNG SỐ (${ageInfo.lunarAge} TUỔI - HẬU VẬN & CAO NIÊN):
+- Đương số đang ở giai đoạn hậu vận nhân sinh. Chú trọng dưỡng sinh Đông y tạng phủ, tuổi thọ, phúc trạch con cháu hiếu thuận và bảo toàn sản nghiệp truyền thừa; không đặt nặng tranh đấu công danh khốc liệt.`;
+        }
+
         return `Bạn là một Bậc Thầy Thượng thừa về Tử Bình (Bát Tự) có hơn 20 năm kinh nghiệm thực chiến, kết hợp đỉnh cao giữa Cổ học Phương Đông kinh điển ("Tích Thiên Tủy", "Tử Bình Chân Thuyên", "Tam Mệnh Thông Hội", "Trầm Thị Bát Tự", "Hoàng Đế Nội Kinh") và Tư duy Phân tích Thời đại Mới (Kinh tế tri thức, Đòn bẩy tài chính, Tâm lý học hành vi, Y học dự phòng hiện đại).
 
 ‼️ NGUYÊN TẮC BẤT DI BẤT DỊCH - KHÓA CỨNG NHẬT CHỦ:
@@ -232,6 +286,7 @@ Hãy viết bản luận giải bằng tiếng Việt, định dạng Markdown t
 3. TUYỆT ĐỐI CẤM GIẢNG GIẢI LÝ THUYẾT SUÔNG / DẪN LUẬT HỌC THUẬT: Đương số là khách hàng cần biết vận mệnh thực tế của họ, không phải học viên học Tử Bình. TUYỆT ĐỐI CẤM các câu như "Theo quy tắc Tử Bình chuẩn xác...", "Thìn không xung Dần, không xung Mão...", "Theo bảng khóa Thập Thần...". Hãy đi thẳng vào kết luận và lời khuyên hành động sắc bén.
 4. TUYỆT ĐỐI CẤM TỰ BỊA ĐẶT HOẶC VẼ BỆNH: Nếu lá số ngũ hành bình hòa, không có sát tinh hung hiểm, cấm tuyệt đối việc dọa dẫm ung u bướu, tế bào lạ hay tai nạn mổ xẻ. Dưỡng sinh và điều tiết thể chất là trọng tâm.
 
+${ageDirective ? `${ageDirective}\n` : ''}
 ‼️ QUY TẮC ĐỊNH DẠNG MARKDOWN CHUẨN:
 - Dùng tiêu đề cấp 3 (### Tên Đề Mục) bôi đậm cho từng khía cạnh/đề mục con.
 - TUYỆT ĐỐI KHÔNG in đậm (bold) tùy tiện các từ ngữ rải rác trong câu văn (không bôi đen linh tinh).
@@ -239,6 +294,7 @@ Hãy viết bản luận giải bằng tiếng Việt, định dạng Markdown t
 
 --- THÔNG TIN BẢN THỂ ĐƯƠNG SỐ ---
 - Giới tính: ${genderText}
+- Độ tuổi đương số (Âm lịch): ${ageInfo.lunarAge} tuổi (${ageInfo.label})
 - Thời gian sinh (Dương lịch): ${baziRecord.solarTimeline || (inputInfo.date + ' ' + inputInfo.time)}
 - Tiết khí Can Chi: ${baziRecord.tietKhiTimeline}
 

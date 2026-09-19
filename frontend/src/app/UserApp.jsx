@@ -42,6 +42,7 @@ import { AboutUs, PrivacyPolicy, TermsOfService } from '@/features/info/InfoBoar
 import NotFoundPage from '@/features/info/NotFoundPage';
 import ThankYouModal from '@/components/modals/ThankYouModal';
 import AudioPlayerDock from '@/components/widgets/AudioPlayerDock';
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { initGA, trackPageView, trackEvent } from '@/utils/analytics';
 
 export default function UserApp({ onSwitchToAdmin }) {
@@ -1064,7 +1065,9 @@ export default function UserApp({ onSwitchToAdmin }) {
 
           {result && !loading && (
             <div className="space-y-12 animate-in fade-in duration-100 pb-20 font-sans">
-              <IChingBoard result={result} onUpdateResult={setResult} user={user} onRequireLogin={handleRequireLogin} onInvalidateHistory={invalidateHistoryCache} />
+              <ErrorBoundary onReset={() => setResult(null)}>
+                <IChingBoard result={result} onUpdateResult={setResult} user={user} onRequireLogin={handleRequireLogin} onInvalidateHistory={invalidateHistoryCache} />
+              </ErrorBoundary>
               <div className="text-center">
                 <button 
                   onClick={() => {
@@ -1120,7 +1123,9 @@ export default function UserApp({ onSwitchToAdmin }) {
 
           {baziResult && !loading && (
             <div className="space-y-12 animate-in fade-in duration-100 pb-20 font-sans">
-              <BaziBoard data={baziResult} onUpdateData={setBaziResult} onRequireLogin={handleRequireLogin} onInvalidateHistory={invalidateHistoryCache} />
+              <ErrorBoundary onReset={() => setBaziResult(null)}>
+                <BaziBoard data={baziResult} onUpdateData={setBaziResult} onRequireLogin={handleRequireLogin} onInvalidateHistory={invalidateHistoryCache} />
+              </ErrorBoundary>
               <div className="text-center">
                 <button 
                   onClick={() => {
@@ -1145,16 +1150,18 @@ export default function UserApp({ onSwitchToAdmin }) {
 
         {/* SYSTEM 3: TỬ VI */}
         <div className={`${appMode === 'ziwei' ? 'block' : 'hidden'}`}>
-          <ZiweiBoard 
-            user={user} 
-            onRequireLogin={handleRequireLogin} 
-            historicalRecordId={historicalZiweiId} 
-            onCalculationComplete={invalidateHistoryCache}
-            onResultChange={setIsZiweiResultLoaded}
-            autoSubmitInfo={autoSubmitZiwei}
-            onClearAutoSubmit={handleClearAutoSubmitZiwei}
-            onInvalidateHistory={invalidateHistoryCache}
-          />
+          <ErrorBoundary>
+            <ZiweiBoard 
+              user={user} 
+              onRequireLogin={handleRequireLogin} 
+              historicalRecordId={historicalZiweiId} 
+              onCalculationComplete={invalidateHistoryCache}
+              onResultChange={setIsZiweiResultLoaded}
+              autoSubmitInfo={autoSubmitZiwei}
+              onClearAutoSubmit={handleClearAutoSubmitZiwei}
+              onInvalidateHistory={invalidateHistoryCache}
+            />
+          </ErrorBoundary>
         </div>
 
         {/* SYSTEM 5: HÔN NHÂN */}
@@ -1174,7 +1181,9 @@ export default function UserApp({ onSwitchToAdmin }) {
 
           {marriageResult && !loading && (
             <div className="space-y-12 animate-in fade-in duration-100 pb-20 font-sans">
-              <MarriageBoard data={marriageResult} onUpdateData={setMarriageResult} onRequireLogin={handleRequireLogin} onInvalidateHistory={invalidateHistoryCache} />
+              <ErrorBoundary onReset={() => setMarriageResult(null)}>
+                <MarriageBoard data={marriageResult} onUpdateData={setMarriageResult} onRequireLogin={handleRequireLogin} onInvalidateHistory={invalidateHistoryCache} />
+              </ErrorBoundary>
               <div className="text-center">
                 <button 
                   onClick={() => {

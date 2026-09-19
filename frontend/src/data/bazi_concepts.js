@@ -353,11 +353,23 @@ export const baziConcepts = {
         "short_description": "Thần bị Nhật Chủ khắc nhưng khác âm dương.",
         "full_detail": "▸ Hình tượng: Lương bổng ổn định, tài sản tích lũy chính đáng.\n▸ Đại diện: Thu nhập từ sức lao động, người vợ chính thức (nam giới).\n▸ Tốt: Tài lộc bền vững, gia đình êm ấm hạnh phúc, được tín nhiệm.\n▸ Xấu: Quá thực dụng, keo kiệt chi li, thiếu chí khí mạo hiểm lớn.\n▸ Tính cách: Chăm chỉ, tiết kiệm, thực tế, coi trọng kỷ luật gia đình."
     },
+    "Thiên Tài": {
+        "term": "Thiên Tài",
+        "category": "Thập Thần",
+        "short_description": "Thần bị Nhật Chủ khắc nhưng cùng âm dương. Tài sản ngoài luồng, cơ hội đầu tư kinh doanh.",
+        "full_detail": "▸ Bản chất: Thập Thần do Nhật Chủ khắc (đồng tính âm dương), đại diện cho của cải động, tài lộc phi chính ngạch.\n▸ Hình tượng: Nguồn lợi đầu tư bất ngờ, cổ phiếu, bất động sản, tài hoa buôn bán nhạy bén.\n▸ Đại diện: Tài sản lưu động, kinh doanh thương mại, người cha (phụ thân), nhân duyên tình ái (nam giới).\n▸ Tốt: Nắm bắt thời cơ làm giàu xuất chúng, hào sảng rộng lượng, giao thiệp rộng khắp, dễ đạt đại phú đại quý.\n▸ Xấu: Tiêu xài hoang phí, thiếu tích lũy bền vững; thân nhược tài vượng dễ tham tài rước họa, vướng nợ nần hoặc đào hoa rắc rối.\n▸ Tính cách: Phóng khoáng, nhạy bén, nhiệt tình, trọng nghĩa khinh tài, thích sự mạo hiểm và đột phá."
+    },
     "Chính Quan": {
         "term": "Chính Quan",
         "category": "Thập Thần",
         "short_description": "Thần khắc Nhật Chủ nhưng khác âm dương.",
         "full_detail": "▸ Hình tượng: Vị quan tòa chính trực, người chồng danh chính ngôn thuận.\n▸ Đại diện: Địa vị danh vọng, uy tín xã hội, kỷ luật tự giác, người chồng (nữ).\n▸ Tốt: Thăng quan tiến chức bền vững, sống chuẩn mực được người tôn kính.\n▸ Xấu: Bảo thủ, cứng nhắc theo lối mòn, sợ thay đổi đột phá lớn.\n▸ Tính cách: Chính trực, đáng tin cậy, tôn trọng trật tự và quy củ."
+    },
+    "Thất Sát": {
+        "term": "Thất Sát",
+        "category": "Thập Thần",
+        "short_description": "Thần khắc Nhật Chủ và cùng âm dương (còn gọi là Thiên Quan). Uy quyền mãnh liệt, tài thao lược.",
+        "full_detail": "▸ Hình tượng: Uy quyền dũng tướng, ngọn lửa thử thách bản lĩnh phi thường.\n▸ Đại diện: Quyền lực tuyệt đối, tài thao lược biến nguy thành an, sự nghiệp đột phá, người tình/chồng cá tính (nữ giới).\n▸ Tốt: Hóa Sát vi Quyền, lập đại công nghiệp, thăng tiến thần tốc trong môi trường cạnh tranh khốc liệt hoặc binh nghiệp, tư pháp.\n▸ Xấu: Tính tình nóng nảy, dễ gặp tai ương họa nạn, thị phi kiện tụng hoặc xung đột thương tích nếu không có chế hóa.\n▸ Tính cách: Quả cảm, kiên cường, dũng khí ngút trời, quyết đoán dứt khoát, dám nghĩ dám làm."
     },
     "Thiên Ấn": {
         "term": "Thiên Ấn",
@@ -376,6 +388,66 @@ export const baziConcepts = {
         "category": "Thập Thần",
         "short_description": "Thần sinh Nhật Chủ nhưng khác âm dương.",
         "full_detail": "▸ Hình tượng: Người mẹ hiền từ che chở, ấn tín quyền lực tối thượng.\n▸ Đại diện: Mẹ đẻ, sự bảo bọc che chở, học vấn khoa bảng, đạo đức.\n▸ Tốt: Gặp nhiều quý nhân giúp đỡ, thi cử đỗ đạt, cuộc đời an lành.\n▸ Xấu: Thiếu chủ động chịu trách nhiệm, ỷ lại vào sự giúp đỡ nâng đỡ.\n▸ Tính cách: Ôn hòa, từ bi bác ái, hiếu học, sống trọng tình cảm danh dự."
+    },
+    "Tỷ": {
+        "term": "Tỷ Kiên (Tỷ)",
+        "category": "Thập Thần",
+        "short_description": "Viết tắt của Tỷ Kiên - Bạn bè, anh em, đồng sự, tính tự lập kiên cường.",
+        "full_detail": "▸ Xem chi tiết mục: Tỷ Kiên.\n▸ Ý nghĩa: Đồng hành cùng ngũ hành và âm dương với Nhật Chủ. Chủ về ý chí kiên định, tự lập, cạnh tranh công bằng."
+    },
+    "Kiếp": {
+        "term": "Kiếp Tài (Kiếp)",
+        "category": "Thập Thần",
+        "short_description": "Viết tắt của Kiếp Tài - Hào sảng, giao thiệp, tranh đoạt tài sản.",
+        "full_detail": "▸ Xem chi tiết mục: Kiếp Tài.\n▸ Ý nghĩa: Cùng ngũ hành nhưng khác âm dương với Nhật Chủ. Dễ gây tán tài hoặc xung đột tài chính nếu thân vượng."
+    },
+    "Thực": {
+        "term": "Thực Thần (Thực)",
+        "category": "Thập Thần",
+        "short_description": "Viết tắt của Thực Thần - Phúc lộc, ẩm thực, năng khiếu nghệ thuật, an nhàn.",
+        "full_detail": "▸ Xem chi tiết mục: Thực Thần.\n▸ Ý nghĩa: Nhật Chủ sinh ra cùng âm dương. Mang lại phúc thọ, thanh nhàn, tài hoa và khả năng giải trừ tai ương."
+    },
+    "Thương": {
+        "term": "Thương Quan (Thương)",
+        "category": "Thập Thần",
+        "short_description": "Viết tắt của Thương Quan - Trí tuệ đột phá, sáng tạo phá cách, ngạo mạn.",
+        "full_detail": "▸ Xem chi tiết mục: Thương Quan.\n▸ Ý nghĩa: Nhật Chủ sinh ra khác âm dương. Cực kỳ thông minh, sắc bén, dám chống đối trật tự cũ, khắc chế Chính Quan."
+    },
+    "T.Tài": {
+        "term": "Thiên Tài (T.Tài)",
+        "category": "Thập Thần",
+        "short_description": "Viết tắt của Thiên Tài - Nguồn tài lộc bất ngờ, đầu tư kinh doanh, tài ngoài lương.",
+        "full_detail": "▸ Bản chất: Nhật Chủ khắc cùng âm dương, biểu thị tài sản lưu động, tài lộc phi chính ngạch.\n▸ Ý nghĩa: Nhạy bén nắm bắt cơ hội, đầu tư sinh lời, buôn bán thương mại, hào hiệp phóng khoáng, đại diện người cha hoặc nhân duyên người tình (nam mệnh)."
+    },
+    "Tài": {
+        "term": "Chính Tài (Tài)",
+        "category": "Thập Thần",
+        "short_description": "Viết tắt của Chính Tài - Thu nhập ổn định từ công sức lao động, của cải tích lũy.",
+        "full_detail": "▸ Xem chi tiết mục: Chính Tài.\n▸ Ý nghĩa: Nhật Chủ khắc khác âm dương. Biểu thị tài sản chính đáng, lương bổng bền vững, người vợ chính thức (nam mệnh)."
+    },
+    "Sát": {
+        "term": "Thất Sát (Sát)",
+        "category": "Thập Thần",
+        "short_description": "Viết tắt của Thất Sát (Thiên Quan) - Uy quyền dũng mãnh, quyết đoán, tài thao lược biến nguy thành an.",
+        "full_detail": "▸ Xem chi tiết mục: Thất Sát.\n▸ Ý nghĩa: Khắc Nhật Chủ cùng âm dương. Uy dũng vô song, hóa Sát vi Quyền lập kỳ tích, hoặc gây tai ương thương tật nếu thiếu chế hóa."
+    },
+    "Quan": {
+        "term": "Chính Quan (Quan)",
+        "category": "Thập Thần",
+        "short_description": "Viết tắt của Chính Quan - Địa vị, danh tiếng, trật tự kỷ cương, người chồng chuẩn mực.",
+        "full_detail": "▸ Xem chi tiết mục: Chính Quan.\n▸ Ý nghĩa: Khắc Nhật Chủ khác âm dương. Chủ về thăng quan tiến chức, danh dự, địa vị xã hội, người chồng chính thức (nữ mệnh)."
+    },
+    "Kiêu": {
+        "term": "Thiên Ấn (Kiêu)",
+        "category": "Thập Thần",
+        "short_description": "Viết tắt của Kiêu Thần / Thiên Ấn - Trí tuệ độc môn, nghiên cứu chuyên sâu, huyền học y học.",
+        "full_detail": "▸ Xem chi tiết mục: Thiên Ấn / Kiêu Thần.\n▸ Ý nghĩa: Sinh Nhật Chủ cùng âm dương. Trực giác nhạy bén, thiên hướng nghiên cứu triết học huyền học bí ẩn, lập dị cô độc."
+    },
+    "Ấn": {
+        "term": "Chính Ấn (Ấn)",
+        "category": "Thập Thần",
+        "short_description": "Viết tắt của Chính Ấn - Mẹ đẻ, sự bảo bọc chở che, học vấn bằng cấp, đạo đức nhân hậu.",
+        "full_detail": "▸ Xem chi tiết mục: Chính Ấn.\n▸ Ý nghĩa: Sinh Nhật Chủ khác âm dương. Đại diện cho phúc đức, trí tuệ học thuật, quý nhân giúp đỡ và bình an trọn đời."
     },
     "Trường Sinh": {
         "term": "Trường Sinh",
@@ -854,14 +926,14 @@ export const baziConcepts = {
     "Hoa Cái": {
         "term": "Hoa Cái",
         "category": "Thần Sát Bát Tự",
-        "short_description": "Lọng che nghệ thuật. Tư duy triết học, tài hoa出 chúng.",
-        "full_detail": "▸ Loại tinh: Nghệ thuật & Tâm linh.\n▸ Ý nghĩa: Tư duy sâu sắc uyên bác, đam mê nghệ thuật tôn giáo, trí tuệ vượt trội."
+        "short_description": "Lọng che nghệ thuật. Tư duy triết học, tài hoa xuất chúng.",
+        "full_detail": "▸ Loại tinh: Nghệ thuật & Tâm linh.\n▸ Ý nghĩa: Tư duy sâu sắc uyên bác, đam mê nghệ thuật tôn giáo, trí tuệ vượt trội, phong thái thanh cao thoát tục."
     },
     "Kiếp Sát": {
         "term": "Kiếp Sát",
         "category": "Thần Sát Bát Tự",
-        "short_description": "Hao tổn cướp bóc. Cần đề phòng lừa gạt tiền bạc, tranh chấp.",
-        "full_detail": "▸ Loại tinh: Hung sát hao tài.\n▸ Ý nghĩa: Đề phòng mất mát giấy tờ, tranh chấp tài sản hay bị kẻ xấu lợi dụng niềm tin."
+        "short_description": "Sát tinh uy quyền & biến động. Khí thế mãnh liệt, chủ về quyền uy thao lược hoặc tranh chấp rủi ro.",
+        "full_detail": "▸ Bản chất: Một trong Tứ Đại Hung Sát, mang khí sát phạt quyết liệt và biến động đột ngột.\n▸ Ý nghĩa hung: Gặp Kỵ thần dễ phát sinh tranh chấp tài sản, họa hình thương dao kéo, thị phi hoặc hao tổn bất ngờ.\n▸ Ý nghĩa cát: Đắc Cát thần hoặc Dụng thần nâng đỡ thì hóa Sát vi Quyền, tính cách quả cảm dũng mãnh, túc trí đa mưu, đạt quyền uy lãnh đạo lớn trong quân sự, tư pháp, y khoa phẫu thuật hoặc thương trường quyết liệt.\n▸ Lời khuyên: Giữ tâm chính trực, hành sự thận trọng tuân thủ pháp luật, kiểm soát tính khí nóng nảy bốc đồng."
     },
     "Đại Hao": {
         "term": "Đại Hao",
@@ -1442,5 +1514,59 @@ export const baziConcepts = {
         "term": "Tuần Không",
         "short_description": "Trạng thái trống rỗng của Địa Chi trong tuần. Giảm cát, giảm hung, duyên mỏng.",
         "full_detail": "▸ Bản chất: Còn gọi là Tuần Không, đại diện cho trạng thái khuyết thiếu, trống rỗng khi 10 Thiên Can phối hợp với 12 Địa Chi dư ra 2 địa chi không có can phối.\n▸ Ảnh hưởng: Khi một cung hoặc Thần Sát lâm Không Vong, lực tác động của nó (dù cát hay hung) đều bị suy giảm đáng kể (cát tinh gặp thì giảm cát, hung tinh gặp thì bớt hung).\n▸ Nhân duyên: Biểu thị sự duyên mỏng, khó nương tựa hoặc cảm giác trống trải đối với lục thân thuộc trụ lâm Không Vong (ví dụ: Trụ Năm lâm Không Vong khó đắc lực từ tổ nghiệp/cha mẹ; Trụ Giờ lâm Không Vong duyên con cái mỏng)."
+    },
+    "Thiên Trù": {
+        "term": "Thiên Trù",
+        "category": "Thần Sát Bát Tự",
+        "short_description": "Sao bếp trời ẩm thực. Đời sống ấm no, tài nghệ nấu nướng ẩm thực, hưởng thụ lộc trời.",
+        "full_detail": "▸ Loại tinh: Cát thần hưởng lạc & bổng lộc.\n▸ Ý nghĩa: Biểu thị cả đời sung túc, có lộc ẩm thực, sành điệu ăn uống hoặc có năng khiếu kinh doanh ẩm thực, nhà hàng, khách sạn rất phát đạt."
+    },
+    "Dương Nhận": {
+        "term": "Dương Nhận",
+        "category": "Thần Sát Bát Tự",
+        "short_description": "Lưỡi đao khí vượng cực thịnh. Dũng khí quyết liệt, uy quyền mãnh liệt, cần kiềm chế nóng nảy.",
+        "full_detail": "▸ Bản chất: Khí của ngũ hành vượng vượt quá mức Lâm Quan chuyển sang Đế Vượng hóa thành đao kiếm (Nhận).\n▸ Ý nghĩa cát: Đắc Sát hoặc Quan tương đình thì Hóa Nhận vi Quyền, lập đại kỳ công, uy danh lẫy lừng trong binh nghiệp, tư pháp, y khoa ngoại khoa phẫu thuật.\n▸ Ý nghĩa hung: Quá vượng mà không có Quan Sát khắc chế thì dễ gặp tai nạn thương tật dao kéo, tính tình hung bạo bốc đồng, khắc vợ hại tài."
+    },
+    "Phi Nhận": {
+        "term": "Phi Nhận",
+        "category": "Thần Sát Bát Tự",
+        "short_description": "Sao phản kháng đối xung Dương Nhận. Tính tình thẳng thắn, quyết đoán, đôi khi nóng nảy.",
+        "full_detail": "▸ Bản chất: Địa chi xung trực diện với vị trí của Dương Nhận.\n▸ Ý nghĩa: Ý chí kiên trì tiềm ẩn, có tinh thần đấu tranh phản kháng mãnh liệt khi gặp bất công, nhưng cần tiết chế tính bộc phát nhất thời."
+    },
+    "Hồng Diễm": {
+        "term": "Hồng Diễm",
+        "category": "Thần Sát Bát Tự",
+        "short_description": "Đào hoa quyến rũ đặc biệt. Duyên dáng, thu hút phái khác giới, đời sống nội tâm lãng mạn.",
+        "full_detail": "▸ Xem chi tiết mục: Hồng Diễm Sát.\n▸ Ý nghĩa: Mang vẻ đẹp duyên dáng trời sinh, tính tình phong nhã, đa sầu đa cảm, dễ thu hút người khác giới và có duyên nghệ thuật lãng mạn."
+    },
+    "Thiên La": {
+        "term": "Thiên La",
+        "category": "Thần Sát Bát Tự",
+        "short_description": "Lưới trời che khuất. Vận trình gặp trở ngại tạm thời, cần nhẫn nại tích đức dưỡng tâm.",
+        "full_detail": "▸ Bản chất: Khí Tuất Hợi (phương Càn - Trời). Biểu thị giai đoạn thử thách về tinh thần, tâm tư bế tắc.\n▸ Lời khuyên: Giữ gìn đạo đức, làm việc thiện lành, tu tâm tích đức để vượt qua chướng ngại."
+    },
+    "Địa Võng": {
+        "term": "Địa Võng",
+        "category": "Thần Sát Bát Tự",
+        "short_description": "Lưới đất giăng rào. Đề phòng rắc rối pháp lý, thị phi giấy tờ, cẩn trọng hành sự.",
+        "full_detail": "▸ Bản chất: Khí Thìn Tỵ (phương Tốn - Gió/Đất). Chủ về sự ràng buộc của quy tắc xã hội và pháp luật.\n▸ Lời khuyên: Thượng tôn pháp luật, minh bạch trong hợp đồng tài chính, không tham lam lợi lộc mạo hiểm."
+    },
+    "Hàm Trì": {
+        "term": "Hàm Trì",
+        "category": "Thần Sát Bát Tự",
+        "short_description": "Tên cổ của Đào Hoa. Duyên dáng, tình cảm phong lưu, sức hút ái tình.",
+        "full_detail": "▸ Bản chất: Vị trí Mộc Dục trong ngũ hành, nơi thần tiên tắm gội. Đại diện cho vẻ đẹp hấp dẫn quyến rũ.\n▸ Ý nghĩa: Giỏi giao tế, có khiếu thẩm mỹ, nhưng cần giữ chừng mực trong tình cảm để tránh đào hoa thị phi."
+    },
+    "Phá Toái": {
+        "term": "Phá Toái",
+        "category": "Thần Sát Bát Tự",
+        "short_description": "Sao cản trở rạn nứt. Đề phòng hao tài nhỏ, đổ vỡ hư hỏng đồ vật, trục trặc vụn vặt.",
+        "full_detail": "▸ Loại tinh: Hung sát tiểu hao.\n▸ Ý nghĩa: Thường gây gián đoạn công việc nửa chừng hoặc phát sinh chi phí sửa chữa đồ đạc, cần kiên nhẫn xử lý tỉ mỉ."
+    },
+    "Địa Sát": {
+        "term": "Địa Sát",
+        "category": "Thần Sát Bát Tự",
+        "short_description": "Sát khí phương vị địa lý. Chú ý an toàn khi đi xa hoặc xây sửa nhà đất.",
+        "full_detail": "▸ Loại tinh: Hung sát ngoại cảnh.\n▸ Ý nghĩa: Nhắc nhở cẩn trọng an toàn lao động, đi đứng cẩn thận và chú ý phong thủy nơi cư trú."
     }
 };

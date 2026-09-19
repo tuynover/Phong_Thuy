@@ -795,6 +795,15 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
                         />
                     )}
 
+                    {isInterpreting && !interpretation && interpretationMode !== 'vip' && (
+                        <div className="bg-amber-50/50 p-8 md:p-12 rounded-2xl border border-amber-200/60 shadow-xs text-center space-y-4 my-6 animate-in fade-in">
+                            <div className="w-12 h-12 border-4 border-amber-200 border-t-amber-800 rounded-full animate-spin mx-auto"></div>
+                            <p className="text-amber-900 font-bold text-base animate-pulse">
+                                Thầy đang biện chứng quẻ tượng và soạn lời giải đoán...
+                            </p>
+                        </div>
+                    )}
+
                     {interpretation && (
                         <SectionRenderer 
                             sections={parseMarkdownSections(interpretation, 'iching')} 
@@ -888,7 +897,7 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
                         <>
                             <div className="w-5 h-5 border-2 border-amber-600 border-t-transparent rounded-full animate-spin"></div>
                             <span className="text-sm">
-                                {interpretationMode === 'vip' ? `Đang Phân Tích C${vipChapter}...` : loadingTexts[loadingStep]}
+                                {interpretationMode === 'vip' ? (vipStatusMessage || `Đang Phân Tích C${vipChapter}...`) : "Thầy đang dịch giải..."}
                             </span>
                         </>
                     ) : (

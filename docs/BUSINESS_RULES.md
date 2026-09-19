@@ -641,4 +641,38 @@ Nhằm nâng tầm giá trị các tài liệu học thuật xuất bản độc
 - **Tần suất quét:** Chạy định kỳ vào 00:00 hàng ngày hoặc khi khởi động scheduler.
 - **Tiêu chuẩn dọn dẹp:** Xóa toàn bộ các tệp `.pdf` và `.mp3` trong `backend/scratch/pdf_cache/` và `backend/scratch/tts_cache/` có thời gian sửa đổi (mtime) cũ hơn 24 giờ.
 
+---
+
+## 🎯 10. Quy Tắc Luận Giải Thích Ứng Theo Độ Tuổi (Age-Adaptive Interpretation Rules)
+
+Hệ thống tích hợp thuật toán phân loại độ tuổi tự động (`AgeClassifier.js`) dựa trên thông tin năm sinh của lá số để điều chỉnh linh hoạt nội dung luận giải, áp dụng cho cả hai phân hệ **Bát Tự (Tử Bình)** và **Tử Vi Đẩu Số**, trên cả 2 chế độ **Cơ bản (Standard - 100 Points)** và **Chuyên sâu (VIP - 500 Points)**.
+
+### 10.1 Mốc Tính Tuổi Âm Lịch (Tuổi Mụ)
+- **Công thức chuẩn phương Đông:**
+  $$\text{Tuổi mụ} = \text{Năm hiện tại} - \text{Năm sinh} + 1$$
+  *(Ví dụ: Người sinh năm 2016 trong năm 2026 sẽ có tuổi mụ là $2026 - 2016 + 1 = 11$ tuổi).*
+- **Độ linh hoạt trích xuất năm sinh:** Bộ máy nhận diện tự động quét đa cấu trúc (`record.chart_data?.solarDate`, `chart_data?.chart_data?.solarDate`, `solarTimeline`, `inputInfo.date`, hoặc can chi trụ năm) qua biểu thức chính quy an toàn `/\b(19\d{2}|20\d{2})\b/`.
+
+### 10.2 Phân Loại 4 Nhóm Tuổi & Ranh Giới Luận Giải
+1. **Nhóm Tuổi Nhỏ / Học Đường (`CHILD` - Tuổi mụ < 18 tuổi):**
+   - **Trọng tâm:** Khảo sát tư chất bẩm sinh (IQ, EQ, năng khiếu), 3 thế mạnh vượt trội, định hướng khối ngành và môi trường học tập thế mạnh, phương pháp giáo dục uốn nắn của gia đình/cha mẹ theo Dụng Thần ngũ hành, sức khỏe thể chất tạng phủ thiếu thời, phong thủy bàn học kích hoạt Văn Xương/Văn Khúc.
+   - **Ranh giới nghiêm ngặt:** **BỎ QUA HOÀN TOÀN** các vấn đề tình duyên lứa đôi, hôn phối, kiếm tiền làm giàu hay đầu tư tài sản lớn.
+   - **Tử Vi Chuyên Sâu VIP:** Tái cấu trúc 5 Chương VIP thành 5 Chương Học Đường:
+     + Chương 1: Bản Cốt Cách & Tư Chất Trí Tuệ Bẩm Sinh
+     + Chương 2: Cung Quan Lộc & Học Vấn - Định Hướng Khối Ngành Thế Mạnh
+     + Chương 3: Cung Phụ Mẫu, Điền Trạch & Gia Đạo - Phương Pháp Nuôi Dạy Kích Hoạt Dụng Thần
+     + Chương 4: Cung Tật Ách & Dưỡng Sinh - Phòng Ngừa Bệnh Lý Nhi Khoa
+     + Chương 5: Cung Nô Bộc & Tương Tác Xã Hội - Thầy Cô, Bạn Bè & Lộ Trình Thi Cử
+2. **Nhóm Thanh Niên / Khởi Nghiệp (`YOUNG_ADULT` - Tuổi mụ 18 - 29 tuổi):**
+   - **Luận giải cơ bản:** **Luận giải đầy đủ tất cả** các phương diện (công danh khởi nghiệp, tài chính, tình duyên, sức khỏe).
+   - **Luận giải chuyên sâu VIP:** Tại **Replica 1 (Chương 1)**, bổ sung phân tích sâu về **tính cách, khí chất cốt lõi và bài học tôi luyện bản ngã** bên cạnh năng lực học tập và thế mạnh nghề nghiệp.
+3. **Nhóm Trung Niên / Định Hình Sự Nghiệp (`ADULT` - Tuổi mụ 30 - 55 tuổi):**
+   - Luận giải toàn diện, chuẩn mực theo 6 chuyên đề học thuật kinh điển (Bát Tự) hoặc 5 cụm cung đại vận (Tử Vi).
+4. **Nhóm Cao Niên / Hậu Vận (`SENIOR` - Tuổi mụ > 55 tuổi):**
+   - Trọng tâm chuyển hóa sang dưỡng sinh tạng phủ trường thọ, an dưỡng tâm trí, phúc trạch truyền thừa cho con cháu, bảo toàn sản nghiệp và tâm an tự tại.
+
+### 10.3 Quy Tắc Trình Diễn Trên Giao Diện Người Dùng (UI/UX Boundary)
+- Khi mở modal xác nhận luận giải (`InterpretationTierModal`), hệ thống tự động đọc năm sinh của lá số để hiển thị danh sách mục tiêu luận giải (bullets) cá nhân hóa cho lứa tuổi đó.
+- **Quy tắc bảo mật trải nghiệm:** **TUYỆT ĐỐI KHÔNG** hiển thị các thông báo máy móc lộ hạ tầng (như *"Hệ thống đã nhận diện prompt..."* hay *"Kích hoạt bộ prompt..."*). Toàn bộ nội dung hiển thị tự nhiên, tập trung vào giá trị người dùng nhận được.
+
 

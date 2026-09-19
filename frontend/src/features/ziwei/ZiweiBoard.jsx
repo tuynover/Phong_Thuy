@@ -599,6 +599,15 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
                 />
               )}
 
+              {isInterpreting && !interpretation && !(result.aiInterpretation?.content) && interpretationMode !== 'vip' && (
+                <div className="bg-purple-50/50 p-8 md:p-12 rounded-2xl border border-purple-200/60 shadow-xs text-center space-y-4 my-6 animate-in fade-in">
+                  <div className="w-12 h-12 border-4 border-purple-200 border-t-purple-800 rounded-full animate-spin mx-auto"></div>
+                  <p className="text-purple-900 font-bold text-base animate-pulse">
+                    Thầy Tử Vi đang an sao và giải nghĩa cát hung...
+                  </p>
+                </div>
+              )}
+
               {(interpretation || result.aiInterpretation?.content || (result.aiInterpretation?.sections?.length > 0)) && (
                 <SectionRenderer 
                   sections={
@@ -715,7 +724,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
                 <>
                   <div className="w-5 h-5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin"></div>
                   <span className="text-sm text-amber-300">
-                    {interpretationMode === 'vip' ? `Đang Phân Tích C${vipChapter}...` : 'Thầy giải nghĩa...'}
+                    {interpretationMode === 'vip' ? (vipStatusMessage || `Đang Phân Tích C${vipChapter}...`) : 'Thầy Tử Vi đang luận giải...'}
                   </span>
                 </>
               ) : (
@@ -780,6 +789,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
         isAdmin={activeUser?.role === 'admin' || activeUser?.role === 'co-admin'}
         isUpgrade={isUpgradeModal}
         system="ziwei"
+        recordData={result}
       />
 
       {/* Modal Cập nhật thông tin sinh thần Bát tự / Tử vi dùng chung */}

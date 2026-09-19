@@ -4,6 +4,7 @@ const BaziPrompts = require('../services/BaziPrompts');
 const MultiAgentPipelineService = require('../../../core/services/MultiAgentPipelineService');
 const { updateByIdFlex } = require('../../../core/services/HistoryQueryHelper');
 const { BAZI_PROMPT_VERSION } = require('../../../core/config/ai');
+const AgeClassifier = require('../../../shared/utils/AgeClassifier');
 
 class BaziAiController {
   static async interpretBazi(req, res) {
@@ -14,13 +15,15 @@ class BaziAiController {
       notFoundMessage: 'Không tìm thấy bản ghi Bát Tự.',
       errorMessage: 'Lỗi xảy ra trong quá trình sinh luận giải AI cho Bát Tự.',
       buildPrompt: (record, isVipMode) => {
+        const ageInfo = AgeClassifier.getLunarAgeInfo(record);
         return isVipMode
-          ? BaziPrompts.getDeepPrompt(record.toObject())
-          : BaziPrompts.getStandardPrompt(record.toObject());
+          ? BaziPrompts.getDeepPrompt(record.toObject(), ageInfo)
+          : BaziPrompts.getStandardPrompt(record.toObject(), ageInfo);
       },
       runVipPipeline: async ({ prompt, record, onProgress }) => {
+        const ageInfo = AgeClassifier.getLunarAgeInfo(record);
         const birthYear = record.inputInfo?.birthSolarYear || record.inputInfo?.date?.split('/')?.[2];
-        return await MultiAgentPipelineService.runVipPipelineStream(prompt, birthYear, { onProgress });
+        return await MultiAgentPipelineService.runVipPipelineStream(prompt, birthYear, { onProgress, ageInfo });
       }
     });
   }

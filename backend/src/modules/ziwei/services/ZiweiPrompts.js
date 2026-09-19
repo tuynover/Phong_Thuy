@@ -1,3 +1,5 @@
+const AgeClassifier = require('../../../shared/utils/AgeClassifier');
+
 const MASTER_PROMPT = `
 Bạn là một chuyên gia tử vi cao tuổi, có trình độ uyên thâm, dành cả nửa đời người chuyên luận đoán lá số vận mệnh con người.
 Nhiệm vụ của bạn là giải đoán lá số Tử Vi cho đương số dựa trên dữ liệu lá số thực tế (Fact Data) và các cách cục tổ hợp sao đã được bộ máy tính toán cung cấp bên dưới. Hãy kết hợp những hiểu biết sâu sắc và kinh nghiệm giải đoán đỉnh cao của bạn để đưa ra các thông tin luận mệnh vừa mang tính học thuật cổ điển, vừa mang tính tâm lý hiện đại và thực tế ứng dụng cao.
@@ -106,26 +108,70 @@ Bạn phải trả về phản hồi DUY NHẤT dưới dạng một đối tư�
 `;
   }
 
-  static buildMarkdownPrompt(compressedChart, symbolicAnalysis) {
-    return `
-${MASTER_PROMPT}
+  static buildMarkdownPrompt(compressedChart, symbolicAnalysis, customAgeInfo = null) {
+    const ageInfo = customAgeInfo || AgeClassifier.getLunarAgeInfo(compressedChart);
+    const isChild = ageInfo.ageGroup === 'CHILD';
 
-DỮ LIỆU THỰC TẾ LÁ SỐ (FACT DATA):
-\`\`\`json
-${JSON.stringify(compressedChart, null, 2)}
-\`\`\`
+    let sectionInstructions = '';
+    if (isChild) {
+      sectionInstructions = `### 1. Bản Mệnh : Khí Chất & Tiềm Năng Trí Tuệ
+Phân tích diện mạo, tính cách, tư chất thông minh, chỉ số IQ/EQ, năng khiếu bẩm sinh. BẮT BUỘC chỉ rõ:
+- **3 Điểm mạnh vượt trội nhất** (Năng khiếu trời phú cần phát triển mũi nhọn).
+- **3 Điểm yếu tâm lý tuổi nhỏ** (Tính khí bướng bỉnh, thiếu kiên nhẫn hoặc dễ xao nhãng cần uốn nắn).
+- **Tiềm năng trí tuệ cốt lõi chưa khai phá**.
 
-CÁC CÁCH CỤC & TỔ HỢP SAO ĐÃ ĐƯỢC XÁC ĐỊNH (METAPHYSICAL PATTERNS):
-- Các cách cục tại Mệnh: ${symbolicAnalysis.patterns.join(", ") || "Không có cách cục đặc biệt nổi bật"}
-- Tổ hợp cung tam hợp và xung chiếu chi tiết:
-\`\`\`json
-${JSON.stringify(symbolicAnalysis.palaceInteractions, null, 2)}
-\`\`\`
+### 2. Nhân Duyên & Khí Chất Tình Cảm Tương Lai : Cung Phu Thê
+‼️ LƯU Ý BẮT BUỘC: Đương số là trẻ em ${ageInfo.lunarAge} tuổi. TUYỆT ĐỐI KHÔNG bàn về kết hôn, vợ/chồng hay đời sống lứa đôi của trẻ!
+Chỉ phác họa ngắn gọn xu hướng cảm xúc, khí chất bạn bè khác giới hòa hợp khi lớn lên và bài học tôn trọng các mối quan hệ lành mạnh.
 
-HƯỚNG DẪN XÂY DỰNG NỘI DUNG TỪNG PHẦN BẰNG ĐỊNH DẠNG MARKDOWN:
-Bạn hãy viết bài luận giải chi tiết phân bổ cấu trúc thành 15 phần tiêu đề chuẩn xác như sau (bắt đầu bằng ###):
+### 3. Tiềm Năng Tự Lập & Trân Trọng Giá Trị Tài Sản : Cung Tài Bạch
+‼️ LƯU Ý BẮT BUỘC: TUYỆT ĐỐI KHÔNG bàn chuyện đầu tư làm giàu hay kiếm tiền của trẻ nhỏ!
+Đánh giá tiềm năng tự lập tài chính trong tương lai và bài học giáo dục trân trọng giá trị đồng tiền, thói quen tiết kiệm cần rèn luyện từ bé.
 
-### 1. Bản Mệnh : Khí Chất & Tiềm Năng Cốt Lõi
+### 4. Phụ Mẫu & Môi Trường Giáo Dưỡng : Cung Phụ Mẫu
+Luận giải mối quan hệ giữa bé với cha mẹ, sự tương hợp tính cách, mức độ nâng đỡ từ song thân. Lời khuyên thiết thực giúp cha mẹ giao tiếp, đồng hành và nuôi dạy con không tạo áp lực tiêu cực.
+
+### 5. Thiên Di & Thích Ứng Xã Hội : Cung Thiên Di
+Biểu hiện khi ra ngoài xã hội, khả năng hòa nhập môi trường trường lớp, năng lực thích ứng với tập thể, tiềm năng xuất ngoại học tập hoặc du học tương lai.
+
+### 6. Sức Khỏe & Tật Ách Nhi Khoa : Cung Tật Ách
+Dự báo các nguy cơ bệnh lý học đường và thể trạng theo ngũ hành tinh đẩu tọa thủ (hô hấp, thị lực, tiêu hóa, an toàn vận động té ngã). Phác đồ vận động thể thao và dinh dưỡng tăng cường thể lực cho bé.
+
+### 7. Nô Bộc & Bạn Bè Trường Lớp : Cung Nô Bộc
+Đánh giá mối quan hệ bạn bè, bạn học cùng lớp, thầy cô giáo. Nhận diện các mẫu bạn hiền trợ duyên học tập và cảnh báo tránh xa bạn bè xấu lôi kéo, nghịch ngợm.
+
+### 8. Học Vấn & Khối Ngành Thế Mạnh : Cung Quan Lộc
+Luận giải con đường học hành thi cử, khả năng đỗ đạt giải thưởng và đỗ trường chuyên lớp chọn. Xác định rõ khối ngành học thế mạnh tối ưu (Khoa học tự nhiên, Kỹ thuật - Công nghệ AI, Xã hội nhân văn, Nghệ thuật sáng tạo, hay Quản trị/Kinh tế) để cha mẹ định hướng sớm.
+
+### 9. Không Gian Học Tập & Điền Sản Tương Lai : Cung Điền Trạch
+Môi trường phòng ốc học tập, phong thủy chỗ ngồi sinh hoạt có mang lại sự tập trung, yên tĩnh không; tiềm năng sở hữu tài sản khi trưởng thành.
+
+### 10. Duyên Gắn Kết & Phúc Khí Hậu Duệ : Cung Tử Tức
+Tương tác với người nhỏ tuổi hơn, em nhỏ trong nhà và phúc trạch con cháu về lâu dài sau này.
+
+### 11. Anh Chị Em & Gia Đình : Cung Huynh Đệ
+Tình cảm anh chị em ruột thịt, mức độ hòa thuận, chia sẻ và tương trợ lẫn nhau trong học tập và cuộc sống gia đình.
+
+### 12. Phúc Đức & Bồi Dưỡng Tâm Tính : Cung Phúc Đức
+Phúc phần gia tiên dòng họ. Thế giới nội tâm tinh thần, bài học rèn luyện nhân cách, lòng biết ơn và xây dựng sự tự tin từ tuổi nhỏ.
+
+### 13. Vận Trình Thi Cử & Năm 2026 : Cung Hạn
+Đánh giá vận hạn học tập, thi cử và sức khỏe trong năm 2026 cho đương số. Định vị các tháng thi cử thuận lợi và thời điểm cần cha mẹ quan tâm kèm cặp.
+
+### 14. 3 Bước Ngoặt Trưởng Thành Đầu Đời
+Dự đoán 3 bước ngoặt lớn trong giai đoạn trưởng thành:
+- **Học vấn**: Mốc thi cử chuyển cấp quan trọng nhất.
+- **Định hướng**: Thời điểm lựa chọn ngành nghề đại học bước ngoặt.
+- **Tự lập**: Thời điểm rời khỏi vòng tay gia đình để tự lập cuộc sống.
+
+### 15. Phong Thủy Bàn Học & Chiến Lược Kích Hoạt Văn Vận
+Chiến lược hỗ trợ sự phát triển toàn diện của bé theo 4 trụ cột thực tế:
+- **Tâm**: Rèn luyện tính tự giác, tư duy logic và thói quen đọc sách.
+- **Hành**: Giờ giấc sinh hoạt điều độ, hạn chế thiết bị điện tử.
+- **Cảnh**: Bố trí bàn học theo phương vị Văn Xương cát lành, màu sắc phòng học bổ trợ Dụng Thần.
+- **Tín**: Dạy con đạo hiếu kính cha mẹ, tích đức hành thiện từ những việc nhỏ.`;
+    } else {
+      sectionInstructions = `### 1. Bản Mệnh : Khí Chất & Tiềm Năng Cốt Lõi
 Phân tích vóc dáng, tính cách, tư chất, chỉ số IQ, học vấn, khả năng giao tiếp. BẮT BUỘC chỉ rõ:
 - **3 Điểm mạnh vượt trội nhất** (Tài năng trời phú).
 - **3 Điểm yếu nội tâm/tâm lý** (Bẫy cảm xúc dễ vấp ngã).
@@ -178,7 +224,29 @@ Tổng kết các đại vận hoàng kim và đại vận thử thách nhất. 
 - **Tâm**: Tư duy & nhận thức cần rèn luyện.
 - **Hành**: Lối sống & hành vi ứng xử cần điều chỉnh.
 - **Cảnh**: Phong thủy môi trường, phương vị cát lành & màu sắc bổ cứu ngũ hành.
-- **Tín**: Tích đức hành thiện & điểm tựa tâm linh.
+- **Tín**: Tích đức hành thiện & điểm tựa tâm linh.`;
+    }
+
+    return `
+${MASTER_PROMPT}
+
+DỮ LIỆU THỰC TẾ LÁ SỐ (FACT DATA):
+\`\`\`json
+${JSON.stringify(compressedChart, null, 2)}
+\`\`\`
+- Độ tuổi đương số (Âm lịch): ${ageInfo.lunarAge} tuổi (${ageInfo.label})
+
+CÁC CÁCH CỤC & TỔ HỢP SAO ĐÃ ĐƯỢC XÁC ĐỊNH (METAPHYSICAL PATTERNS):
+- Các cách cục tại Mệnh: ${symbolicAnalysis.patterns.join(", ") || "Không có cách cục đặc biệt nổi bật"}
+- Tổ hợp cung tam hợp và xung chiếu chi tiết:
+\`\`\`json
+${JSON.stringify(symbolicAnalysis.palaceInteractions, null, 2)}
+\`\`\`
+
+HƯỚNG DẪN XÂY DỰNG NỘI DUNG TỪNG PHẦN BẰNG ĐỊNH DẠNG MARKDOWN:
+Bạn hãy viết bài luận giải chi tiết phân bổ cấu trúc thành 15 phần tiêu đề chuẩn xác như sau (bắt đầu bằng ###):
+
+${sectionInstructions}
 
 YÊU CẦU ĐẦU RA:
 Hãy viết bài luận giải liền mạch, chi tiết bằng định dạng Markdown hoàn chỉnh với 15 phần tiêu đề nêu trên. Tuyệt đối không thêm phần mở đầu hay kết bài bên ngoài 15 tiêu đề này.

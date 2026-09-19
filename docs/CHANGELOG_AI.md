@@ -2,6 +2,114 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Tối Ưu Hóa Bộ Prompt & Modal Luận Giải Thích Ứng Theo Độ Tuổi Âm Lịch (Bát Tự & Tử Vi) (19/09/2026)
+
+### 🌟 1. Yêu Cầu & Bối Cảnh Nghiệp Vụ
+1. **Phân hóa theo độ tuổi:**
+   - Khi luận giải lá số Bát Tự và Tử Vi, nội dung luận giải cần thích ứng linh hoạt theo độ tuổi của bản mệnh.
+   - **Tuổi nhỏ (< 18 tuổi mụ - CHILD):** Tập trung sâu vào tài năng, tư chất bẩm sinh, điểm mạnh/yếu, định hướng ngành nghề/khối học tập thế mạnh, phương pháp giáo dục uốn nắn của gia đình, sức khỏe tạng phủ thiếu thời, phong thủy bàn học Văn Xương. **BỎ QUA HOÀN TOÀN** chuyện tình duyên, hôn phối, kiếm tiền làm giàu hay đầu tư lớn.
+   - **Thanh niên (18 - 29 tuổi mụ - YOUNG_ADULT):**
+     - Luận giải cơ bản: Luận giải đầy đủ tất cả phương diện (công danh, tài lộc, tình duyên, sức khỏe).
+     - Luận giải chuyên sâu: Tại Replica 1 (Chương 1), bổ sung phân tích sâu về tính cách, khí chất cốt lõi và bài học tôi luyện bản ngã.
+   - **Trung niên (30 - 55 tuổi mụ - ADULT):** Luận giải toàn diện 6 chuyên đề chuẩn mực.
+   - **Cao niên (> 55 tuổi mụ - SENIOR):** Trọng tâm dưỡng sinh tạng phủ trường thọ, phúc trạch con cháu, bảo toàn sản nghiệp.
+2. **Quy tắc Modal (`InterpretationTierModal`):**
+   - Tự động nhận diện lứa tuổi của lá số để giải thích cho người dùng biết bản luận giải sẽ luận những gì.
+   - **Tuyệt đối không để lộ thông tin cơ chế hệ thống** (không hiển thị *"Hệ thống đã nhận diện prompt..."*).
+3. **Mốc tính tuổi:** Tính theo Âm lịch (tuổi mụ) = `Năm hiện tại - Năm sinh + 1`.
+
+---
+
+### 🛠️ 2. Các Thay Đổi Kỹ Thuật Đã Thực Hiện
+
+#### A. Backend Core & AI Prompts
+1. **Module Nhận Diện Độ Tuổi [AgeClassifier.js](file:///t:/Phongthuy/backend/src/shared/utils/AgeClassifier.js):**
+   - Tính tuổi mụ âm lịch: `currentYear - birthYear + 1`.
+   - Phân loại 4 nhóm tuổi: `CHILD` (< 18), `YOUNG_ADULT` (18 - 29), `ADULT` (30 - 55), `SENIOR` (> 55).
+   - Hàm `classifyAgeFromRecord(record)` trích xuất linh hoạt năm sinh từ mọi cấu trúc dữ liệu (`record.chart_data?.solarDate`, `solarTimeline`, `inputInfo.date`, hoặc regex `/\b(19\d{2}|20\d{2})\b/`).
+2. **Tối Ưu Prompts Bát Tự [BaziPrompts.js](file:///t:/Phongthuy/backend/src/modules/bazi/services/BaziPrompts.js):**
+   - `getStandardPrompt(record, ageInfo)`: Tự động điều chỉnh 5 mục tiêu luận giải tiêu chuẩn theo nhóm tuổi (tập trung học vấn/giáo dục cho trẻ em, luận giải đầy đủ cho thanh niên/người lớn).
+   - `getDeepPrompt(record, ageInfo)`: Điều chỉnh chỉ thị chi tiết theo lứa tuổi.
+3. **Điều Phối Replicas & Chương VIP [DeepInterpretationConfigs.js](file:///t:/Phongthuy/backend/src/core/ai/deep-interpretation/DeepInterpretationConfigs.js):**
+   - Cung cấp `getReplicas(ageInfo)` và `getChapterSpecificInstructions(chapterId, ageInfo)` cho Bát Tự và Tử Vi.
+   - Với Bát Tự VIP: Replica 1 thanh niên bổ sung phân tích sâu về tính cách; trẻ em tập trung tài năng và phương pháp dạy học.
+   - Với Tử Vi VIP: Trẻ em được cấu hình riêng 5 Chương Học Đường chuyên biệt: Tư Chất Bẩm Sinh, Học Vấn Quan Lộc, Gia Đạo Nuôi Dạy, Sức Khỏe Nhi Khoa, Bạn Bè Thầy Cô & Lộ Trình Thi Cử.
+4. **Tích Hợp Controllers [BaziAiController.js](file:///t:/Phongthuy/backend/src/modules/bazi/controllers/BaziAiController.js) & [ZiweiAiController.js](file:///t:/Phongthuy/backend/src/modules/ziwei/controllers/ZiweiAiController.js):**
+   - Tự động phân loại `ageInfo` và chuyển tiếp vào prompts cũng như VIP pipelines.
+
+#### B. Frontend UI & Modals
+1. **Modal Chọn Gói [InterpretationTierModal.jsx](file:///t:/Phongthuy/frontend/src/components/modals/InterpretationTierModal.jsx):**
+   - Bổ sung hàm `getDynamicTierInfo(system, recordData)` tự tính tuổi mụ từ ngày sinh lá số.
+   - Hiển thị danh sách bullets mô tả nội dung gói phù hợp: với trẻ em hiển thị các gạch đầu dòng về học đường, tư chất, khối ngành học, lời khuyên cha mẹ, sức khỏe nhi khoa; với người lớn hiển thị công danh, tài chính, hôn nhân.
+   - Hoàn toàn giữ nguyên phong cách thanh lịch, không rò rỉ bất kỳ chuỗi văn bản kỹ thuật nào.
+2. **Kết Nối BaziBoard & ZiweiBoard:**
+   - [BaziBoard.jsx](file:///t:/Phongthuy/frontend/src/features/bazi/BaziBoard.jsx): Truyền `recordData={data}` vào Modal.
+   - [ZiweiBoard.jsx](file:///t:/Phongthuy/frontend/src/features/ziwei/ZiweiBoard.jsx): Truyền `recordData={result}` vào Modal (khắc phục lỗi biến `chartData` chưa khai báo).
+
+---
+
+### 🧪 3. Kết Quả Kiểm Thử & Nghiệm Thu
+1. **Unit & Regression Tests (Automated):**
+   - Backend `AgeClassifier.test.js`: **6/6 tests PASS**.
+   - Backend `PromptAgeOptimization.test.js`: **5/5 tests PASS**.
+   - Frontend `npm run test` (Vitest): **29/29 tests PASS**.
+   - Frontend `npm run build` (Vite): **Build thành công 100%**.
+2. **Kiểm Thử Trình Duyệt Thực Tế (Chrome DevTools MCP):**
+   - **Bát Tự Trẻ Em (2016 - 11 tuổi mụ):** Modal hiển thị chính xác tiêu đề học đường, 3 điểm mạnh vượt trội, định hướng khối ngành, phương pháp nuôi dạy, sức khỏe thiếu thời, phong thủy bàn học Văn Xương. Hoàn toàn không có nội dung tình duyên/làm giàu.
+   - **Bát Tự Người Lớn (1995 - 32 tuổi mụ):** Modal hiển thị chuẩn mực 6 chuyên đề (Sự Nghiệp, Tài Vận, Hôn Nhân, Sức Khỏe, Cải Vận, Đại Vận 100 Năm).
+   - **Tử Vi Trẻ Em (2018 - 9 tuổi mụ):** Modal hiển thị chính xác 5 Chương Học Đường Tử Vi (Tư Chất, Học Vấn, Gia Đạo Nuôi Dạy, Sức Khỏe Nhi Khoa, Bạn Bè & Thi Cử).
+   - **Kiểm tra Console log:** Toàn bộ quá trình thao tác đạt **0 lỗi** console từ mã nguồn dự án.
+
+---
+
+## 📅 Phiên bản: Chuẩn Hóa Ý Nghĩa Thần Sát Kiếp Sát, Bổ Sung Toàn Diện Thập Thần Thiên Tài & Từ Điển Bát Tự Tooltip (19/09/2026)
+
+### 🌟 1. Vấn Đề Được Phản Hồi & Nguyên Nhân
+1. **Sai lệch nội dung Kiếp Sát:**
+   - **Hiện tượng:** Tooltip của thần sát "Kiếp Sát" hiển thị nội dung mô tả của "Hoa Cái" (*"Lọng che nghệ thuật. Tư duy triết học, tài hoa出 chúng..."*), sai lệch hoàn toàn bản chất hung sát/uy dũng của Kiếp Sát trong cổ học phương Đông.
+   - **Khắc phục:** Cập nhật lại toàn diện ý nghĩa học thuật hai mặt (Cát / Hung) của Kiếp Sát trong [bazi_concepts.js](file:///t:/Phongthuy/frontend/src/data/bazi_concepts.js) và [ConceptController.js](file:///t:/Phongthuy/backend/src/modules/blog/controllers/ConceptController.js):
+     - *Bản chất:* Một trong Tứ Đại Hung Sát, mang khí sát phạt quyết liệt và biến động đột ngột.
+     - *Ý nghĩa hung:* Gặp Kỵ thần dễ phát sinh tranh chấp tài sản, họa hình thương dao kéo, thị phi hoặc hao tổn bất ngờ.
+     - *Ý nghĩa cát:* Đắc Cát thần hoặc Dụng thần nâng đỡ thì hóa Sát vi Quyền, tính cách quả cảm dũng mãnh, túc trí đa mưu, đạt quyền uy lãnh đạo lớn trong quân sự, tư pháp, y khoa phẫu thuật hoặc thương trường cạnh tranh.
+     - *Hoa Cái:* Sửa lỗi chính tả chữ Hán thừa `出` thành `tài hoa xuất chúng`.
+
+2. **Thiếu định nghĩa Thập Thần Thiên Tài & Thất Sát (Hiển thị "Chưa có thông tin."):**
+   - **Hiện tượng:** Khi hover vào Thập Thần "Thiên Tài" hoặc dạng viết tắt "T.Tài", tooltip chỉ hiển thị *"Chưa có thông tin."* do thiếu mục từ trong từ điển frontend và API backend trả về 404.
+   - **Khắc phục:**
+     - Bổ sung định nghĩa chuẩn xác, sâu sắc cho `Thiên Tài` (Tài sản ngoài luồng, cơ hội kinh doanh đầu tư, người cha, nhân duyên tình ái) và alias `T.Tài`.
+     - Bổ sung định nghĩa cho `Thất Sát` (Thiên Quan, uy quyền mãnh liệt, hóa Sát vi Quyền) và alias `Sát`.
+     - Bổ sung toàn bộ các alias viết tắt của 10 Thập Thần: `Tỷ`, `Kiếp`, `Thực`, `Thương`, `T.Tài`, `Tài`, `Sát`, `Quan`, `Kiêu`, `Ấn`.
+     - Bổ sung các Thần Sát Bát Tự còn thiếu hoặc thiếu alias: `Thiên Trù`, `Dương Nhận`, `Phi Nhận`, `Hồng Diễm`, `Thiên La`, `Địa Võng`, `Hàm Trì`, `Phá Toái`, `Địa Sát`.
+     - Đồng bộ fallback dữ liệu Bát Tự vào `CONCEPT_FALLBACK` trong `ConceptController.js` của backend.
+
+### 🧪 2. Nghiệm Thu Thực Tế (Chrome DevTools MCP)
+- Đã kiểm tra trực tiếp trên trình duyệt Chrome (`http://localhost:5173/bazi`):
+  - Hover thẻ **Kiếp Sát**: Tooltip hiển thị đầy đủ, chính xác ý nghĩa Bản chất, Hung, Cát, Lời khuyên chuẩn phong thủy học thuật.
+  - Hover thẻ **T.Tài / Thiên Tài**: Tooltip hiển thị đầy đủ tiêu đề "Thiên Tài", thẻ phân loại "THẬP THẦN", và các mục chi tiết Bản chất, Hình tượng, Đại diện, Cát hung, Tính cách. Triệt tiêu hoàn toàn thông báo "Chưa có thông tin.".
+  - Console browser: **0 lỗi** runtime.
+
+
+## 📅 Phiên bản: Sửa Lỗi Trắng Màn Hình (White Screen Crash) Khi Chọn Luận Giải Thường & Bổ Sung ErrorBoundary Toàn Diện (19/09/2026)
+
+### 🐛 1. Nguyên Nhân Sự Cố & Khắc Phục Triệt Để
+1. **Lỗi `ReferenceError: loadingTexts is not defined`:**
+   - **Hiện tượng:** Khi người dùng mở Modal chọn gói luận giải và bấm xác nhận gói "Luận Giải Cơ Bản / Thường" (100 Points) ở các phân hệ (Bát Tự, Kinh Dịch, Tử Vi, Hôn Nhân), giao diện toàn bộ ứng dụng React bị sập thành một màn hình trắng xóa (White Screen of Death).
+   - **Nguyên nhân cốt lõi:** Trong nút bấm Floating Action Button tại [BaziBoard.jsx](file:///t:/Phongthuy/frontend/src/features/bazi/BaziBoard.jsx) (dòng 486) và [IChingBoard.jsx](file:///t:/Phongthuy/frontend/src/features/iching/IChingBoard.jsx) (dòng 891), nhánh hiển thị khi `isInterpreting === true` và `interpretationMode !== 'vip'` đã gọi `loadingTexts[loadingStep]`. Tuy nhiên biến `loadingTexts` và `loadingStep` không hề tồn tại/đã bị lược bỏ trong quá trình tái cấu trúc trước đó, dẫn đến việc React ném lỗi ngoại lệ runtime chưa được bắt (uncaught exception) làm rã toàn bộ component tree.
+   - **Khắc phục:**
+     - Thay thế `loadingTexts[loadingStep]` bằng chuỗi trạng thái an toàn: `{interpretationMode === 'vip' ? (vipStatusMessage || \`Đang Phân Tích C\${vipChapter}...\`) : 'Thầy luận giải...'}`.
+     - Bổ sung khối hộp trạng thái tải chuẩn học thuật (`bg-blue-50/50`, `bg-amber-50/50`, `bg-purple-50/50`, `bg-rose-50/50`) hiển thị con quay spinner và văn bản nhịp thở (pulse text) khi `isInterpreting && !interpretation && interpretationMode !== 'vip'` ở cả 4 phân hệ (Bát Tự, Kinh Dịch, Tử Vi, Hôn Nhân).
+
+2. **Thiết Lập Lớp Chắn Lỗi Toàn Diện [ErrorBoundary.jsx](file:///t:/Phongthuy/frontend/src/components/common/ErrorBoundary.jsx):**
+   - Xây dựng component `ErrorBoundary` chuẩn React 19 để bắt toàn bộ các lỗi render phát sinh từ bất kỳ component con nào.
+   - Bọc toàn bộ các phân hệ chính trong [UserApp.jsx](file:///t:/Phongthuy/frontend/src/app/UserApp.jsx) (`IChingBoard`, `BaziBoard`, `ZiweiBoard`, `MarriageBoard`) với `ErrorBoundary` kèm nút "Thử Lại Ngay" và "Làm Mới Trang", triệt tiêu hoàn toàn nguy cơ sập trắng trang web khi có lỗi phát sinh bất ngờ.
+
+3. **Nghiệm Thu Thực Tế Bằng Chrome DevTools MCP:**
+   - Đã thao tác trực tiếp trên trình duyệt Chrome:
+     - Gieo quẻ Kinh Dịch -> Bấm "Thầy Dịch Giải" -> Chọn gói Cơ bản (100 Points) -> Xác nhận: Luồng SSE stream chạy trơn tru, hiển thị đầy đủ tiêu đề, các phần phân tích, nút nghe AI và nút Nâng Cấp Luận Giải. Console log: **0 lỗi**.
+     - Lập lá số Bát Tự -> Bấm "Thầy Luận Giải Bát Tự" -> Chọn gói Cơ bản (100 Points) -> Xác nhận: Luồng SSE stream hiển thị trọn vẹn từng chương luận giải. Console log: **0 lỗi**.
+
+---
+
 ## 📅 Phiên bản: Tái Cấu Trúc Toàn Diện Giai Đoạn 3 & 4 - Kiến Trúc Sạch (Clean Architecture), Trừu Tượng Hóa AI Service Layer, Tinh Gọn Hạ Tầng Single-Server & Tối Ưu Hóa Caching (19/09/2026)
 
 ### 🏛️ 1. Giai Đoạn 3: Kiến Trúc Sạch (Clean Architecture) & Trừu Tượng Hóa AI Service Layer

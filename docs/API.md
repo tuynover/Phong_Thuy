@@ -290,6 +290,13 @@ Lấy thông tin chi tiết (Lục Thân, Lục Thú, Hào Thế/Ứng) để hi
     + **Tử Vi:** Kiến trúc Multi-Agent 4 Tầng (Cốt Cách CoT + Tứ Hóa CoT + 5 Replicas Cụm Cung song song + Gemini Flash Lite Chief Editor tổng kết 3 Bước Ngoặt & Cải Vận).
     + **Hợp Hôn:** Kiến trúc Multi-Agent 3 Tầng (Tương Quan CoT + 4 Replicas 4 Trụ Cột song song: Cốt Cách Tâm Lý, Tài Chính Tổ Ấm, Hóa Giải Xung Khắc, Con Cái Trăm Năm + Gemini Chief Editor tổng hợp phác đồ hòa hợp).
     + **Kinh Dịch:** Kiến trúc Multi-Agent 3 Tầng (Lục Hào CoT + 3 Replicas 3 Khối song song: Biện Chứng Lục Hào, 3 Kịch Bản Diễn Tiến Thuận/Nghịch/Đột Phá, Mốc Thời Gian Ứng Kỳ + Gemini Chief Editor đúc kết Đạo Dịch).
+  - **Tối Ưu Hóa Theo Độ Tuổi Âm Lịch (Age-Adaptive Optimization):**
+    + Áp dụng cho 2 phân hệ **Bát Tự** và **Tử Vi** trên cả 2 chế độ (`standard` và `vip`).
+    + Backend tự động kích hoạt `AgeClassifier.classifyAgeFromRecord(record)` để tính tuổi mụ ($\text{Năm hiện tại} - \text{Năm sinh} + 1$).
+    + **Tuổi nhỏ (`CHILD`, < 18 tuổi):** Bỏ qua hoàn toàn tình cảm lứa đôi/tiền bạc lớn; chuyển hướng 100% sang phân tích tư chất bẩm sinh, định hướng học tập khối ngành, giáo dục gia đình, sức khỏe tạng phủ thiếu thời, phong thủy bàn học Văn Xương.
+    + **Thanh niên (`YOUNG_ADULT`, 18 - 29 tuổi):** Luận giải cơ bản đầy đủ tất cả phương diện; Luận giải chuyên sâu bổ sung phân tích sâu về tính cách cốt lõi (Replica 1).
+    + **Trung niên (`ADULT`, 30 - 55 tuổi):** Toàn diện 6 chuyên đề sự nghiệp, tài lộc, hôn nhân, sức khỏe, vận hạn.
+    + **Cao niên (`SENIOR`, > 55 tuổi):** Trọng tâm dưỡng sinh tạng phủ trường thọ, phúc trạch con cháu, bảo toàn gia sản.
   - **Nâng Cấp từ Cơ Bản lên VIP (`isUpgrade: true`):** Chỉ trừ **4 Credits** (bù chênh lệch `5 - 1 = 4 credits`). Hệ thống thực hiện 0ms Instant Reset, xóa bài cũ và stream bản VIP mới.
   - **Chặn trùng lặp (Idempotent Guard):** Nếu bản ghi đã có bài VIP hoàn chỉnh (`aiInterpretation.mode === 'vip'`), hệ thống chặn 0ms, không trừ thêm credit và stream trực tiếp từ bản lưu cache.
 - **Định dạng stream:** `text/event-stream`
