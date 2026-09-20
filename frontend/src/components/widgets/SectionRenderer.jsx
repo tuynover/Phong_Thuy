@@ -24,6 +24,8 @@ import {
   Headphones
 } from 'lucide-react';
 import { ttsEngine } from '@/utils/ttsEngine';
+import LifeRadarSummary from './LifeRadarSummary';
+import TableOfContents from './TableOfContents';
 
 const sectionIcons = {
   // Tử Vi - Markdown parsed (tu_vi_1 to tu_vi_14)
@@ -322,6 +324,8 @@ const cleanAndNormalizeMarkdown = (content) => {
   if (!content || typeof content !== 'string') return '';
   // 0. Khử triệt để mọi từ ngữ VIP, chuẩn hóa thành "luận giải chuyên sâu"
   let text = content
+    .replace(/\[EXECUTIVE_SUMMARY\][\s\S]*?(?:\[\/EXECUTIVE_SUMMARY\]|$)/gi, '')
+    .replace(/\[\/?EXECUTIVE_SUMMARY\]/gi, '')
     .replace(/\bbản\s+(?:báo\s+cáo\s+)?luận\s+giải\s+vip\b/gi, 'bản luận giải chuyên sâu')
     .replace(/\bbáo\s+cáo\s+luận\s+giải\s+vip\b/gi, 'báo cáo luận giải chuyên sâu')
     .replace(/\bluận\s+giải\s+vip\b/gi, 'luận giải chuyên sâu')
@@ -384,8 +388,20 @@ const cleanAndNormalizeMarkdown = (content) => {
   return text;
 };
 
-const SectionCard = ({ section, idx = 0, sections = [], theme, onConsultSection, ttsState }) => {
-  const [isOpen, setIsOpen] = useState(true);
+const SectionCard = ({ 
+  section, 
+  idx = 0, 
+  sections = [], 
+  theme, 
+  onConsultSection, 
+  ttsState,
+  isOpen: propIsOpen,
+  onToggleOpen
+}) => {
+  const [localIsOpen, setLocalIsOpen] = useState(true);
+  const isOpen = propIsOpen !== undefined ? propIsOpen : localIsOpen;
+  const toggleOpen = onToggleOpen || (() => setLocalIsOpen(!localIsOpen));
+
   const IconComponent = sectionIcons[section.id] || Bookmark;
   const gradientColor = sectionColors[section.id] || "from-slate-500 to-slate-700";
   const styles = themeStyles[theme] || themeStyles.tuvi;
@@ -397,7 +413,8 @@ const SectionCard = ({ section, idx = 0, sections = [], theme, onConsultSection,
   const handleToggleSpeech = (e) => {
     e.stopPropagation();
     if (!isOpen) {
-      setIsOpen(true);
+      if (onToggleOpen) onToggleOpen();
+      else setLocalIsOpen(true);
     }
     if (isCurrentSpeaking) {
       ttsEngine.togglePlayPause();
@@ -414,16 +431,16 @@ const SectionCard = ({ section, idx = 0, sections = [], theme, onConsultSection,
   };
 
   return (
-    <div className={`mb-6 bg-white/70 backdrop-blur-md rounded-2xl border ${styles.border} shadow-lg ${styles.shadow} overflow-hidden transition-all duration-300`}>
+    <div id={section.id} className={`scroll-mt-24 mb-6 bg-white/70 backdrop-blur-md rounded-2xl border ${styles.border} shadow-lg ${styles.shadow} overflow-hidden transition-all duration-300`}>
       {/* Header Bar */}
       <div
         role="button"
         tabIndex={0}
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={toggleOpen}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            setIsOpen(!isOpen);
+            toggleOpen();
           }
         }}
         className={`w-full px-5 sm:px-6 py-3.5 sm:py-4 flex items-center justify-between gap-3 sm:gap-4 text-left transition-all duration-200 cursor-pointer select-none ${styles.hoverBg}`}
@@ -553,7 +570,16 @@ const SectionCard = ({ section, idx = 0, sections = [], theme, onConsultSection,
               p: ({ children }) => <p className="mb-5 last:mb-0 leading-relaxed font-normal text-slate-700">{children}</p>,
               h1: ({ children }) => <h1 className="text-xl md:text-2xl font-bold text-slate-900 mt-6 mb-3 tracking-wide">{children}</h1>,
               h2: ({ children }) => <h2 className="text-lg md:text-xl font-bold text-slate-900 mt-6 mb-3 tracking-wide">{children}</h2>,
-              h3: ({ children }) => <h3 className="text-base md:text-lg font-bold text-slate-900 mt-6 mb-2.5 tracking-wide">{children}</h3>,
+              h3: ({ children }) => {
+                const text = React.Children.toArray(children).map(c => typeof c === 'string' ? c : (c?.props?.children || '')).join('').trim();
+                const matchedSub = section.subsections?.find(s => s.title === text || text.includes(s.title) || s.title.includes(text));
+                const subId = matchedSub ? matchedSub.id : undefined;
+                return (
+                  <h3 id={subId} className="scroll-mt-28 text-base md:text-lg font-bold text-slate-900 mt-6 mb-2.5 tracking-wide">
+                    {children}
+                  </h3>
+                );
+              },
               h4: ({ children }) => <h4 className="text-sm md:text-base font-bold text-slate-900 mt-4 mb-2 tracking-wide">{children}</h4>,
               strong: ({ children }) => <strong className="font-bold text-slate-900">{children}</strong>,
               ul: ({ children }) => <ul className="list-disc pl-5 mb-5 space-y-2 text-slate-700 font-normal">{children}</ul>,
@@ -582,8 +608,24 @@ const SectionCard = ({ section, idx = 0, sections = [], theme, onConsultSection,
   );
 };
 
-const SectionRenderer = ({ sections, theme = 'tuvi', onConsultSection }) => {
+const SectionRenderer = ({ 
+  sections, 
+  theme = 'tuvi', 
+  onConsultSection, 
+  rawText, 
+  summary,
+  pageSections = [],
+  isChatOpen = false
+}) => {
   const [ttsState, setTtsState] = useState(() => ttsEngine.getState());
+  const [openStates, setOpenStates] = useState({});
+
+  const toggleCardOpen = (secId) => {
+    setOpenStates(prev => ({
+      ...prev,
+      [secId]: prev[secId] !== undefined ? !prev[secId] : false
+    }));
+  };
 
   useEffect(() => {
     const unsubscribe = ttsEngine.subscribe((state) => {
@@ -633,7 +675,10 @@ const SectionRenderer = ({ sections, theme = 'tuvi', onConsultSection }) => {
 
   return (
     <div className="w-full animate-in fade-in slide-in-from-bottom-6 duration-500">
-      {/* Banner Nghe Toàn Bài Luận Giải (Áp dụng 4 phân hệ) */}
+      {/* 1. Hộp Tóm Tắt Vận Mệnh 1 Phút & Biểu Đồ Radar (Áp dụng Cơ Bản & VIP) */}
+      <LifeRadarSummary summary={summary} rawText={rawText} theme={theme} sections={sections} />
+
+      {/* 2. Banner Nghe Toàn Bài Luận Giải (Áp dụng 4 phân hệ) */}
       <div className={`mb-6 p-4 sm:p-5 rounded-3xl bg-gradient-to-r ${styles.playAllBanner} border shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 backdrop-blur-xl text-white`}>
         <div className="flex items-center gap-3.5 min-w-0">
           <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shrink-0 text-white shadow-inner">
@@ -694,18 +739,34 @@ const SectionRenderer = ({ sections, theme = 'tuvi', onConsultSection }) => {
         </div>
       </div>
 
-      {/* Danh sách các thẻ mục luận giải */}
-      {sections.map((section, idx) => (
-        <SectionCard 
-          key={section.id || idx} 
-          section={section} 
-          idx={idx}
-          sections={sections}
-          theme={theme} 
-          onConsultSection={onConsultSection}
-          ttsState={ttsState}
-        />
-      ))}
+      {/* 3. Danh Sách Thẻ Mục Luận Giải (Giữ nguyên kích thước 100% full-width, không bị chiếm diện tích) */}
+      <div className="w-full space-y-4">
+        {sections.map((section, idx) => (
+          <SectionCard 
+            key={section.id || idx} 
+            section={section} 
+            idx={idx}
+            sections={sections}
+            theme={theme} 
+            onConsultSection={onConsultSection}
+            ttsState={ttsState}
+            isOpen={openStates[section.id] ?? true}
+            onToggleOpen={() => toggleCardOpen(section.id)}
+          />
+        ))}
+      </div>
+
+      {/* 4. Mục Lục Điều Hướng Nổi 2 Cấp (Floating Drawer Overlay, xuất hiện xuyên suốt mọi vị trí bài luận) */}
+      <TableOfContents 
+        sections={sections} 
+        pageSections={pageSections}
+        theme={theme} 
+        isChatOpen={isChatOpen}
+        onSelectSection={(secId) => {
+          // Tự động mở bung thẻ nếu đang bị gập
+          setOpenStates(prev => ({ ...prev, [secId]: true }));
+        }}
+      />
     </div>
   );
 };

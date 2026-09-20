@@ -54,10 +54,10 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
     │   └── admin/               # Quản Trị Hệ Thống: AdminConfirmModal.jsx
     │       └── tabs/            # Tabs Admin chuyên trách: AdminOverviewTab, AdminUsersTab, AdminCalculationsTab, AdminAlertsTab, AdminBlogTab, AdminUserStatsModal
     ├── components/
-    │   ├── common/              # Thành phần dùng chung (CustomDatePicker, CustomSelect, Tooltip...)
+    │   ├── common/              # Thành phần dùng chung (CustomDatePicker, CustomSelect, CanhGioGuideModal, Tooltip...)
     │   ├── layout/              # Khung giao diện (Header.jsx, Footer.jsx...)
-    │   ├── modals/              # Hộp thoại modal (AuthModal, PdfExportModal, MyFoldersModal...)
-    │   ├── widgets/             # Widget tiện ích nổi (AiChatWidget, AudioPlayerDock, NotificationBell...)
+    │   ├── modals/              # Hộp thoại modal (AuthModal, IChingQuestionGuideModal, PdfExportModal, MyFoldersModal...)
+    │   ├── widgets/             # Widget tiện ích nổi (AiChatWidget, AudioPlayerDock, NotificationBell, LifeRadarSummary, TableOfContents...)
     │   └── ...                  # Proxy Re-exports đảm bảo 100% tương thích ngược
     ├── hooks/                   # Custom Hooks dùng chung (useInterpretationStream, useRecordRating, usePublicToggle)
     ├── context/                 # Quản lý ngữ cảnh React (AuthContext.jsx)

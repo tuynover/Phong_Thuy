@@ -233,7 +233,7 @@ export default function ProfileBoard() {
               <Coins className="text-amber-800" size={20} />
             </div>
             <div>
-              <p className="text-[10px] text-neutral-500 font-extrabold uppercase tracking-wider">Số lượt sử dụng</p>
+              <p className="text-[10px] text-neutral-500 font-extrabold uppercase tracking-wider">Điểm tích lũy (Points)</p>
               <p className="text-base font-extrabold font-[Montserrat] text-amber-950 mt-0.5">{user?.credits !== undefined ? user.credits : 0} Points</p>
             </div>
           </div>

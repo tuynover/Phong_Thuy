@@ -98,9 +98,12 @@ import { validateInputDate, getMaxDaysInMonth } from '@/utils/dateValidator';
 import FloatingErrorToast from '@/components/common/FloatingErrorToast';
 
 import { LunarYear, LunarMonth } from 'lunar-javascript';
+import CanhGioGuideModal from '@/components/common/CanhGioGuideModal';
+import { getCanhGioInfo } from '@/utils/canhGioHelper';
 
 const BaziInput = ({ onComplete }) => {
     const [calendarMode, setCalendarMode] = useState('solar'); // solar | lunar | manual
+    const [showCanhGioModal, setShowCanhGioModal] = useState(false);
     
     // Solar & Lunar States
     const [day, setDay] = useState('');
@@ -397,9 +400,18 @@ const BaziInput = ({ onComplete }) => {
 
                         {/* Giờ phút */}
                         <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-                                <Clock className="w-4 h-4 text-blue-500" /> Thời Gian Sinh
-                            </label>
+                            <div className="flex items-center justify-between mb-2">
+                                <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
+                                    <Clock className="w-4 h-4 text-blue-500" /> Thời Gian Sinh
+                                </label>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowCanhGioModal(true)}
+                                    className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 font-bold cursor-pointer hover:underline"
+                                >
+                                    <HelpCircle size={13} /> Hướng dẫn & 12 Canh Giờ
+                                </button>
+                            </div>
                             <div className="flex gap-3">
                                 <div className="flex-1">
                                     <span className="block text-xs text-gray-400 font-bold mb-1 ml-1 text-center">GIỜ (0-23)</span>
@@ -420,6 +432,20 @@ const BaziInput = ({ onComplete }) => {
                                       placeholder="Min"
                                     />
                                 </div>
+                            </div>
+
+                            {/* Reassuring note & Canh Gio real-time detection */}
+                            <div className="mt-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-xs text-slate-500 bg-blue-50/50 p-2.5 rounded-xl border border-blue-100/70">
+                                <div className="flex items-center gap-1.5">
+                                    <span className="text-blue-700 font-extrabold shrink-0">💡 Lưu ý:</span>
+                                    <span className="text-[11px] leading-tight">Chỉ cần đúng khung giờ, số phút không cần tuyệt đối chính xác (có thể để mặc định 00 hoặc 30).</span>
+                                </div>
+                                {getCanhGioInfo(hour) && (
+                                    <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-indigo-50 text-indigo-900 font-extrabold text-[11px] border border-indigo-200/60 shrink-0 self-start sm:self-auto">
+                                        <span>Canh Giờ:</span>
+                                        <span className="text-blue-700 font-black">{getCanhGioInfo(hour).chi} ({getCanhGioInfo(hour).range})</span>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </>
@@ -708,6 +734,11 @@ const BaziInput = ({ onComplete }) => {
                 </div>
               </div>
             </div>
+            <CanhGioGuideModal 
+              isOpen={showCanhGioModal} 
+              onClose={() => setShowCanhGioModal(false)} 
+              selectedHour={hour} 
+            />
           </div>
         </>
     );

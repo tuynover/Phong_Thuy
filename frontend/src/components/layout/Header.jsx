@@ -410,7 +410,7 @@ export default function Header({
                         <div className="space-y-1">
                           <span className="block font-extrabold text-sm text-slate-850">{user.name}</span>
                           <div className="inline-flex items-center gap-1 px-3 py-1 bg-indigo-50 text-indigo-850 rounded-full border border-indigo-200/50 text-[10px] font-extrabold">
-                            <span>Xu phong thủy: {user.credits !== undefined ? user.credits : 0} 🪙</span>
+                            <span>Số Points: {user.credits !== undefined ? user.credits : 0} 🪙</span>
                           </div>
                         </div>
                       </div>

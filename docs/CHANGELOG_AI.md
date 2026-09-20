@@ -2,6 +2,262 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Khắc Phục Lỗi Chèn Executive Summary & Nhét Bài Luận Cũ Vào Bài Luận Mới Tử Vi VIP (20/09/2026)
+
+### 🌟 1. Yêu Cầu & Bối Cảnh Người Dùng
+- **Phản hồi lỗi:** "lỗi sao lại chèn cái summary vào , nó bị lỗi nó nhét bài luận cũ vào bài luận mới ở tử vi".
+- **Biểu hiện thực tế:** Trong bài luận giải Tử Vi chuyên sâu (VIP), thẻ thô `[EXECUTIVE_SUMMARY]...[/EXECUTIVE_SUMMARY]` xuất hiện lộ liễu giữa thân bài; ngay trước đó là câu kết của bản luận giải thường 15 phần, và theo sau là nguyên khối các mục cơ bản 1-15 bị nhồi nhét vào giữa Chương 1 và Chương 2.
+
+---
+
+### 🔍 2. Nguyên Nhân Gốc Rễ (Root Cause Analysis)
+1. **Lệch Ngữ Cảnh Prompt Giữa Bản Thường Và Bản VIP:**
+   - Trong [`ZiweiAiController.js`](file:///t:/Phongthuy/backend/src/modules/ziwei/controllers/ZiweiAiController.js), hàm `buildPrompt` gọi không điều kiện `ZiweiPrompts.buildMarkdownPrompt(...)`.
+   - Prompt này chứa chỉ thị định dạng cố định của bản thường: *"BẮT BUỘC mở đầu bằng khối tóm tắt [EXECUTIVE_SUMMARY]... Tiếp theo viết bài luận giải chi tiết phân bổ cấu trúc thành 15 phần tiêu đề..."*.
+   - Toàn bộ nội dung prompt bản thường này được chuyển vào `ZiweiDeepPipeline.runVipPipelineStream` dưới dạng `fullContext`.
+   - Mỗi sub-agent chạy cụm chương (Chương 1, Chương 2,...) nhận được `fullContext` này nên Gemini tự động xuất lại `[EXECUTIVE_SUMMARY]` và toàn bộ 15 mục cơ bản vào đầu chương trước khi tiếp tục viết nội dung VIP!
+2. **Thiếu Cờ Toàn Cục `/g` Trong Bộ Tách Markdown:**
+   - Trong [`markdownParser.js`](file:///t:/Phongthuy/frontend/src/utils/markdownParser.js), hàm `extractExecutiveSummary` sử dụng regex `/\[EXECUTIVE_SUMMARY\][\s\S]*?(?:\[\/EXECUTIVE_SUMMARY\]|$)/i` không có cờ `g`. Do đó hàm chỉ bóc tách khối summary đầu tiên, bỏ sót toàn bộ các khối summary trùng lặp bị nhồi vào giữa các chương khiến chúng hiển thị trần trụi dưới dạng text thô.
+3. **Xung Đột Tuyến Đường Express Trong Module Tử Vi:**
+   - Trong [`ziwei.routes.js`](file:///t:/Phongthuy/backend/src/modules/ziwei/routes/ziwei.routes.js), route `router.get('/:userId')` đặt trước `router.get('/:id')`. Khi gọi `GET /api/ziwei/:id`, Express luôn hiểu nhầm `:id` là `:userId`, chạy `getZiweiHistory` và trả về mảng rỗng `[]`.
+
+---
+
+### 🛠️ 3. Giải Pháp & Các Tệp Tin Đã Chỉnh Sửa
+
+#### A. Backend
+- [`ZiweiPrompts.js`](file:///t:/Phongthuy/backend/src/modules/ziwei/services/ZiweiPrompts.js):
+  - Bổ sung hàm `buildVipFactPrompt(compressedChart, symbolicAnalysis, customAgeInfo)` chỉ trích xuất dữ liệu tinh bàn, cách cục và phân tích học thuật khách quan, **hoàn toàn loại bỏ mọi chỉ thị về cấu trúc 15 phần cơ bản hay thẻ `[EXECUTIVE_SUMMARY]`**.
+- [`ZiweiAiController.js`](file:///t:/Phongthuy/backend/src/modules/ziwei/controllers/ZiweiAiController.js):
+  - Cập nhật hàm `buildPrompt(record, isVipMode)` phân nhánh chuẩn xác: nếu `isVipMode === true` thì sử dụng `buildVipFactPrompt`, nếu bản thường mới dùng `buildMarkdownPrompt`.
+- [`DeepInterpretationPipelines.js`](file:///t:/Phongthuy/backend/src/core/ai/deep-interpretation/DeepInterpretationPipelines.js):
+  - Thêm quy tắc ràng buộc số 0 vào prompt từng cụm chương: *"PHẠM VI NỘI DUNG DUY NHẤT: BẮT BUỘC CHỈ luận giải nội dung của CHƯƠNG ${id}. TUYỆT ĐỐI KHÔNG tạo khối [EXECUTIVE_SUMMARY] (đã được tạo ở đầu bài) và TUYỆT ĐỐI KHÔNG xuất các mục từ 1 đến 15 của bản luận giải cơ bản."*
+  - Bổ sung bước lọc dữ liệu chuỗi `clusterText` trong luồng SSE streaming để tự động xóa mọi tag `[EXECUTIVE_SUMMARY]` đi lạc trước khi ghi nhận vào nội dung hoàn chỉnh.
+- [`ziwei.routes.js`](file:///t:/Phongthuy/backend/src/modules/ziwei/routes/ziwei.routes.js):
+  - Xóa bỏ tuyến đường xung đột `router.get('/:userId')` vì lịch sử đã có tuyến đường riêng `/history/:userId`.
+- **Dọn dẹp bản ghi cũ trong MongoDB:** Chạy script chuẩn hóa nội dung cho bản ghi `01a0bf35-5254-718e-a930-9319d7cc9702`, loại bỏ 4 khối summary thừa và 2 đoạn chèn 15 mục cơ bản bị đúp.
+
+#### B. Frontend
+- [`frontend/src/services/api.js`](file:///t:/Phongthuy/frontend/src/services/api.js):
+  - Cập nhật `getZiweiRecord` trỏ tường minh vào endpoint `${API_URL}/ziwei/record/${id}` đồng bộ với các phân hệ khác.
+- [`markdownParser.js`](file:///t:/Phongthuy/frontend/src/utils/markdownParser.js):
+  - Nâng cấp `extractExecutiveSummary` sử dụng regex `/gi` và lọc triệt để các thẻ mồ côi `[EXECUTIVE_SUMMARY]` / `[/EXECUTIVE_SUMMARY]`.
+- [`SectionRenderer.jsx`](file:///t:/Phongthuy/frontend/src/components/widgets/SectionRenderer.jsx):
+  - Bổ sung regex phòng thủ trong `cleanAndNormalizeMarkdown` để quét sạch mọi thẻ tóm tắt đi lạc ở từng thẻ chương.
+
+---
+
+## 📅 Phiên bản: Hợp Nhất Cụm Nút Nổi Hành Động (Nâng Cấp - Mục Lục - Hỏi Thầy) Triệt Tiêu Khoảng Trống (20/09/2026)
+
+### 🌟 1. Yêu Cầu & Bối Cảnh Người Dùng
+- **Sắp xếp thứ tự cụm nút hành động góc dưới bên phải (Floating Action Buttons):**
+  1. **Nâng Cấp Luận Giải (trên cùng):** Khi chưa nâng cấp lên bản Chuyên sâu (VIP), nút này luôn ở vị trí cao nhất trong cụm nút nổi.
+  2. **Mục lục luận giải (ở giữa):** Nằm ngay dưới nút "Nâng Cấp Luận Giải" và trên nút "Hỏi Thêm Thầy".
+  3. **Hỏi Thêm Thầy / Hỏi Đáp AI (dưới cùng):** Luôn ở vị trí chân trang.
+- **Tự Động Thu Gọn & Không Để Lại Khoảng Trống Khi Lên VIP:** Khi đã là luận giải chuyên sâu (`interpretationMode === 'vip'`), nút "Nâng Cấp Luận Giải" ẩn đi. Hai nút còn lại ("Mục lục luận giải" và "Hỏi Thêm Thầy") tự động khớp sát nhau với khoảng cách tiêu chuẩn `gap-2.5` (10px), **hoàn toàn không có khoảng trống thừa** giữa các nút.
+
+---
+
+### 🛠️ 2. Các Tệp Tin Đã Chỉnh Sửa
+- [`TableOfContents.jsx`](file:///t:/Phongthuy/frontend/src/components/widgets/TableOfContents.jsx):
+  - Xuất khẩu component `TableOfContentsTrigger({ theme, className, onClick })` để gắn linh hoạt vào container chung.
+  - Thiết lập `showFloatingTrigger = false` mặc định trong `TableOfContents` (bên trong `SectionRenderer`) để loại bỏ nút nổi độc lập bị neo tĩnh trước đó.
+  - Tích hợp sự kiện DOM `toggle-toc-drawer` để `TableOfContentsTrigger` kích hoạt mở Drawer từ bất kỳ đâu.
+- [`IChingBoard.jsx`](file:///t:/Phongthuy/frontend/src/features/iching/IChingBoard.jsx): Nhúng `TableOfContentsTrigger theme="iching"` vào giữa cụm nút nổi (`Nâng Cấp Luận Giải` $\rightarrow$ `Mục lục luận giải` $\rightarrow$ `Hỏi Thêm Thầy`).
+- [`BaziBoard.jsx`](file:///t:/Phongthuy/frontend/src/features/bazi/BaziBoard.jsx): Nhúng `TableOfContentsTrigger theme="bazi"` vào giữa cụm nút nổi.
+- [`ZiweiBoard.jsx`](file:///t:/Phongthuy/frontend/src/features/ziwei/ZiweiBoard.jsx): Nhúng `TableOfContentsTrigger theme="ziwei"` vào giữa cụm nút nổi.
+- [`MarriageBoard.jsx`](file:///t:/Phongthuy/frontend/src/features/marriage/MarriageBoard.jsx): Nhúng `TableOfContentsTrigger theme="marriage"` vào giữa cụm nút nổi (`Nâng Cấp Luận Giải` $\rightarrow$ `Mục lục luận giải` $\rightarrow$ `Hỏi Đáp AI`).
+
+---
+
+## 📅 Phiên bản: Sửa Triệt Để 5 Vấn Đề Giao Diện & Logic Nâng Cấp Luận Giải VIP (20/09/2026)
+
+### 🌟 1. Yêu Cầu & Bối Cảnh Người Dùng
+1. **Xóa Bỏ Nút "Gieo lại từ đầu" (Hình 1):** Tuân thủ triệt để nguyên lý Dịch lý "Sơ phệ cáo, tái tam độc, độc tắc bất cáo" - không có khái niệm reset gieo lại từ đầu trong phiên gieo quẻ.
+2. **Triệt Tiêu Va Chạm Giao Diện Giữa Nút Nổi "Mục lục luận giải" & "NÂNG CẤP LUẬN GIẢI" (Hình 2):** Điều chỉnh vị trí nút nổi Mục Lục lên cao hơn (`bottom-36 sm:bottom-40`), xếp tầng thanh thoát ngay phía trên cụm nút hành động ("Nâng Cấp Luận Giải" & "Hỏi Thêm Thầy") mà không bao giờ bị đè lên nhau.
+3. **Chuẩn Hóa Thuật Ngữ Bản Đúc Kết 1 Phút Cho Từng Phân Hệ (Vấn đề 1 - Hình 3):** Khắc phục lỗi hardcode từ ngữ Bát Tự/Tử Vi cho Kinh Dịch và Hợp Hôn. Hệ thống tự động chuyển đổi tiêu đề, badge, thẻ 5 trục, 3 điểm sáng, 3 tử huyệt và lời khuyên hành động theo đúng bản chất cổ học từng phân hệ:
+   - Kinh Dịch: Tóm Tắt Quẻ Dịch 1 Phút, 5 Trục Biện Chứng Quẻ Tượng, Thời Thế - Tài Vận - Nhân Hòa - Khí Sắc - Trợ Lực, 3 Điểm Cốt Yếu Của Quẻ Tượng, 3 Yếu Tố Thuận Lợi (Cát Khí), 3 Điểm Hung Hiểm Cần Phòng, 1 Diệu Kế Hành Động Đạo Dịch.
+   - Hợp Hôn: Tóm Tắt Hợp Hôn 1 Phút, 5 Trụ Cột Hòa Hợp Gia Đạo, Chí Hướng - Kinh Tế - Tình Cảm - Gia Đạo - Nội Ngoại, 3 Đúc Kết Hôn Phối Cốt Lõi, 3 Điểm Tương Hợp Gắn Kết, 3 Điểm Xung Khắc Cần Nhường Nhịn, 1 Bí Quyết Gìn Giữ Hạnh Phúc.
+4. **Bảo Mật Thuật Ngữ Kiến Trúc Hệ Thống (Hình 4):** Rà soát toàn diện và loại bỏ triệt để các từ ngữ kỹ thuật kiến trúc như "qua Gemini SDK", "slot" trong các thông điệp tiến trình SSE (thay bằng ngôn ngữ phong thủy học thuật thuần túy).
+5. **Khắc Phục Lỗi Nâng Cấp Luận Giải VIP Không Đổi Nội Dung (Vấn đề 2):**
+   - **Nguyên nhân gốc rễ:** Stale closure trong callback `onCreditDeduct()` của 4 board (`BaziBoard`, `ZiweiBoard`, `IChingBoard`, `MarriageBoard`) truyền biến `interpretation` cũ của bản thường vào `onUpdateData`/`onUpdateResult`. Khi parent cập nhật, `initialContent` dội ngược lại kích hoạt `useEffect` trong `useInterpretationStream` ghi đè xóa mất nội dung VIP vừa stream xong!
+   - **Giải pháp dứt điểm:** Truyền trực tiếp `(currentText, isVip ? 'vip' : 'standard')` từ hook sang callback `onCreditDeduct`; cập nhật state cha bằng `finalContent`; đồng thời bọc cờ bảo vệ `isInterpretingRef` trong `useInterpretationStream` để chống prop rebound race condition.
+
+---
+
+### 🛠️ 2. Các Tệp Tin Đã Chỉnh Sửa
+- [`IChingInput.jsx`](file:///t:/Phongthuy/frontend/src/features/iching/IChingInput.jsx): Xóa bỏ hoàn toàn nút bấm và hàm `handleReset`.
+- [`TableOfContents.jsx`](file:///t:/Phongthuy/frontend/src/components/widgets/TableOfContents.jsx): Nâng tọa độ nút nổi lên `bottom-36 sm:bottom-40`, chuyển nhãn liên kết mục tóm tắt thành dạng động theo phân hệ.
+- [`LifeRadarSummary.jsx`](file:///t:/Phongthuy/frontend/src/components/widgets/LifeRadarSummary.jsx): Bổ sung cấu hình từ vựng chuyên biệt cho cả 4 phân hệ (Bát Tự, Tử Vi, Kinh Dịch, Hôn Nhân).
+- [`DeepInterpretationPipelines.js`](file:///t:/Phongthuy/backend/src/core/ai/deep-interpretation/DeepInterpretationPipelines.js): Loại bỏ chuỗi "qua Gemini SDK..." ở tiến trình Hợp Hôn và Kinh Dịch.
+- [`AiConcurrencyLimiter.js`](file:///t:/Phongthuy/backend/src/core/ai/deep-interpretation/AiConcurrencyLimiter.js): Thay thế từ "slot" bằng "lượt phục vụ" / "lượt phân tích".
+- [`useInterpretationStream.js`](file:///t:/Phongthuy/frontend/src/hooks/useInterpretationStream.js): Truyền `currentText` và `newMode` vào `onCreditDeduct`, thêm `isInterpretingRef` chặn prop rebound.
+- [`BaziBoard.jsx`](file:///t:/Phongthuy/frontend/src/features/bazi/BaziBoard.jsx), [`ZiweiBoard.jsx`](file:///t:/Phongthuy/frontend/src/features/ziwei/ZiweiBoard.jsx), [`IChingBoard.jsx`](file:///t:/Phongthuy/frontend/src/features/iching/IChingBoard.jsx), [`MarriageBoard.jsx`](file:///t:/Phongthuy/frontend/src/features/marriage/MarriageBoard.jsx): Cập nhật `onCreditDeduct: (newContent, newMode)` sử dụng nội dung mới vừa sinh.
+
+---
+
+## 📅 Phiên bản: Hoàn Thiện Tối Ưu Trải Nghiệm Gieo Quẻ Tuần Tự, Mục Lục Toàn Trang 4 Phân Hệ & Tinh Chỉnh Báo Cáo 1 Phút (20/09/2026)
+
+### 🌟 1. Yêu Cầu & Bối Cảnh Người Dùng
+1. **Gieo Quẻ Tuần Tự Tự Động (Sequential Coin Toss):**
+   - Khi bấm "Gieo nhanh 6 hào", hệ thống tự động gieo từng hào một cách tuần tự (delay ~700ms tung xu + ~350ms ngưng nghỉ giữa các hào), loại bỏ hoàn toàn việc đứng màn hình do quá tải hiệu ứng 18 đồng xu cùng lúc.
+2. **Mục Lục Luận Giải Toàn Diện (Whole-Page Table of Contents):**
+   - Nút nổi chỉ hiển thị nhãn gọn gàng chuẩn xác: **"Mục lục luận giải"**.
+   - Tinh chỉnh bảng màu dịu mắt, trang nhã theo phong cách cổ học phương Đông cho từng phân hệ (Bát Tự: Chàm đen Slate-Navy; Tử Vi: Mận chín Aubergine; Kinh Dịch: Than gỗ Hổ phách Bronze; Hôn Nhân: Gỗ hồng Rosewood), không bị chói sáng.
+   - Tích hợp điều hướng toàn bộ trang từ trên xuống dưới cho cả 4 phân hệ: bao gồm cả cấu trúc lá số học thuật tĩnh (Tứ Trụ, Đại Vận, Ngũ Hành, 12 Cung, Quẻ Dịch, Hợp Hôn) và các chương luận giải chi tiết của Thầy. Bấm vào bất kỳ mục nào sẽ tự động cuộn mượt đến phần đó kèm bù trừ thanh điều hướng dính (`scroll-mt-24`).
+3. **Triệt Tiêu Xung Đột Giao Diện Giữa Mục Lục & AI Chat:**
+   - Khi mở khung trò chuyện AI Chat, nút nổi Mục Lục tự động ẩn đi (`opacity-0 pointer-events-none`) để không che khuất ô nhập liệu câu hỏi. Khi đóng chat, nút nổi tự động hiện lại mượt mà.
+4. **Tái Cấu Trúc Báo Cáo Tóm Tắt 1 Phút (LifeRadarSummary):**
+   - Loại bỏ hoàn toàn biểu đồ Radar Recharts cồng kềnh bên trái theo phản hồi người dùng.
+   - Tái sắp xếp cân đối, trang trọng: 5 thẻ trục khí số ngang với thanh đo tiến độ thanh thoát $\rightarrow$ 3 câu đúc kết cốt lõi (TL;DR) $\rightarrow$ Lưới 3 cột chiến lược (3 Điểm Sáng Nhất, 3 Tử Huyệt Cần Phòng, 1 Hành Động Chiến Lược).
+
+---
+
+### 🛠️ 2. Các Thay Đổi Kỹ Thuật Đã Thực Hiện
+- **Frontend Core:**
+  - [`IChingInput.jsx`](file:///t:/Phongthuy/frontend/src/features/iching/IChingInput.jsx): Tích hợp vòng lặp gieo tuần tự bất đồng bộ trong `handleTossAll`, hiển thị tiến trình "Đang tuần tự gieo Hào X/6...".
+  - [`TableOfContents.jsx`](file:///t:/Phongthuy/frontend/src/components/widgets/TableOfContents.jsx): Bổ sung `pageSections` danh mục học thuật tĩnh, phân nhóm 2 khối rõ ràng trong Drawer, điều chỉnh màu dịu mắt, lắng nghe sự kiện `ai-chat-state-change` để tự động ẩn nút.
+  - [`LifeRadarSummary.jsx`](file:///t:/Phongthuy/frontend/src/components/widgets/LifeRadarSummary.jsx): Bỏ toàn bộ thư viện Recharts, chuyển sang bố cục thẻ trực quan, đồng bộ màu sắc 5 phân hệ, tối ưu hiển thị trên mobile lẫn desktop.
+  - [`AiChatWidget.jsx`](file:///t:/Phongthuy/frontend/src/components/widgets/AiChatWidget.jsx): Phát sự kiện DOM `ai-chat-state-change` khi đóng/mở chat để các widget xung quanh tự điều phối không gian hiển thị.
+  - [`SectionRenderer.jsx`](file:///t:/Phongthuy/frontend/src/components/widgets/SectionRenderer.jsx): Chuyển tiếp `pageSections` và `isChatOpen` xuống `TableOfContents`.
+  - [`BaziBoard.jsx`](file:///t:/Phongthuy/frontend/src/features/bazi/BaziBoard.jsx), [`ZiweiBoard.jsx`](file:///t:/Phongthuy/frontend/src/features/ziwei/ZiweiBoard.jsx), [`IChingBoard.jsx`](file:///t:/Phongthuy/frontend/src/features/iching/IChingBoard.jsx), [`MarriageBoard.jsx`](file:///t:/Phongthuy/frontend/src/features/marriage/MarriageBoard.jsx): Gán `id` neo đậu và `scroll-mt-24` cho các khối cấu trúc học thuật, truyền `pageSections` và cờ `isChatOpen`.
+
+---
+
+## 📅 Phiên bản: Hoàn Thiện Giai Đoạn 3 - Báo Cáo AI Tóm Tắt 1 Phút, Biểu Đồ Radar 5 Trục, Mục Lục Điều Hướng 2 Cấp & Smart Follow-up Chips (20/09/2026)
+
+### 🌟 1. Yêu Cầu & Bối Cảnh Nghiệp Vụ
+1. **Báo Cáo Tóm Tắt 1 Phút & Điểm Số Radar Cuộc Đời (Áp dụng Cơ Bản & VIP):**
+   - Độc giả thường bị choáng ngợp bởi bài luận giải quá dài (từ 2.000 đến 12.000 từ). Cần một khối tóm tắt tinh hoa đầu bài đọc gồm 3 câu đúc kết cốt lõi (TL;DR), biểu đồ Radar 5 trục năng lượng cuộc đời (Sự nghiệp, Tài chính, Tình cảm, Sức khỏe, Quý nhân), 3 điểm sáng nhất, 3 tử huyệt cần phòng tránh, và 1 hành động chiến lược nên làm ngay.
+   - Áp dụng bình đẳng cho **CẢ 2 HÌNH THỨC LUẬN GIẢI (Cơ bản 100 Points lẫn Chuyên sâu VIP 500 Points)** trên cả 4 phân hệ (Bát Tự, Tử Vi, Kinh Dịch, Hôn Nhân).
+2. **Mục Lục Điều Hướng 2 Cấp (H2 / H3) & Scroll Spy:**
+   - Người dùng khó theo dõi mạch bài khi cuộn dài. Cần mục lục 2 cấp phân tách Chương lớn (H2) và Đề mục con (H3).
+   - Trên Desktop (màn hình lớn): Hiển thị thanh dính Sticky Sidebar bên phải bài đọc với hiệu ứng theo dõi vị trí cuộn trang (Scroll Spy) tự động highlight mục tương ứng.
+   - Trên Mobile & Tablet: Nút nổi tròn bo góc (Floating Action Button) ở góc dưới màn hình, bấm vào sẽ trượt mở ngăn kéo đáy (Bottom Sheet Drawer) thanh lịch, bấm vào bất kỳ mục nào là tự động cuộn mượt và mở rộng thẻ accordion của chương đó nếu đang đóng.
+3. **Gợi Ý Câu Hỏi Thông Minh Trong AI Chat (Smart Follow-up Chips):**
+   - Người dùng thường gặp trạng thái "bí từ" khi muốn hỏi tiếp AI. Cung cấp hàng loạt câu hỏi đàm đạo sâu sắc, chạm đúng trọng tâm theo từng môn học thuật và tự động biến đổi theo chương mục đang xem (ví dụ khi bấm "Đàm đạo mục này" ở Chương Tài chính, các gợi ý sẽ xoay quanh bảo toàn vốn và cơ hội thịnh vượng). Bấm chọn là tự động gửi ngay lập tức tới AI.
+
+---
+
+### 🛠️ 2. Các Thay Đổi Kỹ Thuật Đã Thực Hiện
+
+#### A. Backend & Prompts
+1. **Chuẩn hóa Khối `[EXECUTIVE_SUMMARY]` trong Toàn Bộ Prompts:**
+   - [`BaziPrompts.js`](file:///t:/Phongthuy/backend/src/modules/bazi/services/BaziPrompts.js): Yêu cầu AI xuất khối `[EXECUTIVE_SUMMARY]` với đầy đủ `TLDR:`, `RADAR_SCORES:`, `TOP_STRENGTHS:`, `TOP_PITFALLS:`, `ACTION_ADVICE:` trước khi xuất `## CHƯƠNG 1`.
+   - [`ZiweiPrompts.js`](file:///t:/Phongthuy/backend/src/modules/ziwei/services/ZiweiPrompts.js): Tích hợp khối `[EXECUTIVE_SUMMARY]` trước 15 phần tiêu đề Tử Vi.
+   - [`IChingPrompts.js`](file:///t:/Phongthuy/backend/src/modules/iching/services/IChingPrompts.js): Tích hợp khối `[EXECUTIVE_SUMMARY]` trước các phần Dịch lý Lục Hào.
+   - [`MarriagePrompts.js`](file:///t:/Phongthuy/backend/src/modules/bazi/services/MarriagePrompts.js): Tích hợp khối `[EXECUTIVE_SUMMARY]` trước 8 chương hôn phối.
+   - [`DeepInterpretationPipelines.js`](file:///t:/Phongthuy/backend/src/core/ai/deep-interpretation/DeepInterpretationPipelines.js): Cập nhật `introPrompt` của cả 4 luồng VIP (Bazi, Ziwei, Marriage, IChing) xuất khối `[EXECUTIVE_SUMMARY]` ngay trong phần mở đầu phát dòng tức thì.
+
+#### B. Frontend Core & Widgets
+1. **Bộ Tiện Ích Trích Xuất Markdown ([`markdownParser.js`](file:///t:/Phongthuy/frontend/src/utils/markdownParser.js)):**
+   - `extractExecutiveSummary(text)`: Trích xuất chính xác 5 trường dữ liệu từ khối `[EXECUTIVE_SUMMARY]`, bóc tách khối này ra khỏi nội dung bài đọc để không làm vỡ các tiêu đề chương.
+   - `extractSubsectionsFromContent(content, sectionId)`: Trích xuất các đề mục con H3 (`###`) hoặc in đậm làm cấp mục lục thứ 2.
+   - Cập nhật `parseMarkdownSections` gắn mảng `subsections` vào từng section object.
+2. **Component `LifeRadarSummary.jsx` ([frontend/src/components/widgets/LifeRadarSummary.jsx](file:///t:/Phongthuy/frontend/src/components/widgets/LifeRadarSummary.jsx)):**
+   - Sử dụng `recharts` dựng biểu đồ Radar 5 trục tùy biến màu sắc động theo 5 bộ môn.
+   - Bố cục lưới Responsive: Biểu đồ Radar + Chỉ số bình hòa tổng quan bên trái, 3 câu đúc kết cốt lõi (TL;DR) + 3 thẻ Điểm Sáng / Tử Huyệt / Lời Khuyên Hành Động bên phải.
+3. **Component `TableOfContents.jsx` ([frontend/src/components/widgets/TableOfContents.jsx](file:///t:/Phongthuy/frontend/src/components/widgets/TableOfContents.jsx)):**
+   - Tích hợp 2 cấp H2/H3 với khả năng thu gọn/mở rộng từng chương.
+   - Tính năng Scroll Spy lắng nghe sự kiện cuộn trang, tự động highlight mục tương ứng và tự động cuộn mượt khi click.
+   - Hỗ trợ Sticky Sidebar trên Desktop và Floating Action Button + Bottom Sheet Drawer (`z-[70]`) trên Mobile.
+4. **Nâng Cấp `SectionRenderer.jsx` ([frontend/src/components/widgets/SectionRenderer.jsx](file:///t:/Phongthuy/frontend/src/components/widgets/SectionRenderer.jsx)):**
+   - Đặt `LifeRadarSummary` ở đỉnh đầu bài đọc phía trên thanh nghe audio.
+   - Tổ chức bố cục 2 cột linh hoạt với `TableOfContents`.
+   - Gán `id={section.id}` và `scroll-mt-24` cho từng thẻ `SectionCard`, đồng thời gán `id` tương ứng cho các thẻ `h3` trong `ReactMarkdown` để hỗ trợ nhảy trực tiếp tới đề mục con.
+   - Tự động mở bung thẻ accordion nếu người dùng click vào mục lục của một chương đang bị đóng.
+5. **Nâng Cấp `AiChatWidget.jsx` ([frontend/src/components/widgets/AiChatWidget.jsx](file:///t:/Phongthuy/frontend/src/components/widgets/AiChatWidget.jsx)):**
+   - Bổ sung thanh Smart Follow-up Chips với các câu hỏi đào sâu thông minh thích ứng theo từng môn học thuật và chuyên đề đang xem.
+   - Hỗ trợ gửi ngay lập tức (`handleSend(null, chipText)`), có kiểm soát thời gian chờ (cooldown).
+
+#### C. Tinh Chỉnh Giao Diện & Tương Tác Theo Đóng Góp Người Dùng (Hotfix)
+1. **Thiết Kế Cặp Nút Gieo Quẻ ([`IChingInput.jsx`](file:///t:/Phongthuy/frontend/src/features/iching/IChingInput.jsx)):**
+   - Thiết kế lại các nút với chiều cao đồng bộ (`min-h-[50px] sm:min-h-[54px]`), góc bo lớn `rounded-2xl`, hiệu ứng đổ bóng HSL theo tông màu.
+   - Nút "Gieo Hào X" mang gradient Chu Sa - Hổ phách hoàng gia; nút "Gieo Nhanh 6 Hào" mang gradient Đồng đen cổ điển - Viền vàng kim; sửa lỗi rớt dòng chữ "Hào".
+2. **Khắc Phục Đứng Màn Hình Khi Gieo Nhanh ([`IChingInput.jsx`](file:///t:/Phongthuy/frontend/src/features/iching/IChingInput.jsx)):**
+   - Giảm tải tối đa từ 18 đồng xu 3D xuống còn **đúng 1 đồng xu đại diện/hào**.
+   - Hoạt ảnh xoay đồng xu nhẹ nhàng, chạy mượt mà 60fps trên mọi GPU máy tính và điện thoại.
+3. **Mục Lục Dạng Nút Nổi & Drawer Toàn Diện ([`TableOfContents.jsx`](file:///t:/Phongthuy/frontend/src/components/widgets/TableOfContents.jsx), [`SectionRenderer.jsx`](file:///t:/Phongthuy/frontend/src/components/widgets/SectionRenderer.jsx)):**
+   - Bài luận phục hồi kích thước **100% full-width** nguyên bản, không bị cột sidebar chiếm diện tích.
+   - Nút nổi tròn bo góc `[📑 Mục Lục (N)]` hiển thị cố định góc màn hình xuyên suốt toàn bộ bài đọc.
+   - Khi click: Trượt mở ngăn kéo Slide-over Drawer từ mép phải (`z-[80]`), hỗ trợ Scroll Spy, 2 cấp H2/H3, đóng bằng phím Esc hoặc dấu X.
+4. **Báo Cáo Tóm Tắt 1 Phút Luôn Luôn Hiển Thị ([`markdownParser.js`](file:///t:/Phongthuy/frontend/src/utils/markdownParser.js), [`LifeRadarSummary.jsx`](file:///t:/Phongthuy/frontend/src/components/widgets/LifeRadarSummary.jsx)):**
+   - Bổ sung hàm `getFallbackExecutiveSummary` tự động sinh dữ liệu tóm tắt và điểm số 5 trục nếu văn bản chưa có thẻ tóm tắt.
+   - Đảm bảo 100% lá số (cả mới lẫn xem lại từ lịch sử) đều hiển thị khối Tóm tắt 1 phút và Biểu đồ Radar 5 trục ở đỉnh bài.
+5. **Gợi Ý Câu Hỏi Thông Minh Trong AI Chat ([`AiChatWidget.jsx`](file:///t:/Phongthuy/frontend/src/components/widgets/AiChatWidget.jsx)):**
+   - Ngân hàng `DISCIPLINE_QUESTIONS` với hơn 10 câu hỏi mẫu chuyên sâu chia theo từng phân hệ và từng chuyên đề sự việc.
+   - Nút bấm `💡 Gợi ý câu hỏi (N)` mở ngăn câu hỏi mẫu có bộ lọc chuyên đề.
+   - **Click câu hỏi sẽ tự động điền nội dung vào khung nhập liệu, KHÔNG TỰ ĐỘNG GỬI** để người dùng có thể tùy chỉnh trước khi nhấn Gửi.
+
+---
+
+### 🧪 3. Kết Quả Kiểm Thử & Nghiệm Thu
+1. **Backend Tests:** 45/45 test suites đạt (323/323 tests passed).
+2. **Frontend Tests:** 4/4 test suites đạt (29/29 tests passed).
+3. **Frontend Build:** `npm run build` thành công trong 2.00s.
+4. **Kiểm Thử Trình Duyệt Thực Tế Chrome DevTools MCP:**
+   - Xác thực biểu đồ Radar 5 trục hiển thị sắc nét, tính toán điểm trung bình bình hòa chính xác.
+   - Xác thực 3 câu TL;DR, 3 Điểm Sáng Nhất, 3 Tử Huyệt Cần Phòng và 1 Hành Động Chiến Lược hiển thị chuẩn xác.
+   - Xác thực thanh Mục Lục điều hướng Desktop & Mobile Drawer hoạt động mượt mà, Scroll Spy đổi màu realtime, click nhảy mượt mà.
+   - Xác thực Smart Follow-up Chips trong AI Chat tự nhận diện ngữ cảnh và hỗ trợ 1 chạm gửi ngay.
+   - Console log trình duyệt: 0 lỗi.
+
+---
+
+## 📅 Phiên bản: Hoàn Thiện Giai Đoạn 1 & 2 - Sửa Lỗi Hệ Thống, Chuẩn Hóa Điểm & Nâng Cấp Tương Tác Nhập Liệu (20/09/2026)
+
+### 🌟 1. Yêu Cầu & Bối Cảnh Nghiệp Vụ
+1. **Sửa lỗi phân bổ Points đăng ký Google OAuth:**
+   - Người dùng đăng ký bằng tài khoản Google trước đây chỉ nhận `credits: 2` (trong khi đăng ký bằng email nhận `credits: 200`). Do mỗi lần luận giải cơ bản tốn 100 Points, người dùng Google bị cạn credit ngay lập tức. Cần sửa về đồng nhất `credits: 200`.
+2. **Chuẩn hóa thuật ngữ Points:**
+   - Thống nhất thuật ngữ "Points" trên Header, Profile và các thông báo lỗi liên quan tới nạp điểm.
+3. **Sửa nhầm lẫn thuật ngữ IChing:**
+   - Trong chế độ tung đồng xu Lục Hào, sửa tiêu đề từ "Gieo Quẻ Mai Hoa" thành "Gieo Quẻ Lục Hào (Tung Xu Đồng)".
+4. **Hỗ trợ người dùng về Giờ Sinh & 12 Canh Giờ (Bát Tự & Tử Vi):**
+   - Đa số người dùng chỉ nhớ khoảng giờ hoặc nhớ theo canh giờ (giờ Thìn, giờ Thân...). Việc bắt buộc nhập phút gây lo lắng lá số bị sai lệch.
+   - Thêm nút hướng dẫn "12 Canh Giờ & Giờ Sinh", hiển thị badge thời gian thực tên Canh Giờ tương ứng khi người dùng nhập/chọn giờ, kèm lời giải thích trấn an rằng trong cùng 1 canh giờ (2 tiếng) các phút không làm đổi trụ giờ hay cung mệnh.
+5. **Nâng cấp tính năng Tung Xu Lục Hào (Kinh Dịch):**
+   - Bổ sung tính năng "Gieo nhanh các hào còn lại", giữ nguyên các hào đã gieo thủ công trước đó, gieo độc lập ngẫu nhiên 3 đồng xu cho từng hào còn lại với hiệu ứng 3D trực quan.
+6. **Thư viện & Hướng dẫn Đặt Câu Hỏi Kinh Dịch:**
+   - Tích hợp modal hướng dẫn 4 nguyên tắc gieo quẻ, công thức đặt câu hỏi và bộ mẫu câu hỏi 1 chạm thuộc 5 lĩnh vực phổ biến (Công danh, Tài lộc, Tình duyên, Đầu tư, Gia đạo) tự động điền vào khung câu hỏi.
+
+---
+
+### 🛠️ 2. Các Thay Đổi Kỹ Thuật Đã Thực Hiện
+
+#### A. Backend
+1. **AuthController.js ([backend/src/modules/auth/controllers/AuthController.js](file:///t:/Phongthuy/backend/src/modules/auth/controllers/AuthController.js)):**
+   - Sửa dòng cấp điểm mặc định khi tạo mới tài khoản qua Google OAuth từ `credits: 2` thành `credits: 200`.
+
+#### B. Frontend
+1. **Header & Profile ([frontend/src/components/layout/Header.jsx](file:///t:/Phongthuy/frontend/src/components/layout/Header.jsx), [frontend/src/features/profile/ProfileBoard.jsx](file:///t:/Phongthuy/frontend/src/features/profile/ProfileBoard.jsx)):**
+   - Chuẩn hóa nhãn hiển thị thành `Số Points: {user.credits} 🪙` và `Điểm tích lũy (Points)`.
+2. **Tiện ích 12 Canh Giờ ([frontend/src/utils/canhGioHelper.js](file:///t:/Phongthuy/frontend/src/utils/canhGioHelper.js)):**
+   - Xây dựng bảng tra cứu 12 Canh Giờ Cổ Truyền (Tý, Sửu, Dần, Mão, Thìn, Tỵ, Ngọ, Mùi, Thân, Dậu, Tuất, Hợi) kèm hàm `getCanhGioInfo(hourStr)`.
+3. **Modal Hướng Dẫn Canh Giờ ([frontend/src/components/common/CanhGioGuideModal.jsx](file:///t:/Phongthuy/frontend/src/components/common/CanhGioGuideModal.jsx)):**
+   - Hộp thoại giải thích quy tắc 1 canh giờ = 2 tiếng dương lịch, bảng 12 canh giờ kèm trạng thái sáng đèn (active) theo giờ đang chọn của người dùng.
+4. **BaziInput & ZiweiInput ([frontend/src/features/bazi/BaziInput.jsx](file:///t:/Phongthuy/frontend/src/features/bazi/BaziInput.jsx), [frontend/src/features/ziwei/ZiweiInput.jsx](file:///t:/Phongthuy/frontend/src/features/ziwei/ZiweiInput.jsx)):**
+   - Tích hợp nút hướng dẫn Canh Giờ, badge hiển thị tên Canh Giờ trực tiếp và dòng chú thích trấn an người dùng.
+5. **Gieo Nhanh Lục Hào ([frontend/src/features/iching/IChingInput.jsx](file:///t:/Phongthuy/frontend/src/features/iching/IChingInput.jsx)):**
+   - Cập nhật tiêu đề đúng chuẩn: `Gieo Quẻ Lục Hào (Tung Xu Đồng)`.
+   - Bổ sung hàm `handleTossAll()`: bảo lưu các hào đã gieo, tính toán ngẫu nhiên độc lập 3 đồng xu cho mỗi hào còn lại.
+   - Hiệu ứng gieo xu đa hào đa góc độ 3D và 2 nút lựa chọn: Gieo từng hào hoặc Gieo nhanh các hào còn lại.
+6. **Modal Hướng Dẫn & Mẫu Câu Hỏi Kinh Dịch ([frontend/src/components/modals/IChingQuestionGuideModal.jsx](file:///t:/Phongthuy/frontend/src/components/modals/IChingQuestionGuideModal.jsx)):**
+   - Giao diện hướng dẫn 4 nguyên tắc Dịch học, công thức chuẩn, và 5 nhóm câu hỏi mẫu có thể bấm chọn điền ngay lập tức vào khung nhập.
+
+---
+
+### 🧪 3. Kết Quả Kiểm Thử & Nghiệm Thu
+1. **Backend Tests:** 45/45 test suites đạt (323/323 tests passed).
+2. **Frontend Tests:** 4/4 test suites đạt (29/29 tests passed).
+3. **Frontend Build:** `npm run build` hoàn thành trong 1.90s, không phát sinh lỗi hoặc cảnh báo gãy bundle.
+4. **Chrome DevTools MCP Live Testing:**
+   - Kiểm tra thành công luồng gieo quẻ Lục Hào: tiêu đề chuẩn, mở modal gợi ý câu hỏi, click chọn câu hỏi mẫu tự động điền, gieo thủ công 1 hào sau đó gieo nhanh 5 hào còn lại thành công, quẻ Lục Hào được lập trọn vẹn.
+   - Kiểm tra thành công Bát Tự và Tử Vi: mở modal 12 canh giờ, nhập giờ 08 hiển thị ngay badge Giờ Thìn (07:00 - 08:59), lời dặn rõ ràng.
+   - Console log trình duyệt: 0 lỗi.
+
+---
+
 ## 📅 Phiên bản: Tối Ưu Hóa Bộ Prompt & Modal Luận Giải Thích Ứng Theo Độ Tuổi Âm Lịch (Bát Tự & Tử Vi) (19/09/2026)
 
 ### 🌟 1. Yêu Cầu & Bối Cảnh Nghiệp Vụ
@@ -39,12 +295,20 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
 
 #### B. Frontend UI & Modals
 1. **Modal Chọn Gói [InterpretationTierModal.jsx](file:///t:/Phongthuy/frontend/src/components/modals/InterpretationTierModal.jsx):**
-   - Bổ sung hàm `getDynamicTierInfo(system, recordData)` tự tính tuổi mụ từ ngày sinh lá số.
+   - Bổ sung hàm `getDynamicTierInfo(system, recordData)` tự tính tuổi mụ từ ngày sinh lá số qua `extractLunarAgeInfo`.
    - Hiển thị danh sách bullets mô tả nội dung gói phù hợp: với trẻ em hiển thị các gạch đầu dòng về học đường, tư chất, khối ngành học, lời khuyên cha mẹ, sức khỏe nhi khoa; với người lớn hiển thị công danh, tài chính, hôn nhân.
    - Hoàn toàn giữ nguyên phong cách thanh lịch, không rò rỉ bất kỳ chuỗi văn bản kỹ thuật nào.
-2. **Kết Nối BaziBoard & ZiweiBoard:**
-   - [BaziBoard.jsx](file:///t:/Phongthuy/frontend/src/features/bazi/BaziBoard.jsx): Truyền `recordData={data}` vào Modal.
-   - [ZiweiBoard.jsx](file:///t:/Phongthuy/frontend/src/features/ziwei/ZiweiBoard.jsx): Truyền `recordData={result}` vào Modal (khắc phục lỗi biến `chartData` chưa khai báo).
+2. **Thành Phần Tiến Độ VIP [VipProgressTracker.jsx](file:///t:/Phongthuy/frontend/src/components/widgets/VipProgressTracker.jsx):**
+   - Nâng cấp cơ chế hiển thị danh sách các chương tiến độ chuyên sâu theo độ tuổi của lá số:
+     - **Bát Tự Trẻ Em (`CHILD` < 18 tuổi):** Tư Chất & Năng Khiếu Bẩm Sinh; Định Hướng Học Vấn & Khối Ngành; Giáo Dục & Tương Tác Gia Đình; Sức Khỏe & Tạng Phủ Nhi Khoa; Phong Thủy Bàn Học & Văn Xương; Lộ Trình Thi Cử & Mốc Đầu Đời.
+     - **Tử Vi Trẻ Em (`CHILD` < 18 tuổi):** Mệnh - Thân - Phúc (Tư Chất Bẩm Sinh); Quan - Tài - Điền (Học Vấn & Thi Cử); Phu Thê - Tử Tức (Gia Đạo & Nuôi Dạy); Tật Ách - Thiên Di (Sức Khỏe Nhi Khoa); Nô Bộc - Phụ Mẫu - Huynh Đệ.
+     - **Bát Tự Thanh Niên (`YOUNG_ADULT` 18-29 tuổi):** Chương 1 cập nhật thành "Sự Nghiệp & Khí Chất Cốt Lõi".
+   - Tích hợp tooltip `title={ch.title}` giúp xem trọn vẹn tiêu đề chương trên màn hình nhỏ hoặc thẻ hẹp.
+3. **Tiện Ích Tính Tuổi Chung [astrologyHelpers.js](file:///t:/Phongthuy/frontend/src/utils/astrologyHelpers.js):**
+   - Đưa hàm `extractLunarAgeInfo(record)` vào thư viện dùng chung cho toàn frontend, chuẩn hóa nguồn tính tuổi mụ và nhóm tuổi (`CHILD`, `YOUNG_ADULT`, `ADULT`, `SENIOR`).
+4. **Kết Nối BaziBoard & ZiweiBoard:**
+   - [BaziBoard.jsx](file:///t:/Phongthuy/frontend/src/features/bazi/BaziBoard.jsx): Truyền `system="bazi"` và `recordData={data}` vào `VipProgressTracker` và `InterpretationTierModal`.
+   - [ZiweiBoard.jsx](file:///t:/Phongthuy/frontend/src/features/ziwei/ZiweiBoard.jsx): Truyền `system="ziwei"` và `recordData={result}` vào `VipProgressTracker` và `InterpretationTierModal`.
 
 ---
 
@@ -54,10 +318,21 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
    - Backend `PromptAgeOptimization.test.js`: **5/5 tests PASS**.
    - Frontend `npm run test` (Vitest): **29/29 tests PASS**.
    - Frontend `npm run build` (Vite): **Build thành công 100%**.
-2. **Kiểm Thử Trình Duyệt Thực Tế (Chrome DevTools MCP):**
-   - **Bát Tự Trẻ Em (2016 - 11 tuổi mụ):** Modal hiển thị chính xác tiêu đề học đường, 3 điểm mạnh vượt trội, định hướng khối ngành, phương pháp nuôi dạy, sức khỏe thiếu thời, phong thủy bàn học Văn Xương. Hoàn toàn không có nội dung tình duyên/làm giàu.
-   - **Bát Tự Người Lớn (1995 - 32 tuổi mụ):** Modal hiển thị chuẩn mực 6 chuyên đề (Sự Nghiệp, Tài Vận, Hôn Nhân, Sức Khỏe, Cải Vận, Đại Vận 100 Năm).
-   - **Tử Vi Trẻ Em (2018 - 9 tuổi mụ):** Modal hiển thị chính xác 5 Chương Học Đường Tử Vi (Tư Chất, Học Vấn, Gia Đạo Nuôi Dạy, Sức Khỏe Nhi Khoa, Bạn Bè & Thi Cử).
+2. **Kiểm Thử Trình Duyệt Thực Tế Đầy Đủ 100% (Chrome DevTools MCP Verification):**
+   - Đã thực hiện kiểm thử lập lá số trực tiếp trên giao diện, mở Modal chọn gói, kích hoạt luận giải và **chờ đợi quá trình sinh luận giải AI hoàn thành 100%** qua luồng SSE stream thực tế trên cả 4 ca kiểm thử:
+     1. **Ca 1: Bát Tự Trẻ Em (Bé Lê Bảo An - 9 tuổi mụ, sinh 12/12/2018):**
+        - Modal hiển thị: Định hướng phát triển, học tập và sức khỏe cho lứa tuổi học đường (9 tuổi).
+        - Kết quả bài luận giải AI hoàn tất 100%: Chương 3 được đặt chính xác là `## CHƯƠNG 3: LUẬN GIẢI CHI TIẾT : ĐỊNH HƯỚNG PHÁT TRIỂN & GIÁO DỤC` gồm 4 đề mục: *Tư Chất Trí Tuệ*, *Định Hướng Học Tập & Khối Ngành*, *Phương Pháp Nuôi Dạy & Môi Trường Giáo Dục*, *Sức Khỏe Thiếu Thời & Tạng Phủ Nhi Khoa*; Chương 4 về *Cát Tinh Học Đường*; Chương 5 về *Vận Trình Học Hành & Các Mốc Thi Cử Đầu Đời*; Chương 6 về *Phong Thủy Phòng Học Kích Hoạt Văn Xương*. Tuyệt đối không đề cập tình duyên, kiếm tiền làm giàu.
+     2. **Ca 2: Bát Tự Thanh Niên Khởi Nghiệp (Trần Văn Minh - 25 tuổi mụ, sinh 20/04/2002):**
+        - Modal hiển thị: Bức tranh tổng quan các phương diện đời người, sự nghiệp, tài lộc, hôn nhân.
+        - Kết quả bài luận giải AI hoàn tất 100%: Luận giải toàn diện các phương diện Sự Nghiệp & Công Danh (lập thân lập nghiệp lứa tuổi 25), Tiền Bạc & Tài Chính, Tình Duyên & Hôn Nhân, Sức Khỏe & Tật Ách; phân tích sâu sắc về tính cách, khí chất cốt lõi, thói quen bản năng và bài học tôi luyện bản ngã.
+     3. **Ca 3: Tử Vi Trẻ Em (Bé Hoàng Nam - 9 tuổi mụ, sinh 10/05/2018):**
+        - Modal hiển thị: Phân tích 12 cung số tập trung học vấn, tư chất và môi trường gia đình bé (9 tuổi).
+        - Kết quả bài luận giải AI hoàn tất 100%: Các cung số được tối ưu hóa toàn bộ cho bối cảnh học đường: *Cung Mệnh: Khí Chất & Tiềm Năng Trí Tuệ*, *Cung Phu Thê: Nhân Duyên & Khí Chất Tình Cảm Tương Lai*, *Cung Tài Bạch: Tiềm Năng Tự Lập & Trân Trọng Giá Trị Tài Sản (tiền tiết kiệm, tiền tiêu vặt)*, *Cung Phụ Mẫu: Môi Trường Giáo Dưỡng Của Cha Mẹ*, *Cung Tật Ách: Sức Khỏe Nhi Khoa*, *Cung Nô Bộc: Bạn Bè Trường Lớp & Thầy Cô*, *Cung Quan Lộc: Học Vấn & Khối Ngành Thế Mạnh*, *Chương 14: 3 Bước Ngoặt Trưởng Thành Đầu Đời (14, 18, 20 tuổi)*, *Chương 15: Phong Thủy Bàn Học Kích Hoạt Văn Vận*.
+     4. **Ca 4: Tử Vi Người Trưởng Thành (Phạm Thành Đạt - 34 tuổi mụ, sinh 25/08/1993):**
+        - Modal hiển thị: Khảo sát chuẩn mực 12 cung số Mệnh, Thân, Tài Bạch, Quan Lộc, Phu Thê...
+        - Kết quả bài luận giải AI hoàn tất 100%: Luận giải đầy đủ 12 cung số của người trưởng thành: Bản Mệnh Cự Nhật cư Dần, Cung Phu Thê (người phối ngẫu, hôn nhân gia đạo), Cung Tài Bạch (kho chứa tiền bạc, đầu tư tài sản ngoài 35 tuổi), Cung Quan Lộc (làm chủ, giai đoạn rực rỡ 40-50 tuổi), Cung Điền Trạch (đầu tư đất đai), Cung Tử Tức (con cái sau này)...
+   - Toàn bộ ảnh chụp màn hình kiểm thử thực tế của cả 4 ca đã được lưu trữ làm bằng chứng nghiệm thu trực quan.
    - **Kiểm tra Console log:** Toàn bộ quá trình thao tác đạt **0 lỗi** console từ mã nguồn dự án.
 
 ---

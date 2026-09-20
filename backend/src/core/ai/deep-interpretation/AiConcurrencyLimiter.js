@@ -86,7 +86,7 @@ class AiConcurrencyLimiter {
         SseStreamHelper.dispatchProgress(onProgress, {
           stage: 'queued',
           position,
-          message: `Hệ thống đang phục vụ các lượt phân tích trước. Đang chờ slot (vị trí: #${position})...`
+          message: `Hệ thống đang phục vụ các lượt phân tích trước. Đang chờ lượt phục vụ (vị trí: #${position})...`
         });
       }
     });
@@ -103,7 +103,7 @@ class AiConcurrencyLimiter {
           SseStreamHelper.dispatchProgress(item.onProgress, {
             stage: 'queued',
             position: index + 1,
-            message: `Đang chờ slot phân tích (vị trí: #${index + 1})...`
+            message: `Đang chờ lượt phân tích (vị trí: #${index + 1})...`
           });
         }
       });

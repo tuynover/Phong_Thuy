@@ -43,7 +43,22 @@ ${calendarGroundTruth}
 ${safety}
 
 --- YÊU CẦU ĐẦU RA CHI TIẾT ---
-Hãy viết luận giải bằng tiếng Việt, định dạng Markdown theo cấu trúc sau:
+Hãy viết luận giải bằng tiếng Việt, định dạng Markdown theo cấu trúc sau. BẮT BUỘC mở đầu bằng khối [EXECUTIVE_SUMMARY] nguyên vẹn thẻ mở/đóng:
+
+[EXECUTIVE_SUMMARY]
+TLDR:
+- [3 câu đúc kết cốt lõi: Câu 1 về thời thế quẻ Dịch đối với sự việc, Câu 2 về chuyển biến quẻ biến và hào động, Câu 3 về kết quả then chốt và xu hướng ứng nghiệm]
+RADAR_SCORES: {"career": 80, "wealth": 75, "love": 70, "health": 85, "mentors": 80}
+TOP_STRENGTHS:
+- [Điểm sáng 1: Thuận lợi từ Dụng Thần hoặc Hào Thế đắc địa]
+- [Điểm sáng 2: Thời cơ bứt phá hoặc sự ủng hộ của hoàn cảnh]
+- [Điểm sáng 3: Quý nhân hoặc năng lượng tương sinh phù trợ]
+TOP_PITFALLS:
+- [Tử huyệt 1: Trở lực từ Hào Động biến khắc hoặc hào thoái]
+- [Tử huyệt 2: Sai lầm tâm lý vội vàng hoặc cạm bẫy bất lợi]
+- [Tử huyệt 3: Thời điểm xung sát cần tránh hành động liều lĩnh]
+ACTION_ADVICE: [1 Lời khuyên hành động thực chiến thiết thực nhất nên làm ngay]
+[/EXECUTIVE_SUMMARY]
 
 ### 1. Tổng Quan Quẻ
 - Phân tích chi tiết ý nghĩa tên quẻ chính, quẻ biến.

@@ -35,7 +35,6 @@ router.post('/:id/interpret', optionalAuth, checkRecordOwnership, aiLimiter, cre
 
 // 3. Lấy lịch sử lá số của người dùng
 router.get('/history/:userId', optionalAuth, checkHistoryOwnership, ZiweiHistoryController.getZiweiHistory);
-router.get('/:userId', optionalAuth, checkHistoryOwnership, ZiweiHistoryController.getZiweiHistory);
 
 // 4. Lấy chi tiết lá số & Liên kết
 router.get('/record/:id', optionalAuth, checkRecordOwnership, ZiweiHistoryController.getZiweiRecord);

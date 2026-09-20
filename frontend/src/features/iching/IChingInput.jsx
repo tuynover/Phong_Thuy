@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Coins, RotateCcw, CalendarDays, Clock, Settings2, Sparkles, HelpCircle, ChevronDown } from 'lucide-react';
+import { Coins, CalendarDays, Clock, Settings2, Sparkles, HelpCircle, ChevronDown, Zap } from 'lucide-react';
 import { Lunar, Solar } from 'lunar-javascript';
 import { validateInputDate, getMaxDaysInMonth } from '@/utils/dateValidator';
 import FloatingErrorToast from '@/components/common/FloatingErrorToast';
+import IChingQuestionGuideModal from '@/components/modals/IChingQuestionGuideModal';
 
 // ==========================================
 // 1. COIN TOSS SUB-COMPONENT (GIEO ĐỒNG XU LỤC HÀO)
@@ -10,6 +11,8 @@ import FloatingErrorToast from '@/components/common/FloatingErrorToast';
 export const CoinToss = ({ onComplete }) => {
     const [lines, setLines] = useState([]);
     const [tossing, setTossing] = useState(false);
+    const [quickTossing, setQuickTossing] = useState(false);
+    const [quickTossCoinSets, setQuickTossCoinSets] = useState([]);
     
     // Each coin state stores an absolute Y rotation and current face (1 = Sấp, 0 = Ngửa)
     const [coinStates, setCoinStates] = useState([
@@ -21,6 +24,7 @@ export const CoinToss = ({ onComplete }) => {
     const handleToss = () => {
         if (lines.length >= 6 || tossing) return;
         setTossing(true);
+        setQuickTossing(false);
 
         // Generate next toss results
         const coinsResults = [
@@ -71,42 +75,103 @@ export const CoinToss = ({ onComplete }) => {
         }, 1600);
     };
 
-    const handleReset = () => {
-        setLines([]);
-        setCoinStates([
-            { rotY: 0, face: 1 },
-            { rotY: 0, face: 1 },
-            { rotY: 0, face: 1 }
-        ]);
+    // Gieo nhanh tuần tự từng hào còn lại với nhịp delay vừa đủ (Tự động gieo lần lượt từng hào)
+    const handleTossAll = async () => {
+        if (lines.length >= 6 || tossing) return;
+        setTossing(true);
+        setQuickTossing(true);
+
+        let currentLines = [...lines];
+
+        while (currentLines.length < 6) {
+            // Bước 1: Tung 3 đồng xu cho hào hiện tại
+            const coinsResults = [
+                Math.random() > 0.5 ? 1 : 0,
+                Math.random() > 0.5 ? 1 : 0,
+                Math.random() > 0.5 ? 1 : 0,
+            ];
+
+            // Bước 2: Hiệu ứng xoay 3 đồng xu sống động trong đấu trường
+            setCoinStates(prevStates => prevStates.map((prev, i) => {
+                const targetFace = coinsResults[i];
+                const requiredMod = targetFace === 1 ? 0 : 180;
+                const currentTotal = prev.rotY;
+                const targetTotal = currentTotal - (currentTotal % 360) + 1080 + requiredMod;
+                return { rotY: targetTotal, face: targetFace };
+            }));
+
+            // Bước 3: Đợi đồng xu xoay và dừng lại (700ms)
+            await new Promise(resolve => setTimeout(resolve, 700));
+
+            // Bước 4: Xác định hào Âm/Dương và Tĩnh/Động
+            const heads = coinsResults.filter(c => c === 1).length;
+            let type = 0;
+            let moving = false;
+
+            if (heads === 2) { 
+                type = 0; moving = false; 
+            } else if (heads === 1) { 
+                type = 1; moving = false; 
+            } else if (heads === 3) { 
+                type = 1; moving = true; 
+            } else { 
+                type = 0; moving = true; 
+            }
+
+            currentLines = [...currentLines, { type, moving, coins: coinsResults }];
+            setLines(currentLines);
+
+            // Bước 5: Khoảng nghỉ ngắn giữa các lần gieo hào (350ms)
+            if (currentLines.length < 6) {
+                await new Promise(resolve => setTimeout(resolve, 350));
+            }
+        }
+
+        setTossing(false);
+        setQuickTossing(false);
+
+        // Sau khi hoàn thành đủ 6 hào, chuyển sang bảng quẻ hoàn chỉnh
+        setTimeout(() => {
+            onComplete(currentLines);
+        }, 800);
     };
 
+
     return (
-        <div className="flex flex-col items-center bg-gradient-to-br from-amber-50 to-orange-50 p-8 rounded-3xl shadow-lg border border-amber-100 w-full max-w-2xl mx-auto">
-            <h3 className="text-2xl font-bold text-amber-900 mb-8 font-serif">Gieo Quẻ Mai Hoa</h3>
+        <div className="flex flex-col items-center bg-gradient-to-br from-amber-50 to-orange-50 p-6 sm:p-8 rounded-3xl shadow-lg border border-amber-100 w-full max-w-2xl mx-auto">
+            <h3 className="text-2xl font-bold text-amber-900 mb-6 font-serif text-center">Gieo Quẻ Lục Hào (Tung Xu Đồng)</h3>
             
-            {/* 3D COINS ARENA */}
-            <div className="flex gap-6 mb-10 w-full justify-center items-center h-32 coin-flip-container bg-black/5 rounded-2xl border-t-2 border-b-2 border-amber-200/50 shadow-inner">
-                {coinStates.map((coin, index) => (
-                    <div 
-                        key={index} 
-                        className="coin-3d"
-                        style={{ transform: `rotateY(${coin.rotY}deg)` }}
-                    >
-                        {/* Mặt SẤP (Hình) */}
-                        <div className="coin-face coin-heads">
-                            <div className="coin-inner-square"></div>
-                            <span className="coin-text-top">乾</span>
-                            <span className="coin-text-bottom">隆</span>
-                            <span className="coin-text-left">通</span>
-                            <span className="coin-text-right">寶</span>
-                        </div>
-                        {/* Mặt NGỬA (Chữ) */}
-                        <div className="coin-face coin-tails">
-                            <div className="coin-inner-square"></div>
-                            <span className="text-[20px] font-bold opacity-30">滿</span>
-                        </div>
+            {/* 3D COINS ARENA (Dùng chung 1 đấu trường 3 đồng xu xoay chân thực tuần tự) */}
+            <div className="flex flex-col gap-2 mb-8 w-full justify-center items-center py-4 px-3 bg-black/5 rounded-2xl border-t-2 border-b-2 border-amber-200/50 shadow-inner">
+                {quickTossing && (
+                    <div className="text-xs font-black text-amber-900 flex items-center gap-1.5 animate-pulse uppercase tracking-wider mb-1">
+                        <Sparkles size={14} className="text-amber-600" />
+                        Đang tuần tự gieo Hào {lines.length + 1}/6...
                     </div>
-                ))}
+                )}
+                <div className="flex gap-6 justify-center items-center h-28 coin-flip-container">
+                    {coinStates.map((coin, index) => (
+                        <div 
+                            key={index} 
+                            className="coin-3d"
+                            style={{ transform: `rotateY(${coin.rotY}deg)` }}
+                        >
+                            {/* Mặt SẤP (Hình) */}
+                            <div className="coin-face coin-heads">
+                                <div className="coin-inner-square"></div>
+                                <span className="coin-text-top">乾</span>
+                                <span className="coin-text-bottom">隆</span>
+                                <span className="coin-text-left">通</span>
+                                <span className="coin-text-right">寶</span>
+                            </div>
+                            {/* Mặt NGỬA (Chữ) */}
+                            <div className="coin-face coin-tails">
+                                <div className="coin-inner-square"></div>
+                                <span className="text-[20px] font-bold opacity-30">滿</span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </div>
             
             {/* LINES LIST */}
@@ -148,21 +213,32 @@ export const CoinToss = ({ onComplete }) => {
                 })}
             </div>
             
-            <div className="flex gap-4 w-full justify-center">
+            {/* ACTION BUTTONS: Single Toss vs Quick Toss All */}
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-3.5 w-full justify-center items-stretch max-w-lg mx-auto">
+                 {/* Nút 1: Gieo từng hào (Chu sa - Hổ phách hoàng gia) */}
                  <button 
                     type="button"
                     onClick={handleToss} 
                     disabled={lines.length >= 6 || tossing}
-                    className="flex-1 flex justify-center items-center gap-3 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white px-8 py-4 rounded-xl shadow-xl font-bold text-lg transition-all hover:-translate-y-1 disabled:opacity-50 disabled:hover:translate-y-0 disabled:cursor-not-allowed cursor-pointer"
+                    className="flex-1 min-h-[50px] sm:min-h-[54px] px-5 py-3 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-600 hover:to-orange-600 text-white font-black text-sm sm:text-base shadow-lg shadow-orange-500/25 border border-orange-400/40 flex items-center justify-center gap-2.5 transition-all duration-150 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] disabled:opacity-50 disabled:hover:translate-y-0 disabled:cursor-not-allowed cursor-pointer whitespace-nowrap"
                 >
-                    <Coins className={tossing ? 'animate-bounce' : ''} />
-                    {tossing ? 'Đang tung...' : (lines.length < 6 ? `Gieo Hào ${lines.length + 1}` : 'Hoàn Tất')}
+                    <Coins className={`shrink-0 ${tossing && !quickTossing ? 'animate-bounce' : ''}`} size={19} />
+                    <span>{tossing && !quickTossing ? 'Đang Tung...' : (lines.length < 6 ? `Gieo Hào ${lines.length + 1}` : 'Đã Đủ 6 Hào')}</span>
                 </button>
-                {lines.length > 0 && (
-                     <button type="button" onClick={handleReset} disabled={tossing} className="px-6 py-4 flex items-center justify-center bg-white rounded-xl shadow border border-gray-200 hover:bg-gray-50 text-gray-700 transition-all hover:-translate-y-1 disabled:opacity-50 cursor-pointer">
-                         <RotateCcw className={`w-5 h-5 ${tossing ? 'animate-spin' : ''}`} />
-                     </button>
+
+                {/* Nút 2: Gieo nhanh tất cả các hào còn lại (Đồng đen - Vàng kim cổ điển) */}
+                {lines.length < 6 && (
+                    <button 
+                        type="button"
+                        onClick={handleTossAll} 
+                        disabled={lines.length >= 6 || tossing}
+                        className="flex-1 min-h-[50px] sm:min-h-[54px] px-5 py-3 rounded-2xl bg-gradient-to-r from-stone-800 via-stone-900 to-amber-950 hover:from-stone-900 hover:to-black text-amber-300 hover:text-amber-200 font-black text-sm sm:text-base shadow-lg shadow-stone-900/25 border border-amber-500/30 flex items-center justify-center gap-2.5 transition-all duration-150 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] disabled:opacity-50 disabled:hover:translate-y-0 disabled:cursor-not-allowed cursor-pointer whitespace-nowrap"
+                    >
+                        <Zap className={`shrink-0 ${quickTossing ? 'animate-bounce text-amber-300' : 'text-amber-400'}`} size={18} />
+                        <span>{quickTossing ? `Đang Gieo Nhanh...` : (lines.length === 0 ? 'Gieo Nhanh 6 Hào' : `Gieo Nhanh ${6 - lines.length} Hào Còn Lại`)}</span>
+                    </button>
                 )}
+
             </div>
         </div>
     );
@@ -824,13 +900,24 @@ function IChingInput({
     loading 
 }) {
     const [mode, setMode] = useState('coin');
+    const [showQuestionGuide, setShowQuestionGuide] = useState(false);
 
     return (
         <>
             {/* 1. SỰ VIỆC CẦN HỎI (Ý NIỆM) */}
             {!loading && (
                 <div id="iching-input-header" className="max-w-xl mx-auto mb-10 bg-white p-6 rounded-2xl shadow-sm border border-amber-100 font-sans">
-                    <label className="block text-amber-900 font-bold mb-3 text-lg text-center">Sự việc cần hỏi (Ý niệm)</label>
+                    <div className="flex items-center justify-between mb-3">
+                        <label className="text-amber-900 font-bold text-base sm:text-lg">Sự việc cần hỏi (Ý niệm)</label>
+                        <button
+                            type="button"
+                            onClick={() => setShowQuestionGuide(true)}
+                            className="inline-flex items-center gap-1.5 text-xs text-amber-900 hover:text-amber-955 font-bold bg-amber-50/90 hover:bg-amber-100 px-3 py-1.5 rounded-full border border-amber-250 transition-colors cursor-pointer"
+                        >
+                            <HelpCircle size={13} className="text-amber-700" />
+                            <span>Hướng dẫn & Câu hỏi mẫu</span>
+                        </button>
+                    </div>
                     <textarea
                         value={question}
                         onChange={(e) => setQuestion(e.target.value)}
@@ -838,7 +925,16 @@ function IChingInput({
                         className="w-full px-4 py-3 border-2 border-amber-50 rounded-xl focus:border-amber-300 focus:ring-0 transition-colors resize-none text-gray-700 bg-amber-50/30 text-sm sm:text-base focus:outline-none"
                         rows="2"
                     ></textarea>
-                    <p className="text-xs sm:text-sm text-gray-400 text-center mt-2 italic">Hãy tập trung ý niệm vào câu hỏi trước khi gieo quẻ.</p>
+                    <div className="flex items-center justify-between mt-2 text-xs">
+                        <p className="text-gray-400 italic">Tập trung ý niệm vào câu hỏi trước khi gieo quẻ.</p>
+                        <button
+                            type="button"
+                            onClick={() => setShowQuestionGuide(true)}
+                            className="text-amber-700 hover:text-amber-900 font-bold text-[11px] underline cursor-pointer"
+                        >
+                            Xem câu hỏi mẫu gợi ý
+                        </button>
+                    </div>
                 </div>
             )}
 
@@ -884,6 +980,13 @@ function IChingInput({
                     </div>
                 )}
             </div>
+
+            {/* Question Guide Modal */}
+            <IChingQuestionGuideModal 
+                isOpen={showQuestionGuide} 
+                onClose={() => setShowQuestionGuide(false)} 
+                onSelectQuestion={(q) => setQuestion(q)} 
+            />
         </>
     );
 }

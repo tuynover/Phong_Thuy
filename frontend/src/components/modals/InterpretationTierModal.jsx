@@ -132,42 +132,11 @@ const SYSTEM_TIER_INFO = {
   }
 };
 
-const getLunarAgeInfo = (recordData) => {
-  if (!recordData) return { lunarAge: 30, ageGroup: 'ADULT' };
-
-  const currentYear = new Date().getFullYear();
-  let birthYear = null;
-
-  if (recordData.inputInfo?.birthSolarYear) {
-    birthYear = parseInt(recordData.inputInfo.birthSolarYear, 10);
-  } else if (recordData.birthSolarYear) {
-    birthYear = parseInt(recordData.birthSolarYear, 10);
-  } else {
-    const dateStr = recordData.inputInfo?.date 
-      || recordData.date 
-      || recordData.solarTimeline 
-      || recordData.solarDate
-      || recordData.chart_data?.solarDate
-      || recordData.chartData?.chart_data?.solarDate
-      || recordData.chartData?.solarDate;
-    if (typeof dateStr === 'string') {
-      const match = dateStr.match(/\b(19\d{2}|20\d{2})\b/);
-      if (match) birthYear = parseInt(match[1], 10);
-    }
-  }
-
-  if (!birthYear || isNaN(birthYear)) {
-    return { lunarAge: 30, ageGroup: 'ADULT' };
-  }
-
-  const lunarAge = currentYear - birthYear + 1;
-  const ageGroup = lunarAge < 18 ? 'CHILD' : (lunarAge < 30 ? 'YOUNG_ADULT' : (lunarAge <= 55 ? 'ADULT' : 'SENIOR'));
-  return { lunarAge, ageGroup };
-};
+import { extractLunarAgeInfo } from '@/utils/astrologyHelpers';
 
 const getDynamicTierInfo = (system, recordData) => {
   const baseInfo = SYSTEM_TIER_INFO[system] || SYSTEM_TIER_INFO.bazi;
-  const ageInfo = getLunarAgeInfo(recordData);
+  const ageInfo = extractLunarAgeInfo(recordData);
 
   if (system === 'bazi' && ageInfo.ageGroup === 'CHILD') {
     return {

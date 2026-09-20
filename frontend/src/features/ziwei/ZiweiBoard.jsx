@@ -4,6 +4,7 @@ import { createZiweiChart, getZiweiRecord, rateZiwei, getInterpretationStreamUrl
 import ChartRenderer from '@/components/widgets/ChartRenderer';
 import FloatingNotificationToast from '@/components/common/FloatingNotificationToast';
 import SectionRenderer from '@/components/widgets/SectionRenderer';
+import { TableOfContentsTrigger } from '@/components/widgets/TableOfContents';
 import AiChatWidget from '@/components/widgets/AiChatWidget';
 import UpdateBaziModal from '@/components/modals/UpdateBaziModal';
 import InterpretationTierModal from '@/components/modals/InterpretationTierModal';
@@ -397,14 +398,16 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
       },
       token,
       isVip,
-      onCreditDeduct: () => {
+      onCreditDeduct: (newContent, newMode) => {
         if (onInvalidateHistory) onInvalidateHistory();
+        const finalContent = newContent || interpretation;
+        const finalMode = newMode || (isVip ? 'vip' : 'standard');
         setResult(prev => ({
           ...prev,
           aiInterpretation: {
             ...prev?.aiInterpretation,
-            content: interpretation,
-            mode: isVip ? 'vip' : 'standard'
+            content: finalContent,
+            mode: finalMode
           }
         }));
         if (activeUser && activeUser.role !== 'admin' && activeUser.role !== 'co-admin') {
@@ -567,14 +570,16 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
           )}
 
           {/* Ép Vẽ lá số 12 cung truyền thống thông qua Registry ChartRenderer */}
-          <ChartRenderer 
-            system={result.system || 'ziwei'} 
-            chartData={{
-              ...result.chartData,
-              name: result.name || result.inputInfo?.name,
-              solarDate: result.chartData?.solarDate || result.inputInfo?.date
-            }} 
-          />
+          <div id="ziwei-chart" className="scroll-mt-24">
+            <ChartRenderer 
+              system={result.system || 'ziwei'} 
+              chartData={{
+                ...result.chartData,
+                name: result.name || result.inputInfo?.name,
+                solarDate: result.chartData?.solarDate || result.inputInfo?.date
+              }} 
+            />
+          </div>
 
           {/* Render các Accordion phân tích AI thông qua SectionRenderer */}
           {(interpretation || result.aiInterpretation?.content || (result.aiInterpretation?.sections?.length > 0) || isInterpreting) && (
@@ -590,6 +595,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
               {interpretationMode === 'vip' && (
                 <VipProgressTracker
                   system="ziwei"
+                  recordData={result}
                   completedChapters={vipCompletedChapters}
                   activeChapters={vipActiveChapters}
                   streamingChapter={vipStreamingChapter}
@@ -618,6 +624,11 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
                           : result.aiInterpretation?.sections || [])
                   } 
                   theme="tu_vi"
+                  rawText={interpretation || result.aiInterpretation?.content}
+                  pageSections={[
+                    { id: 'ziwei-chart', title: 'Mệnh Bàn Tử Vi 12 Cung' }
+                  ]}
+                  isChatOpen={isChatOpen}
                   onConsultSection={(sec) => {
                     setActiveConsultSection(sec);
                     setIsChatOpen(true);
@@ -736,7 +747,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
             </button>
           ) : !isChatOpen && activeUser && (
             <div className="fixed bottom-4 md:bottom-8 right-4 md:right-8 z-50 flex flex-col items-end gap-2.5">
-              {/* Nút "Nâng Cấp Luận Giải" nằm ngay PHÍA TRÊN nút "Hỏi Thêm Thầy" nếu chưa có bản VIP */}
+              {/* Nút "Nâng Cấp Luận Giải" nằm ngay PHÍA TRÊN CÙNG nếu chưa có bản VIP */}
               {interpretationMode !== 'vip' && (
                 <button
                   onClick={() => {
@@ -750,6 +761,9 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
                   <span>Nâng Cấp Luận Giải</span>
                 </button>
               )}
+
+              {/* Nút "Mục lục luận giải" ở dưới Nâng Cấp (hoặc trên cùng nếu đã VIP) */}
+              <TableOfContentsTrigger theme="ziwei" />
 
               {/* Nút "Hỏi Thêm Thầy" */}
               <button

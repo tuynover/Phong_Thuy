@@ -244,12 +244,49 @@ ${JSON.stringify(symbolicAnalysis.palaceInteractions, null, 2)}
 \`\`\`
 
 HƯỚNG DẪN XÂY DỰNG NỘI DUNG TỪNG PHẦN BẰNG ĐỊNH DẠNG MARKDOWN:
-Bạn hãy viết bài luận giải chi tiết phân bổ cấu trúc thành 15 phần tiêu đề chuẩn xác như sau (bắt đầu bằng ###):
+BẮT BUỘC mở đầu bằng khối tóm tắt [EXECUTIVE_SUMMARY] nguyên vẹn thẻ mở/đóng:
+
+[EXECUTIVE_SUMMARY]
+TLDR:
+- [3 câu đúc kết cốt lõi: Câu 1 về cốt cách Mệnh Thân, Câu 2 về cung vị đắc cách rực rỡ nhất, Câu 3 về cung vị xung phá và giải pháp]
+RADAR_SCORES: {"career": 85, "wealth": 75, "love": 70, "health": 80, "mentors": 85}
+TOP_STRENGTHS:
+- [Điểm sáng 1: Cát tinh đắc địa hoặc cách cục quý hiển]
+- [Điểm sáng 2: Cung Quan Lộc/Tài Bạch vượng khí]
+- [Điểm sáng 3: Thời kỳ đại hạn khởi sắc mạnh mẽ]
+TOP_PITFALLS:
+- [Tử huyệt 1: Sát tinh hãm hoặc Hóa Kỵ xung chiếu]
+- [Tử huyệt 2: Điểm yếu trong tính cách hoặc các mối quan hệ]
+- [Tử huyệt 3: Đại hạn thử thách hoặc nguy cơ tai ách cần phòng]
+ACTION_ADVICE: [1 Lời khuyên hành động chiến lược thiết thực nhất nên làm ngay]
+[/EXECUTIVE_SUMMARY]
+
+Tiếp theo, bạn hãy viết bài luận giải chi tiết phân bổ cấu trúc thành 15 phần tiêu đề chuẩn xác như sau (bắt đầu bằng ###):
 
 ${sectionInstructions}
 
 YÊU CẦU ĐẦU RA:
-Hãy viết bài luận giải liền mạch, chi tiết bằng định dạng Markdown hoàn chỉnh với 15 phần tiêu đề nêu trên. Tuyệt đối không thêm phần mở đầu hay kết bài bên ngoài 15 tiêu đề này.
+Hãy viết bài luận giải liền mạch, chi tiết bằng định dạng Markdown hoàn chỉnh với khối [EXECUTIVE_SUMMARY] và 15 phần tiêu đề nêu trên. Tuyệt đối không thêm phần mở đầu hay kết bài bên ngoài các tiêu đề này.
+`;
+  }
+
+  static buildVipFactPrompt(compressedChart, symbolicAnalysis, customAgeInfo = null) {
+    const ageInfo = customAgeInfo || AgeClassifier.getLunarAgeInfo(compressedChart);
+    return `
+${MASTER_PROMPT}
+
+DỮ LIỆU THỰC TẾ LÁ SỐ (FACT DATA):
+\`\`\`json
+${JSON.stringify(compressedChart, null, 2)}
+\`\`\`
+- Độ tuổi đương số (Âm lịch): ${ageInfo.lunarAge} tuổi (${ageInfo.label})
+
+CÁC CÁCH CỤC & TỔ HỢP SAO ĐÃ ĐƯỢC XÁC ĐỊNH (METAPHYSICAL PATTERNS):
+- Các cách cục tại Mệnh: ${symbolicAnalysis.patterns.join(", ") || "Không có cách cục đặc biệt nổi bật"}
+- Tổ hợp cung tam hợp và xung chiếu chi tiết:
+\`\`\`json
+${JSON.stringify(symbolicAnalysis.palaceInteractions, null, 2)}
+\`\`\`
 `;
   }
 

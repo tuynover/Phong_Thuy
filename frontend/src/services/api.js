@@ -33,7 +33,7 @@ export const getMarriageChatMessages = (id, page = 1, limit = 20) => axios.get(`
 export const createZiweiChart = (date, hour, gender, userId, name, extraParams = {}) => axios.post(`${API_URL}/ziwei`, { date, hour, gender, userId, name, ...extraParams });
 export const interpretZiwei = (id) => axios.post(`${API_URL}/ziwei/${id}/interpret`);
 export const getZiweiHistory = (userId, params) => axios.get(`${API_URL}/ziwei/history/${userId}`, { params });
-export const getZiweiRecord = (id) => axios.get(`${API_URL}/ziwei/${id}`);
+export const getZiweiRecord = (id) => axios.get(`${API_URL}/ziwei/record/${id}`);
 export const rateZiwei = (id, rating, feedback) => axios.put(`${API_URL}/ziwei/${id}/rate`, { rating, feedback });
 export const getZiweiChatMessages = (id, page = 1, limit = 20) => axios.get(`${API_URL}/ziwei/${id}/messages?page=${page}&limit=${limit}`);
 export const linkZiwei = (id, userId) => axios.put(`${API_URL}/history/ziwei/${id}/link`, { userId });

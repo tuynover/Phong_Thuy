@@ -15,11 +15,13 @@ class ZiweiAiController {
       promptVersion: ZIWEI_PROMPT_VERSION,
       notFoundMessage: 'Không tìm thấy bản ghi Tử Vi.',
       errorMessage: 'Lỗi xảy ra trong quá trình sinh luận giải AI cho Tử Vi.',
-      buildPrompt: (record) => {
+      buildPrompt: (record, isVipMode) => {
         const ageInfo = AgeClassifier.getLunarAgeInfo(record);
         const symbolicAnalysis = SymbolicAnalyzer.analyze(record.chartData);
         const compressed = ZiweiFormatter.compressForAi(record);
-        return ZiweiPrompts.buildMarkdownPrompt(compressed, symbolicAnalysis, ageInfo);
+        return isVipMode
+          ? ZiweiPrompts.buildVipFactPrompt(compressed, symbolicAnalysis, ageInfo)
+          : ZiweiPrompts.buildMarkdownPrompt(compressed, symbolicAnalysis, ageInfo);
       },
       runVipPipeline: async ({ prompt, record, onProgress }) => {
         const ageInfo = AgeClassifier.getLunarAgeInfo(record);

@@ -28,9 +28,13 @@ export function useInterpretationStream({
   const [streamError, setStreamError] = useState('');
 
   const abortControllerRef = useRef(null);
+  const isInterpretingRef = useRef(false);
 
   // Đồng bộ nội dung nếu initialContent từ ngoài thay đổi
   useEffect(() => {
+    // Không ghi đè nếu đang streaming hoặc vừa hoàn tất stream (đợi parent state cập nhật đồng bộ)
+    if (isInterpretingRef.current) return;
+
     if (initialContent) {
       setInterpretation(initialContent);
       setInterpretationMode(initialMode || 'standard');
@@ -54,6 +58,7 @@ export function useInterpretationStream({
       abortControllerRef.current.abort();
       abortControllerRef.current = null;
     }
+    isInterpretingRef.current = false;
     setIsInterpreting(false);
   }, []);
 
@@ -96,6 +101,7 @@ export function useInterpretationStream({
     const abortCtrl = new AbortController();
     abortControllerRef.current = abortCtrl;
 
+    isInterpretingRef.current = true;
     setIsInterpreting(true);
     setStreamError('');
     setInterpretation('');
@@ -233,7 +239,7 @@ export function useInterpretationStream({
 
       if (isStreamSuccessful || currentText.length > 50) {
         if (onCreditDeduct) {
-          onCreditDeduct();
+          onCreditDeduct(currentText, isVip ? 'vip' : 'standard');
         }
       }
     } catch (err) {
@@ -246,6 +252,9 @@ export function useInterpretationStream({
     } finally {
       setIsInterpreting(false);
       abortControllerRef.current = null;
+      setTimeout(() => {
+        isInterpretingRef.current = false;
+      }, 800);
     }
   }, [scrollTargetId]);
 

@@ -71,3 +71,47 @@ export const formatElement = (el) => {
         default: return el;
     }
 };
+
+export const extractLunarAgeInfo = (record) => {
+    if (!record) return { lunarAge: 30, ageGroup: 'ADULT' };
+
+    if (record.ageInfo?.ageGroup) {
+        return record.ageInfo;
+    }
+    if (record.baziData?.ageInfo?.ageGroup) {
+        return record.baziData.ageInfo;
+    }
+    if (record.analysisSnapshot?.ageInfo?.ageGroup) {
+        return record.analysisSnapshot.ageInfo;
+    }
+
+    const currentYear = new Date().getFullYear();
+    let birthYear = null;
+
+    if (record.inputInfo?.birthSolarYear && !isNaN(record.inputInfo.birthSolarYear)) {
+        birthYear = parseInt(record.inputInfo.birthSolarYear, 10);
+    } else if (record.birthSolarYear && !isNaN(record.birthSolarYear)) {
+        birthYear = parseInt(record.birthSolarYear, 10);
+    } else {
+        const dateStr = record.inputInfo?.date 
+            || record.date 
+            || record.solarTimeline 
+            || record.solarDate
+            || record.chart_data?.solarDate
+            || record.chartData?.chart_data?.solarDate
+            || record.chartData?.solarDate;
+        if (typeof dateStr === 'string') {
+            const match = dateStr.match(/\b(19\d{2}|20\d{2})\b/);
+            if (match) birthYear = parseInt(match[1], 10);
+        }
+    }
+
+    if (!birthYear || isNaN(birthYear)) {
+        return { lunarAge: 30, ageGroup: 'ADULT' };
+    }
+
+    const rawLunarAge = currentYear - birthYear + 1;
+    const lunarAge = rawLunarAge < 1 ? 1 : rawLunarAge;
+    const ageGroup = lunarAge < 18 ? 'CHILD' : (lunarAge < 30 ? 'YOUNG_ADULT' : (lunarAge <= 55 ? 'ADULT' : 'SENIOR'));
+    return { lunarAge, ageGroup };
+};

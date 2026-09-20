@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Loader2, CheckCircle2, Sparkles, Radio } from 'lucide-react';
 
-const BAZI_CHAPTERS = [
+const BAZI_CHAPTERS_DEFAULT = [
   { id: 1, title: 'Sự Nghiệp & Công Danh' },
   { id: 2, title: 'Tài Chính & Dòng Tiền' },
   { id: 3, title: 'Hôn Nhân & Gia Đạo' },
@@ -10,11 +10,45 @@ const BAZI_CHAPTERS = [
   { id: 6, title: 'Mốc Đại Vận 100 Năm' }
 ];
 
-const ZIWEI_CHAPTERS = [
+const BAZI_CHAPTERS_YOUNG_ADULT = [
+  { id: 1, title: 'Sự Nghiệp & Khí Chất Cốt Lõi' },
+  { id: 2, title: 'Tài Chính & Dòng Tiền' },
+  { id: 3, title: 'Hôn Nhân & Gia Đạo' },
+  { id: 4, title: 'Sức Khỏe & Tạng Phủ' },
+  { id: 5, title: 'Phong Thủy & Cải Vận' },
+  { id: 6, title: 'Mốc Đại Vận 100 Năm' }
+];
+
+const BAZI_CHAPTERS_CHILD = [
+  { id: 1, title: 'Tư Chất & Năng Khiếu Bẩm Sinh' },
+  { id: 2, title: 'Định Hướng Học Vấn & Khối Ngành' },
+  { id: 3, title: 'Giáo Dục & Tương Tác Gia Đình' },
+  { id: 4, title: 'Sức Khỏe & Tạng Phủ Nhi Khoa' },
+  { id: 5, title: 'Phong Thủy Bàn Học & Văn Xương' },
+  { id: 6, title: 'Lộ Trình Thi Cử & Mốc Đầu Đời' }
+];
+
+const ZIWEI_CHAPTERS_DEFAULT = [
   { id: 1, title: 'Mệnh - Thân - Phúc Đức' },
   { id: 2, title: 'Quan Lộc - Tài - Điền Trạch' },
   { id: 3, title: 'Phu Thê - Tử Tức' },
   { id: 4, title: 'Tật Ách - Thiên Di' },
+  { id: 5, title: 'Nô Bộc - Phụ Mẫu - Huynh Đệ' }
+];
+
+const ZIWEI_CHAPTERS_YOUNG_ADULT = [
+  { id: 1, title: 'Mệnh - Thân - Phúc (Khí Chất Cốt Lõi)' },
+  { id: 2, title: 'Quan Lộc - Tài - Điền Trạch' },
+  { id: 3, title: 'Phu Thê - Tử Tức' },
+  { id: 4, title: 'Tật Ách - Thiên Di' },
+  { id: 5, title: 'Nô Bộc - Phụ Mẫu - Huynh Đệ' }
+];
+
+const ZIWEI_CHAPTERS_CHILD = [
+  { id: 1, title: 'Mệnh - Thân - Phúc (Tư Chất Bẩm Sinh)' },
+  { id: 2, title: 'Quan - Tài - Điền (Học Vấn & Thi Cử)' },
+  { id: 3, title: 'Phu Thê - Tử Tức (Gia Đạo & Nuôi Dạy)' },
+  { id: 4, title: 'Tật Ách - Thiên Di (Sức Khỏe Nhi Khoa)' },
   { id: 5, title: 'Nô Bộc - Phụ Mẫu - Huynh Đệ' }
 ];
 
@@ -33,12 +67,17 @@ const ICHING_CHAPTERS = [
   { id: 5, title: 'Thời Khắc Ứng Kỳ Theo Ngữ Cảnh' },
   { id: 6, title: 'Kim Chỉ Nam & Diệu Kế Đạo Dịch' }
 ];
+import { extractLunarAgeInfo } from '@/utils/astrologyHelpers';
 
-const getChaptersBySystem = (sys) => {
+export const getChaptersBySystem = (sys, ageInfo = null) => {
+  const ageGroup = ageInfo?.ageGroup || 'ADULT';
+
   switch (sys) {
     case 'ziwei':
     case 'tu_vi':
-      return ZIWEI_CHAPTERS;
+      if (ageGroup === 'CHILD') return ZIWEI_CHAPTERS_CHILD;
+      if (ageGroup === 'YOUNG_ADULT') return ZIWEI_CHAPTERS_YOUNG_ADULT;
+      return ZIWEI_CHAPTERS_DEFAULT;
     case 'marriage':
     case 'hop_hon':
       return MARRIAGE_CHAPTERS;
@@ -48,7 +87,9 @@ const getChaptersBySystem = (sys) => {
     case 'bazi':
     case 'bat_tu':
     default:
-      return BAZI_CHAPTERS;
+      if (ageGroup === 'CHILD') return BAZI_CHAPTERS_CHILD;
+      if (ageGroup === 'YOUNG_ADULT') return BAZI_CHAPTERS_YOUNG_ADULT;
+      return BAZI_CHAPTERS_DEFAULT;
   }
 };
 
@@ -60,9 +101,20 @@ const VipProgressTracker = ({
   isCompleted = false,
   statusMessage = '',
   system = 'bazi',
-  chapters = null
+  chapters = null,
+  recordData = null,
+  ageInfo = null
 }) => {
-  const chapterList = chapters || getChaptersBySystem(system);
+  const resolvedAgeInfo = useMemo(() => {
+    if (ageInfo) return ageInfo;
+    if (recordData) return extractLunarAgeInfo(recordData);
+    return null;
+  }, [ageInfo, recordData]);
+
+  const chapterList = useMemo(() => {
+    if (chapters) return chapters;
+    return getChaptersBySystem(system, resolvedAgeInfo);
+  }, [chapters, system, resolvedAgeInfo]);
   const hasCompletedList = Array.isArray(completedChapters) && completedChapters.length > 0;
   const prefixLabel = 'Chương ';
 
@@ -105,7 +157,7 @@ const VipProgressTracker = ({
                   : 'bg-slate-50 border-slate-200 text-slate-400'
               }`}
             >
-              <div className="truncate font-medium pr-1">
+              <div className="truncate font-medium pr-1" title={ch.title}>
                 <span className="text-[10px] opacity-70 font-semibold mr-1.5">{prefixLabel}{ch.id}:</span>
                 {ch.title}
               </div>

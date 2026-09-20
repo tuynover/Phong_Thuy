@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, User, Sparkles } from 'lucide-react';
+import { Calendar, Clock, User, Sparkles, HelpCircle } from 'lucide-react';
 import CustomSelect from '@/components/common/CustomSelect';
 import FloatingErrorToast from '@/components/common/FloatingErrorToast';
 import { validateInputDate, getMaxDaysInMonth } from '@/utils/dateValidator';
 import { LunarYear, LunarMonth } from 'lunar-javascript';
+import CanhGioGuideModal from '@/components/common/CanhGioGuideModal';
+import { getCanhGioInfo } from '@/utils/canhGioHelper';
 
 export default function ZiweiInput({ 
     onSubmit, 
@@ -11,6 +13,7 @@ export default function ZiweiInput({
     onRequireLogin, 
     handleViewOwnZiwei 
 }) {
+    const [showCanhGioModal, setShowCanhGioModal] = useState(false);
     const days = Array.from({ length: 31 }, (_, i) => String(i + 1));
     const months = Array.from({ length: 12 }, (_, i) => String(i + 1));
     const years = Array.from({ length: 97 }, (_, i) => String(2026 - i));
@@ -255,9 +258,18 @@ export default function ZiweiInput({
 
                         {/* Thời Gian Sinh */}
                         <div>
-                            <label className="block text-xs font-black uppercase text-slate-500 tracking-wider mb-2.5 ml-1 flex items-center gap-1.5">
-                                <Clock size={14} className="text-purple-500" /> Thời Gian Sinh
-                            </label>
+                            <div className="flex items-center justify-between mb-2 ml-1">
+                                <label className="text-xs font-black uppercase text-slate-500 tracking-wider flex items-center gap-1.5">
+                                    <Clock size={14} className="text-purple-500" /> Thời Gian Sinh
+                                </label>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowCanhGioModal(true)}
+                                    className="inline-flex items-center gap-1 text-[11px] text-purple-600 hover:text-purple-800 font-bold cursor-pointer hover:underline"
+                                >
+                                    <HelpCircle size={12} /> Hướng dẫn & 12 Canh Giờ
+                                </button>
+                            </div>
                             <div className="flex gap-3">
                                 <div className="flex-1">
                                     <span className="block text-[10px] text-slate-400 font-bold mb-1 text-center">GIỜ (0-23)</span>
@@ -281,6 +293,20 @@ export default function ZiweiInput({
                                     />
                                 </div>
                             </div>
+
+                            {/* Reassuring note & Canh Gio real-time detection */}
+                            <div className="mt-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-xs text-slate-500 bg-purple-50/50 p-2.5 rounded-xl border border-purple-100/70">
+                                <div className="flex items-center gap-1.5">
+                                    <span className="text-purple-700 font-extrabold shrink-0">💡 Lưu ý:</span>
+                                    <span className="text-[11px] leading-tight">Chỉ cần đúng khung giờ, số phút không cần tuyệt đối chính xác (có thể để mặc định 00 hoặc 30).</span>
+                                </div>
+                                {getCanhGioInfo(hour) && (
+                                    <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-purple-100 text-purple-900 font-extrabold text-[11px] border border-purple-200/60 shrink-0 self-start sm:self-auto">
+                                        <span>Canh Giờ:</span>
+                                        <span className="text-purple-700 font-black">{getCanhGioInfo(hour).chi} ({getCanhGioInfo(hour).range})</span>
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         {/* Submit Button */}
@@ -294,8 +320,9 @@ export default function ZiweiInput({
                             </button>
                         </div>
                     </form>
+                </div>
 
-                    {/* Academic Informational Cards */}
+                {/* Academic Informational Cards */}
                     <div className="mt-10 border-t border-slate-100 pt-8 w-full space-y-8 text-left font-sans animate-in fade-in duration-300">
                         <div className="bg-white p-6 md:p-8 rounded-3xl border border-purple-50 shadow-sm space-y-6">
                             <h4 className="text-sm font-extrabold text-purple-800 uppercase tracking-widest text-center">Kiến thức học thuật Tử Vi</h4>
@@ -359,9 +386,13 @@ export default function ZiweiInput({
                                 </div>
                             </div>
                         </div>
-                    </div>
                 </div>
             </div>
+            <CanhGioGuideModal 
+                isOpen={showCanhGioModal} 
+                onClose={() => setShowCanhGioModal(false)} 
+                selectedHour={hour} 
+            />
         </>
     );
 }

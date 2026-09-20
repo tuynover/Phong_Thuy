@@ -5,6 +5,7 @@ import { getInterpretationStreamUrl, rateMarriage, togglePublicCalculation } fro
 import { AlertCircle, BookOpen, ScrollText, Heart, X, ArrowUp, ArrowDown, MessageCircle, Star, Zap, Crown, FileDown } from 'lucide-react';
 import Tooltip from '@/components/common/Tooltip';
 import SectionRenderer from '@/components/widgets/SectionRenderer';
+import { TableOfContentsTrigger } from '@/components/widgets/TableOfContents';
 import InterpretationTierModal from '@/components/modals/InterpretationTierModal';
 import VipUpgradeBanner from '@/components/widgets/VipUpgradeBanner';
 import VipProgressTracker from '@/components/widgets/VipProgressTracker';
@@ -387,14 +388,16 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
             },
             token,
             isVip,
-            onCreditDeduct: () => {
+            onCreditDeduct: (newContent, newMode) => {
                 if (onInvalidateHistory) onInvalidateHistory();
+                const finalContent = newContent || interpretation;
+                const finalMode = newMode || (isVip ? 'vip' : 'standard');
                 if (onUpdateData) {
                     onUpdateData(prev => ({
                         ...prev,
                         aiInterpretation: {
-                            content: interpretation,
-                            mode: isVip ? 'vip' : 'standard',
+                            content: finalContent,
+                            mode: finalMode,
                             generatedAt: new Date()
                         }
                     }));
@@ -790,7 +793,7 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
             </div>
 
             {/* SECTION 2: STRUCTURE OF FOUR PILLARS (Nam top, Nữ bottom - enlarged cards) */}
-            <div className="space-y-6 bg-white p-6 md:p-8 rounded-3xl border border-gray-150 shadow-lg">
+            <div id="marriage-pillars" className="scroll-mt-24 space-y-6 bg-white p-6 md:p-8 rounded-3xl border border-gray-150 shadow-lg">
                 <div>
                     <h3 className="text-xl font-bold text-gray-800 border-l-4 border-amber-600 pl-4 mb-4 uppercase">Cấu Trúc Tứ Trụ Nam Mệnh (Chồng)</h3>
                     <BaziPillarsSection canChi={maleBaziData.canChi} isFemale={false} />
@@ -803,7 +806,7 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
             </div>
 
             {/* SECTION 3: ELEMENT ASSESSMENT (Side by side) */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 bg-white p-6 md:p-8 rounded-3xl border border-gray-150 shadow-lg">
+            <div id="marriage-elements" className="scroll-mt-24 grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 bg-white p-6 md:p-8 rounded-3xl border border-gray-150 shadow-lg">
                 <div className="flex flex-col items-center">
                     <h3 className="text-lg font-bold text-blue-900 border-l-4 border-blue-500 pl-4 mb-4 uppercase w-full text-left">Đánh Giá Ngũ Hành - Nam Mệnh</h3>
                     <FiveElementsDiagram scores={maleBaziData.nguHanh} canChi={maleBaziData.canChi} />
@@ -851,6 +854,12 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
                         <SectionRenderer 
                             sections={parseMarkdownSections(interpretation, 'marriage')} 
                             theme="marriage" 
+                            rawText={interpretation}
+                            pageSections={[
+                                { id: 'marriage-pillars', title: 'Cấu Trúc Tứ Trụ Nam & Nữ' },
+                                { id: 'marriage-elements', title: 'Đối Chiếu Ngũ Hành Đôi Bên' },
+                            ]}
+                            isChatOpen={isChatOpen}
                             onConsultSection={(sec) => {
                                 setActiveConsultSection(sec);
                                 setIsChatOpen(true);
@@ -971,7 +980,7 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
                 </button>
             ) : !isChatOpen && user && (
                 <div className="fixed bottom-4 md:bottom-8 right-4 md:right-8 z-50 flex flex-col items-end gap-2.5">
-                    {/* Nút "Nâng Cấp Luận Giải" nằm ngay PHÍA TRÊN nút "Hỏi Đáp AI" nếu chưa có bản VIP */}
+                    {/* Nút "Nâng Cấp Luận Giải" nằm ngay PHÍA TRÊN CÙNG nếu chưa có bản VIP */}
                     {interpretationMode !== 'vip' && (
                         <button
                             onClick={() => {
@@ -985,6 +994,9 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
                             <span>Nâng Cấp Luận Giải</span>
                         </button>
                     )}
+
+                    {/* Nút "Mục lục luận giải" ở dưới Nâng Cấp (hoặc trên cùng nếu đã VIP) */}
+                    <TableOfContentsTrigger theme="marriage" />
 
                     {/* Nút "Hỏi Đáp AI" */}
                     <button

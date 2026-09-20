@@ -11,6 +11,7 @@ import InterpretationTierModal from '@/components/modals/InterpretationTierModal
 import VipUpgradeBanner from '@/components/widgets/VipUpgradeBanner';
 import VipProgressTracker from '@/components/widgets/VipProgressTracker';
 import SectionRenderer from '@/components/widgets/SectionRenderer';
+import { TableOfContentsTrigger } from '@/components/widgets/TableOfContents';
 import { parseMarkdownSections } from '@/utils/markdownParser';
 import PdfExportModal from '@/components/modals/PdfExportModal';
 import { getColorClass, getBgColorClass, HAO_VI_MEANING, getChiOnly } from '@/utils/astrologyHelpers';
@@ -339,14 +340,16 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
             },
             token,
             isVip,
-            onCreditDeduct: () => {
+            onCreditDeduct: (newContent, newMode) => {
                 if (onInvalidateHistory) onInvalidateHistory();
+                const finalContent = newContent || interpretation;
+                const finalMode = newMode || (isVip ? 'vip' : 'standard');
                 if (onUpdateResult) {
                     onUpdateResult({
                         ...result,
                         aiInterpretation: {
-                            content: interpretation,
-                            mode: isVip ? 'vip' : 'standard'
+                            content: finalContent,
+                            mode: finalMode
                         }
                     });
                 }
@@ -511,7 +514,7 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
 
             <hr className="border-t-2 border-amber-500 my-8 shadow-sm" />
 
-            <div className="flex flex-col md:flex-row mb-8">
+            <div id="iching-hexagrams" className="scroll-mt-24 flex flex-col md:flex-row mb-8">
                 <div className="flex-1 flex flex-col items-center relative">
                     {primaryHex && <HexTitle hexagram={primaryHex} />}
                     <HexagramVisual lines={primaryLinesArr} />
@@ -530,7 +533,7 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
             <hr className="border-t-2 border-gray-300 mb-0" />
 
             {/* TABLE */}
-            <div className="w-full pb-20 relative z-10">
+            <div id="iching-lines-table" className="scroll-mt-24 w-full pb-20 relative z-10">
                 {renderSecondarySide ? (
                     <div className="flex flex-col lg:flex-row gap-6 lg:gap-0">
                         <div className="flex-1 min-w-0 border-b border-dashed border-gray-300 lg:border-b-0 lg:border-r-2 lg:border-gray-300 pb-6 lg:pb-0">
@@ -771,7 +774,7 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
                 </div>
             </div>
 
-            {(interpretation || isInterpreting) && (
+            {(interpretation || result?.aiInterpretation?.content || isInterpreting) && (
                 <div id="iching-interpretation-section" className="w-full mt-4 mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <div className="flex items-center gap-3 mb-6 ml-1">
                         <div className="w-8 h-8 bg-amber-800 rounded-lg flex items-center justify-center shadow-md">
@@ -795,7 +798,7 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
                         />
                     )}
 
-                    {isInterpreting && !interpretation && interpretationMode !== 'vip' && (
+                    {isInterpreting && !interpretation && !result?.aiInterpretation?.content && interpretationMode !== 'vip' && (
                         <div className="bg-amber-50/50 p-8 md:p-12 rounded-2xl border border-amber-200/60 shadow-xs text-center space-y-4 my-6 animate-in fade-in">
                             <div className="w-12 h-12 border-4 border-amber-200 border-t-amber-800 rounded-full animate-spin mx-auto"></div>
                             <p className="text-amber-900 font-bold text-base animate-pulse">
@@ -804,10 +807,16 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
                         </div>
                     )}
 
-                    {interpretation && (
+                    {(interpretation || result?.aiInterpretation?.content) && (
                         <SectionRenderer 
-                            sections={parseMarkdownSections(interpretation, 'iching')} 
+                            sections={parseMarkdownSections(interpretation || result.aiInterpretation.content, 'iching')} 
                             theme="iching" 
+                            rawText={interpretation || result.aiInterpretation.content}
+                            pageSections={[
+                                { id: 'iching-hexagrams', title: 'Quẻ Chủ & Quẻ Biến' },
+                                { id: 'iching-lines-table', title: 'Bảng Phân Tích Lục Hào' },
+                            ]}
+                            isChatOpen={isChatOpen}
                             onConsultSection={(sec) => {
                                 setActiveConsultSection(sec);
                                 setIsChatOpen(true);
@@ -909,7 +918,7 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
                 </button>
             ) : !isChatOpen && activeUser && (
                 <div className="fixed bottom-4 md:bottom-8 right-4 md:right-8 z-50 flex flex-col items-end gap-2.5">
-                    {/* Nút "Nâng Cấp Luận Giải" nằm ngay PHÍA TRÊN nút "Hỏi Thêm Thầy" nếu chưa có bản chuyên sâu */}
+                    {/* Nút "Nâng Cấp Luận Giải" nằm ngay PHÍA TRÊN CÙNG nếu chưa có bản chuyên sâu */}
                     {interpretationMode !== 'vip' && (
                         <button
                             onClick={() => {
@@ -923,6 +932,9 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
                             <span>Nâng Cấp Luận Giải</span>
                         </button>
                     )}
+
+                    {/* Nút "Mục lục luận giải" ở dưới Nâng Cấp (hoặc trên cùng nếu đã VIP) */}
+                    <TableOfContentsTrigger theme="iching" />
 
                     {/* Nút "Hỏi Thêm Thầy" */}
                     <button

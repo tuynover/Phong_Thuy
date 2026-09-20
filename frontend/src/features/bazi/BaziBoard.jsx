@@ -8,6 +8,7 @@ import VipUpgradeBanner from '@/components/widgets/VipUpgradeBanner';
 import VipProgressTracker from '@/components/widgets/VipProgressTracker';
 import { parseMarkdownSections } from '@/utils/markdownParser';
 import SectionRenderer from '@/components/widgets/SectionRenderer';
+import { TableOfContentsTrigger } from '@/components/widgets/TableOfContents';
 import Tooltip from '@/components/common/Tooltip';
 import FloatingNotificationToast from '@/components/common/FloatingNotificationToast';
 import PdfExportModal from '@/components/modals/PdfExportModal';
@@ -219,14 +220,16 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
             },
             token,
             isVip,
-            onCreditDeduct: () => {
+            onCreditDeduct: (newContent, newMode) => {
                 if (onInvalidateHistory) onInvalidateHistory();
+                const finalContent = newContent || interpretation;
+                const finalMode = newMode || (isVip ? 'vip' : 'standard');
                 if (onUpdateData) {
                     onUpdateData(prev => ({
                         ...(prev || data),
                         aiInterpretation: {
-                            content: interpretation,
-                            mode: isVip ? 'vip' : 'standard'
+                            content: finalContent,
+                            mode: finalMode
                         }
                     }));
                 }
@@ -275,20 +278,24 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
             <div className="p-4 md:p-12 space-y-8 md:space-y-12">
                 
                 {/* Tứ Trụ */}
-                <BaziPillarsTable
-                    canChi={canChi}
-                    lunarYear={lunarYear}
-                    structureSectionRef={structureSectionRef}
-                />
+                <div id="bazi-pillars" className="scroll-mt-24">
+                    <BaziPillarsTable
+                        canChi={canChi}
+                        lunarYear={lunarYear}
+                        structureSectionRef={structureSectionRef}
+                    />
+                </div>
 
                 {/* Nhịp Đại Vận & Lưu Niên */}
-                <BaziDaiYunTimeline
-                    daYun={daYun}
-                    canChi={canChi}
-                />
+                <div id="bazi-dai-yun" className="scroll-mt-24">
+                    <BaziDaiYunTimeline
+                        daYun={daYun}
+                        canChi={canChi}
+                    />
+                </div>
 
                 {/* Ngũ Hành & Cách Cục Layout */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+                <div id="bazi-elements-cachcuc" className="scroll-mt-24 grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
                     {/* Ngũ Hành Diagram (Left Column) */}
                     <div className="lg:col-span-6 w-full flex flex-col">
                         <h3 className="text-xl font-bold text-gray-800 border-l-4 border-cyan-500 pl-4 mb-6 uppercase">Đánh Giá Ngũ Hành</h3>
@@ -360,12 +367,16 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
                 </div>
 
                 {/* Phân Tích Sức Mạnh Thập Thần Table */}
-                <ThapThanStrengthTable thapThanAnalysis={thapThanAnalysis} />
+                <div id="bazi-thap-than" className="scroll-mt-24">
+                    <ThapThanStrengthTable thapThanAnalysis={thapThanAnalysis} />
+                </div>
 
                 <hr className="border-gray-200" />
 
                 {/* Lời Khuyên Cải Vận & Hóa Giải Hình Xung */}
-                <BaziRemedyAndRelations remedyData={remedyData} relations={analysis.relations} />
+                <div id="bazi-remedy" className="scroll-mt-24">
+                    <BaziRemedyAndRelations remedyData={remedyData} relations={analysis.relations} />
+                </div>
 
                 {(interpretation || isInterpreting) && (
                     <div id="interpretation-section" className="w-full mt-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -381,6 +392,8 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
                         {/* Tracker 6 Chương */}
                         {interpretationMode === 'vip' && (
                             <VipProgressTracker
+                                system="bazi"
+                                recordData={data}
                                 completedChapters={vipCompletedChapters}
                                 activeChapters={vipActiveChapters}
                                 streamingChapter={vipStreamingChapter}
@@ -392,9 +405,9 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
 
                         {isInterpreting && !interpretation && interpretationMode !== 'vip' && (
                             <div className="bg-blue-50/50 p-8 md:p-12 rounded-2xl border border-blue-200/60 shadow-xs text-center space-y-4 my-6 animate-in fade-in">
-                                <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-700 rounded-full animate-spin mx-auto"></div>
+                                <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-800 rounded-full animate-spin mx-auto"></div>
                                 <p className="text-blue-900 font-bold text-base animate-pulse">
-                                    Thầy đang khảo sát nguyên cục và soạn thảo luận giải...
+                                    Thầy Bát Tự đang đối chiếu dụng thần và phối mệnh...
                                 </p>
                             </div>
                         )}
@@ -403,6 +416,15 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
                             <SectionRenderer 
                                 sections={parseMarkdownSections(interpretation, 'bazi')} 
                                 theme="bazi" 
+                                rawText={interpretation}
+                                pageSections={[
+                                    { id: 'bazi-pillars', title: 'Cấu Trúc Tứ Trụ' },
+                                    { id: 'bazi-dai-yun', title: 'Lộ Trình Đại Vận & Lưu Niên' },
+                                    { id: 'bazi-elements-cachcuc', title: 'Đánh Giá Ngũ Hành & Cách Cục' },
+                                    { id: 'bazi-thap-than', title: 'Phân Bổ Thập Thần' },
+                                    { id: 'bazi-remedy', title: 'Phương Pháp Dụng Thần' },
+                                ]}
+                                isChatOpen={isChatOpen}
                                 onConsultSection={(sec) => {
                                     setActiveConsultSection(sec);
                                     setIsChatOpen(true);
@@ -504,7 +526,7 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
                 </button>
             ) : !isChatOpen && user && (
                 <div className="fixed bottom-4 md:bottom-8 right-4 md:right-8 z-50 flex flex-col items-end gap-2.5">
-                    {/* Nút "Nâng Cấp Luận Giải" nằm ngay PHÍA TRÊN nút "Hỏi Thêm Thầy" nếu chưa có bản chuyên sâu */}
+                    {/* Nút "Nâng Cấp Luận Giải" nằm ngay PHÍA TRÊN CÙNG nếu chưa có bản chuyên sâu */}
                     {interpretationMode !== 'vip' && (
                         <button
                             onClick={() => {
@@ -518,6 +540,9 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
                             <span>Nâng Cấp Luận Giải</span>
                         </button>
                     )}
+
+                    {/* Nút "Mục lục luận giải" ở dưới Nâng Cấp (hoặc trên cùng nếu đã VIP) */}
+                    <TableOfContentsTrigger theme="bazi" />
 
                     {/* Nút "Hỏi Thêm Thầy" */}
                     <button

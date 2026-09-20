@@ -129,7 +129,23 @@ Dựa trên dữ liệu lá số Bát Tự và bản phân tích học thuật n
 ${combinedPreAnalysis}
 
 NHIỆM VỤ CỦA BẠN: SOẠN THẢO PHẦN MỞ ĐẦU (Định vị bản thể & Ma trận SWOT thực chiến):
-BẮT ĐẦU CHÍNH XÁC BẰNG TIÊU ĐỀ: "## ĐỊNH VỊ BẢN MỆNH: BẢN ĐỒ CHIẾN LƯỢC NHÂN SINH & MA TRẬN SWOT"
+BẮT BUỘC MỞ ĐẦU BẰNG KHỐI TÓM TẮT VẬN MỆNH 1 PHÚT NGUYÊN VẸN THẺ:
+[EXECUTIVE_SUMMARY]
+TLDR:
+- [3 câu đúc kết cốt lõi: Câu 1 về bản thể/khí chất, Câu 2 về vận hội vượng nhất, Câu 3 về thách thức và chìa khóa chuyển hóa]
+RADAR_SCORES: {"career": 85, "wealth": 75, "love": 70, "health": 80, "mentors": 85}
+TOP_STRENGTHS:
+- [Điểm sáng 1: Ưu thế nổi bật nhất trong nguyên cục]
+- [Điểm sáng 2: Năng lực thiên bẩm hoặc quý nhân tương trợ]
+- [Điểm sáng 3: Thời điểm hoàng kim để bứt phá]
+TOP_PITFALLS:
+- [Tử huyệt 1: Điểm mù tâm lý hoặc thói quen cần kiềm chế]
+- [Tử huyệt 2: Rủi ro tài chính hoặc cạm bẫy thương trường/gia đạo]
+- [Tử huyệt 3: Nguy cơ hao tổn khí huyết tạng phủ]
+ACTION_ADVICE: [1 Lời khuyên hành động chiến lược thiết thực nhất nên làm ngay trong giai đoạn hiện tại]
+[/EXECUTIVE_SUMMARY]
+
+TIẾP THEO BẮT ĐẦU CHÍNH XÁC BẰNG TIÊU ĐỀ: "## ĐỊNH VỊ BẢN MỆNH: BẢN ĐỒ CHIẾN LƯỢC NHÂN SINH & MA TRẬN SWOT"
 Bao gồm 2 mục con rõ ràng:
 ### 1. Bản Thể & Chân Dung Cốt Cách Nhật Chủ (khoảng 250 - 300 từ): Khắc họa thần thái cốt cách, năng lượng ngũ hành chủ đạo, điểm đắc lực và sứ mệnh gốc rễ của Nhật Chủ. Dùng ngôn ngữ đời thường, giàu hình ảnh ẩn dụ (ngọn đuốc, dòng nước, đất đai, cỗ xe...), bình dân hóa cho người không biết gì về Bát Tự.
 ### 2. Ma Trận Định Vị Bản Mệnh SWOT:
@@ -257,6 +273,7 @@ class ZiweiDeepPipeline {
       `${clusterInstruction}\n\n` +
       `CÁC ĐỀ MỤC TRỌNG TÂM CẦN LUẬN GIẢI SÂU SẮC:\n${subtopics.map((s) => `- ${s}`).join('\n')}\n\n` +
       `‼️ BỘ QUY TẮC KỶ LUẬT BẮT BUỘC:\n` +
+      `0. PHẠM VI NỘI DUNG DUY NHẤT: BẮT BUỘC CHỈ luận giải nội dung của CHƯƠNG ${id}. TUYỆT ĐỐI KHÔNG tạo khối [EXECUTIVE_SUMMARY] (đã được tạo ở đầu bài) và TUYỆT ĐỐI KHÔNG xuất các mục từ 1 đến 15 của bản luận giải cơ bản.\n` +
       `1. QUY TẮC XƯNG HÔ: BẮT BUỘC xưng hô với đương số là "bạn" (thân thiện, tôn trọng, lịch thiệp). Tự xưng là "tôi" hoặc góc nhìn học thuật khách quan. TUYỆT ĐỐI NGHIÊM CẤM xưng "ngươi".\n` +
       `2. THẬP NHỊ CUNG & TINH ĐẨU TỬ VI: Tuân thủ 100% dữ liệu sao đắc hãm, tuần triệt, tam hợp chiếu và tứ hóa phi tinh của cung vị tương ứng.\n` +
       `3. CHỈ LUẬN GIẢI SAO HIỆN HỮU: Chỉ luận các sao có mặt thực tế trong cung vị hoặc các cung chiếu về. Yếu tố nào không có thì HOÀN TOÀN BIẾN MẤT, không được ghi "không có".\n` +
@@ -359,7 +376,23 @@ Dựa trên dữ liệu lá số Tử Vi và bản suy luận cốt cách nền 
 ${combinedCot}
 
 NHIỆM VỤ CỦA BẠN: SOẠN THẢO PHẦN MỞ ĐẦU (Định vị bản thể & Ma trận SWOT Mệnh Bàn):
-BẮT ĐẦU CHÍNH XÁC BẰNG TIÊU ĐỀ: "## ĐỊNH VỊ BẢN MỆNH: MA TRẬN MỆNH BÀN SWOT & TỔNG QUAN TINH ĐỒ"
+BẮT BUỘC MỞ ĐẦU BẰNG KHỐI TÓM TẮT VẬN MỆNH 1 PHÚT NGUYÊN VẸN THẺ:
+[EXECUTIVE_SUMMARY]
+TLDR:
+- [3 câu đúc kết cốt lõi: Câu 1 về cốt cách Mệnh Thân, Câu 2 về cung vị đắc cách rực rỡ nhất, Câu 3 về cung vị xung phá và giải pháp]
+RADAR_SCORES: {"career": 85, "wealth": 75, "love": 70, "health": 80, "mentors": 85}
+TOP_STRENGTHS:
+- [Điểm sáng 1: Cát tinh đắc địa hoặc cách cục quý hiển]
+- [Điểm sáng 2: Cung Quan Lộc/Tài Bạch vượng khí]
+- [Điểm sáng 3: Thời kỳ đại hạn khởi sắc mạnh mẽ]
+TOP_PITFALLS:
+- [Tử huyệt 1: Sát tinh hãm hoặc Hóa Kỵ xung chiếu]
+- [Tử huyệt 2: Điểm yếu trong tính cách hoặc các mối quan hệ]
+- [Tử huyệt 3: Đại hạn thử thách hoặc nguy cơ tai ách cần phòng]
+ACTION_ADVICE: [1 Lời khuyên hành động chiến lược thiết thực nhất nên làm ngay]
+[/EXECUTIVE_SUMMARY]
+
+TIẾP THEO BẮT ĐẦU CHÍNH XÁC BẰNG TIÊU ĐỀ: "## ĐỊNH VỊ BẢN MỆNH: MA TRẬN MỆNH BÀN SWOT & TỔNG QUAN TINH ĐỒ"
 ### 1. Thần Thái & Chân Dung Cốt Cách Tinh Đẩu (khoảng 250 - 300 từ): Khắc họa khí chất, điểm mạnh cốt tử và bản lĩnh nội tại bằng ngôn ngữ đời thường, hình tượng sinh động.
 ### 2. Ma Trận Mệnh Bàn SWOT 4 Chiều:
 BẮT BUỘC lập BẢNG MARKDOWN chuẩn xác gồm 3 cột:
@@ -411,7 +444,10 @@ BẮT BUỘC lập BẢNG MARKDOWN chuẩn xác gồm 3 cột:
             const rep = REPLICAS[i];
             SseStreamHelper.dispatchProgress(onProgress, { stage: 'streaming', streamingChapterId: rep.id, title: rep.title, message: `Đang xuất nội dung: Chương ${rep.id} - ${rep.title}...` });
             const rawCluster = await clusterPromises[i];
-            const clusterText = SseStreamHelper.cleanMarkdown(rawCluster || '');
+            const clusterText = SseStreamHelper.cleanMarkdown(rawCluster || '')
+              .replace(/\[EXECUTIVE_SUMMARY\][\s\S]*?(?:\[\/EXECUTIVE_SUMMARY\]|$)/gi, '')
+              .replace(/\[\/?EXECUTIVE_SUMMARY\]/gi, '')
+              .trim();
             clustersOutput.push(clusterText);
             await SseStreamHelper.streamTextChunks(controller, encoder, clusterText, { chunkSize: 120, delayMs: 12 });
             controller.enqueue(encoder.encode('\n\n---\n\n'));
@@ -527,7 +563,7 @@ class MarriageDeepPipeline {
           // --- TỔNG QUAN: Phân Tích Cốt Lõi Tương Quan Bản Mệnh (2 LUỒNG GEMINI SDK XOAY TUA KEY) ---
           SseStreamHelper.dispatchProgress(onProgress, {
             stage: 'cot_started',
-            message: 'Đang khảo cứu tương quan Bát Tự & Cung Phi Bát Trạch qua Gemini SDK...'
+            message: 'Đang khảo cứu tương quan Bát Tự & Cung Phi Bát Trạch...'
           });
 
           const cotGeminiPrompt = `Bạn là Bậc thầy Mệnh lý Hợp Hôn. Hãy phân tích ngắn gọn, sắc bén tương quan bản mệnh:\n${prompt}\n\n` +
@@ -577,7 +613,23 @@ Dựa trên phân tích tương quan bản mệnh hai người:
 ${fullContext}
 
 NHIỆM VỤ CỦA BẠN: SOẠN THẢO PHẦN MỞ ĐẦU (Tổng quan hôn phối & Ma trận SWOT Hôn Nhân):
-BẮT ĐẦU CHÍNH XÁC BẰNG TIÊU ĐỀ: "## TỔNG QUAN HÔN PHỐI & KHÍ TRƯỜNG NHÂN DUYÊN"
+BẮT BUỘC MỞ ĐẦU BẰNG KHỐI TÓM TẮT HÔN PHỐI 1 PHÚT NGUYÊN VẸN THẺ:
+[EXECUTIVE_SUMMARY]
+TLDR:
+- [3 câu đúc kết cốt lõi: Câu 1 về mức độ tương hợp duyên phận và khí thế hai bên, Câu 2 về điểm tựa gắn kết và tài lộc chung, Câu 3 về điểm xung khắc lớn nhất và cách hóa giải]
+RADAR_SCORES: {"career": 75, "wealth": 80, "love": 85, "health": 75, "mentors": 80}
+TOP_STRENGTHS:
+- [Điểm sáng 1: Sự bù trừ Dụng Thần ngũ hành hoặc Cung Phi tương sinh]
+- [Điểm sáng 2: Thế mạnh đồng lòng xây dựng kinh tế tài chính]
+- [Điểm sáng 3: Năng lượng con cái và hậu vận vững bền]
+TOP_PITFALLS:
+- [Tử huyệt 1: Xung khắc Thiên Can, Địa Chi hoặc Cung Phu Thê]
+- [Tử huyệt 2: Bất đồng quan điểm tài chính hoặc quyền tự quyết]
+- [Tử huyệt 3: Mốc năm đại vận thử thách lớn nhất cần hòa giải]
+ACTION_ADVICE: [1 Lời khuyên hành động thiết thực nhất để vợ chồng gìn giữ hòa khí và gia đạo hưng thịnh]
+[/EXECUTIVE_SUMMARY]
+
+TIẾP THEO BẮT ĐẦU CHÍNH XÁC BẰNG TIÊU ĐỀ: "## TỔNG QUAN HÔN PHỐI & KHÍ TRƯỜNG NHÂN DUYÊN"
 ### 1. Điểm Số Hòa Hợp & Khí Trường Duyên Phận (khoảng 200 - 250 từ): Điểm số hòa hợp (thang điểm 100/100) và Tỷ lệ tương thích (%), phân tích bức tranh tổng thể bằng ngôn ngữ đời thường, giàu hình ảnh ẩn dụ (hai bánh xe, dòng sông và con thuyền...).
 ### 2. Ma Trận SWOT Hôn Nhân & Duyên Phận:
 BẮT BUỘC lập BẢNG MARKDOWN 3 cột:
@@ -770,7 +822,7 @@ class IChingDeepPipeline {
           // --- TỔNG QUAN: Phân Tích Cốt Cách Quẻ Dịch (2 LUỒNG GEMINI SDK XOAY TUA KEY) ---
           SseStreamHelper.dispatchProgress(onProgress, {
             stage: 'cot_started',
-            message: 'Đang khảo cứu cốt cách quái tượng, Thế - Ứng & Hào Động qua Gemini SDK...'
+            message: 'Đang khảo cứu cốt cách quái tượng, Thế - Ứng & Hào Động...'
           });
 
           const cotGeminiPrompt = `Bạn là Bậc thầy Dịch học cổ truyền. Hãy phân tích ngắn gọn, sắc bén tượng quẻ sau:\n${prompt}\n\n` +
@@ -820,7 +872,23 @@ Dựa trên phân tích quẻ Dịch và biện chứng nền tảng:
 ${fullContext}
 
 NHIỆM VỤ CỦA BẠN: SOẠN THẢO PHẦN MỞ ĐẦU (Tổng quan định vị thời thế & Ma trận SWOT Dịch Lý):
-BẮT ĐẦU CHÍNH XÁC BẰNG TIÊU ĐỀ: "## TỔNG QUAN QUÁI TƯỢNG & ĐỊNH VỊ THỜI THẾ"
+BẮT BUỘC MỞ ĐẦU BẰNG KHỐI TÓM TẮT DỊCH LÝ 1 PHÚT NGUYÊN VẸN THẺ:
+[EXECUTIVE_SUMMARY]
+TLDR:
+- [3 câu đúc kết cốt lõi: Câu 1 về thời thế quẻ Dịch đối với sự việc, Câu 2 về chuyển biến quẻ biến và hào động, Câu 3 về kết quả then chốt và xu hướng ứng nghiệm]
+RADAR_SCORES: {"career": 80, "wealth": 75, "love": 70, "health": 85, "mentors": 80}
+TOP_STRENGTHS:
+- [Điểm sáng 1: Thuận lợi từ Dụng Thần hoặc Hào Thế đắc địa]
+- [Điểm sáng 2: Thời cơ bứt phá hoặc sự ủng hộ của hoàn cảnh]
+- [Điểm sáng 3: Quý nhân hoặc năng lượng tương sinh phù trợ]
+TOP_PITFALLS:
+- [Tử huyệt 1: Trở lực từ Hào Động biến khắc hoặc hào thoái]
+- [Tử huyệt 2: Sai lầm tâm lý vội vàng hoặc cạm bẫy bất lợi]
+- [Tử huyệt 3: Thời điểm xung sát cần tránh hành động liều lĩnh]
+ACTION_ADVICE: [1 Lời khuyên hành động thực chiến thiết thực nhất nên làm ngay]
+[/EXECUTIVE_SUMMARY]
+
+TIẾP THEO BẮT ĐẦU CHÍNH XÁC BẰNG TIÊU ĐỀ: "## TỔNG QUAN QUÁI TƯỢNG & ĐỊNH VỊ THỜI THẾ"
 ### 1. Bức Tranh Toàn Cảnh & Khí Thế Quái Tượng (khoảng 200 - 250 từ): Khắc họa thời thế hiện tại của đương số đối với câu hỏi bằng ngôn ngữ đời thường, hình tượng sinh động.
 ### 2. Ma Trận Đối Chiếu Quái Tượng SWOT Dịch Lý:
 BẮT BUỘC lập BẢNG MARKDOWN 3 cột:

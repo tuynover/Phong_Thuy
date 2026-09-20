@@ -1,12 +1,67 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { 
     MessageCircle, X, Send, Clock, AlertTriangle, Sparkles, 
-    User, AlertCircle, RefreshCw, Maximize2, Minimize2 
+    User, AlertCircle, RefreshCw, Maximize2, Minimize2,
+    Lightbulb, ChevronDown, ChevronUp, Layers, Check
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import rehypeSanitize from 'rehype-sanitize';
 import { getChatStreamUrl, getHexagramChatMessages, getBaziChatMessages, getTuViChatMessages, getMarriageChatMessages } from '@/services/api';
 import { AuthContext } from '@/context/AuthContext';
+
+/**
+ * Ngân hàng câu hỏi mẫu phong phú cho từng phân hệ học thuật (10 câu/phân hệ, phân loại theo chuyên đề/sự việc)
+ */
+const DISCIPLINE_QUESTIONS = {
+    bazi: [
+        { category: 'Sự Nghiệp', question: 'Công danh của tôi hợp làm chủ, tự kinh doanh hay làm chuyên môn trong tổ chức lớn?' },
+        { category: 'Sự Nghiệp', question: 'Đại vận nào là giai đoạn hoàng kim bứt phá lớn nhất trong sự nghiệp của tôi?' },
+        { category: 'Tài Chính', question: 'Lá số của tôi có số tích lũy được tài sản lớn không, hay hay gặp hạn hao hụt tiền bạc?' },
+        { category: 'Tài Chính', question: 'Tôi có phù hợp với đầu tư tài chính mạo hiểm không hay nên ưu tiên phòng thủ tích lũy an toàn?' },
+        { category: 'Hôn Nhân', question: 'Cung Phu Thê của tôi có gặp hình xung khắc hại nào không, cách hóa giải gia đạo ra sao?' },
+        { category: 'Hôn Nhân', question: 'Mốc năm nào tôi dễ gặp biến động hoặc bước ngoặt lớn về mặt tình cảm?' },
+        { category: 'Sức Khỏe', question: 'Bát tự của tôi vượng hành gì và khuyết hành gì, ảnh hưởng tới cơ quan tạng phủ nào nhất?' },
+        { category: 'Sức Khỏe', question: 'Chế độ sinh hoạt và dinh dưỡng theo ngũ hành nào giúp tôi tăng cường sinh khí?' },
+        { category: 'Cải Vận', question: 'Dụng Thần của tôi hợp với màu sắc, số may mắn và phương vị làm việc nào nhất?' },
+        { category: 'Cải Vận', question: 'Tôi nên sử dụng vật phẩm phong thủy chất liệu gì để tương sinh Dụng Thần và trợ lực quý nhân?' }
+    ],
+    ziwei: [
+        { category: 'Mệnh & Thân', question: 'Bộ chính tinh đắc hãm ở Cung Mệnh nói lên tiềm năng và sứ mệnh cốt lõi nào của tôi?' },
+        { category: 'Mệnh & Thân', question: 'Thân cư ở cung nào và sau tuổi 30 vận mệnh cuộc đời tôi sẽ chuyển biến theo hướng nào?' },
+        { category: 'Quan Lộc', question: 'Công việc hiện tại có phát huy đúng sở trường của các cát tinh trong cung Quan Lộc không?' },
+        { category: 'Tài Bạch', question: 'Cung Tài Bạch có gặp Tuần, Triệt hay Hóa Lộc không, tiền tài đến từ nguồn nào là chủ yếu?' },
+        { category: 'Phu Thê', question: 'Bạn đời tương lai của tôi có tính cách, tướng mạo và hoàn cảnh gia đình như thế nào?' },
+        { category: 'Tử Tức', question: 'Cung Tử Tức của tôi có sao cát tinh nào trợ lực cho đường con cái thành đạt hiển vinh không?' },
+        { category: 'Phúc Đức', question: 'Phúc Đức dòng họ có che chở cho tôi khi gặp hoạn nạn, sóng gió cuộc đời không?' },
+        { category: 'Đại Vận', question: 'Đại hạn 10 năm hiện tại của tôi rơi vào cung nào, là giai đoạn thuận buồm xuôi gió hay thử thách?' },
+        { category: 'Tật Ách', question: 'Hạn năm nay tôi cần chú ý đề phòng bệnh tật hoặc tai ương sông nước, xe cộ gì?' },
+        { category: 'Cải Vận', question: 'Bộ sao giải thần nào trong lá số giúp tôi hóa giải hung tinh và tai ách hiệu quả nhất?' }
+    ],
+    hexagrams: [
+        { category: 'Thời Vận', question: 'Sự việc tôi đang toan tính có cơ hội thành công thuận lợi đúng như kỳ vọng không?' },
+        { category: 'Thời Vận', question: 'Thời điểm cụ thể (ứng kỳ theo tháng hoặc ngày nào) sự việc này sẽ có kết quả rõ ràng?' },
+        { category: 'Thời Vận', question: 'Thế quẻ hiện tại là nên chủ động tấn công bứt phá hay kiên nhẫn thủ thế chờ thời?' },
+        { category: 'Quý Nhân', question: 'Trong công việc này tôi có gặp được quý nhân giúp đỡ hay có tiểu nhân cản trở ngấm ngầm?' },
+        { category: 'Quý Nhân', question: 'Đối tác hoặc người cộng sự này có thật lòng đáng tin cậy để tôi gửi gắm niềm tin không?' },
+        { category: 'Tài Lộc', question: 'Dự án / thương vụ đầu tư này có mang lại tài lộc thực tế hay tiềm ẩn nguy cơ chôn vốn?' },
+        { category: 'Rủi Ro', question: 'Điểm rủi ro và cạm bẫy lớn nhất tôi cần đề phòng tuyệt đối trong việc này là gì?' },
+        { category: 'Tình Duyên', question: 'Mối quan hệ này có duyên đi đến hôn nhân lâu dài không hay chỉ là đoạn duyên ngắn?' },
+        { category: 'Tình Duyên', question: 'Nếu đang có hiểu lầm rạn nứt, tôi nên mở lời thế nào để hàn gắn lại tình cảm đôi bên?' },
+        { category: 'Đạo Dịch', question: 'Lời khuyên Đạo Dịch thực tiễn nhất cho tôi ngay lúc này để chuyển hung thành cát?' }
+    ],
+    marriage: [
+        { category: 'Tương Hợp', question: 'Điểm tương hợp tổng quan giữa hai tuổi theo Can Chi, Ngũ Hành và Cung Phi là bao nhiêu?' },
+        { category: 'Tương Hợp', question: 'Hai tuổi kết hợp có phạm phải cung xấu như Tuyệt Mạng, Ngũ Quỷ hay Họa Hại không?' },
+        { category: 'Kinh Tế', question: 'Sau khi kết hôn, đường làm ăn tài lộc của hai bên sẽ vượng phát lên hay dễ bị tiêu hao?' },
+        { category: 'Kinh Tế', question: 'Trong gia đình ai là người nên nắm giữ tay hòm chìa khóa để tiền tài sinh sôi nảy nở?' },
+        { category: 'Tính Cách', question: 'Điểm khác biệt lớn nhất về tính cách giữa hai người là gì và cần nhường nhịn ở khía cạnh nào?' },
+        { category: 'Hòa Giải', question: 'Làm thế nào để hóa giải xung khắc khẩu khí và tránh những trận cãi vã vô cớ?' },
+        { category: 'Con Cái', question: 'Hai vợ chồng nên sinh con vào năm nào, mệnh gì để làm cầu nối tương sinh hóa giải cho bố mẹ?' },
+        { category: 'Năm Hạn', question: 'Mốc năm nào hai vợ chồng dễ gặp sóng gió hoặc thử thách hôn nhân nhất cần chủ động gắn kết?' },
+        { category: 'Gia Đình', question: 'Mối quan hệ giữa hai bên gia đình nội ngoại có êm ấm và trợ lực cho đôi trẻ không?' },
+        { category: 'Phong Thủy', question: 'Bí quyết bố trí phòng ngủ và hướng giường hợp mệnh hai vợ chồng để giữ lửa yêu thương?' }
+    ]
+};
 
 /**
  * Robust incremental JSON parser to extract the "answer" field in real-time as it streams.
@@ -132,6 +187,10 @@ const AiChatWidget = ({
     const setIsOpen = setExternalIsOpen !== undefined ? setExternalIsOpen : setLocalIsOpen;
     const isControlled = externalIsOpen !== undefined;
 
+    useEffect(() => {
+        window.dispatchEvent(new CustomEvent('ai-chat-state-change', { detail: { isOpen: Boolean(isOpen) } }));
+    }, [isOpen]);
+
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
     const [isStreaming, setIsStreaming] = useState(false);
@@ -139,6 +198,8 @@ const AiChatWidget = ({
     const [error, setError] = useState('');
     const [cooldown, setCooldown] = useState(0);
     const [detectedContext, setDetectedContext] = useState(null);
+    const [showSuggestions, setShowSuggestions] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState('ALL');
 
     // Pagination & Lazy Loading States
     const [page, setPage] = useState(1);
@@ -148,6 +209,7 @@ const AiChatWidget = ({
     const chatEndRef = useRef(null);
     const messagesContainerRef = useRef(null);
     const previousRecordIdRef = useRef(recordId);
+    const inputRef = useRef(null);
     const streamAnswer = getStreamingAnswer(streamText);
 
     const isIching = type === 'hexagrams';
@@ -177,6 +239,31 @@ const AiChatWidget = ({
             : isMarriage
                 ? 'bg-rose-950 text-rose-50'
                 : 'bg-purple-950 text-purple-50';
+
+    // Ngân hàng câu hỏi cho phân hệ hiện tại
+    const questionKey = isIching ? 'hexagrams' : isMarriage ? 'marriage' : isBazi ? 'bazi' : 'ziwei';
+    const rawQuestionList = DISCIPLINE_QUESTIONS[questionKey] || DISCIPLINE_QUESTIONS.bazi;
+
+    // Nếu người dùng đang tập trung vào một chương cụ thể, ưu tiên đưa 3 câu hỏi liên quan lên đầu
+    const contextualQuestions = activeSection ? [
+        { category: 'Chương Đang Xem', question: `Thầy phân tích sâu hơn về những điểm cốt lõi trong "${activeSection.title}" giúp con.` },
+        { category: 'Chương Đang Xem', question: `Trong "${activeSection.title}", con cần phòng tránh rủi ro hay cạm bẫy gì nhất?` },
+        { category: 'Chương Đang Xem', question: `Chiến lược hành động thực tế tối ưu cho "${activeSection.title}" là gì ạ?` }
+    ] : [];
+
+    const fullQuestionList = [...contextualQuestions, ...rawQuestionList];
+    const categories = ['ALL', ...Array.from(new Set(fullQuestionList.map(q => q.category)))];
+    const filteredQuestions = selectedCategory === 'ALL' 
+        ? fullQuestionList 
+        : fullQuestionList.filter(q => q.category === selectedCategory);
+
+    const handleSelectSuggestion = (qText) => {
+        setInput(qText);
+        setShowSuggestions(false);
+        setTimeout(() => {
+            inputRef.current?.focus();
+        }, 50);
+    };
 
     // Fetch history page helper
     const fetchHistoryPage = async (pageNum, isInitial = false) => {
@@ -264,11 +351,11 @@ const AiChatWidget = ({
         }
     };
 
-    const handleSend = async (e) => {
-        e.preventDefault();
-        if (!input.trim() || isStreaming || cooldown > 0) return;
+    const handleSend = async (e, overrideQuestion = null) => {
+        if (e && e.preventDefault) e.preventDefault();
+        const question = (overrideQuestion || input || '').trim();
+        if (!question || isStreaming || cooldown > 0) return;
 
-        const question = input.trim();
         setInput('');
         setError('');
         
@@ -754,33 +841,105 @@ const AiChatWidget = ({
                         <div ref={chatEndRef} />
                     </div>
 
-                    {/* Context Quick Suggestion Chips */}
-                    {activeSection && !isStreaming && (
-                        <div className="px-3 pt-2 pb-1 bg-white flex flex-wrap gap-1.5 border-t border-gray-100 animate-in fade-in duration-200">
+                    {/* Ngân Hàng Câu Hỏi Gợi Ý (Chỉ mở khi người dùng chủ động bấm) */}
+                    {showSuggestions && !isStreaming && (
+                        <div className="border-t border-gray-200 bg-slate-50/95 backdrop-blur-md p-3 max-h-56 sm:max-h-64 flex flex-col gap-2 animate-in slide-in-from-bottom-2 duration-200">
+                            <div className="flex items-center justify-between pb-1.5 border-b border-gray-200/80">
+                                <div className="flex items-center gap-1.5 text-xs font-black text-slate-800 uppercase tracking-wider">
+                                    <Lightbulb size={14} className="text-amber-500" />
+                                    <span>Gợi ý câu hỏi đàm đạo ({filteredQuestions.length})</span>
+                                </div>
+                                <button 
+                                    type="button" 
+                                    onClick={() => setShowSuggestions(false)}
+                                    className="text-slate-400 hover:text-slate-600 p-0.5 rounded-md hover:bg-slate-200/60 cursor-pointer"
+                                    title="Đóng bảng gợi ý"
+                                >
+                                    <X size={15} />
+                                </button>
+                            </div>
+
+                            {/* Category Filter Badges */}
+                            <div className="flex gap-1.5 overflow-x-auto pb-1 custom-scrollbar shrink-0">
+                                {categories.map((cat, idx) => (
+                                    <button
+                                        key={idx}
+                                        type="button"
+                                        onClick={() => setSelectedCategory(cat)}
+                                        className={`px-2.5 py-1 rounded-lg text-[11px] font-bold shrink-0 transition-all cursor-pointer ${
+                                            selectedCategory === cat 
+                                                ? 'bg-amber-600 text-white shadow-2xs' 
+                                                : 'bg-white hover:bg-slate-100 text-slate-600 border border-slate-200/80'
+                                        }`}
+                                    >
+                                        {cat === 'ALL' ? 'Tất cả' : cat}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* Scrollable Question Items */}
+                            <div className="overflow-y-auto space-y-1.5 pr-1 custom-scrollbar flex-1">
+                                {filteredQuestions.map((qObj, idx) => (
+                                    <div
+                                        key={idx}
+                                        onClick={() => handleSelectSuggestion(qObj.question)}
+                                        className="p-2 rounded-xl bg-white hover:bg-amber-50/70 border border-slate-200 hover:border-amber-400 transition-all cursor-pointer group shadow-2xs flex flex-col gap-0.5"
+                                        title="Bấm để đưa câu hỏi vào khung chat"
+                                    >
+                                        <div className="flex items-center gap-1.5">
+                                            <span className={`text-[10px] font-extrabold px-1.5 py-0.2 rounded ${
+                                                qObj.category === 'Chương Đang Xem' 
+                                                    ? 'bg-amber-100 text-amber-800' 
+                                                    : 'bg-slate-100 text-slate-600'
+                                            }`}>
+                                                {qObj.category}
+                                            </span>
+                                            <span className="text-[10px] text-slate-400 group-hover:text-amber-700 transition-colors ml-auto font-medium">
+                                                Chọn câu này ↵
+                                            </span>
+                                        </div>
+                                        <p className="text-xs text-slate-800 font-medium leading-snug group-hover:text-amber-950">
+                                            {qObj.question}
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Suggestion Toggle Bar */}
+                    {!isStreaming && (
+                        <div className="px-3 py-1.5 bg-slate-50 border-t border-gray-100 flex items-center justify-between text-xs">
                             <button
                                 type="button"
-                                onClick={() => setInput(`Thầy phân tích sâu hơn về những điểm cốt lõi trong "${activeSection.title}" giúp con.`)}
-                                className="text-[11px] px-2.5 py-1 rounded-full bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200/60 transition-colors text-left truncate max-w-[48%] active:scale-95"
+                                onClick={() => setShowSuggestions(prev => !prev)}
+                                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer ${
+                                    showSuggestions
+                                        ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                                        : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 shadow-2xs'
+                                }`}
                             >
-                                💡 Luận giải sâu mục này
+                                <Lightbulb size={13} className={showSuggestions ? "text-amber-600 animate-pulse" : "text-amber-500"} />
+                                <span>{showSuggestions ? 'Thu gọn gợi ý' : `💡 Gợi ý câu hỏi (${fullQuestionList.length})`}</span>
+                                {showSuggestions ? <ChevronDown size={13} /> : <ChevronUp size={13} />}
                             </button>
-                            <button
-                                type="button"
-                                onClick={() => setInput(`Trong "${activeSection.title}", con cần lưu ý gì và có cách nào hóa giải không ạ?`)}
-                                className="text-[11px] px-2.5 py-1 rounded-full bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200/60 transition-colors text-left truncate max-w-[48%] active:scale-95"
-                            >
-                                🛡️ Lưu ý & Hóa giải
-                            </button>
+
+                            {activeSection && (
+                                <span className="text-[10px] text-amber-800 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200 font-semibold truncate max-w-[150px]">
+                                    📌 {activeSection.title}
+                                </span>
+                            )}
                         </div>
                     )}
 
                     {/* Footer Input */}
                     <form onSubmit={handleSend} className="p-3 bg-white border-t border-gray-100 flex gap-2 items-center">
                         <input
+                            ref={inputRef}
                             type="text"
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
-                            placeholder={cooldown > 0 ? `Chờ ${cooldown}s...` : "Đặt câu hỏi thắc mắc..."}
+                            placeholder={cooldown > 0 ? `Chờ ${cooldown}s...` : "Nhập câu hỏi hoặc chọn từ gợi ý..."}
                             disabled={isStreaming || cooldown > 0}
                             className={`flex-1 text-sm px-4 py-2.5 rounded-full border bg-gray-50/50 outline-none transition-colors ${themeBorder} disabled:opacity-50`}
                         />
@@ -792,6 +951,7 @@ const AiChatWidget = ({
                                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none'
                                     : themeBg
                             }`}
+                            title="Gửi câu hỏi"
                         >
                             <Send size={15} />
                         </button>

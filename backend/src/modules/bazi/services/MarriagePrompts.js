@@ -77,7 +77,22 @@ ${femaleDaYunText}
 ${safety}
 
 --- CẤU TRÚC BẢN LUẬN GIẢI YÊU CẦU ĐẦU RA (BẮT BUỘC MARKDOWN CHUẨN) ---
-Hãy viết bản luận giải bằng tiếng Việt theo định dạng Markdown với chính xác 8 mục sau (dùng tiêu đề cấp H2 '##', các mục con bên dưới dùng chữ bôi đậm '**', phân tách bằng 1 dòng trống):
+Hãy viết bản luận giải bằng tiếng Việt theo định dạng Markdown với chính xác 8 mục sau. BẮT BUỘC mở đầu bằng khối [EXECUTIVE_SUMMARY] nguyên vẹn thẻ mở/đóng, sau đó mới đến các CHƯƠNG (dùng tiêu đề cấp H2 '##', các mục con bên dưới dùng tiêu đề cấp H3 '###' hoặc chữ bôi đậm '**', phân tách bằng 1 dòng trống):
+
+[EXECUTIVE_SUMMARY]
+TLDR:
+- [3 câu đúc kết cốt lõi: Câu 1 về mức độ tương hợp duyên phận và khí thế hai bên, Câu 2 về điểm tựa gắn kết và tài lộc chung, Câu 3 về điểm xung khắc lớn nhất và cách hóa giải]
+RADAR_SCORES: {"career": 75, "wealth": 80, "love": 85, "health": 75, "mentors": 80}
+TOP_STRENGTHS:
+- [Điểm sáng 1: Sự bù trừ Dụng Thần ngũ hành hoặc Cung Phi tương sinh]
+- [Điểm sáng 2: Thế mạnh đồng lòng xây dựng kinh tế tài chính]
+- [Điểm sáng 3: Năng lượng con cái và hậu vận vững bền]
+TOP_PITFALLS:
+- [Tử huyệt 1: Xung khắc Thiên Can, Địa Chi hoặc Cung Phu Thê]
+- [Tử huyệt 2: Bất đồng quan điểm tài chính hoặc quyền tự quyết]
+- [Tử huyệt 3: Mốc năm đại vận thử thách lớn nhất cần hòa giải]
+ACTION_ADVICE: [1 Lời khuyên hành động thiết thực nhất để vợ chồng gìn giữ hòa khí và gia đạo hưng thịnh]
+[/EXECUTIVE_SUMMARY]
 
 ## CHƯƠNG 1: TỔNG QUAN KHÍ THẾ & ĐỘ BÙ TRỪ DỤNG THẦN
 - Phân tích vượng suy ngũ hành toàn cục của 2 bên. Đánh giá sự bù trừ năng lượng thực chất giữa Dụng Thần và Kỵ Thần.

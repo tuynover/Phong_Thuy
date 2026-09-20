@@ -243,7 +243,7 @@ const googleLogin = async (req, res) => {
         password: await bcrypt.hash(uuidv7(), 10), // Random secure password
         name,
         role: 'user',
-        credits: 2,
+        credits: 200,
         isEmailVerified: true
       });
       await user.save();
