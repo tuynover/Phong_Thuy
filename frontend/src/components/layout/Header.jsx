@@ -18,6 +18,7 @@ import {
   Folder
 } from 'lucide-react';
 import NotificationBell from '@/components/common/NotificationBell';
+import { checkHasDrawnDailyFortune, DAILY_FORTUNE_EVENT } from '@/features/iching/data/dailyFortuneData';
 
 export default function Header({
   appMode,
@@ -38,12 +39,33 @@ export default function Header({
   setIsMyFoldersOpen,
   setAppMode,
   setHistoricalZiweiId,
-  logout
+  logout,
+  onOpenDailyFortune,
+  onOpenDiscoveryQuiz
 }) {
   const cleanLunarDate = (str) => {
     if (!str) return '';
     return str.replace(/^Âm lịch:\s*/, '');
   };
+
+  const userId = user?.id || user?._id || 'guest';
+  const [hasDrawnDailyFortune, setHasDrawnDailyFortune] = React.useState(() => {
+    return checkHasDrawnDailyFortune(userId);
+  });
+
+  React.useEffect(() => {
+    const updateDailyStatus = () => {
+      setHasDrawnDailyFortune(checkHasDrawnDailyFortune(userId));
+    };
+    updateDailyStatus();
+
+    window.addEventListener(DAILY_FORTUNE_EVENT, updateDailyStatus);
+    window.addEventListener('storage', updateDailyStatus);
+    return () => {
+      window.removeEventListener(DAILY_FORTUNE_EVENT, updateDailyStatus);
+      window.removeEventListener('storage', updateDailyStatus);
+    };
+  }, [userId]);
 
   return (
     <motion.header 
@@ -124,9 +146,28 @@ export default function Header({
         {/* RIGHT SIDE SECTION: UTILITIES & AUTH */}
         <div className="flex items-center gap-3 shrink-0">
 
+          {/* Nút Quẻ Ngày Mới */}
+          {onOpenDailyFortune && (
+            <button
+              type="button"
+              onClick={onOpenDailyFortune}
+              className="relative hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-50 to-yellow-50 hover:from-amber-100 hover:to-yellow-100 text-amber-950 border border-amber-300/80 rounded-full text-xs font-bold transition-all shadow-2xs hover:shadow-xs active:scale-95 cursor-pointer"
+              title="Gieo quẻ xăm tre ngày mới"
+            >
+              <span className="text-sm leading-none">🎋</span>
+              <span className="font-extrabold tracking-wide">Quẻ Ngày</span>
+              {!hasDrawnDailyFortune && (
+                <span className="relative flex h-2 w-2 ml-0.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-600"></span>
+                </span>
+              )}
+            </button>
+          )}
+
           {/* Sliding Pill Toggle Switch for Admin/Co-admin in UserApp */}
           {user && (user.role === 'admin' || user.role === 'co-admin') && (
-            <div className="flex items-center gap-2">
+            <div className="hidden md:flex items-center gap-2">
               <span className="text-xs font-bold text-slate-400 uppercase tracking-wider hidden lg:inline">Giao diện:</span>
               <div className="relative inline-flex items-center bg-gray-200/70 rounded-full p-1 cursor-pointer select-none w-28 h-8 border border-slate-200">
                 <div 
@@ -301,9 +342,16 @@ export default function Header({
                 setIsMobileMenuOpen(nextState);
                 if (nextState) setIsMobileModulesExpanded(false);
               }}
-              className="p-1.5 sm:p-2 rounded-full hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
+              className="relative p-1.5 sm:p-2 rounded-full hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
+              title="Menu"
             >
               <Menu size={20} />
+              {!hasDrawnDailyFortune && (
+                <span className="absolute top-1 right-1 flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-600 border border-white"></span>
+                </span>
+              )}
             </button>
           </div>
         </div>
@@ -397,6 +445,41 @@ export default function Header({
                   <BookOpen className="text-indigo-650" size={18} />
                   <span className="font-extrabold text-xs text-slate-800">Kiến Thức Phong Thủy</span>
                 </button>
+
+                {/* QUẺ NGÀY MỚI & TRỢ LÝ GỢI Ý MÔN CHO MOBILE */}
+                {onOpenDailyFortune && (
+                  <button 
+                    onClick={() => { onOpenDailyFortune(); setIsMobileMenuOpen(false); }}
+                    className="p-3.5 rounded-2xl bg-amber-50/70 hover:bg-amber-100/70 border border-amber-200 flex items-center gap-2.5 text-left transition-all cursor-pointer shadow-2xs relative"
+                  >
+                    <span className="text-lg">🎋</span>
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-extrabold text-xs text-amber-950">Quẻ Ngày Mới</span>
+                        {!hasDrawnDailyFortune && (
+                          <span className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-600"></span>
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-[10px] text-amber-800/80 font-medium">Lắc xăm tre nhận lộc</span>
+                    </div>
+                  </button>
+                )}
+
+                {onOpenDiscoveryQuiz && (
+                  <button 
+                    onClick={() => { onOpenDiscoveryQuiz(); setIsMobileMenuOpen(false); }}
+                    className="p-3.5 rounded-2xl bg-indigo-50/70 hover:bg-indigo-100/70 border border-indigo-200 flex items-center gap-2.5 text-left transition-all cursor-pointer shadow-2xs"
+                  >
+                    <span className="text-lg">💡</span>
+                    <div className="flex flex-col">
+                      <span className="font-extrabold text-xs text-indigo-950">Gợi Ý Môn</span>
+                      <span className="text-[10px] text-indigo-800/80 font-medium">Trắc nghiệm nhanh 30s</span>
+                    </div>
+                  </button>
+                )}
 
                 {/* AUTH PROFILE / LOGIN BUTTON FOR MOBILE (CENTERED) */}
                 <div className="col-span-2 border-t border-slate-100 pt-4 mt-2 flex flex-col items-center text-center">

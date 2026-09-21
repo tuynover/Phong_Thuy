@@ -2,6 +2,615 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Nâng Cấp Tone Xanh Lá Tươi Mới Buổi Sáng, Màu Thẻ Theo Họ Quẻ, Tách Dòng Tiêu Đề & Tối Ưu Mobile Native (21/09/2026)
+
+### 🌟 1. Yêu Cầu & Bối Cảnh Người Dùng
+- **Màu nền theo Họ Quẻ (Hình 1):** Thẻ quẻ cát tường đổi màu nền động theo Họ quẻ (Bát Cung / Ngũ Hành Kim - Mộc - Thủy - Hỏa - Thổ) của quẻ được rút.
+- **Tone màu xanh lá tươi mới vô cùng nhẹ:** Đổi màu nền toàn bộ modal và khung lắc quẻ sang tone xanh lá nhẹ nhàng thanh tịnh (Celadon / Spring Morning Mint) đón bình minh tràn đầy sinh khí và hứng khởi.
+- **Đổi màu nút bấm hợp lý hơn (Hình 2):** Thay nút đỏ son bằng sắc **Xanh Trúc Phỉ Thúy Hoàng Gia (Imperial Jade Emerald)** hài hòa tuyệt đối, thanh lịch và quý phái.
+- **Tối giản hóa giao diện nút bấm:**
+  + Xóa bỏ nút `Reset test` trên thanh tiêu đề và dưới chân trang để giao diện gọn gàng, thuần phục vụ người dùng cuối.
+  + Xóa bỏ nút `Đã Thấu Hiểu • Đóng Lại` ở cuối màn hình kết quả, chỉ giữ lại một nút `✕` duy nhất ở góc trên bên phải để đóng modal theo đúng yêu cầu.
+- **Chấm đỏ thông báo Quẻ Ngày Mới trên Mobile:**
+  + Khi chưa gieo quẻ trong ngày: Hiển thị chấm đỏ nổi bật nhấp nháy (`animate-ping`) trên nút Menu Hamburger (☰) ở Header Mobile để người dùng nhận biết ngay lập tức.
+  + Trong ngăn kéo Menu Mobile (Drawer): Mục "Quẻ Ngày Mới" cũng hiển thị chấm đỏ đồng bộ để hướng dẫn người dùng nhấn vào trải nghiệm.
+  + Đồng bộ trạng thái realtime qua sự kiện `phongthuy_daily_fortune_changed` và `localStorage`.
+- **Responsive Mobile & Độ Phóng To Native:** Đảm bảo hiển thị hoàn mỹ trên các kích thước mobile (từ 375px) và tương thích native với mọi mức zoom của trình duyệt mà không bị vỡ bố cục hay che khuất nút.
+
+---
+
+### 🛠️ 2. Chi Tiết Kỹ Thuật
+- [`frontend/src/features/iching/data/dailyFortuneData.js`](file:///t:/Phongthuy/frontend/src/features/iching/data/dailyFortuneData.js):
+  - **Bảng ánh xạ 64 quẻ sang Họ Quẻ & Ngũ Hành (`HEXAGRAM_PALACES`):** Chuẩn hóa toàn bộ 64 quẻ theo Bát Quái Cung (Càn, Đoài, Khảm, Ly, Chấn, Tốn, Cấn, Khôn) và Ngũ Hành tương ứng (Kim, Mộc, Thủy, Hỏa, Thổ).
+  - **Bảng màu động theo Họ Quẻ (`PALACE_ELEMENT_THEMES`):**
+    + *Kim (Họ Càn, Đoài):* Nền vàng kim ánh ngọc `linear-gradient(135deg, #FFFBEB 0%, #FDE68A 45%, #EAB308 100%)`, viền hổ phách.
+    + *Mộc (Họ Chấn, Tốn):* Nền ngọc bích phỉ thúy `linear-gradient(135deg, #ECFDF5 0%, #A7F3D0 45%, #34D399 100%)`, viền lục bảo.
+    + *Thủy (Họ Khảm):* Nền lam ngọc thanh lương `linear-gradient(135deg, #F0F9FF 0%, #BAE6FD 45%, #38BDF8 100%)`, viền xanh biển.
+    + *Hỏa (Họ Ly):* Nền chu sa hồng cam ấm áp `linear-gradient(135deg, #FFF1F2 0%, #FECDD3 45%, #FB7185 100%)`, viền đỏ hồng.
+    + *Thổ (Họ Khôn, Cấn):* Nền hoàng thổ ấm áp `linear-gradient(135deg, #FEFCE8 0%, #FEF08A 45%, #EAB308 100%)`, viền vàng đất.
+- [`frontend/src/components/modals/DailyFortuneModal.jsx`](file:///t:/Phongthuy/frontend/src/components/modals/DailyFortuneModal.jsx):
+  - **Màu nền xanh lá tươi mới vô cùng nhẹ:** Áp dụng `bg-gradient-to-b from-[#F2FBF7] via-white to-[#F0FAF5]` cho modal và `bg-gradient-to-b from-[#EBF7F1]/80 via-white to-[#E8F6EF]/90 border border-emerald-200/60` cho khung bục bình xăm.
+  - **Tách dòng tiêu đề quẻ (`parseHexagramTitle`):**
+    + Dòng trên: Tên quẻ chính in hoa to rõ `<h3 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight font-serif">{hexTitle}</h3>`.
+    + Dòng dưới: Ý nghĩa quẻ trong ngoặc `<p className="text-xs sm:text-sm font-serif font-medium text-emerald-800">{hexSubtitle}</p>`.
+  - **Thẻ quẻ hình 1 hiển thị động theo Họ Quẻ:** Áp dụng `palaceTheme` cho màu nền, viền và chữ thẻ quẻ theo ngũ hành của Cung quẻ. Đã ẩn/loại bỏ nhãn huy hiệu text `Họ [Cung] • [Ngũ Hành]` theo yêu cầu của người dùng để thẻ thanh thoát, tinh gọn và thẩm mỹ hơn.
+  - **Tối ưu hóa Responsive Mobile:**
+    + Nâng `z-index: z-[100]` tránh đụng độ các nút nổi của trang.
+    + Header co giãn linh hoạt: `NHẬT KHÓA` và `Reset` không bị ngắt dòng, khoảng cách vừa vặn từ màn hình 375px.
+- [`frontend/src/components/modals/bamboo/BambooShakerScene.jsx`](file:///t:/Phongthuy/frontend/src/components/modals/bamboo/BambooShakerScene.jsx):
+  - **Nút "Xóc Quẻ Ngày Mới":** Chuyển sang sắc **Xanh Trúc Phỉ Thúy Hoàng Gia** `linear-gradient(to right, #047857, #059669, #047857)`, viền `#10B981`, bóng đổ xanh dịu mát `rgba(5,150,105,0.28)`.
+  - **Thanh năng lượng & chỉ dẫn:** Đồng bộ dải màu xanh ngọc mát lành (`#10B981` sang `#047857`).
+
+---
+
+### 🧪 3. Kết Quả Kiểm Thử (Chrome DevTools MCP)
+- **Biên dịch Frontend:** `npm run build` thành công $100\%$ không lỗi cú pháp (2.37s).
+- **Console Logs:** $0$ lỗi trên Chrome DevTools.
+- **Kiểm thử đa nền tảng:**
+  - Chụp ảnh màn hình Desktop (1280x800) và Mobile iPhone (375x812) xác nhận giao diện native, không vỡ layout.
+  - Thẻ quẻ đổi màu chính xác theo Họ Quẻ (ví dụ Thiên Thủy Tụng -> Họ Ly • Hỏa hiển thị dải chu sa hồng ấm).
+  - Tên quẻ xuống dòng ngay ngắn, thoáng đãng.
+
+---
+
+## 📅 Phiên bản: Đổi Mới Bảng Màu Modal Quẻ Ngày - Loại Bỏ 100% Nền Nâu Nhạt Đục, Chuyển Sang Tone Trắng Ngọc & Đỏ Son Cát Tường (21/09/2026)
+
+### 🌟 1. Yêu Cầu & Bối Cảnh Người Dùng
+- **Loại bỏ hoàn toàn màu nền nâu nhạt:** Bỏ các mảng nền màu nâu nhạt / vàng cát đục (`#F7F2EA`, `#EFE7DC`, `#FAF7F2`, `#EDE3D6`...) ở khung bục đặt bình xăm, thanh tiêu đề và các thẻ kết quả.
+- **Chuyển thành các tone màu phù hợp hơn:** Nâng cấp sang bảng màu thanh lịch, sang trọng và tươi sáng (Light Studio & Imperial Vermilion), giúp tôn trọn vẹn vẻ đẹp mộc mạc 3D của ống xăm tre và tạo cảm giác cát lành, hoan hỷ khi chiêm nghiệm quẻ đầu ngày.
+
+---
+
+### 🛠️ 2. Chi Tiết Kỹ Thuật
+- [`frontend/src/components/modals/DailyFortuneModal.jsx`](file:///t:/Phongthuy/frontend/src/components/modals/DailyFortuneModal.jsx):
+  - **Khung bục chiêm nghiệm Studio:** Chuyển từ nền nâu nhạt đục sang nền Studio trắng ngọc thanh thoát `bg-gradient-to-b from-slate-50 via-white to-slate-100/80` viền mảnh `border-slate-200/80`, tích hợp quầng sáng huyền quang dịu nhẹ `radial-gradient(circle at center, rgba(245,158,11,0.06) 0%, transparent 65%)` tôn bình xăm nổi bật 3D.
+  - **Header & Huy hiệu:** Nền header trắng sạch sẽ `bg-white border-b border-slate-100`, huy hiệu "NHẬT KHÓA" vàng kim hổ phách `bg-amber-50 text-amber-800 border-amber-200`.
+  - **Tiêu đề triện son:** "Tâm Tịnh Ý Khởi" màu đỏ son phong thủy `text-red-700`, tiêu đề chính màu mực đen `text-slate-900`.
+  - **Màn hình 2 Kết quả:**
+    + Thẻ tiêu đề quẻ nền trắng tinh khôi `bg-white border-slate-200/90 shadow-sm`.
+    + Thơ sấm trang nhã `bg-slate-50/80 border-slate-200/80 text-slate-800`.
+    + 3 Trục vận thế phối màu theo ngũ hành tươi sáng: Công danh (Xanh dương `bg-blue-50/50`), Tài lộc (Vàng kim `bg-amber-50/50`), Tình duyên (Hồng đỏ `bg-rose-50/50`).
+    + Khối Kim chỉ nam Đạo Dịch nền chàm sẫm huyền bí `bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 text-slate-100`.
+    + Nút đóng "Đã Thấu Hiểu" đỏ son cát tường `from-red-700 via-red-600 to-red-700 text-white`.
+- [`frontend/src/components/modals/bamboo/BambooShakerScene.jsx`](file:///t:/Phongthuy/frontend/src/components/modals/bamboo/BambooShakerScene.jsx):
+  - **Nút bấm "Xóc Quẻ Ngày Mới":** Chuyển từ màu nâu đất bùn (`#54351B`) sang **Đỏ Son Cát Tường (Imperial Vermilion Red)** `linear-gradient(to right, #B91C1C, #DC2626, #B91C1C)` với ánh vàng kim lấp lánh `text-amber-200` và đổ bóng đỏ ấm `shadow-red-950/25`.
+  - **Chỉ dẫn lắc tay:** Dòng chữ `text-slate-600`, icon bàn tay `text-amber-600`.
+  - **Thanh tiến độ năng lượng lắc:** Nền xám nhạt `bg-slate-200`, dải chạy đỏ cam sang vàng `from-[#DC2626] to-[#F59E0B]`.
+  - **Bóng đổ sàn ống tre:** Đổi sang dải bóng đổ xám than mềm mại `rgba(15,23,42,0.22)` phù hợp với nền sàn studio sáng.
+
+---
+
+### 🧪 3. Kết Quả Kiểm Thử (Chrome DevTools MCP)
+- **Biên dịch Frontend:** `npm run build` thành công $100\%$ không có lỗi cú pháp (1.87s).
+- **Console Logs:** $0$ lỗi trên Chrome DevTools.
+- **Kiểm chứng trực quan:** Chụp ảnh màn hình thực tế cả 2 màn hình (Lắc quẻ & Kết quả) xác nhận: Không gian sạch sẽ, thanh thoát, màu đỏ son và vàng kim rực rỡ, tôn bình tre mộc 3D rõ nét.
+
+---
+
+## 📅 Phiên bản: Tăng Chiều Dài Que Tre Thêm 0.35cm & Bổ Sung 2 Quẻ Bên Trái Cân Xứng (21/09/2026)
+
+### 🌟 1. Yêu Cầu & Bối Cảnh Người Dùng
+- **Tăng chiều dài que thêm ~0.35 cm (~13px):** Nâng chiều cao tổng thể của các que xăm tre thêm khoảng 13px - 14px để phần thò lên trên miệng bình đạt khoảng 42px - 52px, vừa vặn, thanh thoát và duyên dáng hơn.
+- **Bổ sung thêm 1 - 2 quẻ bên cánh trái:** Lấp đầy các khoảng trống bên trái miệng bình, tạo sự cân xứng, đầy đặn và ấm cúng cho toàn bộ bó quẻ tre.
+- **Tách rời từng que độc lập:** Đan xen sắc độ màu tre tự nhiên (tone) và viền sáng/tối 3D sắc nét, triệt tiêu hoàn toàn hiện tượng cụm dính khối.
+
+---
+
+### 🛠️ 2. Chi Tiết Kỹ Thuật
+- [`frontend/src/components/modals/bamboo/BambooShakerScene.jsx`](file:///t:/Phongthuy/frontend/src/components/modals/bamboo/BambooShakerScene.jsx):
+  - **Tăng chiều cao que tre:** Tăng chiều cao các que từ `166px - 176px` lên `179px - 189px` (tăng đúng ~0.35 cm tương đương 13px trên màn hình 96 DPI).
+  - **Bổ sung 2 quẻ tre bên cánh trái:**
+    + Que `id: 13`: Nằm ở lớp sau bên trái (`angle: -10.5°`, `x: 3.5px`, `height: 183px`, `tone: 1`), lấp đầy khoảng hở giữa que -11.5° và que -9°.
+    + Que `id: 14`: Nằm ở lớp giữa bên trái mang chữ `'巽'` (`angle: -7.5°`, `x: 2.2px`, `height: 184px`, `tone: 0`), phân bổ hài hòa giữa que -9° và que -6.5°.
+  - **Cân chỉnh thẻ định mệnh bay ra:** Tăng chiều cao thẻ khi nhô lên từ 155px lên 168px (`y: -100`), đảm bảo đồng bộ tỷ lệ với chiều dài que mới.
+  - **Sắc độ tre đan xen (Alternating Tone Gradients):** Các que xen kẽ giữa dải tre vàng cổ mộc và dải tre ấm mật ong kết hợp viền `borderLeft: 1px solid rgba(255,255,255,0.75)` và rãnh tối `borderRight: 1.2px solid rgba(50,25,10,0.65)` giúp mắt người phân biệt rạch ròi từng que độc lập.
+
+---
+
+### 🧪 3. Kết Quả Kiểm Thử (Chrome DevTools MCP)
+- **Biên dịch Frontend:** `npm run build` thành công $100\%$ không có lỗi cú pháp (2.45s).
+- **Console Logs:** $0$ lỗi trên Chrome DevTools.
+- **Kiểm chứng trực quan:** Chụp ảnh màn hình thực tế xác nhận các que tre dài thêm thanh thoát, bên trái được lấp đầy đặn, cân xứng hoàn hảo với bên phải và nhìn rõ từng thanh tre độc lập.
+
+---
+
+## 📅 Phiên bản: Bó Quẻ Tre Xòe Hình Nón Oval 3D - Đứng Xéo 10 Đến 15 Độ & Phân Chia Đều Quanh Miệng Bình (21/09/2026)
+
+### 🌟 1. Yêu Cầu & Bối Cảnh Người Dùng
+- **Phân chia đều quanh miệng bình:** Người dùng yêu cầu các quẻ không tụ tập thẳng đứng thành một mảng phẳng ở giữa mà phải tách rời nhau, phân chia đều đặn quanh chu vi miệng bình oval.
+- **Đứng xéo 10 - 15 độ:** Các que xăm không cần đứng thẳng mà có thể đứng xéo một góc $10° - 15°$ so với phương thẳng đứng, tạo dáng nan quạt tự nhiên như một bó quẻ tre cắm trong ống thực tế.
+
+---
+
+### 🛠️ 2. Chi Tiết Kỹ Thuật
+- [`frontend/src/components/modals/bamboo/BambooShakerScene.jsx`](file:///t:/Phongthuy/frontend/src/components/modals/bamboo/BambooShakerScene.jsx):
+  - **Tái cấu trúc hình học 3D (3D Elliptical Cone):**
+    - **Góc xéo $10° - 15°$:** 10 que hai bên ngoài có góc nghiêng xéo rõ rệt từ $10.8°$ đến $14.8°$ (trái nghiêng từ `-14.5°` đến `-11.2°`, phải nghiêng từ `+11.0°` đến `+14.2°`), các que giữa chuyển tiếp mượt mà từ $0°$ đến $8.5°$.
+    - **Phân bổ 3D đa tầng (posZ & rotateX):**
+      + Lớp sau (Rear Lip): Ngả nhẹ ra sau (`rotateX: -6°` đến `-9°`, `posZ: -8px` đến `-14px`), cắm sát vành sau của miệng oval.
+      + Lớp giữa (Mid Ring): Chiều sâu chuyển tiếp (`posZ: -3px` đến `+2px`, `rotateX: -2°` đến `+1°`).
+      + Lớp trước (Front Lip): Chúc nhẹ ra trước (`rotateX: +6°` đến `+9°`, `posZ: +8px` đến `+14px`), cắm sát vành trước của miệng oval.
+    - **Tọa độ xuyên miệng bình ($X_{lip}$):** Trải đều khắp chu vi elip từ $-25.5px$ đến $+25.0px$, lấp đầy toàn bộ khoang miệng bình (bán kính trong $rx = 29px$) mà không bị tràn ra ngoài.
+    - **Tăng chiều cao ngọn que:** Tăng chiều cao các que lên `210px - 236px` (ngọn que vươn cao $73px - 99px$ trên miệng bình) giúp góc xéo 10-15 độ xòe rộng thành hình cánh quạt vô cùng phóng khoáng và nghệ thuật.
+    - **Bảo toàn chân que:** Chân của toàn bộ 19 que tre ($stick.x \in [-9.3px, +9.3px]$) gom gọn tại tâm đáy bình ở độ cao $24px$, cách mép đáy bình $> 10.7px$, bị thân bình che phủ kín $100\%$, tuyệt đối không lòi đáy.
+
+---
+
+### 🧪 3. Kết Quả Kiểm Thử (Chrome DevTools MCP)
+- **Biên dịch Frontend:** `npm run build` thành công $100\%$ không có lỗi cú pháp (2.12s).
+- **Console Logs:** $0$ lỗi trên Chrome DevTools.
+- **Kiểm chứng trực quan:**
+  - Chụp ảnh màn hình thực tế xác nhận: Bó quẻ tre vươn cao thanh thoát, xòe đều sang hai bên với góc xéo 10 - 15 độ tự nhiên.
+  - Phân bố đều đặn quanh miệng bình hình oval, tách rời rõ rệt từng que và có chiều sâu 3 tầng sống động.
+
+---
+
+## 📅 Phiên bản: Thiết Kế Lại Toàn Diện Section Học Thuật Trang Home - Loại Bỏ 100% Thuật Ngữ Kỹ Thuật Ra Khỏi Giao Diện (21/09/2026)
+
+### 🌟 1. Vấn Đề Người Dùng Phản Hồi
+- **Hiện tượng:** Section "Học thuật chính thống" trên Trang chủ (`HomeBoard.jsx`) trước đó phô bày hàng loạt thuật ngữ kỹ thuật chuyên môn của lập trình viên và kiến trúc backend:
+  - *"Server-Sent Events (SSE)"*
+  - *"JWT Token và checkOwnership"*
+  - *"LOGIC CONSULTATION ENGINE"*
+  - *"Luận giải logic hệ thống (Realtime stream)"*
+  - *"Phản hồi: 0.12s"*
+  - *"Tách biệt hoàn toàn giữa tính toán an sao lập quẻ tĩnh và hệ thống luận giải logic"*
+- **Yêu cầu:** Thiết kế lại toàn bộ section này trên Trang Home, tuyệt đối không để lộ bất kỳ thông tin kỹ thuật, tên hệ thống hay kiến trúc nội bộ ra bên ngoài; chuyển đổi hoàn toàn sang phong cách Cổ học Phương Đông uyên thâm, chuẩn xác và dịch vụ cao cấp.
+
+---
+
+### 🛠️ 2. Chi Tiết Thay Đổi Trong [HomeBoard.jsx](file:///t:/Phongthuy/frontend/src/features/home/HomeBoard.jsx)
+1. **Nâng cấp Tiêu đề & Văn phong dẫn dắt:**
+   - Tag: `HỌC THUẬT NGUYÊN BẢN` (thay vì `Học thuật chính thống`).
+   - Tiêu đề chính: `Chiêm đoán thấu đáo & chuẩn xác` (thay vì `Hệ thống luận giải logic`).
+   - Đoạn mô tả: *"Hệ thống kết tinh phương pháp tính toán âm dương lịch số nghìn năm từ Kinh Dịch, Bát Tự và Tử Vi Đẩu Số. Mọi diễn giải đều được biện chứng thấu triệt theo bối cảnh đời sống thực tế, mang lại kim chỉ nam định hướng vững vàng cho sự nghiệp, tài vận và gia đạo."*
+
+2. **Chuẩn hóa 4 Đặc Quyền Vượt Trội (Features Grid):**
+   - **Biện Chứng Đa Chiều:** *"Xâu chuỗi can chi, cung vị và tương tác sao hạn để đưa ra lời khuyên thực tế, sát hợp với thời cuộc."*
+   - **Luận Giải Tức Thời:** *"Trải nghiệm bản giải đoán chi tiết từng mục trôi chảy, mạch lạc ngay sau khi lập lá số mà không cần chờ đợi."* (Triệt tiêu hoàn toàn `Server-Sent Events (SSE)`).
+   - **Riêng Tư Tuyệt Đối:** *"Thông tin ngày sinh, bản mệnh và lịch sử chiêm đoán của bạn được bảo vệ an toàn và bảo mật trọn vẹn."* (Triệt tiêu hoàn toàn `JWT Token và checkOwnership`).
+   - **Lưu Giữ Trọn Đời:** *"Dễ dàng lưu trữ các bản chiêm đoán và tra cứu lại bất cứ lúc nào trên mọi thiết bị cá nhân."*
+
+3. **Thiết kế lại Bảng Mô Phỏng Chiêm Đoán (Simulated Analysis Board):**
+   - Header: Đổi nhãn kỹ thuật `LOGIC CONSULTATION ENGINE` thành `TRÍ TUỆ CHIÊM BÁI PHONG THỦY`.
+   - Card 1: Đổi `DỮ LIỆU ĐẦU VÀO HỌC THUẬT` thành `BẢN MỆNH & NGUYÊN CỤC`.
+   - Card 2: Đổi `LUẬN GIẢI LOGIC HỆ THỐNG (REALTIME STREAM)` thành `LỜI KHUYÊN & ĐỊNH HƯỚNG VẬN TRÌNH`.
+   - Footer: Đổi thông số ping kỹ thuật `Phản hồi: 0.12s` thành `Biện chứng Cổ Thư & Tiết Khí`.
+
+---
+
+### 🧪 3. Kiểm Thử Nghiệm Thu (Chrome DevTools MCP)
+- `npm run build`: Thành công 100% trong 2.69s.
+- Kiểm thử trên trình duyệt Chrome (`http://localhost:5173/`):
+  - Nội dung mới hiển thị hoàn mỹ, trang nhã, đúng thẩm mỹ phong thủy cao cấp.
+  - Tuyệt đối 0% từ ngữ kỹ thuật lộ ra ngoài.
+  - Console browser: **0 lỗi** runtime.
+
+
+## 📅 Phiên bản: Sửa Triệt Để Lỗi Chân Que Thò Ra Đáy & Đồng Bộ Chuyển Động 100% Theo Tốc Độ Di Chuột (21/09/2026)
+
+### 🌟 1. Yêu Cầu & Bối Cảnh Người Dùng
+- **Sửa lỗi chân que tre lòi ra ở góc dưới bên phải đáy bình:**
+  - Trong ảnh phản hồi của người dùng, ở góc đáy bên phải có một mẩu góc nhọn chân que tre bị thò ra ngoài đáy bình.
+  - Cần giấu hoàn toàn mọi chân que tre sâu vào trong lòng bình, được thân bình phía trước bao bọc kín $100\%$.
+- **Khắc phục lỗi "nhấn chuột vào là nhảy loạn xạ":**
+  - Trước đây khi người dùng mới nhấn giữ chuột (MouseDown) và đứng yên, hệ thống kích hoạt hoạt ảnh `repeat: Infinity` làm các que tre nhảy cẫng lên liên tục.
+  - Người dùng yêu cầu: Khi nhấn chuột giữ yên, bình và que phải đứng yên tuyệt đối; chỉ khi người dùng thực sự di chuyển lắc chuột qua lại thì ống quẻ và que tre mới chuyển động và độ rung nảy phải tương ứng trực tiếp với tốc độ vung chuột của người dùng.
+
+---
+
+### 🛠️ 2. Chi Tiết Kỹ Thuật
+- [`frontend/src/components/modals/bamboo/BambooShakerScene.jsx`](file:///t:/Phongthuy/frontend/src/components/modals/bamboo/BambooShakerScene.jsx):
+  - **Giấu kín 100% chân que tre sâu trong lòng bình:**
+    - Nâng vị trí container cụm thẻ tre từ `bottom: 8px` lên `bottom: 24px` (nâng cao `16px`).
+    - Giảm chiều cao `height` của 19 thẻ tre tương ứng `16px` (từ `203-228px` về `187-212px`) và gom nhẹ tọa độ $x$ (`-14px` đến `+14px`).
+    - Kết quả: Đỉnh quẻ vẫn giữ nguyên chiều cao đẹp mắt trên miệng bình, nhưng chân của mọi que tre được kéo lùi lên độ cao $24px$ (cách đáy bình $> 12-18px$), nằm lọt thỏm trong lòng bình và được thân bình SVG phía trước (`zIndex: 20`, cao đến $164px$) che phủ kín mít $100\%$, triệt tiêu hoàn toàn hiện tượng lòi que ở đáy.
+  - **Cơ chế chuyển động phản hồi thực tế 1-1 theo chuột (No Infinite Loop):**
+    - `handlePointerDown`: Reset `intensity = 0, y = 0, rotateZ = 0, x = 0`. Khi ấn chuột xuống mà giữ yên, trạng thái hoàn toàn tĩnh ($0\%$ rung giật).
+    - `handlePointerMove`: Áp dụng ngưỡng vận tốc lọc chuyển động (`activeSpeed = Math.max(0, instantSpeed - 0.12)`). Chỉ khi chuột di chuyển đủ nhanh (`intensity > 0.08`), chấn động rung lắc (`jitterZ, jitterX, jitterY`) mới kích hoạt và tăng dần theo tốc độ tay.
+    - Que tre `motion.div`:
+      + Loại bỏ hoàn toàn `repeat: Infinity` khi lắc bằng chuột.
+      + Khi `isMouseShaking`: Chuyển động $y, x, rotateZ, rotateY$ nảy theo `intensity` tức thời với `duration: 0.06s` phản hồi trực tiếp theo từng frame chuột.
+      + Khi chuột dừng lại (người dùng giữ yên tay): Sau `75ms`, `stopTimerRef` tự động triệt tiêu `intensity` về 0, các que tre lập tức trượt êm ái về vị trí cân bằng tĩnh (`duration: 0.16s, ease: easeOut`).
+    - `handlePointerUp`: Clear timer, giải phóng con trỏ và đưa toàn bộ ống quẻ về trạng thái cân bằng giữa màn hình.
+
+---
+
+### 🧪 3. Kết Quả Kiểm Thử (Chrome DevTools MCP)
+- **Biên dịch Frontend:** `npm run build` thành công $100\%$ không có lỗi cú pháp (2.53s).
+- **Console Logs:** $0$ lỗi trên Chrome DevTools.
+- **Kiểm chứng trực quan:**
+  - Chụp ảnh màn hình xác nhận đáy bình góc phải hoàn toàn phẳng mượt, không còn bất kỳ mẩu que nào thò ra.
+  - Mô phỏng `pointerdown` giữ yên: Các que tre và thân bình giữ nguyên vị trí tĩnh, $0\%$ rung giật.
+  - Mô phỏng vung lắc chuột: Bình nghiêng và que tre nảy nhịp nhàng theo đúng tốc độ di chuyển, khi dừng tay chuột lập tức dừng chuyển động.
+
+---
+
+## 📅 Phiên bản: Tách Rời Từng Quẻ Tre Độc Lập & Rung Lắc Đa Hướng Khi Lắc Chuột / Xóc Quẻ (21/09/2026)
+
+### 🌟 1. Yêu Cầu & Bối Cảnh Người Dùng
+- **Tách rời từng quẻ tre trực quan (Visual Separation):**
+  - Trước đây các que xăm có cảm giác như "một khối thống nhất", dính bết vào nhau thành một mảng màu vàng kem phẳng.
+  - Người dùng muốn các que tách rời ra, nhìn rõ từng que độc lập, xòe nhẹ tự nhiên như một bó quẻ tre cắm trong ống thực tế.
+- **Rung động độc lập khi lắc (Independent 3D Vibration):**
+  - Khi xóc (click nút hoặc ấn giữ lắc chuột theo tay), mỗi que tre phải có hướng rung động riêng: biên độ nảy dọc ($y$), độ xô dạt ngang ($x$), góc nghiêng lắc ($rotateZ$), và độ xoay lật mặt 3D ($rotateY$) lệch pha và độc lập, không còn dao động đồng pha như một khối dính liền.
+
+---
+
+### 🛠️ 2. Chi Tiết Kỹ Thuật
+- [`frontend/src/components/modals/bamboo/BambooShakerScene.jsx`](file:///t:/Phongthuy/frontend/src/components/modals/bamboo/BambooShakerScene.jsx):
+  - **Tách rời trực quan từng que tre:**
+    - Tinh chỉnh bề rộng que tre về `5.2px` kết hợp `scaleX(0.6 - 1.0)` theo góc xoay 3D, tạo khe hở thở (air gap) tự nhiên giữa các que.
+    - Phân bố tọa độ `x` tản đều từ `-16px` đến `+16px` theo 3 lớp (Lớp sau `z: 4-6`, Lớp giữa `z: 7-9`, Lớp trước `z: 11-14`), đảm bảo $100\%$ que nằm trọn trong miệng cốc bán kính `26px`.
+    - Tạo góc xòe nhẹ tự nhiên (`angle` từ `-3.2°` bên trái đến `+3.4°` bên phải), so le chiều cao từ `203px` đến `228px`.
+    - Đổ bóng và tạo khối 3D cho từng que: `borderLeft: 1px solid rgba(255,255,255,0.65)` (mép highlight sáng), `borderRight: 1.2px solid rgba(70,40,15,0.55)` (rãnh tối cạnh que), cùng `boxShadow: -1.5px 1.5px 3.5px rgba(40,20,5,0.45)`.
+    - Phối màu tre già/tre non tự nhiên qua `filter: brightness(${stick.brightness}) contrast(1.06)`.
+  - **Cơ chế rung lắc độc lập đa chiều (Multi-dimensional Independent Vibration):**
+    - Trang bị `perspective: 600px` và `transformStyle: preserve-3d` cho khung chứa que.
+    - Cấu hình từng que có bộ tham số chuyển động độc lập: `vibY` (nảy dọc `-8px` đến `-19px`), `vibX` (xô ngang `-2.2px` đến `+2.2px`), `vibZ` (góc lắc riêng), `vibRotY` (xoay lật mặt 3D `12°` đến `25°`), `vibDuration` (`0.18s` đến `0.28s`) và `vibDelay` lệch pha.
+    - Khi ấn giữ kéo chuột (`isPressing`): Tính toán biên độ dao động tỷ lệ thuận trực tiếp với vận tốc trỏ chuột `interactiveTilt.intensity`.
+
+---
+
+### 🧪 3. Kết Quả Kiểm Thử (Chrome DevTools MCP)
+- **Biên dịch Frontend:** `npm run build` thành công $100\%$ không có cảnh báo/lỗi cú pháp (2.18s).
+- **Trình duyệt Chrome DevTools:**
+  - $0$ console errors.
+  - Chụp ảnh màn hình kiểm chứng: Bó quẻ tre xòe nhẹ tự nhiên, các que tre tách rời rõ rệt, thấy rõ từng thanh tre với viền sáng/tối và độ sâu đa tầng.
+  - Tương tác lắc chuột và xóc quẻ: Từng que tre nảy dọc, xoay 3D và rung lắc lệch pha chân thực.
+
+---
+
+## 📅 Phiên bản: Hoàn Thiện Chi Tiết Bình Xăm - Vành Miệng Liền Mạch Không Gạch Nối, Vỏ Tre Kéo Chạm Đáy & Bổ Sung Bó 19 Quẻ Tre (21/09/2026)
+
+### 🌟 1. Yêu Cầu & Bối Cảnh Người Dùng
+- **Xóa bỏ mảng oval màu nâu ở đáy (như hình 1):** Khi nhìn từ góc trên xuống, toàn bộ lớp vỏ các mảnh nan tre ghép phải kéo dài xuống tận mép đáy tiếp xúc sàn, triệt tiêu hoàn toàn mảng oval màu nâu lộ ra trước đây.
+- **Vòng tròn trên miệng cốc đồng nhất màu & không có gạch nối (như hình 2):** Toàn bộ vành miệng là một thể thống nhất hoàn chỉnh 360 độ, cùng một tone màu tre mộc óng ả (`unifiedRimGrad`), không còn bất kỳ đường cắt hay gạch nối ngăn cách nào ở hai bên mép.
+- **Bổ sung và sắp xếp các thanh quẻ hợp lý (19 que tre):** Tăng số lượng thẻ tre lên 19 que, sắp xếp so le tự nhiên đầy đặn, không bị tràn ra khỏi bình và mọi que tre đều cắm sâu trong lòng bình với phần chân que bị thân bình che khuất $100\%$.
+
+---
+
+### 🛠️ 2. Chi Tiết Kỹ Thuật
+- [`frontend/src/components/modals/bamboo/BambooShakerScene.jsx`](file:///t:/Phongthuy/frontend/src/components/modals/bamboo/BambooShakerScene.jsx):
+  - **Đáy bình liền mạch không còn oval nâu:**
+    - Xóa bỏ thẻ path elip nâu `<path d="M 18,160... fill="#4E2B0C" />`.
+    - Kéo dài đường path thân bình nan tre xuống tận `y = 164`: `d="M 2,15 A 36,12 0 0,0 74,15 L 58,164 A 20,6 0 0,1 18,164 Z"`.
+    - Các rãnh nan tre dọc hội tụ cũng kéo dài chạm mép đáy cong `y = 164 + 6 * Math.sin(Math.PI * ratio)`.
+  - **Vành miệng Oval 3D đồng nhất, 0 gạch nối:**
+    - Sử dụng chung gradient tre mộc `unifiedRimGrad` (`#8C5F28` $\rightarrow$ `#DFBA7D` $\rightarrow$ `#8C5F28`) cho cả vành sau và vành trước.
+    - Loại bỏ stroke nối ngang ở hai mút tiếp giáp `x=2, y=15` và `x=74, y=15`, chỉ vẽ stroke cho cung ngoài và cung trong. Khi ghép lại, vành miệng trở thành 1 hình oval rỗng liền mạch $100\%$.
+  - **Cụm 19 que tre tự nhiên:**
+    - Tăng từ 13 lên 19 que tre cắm từ đáy bình vươn lên, sải que gom gọn trong phạm vi `x: [-13px, +13px]` (cách thành bình hơn `14px`), hoàn toàn không bị tràn ra ngoài.
+    - Chân quẻ đặt sâu tại `bottom: 0` bên trong lòng bình, được thân bình phía trước cao `149px` che phủ kín đáo.
+
+---
+
+### 🧪 3. Kết Quả Kiểm Thử (Chrome DevTools MCP)
+- **Biên dịch Frontend:** `npm run build` thành công $100\%$ không có lỗi cú pháp (thời gian `2.23s`).
+- **Console Logs:** $0$ lỗi JavaScript/DOM trên trình duyệt Chrome DevTools.
+- **Nghiệm thu hình ảnh:** Chụp ảnh màn hình thực tế xác nhận: đáy bình là các mảnh tre kéo dài xuống chạm sàn không còn mảng oval nâu; miệng bình là một vòng elip đồng màu liền mạch không gạch nối; 19 que tre đầy đặn nằm trọn trong lòng bình.
+
+---
+
+## 📅 Phiên bản: Bình Hình Thang Phối Cảnh SVG Với Miệng Oval & Đổ Bóng Góc Nhìn Từ Ngoài Vào Trong (21/09/2026)
+
+### 🌟 1. Yêu Cầu & Bối Cảnh Người Dùng
+- **Thiết kế chuẩn xác theo sơ đồ phối cảnh hình ảnh mới:** Thân bình hình thang thon nhọn xuống đáy, hai cạnh bên nối thẳng từ hai mút của hình oval miệng xuống hai mút của hình oval đáy.
+- **Miệng bình có hình Oval với hiệu ứng đổ bóng góc nhìn từ ngoài vào trong:**
+  - Nhìn thấy rõ thành miệng bình dày dặn gồm 2 elip đồng tâm (elip ngoài và elip trong).
+  - Khoang rỗng elip bên trong có hiệu ứng đổ bóng sâu thẳm (`radialGradient` từ mép trước hắt vào sâu trong lòng), tạo cảm giác chân thực của một vật thể rỗng có chiều sâu nhìn từ ngoài chúc vào trong bình.
+  - Các que xăm cắm sâu từ trong lòng khoang oval vươn lên, phần chân que bị thành trước của miệng bình che khuất đúng theo quy luật thị sai phối cảnh 3D.
+
+---
+
+### 🛠️ 2. Chi Tiết Kỹ Thuật
+- [`frontend/src/components/modals/bamboo/BambooShakerScene.jsx`](file:///t:/Phongthuy/frontend/src/components/modals/bamboo/BambooShakerScene.jsx):
+  - **Tái cấu trúc bình xăm bằng đồ họa vector SVG đa lớp (Multi-layer SVG):**
+    - **Lớp 1 (Phía sau - z-index: 2):**
+      + Thành trong phía sau (Inner Back Wall) phủ gradient tối sâu `#2A1608` $\rightarrow$ `#020100`.
+      + Lỗ mở Oval bên trong (`cx=38, cy=15, rx=29, ry=8.5`) tô bằng `innerCavityShadow` (bóng đổ xuyên tâm hắt từ mép trước vào lòng bình).
+      + Nửa sau của vành miệng bình (Rear Rim Lip) nối hai mút `(2, 15)` và `(74, 15)` có viền tre sẫm `#2E1604`.
+    - **Lớp 2 (Ở giữa - z-index: 10):**
+      + 13 que tre cắm từ lòng bình vươn cao lên khỏi miệng bình, sắp xếp lẫn lộn tự nhiên, chữ đen mộc mạc.
+    - **Lớp 3 (Phía trước - z-index: 20):**
+      + Thân bình ngoài hình thang: Đỉnh cong theo nửa dưới elip miệng `M 2,15 A 36,12 0 0,0 74,15`, đáy cong theo nửa dưới elip đáy `A 20,6 0 0,1 18,160`, hai cạnh bên thẳng xiên.
+      + 9 nan tre hội tụ chạy dọc thân bình với các đường rãnh đổ bóng và highlight ánh sáng.
+      + 2 đai niềng ngang uốn lượn theo mặt trụ 3D.
+      + **Vành trước của miệng Oval (Front Rim Lip):** Nửa trước khép kín có độ dày thành miệng `7px` ở hai bên và `3.5px` ở giữa, viền nổi khối và mép trong có bóng đổ đậm (`rgba(0,0,0,0.85)`) hắt vào lòng trong bình, tạo độ sâu phối cảnh tuyệt đối.
+      + Vành elip đáy bo tròn tiếp đất hoàn hảo.
+
+---
+
+### 🧪 3. Kết Quả Kiểm Thử (Chrome DevTools MCP)
+- **Biên dịch Frontend:** `npm run build` thành công $100\%$ không có lỗi cú pháp (thời gian `2.88s`).
+- **Console Logs:** $0$ lỗi console trên trình duyệt Chrome DevTools.
+- **Nghiệm thu hình ảnh:** Chụp ảnh màn hình thực tế xác nhận chiếc bình hình thang có miệng oval với độ dày thành miệng và hiệu ứng đổ bóng từ ngoài vào trong bình đúng $100\%$ sơ đồ người dùng cung cấp.
+
+---
+
+## 📅 Phiên bản: Chiều Rộng Ống Xăm Thu Nhỏ 1 Nửa & Miệng Bình Oval 3D Rõ Nét Theo Bản Phác Thảo (21/09/2026)
+
+### 🌟 1. Yêu Cầu & Bối Cảnh Người Dùng
+- **Chiều rộng của lọ nhỏ lại 1 nửa:** Thân bình được thu hẹp chiều rộng một nửa so với trước, tạo dáng ống xăm thon dài thanh mảnh và cân đối (Miệng: `70px`, Đáy: `44px`).
+- **Miệng lọ có hình Oval 3D rõ nét như bản phác thảo:** Thiết kế vành miệng bình dạng hình elip/oval khép kín nhìn từ góc trên 3D (nửa sau cong lên, nửa trước cong xuống ôm trọn lấy đỉnh nan tre), khoang rỗng bên trong tối sâu tạo cảm giác chân thật về không gian ba chiều của chiếc bình thực tế.
+- **Que tre cắm lọt trọn trong lòng Oval:** Các que tre thon nhỏ (`6.2px`), cắm sâu từ lòng elip vươn lên xòe nhẹ, để lộ rõ hai mép cong của vành oval miệng bình.
+
+---
+
+### 🛠️ 2. Chi Tiết Kỹ Thuật
+- [`frontend/src/components/modals/bamboo/BambooShakerScene.jsx`](file:///t:/Phongthuy/frontend/src/components/modals/bamboo/BambooShakerScene.jsx):
+  - **Thu gọn kích thước thân bình một nửa:**
+    - Miệng trên: `70px` (trước: `118px`). Đáy dưới: `44px` (trước: `100px`). Chiều cao: `148px`.
+    - Dáng hình thang thon nhọn xuống đáy: `clipPath: 'polygon(0% 0%, 100% 0%, 81.5% 100%, 18.5% 100%)'`.
+  - **Tái hiện vành miệng Oval 3D hoàn chỉnh:**
+    - Vành sau: `width: 72px, height: 22px, bottom: 140px, borderRadius: 50%` với viền tre đậm `#3E2208` và gradient ánh sáng.
+    - Khoang lòng oval sâu: `width: 64px, height: 16px, background: radial-gradient(ellipse at center, #0B0401 30%, #1F0E04 70%, #3B1E0A 100%)`.
+    - Vành trước: `width: 72px, height: 22px, bottom: 140px` với viền mộc nổi khối `#E8C88B` bo cong xuống dưới ôm sát đỉnh thân nan tre, tạo thành một chiếc vòng oval 3D khép kín nổi bật.
+  - **Cụm que tre thon gọn:**
+    - Chiều rộng que: `6.2px`, cắm trong phạm vi `width: 46px` ở lòng oval, tọa độ `x` từ `-12px` đến `+11px`.
+    - Chữ Hán đen nhỏ `text-[6.8px]`.
+    - Thẻ định mệnh khi rơi sang bên phải chếch 20 độ tiếp đất tại `x: 48px, y: 0, rotateZ: 20` vừa vặn bên cạnh bình.
+
+---
+
+### 🧪 3. Kết Quả Kiểm Thử (Chrome DevTools MCP)
+- **Biên dịch Frontend:** `npm run build` thành công $100\%$ không có lỗi cú pháp (thời gian `3.01s`).
+- **Console Logs:** $0$ lỗi console trên trình duyệt Chrome DevTools.
+- **Nghiệm thu hình ảnh:** Chụp ảnh màn hình thực tế xác nhận chiếc lọ thon nhỏ bằng một nửa, miệng oval 3D rõ nét đúng y hệt bản phác thảo vẽ tay của người dùng.
+
+---
+
+## 📅 Phiên bản: Bình Hình Thang Nan Tre Ghép, Toàn Bộ Quẻ Trong Lòng Bình, Thẻ Mộc Chữ Đen & Modal Không Cuộn (21/09/2026)
+
+### 🌟 1. Yêu Cầu & Bối Cảnh Người Dùng
+- **Tất cả các quẻ đều ở trong bình, không được lòi ra ngoài:** Toàn bộ que tre phải nằm trọn vẹn bên trong phạm vi vành miệng bình, triệt tiêu hoàn toàn hiện tượng que chọc xiên lòi ra ngoài hai bên sườn bình.
+- **Modal không được cuộn lên cuộn xuống (Zero-Scroll Modal):** Giao diện xóc quẻ phải vừa khít trọn vẹn trong một khung nhìn modal duy nhất (`overflow-hidden`), không xuất hiện thanh cuộn dọc làm khuất tiêu đề hay nút bấm.
+- **Lọ theo hình thang, không quá vuông:** Dáng bình thon nhẹ từ miệng trên (`118px`) xuống đáy (`100px`), bo cong các góc mềm mại tự nhiên.
+- **Quẻ sắp xếp lẫn lộn, không hướng hết về màn hình; Bỏ chữ Trung Quốc ở lọ:** Bỏ hoàn toàn triện `"籤"` và thư pháp `"萬事隨緣"` trên thân lọ. Các que tre sắp xếp xáo trộn tự nhiên (que lộ mặt, que nhìn nghiêng, que trơn), chỉ một vài que có chữ Hán.
+- **Cấu trúc lọ ghép từ những thanh tre (Bamboo Slats Construction):** Thân bình được cấu tạo từ 11 nan tre ghép dọc có rãnh viền phân cách, liên kết bằng 2 đai niềng tre/đồng mộc ở trên và dưới.
+- **Thanh trúc trong bình không cần màu đỏ, chỉ cần chữ màu đen:** Bỏ hoàn toàn dải sơn son chu sa đỏ ở đầu que tre, toàn bộ que mang màu đũa tre mộc đồng nhất, chữ viết dùng mực đen thuần túy.
+
+---
+
+### 🛠️ 2. Chi Tiết Kỹ Thuật
+- [`frontend/src/components/modals/bamboo/BambooShakerScene.jsx`](file:///t:/Phongthuy/frontend/src/components/modals/bamboo/BambooShakerScene.jsx):
+  - **Giới hạn tọa độ que tre trong lòng bình:**
+    - Điều chỉnh tọa độ `x` của 11 que tre nằm gọn trong khoảng `[-19px, +18px]` với góc nghiêng hẹp `[-2.8°, +3.0°]`.
+    - Bán kính lớn nhất của đỉnh que chỉ đạt `31px`, nằm hoàn toàn bên trong vành miệng bình rộng `106px` (bán kính `53px`), cách mép bình hơn `22px` an toàn, triệt tiêu 100% việc que lòi ra ngoài sườn.
+  - **Tạo hình bình nan tre hình thang:**
+    - Sử dụng `clipPath: 'polygon(0% 0%, 100% 0%, 92.5% 100%, 7.5% 100%)'` cho thân bình cao `160px`, rộng miệng `118px`, đáy `100px`.
+    - Cấu tạo từ 11 nan tre ghép dọc song song với viền rãnh `rgba(75, 48, 18, 0.45)` và bóng đổ sâu.
+    - 2 niềng đai tre/kim loại mộc siết chặt tại `top: 20px` và `bottom: 20px`.
+    - Xóa bỏ hoàn toàn con dấu triện `"籤"` và chữ Hán trên thân bình.
+  - **Thanh tre mộc chữ đen thuần túy & sắp xếp 3D xáo trộn:**
+    - Bỏ dải màu đỏ chu sa ở tất cả các que và thẻ định mệnh.
+    - Dùng mực đen `#15110E` (opacity 0.95) khắc trực tiếp lên thớ tre mộc.
+    - Đa dạng hóa hướng que: có que quay mặt trơn (`char: null`), có que xoay nghiêng 3D (`rotateY: 80°`, `-70°`), tạo cảm giác bó que thật trong ống.
+  - **Tối ưu kích thước sân khấu:** Chiều cao stage giảm xuống `260px`, quẻ rơi tiếp đất ở `x: 68px, y: 0, rotateZ: 20` bên góc phải của bình, không che lấp nút bấm.
+- [`frontend/src/components/modals/DailyFortuneModal.jsx`](file:///t:/Phongthuy/frontend/src/components/modals/DailyFortuneModal.jsx):
+  - Khóa `overflow-hidden` khi ở chế độ xóc quẻ (`!revealedFortune`).
+  - Tinh chỉnh khoảng cách đệm (padding `p-3 sm:p-3.5`, nền bục `p-2 sm:p-2.5`) và cỡ chữ tiêu đề, đảm bảo toàn bộ modal vừa vặn trên màn hình, không sinh thanh cuộn dọc.
+  - Đồng bộ thẻ quẻ nhỏ (mini stick badge) trên màn hình kết quả sang màu đũa tre mộc chữ đen thuần túy, không có màu đỏ.
+
+---
+
+### 🧪 3. Kết Quả Kiểm Thử (Chrome DevTools MCP)
+- **Biên dịch Frontend:** `npm run build` thành công $100\%$ không có lỗi hay cảnh báo cú pháp (thời gian `2.38s`).
+- **Console Errors:** $0$ lỗi console trên trình duyệt Chrome DevTools.
+- **Nghiệm thu hình ảnh:** Chụp ảnh màn hình thực tế xác nhận: modal không có thanh cuộn dọc, 100% que tre nằm gọn trong bình, bình hình thang ghép nan tre mộc không có chữ Hán, que tre không có màu đỏ chỉ có chữ đen mộc mạc.
+
+---
+
+## 📅 Phiên bản: Màu Đũa Tre Tự Nhiên Cho Bình & Quẻ, Tăng Chiều Dài Ống Xăm & Thẻ Tre, Lắc Theo Vận Tốc Chuột & Quẻ Tiếp Đất Góc Phải Chếch 20 Độ (21/09/2026)
+
+### 🌟 1. Yêu Cầu & Bối Cảnh Người Dùng
+- **Màu sắc vật thể (Màu của đũa tre):** Áp dụng chất liệu và bảng màu đũa tre mộc tự nhiên (vàng rơm ngà, vàng mật ong nhạt, thớ tre dọc mộc mạc) cho cả bình đựng quẻ và các que tre.
+- **Tăng chiều dài bình đựng:** Thân ống xăm trụ tròn tăng chiều cao (`height: 192px`), thon dài thanh nhã hơn theo đúng tỷ lệ ống xăm truyền thống.
+- **Tăng chiều dài phần quẻ vượt quá miệng bình:** Các thẻ tre dài hơn (`238px - 262px`), thò cao lên trên miệng ống từ `60px - 85px` (khoảng 35% chiều dài que), tạo hình thế bó quẻ tre đầy đặn, bề thế.
+- **Sắp xếp quẻ 3D không đồng đều (Organic 3D Bundle):** Các que tre được xoay 3D bất đối xứng theo trục Y (`rotateY: -60°` đến `+65°`), nghiêng so le đa chiều, không còn phẳng đều hướng về màn hình, tái hiện trung thực bó đũa tre thật trong ống.
+- **Nhịp lắc theo vận tốc con trỏ chuột:** Chuột lắc mạnh $\rightarrow$ rung lắc mạnh, que nảy cao, tiếng gõ vang giòn; chuột kéo nhẹ $\rightarrow$ dịch chuyển êm dịu, dao động vi tế.
+- **Quẻ rơi sang góc phải chếch xuống 20 độ:** Khi quẻ định mệnh bay ra, lượn parabol sang bên góc phải của bình và tiếp đất tựa góc phải với góc nghiêng chếch xuống 20 độ (`rotateZ: 20`), đầu son chu sa và chữ Hán thư pháp quay lên chính diện rõ nét.
+
+---
+
+### 🛠️ 2. Chi Tiết Kỹ Thuật
+- [`frontend/src/components/modals/bamboo/BambooShakerScene.jsx`](file:///t:/Phongthuy/frontend/src/components/modals/bamboo/BambooShakerScene.jsx):
+  - **Màu đũa tre mộc tự nhiên:**
+    - Bình đựng: `linear-gradient(to right, #8C652D 0%, #A97E40 8%, #CBA15F 22%, #E8C88B 46%, #F5DEAE 56%, #DFBC7E 74%, #B88E4E 88%, #7E5923 100%)` kèm thớ tre dọc và niềng đai mây tre ánh đồng cổ kính.
+    - Que tre: `linear-gradient(to top, #BA9054 0%, #CEAA6E 30%, #DFBE84 70%, #ECD39E 100%)`, viền sáng highlight cạnh trái và đổ bóng cạnh phải, đầu chu sa sẫm `#8C2218` và chữ Hán mực nho `#341E0F`.
+  - **Cấu hình 3D cho 13 thẻ tre:** Bổ sung `rotateY` và `widthScale` cho từng que tre, kết hợp `perspective: 1000px` tạo chiều sâu thị giác chân thực.
+  - **Mô hình động học vận tốc chuột:**
+    - Tính toán `instantSpeed = Math.hypot(dx, dy) / dt`.
+    - Điều tiết cường độ `intensity` từ 0.06 đến 1.0, trực tiếp điều khiển biên độ rung giật `jitterZ, jitterX, jitterY`, độ nảy que tre (`y: up to -18px`), âm lượng va đập nan tre (`playBambooClickSound(0.35 + intensity * 0.85)`), và tốc độ tích lũy tiến trình rút quẻ.
+  - **Quỹ đạo rơi & điểm tiếp đất góc phải:**
+    - Destined stick chuyển động: `rising (y: -125)` $\rightarrow$ `pause` $\rightarrow$ `falling (lượn sang x: 75, rotateZ: 20)` $\rightarrow$ `landed (y: 0, x: 75, rotateZ: 20, transformOrigin: 'bottom center')`.
+    - Tiếp đất gọn gàng bên góc phải bục đặt bình tre, nghiêng đúng 20 độ, không cọ xát hay che lấp nút bấm.
+- [`frontend/src/components/modals/DailyFortuneModal.jsx`](file:///t:/Phongthuy/frontend/src/components/modals/DailyFortuneModal.jsx):
+  - Đồng bộ thẻ quẻ nhỏ (mini stick badge) trên màn hình kết quả sang màu đũa tre mộc.
+  - Tối ưu padding modal body (`p-3 sm:p-4`) để toàn bộ ống xăm tre cao lớn hiển thị vừa vặn, không xuất hiện thanh cuộn dọc ngoài ý muốn.
+
+---
+
+### 🧪 3. Kết Quả Kiểm Thử (Chrome DevTools MCP)
+- **Biên dịch Frontend:** `npm run build` hoàn tất thành công $100\%$ (mã thoát `0`, thời gian `2.09s`).
+- **Console Errors:** $0$ lỗi JavaScript/DOM.
+- **Xác thực trực quan:** Chụp ảnh màn hình kiểm thử Chrome DevTools xác nhận màu đũa tre mộc ấm áp trên cả bình và que, thẻ quẻ thò cao bề thế, sắp xếp 3D sinh động, và thẻ rơi tiếp đất đúng góc phải chếch 20 độ.
+
+---
+
+## 📅 Phiên bản: Hoàn Thiện Tương Tác Lắc Chuột Vật Lý (Press & Hold Drag), Ống Trụ Tròn 3D Khép Đáy & Giao Diện Nền Trắng Sáng Văn Nhã (21/09/2026)
+
+### 🌟 1. Yêu Cầu & Bối Cảnh Người Dùng
+- **Tương tác lắc vật lý theo tay (Press & Hold to Shake):** Khi người dùng ấn và giữ chuột (`pointerdown`) thì mới bắt đầu lắc; thân ống tre sẽ lắc nghiêng và chuyển động trực tiếp theo con trỏ chuột (`pointermove`) thay vì chạy animation cấu hình tự động.
+- **Giao diện Modal nền trắng (Clean Light Aesthetic):** Nền modal chuyển sang nền trắng (`bg-white`), chỉ có vật thể gieo quẻ (ống xăm tre, thẻ tre) là giữ tone màu trầm ấm cổ điển, không chói mắt.
+- **Không để giống "hộp đựng card" (Authentic 3D Cylindrical Container):** Thân ống là hình trụ tròn (rounded cylindrical body), có độ dày thành miệng oval và khoang rỗng sâu (inner cavity), các mặt cong 3D, vân tre mộc mạc và niềng đồng cổ.
+- **13 thẻ quẻ ngập sâu trong ống, kín đáy 100%:** 75% chiều dài thẻ tre nằm sâu trong thân ống, chỉ nhô 25% đầu que son chu sa và chữ Hán mực nho; tuyệt đối không còn thẻ nào lòi ra ở đáy hay lộ hai bên sườn.
+- **Chuỗi động tác vật lý (Physical Animation Sequence):** `IDLE` -> `SHAKE` (theo tay người dùng) -> `SELECTING` -> `RISING` -> `PAUSE` -> `FALLING` -> `LANDED` -> `RESULT`.
+- **Tự động cuộn đỉnh trang:** Tự động cuộn mượt về đầu modal khi chuyển sang màn hình kết quả quẻ.
+- **Giữ nút Reset kiểm thử:** Đầy đủ nút reset test ở Header và Footer để tiện kiểm thử.
+
+---
+
+### 🛠️ 2. Chi Tiết Kỹ Thuật
+- [`frontend/src/components/modals/bamboo/BambooShakerScene.jsx`](file:///t:/Phongthuy/frontend/src/components/modals/bamboo/BambooShakerScene.jsx):
+  - **Hình trụ 3D chuẩn xác bằng explicit style:**
+    - Outer rear rim: `width: 124px`, `height: 28px`, `borderRadius: 50%`.
+    - Inner cavity: `width: 112px`, `height: 22px`.
+    - Thân trước hình trụ: `width: 124px`, `height: 162px`, `borderTop/BottomRadius: 50% 14px`, che kín 75% chiều dài que tre, đáy kín 100% với bóng tiếp xúc sàn.
+    - Cụm 13 thẻ tre nằm gọn gàng bên trong khoang miệng oval (biên độ `x: -28px` đến `+22px`), góc nghiêng `-7deg` đến `+7deg`.
+  - **Press & Hold Drag Event Handling:**
+    - Tích hợp `onPointerDown` với `setPointerCapture` và `isPressing` state.
+    - `onPointerMove`: Đo vector di chuyển chuột `deltaX`, nghiêng ống tre theo góc `tiltZ = deltaX * 0.42`, tính vận tốc chuyển hướng để phát âm thanh tre cọ xát và tích lũy tiến trình lắc `shakeProgress`.
+    - `onPointerUp`: Giải phóng con trỏ và hồi vị trí cân bằng bằng lò xo vật lý.
+- [`frontend/src/components/modals/DailyFortuneModal.jsx`](file:///t:/Phongthuy/frontend/src/components/modals/DailyFortuneModal.jsx):
+  - Chuyển container modal sang nền trắng sạch sẽ `bg-white border-[#E8DFC9] shadow-2xl shadow-stone-900/20`.
+  - Bục đặt ống tre dùng khung antique thanh nhã `from-[#F7F2EA] to-[#EFE7DC]`.
+  - Bổ sung `modalBodyRef` và hiệu ứng tự động cuộn lên đỉnh (`scrollTop = 0`) khi hiển thị kết quả quẻ.
+
+---
+
+### 🧪 3. Kết Quả Kiểm Thử (Chrome DevTools MCP)
+- **Biên dịch Frontend:** `npm run build` hoàn thành với mã thoát `0` (1.82s).
+- **Console Errors:** 0 lỗi JavaScript/DOM.
+- **Xác thực trực quan:** Chụp ảnh màn hình kiểm thử Chrome DevTools xác nhận ống xăm hình trụ tròn 3D hoàn mỹ, đáy kín 100%, không bị lòi que, giao diện nền trắng sáng hài hòa và nút Reset test hoạt động trơn tru.
+
+---
+
+## 📅 Phiên bản: Tinh Chỉnh Bảng Màu Trầm Ấm & Mực Nho Thư Pháp Dịu Mắt Cho Ống Xăm Tre (21/09/2026)
+
+### 🌟 1. Yêu Cầu & Bối Cảnh Người Dùng
+- **Màu sắc tổng thể:** Không được quá sáng hay chói mắt, chuyển toàn bộ không gian sang gam màu điện ảnh trầm mặc, ấm áp kiểu điện thờ cổ học phương Đông (Dark Temple Sanctuary).
+- **Chữ viết trên thanh tre quẻ:** Chữ Hán thư pháp trên thanh tre phải nhẹ nhàng, thanh thoát, mực nho chìm tự nhiên vào thớ tre già, tuyệt đối không chói mắt, không viền text-shadow trắng lóa hay màu sắc phát sáng nhân tạo.
+- Giữ nguyên nút reset tạm thời để phục vụ kiểm thử cho đến khi có yêu cầu tắt.
+
+---
+
+### 🛠️ 2. Chi Tiết Thực Hiện
+- [`frontend/src/components/modals/bamboo/BambooShakerScene.jsx`](file:///t:/Phongthuy/frontend/src/components/modals/bamboo/BambooShakerScene.jsx):
+  - **Màu gỗ thanh tre:** Chuyển từ tông vàng sáng/be (`#D4BD95`, `#E5D0AD`) sang thớ tre mộc già nhuộm màu thời gian trầm ấm (`#4A3420` -> `#684B2E` -> `#82633E` -> `#94724A`), không còn bất kỳ vệt sáng chói nào.
+  - **Mực chữ Hán trên thẻ tre:** Dùng mã mực nho cổ `#24160E` với `opacity: 0.8 - 0.85`, loại bỏ hoàn toàn viền đổ bóng sáng trắng (`textShadow`), tạo cảm giác mực tàu thật thấm vào từng thớ xơ tre.
+  - **Thẻ định mệnh (Destined Stick):** Hiển thị tên quẻ chữ Hán viết dọc theo thân thẻ tre theo đúng chuẩn thẻ xăm truyền thống cổ tự, loại bỏ bóng phát quang vàng neon `boxShadow: 0 0 12px`, thay bằng bóng đổ tiếp xúc thực tế `rgba(0,0,0,0.75)`.
+  - **Đầu thẻ Chu Sa:** Dùng son chu sa sẫm cổ kính (`#541913` -> `#3B100C`), hòa hợp với tông màu trầm.
+  - **Thân ống tre & Nút bấm:** Tinh chỉnh dải sáng highlight thân ống tre xuống `opacity: 0.08`, nút bấm dùng tông gỗ sưa/sơn mài trầm ấm `#381E12` viền kim cổ nhã nhặn.
+- [`frontend/src/components/modals/DailyFortuneModal.jsx`](file:///t:/Phongthuy/frontend/src/components/modals/DailyFortuneModal.jsx):
+  - Đồng bộ toàn bộ các thẻ hiển thị quẻ, phẩm vị (`RANK_BADGES`), thơ sấm và chỉ dẫn 3 trục sang gam màu trầm ấm, chữ vàng ngà/kem ấm `#D6C4B2` và `#BCA996` dịu mắt, hoàn toàn không gây mỏi mắt trong bóng tối.
+  - Bổ sung huy hiệu thanh tre quẻ Hán tự sơn son chu sa mực nho thu nhỏ ngay trên thẻ tiêu đề để người dùng quan sát rõ quẻ xăm định mệnh.
+
+---
+
+### 🧪 3. Kết Quả Kiểm Thử (Chrome DevTools MCP)
+- **Biên dịch Frontend:** `npm run build` hoàn thành trong 1.80s với 0 lỗi.
+- **Console Errors:** 0 lỗi JavaScript/DOM.
+- **Xác thực trực quan:** Chụp ảnh màn hình kiểm thử Chrome DevTools xác nhận thanh tre có chữ Hán trầm mực nho dịu mắt, không gian huyền ảo, không còn hiện tượng chói lóa.
+
+---
+
+## 📅 Phiên bản: Tái Thiết Kế Ống Xăm Điện Ảnh 3D Chữ Hán, Xử Lý Màu Sắc & Thông Báo Chấm Đỏ Quẻ Ngày (21/09/2026)
+
+### 🌟 1. Yêu Cầu & Bối Cảnh Người Dùng
+- **Hình 1:** Bỏ hoàn toàn màu đen của thẻ Kim Chỉ Nam Đạo Dịch và nút đóng, thay bằng gam màu phong thủy cổ học thanh lịch, sang trọng (Amber/Gỗ sẫm viền kim).
+- **Hình 2:** Xóa bỏ hoàn toàn nút *"Lắc lại chiêm nghiệm"*.
+- **Hình 3:** Bổ sung thuật toán kiểm tra hôm nay đã gieo quẻ chưa. Nếu **chưa gieo** $\rightarrow$ hiển thị **chấm đỏ nhấp nháy (`animate-ping`)** nổi bật trên nút *🎋 Quẻ Ngày* (Header Desktop & Mobile Drawer). Khi đã gieo xong $\rightarrow$ chấm đỏ tự động biến mất lập tức.
+- **Hình 4:** Bỏ hoàn toàn dòng chữ *"Miễn phí 1 lần gieo duy nhất mỗi ngày"*.
+- **Ống xăm 3D điện ảnh:**
+  - 100% thẻ tre bên trong dùng chữ Hán cổ phong (乾, 坤, 震, 巽, 坎, 離, 艮, 兌, 泰, 謙, 吉, 祥, 福, 祿...), tuyệt đối không dùng tiếng Việt trên thẻ tre trong ống.
+  - Bỏ thanh tiến trình (progress bar).
+  - Hỗ trợ tương tác chuột và cảm ứng mobile (vuốt/kéo lắc trực tiếp trên ống theo nhịp tay).
+- **Tích hợp nút Reset kiểm thử (Tạm thời):** Bổ sung nút `[ ↺ Reset test ]` tại thanh tiêu đề modal và nút `↺ Reset để test` tại chân trang kết quả để phục vụ người dùng test luồng xóc quẻ và kiểm tra trạng thái chấm đỏ nhiều lần theo yêu cầu. Khi hoàn tất nghiệm thu, nút này có thể được gỡ bỏ dễ dàng chỉ bằng 1 thao tác.
+
+---
+
+### 🛠️ 2. Các Tệp Tin Đã Xây Dựng & Chỉnh Sửa
+
+#### A. Trải Nghiệm Xóc Ống Tre & Âm Thanh
+- [`frontend/src/components/modals/bamboo/BambooShakerScene.jsx`](file:///t:/Phongthuy/frontend/src/components/modals/bamboo/BambooShakerScene.jsx):
+  - Kiến trúc 2.5D/3D đa tầng: Vành miệng ống 3D, lòng ống sâu thẳm, thân ống sơn mài sẫm đốt trúc viền đồng khắc triện Hán cổ "籤", bóng đổ sàn biến thiên theo góc nghiêng và độ cao.
+  - Bó 16 thẻ tre cắm tự nhiên với góc nghiêng riêng, chữ Hán cổ phong và chỉ đỏ đầu thẻ.
+  - Thẻ được chọn trỗi dậy khỏi miệng ống (`RISING`), dừng ngập ngừng nghệ thuật (`PAUSE`), phóng xuất lượn parabol 3D (`FALLING`), và tiếp đất nảy nhẹ (`LANDED`).
+  - Hỗ trợ cử chỉ cảm ứng/chuột kéo lắc (`handlePointerMove`) nhận diện nhịp tay để tự kích hoạt xóc quẻ.
+- [`frontend/src/utils/bambooSound.js`](file:///t:/Phongthuy/frontend/src/utils/bambooSound.js):
+  - Bổ sung hàm `playStickDropSound()` và `playResultChimeSound()` bên cạnh `playBambooClickSound()` và `playStickRevealSound()`.
+
+#### B. Nâng Cấp Modal & Thuật Toán Check Trạng Thái
+- [`frontend/src/features/iching/data/dailyFortuneData.js`](file:///t:/Phongthuy/frontend/src/features/iching/data/dailyFortuneData.js):
+  - Bổ sung các hàm tiện ích: `getTodayDateString()`, `checkHasDrawnDailyFortune(userId)`, `saveDailyFortuneResult(fortune, userId)`, và sự kiện đồng bộ toàn cục `DAILY_FORTUNE_EVENT`.
+- [`frontend/src/components/modals/DailyFortuneModal.jsx`](file:///t:/Phongthuy/frontend/src/components/modals/DailyFortuneModal.jsx):
+  - Tích hợp `BambooShakerScene`.
+  - Loại bỏ màu đen ở Hình 1: Đổi hộp Kim Chỉ Nam sang tông hổ phách ấm áp `bg-gradient-to-br from-amber-900/90 via-amber-850 to-amber-950 text-amber-50 border border-amber-700/50`, nút đóng đổi sang tone sơn mài sang trọng.
+  - Xóa bỏ nút *"Lắc lại chiêm nghiệm"* (Hình 2).
+  - Xóa bỏ dòng chữ *"Miễn phí 1 lần gieo duy nhất mỗi ngày"* (Hình 4).
+- [`frontend/src/components/layout/Header.jsx`](file:///t:/Phongthuy/frontend/src/components/layout/Header.jsx):
+  - Quản lý state `hasDrawnDailyFortune`, tự động đồng bộ qua event và `localStorage`.
+  - Hiển thị chấm đỏ nổi bật nhấp nháy (`animate-ping`) cạnh nút *🎋 Quẻ Ngày* trên Desktop Header và mục *🎋 Quẻ Ngày Mới* trong Mobile Menu Drawer khi chưa gieo quẻ.
+  - Tự động ẩn chấm đỏ ngay khi người dùng gieo quẻ xong trong ngày.
+
+---
+
+### 🧪 3. Kết Quả Kiểm Thử (Chrome DevTools MCP & Build)
+- **Biên dịch Frontend:** `npm run build` thành công (0 lỗi, hoàn thành trong 1.88s).
+- **Kiểm thử trên trình duyệt thật:**
+  - Xác nhận chấm đỏ nhấp nháy xuất hiện khi chưa gieo quẻ hôm nay.
+  - Mở modal $\rightarrow$ Ống tre 3D hiển thị 16 thẻ chữ Hán cổ phong, không có thanh tiến trình, không có chữ "Miễn phí 1 lần gieo".
+  - Nhấn xóc quẻ $\rightarrow$ Ống quẻ lắc vật lý với âm thanh cộc cạch $\rightarrow$ Thẻ chọn nhô lên $\rightarrow$ Rơi ra tiếp đất $\rightarrow$ Mở thẻ quẻ chi tiết.
+  - Xác nhận hộp Kim Chỉ Nam màu hổ phách sang trọng (không còn màu đen), nút đóng màu sơn mài (không còn màu đen), không còn nút "Lắc lại chiêm nghiệm".
+  - Đóng modal $\rightarrow$ Chấm đỏ trên Header biến mất ngay lập tức (`hasPingDot: false`).
+- **Console Errors:** 0 lỗi JavaScript/DOM.
+
+---
+
+## 📅 Phiên bản: Giai Đoạn 5 - Đợt 5A: Trợ Lý Gợi Ý Môn Học Thuật & Quẻ Ngày Mới Ống Xăm Tre Điện Ảnh (20/09/2026)
+
+### 🌟 1. Yêu Cầu & Bối Cảnh Người Dùng
+- **Yêu cầu:** Triển khai Đợt 5A thuộc Giai đoạn 5 (Tăng Trưởng Viral & Giữ Chân Người Dùng - Retention & Viral Growth).
+- **Mục tiêu tính năng:**
+  1. **Trợ Lý Gợi Ý Môn Học Thuật (Smart Discovery Quiz):** Hỗ trợ người dùng mới/đang phân vân tìm đúng môn học thuật phù hợp (Kinh Dịch, Bát Tự, Tử Vi, Hợp Hôn, Xem Ngày Lành) trong 30 giây dựa trên trăn trở thực tế và độ chính xác thông tin ngày sinh hiện có, tích hợp nút chuyển hướng tức thời 1-click.
+  2. **Quẻ Ngày Mới Với Animation Lắc Ống Xăm Tre Điện Ảnh (Cinematic Daily Fortune Bamboo Shaker):** Ống xăm tre chuyển động vật lý 3D với hiệu ứng âm thanh lắc tre cộc cạch chân thực bằng Web Audio API, gieo quẻ ngẫu nhiên có hạt giống deterministic theo ngày và lưu cache `localStorage` 24h, hiển thị thẻ quẻ may mắn gồm thơ cổ tứ tuyệt, dự đoán Công danh/Tài lộc/Tình cảm, màu sắc/hướng/giờ cát tường và lời khuyên Chu Dịch.
+
+---
+
+### 🛠️ 2. Các Tệp Tin Đã Xây Dựng & Tích Hợp
+
+#### A. Dữ Liệu Học Thuật & Xử Lý Âm Thanh
+- [`frontend/src/features/iching/data/dailyFortuneData.js`](file:///t:/Phongthuy/frontend/src/features/iching/data/dailyFortuneData.js):
+  - 64 quẻ dịch nhật khóa độc lập với phân loại cát hung (Đại Cát, Thượng Cát, Trung Cát, Cẩn Trọng), thơ tứ tuyệt cổ phong, giải đoán 3 phương diện (Công danh, Tài vận, Tình duyên), chỉ số may mắn (Màu sắc, Hướng xuất hành, Giờ hoàng đạo, Con số may mắn) và lời khuyên ứng xử Dịch lý.
+  - Hàm `getDailyFortune(dateStr, seed)` hỗ trợ tạo quẻ định danh theo ngày cho từng người dùng.
+- [`frontend/src/utils/bambooSound.js`](file:///t:/Phongthuy/frontend/src/utils/bambooSound.js):
+  - Xử lý tổng hợp âm thanh thủ tục (procedural audio synthesis) qua Web Audio API thuần túy, zero external asset.
+  - `playBambooClickSound()` mô phỏng tiếng các thanh thẻ tre va đập cộc cạch tự nhiên với bộ lọc bandpass và suy hao nhanh; `playStickRevealSound()` ngân vang chuông phong thủy khi thẻ xăm bay vút ra khỏi ống.
+
+#### B. Thành Phần Giao Diện (Components & Modals)
+- [`frontend/src/components/modals/DiscoveryQuizModal.jsx`](file:///t:/Phongthuy/frontend/src/components/modals/DiscoveryQuizModal.jsx):
+  - Modal trắc nghiệm thông minh 3 bước tương tác cao với hiệu ứng `framer-motion`:
+    - Bước 1: Chọn trăn trở/nhu cầu lớn nhất hiện tại (Tìm giải pháp việc cụ thể, Định hướng cả đời, Đường tình duyên, Chọn ngày lành...).
+    - Bước 2: Khai báo mức độ thông tin ngày sinh (Chỉ biết ngày Dương, Biết chính xác giờ sinh, Không rõ giờ...).
+    - Bước 3: Phân tích và đưa ra đề xuất học thuật tương thích tối ưu kèm tỷ lệ phù hợp (95% - 99%) và nút "Bắt Đầu Ngay" điều hướng trực tiếp vào phân hệ đích.
+- [`frontend/src/components/modals/DailyFortuneModal.jsx`](file:///t:/Phongthuy/frontend/src/components/modals/DailyFortuneModal.jsx):
+  - Mô hình ống xăm tre 3D với góc nghiêng, bóng đổ vật lý, hoa văn cổ họa và hiệu ứng rung lắc đa chiều chân thực.
+  - Thanh tiến trình lắc xăm tương tác, âm thanh cộc cạch kích thích thính giác; thẻ xăm phóng to bay ra khỏi ống hiển thị toàn cảnh quẻ cát nhật.
+  - Tự động kiểm tra trạng thái quẻ ngày từ `localStorage` (`daily_fortune_cache_{date}_{userId}`) để tránh gieo trùng trong ngày và cho phép xem lại thẻ quẻ bất kỳ lúc nào.
+
+#### C. Tích Hợp Hệ Thống Giao Diện (Layout & Pages)
+- [`frontend/src/app/UserApp.jsx`](file:///t:/Phongthuy/frontend/src/app/UserApp.jsx):
+  - Đăng ký state quản lý đóng/mở `isDailyFortuneOpen` và `isDiscoveryQuizOpen` ở cấp cao nhất ứng dụng người dùng, render modal xuyên suốt.
+- [`frontend/src/components/layout/Header.jsx`](file:///t:/Phongthuy/frontend/src/components/layout/Header.jsx):
+  - Thêm nút nổi bật `🎋 Quẻ Ngày` ở Header Desktop.
+  - Thêm 2 nút truy cập nhanh `🎋 Quẻ Ngày Mới` và `💡 Gợi Ý Môn` trong Drawer Mobile Menu.
+- [`frontend/src/features/home/HomeBoard.jsx`](file:///t:/Phongthuy/frontend/src/features/home/HomeBoard.jsx):
+  - Bổ sung nút bấm trực tiếp `🎋 Quẻ Ngày Mới` và `💡 Gợi Ý Môn (30s)` tại Hero Section.
+  - Thiết kế Showcase Banner 2 cột cao cấp ngay phía trên lưới 5 phân hệ học thuật, kích thích tương tác khám phá của người dùng mới lẫn khách thân thiết.
+
+---
+
+### 🧪 3. Kiểm Thử & Nghiệm Thu (Chrome DevTools MCP)
+- **Kiểm tra biên dịch:** `npm run build` thành công 100% (exit code 0, 0 lỗi cú pháp).
+- **Kiểm thử trải nghiệm Discovery Quiz:**
+  - Mở modal từ Hero Banner $\rightarrow$ Trải nghiệm mượt mà bước 1 (chọn "Thấu hiểu bản thân & vận mệnh cả đời") $\rightarrow$ bước 2 (chọn "Có đầy đủ ngày & giờ sinh chính xác") $\rightarrow$ bước 3 (gợi ý phân hệ Bát Tự đạt độ phù hợp 99%, nút "Bắt đầu Lập Lá Số Bát Tự" điều hướng chính xác).
+- **Kiểm thử trải nghiệm Quẻ Ngày Mới:**
+  - Nhấn nút "Lắc Ống Xăm (Nhấn Để Gieo)" $\rightarrow$ Ống tre rung lắc vật lý 3D, Web Audio API phát tiếng lách cách cộc cạch $\rightarrow$ Thẻ xăm phóng xuất $\rightarrow$ Thẻ quẻ Thiên Hỏa Đồng Nhân (Đại Cát) hiển thị toàn bộ thơ tứ tuyệt, luận 3 phương diện và chỉ số cát tường $\rightarrow$ Lưu cache thành công trong ngày.
+- **Console Log:** 0 lỗi JavaScript/DOM.
+
+---
+
 ## 📅 Phiên bản: Khắc Phục Lỗi Chèn Executive Summary & Nhét Bài Luận Cũ Vào Bài Luận Mới Tử Vi VIP (20/09/2026)
 
 ### 🌟 1. Yêu Cầu & Bối Cảnh Người Dùng

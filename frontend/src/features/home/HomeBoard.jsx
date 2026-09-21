@@ -23,6 +23,7 @@ import {
   BookOpen,
   Eye
 } from 'lucide-react';
+import { checkHasDrawnDailyFortune, DAILY_FORTUNE_EVENT } from '@/features/iching/data/dailyFortuneData';
 
 const categoryLabels = {
   iching: 'Kinh Dịch',
@@ -123,9 +124,35 @@ function CustomSelect({ value, onChange, options, placeholder }) {
   );
 }
 
-function HomeBoard({ onSelectModule, user, onRequireLogin, onViewDestiny }) {
+function HomeBoard({ 
+  onSelectModule, 
+  user, 
+  onRequireLogin, 
+  onViewDestiny,
+  onOpenDailyFortune,
+  onOpenDiscoveryQuiz
+}) {
   const [hoveredCard, setHoveredCard] = useState(null);
   const [latestPosts, setLatestPosts] = useState([]);
+  
+  const userId = user?.id || user?._id || 'guest';
+  const [hasDrawnDailyFortune, setHasDrawnDailyFortune] = useState(() => {
+    return checkHasDrawnDailyFortune(userId);
+  });
+
+  useEffect(() => {
+    const updateDailyStatus = () => {
+      setHasDrawnDailyFortune(checkHasDrawnDailyFortune(userId));
+    };
+    updateDailyStatus();
+
+    window.addEventListener(DAILY_FORTUNE_EVENT, updateDailyStatus);
+    window.addEventListener('storage', updateDailyStatus);
+    return () => {
+      window.removeEventListener(DAILY_FORTUNE_EVENT, updateDailyStatus);
+      window.removeEventListener('storage', updateDailyStatus);
+    };
+  }, [userId]);
   
   useEffect(() => {
     let active = true;
@@ -301,24 +328,53 @@ function HomeBoard({ onSelectModule, user, onRequireLogin, onViewDestiny }) {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, delay: 0.18, ease: "easeOut" }}
-            className="flex flex-col sm:flex-row gap-4"
+            className="flex flex-wrap gap-3.5"
           >
             <button
               onClick={() => setIsDestinyModalOpen(true)}
-              className="px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold shadow-lg shadow-indigo-600/20 transition-all hover:-translate-y-0.5 active:translate-y-0 text-sm flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+              className="px-6 sm:px-8 py-3.5 sm:py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold shadow-lg shadow-indigo-600/20 transition-all hover:-translate-y-0.5 active:translate-y-0 text-xs sm:text-sm flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 cursor-pointer"
             >
               <span>Xem Vận Mệnh</span>
               <Sparkles size={16} />
             </button>
+
+            {onOpenDailyFortune && (
+              <button
+                type="button"
+                onClick={onOpenDailyFortune}
+                className="relative px-5 sm:px-6 py-3.5 sm:py-4 bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-600 hover:to-yellow-700 text-white rounded-2xl font-extrabold shadow-lg shadow-amber-500/25 transition-all hover:-translate-y-0.5 active:translate-y-0 text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span className="text-base leading-none">🎋</span>
+                <span>Quẻ Ngày Mới</span>
+                {!hasDrawnDailyFortune && (
+                  <span className="relative flex h-2.5 w-2.5 ml-0.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-300 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-600 border border-white"></span>
+                  </span>
+                )}
+              </button>
+            )}
+
+            {onOpenDiscoveryQuiz && (
+              <button
+                type="button"
+                onClick={onOpenDiscoveryQuiz}
+                className="px-5 sm:px-6 py-3.5 sm:py-4 bg-white/90 hover:bg-slate-50 text-indigo-900 border border-indigo-200/80 rounded-2xl font-bold shadow-sm hover:shadow transition-all hover:-translate-y-0.5 active:translate-y-0 text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span className="text-base leading-none">💡</span>
+                <span>Gợi Ý Môn (30s)</span>
+              </button>
+            )}
+
             <button
               onClick={() => {
                 const element = document.getElementById('modules-section');
                 element?.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="px-8 py-4 bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 rounded-2xl font-semibold shadow-sm hover:shadow transition-all hover:-translate-y-0.5 active:translate-y-0 text-sm flex items-center justify-center gap-2 focus:outline-none"
+              className="px-5 sm:px-6 py-3.5 sm:py-4 bg-white/70 hover:bg-slate-50 text-slate-700 border border-slate-200/80 rounded-2xl font-semibold shadow-xs hover:shadow transition-all hover:-translate-y-0.5 active:translate-y-0 text-xs sm:text-sm flex items-center justify-center gap-2 focus:outline-none cursor-pointer"
             >
-              <Play size={14} className="fill-slate-800 text-slate-800" />
-              <span>Khám phá tính năng</span>
+              <Play size={13} className="fill-slate-700 text-slate-700" />
+              <span>5 Phân hệ</span>
             </button>
           </motion.div>
         </div>
@@ -523,6 +579,81 @@ function HomeBoard({ onSelectModule, user, onRequireLogin, onViewDestiny }) {
         </div>
       </motion.section>
 
+      {/* BANNER GIAI ĐOẠN 5A: QUẺ NGÀY MỚI & TRỢ LÝ GỢI Ý MÔN */}
+      <div className="max-w-6xl mx-auto px-4 my-10 relative z-10 grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* CARD 1: QUẺ NGÀY MỚI */}
+        <motion.div 
+          initial={{ opacity: 0, y: 8 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.35 }}
+          onClick={onOpenDailyFortune}
+          className="group relative p-6 sm:p-7 rounded-3xl bg-gradient-to-br from-amber-500/10 via-yellow-500/5 to-white border border-amber-300/60 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden flex flex-col justify-between"
+        >
+          <div className="flex items-start justify-between gap-4 mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-500 flex items-center justify-center text-white shadow-md shadow-amber-500/30 text-2xl shrink-0">
+                🎋
+              </div>
+              <div>
+                <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-200 uppercase tracking-wider">
+                  Mỗi Ngày 1 Quẻ • Miễn Phí
+                </span>
+                <h3 className="text-lg sm:text-xl font-black text-amber-950 font-[Montserrat] mt-1">
+                  Quẻ Xăm Ngày Mới
+                </h3>
+              </div>
+            </div>
+            <span className="text-xs font-bold text-amber-700 bg-white/80 px-2.5 py-1 rounded-full border border-amber-200/60 shadow-2xs group-hover:bg-amber-500 group-hover:text-white transition-colors shrink-0">
+              Gieo ngay →
+            </span>
+          </div>
+          <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed mb-4">
+            Trải nghiệm lắc ống xăm tre 3D điện ảnh, nhận thơ sấm cổ học, dự báo 3 trục vận thế (Công danh, Tài lộc, Tình cảm) và giờ/hướng cát xuất hành hôm nay.
+          </p>
+          <div className="flex items-center gap-2 text-xs font-bold text-amber-900 pt-3 border-t border-amber-200/50">
+            <Sparkles size={14} className="text-amber-600 shrink-0" />
+            <span>Khởi tâm thiện lương, đón cát khí ngày mới</span>
+          </div>
+        </motion.div>
+
+        {/* CARD 2: TRỢ LÝ GỢI Ý MÔN */}
+        <motion.div 
+          initial={{ opacity: 0, y: 8 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.35, delay: 0.08 }}
+          onClick={onOpenDiscoveryQuiz}
+          className="group relative p-6 sm:p-7 rounded-3xl bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-white border border-indigo-200/70 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden flex flex-col justify-between"
+        >
+          <div className="flex items-start justify-between gap-4 mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-md shadow-indigo-600/30 text-2xl shrink-0">
+                💡
+              </div>
+              <div>
+                <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-900 border border-indigo-200 uppercase tracking-wider">
+                  Trắc Nghiệm 30 Giây
+                </span>
+                <h3 className="text-lg sm:text-xl font-black text-slate-900 font-[Montserrat] mt-1">
+                  Chưa Biết Xem Gì?
+                </h3>
+              </div>
+            </div>
+            <span className="text-xs font-bold text-indigo-700 bg-white/80 px-2.5 py-1 rounded-full border border-indigo-200/60 shadow-2xs group-hover:bg-indigo-600 group-hover:text-white transition-colors shrink-0">
+              Tìm môn →
+            </span>
+          </div>
+          <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed mb-4">
+            Trả lời 2 câu hỏi ngắn gọn về câu hỏi bạn đang băn khoăn và thông tin ngày giờ hiện có. Hệ thống sẽ gợi ý chính xác bộ môn cổ học tối ưu 99% cho bạn.
+          </p>
+          <div className="flex items-center gap-2 text-xs font-bold text-indigo-900 pt-3 border-t border-indigo-200/50">
+            <Sparkles size={14} className="text-indigo-600 shrink-0" />
+            <span>Kinh Dịch • Bát Tự • Tử Vi • Hôn Nhân • Xem Ngày</span>
+          </div>
+        </motion.div>
+      </div>
+
       {/* 2. MODULE CARDS GRID */}
       <motion.section 
         id="modules-section" 
@@ -598,7 +729,7 @@ function HomeBoard({ onSelectModule, user, onRequireLogin, onViewDestiny }) {
         </motion.div>
       </motion.section>
 
-      {/* 3. AI DIFFERENTIATOR SECTION */}
+      {/* 3. CORE SCHOLARSHIP & WISDOM SECTION */}
       <motion.section 
         initial={{ opacity: 0, y: 8 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -612,41 +743,41 @@ function HomeBoard({ onSelectModule, user, onRequireLogin, onViewDestiny }) {
           
           <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             <div className="lg:col-span-6 space-y-6">
-              <span className="text-xs font-extrabold text-emerald-400 uppercase tracking-widest font-[Montserrat]">Học thuật chính thống</span>
-              <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight font-[Montserrat] leading-none">
-                Hệ thống luận giải logic
+              <span className="text-xs font-extrabold text-emerald-400 uppercase tracking-widest font-[Montserrat]">Học thuật nguyên bản</span>
+              <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight font-[Montserrat] leading-tight">
+                Chiêm đoán thấu đáo & chuẩn xác
               </h2>
               <p className="text-slate-300 font-medium leading-relaxed text-sm sm:text-base">
-                Chúng tôi có hệ thống luận giải logic học thuật chính xác 100% từ cổ học phương Đông, tách biệt hoàn toàn giữa tính toán an sao lập quẻ tĩnh và hệ thống luận giải logic.
+                Hệ thống kết tinh phương pháp tính toán âm dương lịch số nghìn năm từ Kinh Dịch, Bát Tự và Tử Vi Đẩu Số. Mọi diễn giải đều được biện chứng thấu triệt theo bối cảnh đời sống thực tế, mang lại kim chỉ nam định hướng vững vàng cho sự nghiệp, tài vận và gia đạo.
               </p>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4">
                 <div className="flex gap-4">
                   <div className="p-3 bg-white/10 rounded-xl h-fit shrink-0"><Brain size={18} className="text-indigo-300" /></div>
                   <div>
-                    <h4 className="font-bold text-sm">Luận Giải Logic</h4>
-                    <p className="text-xs text-slate-400 leading-normal mt-1">Hệ thống xâu chuỗi thông tin sao hạn để tự giải nghĩa phù hợp bối cảnh hiện đại.</p>
+                    <h4 className="font-bold text-sm">Biện Chứng Đa Chiều</h4>
+                    <p className="text-xs text-slate-400 leading-normal mt-1">Xâu chuỗi can chi, cung vị và tương tác sao hạn để đưa ra lời khuyên thực tế, sát hợp với thời cuộc.</p>
                   </div>
                 </div>
                 <div className="flex gap-4">
-                  <div className="p-3 bg-white/10 rounded-xl h-fit shrink-0"><Clock size={18} className="text-indigo-300" /></div>
+                  <div className="p-3 bg-white/10 rounded-xl h-fit shrink-0"><Sparkles size={18} className="text-indigo-300" /></div>
                   <div>
-                    <h4 className="font-bold text-sm">Phản Hồi Siêu Tốc</h4>
-                    <p className="text-xs text-slate-400 leading-normal mt-1">Cơ chế stream kết quả thời gian thực qua Server-Sent Events (SSE).</p>
+                    <h4 className="font-bold text-sm">Luận Giải Tức Thời</h4>
+                    <p className="text-xs text-slate-400 leading-normal mt-1">Trải nghiệm bản giải đoán chi tiết từng mục trôi chảy, mạch lạc ngay sau khi lập lá số mà không cần chờ đợi.</p>
                   </div>
                 </div>
                 <div className="flex gap-4">
                   <div className="p-3 bg-white/10 rounded-xl h-fit shrink-0"><ShieldCheck size={18} className="text-indigo-300" /></div>
                   <div>
-                    <h4 className="font-bold text-sm">Bảo Mật Quyền Sở Hữu</h4>
-                    <p className="text-xs text-slate-400 leading-normal mt-1">Bản ghi lịch sử bảo mật nghiêm ngặt bằng JWT Token và checkOwnership.</p>
+                    <h4 className="font-bold text-sm">Riêng Tư Tuyệt Đối</h4>
+                    <p className="text-xs text-slate-400 leading-normal mt-1">Thông tin ngày sinh, bản mệnh và lịch sử chiêm đoán của bạn được bảo vệ an toàn và bảo mật trọn vẹn.</p>
                   </div>
                 </div>
                 <div className="flex gap-4">
-                  <div className="p-3 bg-white/10 rounded-xl h-fit shrink-0"><Database size={18} className="text-indigo-300" /></div>
+                  <div className="p-3 bg-white/10 rounded-xl h-fit shrink-0"><History size={18} className="text-indigo-300" /></div>
                   <div>
-                    <h4 className="font-bold text-sm">Đồng Bộ Cloud</h4>
-                    <p className="text-xs text-slate-400 leading-normal mt-1">Dễ dàng lưu trữ và mở lại kết quả từ tài khoản cá nhân mọi lúc.</p>
+                    <h4 className="font-bold text-sm">Lưu Giữ Trọn Đời</h4>
+                    <p className="text-xs text-slate-400 leading-normal mt-1">Dễ dàng lưu trữ các bản chiêm đoán và tra cứu lại bất cứ lúc nào trên mọi thiết bị cá nhân.</p>
                   </div>
                 </div>
               </div>
@@ -661,25 +792,25 @@ function HomeBoard({ onSelectModule, user, onRequireLogin, onViewDestiny }) {
                     <div className="w-2.5 h-2.5 rounded-full bg-amber-400" />
                     <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
                   </div>
-                  <span className="text-[10px] text-indigo-300 font-bold uppercase tracking-wider">Logic Consultation Engine</span>
+                  <span className="text-[10px] text-indigo-300 font-bold uppercase tracking-wider">Trí tuệ chiêm bái phong thủy</span>
                 </div>
                 <div className="space-y-4">
                   <div className="p-3.5 bg-white/5 rounded-2xl border border-white/5 text-xs">
-                    <p className="text-slate-400 font-bold uppercase tracking-wide text-[9px] mb-1">Dữ liệu đầu vào học thuật</p>
-                    <p className="text-slate-200 font-semibold font-[Lora]">Nam mạng Giáp Tuất - Ngày sinh âm lịch ngày 24/09 năm Giáp Tuất. Thân nhược cần trợ giúp bởi ngũ hành Mộc/Hỏa.</p>
+                    <p className="text-slate-400 font-bold uppercase tracking-wide text-[9px] mb-1">Bản mệnh & nguyên cục</p>
+                    <p className="text-slate-200 font-semibold font-[Lora]">Nam mệnh Giáp Tuất - Sinh ngày 24/09 Âm lịch. Mệnh Sơn Đầu Hỏa, Cung Càn. Nguyên cục thân nhược, cần Mộc sinh Hỏa để vượng khí.</p>
                   </div>
                   <div className="p-3.5 bg-indigo-500/10 rounded-2xl border border-indigo-500/20 text-xs">
                     <div className="flex items-center gap-1.5 text-indigo-300 font-bold uppercase tracking-wide text-[9px] mb-1">
                       <Sparkles size={10} className="animate-spin" style={{ animationDuration: '4s' }} />
-                      <span>Luận giải logic hệ thống (Realtime stream)</span>
+                      <span>Lời khuyên & định hướng vận trình</span>
                     </div>
                     <p className="text-slate-200 leading-relaxed font-medium font-[Lora]">
-                      Lá số này có Dụng Thần là Mộc, Hỷ Thần là Hỏa. Trong đại vận Bính Dần sắp tới, hành Mộc vượng hỗ trợ bổ trợ đắc lực cho bản mệnh. Sự nghiệp hanh thông, nên chú trọng đầu tư các dự án...
+                      Lá số đắc Dụng Thần Mộc, Hỷ Thần Hỏa. Bước vào đại vận Bính Dần cát tường, Mộc khí tương sinh trợ hỏa thế giúp khai thông sự nghiệp, gặp quý nhân trợ lực đắc lực. Nên chủ động nắm bắt cơ hội liên kết và phát triển chuyên môn...
                     </p>
                   </div>
                   <div className="flex justify-between items-center text-[10px] text-slate-400 font-semibold pt-2">
-                    <span>Độ tin cậy: 98%</span>
-                    <span>Phản hồi: 0.12s</span>
+                    <span>Độ xác tín học thuật cao</span>
+                    <span>Biện chứng Cổ Thư & Tiết Khí</span>
                   </div>
                 </div>
               </div>

@@ -39,8 +39,9 @@ import BlogBoard from '@/features/blog/BlogBoard';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { AboutUs, PrivacyPolicy, TermsOfService } from '@/features/info/InfoBoards';
-import NotFoundPage from '@/features/info/NotFoundPage';
 import ThankYouModal from '@/components/modals/ThankYouModal';
+import DailyFortuneModal from '@/components/modals/DailyFortuneModal';
+import DiscoveryQuizModal from '@/components/modals/DiscoveryQuizModal';
 import AudioPlayerDock from '@/components/widgets/AudioPlayerDock';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { initGA, trackPageView, trackEvent } from '@/utils/analytics';
@@ -434,6 +435,8 @@ export default function UserApp({ onSwitchToAdmin }) {
   const [guestBaziId, setGuestBaziId] = useState(null);
   const [isUpdateBaziOpen, setIsUpdateBaziOpen] = useState(false);
   const [isMyFoldersOpen, setIsMyFoldersOpen] = useState(false);
+  const [isDailyFortuneOpen, setIsDailyFortuneOpen] = useState(false);
+  const [isDiscoveryQuizOpen, setIsDiscoveryQuizOpen] = useState(false);
   const [isZiweiResultLoaded, setIsZiweiResultLoaded] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
   const [isThankYouOpen, setIsThankYouOpen] = useState(false);
@@ -863,6 +866,8 @@ export default function UserApp({ onSwitchToAdmin }) {
         setAppMode={setAppMode}
         setHistoricalZiweiId={setHistoricalZiweiId}
         logout={logout}
+        onOpenDailyFortune={() => setIsDailyFortuneOpen(true)}
+        onOpenDiscoveryQuiz={() => setIsDiscoveryQuizOpen(true)}
       />
 
       {/* MAIN CONTAINER */}
@@ -940,6 +945,8 @@ export default function UserApp({ onSwitchToAdmin }) {
             user={user}
             onRequireLogin={handleRequireLogin}
             onViewDestiny={handleViewDestinyFromHome}
+            onOpenDailyFortune={() => setIsDailyFortuneOpen(true)}
+            onOpenDiscoveryQuiz={() => setIsDiscoveryQuizOpen(true)}
           />
         </div>
 
@@ -1293,6 +1300,16 @@ export default function UserApp({ onSwitchToAdmin }) {
         message={thankYouConfig.message}
         subtext={thankYouConfig.subtext}
         actionLabel={thankYouConfig.actionLabel}
+      />
+      <DailyFortuneModal
+        isOpen={isDailyFortuneOpen}
+        onClose={() => setIsDailyFortuneOpen(false)}
+        user={user}
+      />
+      <DiscoveryQuizModal
+        isOpen={isDiscoveryQuizOpen}
+        onClose={() => setIsDiscoveryQuizOpen(false)}
+        onSelectModule={handleHomeSelectModule}
       />
 
       {/* GLOBAL MASTER AUDIO PLAYER DOCK (TTS) */}
