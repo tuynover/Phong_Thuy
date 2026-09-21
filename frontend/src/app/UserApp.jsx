@@ -41,7 +41,6 @@ import Footer from '@/components/layout/Footer';
 import { AboutUs, PrivacyPolicy, TermsOfService } from '@/features/info/InfoBoards';
 import ThankYouModal from '@/components/modals/ThankYouModal';
 import DailyFortuneModal from '@/components/modals/DailyFortuneModal';
-import DiscoveryQuizModal from '@/components/modals/DiscoveryQuizModal';
 import AudioPlayerDock from '@/components/widgets/AudioPlayerDock';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { initGA, trackPageView, trackEvent } from '@/utils/analytics';
@@ -436,7 +435,6 @@ export default function UserApp({ onSwitchToAdmin }) {
   const [isUpdateBaziOpen, setIsUpdateBaziOpen] = useState(false);
   const [isMyFoldersOpen, setIsMyFoldersOpen] = useState(false);
   const [isDailyFortuneOpen, setIsDailyFortuneOpen] = useState(false);
-  const [isDiscoveryQuizOpen, setIsDiscoveryQuizOpen] = useState(false);
   const [isZiweiResultLoaded, setIsZiweiResultLoaded] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
   const [isThankYouOpen, setIsThankYouOpen] = useState(false);
@@ -867,7 +865,6 @@ export default function UserApp({ onSwitchToAdmin }) {
         setHistoricalZiweiId={setHistoricalZiweiId}
         logout={logout}
         onOpenDailyFortune={() => setIsDailyFortuneOpen(true)}
-        onOpenDiscoveryQuiz={() => setIsDiscoveryQuizOpen(true)}
       />
 
       {/* MAIN CONTAINER */}
@@ -946,7 +943,6 @@ export default function UserApp({ onSwitchToAdmin }) {
             onRequireLogin={handleRequireLogin}
             onViewDestiny={handleViewDestinyFromHome}
             onOpenDailyFortune={() => setIsDailyFortuneOpen(true)}
-            onOpenDiscoveryQuiz={() => setIsDiscoveryQuizOpen(true)}
           />
         </div>
 
@@ -1215,7 +1211,7 @@ export default function UserApp({ onSwitchToAdmin }) {
         
         {/* SYSTEM 6: DATE SELECTION */}
         <div className={`${appMode === 'xemngay' ? 'block' : 'hidden'}`}>
-          <DateSelectionBoard user={user} />
+          <DateSelectionBoard user={user} setUser={setUser} setIsAuthModalOpen={setIsAuthModalOpen} />
         </div>
 
         {/* SYSTEM 7: BLOG */}
@@ -1305,11 +1301,6 @@ export default function UserApp({ onSwitchToAdmin }) {
         isOpen={isDailyFortuneOpen}
         onClose={() => setIsDailyFortuneOpen(false)}
         user={user}
-      />
-      <DiscoveryQuizModal
-        isOpen={isDiscoveryQuizOpen}
-        onClose={() => setIsDiscoveryQuizOpen(false)}
-        onSelectModule={handleHomeSelectModule}
       />
 
       {/* GLOBAL MASTER AUDIO PLAYER DOCK (TTS) */}

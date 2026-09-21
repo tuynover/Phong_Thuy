@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { checkAuspiciousDate, consultAuspiciousDates } from '@/services/api';
 import { Calendar, Clock, ArrowRight, ArrowUp, ArrowDown, CheckCircle2, AlertTriangle, XCircle, Info, Sparkles, HelpCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import PersonalizedCalendarBoard from './components/PersonalizedCalendarBoard';
 
 const ACTIVITIES = [
   { id: 'cuoi_hoi', name: 'Cưới hỏi, dạm ngõ' },
@@ -265,8 +266,19 @@ function CustomHourPicker({ value, onChange }) {
   );
 }
 
-function DateSelectionBoard({ user }) {
-  const [activeTab, setActiveTab] = useState('check'); // 'check' | 'consult'
+function DateSelectionBoard({ user, setUser, setIsAuthModalOpen }) {
+  const [activeTab, setActiveTab] = useState(() => {
+    const saved = localStorage.getItem('phongthuy_xemngay_subtab');
+    if (saved === 'calendar') return 'year_calendar';
+    if (saved === 'year_calendar' || saved === 'bazi_calendar' || saved === 'check' || saved === 'consult') {
+      return saved;
+    }
+    return 'year_calendar';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('phongthuy_xemngay_subtab', activeTab);
+  }, [activeTab]);
 
   const getHourClassifications = (hoursList) => {
     if (!hoursList || hoursList.length === 0) return { best: [], backup: [] };
@@ -367,10 +379,10 @@ function DateSelectionBoard({ user }) {
 
   // Synchronize birth year from user profile if changed
   useEffect(() => {
-    if (user?.baziInfo?.year && !birthYear) {
+    if (user?.baziInfo?.year) {
       setBirthYear(String(user.baziInfo.year));
     }
-  }, [user]);
+  }, [user?.baziInfo?.year]);
 
   const handleCheck = async (e) => {
     if (e) e.preventDefault();
@@ -501,25 +513,67 @@ function DateSelectionBoard({ user }) {
         </button>
       </div>
 
-      {/* SUB-TABS NAVIGATION */}
-      <div className="flex bg-[#faf6f0] p-1.5 rounded-2xl border border-amber-250/30 max-w-sm mx-auto shadow-sm">
+      {/* SUB-TABS NAVIGATION - 4 DISTINCT FEATURES */}
+      <div className="grid grid-cols-2 md:grid-cols-4 bg-[#faf6f0] p-1.5 rounded-2xl border border-amber-250/30 max-w-4xl mx-auto shadow-sm gap-1.5">
+        <button
+          onClick={() => {
+            setActiveTab('year_calendar');
+            setError(null);
+          }}
+          className={`py-3 px-2 sm:px-3 rounded-xl font-extrabold text-xs sm:text-[13px] tracking-wider transition-all font-[Montserrat] text-center cursor-pointer flex items-center justify-center gap-1.5 ${
+            activeTab === 'year_calendar' 
+              ? 'bg-white text-emerald-800 shadow-md border border-emerald-100/30' 
+              : 'text-neutral-500 hover:text-neutral-900'
+          }`}
+        >
+          <span>🌿</span>
+          <span className="whitespace-nowrap">Lịch Theo Tuổi</span>
+        </button>
+
+        <button
+          onClick={() => {
+            if (!user) {
+              setIsAuthModalOpen?.(true);
+            }
+            setActiveTab('bazi_calendar');
+            setError(null);
+          }}
+          className={`py-3 px-2 sm:px-3 rounded-xl font-extrabold text-xs sm:text-[13px] tracking-wider transition-all font-[Montserrat] text-center cursor-pointer flex items-center justify-center gap-1.5 ${
+            activeTab === 'bazi_calendar' 
+              ? 'bg-white text-indigo-800 shadow-md border border-indigo-100/30' 
+              : 'text-neutral-500 hover:text-neutral-900'
+          }`}
+        >
+          <span>🔮</span>
+          <span className="whitespace-nowrap">Lịch Theo Bát Tự</span>
+        </button>
+
         <button
           onClick={() => {
             setActiveTab('check');
             setError(null);
           }}
-          className={`flex-1 py-3 px-3 rounded-xl font-extrabold text-xs sm:text-sm tracking-wider transition-all font-[Montserrat] text-center ${activeTab === 'check' ? 'bg-white text-emerald-800 shadow-md border border-emerald-100/30' : 'text-neutral-500 hover:text-neutral-900'}`}
+          className={`py-3 px-2 sm:px-3 rounded-xl font-extrabold text-xs sm:text-[13px] tracking-wider transition-all font-[Montserrat] text-center cursor-pointer flex items-center justify-center gap-1.5 ${
+            activeTab === 'check' 
+              ? 'bg-white text-emerald-800 shadow-md border border-emerald-100/30' 
+              : 'text-neutral-500 hover:text-neutral-900'
+          }`}
         >
-          Xem ngày
+          <span className="whitespace-nowrap">Chi Tiết Ngày</span>
         </button>
+
         <button
           onClick={() => {
             setActiveTab('consult');
             setError(null);
           }}
-          className={`flex-1 py-3 px-3 rounded-xl font-extrabold text-xs sm:text-sm tracking-wider transition-all font-[Montserrat] text-center ${activeTab === 'consult' ? 'bg-white text-emerald-800 shadow-md border border-emerald-100/30' : 'text-neutral-500 hover:text-neutral-900'}`}
+          className={`py-3 px-2 sm:px-3 rounded-xl font-extrabold text-xs sm:text-[13px] tracking-wider transition-all font-[Montserrat] text-center cursor-pointer flex items-center justify-center gap-1.5 ${
+            activeTab === 'consult' 
+              ? 'bg-white text-emerald-800 shadow-md border border-emerald-100/30' 
+              : 'text-neutral-500 hover:text-neutral-900'
+          }`}
         >
-          XEM NGÀY ĐẸP
+          <span className="whitespace-nowrap">Tìm Ngày Đẹp</span>
         </button>
       </div>
 
@@ -528,6 +582,28 @@ function DateSelectionBoard({ user }) {
           <AlertTriangle size={16} />
           <span>{error}</span>
         </div>
+      )}
+
+      {/* TAB 0: LỊCH THEO TUỔI (CƠ BẢN - MIỄN PHÍ) */}
+      {activeTab === 'year_calendar' && (
+        <PersonalizedCalendarBoard 
+          user={user} 
+          setUser={setUser} 
+          setIsAuthModalOpen={setIsAuthModalOpen} 
+          mode="year"
+          onSwitchMode={(newMode) => setActiveTab(newMode === 'bazi' ? 'bazi_calendar' : 'year_calendar')}
+        />
+      )}
+
+      {/* TAB 1: NÂNG CAO VỚI BÁT TỰ (TỨ TRỤ - ĐĂNG NHẬP) */}
+      {activeTab === 'bazi_calendar' && (
+        <PersonalizedCalendarBoard 
+          user={user} 
+          setUser={setUser} 
+          setIsAuthModalOpen={setIsAuthModalOpen} 
+          mode="bazi"
+          onSwitchMode={(newMode) => setActiveTab(newMode === 'bazi' ? 'bazi_calendar' : 'year_calendar')}
+        />
       )}
 
       {/* TAB 1: XEM NGÀY CỤ THỂ */}

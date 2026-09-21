@@ -129,8 +129,7 @@ function HomeBoard({
   user, 
   onRequireLogin, 
   onViewDestiny,
-  onOpenDailyFortune,
-  onOpenDiscoveryQuiz
+  onOpenDailyFortune
 }) {
   const [hoveredCard, setHoveredCard] = useState(null);
   const [latestPosts, setLatestPosts] = useState([]);
@@ -332,17 +331,17 @@ function HomeBoard({
           >
             <button
               onClick={() => setIsDestinyModalOpen(true)}
-              className="px-6 sm:px-8 py-3.5 sm:py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold shadow-lg shadow-indigo-600/20 transition-all hover:-translate-y-0.5 active:translate-y-0 text-xs sm:text-sm flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 cursor-pointer"
+              className="px-6 sm:px-8 py-3.5 sm:py-4 bg-[#4338ca] hover:bg-[#3730a3] text-white rounded-2xl font-bold shadow-md shadow-indigo-900/15 transition-all hover:-translate-y-0.5 active:translate-y-0 text-xs sm:text-sm flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 cursor-pointer"
             >
-              <span>Xem Vận Mệnh</span>
               <Sparkles size={16} />
+              <span>Xem Vận Mệnh</span>
             </button>
 
             {onOpenDailyFortune && (
               <button
                 type="button"
                 onClick={onOpenDailyFortune}
-                className="relative px-5 sm:px-6 py-3.5 sm:py-4 bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-600 hover:to-yellow-700 text-white rounded-2xl font-extrabold shadow-lg shadow-amber-500/25 transition-all hover:-translate-y-0.5 active:translate-y-0 text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer"
+                className="relative px-5 sm:px-6 py-3.5 sm:py-4 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white rounded-2xl font-extrabold shadow-md shadow-amber-900/15 transition-all hover:-translate-y-0.5 active:translate-y-0 text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer"
               >
                 <span className="text-base leading-none">🎋</span>
                 <span>Quẻ Ngày Mới</span>
@@ -355,26 +354,15 @@ function HomeBoard({
               </button>
             )}
 
-            {onOpenDiscoveryQuiz && (
-              <button
-                type="button"
-                onClick={onOpenDiscoveryQuiz}
-                className="px-5 sm:px-6 py-3.5 sm:py-4 bg-white/90 hover:bg-slate-50 text-indigo-900 border border-indigo-200/80 rounded-2xl font-bold shadow-sm hover:shadow transition-all hover:-translate-y-0.5 active:translate-y-0 text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <span className="text-base leading-none">💡</span>
-                <span>Gợi Ý Môn (30s)</span>
-              </button>
-            )}
-
             <button
               onClick={() => {
                 const element = document.getElementById('modules-section');
                 element?.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="px-5 sm:px-6 py-3.5 sm:py-4 bg-white/70 hover:bg-slate-50 text-slate-700 border border-slate-200/80 rounded-2xl font-semibold shadow-xs hover:shadow transition-all hover:-translate-y-0.5 active:translate-y-0 text-xs sm:text-sm flex items-center justify-center gap-2 focus:outline-none cursor-pointer"
+              className="px-5 sm:px-6 py-3.5 sm:py-4 bg-slate-100 hover:bg-slate-200/90 text-slate-700 border border-slate-300/80 rounded-2xl font-bold shadow-xs hover:shadow transition-all hover:-translate-y-0.5 active:translate-y-0 text-xs sm:text-sm flex items-center justify-center gap-2 focus:outline-none cursor-pointer"
             >
-              <Play size={13} className="fill-slate-700 text-slate-700" />
-              <span>5 Phân hệ</span>
+              <Play size={13} className="fill-slate-600 text-slate-600" />
+              <span>Chức năng</span>
             </button>
           </motion.div>
         </div>
@@ -579,80 +567,53 @@ function HomeBoard({
         </div>
       </motion.section>
 
-      {/* BANNER GIAI ĐOẠN 5A: QUẺ NGÀY MỚI & TRỢ LÝ GỢI Ý MÔN */}
-      <div className="max-w-6xl mx-auto px-4 my-10 relative z-10 grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* CARD 1: QUẺ NGÀY MỚI */}
-        <motion.div 
-          initial={{ opacity: 0, y: 8 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.35 }}
-          onClick={onOpenDailyFortune}
-          className="group relative p-6 sm:p-7 rounded-3xl bg-gradient-to-br from-amber-500/10 via-yellow-500/5 to-white border border-amber-300/60 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden flex flex-col justify-between"
-        >
-          <div className="flex items-start justify-between gap-4 mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-500 flex items-center justify-center text-white shadow-md shadow-amber-500/30 text-2xl shrink-0">
-                🎋
+      {/* BANNER GIAI ĐOẠN 5A: QUẺ NGÀY MỚI */}
+      {onOpenDailyFortune && (
+        <div className="max-w-4xl mx-auto px-4 my-8 relative z-10">
+          <motion.div 
+            initial={{ opacity: 0, y: 8 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.35 }}
+            onClick={onOpenDailyFortune}
+            className="group relative p-6 sm:p-7 rounded-3xl bg-gradient-to-br from-amber-500/10 via-yellow-500/5 to-white border border-amber-300/60 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden flex flex-col justify-between"
+          >
+            <div className="flex items-start justify-between gap-4 mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-600 to-amber-700 flex items-center justify-center text-white shadow-md shadow-amber-700/20 text-2xl shrink-0">
+                  🎋
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-200 uppercase tracking-wider">
+                      Mỗi Ngày 1 Quẻ • Miễn Phí
+                    </span>
+                    {!hasDrawnDailyFortune && (
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-600"></span>
+                      </span>
+                    )}
+                  </div>
+                  <h3 className="text-lg sm:text-xl font-black text-amber-950 font-[Montserrat] mt-1">
+                    Quẻ Xăm Ngày Mới
+                  </h3>
+                </div>
               </div>
-              <div>
-                <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-200 uppercase tracking-wider">
-                  Mỗi Ngày 1 Quẻ • Miễn Phí
-                </span>
-                <h3 className="text-lg sm:text-xl font-black text-amber-950 font-[Montserrat] mt-1">
-                  Quẻ Xăm Ngày Mới
-                </h3>
-              </div>
+              <span className="text-xs font-bold text-amber-800 bg-white/90 px-3 py-1.5 rounded-full border border-amber-200/60 shadow-2xs group-hover:bg-amber-600 group-hover:text-white transition-colors shrink-0">
+                Gieo ngay →
+              </span>
             </div>
-            <span className="text-xs font-bold text-amber-700 bg-white/80 px-2.5 py-1 rounded-full border border-amber-200/60 shadow-2xs group-hover:bg-amber-500 group-hover:text-white transition-colors shrink-0">
-              Gieo ngay →
-            </span>
-          </div>
-          <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed mb-4">
-            Trải nghiệm lắc ống xăm tre 3D điện ảnh, nhận thơ sấm cổ học, dự báo 3 trục vận thế (Công danh, Tài lộc, Tình cảm) và giờ/hướng cát xuất hành hôm nay.
-          </p>
-          <div className="flex items-center gap-2 text-xs font-bold text-amber-900 pt-3 border-t border-amber-200/50">
-            <Sparkles size={14} className="text-amber-600 shrink-0" />
-            <span>Khởi tâm thiện lương, đón cát khí ngày mới</span>
-          </div>
-        </motion.div>
-
-        {/* CARD 2: TRỢ LÝ GỢI Ý MÔN */}
-        <motion.div 
-          initial={{ opacity: 0, y: 8 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.35, delay: 0.08 }}
-          onClick={onOpenDiscoveryQuiz}
-          className="group relative p-6 sm:p-7 rounded-3xl bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-white border border-indigo-200/70 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden flex flex-col justify-between"
-        >
-          <div className="flex items-start justify-between gap-4 mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-md shadow-indigo-600/30 text-2xl shrink-0">
-                💡
-              </div>
-              <div>
-                <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-900 border border-indigo-200 uppercase tracking-wider">
-                  Trắc Nghiệm 30 Giây
-                </span>
-                <h3 className="text-lg sm:text-xl font-black text-slate-900 font-[Montserrat] mt-1">
-                  Chưa Biết Xem Gì?
-                </h3>
-              </div>
+            <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed mb-4">
+              Trải nghiệm lắc ống xăm tre 3D điện ảnh, nhận thơ sấm cổ học, dự báo 3 trục vận thế (Công danh, Tài lộc, Tình cảm) và giờ/hướng cát xuất hành hôm nay.
+            </p>
+            <div className="flex items-center gap-2 text-xs font-bold text-amber-900 pt-3 border-t border-amber-200/50">
+              <Sparkles size={14} className="text-amber-600 shrink-0" />
+              <span>Khởi tâm thiện lương, đón cát khí ngày mới</span>
             </div>
-            <span className="text-xs font-bold text-indigo-700 bg-white/80 px-2.5 py-1 rounded-full border border-indigo-200/60 shadow-2xs group-hover:bg-indigo-600 group-hover:text-white transition-colors shrink-0">
-              Tìm môn →
-            </span>
-          </div>
-          <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed mb-4">
-            Trả lời 2 câu hỏi ngắn gọn về câu hỏi bạn đang băn khoăn và thông tin ngày giờ hiện có. Hệ thống sẽ gợi ý chính xác bộ môn cổ học tối ưu 99% cho bạn.
-          </p>
-          <div className="flex items-center gap-2 text-xs font-bold text-indigo-900 pt-3 border-t border-indigo-200/50">
-            <Sparkles size={14} className="text-indigo-600 shrink-0" />
-            <span>Kinh Dịch • Bát Tự • Tử Vi • Hôn Nhân • Xem Ngày</span>
-          </div>
-        </motion.div>
-      </div>
+          </motion.div>
+        </div>
+      )}
 
       {/* 2. MODULE CARDS GRID */}
       <motion.section 

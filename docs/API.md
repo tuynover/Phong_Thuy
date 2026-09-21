@@ -529,7 +529,103 @@ Chức năng chạy in-memory, phục vụ xem ngày cát hung và tư vấn kho
   }
   ```
 
-### 7.3 Tra cứu Thuật ngữ Cổ học & Phong thủy
+### 7.4 Cuốn Lịch Cá Nhân Hóa Theo Tháng (Personalized Almanac Month Calendar)
+Tính toán và tổng hợp bức tranh năng lượng cả tháng kèm chi tiết từng ngày, hỗ trợ 2 phiên bản (Theo Năm Sinh Cơ Bản hoặc Theo Bát Tự Nâng Cao).
+- **Endpoint:** `POST /api/date/almanac/month-calendar`
+- **Quyền hạn:** `optionalAuth`:
+  - `mode: "year"`: **Miễn phí & Công khai**, khách vãng lai không cần đăng nhập vẫn sử dụng bình thường.
+  - `mode: "bazi"`: **Bắt buộc Đăng nhập** (Bearer JWT Token). Nếu chưa đăng nhập sẽ trả về `401 Unauthorized`.
+- **Body:**
+  ```json
+  {
+    "year": 2026,
+    "month": 9,
+    "mode": "year",       // "year" (Cơ bản theo năm sinh/tuổi) | "bazi" (Nâng cao theo Tứ Trụ)
+    "birthYear": 1995,    // Tùy chọn cho mode "year" (mặc định 1995 nếu không truyền)
+    "userBirth": {        // Dùng cho mode "bazi" hoặc tra cứu tùy biến
+      "year": 1995,
+      "month": 11,
+      "day": 15,
+      "hour": 10,
+      "minute": 30,
+      "gender": 1
+    }
+  }
+  ```
+- **Phản hồi (200):**
+  ```json
+  {
+    "year": 2026,
+    "month": 9,
+    "mode": "year",
+    "overview": {
+      "title": "Tháng Bình Hòa - Vững Vàng Cho Tuổi Ất Hợi",
+      "lunarMonthCanChi": "Đinh Dậu",
+      "strategyBadge": "Quân Bình Hòa",
+      "actionableAdvice": [...],
+      "precautions": [...]
+    },
+    "days": [
+      {
+        "solarDay": 21,
+        "solarMonth": 9,
+        "solarYear": 2026,
+        "lunarDay": 11,
+        "lunarMonth": 8,
+        "canChiDay": "Mậu Tuất",
+        "score": 57,
+        "tag": "Tương Sinh Mệnh",
+        "isToday": true,
+        "isPast": false
+      }
+    ]
+  }
+  ```
+- **Phản hồi Lỗi khi gọi mode Bát Tự mà chưa đăng nhập (401):**
+  ```json
+  {
+    "success": false,
+    "message": "Vui lòng đăng nhập để sử dụng phiên bản Bát Tự Nâng Cao"
+  }
+  ```
+
+### 7.5 Chi Tiết Năng Lượng Ngày Cá Nhân Hóa (Personalized Almanac Day Detail)
+Xem chi tiết điểm số, tương tác bản mệnh, top 3 giờ hoàng đạo hợp mệnh (loại trừ giờ xung chi) và gợi ý hành động/kiêng kỵ cho 1 ngày cụ thể.
+- **Endpoint:** `POST /api/date/almanac/day-detail`
+- **Quyền hạn:** `optionalAuth` (mode "year" công khai cho khách; mode "bazi" yêu cầu JWT token).
+- **Body:**
+  ```json
+  {
+    "solarDate": "2026-09-21",
+    "mode": "year",       // "year" | "bazi"
+    "birthYear": 1995,    // Dùng cho mode "year"
+    "userBirth": {
+      "year": 1995,
+      "month": 11,
+      "day": 15,
+      "hour": 10,
+      "minute": 30
+    }
+  }
+  ```
+- **Phản hồi (200):**
+  ```json
+  {
+    "solarDate": "2026-09-21",
+    "mode": "year",
+    "score": 57,
+    "tag": "Tương Sinh Mệnh",
+    "bestHours": [
+      { "hourName": "Giáp Dần", "timeRange": "03h - 05h", "deity": "Tư Mệnh" },
+      { "hourName": "Bính Thìn", "timeRange": "07h - 09h", "deity": "Thanh Long" },
+      { "hourName": "Canh Thân", "timeRange": "15h - 17h", "deity": "Kim Quỹ" }
+    ],
+    "dos": [...],
+    "donts": [...]
+  }
+  ```
+
+### 7.6 Tra cứu Thuật ngữ Cổ học & Phong thủy
 - **Endpoint:** `GET /api/concept/:term`
 - **Headers Phản hồi:** `Cache-Control: public, max-age=86400, stale-while-revalidate=604800` (lưu đệm CDN / Trình duyệt 24 giờ và hỗ trợ tái xác thực nền 7 ngày)
 - **Tham số Đường dẫn (Params):**
@@ -1040,4 +1136,108 @@ Cung cấp bức tranh toàn cảnh về sức khỏe của Node.js process, Mon
   }
   ```
 
+---
 
+## 📅 15. Phân Hệ Trạch Cát & Lịch Vạn Niên Bát Tự Cá Nhân Hóa (`/api/date`)
+
+Cung cấp công cụ tra cứu ngày hoàng đạo, chọn ngày đẹp theo công việc và cuốn lịch vạn niên Bát Tự cá nhân hóa toàn diện dựa trên Nhật Chủ, Thập Thần, Dụng Thần và Hợp Xung Chi.
+
+### 15.1 Ma Trận Lịch Tháng Vạn Niên Cá Nhân Hóa (Personalized Month Calendar)
+- **Endpoint:** `POST /api/date/almanac/month-calendar`
+- **Xác thực:** Tùy chọn (`optionalAuth`). Cho phép cả khách vãng lai (khai báo ngày sinh qua body) lẫn người dùng đã đăng nhập (tự động lấy lá số Bát tự bản thân).
+- **Body Request:**
+  ```json
+  {
+    "year": 2026,
+    "month": 9,
+    "baziInfo": {
+      "solarDate": "1994-10-24",
+      "time": "10:30",
+      "gender": "male"
+    }
+  }
+  ```
+- **Phản hồi (200 OK):**
+  ```json
+  {
+    "success": true,
+    "data": {
+      "year": 2026,
+      "month": 9,
+      "userBazi": {
+        "dayMaster": "Giáp",
+        "dayMasterElement": "Mộc",
+        "dayBranch": "Tuất",
+        "dungThan": ["Mộc", "Hỏa"],
+        "kyThan": ["Kim"]
+      },
+      "monthOverview": {
+        "lunarMonthName": "Tháng Bính Thân (Bính Ngọ)",
+        "energyStatus": "balanced",
+        "score": 75,
+        "thapThan": "Thực Thần",
+        "summary": "Tháng Bính Thân mang năng lượng của đất trời luân chuyển...",
+        "favors": ["Lập kế hoạch công việc và tài chính rõ ràng", "..."],
+        "cautions": ["Tránh các quyết định bốc đồng khi chưa khảo sát kỹ", "..."]
+      },
+      "days": [
+        {
+          "solarDate": "2026-09-01",
+          "solarDay": 1,
+          "lunarDay": 20,
+          "lunarMonth": 7,
+          "lunarYear": 2026,
+          "lunarDayStr": "20",
+          "isFirstOrFullMoon": false,
+          "dayCanChi": "Mậu Tý",
+          "thapThan": "Thiên Tài",
+          "score": 85,
+          "tier": "auspicious",
+          "badge": "Đại Cát",
+          "isAuspicious": true,
+          "isClash": false,
+          "highlights": ["Tương Hợp ngũ hành", "Năng lượng hanh thông"]
+        }
+      ]
+    }
+  }
+  ```
+- **Caching:** Đệm Redis L2 trong 12 giờ theo khóa `almanac:month:${userId || 'guest'}:${baziKey}:${year}:${month}`.
+
+### 15.2 Chi Tiết Ngày & Giờ Hoàng Đạo Cá Nhân Hóa (Personalized Day Detail)
+- **Endpoint:** `POST /api/date/almanac/day-detail`
+- **Xác thực:** Tùy chọn (`optionalAuth`).
+- **Body Request:**
+  ```json
+  {
+    "date": "2026-09-21",
+    "baziInfo": {
+      "solarDate": "1994-10-24",
+      "time": "10:30",
+      "gender": "male"
+    }
+  }
+  ```
+- **Phản hồi (200 OK):**
+  ```json
+  {
+    "success": true,
+    "data": {
+      "solarDate": "2026-09-21",
+      "dayCanChi": "Mậu Thìn",
+      "lunarDateStr": "11/08/2026",
+      "score": 88,
+      "tier": "auspicious",
+      "badge": "Đại Cát",
+      "thapThan": "Thiên Tài",
+      "goldenHours": [
+        { "name": "Dần", "time": "03:00 - 05:00", "isPersonalizedGood": true },
+        { "name": "Thìn", "time": "07:00 - 09:00", "isPersonalizedGood": true },
+        { "name": "Tỵ", "time": "09:00 - 11:00", "isPersonalizedGood": true }
+      ],
+      "dos": ["Khai trương mở cửa hàng", "Ký kết văn bản giao dịch", "..."],
+      "donts": ["Kiện tụng tranh chấp", "Đào giếng, động thổ mạnh", "..."],
+      "highlights": ["Ngày Lục Hợp với tuổi bản mệnh", "Trợ lực cát khí Dụng Thần"]
+    }
+  }
+  ```

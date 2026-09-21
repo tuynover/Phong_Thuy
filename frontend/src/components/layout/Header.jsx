@@ -40,8 +40,7 @@ export default function Header({
   setAppMode,
   setHistoricalZiweiId,
   logout,
-  onOpenDailyFortune,
-  onOpenDiscoveryQuiz
+  onOpenDailyFortune
 }) {
   const cleanLunarDate = (str) => {
     if (!str) return '';
@@ -231,6 +230,16 @@ export default function Header({
                         <Folder size={15} className="text-indigo-600" />
                         Lá số của tôi
                       </button>
+                      <button 
+                        onClick={() => {
+                          setAppMode('xemngay');
+                          setIsUserMenuOpen(false);
+                        }}
+                        className="w-full text-left px-4 py-2 text-xs sm:text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-950 font-bold transition-colors flex items-center gap-2 border-t border-gray-100"
+                      >
+                        <Calendar size={15} className="text-emerald-600" />
+                        Lịch cá nhân
+                      </button>
                       {(user?.role === 'admin' || user?.role === 'co-admin') && (
                         <button 
                           onClick={() => {
@@ -363,7 +372,7 @@ export default function Header({
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="absolute top-full left-0 w-full bg-white border-b border-slate-100 shadow-xl p-4 grid grid-cols-2 gap-3 md:hidden z-40"
+              className="absolute top-full left-0 w-full bg-white border-b border-slate-100 shadow-xl p-4 grid grid-cols-2 gap-3 md:hidden z-40 max-h-[calc(100dvh-4rem)] overflow-y-auto pb-8"
             >
               <div className="grid grid-cols-2 gap-3 col-span-2">
                 {/* USER CREDITS & INFO ROW IN MOBILE DRAWER */}
@@ -446,38 +455,30 @@ export default function Header({
                   <span className="font-extrabold text-xs text-slate-800">Kiến Thức Phong Thủy</span>
                 </button>
 
-                {/* QUẺ NGÀY MỚI & TRỢ LÝ GỢI Ý MÔN CHO MOBILE */}
+                {/* QUẺ NGÀY MỚI CHO MOBILE */}
                 {onOpenDailyFortune && (
                   <button 
                     onClick={() => { onOpenDailyFortune(); setIsMobileMenuOpen(false); }}
-                    className="p-3.5 rounded-2xl bg-amber-50/70 hover:bg-amber-100/70 border border-amber-200 flex items-center gap-2.5 text-left transition-all cursor-pointer shadow-2xs relative"
+                    className="col-span-2 p-3.5 rounded-2xl bg-amber-50/70 hover:bg-amber-100/70 border border-amber-200 flex items-center justify-between transition-all cursor-pointer shadow-2xs relative"
                   >
-                    <span className="text-lg">🎋</span>
-                    <div className="flex flex-col">
-                      <div className="flex items-center gap-1.5">
-                        <span className="font-extrabold text-xs text-amber-950">Quẻ Ngày Mới</span>
-                        {!hasDrawnDailyFortune && (
-                          <span className="relative flex h-2 w-2">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-600"></span>
-                          </span>
-                        )}
+                    <div className="flex items-center gap-3">
+                      <span className="text-xl">🎋</span>
+                      <div className="flex flex-col text-left">
+                        <div className="flex items-center gap-2">
+                          <span className="font-extrabold text-xs text-amber-950">Quẻ Xăm Ngày Mới</span>
+                          {!hasDrawnDailyFortune && (
+                            <span className="relative flex h-2 w-2">
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                              <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-600"></span>
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-[10px] text-amber-800/80 font-medium">Lắc xăm tre nhận lộc mỗi ngày</span>
                       </div>
-                      <span className="text-[10px] text-amber-800/80 font-medium">Lắc xăm tre nhận lộc</span>
                     </div>
-                  </button>
-                )}
-
-                {onOpenDiscoveryQuiz && (
-                  <button 
-                    onClick={() => { onOpenDiscoveryQuiz(); setIsMobileMenuOpen(false); }}
-                    className="p-3.5 rounded-2xl bg-indigo-50/70 hover:bg-indigo-100/70 border border-indigo-200 flex items-center gap-2.5 text-left transition-all cursor-pointer shadow-2xs"
-                  >
-                    <span className="text-lg">💡</span>
-                    <div className="flex flex-col">
-                      <span className="font-extrabold text-xs text-indigo-950">Gợi Ý Môn</span>
-                      <span className="text-[10px] text-indigo-800/80 font-medium">Trắc nghiệm nhanh 30s</span>
-                    </div>
+                    <span className="text-xs font-bold text-amber-800 bg-amber-100/80 px-2.5 py-1 rounded-full">
+                      Gieo quẻ →
+                    </span>
                   </button>
                 )}
 
@@ -512,6 +513,13 @@ export default function Header({
                         >
                           <Folder size={14} />
                           Lá số của tôi
+                        </button>
+                        <button 
+                          onClick={() => { handleSelectModule('xemngay'); setIsMobileMenuOpen(false); }}
+                          className="w-full py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-center font-bold text-xs text-emerald-800 transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                        >
+                          <Calendar size={14} className="text-emerald-600" />
+                          Lịch Vạn Niên Cá Nhân
                         </button>
                         {(user?.role === 'admin' || user?.role === 'co-admin') && (
                           <button 

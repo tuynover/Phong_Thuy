@@ -45,7 +45,7 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
     │   │   └── components/      # Component con Bát Tự: BaziPillarsTable, BaziPillar, BaziFiveElementsChart, BaziDaiYunTimeline, BaziProfileHeader, BaziRemedyAndRelations, ThapThanStrengthTable
     │   ├── ziwei/               # Tử Vi: ZiweiBoard.jsx, ZiweiChart.jsx, ZiweiInput.jsx
     │   ├── marriage/            # Hợp Hôn: MarriageBoard.jsx, MarriageInput.jsx
-    │   ├── xemngay/             # Xem Ngày Đẹp: DateSelectionBoard.jsx
+    │   ├── xemngay/             # Xem Ngày & Lịch Vạn Niên: DateSelectionBoard.jsx, components/PersonalizedCalendarBoard.jsx
     │   ├── blog/                # Kiến Thức Phong Thủy: BlogBoard.jsx
     │   ├── history/             # Lịch Sử Phân Tích: HistoryBoard.jsx
     │   │   └── components/      # Card lịch sử độc lập: IChingHistoryCard, BaziHistoryCard, ZiweiHistoryCard, MarriageHistoryCard
@@ -56,7 +56,7 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
     ├── components/
     │   ├── common/              # Thành phần dùng chung (CustomDatePicker, CustomSelect, CanhGioGuideModal, Tooltip...)
     │   ├── layout/              # Khung giao diện (Header.jsx, Footer.jsx...)
-    │   ├── modals/              # Hộp thoại modal (AuthModal, IChingQuestionGuideModal, PdfExportModal, MyFoldersModal...)
+    │   ├── modals/              # Hộp thoại modal (AuthModal, DailyFortuneModal, ShareableStoryModal, PdfExportModal, MyFoldersModal...)
     │   ├── widgets/             # Widget tiện ích nổi (AiChatWidget, AudioPlayerDock, NotificationBell, LifeRadarSummary, TableOfContents...)
     │   └── ...                  # Proxy Re-exports đảm bảo 100% tương thích ngược
     ├── hooks/                   # Custom Hooks dùng chung (useInterpretationStream, useRecordRating, usePublicToggle)

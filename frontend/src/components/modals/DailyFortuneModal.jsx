@@ -7,7 +7,8 @@ import {
   Briefcase, 
   Coins, 
   Heart,
-  RotateCcw
+  RotateCcw,
+  Share2
 } from 'lucide-react';
 import { 
   getDailyFortune, 
@@ -20,6 +21,7 @@ import {
   PALACE_ELEMENT_THEMES
 } from '@/features/iching/data/dailyFortuneData';
 import BambooShakerScene from './bamboo/BambooShakerScene';
+import ShareableStoryModal from './ShareableStoryModal';
 
 const RANK_BADGES = {
   "Đại Cát": {
@@ -52,6 +54,7 @@ function parseHexagramTitle(fullName) {
 
 export default function DailyFortuneModal({ isOpen, onClose, user }) {
   const [revealedFortune, setRevealedFortune] = useState(null);
+  const [isStoryModalOpen, setIsStoryModalOpen] = useState(false);
   const modalBodyRef = useRef(null);
 
   const userId = user?.id || user?._id || 'guest';
@@ -360,11 +363,38 @@ export default function DailyFortuneModal({ isOpen, onClose, user }) {
                     {revealedFortune.advice}
                   </p>
                 </div>
+
+                {/* 6. Nút Hành Động: Chia Sẻ Story 9:16 & Đóng */}
+                <div className="flex items-center gap-2.5 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsStoryModalOpen(true)}
+                    className="flex-1 py-3 px-4 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white rounded-2xl font-bold text-xs shadow-md shadow-amber-700/20 flex items-center justify-center gap-2 transition-all cursor-pointer"
+                  >
+                    <Share2 size={15} />
+                    <span>Chia Sẻ Story 9:16</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="py-3 px-5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-2xl font-bold text-xs shadow-md shadow-emerald-800/20 transition-all cursor-pointer"
+                  >
+                    Đã hiểu
+                  </button>
+                </div>
               </motion.div>
             )}
           </div>
         </motion.div>
       </div>
+
+      <ShareableStoryModal
+        isOpen={isStoryModalOpen}
+        onClose={() => setIsStoryModalOpen(false)}
+        data={{ fortune: revealedFortune }}
+        type="fortune"
+        user={user}
+      />
     </AnimatePresence>
   );
 }

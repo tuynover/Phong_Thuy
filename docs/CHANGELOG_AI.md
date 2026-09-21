@@ -2,7 +2,252 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
-## 📅 Phiên bản: Nâng Cấp Tone Xanh Lá Tươi Mới Buổi Sáng, Màu Thẻ Theo Họ Quẻ, Tách Dòng Tiêu Đề & Tối Ưu Mobile Native (21/09/2026)
+## 📅 Phiên bản: Hoàn Thiện Chú Thích 3 Màu (Xanh, Trắng, Đỏ) Trên 1 Dòng Duy Nhất & Tự Động Tính Lại Lịch Khi Thay Đổi Ngày Sinh (21/09/2026)
+
+### 🌟 1. Yêu Cầu & Bối Cảnh Người Dùng
+1. **Bổ Sung Đủ Cả Màu Đỏ và Màu Bình Thường Trong Chú Thích 1 Dòng:**
+   - Đầy đủ 3 trạng thái năng lượng: `🟢 Ngày Tốt`, `⚪ Bình Thường`, `🔴 Ngày Xấu / Thận Trọng`.
+   - Bỏ các đoạn chú giải trong ngoặc đơn dài dòng để đảm bảo toàn bộ nội dung nằm vừa vặn trên đúng **1 dòng duy nhất**.
+2. **Tự Động Tính Toán Lại Lịch Khi Thay Đổi Ngày Sinh (Chỉ Đổi Tại Phần Hồ Sơ):**
+   - *Quy Tắc:* Ngày sinh tài khoản chỉ chỉnh sửa tại mục Hồ Sơ (`ProfileBoard`), không đặt form hay nút đổi ngày sinh trong phần tính năng lịch để giữ giao diện thanh thoát, tập trung.
+   - *Lịch Theo Tuổi:* Khi người dùng chọn năm sinh khác ở `CustomYearSearchPicker`, hệ thống lập tức tính toán lại ma trận ngày. Sửa lỗi logic Backend để ưu tiên `birthYear` thay vì lấy nhầm thông tin đăng nhập cũ.
+   - *Lịch Theo Bát Tự:* Khi người dùng đổi ngày/giờ sinh trong Hồ Sơ, hook `useEffect` trong cuốn lịch tự động phát hiện thay đổi từng trường `baziInfo` (`day, month, year, hour, minute`) và tự động tính toán lại toàn bộ cuốn lịch Bát Tự ngay lập tức.
+
+---
+
+### 🛠️ 2. Chi Tiết Triển Khai Kỹ Thuật
+
+#### Backend (Node.js / Express):
+- **[`backend/src/modules/date/controllers/DateController.js`](file:///t:/Phongthuy/backend/src/modules/date/controllers/DateController.js):**
+  - Chuẩn hóa `getPersonalizedMonthCalendar` và `getPersonalizedDayDetail`: Khi `mode === 'year'`, ưu tiên `req.body.birthYear` để tính toán chính xác năm sinh người dùng vừa chọn, không bị ghi đè bởi `req.dbUser.baziInfo`.
+
+#### Frontend (React / Vite):
+- **[`frontend/src/features/xemngay/components/PersonalizedCalendarBoard.jsx`](file:///t:/Phongthuy/frontend/src/features/xemngay/components/PersonalizedCalendarBoard.jsx):**
+  - Cập nhật footer note thành 1 dòng chứa đủ 3 màu: `🟢 Ngày Tốt`, `⚪ Bình Thường`, `🔴 Ngày Xấu / Thận Trọng` kèm ghi chú xem giờ hoàng đạo.
+  - Loại bỏ các nút bấm/form đổi ngày sinh trong tính năng lịch, tuân thủ nguyên tắc chỉ chỉnh sửa hồ sơ tại trang Hồ Sơ.
+  - Bổ sung `useEffect` đồng bộ `selectedBirthYear` và lắng nghe sự thay đổi từng trường `baziInfo` (`day, month, year, hour, minute`) để luôn tự động tính lại lịch tức thì khi đổi ngày sinh trong Hồ Sơ.
+- **[`frontend/src/features/xemngay/DateSelectionBoard.jsx`](file:///t:/Phongthuy/frontend/src/features/xemngay/DateSelectionBoard.jsx):**
+  - Tinh chỉnh `useEffect` đồng bộ `birthYear` khi `user?.baziInfo?.year` thay đổi.
+
+---
+
+## 📅 Phiên bản: Bộ Chọn Tháng & Năm Trực Tiếp Tại Header Cuốn Lịch, Thu Gọn Chú Thích 1 Dòng (Chỉ Giữ Ngày Tốt), Xóa Nút Bấm Thừa Trong Thẻ Cấu Hình (21/09/2026)
+
+### 🌟 1. Yêu Cầu & Bối Cảnh Người Dùng
+1. **Thu Gọn Chú Thích Đúng 1 Dòng (Chỉ Giữ "Ngày Tốt"):**
+   - Loại bỏ hoàn toàn phần giải thích cho "Bình Thường" và "Ngày Xấu / Thận Trọng".
+   - Chỉ giữ duy nhất chỉ báo **🟢 Ngày Tốt** ở góc trái.
+   - Toàn bộ thanh chú thích dưới đáy lưới lịch chiếm trọn vẹn đúng 1 dòng duy nhất trên cả desktop và mobile: `🟢 Ngày Tốt` | `*Nhấp ngày bất kỳ để xem chi tiết giờ hoàng đạo`.
+2. **Loại Bỏ Nút "Nâng Cao Với Bát Tự" Trong Thẻ Lịch:**
+   - Xóa bỏ nút bấm `[ ✨ Nâng cao với Bát Tự -> ]` bên trong thẻ Top Control Bar vì người dùng đã có thanh 4 sub-tabs điều hướng độc lập ở cấp cao nhất.
+   - Thẻ cấu hình chỉ giữ lại `CustomYearSearchPicker` gọn gàng, tinh tế.
+3. **Bộ Chọn Tháng & Năm Trực Tiếp Ở Header Cuốn Lịch (`Tháng M / YYYY`):**
+   - Chuyển `Tháng {currentMonth}` thành nút tương tác mở dropdown chọn nhanh bất kỳ tháng nào trong 12 tháng (1 - 12).
+   - Chuyển `{currentYear}` thành nút tương tác mở popover chọn năm (1940 - 2050) có ô tìm kiếm nhanh, nút quay về "Năm nay" và hiển thị Can Chi niên vận.
+
+---
+
+### 🛠️ 2. Chi Tiết Triển Khai Kỹ Thuật
+
+#### Frontend (React / Vite):
+- **[`frontend/src/features/xemngay/components/PersonalizedCalendarBoard.jsx`](file:///t:/Phongthuy/frontend/src/features/xemngay/components/PersonalizedCalendarBoard.jsx):**
+  - Bổ sung `isMonthPickerOpen`, `isYearPickerOpen`, `yearPickerSearch`, `monthPickerRef`, `yearPickerRef` và hook bắt click bên ngoài để tự đóng popovers.
+  - Tích hợp 2 dropdown popovers độc lập tại vị trí `Tháng {currentMonth} ▾ / {currentYear} ▾`.
+  - Loại bỏ hoàn toàn nút bấm `✨ Nâng cao với Bát Tự ->` trong Top Control Bar.
+  - Thay thế thanh legend nhiều dòng thành thanh chú thích 1 dòng: `flex items-center justify-between text-xs flex-nowrap` với chỉ báo xanh lá cho Ngày Tốt.
+
+---
+
+## 📅 Phiên bản: Đổi Tên "Lịch Theo Bát Tự", Thiết Kế Lại Header & Bộ Chọn Năm Chuẩn Combobox, Dời Cụm Chuyển Tháng Sát Cuốn Lịch, Thu Gọn Chú Thích 3 Màu (21/09/2026)
+
+### 🌟 1. Yêu Cầu & Bối Cảnh Người Dùng
+1. **Đổi tên chức năng thành "Lịch theo Bát Tự":**
+   - Đổi tên tab con từ "Nâng Cao Với Bát Tự" thành "Lịch Theo Bát Tự" trên thanh điều hướng Trạch Cát và các nút bấm liên kết.
+2. **Loại bỏ các nhãn pill rườm rà:**
+   - Xóa bỏ các nhãn phụ "Bản theo năm sinh" và "Bản Bát tự nâng cao" trong card cấu hình.
+3. **Thiết kế lại Header Card & Bộ chọn năm:**
+   - Tích hợp bộ chọn năm tìm kiếm `CustomYearSearchPicker` (tương tự như bên Xem Ngày), cho phép gõ tìm năm tức thì, hiển thị đầy đủ Năm Dương + Can Chi + Biểu tượng 12 Con Giáp trong popup bo góc `rounded-2xl` mềm mại.
+   - Nút bấm `[ 🔮 Lịch theo Bát Tự → ]` được thiết kế cao cấp với hiệu ứng gradient tím - chàm và viền phát sáng.
+4. **Dời cụm chuyển tháng sát gần cuốn lịch:**
+   - Đưa cụm điều hướng (`Tháng M / YYYY`, nút `< >`, `Hôm nay`, nhãn tháng âm lịch) từ header card xuống nằm ngay trên đầu lưới lịch tháng (`T2, T3... CN`), tăng tính tiện dụng và thẩm mỹ.
+5. **Quy tắc phối màu ô ngày:**
+   - Ngày bình thường/bình hòa giữ nguyên nền trắng sạch sẽ (`bg-white border-slate-200/70`), không tô màu vàng.
+   - Chỉ tô màu nhấn cho Ngày Tốt (xanh ngọc) và Ngày Xấu/Thận trọng (đỏ hồng).
+6. **Thu gọn chú thích màu sắc:**
+   - Thay thế bảng 6 thẻ lớn bằng chú thích 3 màu nhỏ gọn, tinh tế ở đáy cuốn lịch (🟢 Ngày Tốt, ⚪ Bình Thường, 🔴 Ngày Xấu / Thận Trọng).
+
+---
+
+### 🛠️ 2. Chi Tiết Triển Khai Kỹ Thuật
+
+#### Frontend (React / Vite):
+- **[`frontend/src/features/xemngay/DateSelectionBoard.jsx`](file:///t:/Phongthuy/frontend/src/features/xemngay/DateSelectionBoard.jsx):**
+  - Đổi tên nhãn tab `bazi_calendar` thành `Lịch Theo Bát Tự`.
+- **[`frontend/src/features/xemngay/components/PersonalizedCalendarBoard.jsx`](file:///t:/Phongthuy/frontend/src/features/xemngay/components/PersonalizedCalendarBoard.jsx):**
+  - Bổ sung component `CustomYearSearchPicker` với input tìm kiếm nhanh, drop-down cuộn 1940-2026 kèm Can Chi và con giáp.
+  - Tái cấu trúc layout: Tách rời phần cấu hình tuổi / hồ sơ sang card riêng tinh gọn; đưa cụm chuyển tháng (`Tháng M / YYYY`, `< >`, `Hôm nay`, thẻ tháng âm) vào đỉnh card cuốn lịch.
+  - Cập nhật styling ô ngày: Ngày bình thường nền trắng `bg-white`, chỉ ngày tốt (emerald) và ngày xấu (rose) có màu nền.
+  - Thay thế bảng 6 thẻ legend bằng chú thích 3 màu nhỏ gọn đặt ở đáy card cuốn lịch.
+
+---
+
+## 📅 Phiên bản: Tách Rời 2 Chức Năng Lịch (Lịch Theo Tuổi & Nâng Cao Với Bát Tự), Tinh Giản Bảng Màu Sắc Loại Bỏ Điểm Số (21/09/2026)
+
+### 🌟 1. Yêu Cầu & Bối Cảnh Người Dùng
+1. **Tinh Giản Bảng Giải Thích Màu Sắc (Color Legend):**
+   - Chỉ giải thích ý nghĩa màu sắc và biểu tượng của các ô ngày trên cuốn lịch, loại bỏ hoàn toàn các con số điểm số học thuật như `(≥70đ)`, `(50-69đ)`, `(<50đ)`.
+   - Bỏ thuộc tính `truncate` gây cắt ngắn nội dung `...` trên các thẻ chú thích, giúp người dùng dễ dàng nắm bắt trọn vẹn ý nghĩa: Ngày Tốt • Cát Lành (🟢), Bình Hòa • Thứ Cát (🟡), Thận Trọng • Trực Xung (🔴), Ngày Hôm Nay (🔵 NAY), Ngày Đã Qua (⚪ xám mờ), Mùng 1 & Ngày Rằm (🔴 số âm lịch đỏ).
+2. **Tách 2 Chế Độ Xem Lịch Thành 2 Chức Năng Độc Lập:**
+   - Thay vì gộp chung một tab "Cuốn Lịch Tháng", hệ thống tách thành 4 tab chức năng rõ ràng trên thanh điều hướng Trạch Cát:
+     - `🌿 Lịch Theo Tuổi`: Chức năng cơ bản, miễn phí cho toàn bộ người dùng và khách vãng lai, tra cứu theo năm sinh / con giáp.
+     - `🔮 Nâng Cao Với Bát Tự`: Chức năng nâng cao, phân tích Tứ Trụ, Nhật Chủ & Dụng Thần cá nhân hóa, yêu cầu đăng nhập.
+     - `Chi Tiết Ngày`
+     - `Tìm Ngày Đẹp`
+3. **Nút "Nâng cao với Bát Tự" Đặt Cạnh Bộ Chọn Tuổi:**
+   - Ngay bên cạnh bộ chọn tuổi (`select` năm sinh) trong giao diện Lịch Theo Tuổi, bổ sung nút nổi bật `[ 🔮 Nâng cao với Bát Tự → ]`.
+   - Khi người dùng nhấp vào nút: Nếu chưa đăng nhập, tự động kích hoạt `AuthModal`; nếu đã đăng nhập, tự động chuyển ngay sang chức năng Lịch Bát Tự.
+   - Khi ở Lịch Bát Tự, có nút `[ 🌿 Xem Lịch Theo Tuổi ]` để dễ dàng quay lại.
+
+---
+
+### 🛠️ 2. Chi Tiết Triển Khai Kỹ Thuật
+
+#### Frontend (React / Vite):
+- **[`frontend/src/features/xemngay/components/PersonalizedCalendarBoard.jsx`](file:///t:/Phongthuy/frontend/src/features/xemngay/components/PersonalizedCalendarBoard.jsx):**
+  - Nhận props `mode` và `onSwitchMode` từ component cha để điều khiển hiển thị theo tab chức năng cha hoặc nội bộ.
+  - Bổ sung nút bấm `[ 🔮 Nâng cao với Bát Tự → ]` cạnh ô chọn năm sinh trong header chế độ `year`.
+  - Bổ sung nút quay lại `[ 🌿 Xem Lịch Theo Tuổi ]` trong header chế độ `bazi`.
+  - Loại bỏ thanh tab switch dư thừa ở chân header, giữ giao diện tập trung và tinh giản.
+  - Cập nhật 6 thẻ Color Legend: Loại bỏ hoàn toàn điểm số `(≥70đ)`, `(50-69đ)`, `(<50đ)`, loại bỏ `truncate`, căn lề `leading-tight` và icon định vị thẳng hàng trên cả desktop và mobile.
+- **[`frontend/src/features/xemngay/DateSelectionBoard.jsx`](file:///t:/Phongthuy/frontend/src/features/xemngay/DateSelectionBoard.jsx):**
+  - Tách sub-tabs thành 4 nút: `year_calendar` (🌿 Lịch Theo Tuổi), `bazi_calendar` (🔮 Nâng Cao Với Bát Tự), `check` (Chi Tiết Ngày), `consult` (Tìm Ngày Đẹp).
+  - Tối ưu layout `max-w-4xl` với `whitespace-nowrap`, đảm bảo không bị co vỡ chữ trên mọi kích thước màn hình.
+  - Hỗ trợ lưu trữ bền vững tab đang chọn vào `localStorage` (`phongthuy_xemngay_subtab`).
+
+---
+
+### 🌟 1. Yêu Cầu & Bối Cảnh Người Dùng
+1. **Lịch Theo Năm Sinh là Tính Năng Cơ Bản, Miễn Phí & Không Cần Đăng Nhập:**
+   - Cho phép khách vãng lai tra cứu tự do theo bất kỳ năm sinh / con giáp nào từ 1940 đến 2026 thông qua bộ chọn tuổi trực quan.
+   - Hiển thị đầy đủ ma trận 30 ngày trong tháng kèm Can Chi, Nạp Âm mệnh niên, Lục Hợp/Tam Hợp/Xung/Hại tuổi và 3 giờ hoàng đạo né xung chi năm sinh.
+2. **Phiên Bản Bát Tự Nâng Cao Bắt Buộc Đăng Nhập:**
+   - Bảo mật chuyên sâu cho phiên bản Bát Tự Tứ Trụ, Nhật Chủ & Dụng Thần:
+   - Backend chặn `401 Unauthorized` nếu gọi `mode: 'bazi'` mà không có token.
+   - Frontend hiển thị huy hiệu `Cần đăng nhập` kèm icon khóa; khi khách nhấn vào sẽ kích hoạt mở `AuthModal`.
+3. **Bổ Sung Bảng Chú Thích Ý Nghĩa Màu Sắc & Biểu Tượng (Color Legend):**
+   - Đặt ngay dưới lưới ma trận lịch tháng, giải thích cặn kẽ 6 trạng thái: Cát Lành (🟢), Bình Hòa (🟡), Thận Trọng (🔴), Hôm Nay (🔵 NAY), Ngày Đã Qua (⚪ xám mờ) và Sóc & Vọng (🔴 số âm lịch đỏ).
+4. **Thiết Lập Hồ Sơ Sinh Mệnh & Tự Động Lưu Cơ Sở Dữ Liệu:**
+   - Khi tài khoản đăng nhập chưa có ngày sinh muốn xem Bát Tự -> Hiển thị form onboarding -> Gọi `PUT /api/auth/profile` lưu vào MongoDB (`user.baziInfo`) -> Tự động tính toán và mở lịch Bát Tự tức thì.
+5. **Điểm Truy Cập Nhanh Trực Tiếp:**
+   - Desktop: Mục "Lịch cá nhân" trong User Dropdown.
+   - Mobile: Nút "Lịch Vạn Niên Cá Nhân" trong Drawer Menu (kèm thanh cuộn linh hoạt `max-h-[calc(100dvh-4rem)]`).
+
+---
+
+### 🛠️ 2. Chi Tiết Triển Khai Kỹ Thuật
+
+#### Backend (Node.js / Express):
+- **[`backend/src/modules/date/routes/date.routes.js`](file:///t:/Phongthuy/backend/src/modules/date/routes/date.routes.js):**
+  - Chuyển middleware `/almanac/month-calendar` và `/almanac/day-detail` sang `optionalAuth` để cho phép khách vãng lai gọi vào.
+- **[`backend/src/modules/date/controllers/DateController.js`](file:///t:/Phongthuy/backend/src/modules/date/controllers/DateController.js):**
+  - Phân quyền theo chế độ: Nếu `mode === 'bazi'` và thiếu token thì trả về `401 Unauthorized`. Nếu `mode === 'year'`, cho phép khách vãng lai (`userId = 'guest'`), trích xuất `birthYear` từ request body (mặc định 1995).
+- **[`backend/src/modules/date/services/PersonalizedAlmanacService.js`](file:///t:/Phongthuy/backend/src/modules/date/services/PersonalizedAlmanacService.js):**
+  - Hỗ trợ cache key an toàn cho khách `almanac:month:guest:year:...`.
+
+#### Frontend (React / Vite):
+- **[`frontend/src/features/xemngay/components/PersonalizedCalendarBoard.jsx`](file:///t:/Phongthuy/frontend/src/features/xemngay/components/PersonalizedCalendarBoard.jsx):**
+  - Hỗ trợ khách vãng lai xem lịch theo năm sinh hoàn toàn miễn phí, không khóa màn hình.
+  - Tích hợp bộ chọn năm sinh `select` từ 2026 đến 1940 kèm Can Chi và con giáp tiếng Việt (`getYearCanChiVi`).
+  - Nút chuyển tab `🔮 Theo Bát Tự (Nâng Cao)` có badge khóa `Cần đăng nhập`, kích hoạt mở `AuthModal` khi khách click.
+  - Tích hợp bảng **Ý Nghĩa Màu Sắc & Biểu Tượng Trên Cuốn Lịch** (Color Legend) ngay dưới lưới lịch.
+  - Styling Ngày Hôm Nay viền `ring-2 ring-indigo-500` kèm badge "NAY", và các ngày đã qua làm xám mờ `opacity-40 grayscale`.
+
+#### Frontend (React / Vite):
+- **[`frontend/src/features/xemngay/components/PersonalizedCalendarBoard.jsx`](file:///t:/Phongthuy/frontend/src/features/xemngay/components/PersonalizedCalendarBoard.jsx):**
+  - Bộ chuyển đổi 2 phiên bản (Segmented Switcher): "🌿 Theo Năm Sinh (Cơ Bản)" và "🔮 Theo Bát Tự (Nâng Cao)".
+  - Card Khóa Quyền Truy Cập (dành cho khách vãng lai) với nút kích hoạt `AuthModal`.
+  - Form Thiết Lập Hồ Sơ Sinh Mệnh Onboarding (dành cho tài khoản chưa có ngày sinh): Nhập ngày sinh, giờ sinh, giới tính -> lưu vào DB qua `PUT /api/auth/profile` -> cập nhật `user` state -> tự động tải lịch.
+  - Styling ô ngày: Viền đôi nổi bật và huy hiệu "NAY" cho ngày hôm nay; làm mờ, xám hóa (`opacity-40 grayscale`) cho các ngày đã qua trong tháng.
+- **[`frontend/src/components/layout/Header.jsx`](file:///t:/Phongthuy/frontend/src/components/layout/Header.jsx):**
+  - User Dropdown (Desktop): Thêm mục "Lịch cá nhân" kèm biểu tượng `Calendar`.
+  - Drawer Menu (Mobile): Thêm nút "Lịch Vạn Niên Cá Nhân" với icon lịch màu xanh ngọc, tối ưu `max-h-[calc(100dvh-4rem)] overflow-y-auto` giúp cuộn dễ dàng trên màn hình nhỏ.
+
+---
+
+## 📅 Phiên bản: Giai Đoạn 5B - Cuốn Lịch Vạn Niên Cá Nhân Hóa Bát Tự Toàn Diện, Trình Tạo Thiệp Story 9:16 & Tái Cấu Trúc Giao Diện Home (21/09/2026)
+
+### 🌟 1. Yêu Cầu & Bối Cảnh Người Dùng
+1. **Xóa hoàn toàn tính năng Gợi Ý Môn (DiscoveryQuiz):**
+   - Loại bỏ modal khảo sát trắc nghiệm, các nút kích hoạt trên Header, Menu Drawer và thẻ tính năng trên HomeBoard.
+   - Dọn sạch mã nguồn (`git rm frontend/src/components/modals/DiscoveryQuizModal.jsx`), xóa state và logic thừa trong `UserApp.jsx`.
+2. **Tái thiết kế hàng nút Hero trên Trang Chủ (HomeBoard):**
+   - Đưa nút chuyển phân hệ lên cùng hàng với "Xem Vận Mệnh" và "Quẻ Ngày Mới".
+   - Đổi tên thành **"Chức năng"** (`[▶ Chức năng]`), phối màu dịu nhẹ trung tính (`bg-slate-100 hover:bg-slate-200/90 text-slate-700 border border-slate-300/80 font-bold`).
+   - Giảm độ sáng màu của 2 nút còn lại để không gây chói mắt (sử dụng indigo êm dịu và warm amber thanh nhã).
+   - Đổi icon `<Sparkles size={16} />` của nút "Xem Vận Mệnh" sang phía bên trái nhãn văn bản.
+3. **Cuốn Lịch Vạn Niên Bát Tự Cá Nhân Hóa Toàn Diện (Full Monthly Calendar):**
+   - Hiển thị ma trận 7 cột (T2 - CN) đầy đủ cả tháng với song hành ngày Dương lịch và Âm lịch (đánh dấu mùng 1 và ngày rằm đỏ).
+   - Cá nhân hóa học thuật Bát Tự chuyên sâu: Can Chi ngày, Thập Thần đối ứng với Nhật Chủ, điểm số năng lượng ngày (0 - 100), chấm/huy hiệu năng lượng (Đại Cát, Cát Lành, Bình Hòa, Cẩn Trọng), đối chiếu Hợp - Xung - Hại chi ngày sinh và Dụng Thần / Kỵ Thần.
+   - Bảng tổng quan vận trình tháng (xu thế năng lượng, Thập Thần tháng, 3 việc nên làm và 3 việc cần thận trọng).
+   - Khung chi tiết ngày: Bấm vào từng ô lịch hiển thị bảng điểm, phân tích tương tác mệnh số, 3 khung giờ hoàng đạo cá nhân hóa (đã lọc bỏ giờ xung chi ngày sinh), việc nên/không nên làm.
+   - Hỗ trợ cả người dùng có sẵn lá số lẫn biểu mẫu nhập nhanh ngày giờ sinh để cá nhân hóa tức thời.
+4. **Trình Tạo Thiệp Ảnh Story 9:16 & 1:1 Chia Sẻ Mạng Xã Hội (`ShareableStoryModal`):**
+   - Cho phép người dùng kết xuất ảnh thiệp vận trình ngày Bát Tự hoặc Quẻ Xăm Ngày Mới thành thiệp nghệ thuật chuẩn tỷ lệ 9:16 (Story FB/Insta/TikTok) hoặc 1:1 (Post Vuông Zalo/FB).
+   - 4 Bảng màu cổ học sang trọng: Huyền Vũ (Đen - Vàng hoàng gia), Trúc Thanh (Xanh ngọc thiền), Chu Sa (Đỏ son nhũ vàng), Ngọc Bích (Kem ngà hoàng gia).
+   - Tự động sinh mã QR Code động dẫn về website, hỗ trợ tùy chọn ẩn danh, tải tệp ảnh PNG độ phân giải cao (scale 3x chuẩn 1080p) và sao chép thẳng vào Clipboard.
+
+---
+
+### 🛠️ 2. Chi Tiết Kỹ Thuật
+
+#### Backend (Node.js / Express):
+- **[`backend/src/modules/date/services/PersonalizedAlmanacService.js`](file:///t:/Phongthuy/backend/src/modules/date/services/PersonalizedAlmanacService.js):**
+  - Khởi tạo service thuật toán ma trận lịch tháng vạn niên kết hợp thư viện `lunar-javascript`.
+  - Tính toán Thập Thần chuẩn xác (`getThapThan(dayMaster, stem)`), Lục Hợp, Tam Hợp, Lục Xung, Tương Hại và Dụng Thần / Kỵ Thần.
+  - Định vị 3 Khung Giờ Hoàng Đạo Tinh Tuyển, tự động triệt tiêu các giờ có Địa Chi xung trực diện với Chi ngày sinh của đương số.
+  - Cơ chế đệm Redis L2 12 giờ (`almanac:month:...`).
+- **[`backend/src/modules/date/controllers/DateController.js`](file:///t:/Phongthuy/backend/src/modules/date/controllers/DateController.js):**
+  - Thêm phương thức `getPersonalizedMonthCalendar` & `getPersonalizedDayDetail`.
+- **[`backend/src/modules/date/routes/date.routes.js`](file:///t:/Phongthuy/backend/src/modules/date/routes/date.routes.js):**
+  - Khai báo 2 endpoints `POST /api/date/almanac/month-calendar` và `POST /api/date/almanac/day-detail` với middleware `optionalAuth`.
+
+#### Frontend (React / Vite):
+- **Dọn dẹp DiscoveryQuiz:**
+  - `git rm frontend/src/components/modals/DiscoveryQuizModal.jsx`.
+  - Làm sạch `frontend/src/app/UserApp.jsx`: Xóa import, state `isDiscoveryQuizOpen`, callback `handleOpenDiscoveryQuiz`.
+  - Tối ưu `frontend/src/components/layout/Header.jsx`: Xóa nút Gợi Ý Môn trong Drawer mobile, cho nút Quẻ Xăm Ngày Mới chiếm trọn 2 cột.
+- **Tái thiết kế Hero Buttons (`frontend/src/features/home/HomeBoard.jsx`):**
+  - "Xem Vận Mệnh": Icon Sparkles đưa sang bên trái nhãn, giảm độ sáng sang tone indigo nền nã.
+  - "Quẻ Ngày Mới": Tone warm amber êm dịu, tích hợp chấm đỏ thông báo nếu hôm đó chưa gieo.
+  - "[▶ Chức năng]": Cùng hàng với 2 nút trên, màu xám nhạt nhẹ nhàng thanh lịch.
+  - Xóa Card 2 "Trợ Lý Gợi Ý Môn" khỏi lưới tính năng.
+- **Mô-đun Lịch Tháng Vạn Niên (`frontend/src/features/xemngay/components/PersonalizedCalendarBoard.jsx`):**
+  - Lưới 7 cột (T2 đến CN), hiển thị song hành ngày Dương lịch và Âm lịch (mùng 1 và ngày rằm in đỏ nổi bật).
+  - Điều hướng tháng linh hoạt (Tháng trước, Tháng sau, Nút Hôm nay quay về thời gian thực).
+  - Bảng tổng quan tháng: Thanh trạng thái Thập Thần tháng, đánh giá thế năng lượng, danh sách 3 việc nên làm và 3 điều thận trọng.
+  - Khung chi tiết ngày: Bấm vào từng ngày để xem điểm số Bát tự, tương tác bản mệnh, 3 khung giờ hoàng đạo cá nhân hóa, việc nên/không nên làm, và nút "Xuất Thiệp Story".
+- **Trình Tạo Thiệp Ảnh Story (`frontend/src/components/modals/ShareableStoryModal.jsx`):**
+  - Hỗ trợ 2 chế độ: Thiệp Quẻ Xăm Ngày Mới & Thiệp Lịch Bát Tự Vận Khí.
+  - Tùy biến tỷ lệ: `9:16` Story và `1:1` Vuông.
+  - 4 Bộ chủ đề: Huyền Vũ, Trúc Thanh, Chu Sa, Ngọc Bích.
+  - Tích hợp `qrcode` sinh mã QR động và `html-to-image` với tỷ lệ điểm ảnh `pixelRatio: 3` cho chất lượng ảnh 1080p sắc nét.
+  - Tối ưu `z-index: z-[110]` hiển thị thông suốt trên mọi modal cha.
+- **Tích hợp Chia Sẻ vào Quẻ Xăm Ngày Mới (`frontend/src/components/modals/DailyFortuneModal.jsx`):**
+  - Thêm nút "Chia Sẻ Story 9:16" ngay bên dưới kết quả quẻ, mở `ShareableStoryModal` để xuất ảnh thiệp quẻ tức thời.
+
+---
+
+### 🧪 3. Kết Quả Kiểm Thử (Chrome DevTools MCP)
+- **Biên dịch Frontend:** `npm run build` thành công $100\%$ không lỗi cú pháp trong 2.06s.
+- **Backend API:** Kiểm thử `curl -X POST http://localhost:3001/api/date/almanac/month-calendar` và `curl -X POST http://localhost:3001/api/date/almanac/day-detail` phản hồi HTTP 200 OK với dữ liệu Bát Tự chuẩn xác.
+- **Trải nghiệm Trình duyệt Chrome DevTools:**
+  - Nút "Chức năng" hiển thị cùng hàng với 2 nút Hero, màu sắc nhã nhặn, icon Sparkles của "Xem Vận Mệnh" nằm bên trái.
+  - Thao tác lắc xăm quẻ ngày mượt mà, mở modal "Chia Sẻ Story 9:16" trơn tru, chuyển đổi tỷ lệ 9:16 / 1:1 và 4 theme màu tức thời.
+  - Giao diện Lịch Vạn Niên Bát Tự hiển thị trọn vẹn 31 ngày kèm ngày âm, chuyển tháng mượt mà, click xem chi tiết ngày hiển thị 3 giờ hoàng đạo chuẩn Bát Tự.
+  - Kiểm thử Responsive trên iPhone 14 (390x844): Bố cục co giãn native, không vỡ tràn viền.
+  - Console Log: $0$ lỗi.
+
+---
 
 ### 🌟 1. Yêu Cầu & Bối Cảnh Người Dùng
 - **Màu nền theo Họ Quẻ (Hình 1):** Thẻ quẻ cát tường đổi màu nền động theo Họ quẻ (Bát Cung / Ngũ Hành Kim - Mộc - Thủy - Hỏa - Thổ) của quẻ được rút.

@@ -675,4 +675,172 @@ Hệ thống tích hợp thuật toán phân loại độ tuổi tự động (`
 - Khi mở modal xác nhận luận giải (`InterpretationTierModal`), hệ thống tự động đọc năm sinh của lá số để hiển thị danh sách mục tiêu luận giải (bullets) cá nhân hóa cho lứa tuổi đó.
 - **Quy tắc bảo mật trải nghiệm:** **TUYỆT ĐỐI KHÔNG** hiển thị các thông báo máy móc lộ hạ tầng (như *"Hệ thống đã nhận diện prompt..."* hay *"Kích hoạt bộ prompt..."*). Toàn bộ nội dung hiển thị tự nhiên, tập trung vào giá trị người dùng nhận được.
 
+---
 
+## 🗓️ 11. Quy Tắc Học Thuật Lịch Vạn Niên Cá Nhân Hóa Bát Tự & Năm Sinh
+
+Hệ thống cung cấp ma trận lịch tháng vạn niên kết hợp tinh hoa giữa **Dương Lịch - Âm Lịch** và **Mệnh Lý Cổ Học Cá Nhân Hóa Toàn Diện**, loại bỏ lối xem ngày chung chung của lịch truyền thống.
+
+### 11.1 Phân Cấp 2 Phiên Bản Lịch Học Thuật
+1. **Phiên bản Theo Năm Sinh (Cơ Bản - `mode: 'year'`):**
+   - Áp dụng dựa trên năm sinh, Can Chi tuổi, con giáp và Mệnh Niên (60 Hoa Giáp Nạp Âm).
+   - Đánh giá ngày dựa trên: Lục Hợp Tuổi, Tam Hợp Tuổi, Trực Xung Tuổi, Tương Hại Tuổi, Nạp Âm Ngày Tương Sinh/Tương Khắc với Mệnh Niên.
+   - Bức tranh tháng đánh giá sự tương quan giữa Ngũ Hành Nạp Âm tháng và Mệnh Niên đương số.
+   - 3 Giờ Hoàng Đạo trong ngày được lọc loại bỏ các giờ có Chi xung trực diện với Chi năm sinh (Địa chi con giáp).
+2. **Phiên bản Theo Bát Tự (Nâng Cao - `mode: 'bazi'`):**
+   - Phân tích chuyên sâu dựa trên Tứ Trụ, Nhật Chủ, Thập Thần và Dụng Thần / Kỵ Thần của bản mệnh.
+   - Đánh giá ngày dựa trên Thập Thần lâm nhật, Dụng Thần nhập khí, Lục Hợp / Tam Hợp / Lục Xung / Tương Hại Chi ngày sinh.
+   - 3 Giờ Hoàng Đạo được lọc loại bỏ các giờ có Chi xung với Chi ngày sinh (Nhật Chi).
+   - Bộ chuyển đổi trực quan 2 phiên bản (Segmented Switcher) trên giao diện cho phép người dùng linh hoạt lựa chọn mức độ nông sâu theo nhu cầu.
+
+### 11.2 Phân Quyền & Kiểm Soát Truy Cập Theo Phiên Bản (Auth-gated)
+- **Phiên bản Theo Năm Sinh (Cơ Bản):** Là tính năng **Cơ Bản & Công Khai (Miễn phí)**, không cần đăng nhập. Khách vãng lai có thể chọn bất kỳ năm sinh nào từ 1940 đến 2026 kèm Can Chi con giáp để tra cứu cát hung, tương sinh/tương khắc mệnh niên, tam hợp/lục hợp/xung/hại tuổi và 3 giờ hoàng đạo né xung chi năm sinh.
+- **Phiên bản Theo Bát Tự (Nâng Cao):** Là tính năng **Nâng Cao & Bảo Mật**, bắt buộc đăng nhập tài khoản thành viên:
+  - **Backend Protection:** Endpoint với `mode: 'bazi'` nếu không có JWT token sẽ bị trả về `401 Unauthorized`.
+  - **Frontend Guard:** Khi khách vãng lai nhấn sang tab Bát Tự Nâng Cao, giao diện sẽ kích hoạt mở `AuthModal` yêu cầu đăng nhập để mở khóa phân tích Tứ Trụ, Nhật Chủ & Dụng Thần.
+
+### 11.3 Thiết Lập Hồ Sơ Sinh Mệnh (Onboarding) & Lưu Cơ Sở Dữ Liệu
+- Khi người dùng đăng nhập nhưng tài khoản chưa có thông tin ngày sinh (`!user.baziInfo?.year`), nếu chuyển sang xem phiên bản Bát Tự, giao diện sẽ hiển thị form yêu cầu nhập thông tin ngày tháng năm sinh, giờ sinh và giới tính.
+- Khi người dùng gửi form, hệ thống gọi API `PUT /api/auth/profile` để lưu trực tiếp vào cơ sở dữ liệu (`user.baziInfo`), đồng thời cập nhật Auth Context và tự động kích hoạt tính toán, tải ngay cuốn lịch Bát Tự mà không bắt người dùng phải thao tác lại.
+
+### 11.4 Bảng Chú Thích Ý Nghĩa Màu Sắc & Biểu Tượng Trên Cuốn Lịch (Color Legend)
+Giao diện cuốn lịch tích hợp bảng chú giải ý nghĩa màu sắc trực quan đặt ngay dưới lưới ma trận ngày:
+- 🟢 **Xanh lá (Cát Lành / Đại Cát - Điểm $\ge 70$):** Ngày mang năng lượng tương sinh, tam hợp, lục hợp, vượng dụng thần, thực thần, chính ấn.
+- 🟡 **Vàng cam (Bình Hòa / Thứ Cát - Điểm $50 - 69$):** Năng lượng cân bằng, công việc ổn định, tài lộc thứ cát (Chính Tài, Thiên Tài, Tỷ Kiên).
+- 🔴 **Đỏ hồng (Thận Trọng / Xung Khắc - Điểm $< 50$):** Trực xung tuổi, tương hại, kỵ thần, nên tránh các việc đại sự quan trọng.
+- 🔵 **Viền Xanh Tím & Huy hiệu "NAY":** Ngày Hôm Nay (Thời gian thực hiện tại).
+- ⚪ **Tông Xám Mờ (`opacity-40 grayscale`):** Ngày Đã Qua trong tháng.
+- 🔴 **Số Âm Lịch Màu Đỏ:** Ngày Sóc (Mùng 1 đầu tháng) và Ngày Vọng (Rằm 15 Âm lịch).
+
+### 11.5 Điểm Truy Cập Nhanh Vào Lịch Cá Nhân
+- **Dropdown Profile (Desktop):** Bổ sung mục "Lịch cá nhân" kèm biểu tượng `Calendar` màu xanh ngọc, cho phép chuyển thẳng sang màn hình xem lịch.
+- **Drawer Menu (Mobile):** Bổ sung nút "Lịch Vạn Niên Cá Nhân" trong nhóm hành động tài khoản, hỗ trợ cuộn linh hoạt (`max-h-[calc(100dvh-4rem)] overflow-y-auto`) trên mọi kích cỡ màn hình di động.
+
+### 11.6 Định Vị Bát Tự Cốt Lõi Bản Mệnh
+- **Xác định Tự động / Tùy biến:** Tự động lấy Nhật Chủ, Chi Ngày, Dụng Thần, Kỵ Thần từ lá số Bát tự bản thân của người dùng (`user.baziInfo.ownBaziRecordId`). Nếu là khách vãng lai hoặc muốn tra cứu cho người thân, cho phép nhập ngày/giờ/giới tính tại form tùy biến tích hợp.
+- **Quy tắc Thập Thần đối chiếu Thiên Can:**
+  - Đối chiếu Thiên Can của ngày với Nhật Chủ bản mệnh theo quy tắc âm dương ngũ hành chính thống:
+    - Cùng hành cùng cực: Tỷ Kiên | Cùng hành khác cực: Kiếp Tài
+    - Sinh ra cùng cực: Thực Thần | Sinh ra khác cực: Thương Quan
+    - Khắc ra cùng cực: Thiên Tài | Khắc ra khác cực: Chính Tài
+    - Bị khắc cùng cực: Thất Sát (Thiên Quan) | Bị khắc khác cực: Chính Quan
+    - Sinh vào cùng cực: Kiêu Thần (Thiên Ấn) | Sinh vào khác cực: Chính Ấn
+
+### 11.2 Ma Trận Tính Điểm Năng Lượng Ngày (0 - 100 Điểm)
+- **Điểm cơ sở:** Khởi điểm từ 70 điểm (trạng thái bình hòa).
+- **Hợp Xung Chi Ngày:**
+  - **Lục Hợp (Tý-Sửu, Dần-Hợi, Mão-Tuất, Thìn-Dậu, Tỵ-Thân, Ngọ-Mùi):** Cộng $+15$ điểm.
+  - **Tam Hợp Cát Cục (Thân-Tý-Thìn, Hợi-Mão-Mùi, Dần-Ngọ-Tuất, Tỵ-Dậu-Sửu):** Cộng $+10$ điểm.
+  - **Lục Xung Trực Diện (Tý-Ngọ, Sửu-Mùi, Dần-Thân, Mão-Dậu, Thìn-Tuất, Tỵ-Hợi):** Trừ $-25$ điểm.
+  - **Tương Hại Chi (Tý-Mùi, Sửu-Ngọ, Dần-Tỵ, Mão-Thìn, Thân-Hợi, Dậu-Tuất):** Trừ $-15$ điểm.
+- **Thập Thần & Dụng Thần:**
+  - Can ngày thuộc ngũ hành Dụng Thần: Cộng $+12$ điểm.
+  - Can ngày thuộc ngũ hành Kỵ Thần: Trừ $-12$ điểm.
+  - Thập Thần cát lợi (Chính Quan, Chính Ấn, Chính Tài, Thực Thần, Thiên Tài): Cộng $+5$ đến $+8$ điểm.
+  - Thập Thần áp lực/hao tổn (Thất Sát, Thương Quan): Giảm nhẹ điểm và gán cảnh báo thận trọng.
+- **Phân tầng năng lượng (Tiers):**
+  - $\ge 85$ điểm: **Đại Cát** (`auspicious`) - Huy hiệu màu xanh ngọc / hổ phách.
+  - $70 - 84$ điểm: **Cát Lành / Khá** (`auspicious` / `good`).
+  - $55 - 69$ điểm: **Bình Hòa** (`neutral`) - Huy hiệu màu xám bạc.
+  - $< 55$ điểm: **Cần Thận Trọng** (`caution`) - Huy hiệu cảnh báo màu đỏ hồng.
+
+### 11.3 Bộ Lọc 3 Khung Giờ Hoàng Đạo Cá Nhân Hóa (Top 3 Golden Hours)
+- Lấy danh sách 6 giờ hoàng đạo trong ngày từ công thức Lục Thần truyền thống (Thanh Long, Minh Đường, Kim Quỹ, Thiên Đức, Ngọc Đường, Tư Mệnh).
+- **Quy tắc Loại trừ Cá nhân hóa:** **TRIỆT TIÊU TOÀN BỘ** các khung giờ có Địa Chi xung trực diện với Chi ngày sinh của đương số (ví dụ: người sinh ngày Tý tuyệt đối không dùng giờ Ngọ dù đó là giờ hoàng đạo chung của trời đất).
+- Chọn lọc 3 khung giờ tối ưu nhất có ngũ hành tương sinh với Nhật Chủ hoặc Dụng Thần của bản mệnh.
+
+### 11.4 Trình Tạo Thiệp Story Chia Sẻ Đa Tỷ Lệ (Social Story Generator)
+- **Tỷ lệ khung hình:** Hỗ trợ chuẩn xác 9:16 (Story Facebook / Instagram / TikTok) và 1:1 (Post Vuông Facebook / Zalo).
+- **4 Bảng màu Cổ học Sang trọng:**
+  1. *Huyền Vũ (Obsidian Gold):* Nền đen sâu thẳm phối viền chỉ vàng kim hoàng gia.
+  2. *Trúc Thanh (Bamboo Zen):* Nền xanh lục thanh khiết phối xanh rêu tao nhã.
+  3. *Chu Sa (Imperial Vermilion):* Nền đỏ son chu sa phối nhũ vàng cát tường.
+  4. *Ngọc Bích (Emerald & Cream):* Nền kem ngà cổ điển phối viền ngọc bích trang nhã.
+- **Công nghệ kết xuất:** `html-to-image` với tỷ lệ điểm ảnh `pixelRatio: 3` cho độ phân giải siêu nét (1080x1920 hoặc 1080x1080), tự động sinh QR Code dẫn về trang web, hỗ trợ tải tệp PNG hoặc sao chép thẳng vào Clipboard.
+
+### 11.5 Phân Định Hai Chức Năng Lịch Độc Lập & Chuẩn Mực Giao Diện Mới
+
+- **Tách Biệt Hai Phân Hệ Lịch Trên Thanh Điều Hướng:**
+  - *Lịch Theo Tuổi (Cơ bản, Miễn phí):* Cho phép toàn bộ khách vãng lai và thành viên tra cứu theo năm sinh / con giáp (1940 - 2026).
+    - Tích hợp bộ chọn năm tìm kiếm tùy biến `CustomYearSearchPicker` đồng bộ với module Xem Ngày (hỗ trợ nhập số năm tìm kiếm tức thì, danh sách cuộn mượt mà hiển thị đầy đủ Năm Dương + Can Chi + Biểu tượng Con Giáp).
+    - Loại bỏ các nút bấm chuyển tiếp dư thừa trong card nội bộ vì thanh điều hướng trên cùng đã có đủ 4 sub-tabs rõ ràng.
+  - *Lịch Theo Bát Tự (Chuyên sâu, Thành viên):* Yêu cầu đăng nhập, tính toán chuyên sâu theo Tứ Trụ, Nhật Chủ & Dụng Thần.
+  - Loại bỏ hoàn toàn các huy hiệu nhãn cồng kềnh ("Bản theo năm sinh", "Bản Bát tự nâng cao") để giao diện thanh thoát, sang trọng.
+
+- **Tối Ưu Trải Nghiệm Vận Hành Cuốn Lịch (Calendar Ergonomics):**
+  - **Bộ Chọn Tháng & Năm Trực Tiếp (Interactive Month & Year Pickers):**
+    - Cụm `Tháng M / YYYY` tích hợp 2 popover drop-down tương tác:
+      - *Chọn Tháng:* Bấm vào `Tháng M ▾` mở lưới chọn 12 tháng trực quan (1 - 12), chuyển tháng ngay lập tức.
+      - *Chọn Năm:* Bấm vào `YYYY ▾` mở danh sách năm (1940 - 2050) kèm ô tìm kiếm nhanh và Can Chi tương ứng, có nút chuyển nhanh về "Năm nay".
+    - Cạnh đó là nút chuyển tháng `< >`, nút `Hôm nay`, và thẻ nhãn tháng âm lịch.
+  - **Quy tắc phối màu ô ngày:**
+    - *Ngày Bình Thường / Bình Hòa:* Giữ màu trắng tinh khôi (`bg-white border-slate-200/70`), không tô màu nền vàng để tránh rối mắt và làm dịu giao diện.
+    - *Chỉ tô màu nhấn cho 2 trạng thái cực tính:*
+      - **Ngày Tốt:** Nền xanh ngọc nhạt (`bg-emerald-50/60`), viền ngọc bích (`border-emerald-300/80`), chấm tròn xanh lục.
+      - **Ngày Xấu / Thận Trọng:** Nền đỏ hồng phấn (`bg-rose-50/50`), viền đỏ son (`border-rose-300/80`), chấm tròn đỏ hồng.
+    - *Ngày Đã Qua:* Giảm độ trong suốt (`opacity-65`), nền xám dịu (`bg-slate-100/50`) để người dùng tập trung vào các ngày hiện tại và tương lai.
+    - *Ngày Hôm Nay:* Viền xanh chàm nổi bật (`ring-2 ring-indigo-500/70`) kèm thẻ `NAY`.
+
+- **Thanh Chú Thích Tinh Giản Đúng 1 Dòng (1-Line Compact Note with 3 Colors):**
+  - Chú thích dưới đáy cuốn lịch hiển thị trọn vẹn cả 3 màu trên đúng **1 dòng duy nhất**:
+    - `🟢 Ngày Tốt` (chấm xanh ngọc bích).
+    - `⚪ Bình Thường` (chấm xám bạc).
+    - `🔴 Ngày Xấu / Thận Trọng` (chấm đỏ hồng).
+    - Bên phải: `*Nhấp ngày bất kỳ để xem chi tiết giờ hoàng đạo`.
+  - Loại bỏ hoàn toàn các ngoặc giải thích dài dòng gây rớt dòng, đảm bảo trải nghiệm gọn gàng, thanh thoát.
+
+- **Cơ Chế Tự Động Tính Toán Lại Khi Thay Đổi Ngày Sinh (Auto-Recalculate on Birth Change):**
+  - *Quy Tắc Thay Đổi Ngày Sinh:* Thông tin ngày sinh của tài khoản chỉ được chỉnh sửa tại **Phần Hồ Sơ (Profile)**, tuyệt đối không đặt form hay nút bấm thay đổi ngày sinh bên trong giao diện tính năng lịch để giữ giao diện cuốn lịch tập trung, tinh giản và thanh thoát.
+  - *Lịch Theo Tuổi:* Khi người dùng thay đổi năm sinh tại `CustomYearSearchPicker`, hệ thống lập tức cập nhật lại toàn bộ ma trận ngày trong tháng theo Chi năm sinh mới. Backend được chuẩn hóa để ưu tiên tuyệt đối `req.body.birthYear` khi ở chế độ `year` kể cả khi người dùng đã đăng nhập.
+  - *Lịch Theo Bát Tự:* Khi người dùng thay đổi ngày/tháng/năm/giờ sinh trong Hồ sơ tài khoản (`ProfileBoard`), hook `useEffect` trong cuốn lịch lập tức bắt sự kiện thay đổi từng trường `baziInfo` (`day, month, year, hour, minute`) để tự động đồng bộ và kích hoạt tính toán lại toàn bộ cuốn lịch Bát Tự ngay lập tức.
+
+---
+
+## 🔮 12. Logic Học Thuật Tính Ngày Tốt Xấu Trong Cuốn Lịch
+
+### 12.1 Phương Pháp Lịch Theo Tuổi (Bản Mệnh Niên & Địa Chi Năm Sinh)
+Áp dụng cho mọi đối tượng độc giả đại chúng dựa trên tương tác giữa **Ngày trong tháng** và **Năm sinh (Chi Niên & Nạp Âm)**:
+1. **Điểm Nền Cơ Sở:** Khởi điểm chuẩn hóa 50 điểm.
+2. **Hệ Thống Trạch Cát Phổ Quát (Trời Đất):**
+   - *Hoàng Đạo / Hắc Đạo:* Ngày Hoàng Đạo cộng $+8$ điểm, ngày Hắc Đạo trừ $-8$ điểm.
+   - *Thập Nhị Kiến Trừ (Trực Ngày):* Trực tốt (Thành, Khai, Định, Mãn) cộng $+6$ điểm; Trực xấu (Phá, Nguy, Bế) trừ $-8$ điểm.
+3. **Tương Tác Địa Chi (Chi Ngày vs Chi Năm Sinh):**
+   - *Lục Hợp Tuổi (Tý-Sửu, Dần-Hợi, Mão-Tuất, Thìn-Dậu, Tỵ-Thân, Ngọ-Mùi):* Cộng $+18$ điểm, gắn nhãn cát lành `Lục Hợp Tuổi`.
+   - *Tam Hợp Cát Cục (Thân-Tý-Thìn, Hợi-Mão-Mùi, Dần-Ngọ-Tuất, Tỵ-Dậu-Sửu):* Cộng $+14$ điểm, gắn nhãn `Tam Hợp Tuổi`.
+   - *Lục Xung Trực Diện (Tý-Ngọ, Sửu-Mùi, Dần-Thân, Mão-Dậu, Thìn-Tuất, Tỵ-Hợi):* Trừ $-26$ điểm, gắn cảnh báo `Trực Xung Tuổi` (đại kỵ động thổ, khai trương, xuất hành lớn).
+   - *Tương Hại Tuổi (Tý-Mùi, Sửu-Ngọ, Dần-Tỵ, Mão-Thìn, Thân-Hợi, Dậu-Tuất):* Trừ $-14$ điểm, gắn nhãn `Tương Hại Tuổi`.
+4. **Tương Tác Thiên Can (Can Ngày vs Can Năm Sinh):**
+   - *Thiên Can Tương Hợp (Giáp-Kỷ, Ất-Canh, Bính-Tân, Đinh-Nhâm, Mậu-Quý):* Cộng $+10$ điểm.
+   - *Thiên Can Tương Xung (Giáp-Canh, Ất-Tân, Bính-Nhâm, Đinh-Quý...):* Trừ $-12$ điểm.
+5. **Ngũ Hành Nạp Âm (Lục Thập Hoa Giáp):**
+   - Nạp Âm ngày tương sinh Nạp Âm năm sinh: Cộng $+15$ điểm.
+   - Nạp Âm ngày đồng hành Nạp Âm năm sinh: Cộng $+8$ điểm.
+   - Nạp Âm ngày tương khắc Nạp Âm năm sinh: Trừ $-18$ điểm (khắc nhập gây hao tổn bản mệnh).
+   - Nạp Âm năm sinh khắc Nạp Âm ngày: Cộng $+6$ điểm (chủ động chế ngự).
+6. **Ngưỡng Phân Định Màu Sắc:**
+   - **Ngày Tốt (🟢):** Tổng điểm $\ge 75$.
+   - **Ngày Xấu / Thận Trọng (🔴):** Tổng điểm $< 50$.
+   - **Bình Thường (⚪):** Tổng điểm từ $50$ đến $74$.
+
+### 12.2 Phương Pháp Lịch Theo Bát Tự (Tứ Trụ, Nhật Chủ & Dụng Thần Cá Nhân)
+Dành cho thành viên đăng nhập, cá nhân hóa đến từng cá thể thông qua bản mệnh Tứ Trụ:
+1. **Định Vị Nhật Chủ & Dụng Thần:**
+   - Xác định Thiên Can ngày sinh (Nhật Chủ - Day Master) đại diện cho bản thân đương số.
+   - Trích xuất Dụng Thần, Hỷ Thần và Kỵ Thần đã được phân tích từ Rule Engine Bát Tự.
+2. **Tương Tác Dụng Thần / Kỵ Thần:**
+   - Can Chi ngày mang ngũ hành Dụng Thần: Cộng $+18$ điểm (Năng lượng hỗ trợ đắc lực).
+   - Can Chi ngày mang ngũ hành Hỷ Thần: Cộng $+10$ điểm.
+   - Can Chi ngày mang ngũ hành Kỵ Thần: Trừ $-16$ điểm (Năng lượng bất lợi, gia tăng trắc trở).
+3. **Hệ Thống Thập Thần (Đối Chiếu Can Ngày vs Nhật Chủ):**
+   - Cát Thần (Chính Ấn, Chính Quan, Chính Tài, Thực Thần): Cộng $+14$ điểm.
+   - Thứ Cát Thần (Thiên Ấn, Thiên Tài, Tỷ Kiên): Cộng $+8$ điểm.
+   - Áp Lực / Hao Tài Thần (Thất Sát, Thương Quan, Kiếp Tài): Trừ $-6$ đến $-8$ điểm.
+4. **Tương Tác Địa Chi Cung Mệnh (Chi Ngày vs Chi Ngày Sinh):**
+   - Lục Hợp Cung Phu Thê/Bản Thân: Cộng $+14$ điểm.
+   - Tam Hợp Cung Phu Thê/Bản Thân: Cộng $+12$ điểm.
+   - Lục Xung Cung Mệnh/Chi Ngày: Trừ $-22$ điểm (cảnh báo biến động tâm lý, sức khỏe, thị phi).
+   - Tương Hại Cung Mệnh: Trừ $-10$ điểm.
+5. **Ngưỡng Phân Định Màu Sắc:**
+   - **Ngày Tốt (🟢):** Tổng điểm $\ge 75$.
+   - **Ngày Xấu / Thận Trọng (🔴):** Tổng điểm $< 50$.
+   - **Bình Thường (⚪):** Tổng điểm từ $50$ đến $74$.
