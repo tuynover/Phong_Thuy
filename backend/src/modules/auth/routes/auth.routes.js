@@ -24,6 +24,8 @@ router.post('/send-verification-email', auth, AuthController.sendVerificationEma
 router.post('/verify-email', auth, AuthController.verifyEmail);
 router.post('/forgot-password', authLimiter, AuthController.forgotPassword);
 router.post('/reset-password', authLimiter, AuthController.resetPassword);
+router.post('/daily-checkin', auth, AuthController.dailyCheckin);
+router.get('/daily-checkin/status', auth, AuthController.getDailyCheckinStatus);
 
 const sendUserProfile = (req, res) => {
   const userId = req.dbUser.id || req.dbUser._id;
@@ -40,6 +42,7 @@ const sendUserProfile = (req, res) => {
     status: req.dbUser.status,
     isDeleted: req.dbUser.isDeleted,
     isEmailVerified: req.dbUser.isEmailVerified || false,
+    dailyCheckin: req.dbUser.dailyCheckin || { streak: 0, lastCheckinDate: null, totalCheckins: 0 },
     stats: req.dbUser.stats || {},
     tags: req.dbUser.tags || []
   });

@@ -279,7 +279,7 @@ export default function ShareableStoryModal({
                   <div className="flex items-center gap-1.5">
                     <span className="text-sm">🎋</span>
                     <span className="text-[10px] uppercase tracking-widest font-black opacity-90">
-                      PHONG THỦY TUYKNOVER
+                      PHONG THỦY TUYNOVER
                     </span>
                   </div>
                   <span className={`text-[9px] font-black px-2 py-0.5 rounded-full border uppercase tracking-wider ${theme.headerBadge}`}>
@@ -322,12 +322,11 @@ export default function ShareableStoryModal({
               {/* CARD FOOTER WITH QR & ATTRIBUTION */}
               <div className="pt-2.5 border-t border-current/15 flex items-center justify-between">
                 <div className="text-left space-y-0.5">
-                  <div className="text-[10px] font-bold opacity-75">Bản quyền học thuật</div>
                   <div className="text-xs font-black tracking-wide">
                     {isAnonymous ? 'Đương Số Ẩn Danh' : displayName}
                   </div>
                   <div className={`text-[9px] ${theme.footerText}`}>
-                    phongthuy.tuyknover.com
+                    phongthuy.tuynover.com
                   </div>
                 </div>
 

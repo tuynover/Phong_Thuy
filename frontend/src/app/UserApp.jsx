@@ -41,6 +41,7 @@ import Footer from '@/components/layout/Footer';
 import { AboutUs, PrivacyPolicy, TermsOfService } from '@/features/info/InfoBoards';
 import ThankYouModal from '@/components/modals/ThankYouModal';
 import DailyFortuneModal from '@/components/modals/DailyFortuneModal';
+import DailyCheckinModal from '@/components/modals/DailyCheckinModal';
 import AudioPlayerDock from '@/components/widgets/AudioPlayerDock';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { initGA, trackPageView, trackEvent } from '@/utils/analytics';
@@ -65,17 +66,18 @@ export default function UserApp({ onSwitchToAdmin }) {
 
   const parsePathToAppMode = (pathname) => {
     if (!pathname || pathname === '/') return 'home';
-    if (pathname.startsWith('/bazi/record/') || pathname === '/bazi') return 'bazi';
-    if (pathname.startsWith('/ziwei/record/') || pathname === '/ziwei') return 'ziwei';
+    if (pathname.startsWith('/bazi/record/') || pathname === '/bazi' || pathname === '/bazi/ban-than') return 'bazi';
+    if (pathname.startsWith('/ziwei/record/') || pathname === '/ziwei' || pathname === '/ziwei/ban-than') return 'ziwei';
     if (pathname.startsWith('/iching/record/') || pathname === '/iching') return 'iching';
     if (pathname.startsWith('/marriage/record/') || pathname === '/marriage') return 'marriage';
-    if (pathname === '/xemngay') return 'xemngay';
+    if (pathname === '/xemngay' || pathname.startsWith('/xemngay/')) return 'xemngay';
     if (pathname === '/blog' || pathname.startsWith('/blog/')) return 'blog';
     if (pathname === '/about') return 'about';
     if (pathname === '/privacy') return 'privacy';
     if (pathname === '/terms') return 'terms';
-    if (pathname === '/history') return 'history';
+    if (pathname === '/history' || pathname.startsWith('/history/')) return 'history';
     if (pathname === '/profile') return 'profile';
+    if (pathname === '/diem-danh' || pathname === '/que-ngay') return 'home';
     if (initialUrlSlug) return 'blog';
     return '404';
   };
@@ -88,87 +90,108 @@ export default function UserApp({ onSwitchToAdmin }) {
     return saved === 'tuvi' ? 'ziwei' : (saved || 'home');
   });
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const handlePopState = () => {
-      const mode = parsePathToAppMode(window.location.pathname);
-      setAppMode(mode);
-    };
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
-  
+  const [currentPath, setCurrentPath] = useState(() => typeof window !== 'undefined' ? window.location.pathname : '/');
   const [blogSlug, setBlogSlug] = useState(initialUrlSlug);
   const [previousMode, setPreviousMode] = useState('home');
 
-  // Tự động nạp dữ liệu lá số/quẻ dịch công khai khi truy cập trực tiếp bằng liên kết chia sẻ
+  // Tự động nạp dữ liệu lá số/quẻ dịch công khai khi truy cập trực tiếp bằng liên kết chia sẻ hoặc chuyển trang popstate
+  const fetchSharedData = useCallback(async (path = (typeof window !== 'undefined' ? window.location.pathname : '')) => {
+    if (!path) return;
+
+    // Reset kết quả khi điều hướng về trang gốc không có record ID
+    if (path === '/iching') {
+      setResult(null);
+      return;
+    }
+    if (path === '/bazi') {
+      setBaziResult(null);
+      return;
+    }
+    if (path === '/ziwei') {
+      setHistoricalZiweiId(null);
+      return;
+    }
+    if (path === '/marriage') {
+      setMarriageResult(null);
+      return;
+    }
+
+    // 1. Tứ Trụ Bát Tự
+    const baziMatch = path.match(/^\/bazi\/record\/([a-zA-Z0-9-]+)/);
+    if (baziMatch) {
+      const id = baziMatch[1];
+      setLoadingShared(true);
+      try {
+        const res = await getBaziRecord(id);
+        setBaziResult(res.data);
+      } catch (err) {
+        console.error("Lỗi nạp lá số Bát Tự chia sẻ:", err);
+        setSharedError("Không thể tải lá số Bát Tự chia sẻ hoặc đã bị tắt chế độ công khai.");
+      } finally {
+        setLoadingShared(false);
+      }
+      return;
+    }
+
+    // 2. Mệnh Số Tử Vi
+    const ziweiMatch = path.match(/^\/ziwei\/record\/([a-zA-Z0-9-]+)/);
+    if (ziweiMatch) {
+      const id = ziweiMatch[1];
+      setHistoricalZiweiId(id);
+      return;
+    }
+
+    // 3. Kinh Dịch Lục Hào
+    const ichingMatch = path.match(/^\/iching\/record\/([a-zA-Z0-9-]+)/);
+    if (ichingMatch) {
+      const id = ichingMatch[1];
+      setLoadingShared(true);
+      try {
+        const res = await getIChingRecord(id);
+        setResult(res.data);
+      } catch (err) {
+        console.error("Lỗi nạp quẻ Kinh Dịch chia sẻ:", err);
+        setSharedError("Không thể tải quẻ dịch chia sẻ hoặc đã bị tắt chế độ công khai.");
+      } finally {
+        setLoadingShared(false);
+      }
+      return;
+    }
+
+    // 4. Bát Tự Hợp Hôn
+    const marriageMatch = path.match(/^\/marriage\/record\/([a-zA-Z0-9-]+)/);
+    if (marriageMatch) {
+      const id = marriageMatch[1];
+      setLoadingShared(true);
+      try {
+        const res = await getMarriageRecord(id);
+        setMarriageResult(res.data);
+      } catch (err) {
+        console.error("Lỗi nạp kết quả Hợp Hôn chia sẻ:", err);
+        setSharedError("Không thể tải kết quả hợp hôn chia sẻ hoặc đã bị tắt chế độ công khai.");
+      } finally {
+        setLoadingShared(false);
+      }
+      return;
+    }
+  }, []);
+
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const path = window.location.pathname;
-
-    const fetchSharedData = async () => {
-      // 1. Tứ Trụ Bát Tự
-      const baziMatch = path.match(/^\/bazi\/record\/([a-zA-Z0-9-]+)/);
-      if (baziMatch) {
-        const id = baziMatch[1];
-        setLoadingShared(true);
-        try {
-          const res = await getBaziRecord(id);
-          setBaziResult(res.data);
-        } catch (err) {
-          console.error("Lỗi nạp lá số Bát Tự chia sẻ:", err);
-          setSharedError("Không thể tải lá số Bát Tự chia sẻ hoặc đã bị tắt chế độ công khai.");
-        } finally {
-          setLoadingShared(false);
-        }
-        return;
-      }
-
-      // 2. Mệnh Số Tử Vi
-      const ziweiMatch = path.match(/^\/ziwei\/record\/([a-zA-Z0-9-]+)/);
-      if (ziweiMatch) {
-        const id = ziweiMatch[1];
-        setHistoricalZiweiId(id);
-        return;
-      }
-
-      // 3. Kinh Dịch Lục Hào
-      const ichingMatch = path.match(/^\/iching\/record\/([a-zA-Z0-9-]+)/);
-      if (ichingMatch) {
-        const id = ichingMatch[1];
-        setLoadingShared(true);
-        try {
-          const res = await getIChingRecord(id);
-          setResult(res.data);
-        } catch (err) {
-          console.error("Lỗi nạp quẻ Kinh Dịch chia sẻ:", err);
-          setSharedError("Không thể tải quẻ dịch chia sẻ hoặc đã bị tắt chế độ công khai.");
-        } finally {
-          setLoadingShared(false);
-        }
-        return;
-      }
-
-      // 4. Bát Tự Hợp Hôn
-      const marriageMatch = path.match(/^\/marriage\/record\/([a-zA-Z0-9-]+)/);
-      if (marriageMatch) {
-        const id = marriageMatch[1];
-        setLoadingShared(true);
-        try {
-          const res = await getMarriageRecord(id);
-          setMarriageResult(res.data);
-        } catch (err) {
-          console.error("Lỗi nạp kết quả Hợp Hôn chia sẻ:", err);
-          setSharedError("Không thể tải kết quả hợp hôn chia sẻ hoặc đã bị tắt chế độ công khai.");
-        } finally {
-          setLoadingShared(false);
-        }
-        return;
-      }
+    const handlePopState = () => {
+      const path = window.location.pathname;
+      setCurrentPath(path);
+      const mode = parsePathToAppMode(path);
+      setAppMode(mode);
+      fetchSharedData(path);
     };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [fetchSharedData]);
 
+  useEffect(() => {
     fetchSharedData();
-  }, []);
+  }, [fetchSharedData]);
 
   // Khởi tạo GA4 khi ứng dụng nạp
   useEffect(() => {
@@ -205,7 +228,41 @@ export default function UserApp({ onSwitchToAdmin }) {
       profile: "Thông Tin Cá Nhân & Hồ Sơ Bát Tự - Phong Thủy AI",
       404: "Phương Vi Không Tồn Tại (404) - Phong Thủy Luận Giải AI"
     };
-    const currentTitle = titleMap[appMode] || 'Phong Thủy Luận Giải';
+    let currentTitle = titleMap[appMode] || 'Phong Thủy Luận Giải';
+    if (appMode === 'xemngay') {
+      const path = window.location.pathname;
+      if (path.includes('/lich-bat-tu')) {
+        currentTitle = "Lịch Vạn Niên Theo Bát Tự Cá Nhân - Phong Thủy AI";
+      } else if (path.includes('/lich-theo-tuoi')) {
+        currentTitle = "Lịch Vạn Niên Theo Tuổi & Bản Mệnh - Phong Thủy AI";
+      } else if (path.includes('/chi-tiet-ngay')) {
+        currentTitle = "Tra Cứu Chi Tiết Ngày Hoàng Đạo & Cát Hung - Phong Thủy AI";
+      } else if (path.includes('/tim-ngay-dep')) {
+        currentTitle = "Tư Vấn Tìm Ngày Đẹp Khai Trương, Cưới Hỏi, Động Thổ - Phong Thủy AI";
+      }
+    } else if (appMode === 'history') {
+      const path = window.location.pathname;
+      if (path.includes('/bat-tu')) {
+        currentTitle = "Lịch Sử Lá Số Tứ Trụ Bát Tự - Phong Thủy AI";
+      } else if (path.includes('/tu-vi')) {
+        currentTitle = "Lịch Sử Lá Số Tử Vi Đẩu Số - Phong Thủy AI";
+      } else if (path.includes('/hon-nhan')) {
+        currentTitle = "Lịch Sử Bát Tự Hợp Hôn - Phong Thủy AI";
+      } else {
+        currentTitle = "Lịch Sử Gieo Quẻ Kinh Dịch - Phong Thủy AI";
+      }
+    } else if (['iching', 'bazi', 'ziwei', 'marriage'].includes(appMode)) {
+      const path = window.location.pathname;
+      if (path.includes('/record/')) {
+        if (appMode === 'iching') currentTitle = "Chi Tiết Quẻ Dịch Lục Hào - Phong Thủy AI";
+        if (appMode === 'bazi') currentTitle = "Chi Tiết Lá Số Tứ Trụ Bát Tự - Phong Thủy AI";
+        if (appMode === 'ziwei') currentTitle = "Chi Tiết Mệnh Bàn Tử Vi Đẩu Số - Phong Thủy AI";
+        if (appMode === 'marriage') currentTitle = "Chi Tiết Bát Tự Hợp Hôn Cặp Đôi - Phong Thủy AI";
+      } else if (path.includes('/ban-than')) {
+        if (appMode === 'bazi') currentTitle = "Lá Số Bát Tự Bản Thân - Phong Thủy AI";
+        if (appMode === 'ziwei') currentTitle = "Mệnh Bàn Tử Vi Bản Thân - Phong Thủy AI";
+      }
+    }
     document.title = currentTitle;
 
     // 3. Cập nhật Meta Description động & Open Graph / Twitter Description
@@ -244,7 +301,7 @@ export default function UserApp({ onSwitchToAdmin }) {
 
     // 4. Ghi nhận Lượt xem trang (GA4 Page View)
     trackPageView(window.location.pathname, currentTitle);
-  }, [appMode]);
+  }, [appMode, currentPath]);
   
   const handleSelectModule = useCallback((mode, slug = null) => {
     // Không ghi đè previousMode bằng các trang thông tin phụ
@@ -254,23 +311,49 @@ export default function UserApp({ onSwitchToAdmin }) {
       }
       return mode;
     });
-    setBlogSlug(slug);
+    if (mode === 'blog') {
+      setBlogSlug(slug);
+    } else {
+      setBlogSlug(null);
+    }
     if (mode === 'blog' && slug) {
       const newUrl = `/blog/${slug}`;
+      setCurrentPath(newUrl);
       window.history.pushState({ path: newUrl }, '', newUrl);
     } else if (mode === 'blog' && slug === null) {
       const newUrl = `/blog`;
+      setCurrentPath(newUrl);
       window.history.pushState({ path: newUrl }, '', newUrl);
     } else if (mode === 'about' || mode === 'privacy' || mode === 'terms') {
       const newUrl = `/${mode}`;
+      setCurrentPath(newUrl);
       window.history.pushState({ path: newUrl }, '', newUrl);
-    } else if (['iching', 'bazi', 'ziwei', 'marriage', 'xemngay'].includes(mode) && slug === null) {
+    } else if (mode === 'xemngay') {
+      const newUrl = slug ? `/xemngay/${slug}` : `/xemngay`;
+      setCurrentPath(newUrl);
+      window.history.pushState({ path: newUrl }, '', newUrl);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    } else if (mode === 'history') {
+      const newUrl = slug ? `/history/${slug}` : `/history/kinh-dich`;
+      setCurrentPath(newUrl);
+      window.history.pushState({ path: newUrl }, '', newUrl);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    } else if (mode === 'profile') {
+      const newUrl = `/profile`;
+      setCurrentPath(newUrl);
+      window.history.pushState({ path: newUrl }, '', newUrl);
+    } else if (['iching', 'bazi', 'ziwei', 'marriage'].includes(mode) && slug === null) {
       const newUrl = `/${mode}`;
+      setCurrentPath(newUrl);
       window.history.pushState({ path: newUrl }, '', newUrl);
     } else if (mode === 'home') {
-      window.history.pushState({ path: '/' }, '', '/');
+      const newUrl = '/';
+      setCurrentPath(newUrl);
+      window.history.pushState({ path: newUrl }, '', newUrl);
     } else if (slug === null && mode !== 'blog') {
-      window.history.pushState({ path: '/' }, '', '/');
+      const newUrl = '/';
+      setCurrentPath(newUrl);
+      window.history.pushState({ path: newUrl }, '', newUrl);
     }
     window.scrollTo(0, 0);
   }, []);
@@ -377,21 +460,6 @@ export default function UserApp({ onSwitchToAdmin }) {
     };
   }, [isMobileModulesExpanded]);
 
-  // Dynamic SEO Page Title Update
-  useEffect(() => {
-    const pageTitles = {
-      home: 'Phong Thủy Luận Giải - Gieo Quẻ Kinh Dịch, Bát Tự, Tử Vi AI',
-      iching: 'Gieo Quẻ Kinh Dịch Lục Hào - Phong Thủy Luận Giải AI',
-      bazi: 'Lập Lá Số Tứ Trụ Bát Tự - Phong Thủy Luận Giải AI',
-      ziwei: 'Lập Lá Số Tử Vi Đẩu Số - Phong Thủy Luận Giải AI',
-      marriage: 'Xem Tuổi Hợp Hôn Gia Đạo - Phong Thủy Luận Giải AI',
-      xemngay: 'Xem Ngày Tốt Hoàng Đạo - Phong Thủy Luận Giải AI',
-      blog: 'Kiến Thức Phong Thủy & Chiêm Nghiệm - Bài Viết Học Thuật',
-      history: 'Lịch Sử Tra Cứu - Phong Thủy Luận Giải',
-      profile: 'Hồ Sơ Cá Nhân - Phong Thủy Luận Giải'
-    };
-    document.title = pageTitles[appMode] || 'Phong Thủy Luận Giải';
-  }, [appMode]);
 
   // Ziwei State
   const [historicalZiweiId, setHistoricalZiweiId] = useState(null);
@@ -435,6 +503,19 @@ export default function UserApp({ onSwitchToAdmin }) {
   const [isUpdateBaziOpen, setIsUpdateBaziOpen] = useState(false);
   const [isMyFoldersOpen, setIsMyFoldersOpen] = useState(false);
   const [isDailyFortuneOpen, setIsDailyFortuneOpen] = useState(false);
+  const [isDailyCheckinOpen, setIsDailyCheckinOpen] = useState(false);
+
+  // Trigger Deep Linking Modal trực tiếp từ URL (?modal=diem-danh hoặc /diem-danh)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const path = window.location.pathname;
+    const search = new URLSearchParams(window.location.search);
+    if (path === '/diem-danh' || search.get('modal') === 'diem-danh' || search.get('modal') === 'checkin') {
+      setIsDailyCheckinOpen(true);
+    } else if (path === '/que-ngay' || search.get('modal') === 'que-ngay' || search.get('modal') === 'fortune') {
+      setIsDailyFortuneOpen(true);
+    }
+  }, []);
   const [isZiweiResultLoaded, setIsZiweiResultLoaded] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
   const [isThankYouOpen, setIsThankYouOpen] = useState(false);
@@ -510,6 +591,11 @@ export default function UserApp({ onSwitchToAdmin }) {
       setResult(res.data);
       invalidateHistoryCache();
       trackEvent('gieo_que_iching', 'Divination', mode);
+      const recId = res.data?.recordId || res.data?._id;
+      if (recId && typeof window !== 'undefined') {
+        const newUrl = `/iching/record/${recId}`;
+        window.history.pushState({ path: newUrl }, '', newUrl);
+      }
       if (userId === 'guest' && res.data.recordId) {
         setCurrentRecordId(res.data.recordId);
       }
@@ -556,6 +642,11 @@ export default function UserApp({ onSwitchToAdmin }) {
       const res = await analyzeBazi(date, time, gender, userId, name, extraParams);
       setBaziResult(res.data);
       invalidateHistoryCache();
+      const recId = res.data?.recordId || res.data?._id;
+      if (recId && typeof window !== 'undefined') {
+        const newUrl = `/bazi/record/${recId}`;
+        window.history.pushState({ path: newUrl }, '', newUrl);
+      }
       if (userId === 'guest' && res.data.recordId) {
         setGuestBaziId(res.data.recordId);
       }
@@ -601,6 +692,11 @@ export default function UserApp({ onSwitchToAdmin }) {
       const res = await analyzeMarriage(male, female, userId);
       setMarriageResult(res.data);
       invalidateHistoryCache();
+      const recId = res.data?.recordId || res.data?._id;
+      if (recId && typeof window !== 'undefined') {
+        const newUrl = `/marriage/record/${recId}`;
+        window.history.pushState({ path: newUrl }, '', newUrl);
+      }
     } catch (err) {
       console.error(err);
       alert('Lỗi kết nối tới server phân tích Hợp Hôn.');
@@ -624,6 +720,10 @@ export default function UserApp({ onSwitchToAdmin }) {
       feedback: recordWrapper.feedback
     });
     setAppMode('iching');
+    if (id && typeof window !== 'undefined') {
+      const newUrl = `/iching/record/${id}`;
+      window.history.pushState({ path: newUrl }, '', newUrl);
+    }
   }, []);
 
   const handleViewHexagramDetail = handleViewHistoricalHexagram;
@@ -655,12 +755,21 @@ export default function UserApp({ onSwitchToAdmin }) {
       feedback: target.feedback ?? baziObj.feedback
     });
     setAppMode('bazi');
+    if (id && typeof window !== 'undefined') {
+      const newUrl = `/bazi/record/${id}`;
+      window.history.pushState({ path: newUrl }, '', newUrl);
+    }
   }, []);
 
   const handleViewHistoricalZiwei = useCallback((record) => {
     if (!record) return;
-    setHistoricalZiweiId(record._id || record.id);
+    const id = record._id || record.id;
+    setHistoricalZiweiId(id);
     setAppMode('ziwei');
+    if (id && typeof window !== 'undefined') {
+      const newUrl = `/ziwei/record/${id}`;
+      window.history.pushState({ path: newUrl }, '', newUrl);
+    }
   }, []);
 
   const handleViewHistoricalMarriage = useCallback(async (record) => {
@@ -690,6 +799,10 @@ export default function UserApp({ onSwitchToAdmin }) {
       feedback: target.feedback ?? marriageObj.feedback
     });
     setAppMode('marriage');
+    if (id && typeof window !== 'undefined') {
+      const newUrl = `/marriage/record/${id}`;
+      window.history.pushState({ path: newUrl }, '', newUrl);
+    }
   }, []);
 
   const handleRequireLogin = useCallback(() => {
@@ -763,6 +876,11 @@ export default function UserApp({ onSwitchToAdmin }) {
             rating: record.rating,
             feedback: record.feedback
           } : record);
+          const recId = record._id || record.id || record.recordId;
+          if (recId && typeof window !== 'undefined') {
+            const newUrl = `/bazi/record/${recId}`;
+            window.history.pushState({ path: newUrl }, '', newUrl);
+          }
           setLoading(false);
           return;
         }
@@ -779,6 +897,10 @@ export default function UserApp({ onSwitchToAdmin }) {
       invalidateHistoryCache();
 
       const newRecordId = res.data.recordId || res.data._id;
+      if (newRecordId && typeof window !== 'undefined') {
+        const newUrl = `/bazi/record/${newRecordId}`;
+        window.history.pushState({ path: newUrl }, '', newUrl);
+      }
       if (newRecordId) {
         const updateRes = await updateBaziInfo(
           userId, 
@@ -865,6 +987,7 @@ export default function UserApp({ onSwitchToAdmin }) {
         setHistoricalZiweiId={setHistoricalZiweiId}
         logout={logout}
         onOpenDailyFortune={() => setIsDailyFortuneOpen(true)}
+        onOpenDailyCheckin={() => setIsDailyCheckinOpen(true)}
       />
 
       {/* MAIN CONTAINER */}
@@ -1075,6 +1198,9 @@ export default function UserApp({ onSwitchToAdmin }) {
                 <button 
                   onClick={() => {
                     setResult(null);
+                    if (typeof window !== 'undefined') {
+                      window.history.pushState({ path: '/iching' }, '', '/iching');
+                    }
                     setTimeout(() => {
                       const element = document.getElementById('iching-input-header');
                       if (element) {
@@ -1133,6 +1259,9 @@ export default function UserApp({ onSwitchToAdmin }) {
                 <button 
                   onClick={() => {
                     setBaziResult(null);
+                    if (typeof window !== 'undefined') {
+                      window.history.pushState({ path: '/bazi' }, '', '/bazi');
+                    }
                     setTimeout(() => {
                       const element = document.getElementById('bazi-input-gender');
                       if (element) {
@@ -1191,6 +1320,9 @@ export default function UserApp({ onSwitchToAdmin }) {
                 <button 
                   onClick={() => {
                     setMarriageResult(null);
+                    if (typeof window !== 'undefined') {
+                      window.history.pushState({ path: '/marriage' }, '', '/marriage');
+                    }
                     setTimeout(() => {
                       const element = document.getElementById('marriage-input-nam');
                       if (element) {
@@ -1299,8 +1431,25 @@ export default function UserApp({ onSwitchToAdmin }) {
       />
       <DailyFortuneModal
         isOpen={isDailyFortuneOpen}
-        onClose={() => setIsDailyFortuneOpen(false)}
+        onClose={() => {
+          setIsDailyFortuneOpen(false);
+          if (typeof window !== 'undefined' && window.location.pathname === '/que-ngay') {
+            window.history.pushState({ path: '/' }, '', '/');
+          }
+        }}
         user={user}
+      />
+      <DailyCheckinModal
+        isOpen={isDailyCheckinOpen}
+        onClose={() => {
+          setIsDailyCheckinOpen(false);
+          if (typeof window !== 'undefined' && window.location.pathname === '/diem-danh') {
+            window.history.pushState({ path: '/' }, '', '/');
+          }
+        }}
+        user={user}
+        setUser={setUser}
+        onOpenAuthModal={() => setIsAuthModalOpen(true)}
       />
 
       {/* GLOBAL MASTER AUDIO PLAYER DOCK (TTS) */}

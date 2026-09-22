@@ -266,19 +266,77 @@ function CustomHourPicker({ value, onChange }) {
   );
 }
 
+const SUBTAB_SLUG_MAP = {
+  'lich-theo-tuoi': 'year_calendar',
+  'lich-bat-tu': 'bazi_calendar',
+  'chi-tiet-ngay': 'check',
+  'tim-ngay-dep': 'consult'
+};
+
+const TAB_TO_SLUG_MAP = {
+  'year_calendar': 'lich-theo-tuoi',
+  'bazi_calendar': 'lich-bat-tu',
+  'check': 'chi-tiet-ngay',
+  'consult': 'tim-ngay-dep'
+};
+
 function DateSelectionBoard({ user, setUser, setIsAuthModalOpen }) {
-  const [activeTab, setActiveTab] = useState(() => {
+  const getTabFromUrlOrStorage = () => {
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname;
+      const match = path.match(/^\/xemngay\/([a-zA-Z0-9_-]+)/);
+      if (match && SUBTAB_SLUG_MAP[match[1]]) {
+        return SUBTAB_SLUG_MAP[match[1]];
+      }
+    }
     const saved = localStorage.getItem('phongthuy_xemngay_subtab');
     if (saved === 'calendar') return 'year_calendar';
     if (saved === 'year_calendar' || saved === 'bazi_calendar' || saved === 'check' || saved === 'consult') {
       return saved;
     }
     return 'year_calendar';
-  });
+  };
+
+  const [activeTab, setActiveTab] = useState(getTabFromUrlOrStorage);
 
   useEffect(() => {
     localStorage.setItem('phongthuy_xemngay_subtab', activeTab);
   }, [activeTab]);
+
+  const handleTabSwitch = (newTab) => {
+    setActiveTab(newTab);
+    setError(null);
+    const slug = TAB_TO_SLUG_MAP[newTab];
+    if (slug) {
+      const targetUrl = `/xemngay/${slug}`;
+      if (window.location.pathname !== targetUrl) {
+        window.history.pushState({ path: targetUrl }, '', targetUrl);
+      }
+    }
+  };
+
+  useEffect(() => {
+    const onPop = () => {
+      const path = window.location.pathname;
+      const match = path.match(/^\/xemngay\/([a-zA-Z0-9_-]+)/);
+      if (match && SUBTAB_SLUG_MAP[match[1]]) {
+        setActiveTab(SUBTAB_SLUG_MAP[match[1]]);
+      } else if (path === '/xemngay') {
+        const saved = localStorage.getItem('phongthuy_xemngay_subtab') || 'year_calendar';
+        setActiveTab(saved);
+      }
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+
+  // Tự động chuẩn hóa URL sang subroute nếu vào /xemngay chung
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.pathname === '/xemngay') {
+      const slug = TAB_TO_SLUG_MAP[activeTab] || 'lich-theo-tuoi';
+      window.history.replaceState({ path: `/xemngay/${slug}` }, '', `/xemngay/${slug}`);
+    }
+  }, []);
 
   const getHourClassifications = (hoursList) => {
     if (!hoursList || hoursList.length === 0) return { best: [], backup: [] };
@@ -516,10 +574,7 @@ function DateSelectionBoard({ user, setUser, setIsAuthModalOpen }) {
       {/* SUB-TABS NAVIGATION - 4 DISTINCT FEATURES */}
       <div className="grid grid-cols-2 md:grid-cols-4 bg-[#faf6f0] p-1.5 rounded-2xl border border-amber-250/30 max-w-4xl mx-auto shadow-sm gap-1.5">
         <button
-          onClick={() => {
-            setActiveTab('year_calendar');
-            setError(null);
-          }}
+          onClick={() => handleTabSwitch('year_calendar')}
           className={`py-3 px-2 sm:px-3 rounded-xl font-extrabold text-xs sm:text-[13px] tracking-wider transition-all font-[Montserrat] text-center cursor-pointer flex items-center justify-center gap-1.5 ${
             activeTab === 'year_calendar' 
               ? 'bg-white text-emerald-800 shadow-md border border-emerald-100/30' 
@@ -535,8 +590,7 @@ function DateSelectionBoard({ user, setUser, setIsAuthModalOpen }) {
             if (!user) {
               setIsAuthModalOpen?.(true);
             }
-            setActiveTab('bazi_calendar');
-            setError(null);
+            handleTabSwitch('bazi_calendar');
           }}
           className={`py-3 px-2 sm:px-3 rounded-xl font-extrabold text-xs sm:text-[13px] tracking-wider transition-all font-[Montserrat] text-center cursor-pointer flex items-center justify-center gap-1.5 ${
             activeTab === 'bazi_calendar' 
@@ -549,10 +603,7 @@ function DateSelectionBoard({ user, setUser, setIsAuthModalOpen }) {
         </button>
 
         <button
-          onClick={() => {
-            setActiveTab('check');
-            setError(null);
-          }}
+          onClick={() => handleTabSwitch('check')}
           className={`py-3 px-2 sm:px-3 rounded-xl font-extrabold text-xs sm:text-[13px] tracking-wider transition-all font-[Montserrat] text-center cursor-pointer flex items-center justify-center gap-1.5 ${
             activeTab === 'check' 
               ? 'bg-white text-emerald-800 shadow-md border border-emerald-100/30' 
@@ -563,10 +614,7 @@ function DateSelectionBoard({ user, setUser, setIsAuthModalOpen }) {
         </button>
 
         <button
-          onClick={() => {
-            setActiveTab('consult');
-            setError(null);
-          }}
+          onClick={() => handleTabSwitch('consult')}
           className={`py-3 px-2 sm:px-3 rounded-xl font-extrabold text-xs sm:text-[13px] tracking-wider transition-all font-[Montserrat] text-center cursor-pointer flex items-center justify-center gap-1.5 ${
             activeTab === 'consult' 
               ? 'bg-white text-emerald-800 shadow-md border border-emerald-100/30' 
@@ -591,7 +639,7 @@ function DateSelectionBoard({ user, setUser, setIsAuthModalOpen }) {
           setUser={setUser} 
           setIsAuthModalOpen={setIsAuthModalOpen} 
           mode="year"
-          onSwitchMode={(newMode) => setActiveTab(newMode === 'bazi' ? 'bazi_calendar' : 'year_calendar')}
+          onSwitchMode={(newMode) => handleTabSwitch(newMode === 'bazi' ? 'bazi_calendar' : 'year_calendar')}
         />
       )}
 
@@ -602,7 +650,7 @@ function DateSelectionBoard({ user, setUser, setIsAuthModalOpen }) {
           setUser={setUser} 
           setIsAuthModalOpen={setIsAuthModalOpen} 
           mode="bazi"
-          onSwitchMode={(newMode) => setActiveTab(newMode === 'bazi' ? 'bazi_calendar' : 'year_calendar')}
+          onSwitchMode={(newMode) => handleTabSwitch(newMode === 'bazi' ? 'bazi_calendar' : 'year_calendar')}
         />
       )}
 

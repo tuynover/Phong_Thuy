@@ -186,7 +186,6 @@ function generateZiweiHtml(record, scope = []) {
           <h1 class="monograph-title serif-title">MỆNH BÀN 12 CUNG & VẬN HẠN ĐẨU SỐ</h1>
         </div>
         <div style="text-align: right; font-size: 7.5pt; color: #78350f; font-weight: 700;">
-          BẢN QUYỀN HỌC THUẬT<br/>
           MÃ LÁ SỐ: ${record._id?.slice(0, 18) || 'N/A'}
         </div>
       </div>

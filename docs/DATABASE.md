@@ -46,6 +46,12 @@ Lưu trữ thông tin tài khoản, hồ sơ Bát Tự mặc định, số dư c
     ownBaziRecordId: { type: String, default: null },
     ownZiweiRecordId: { type: String, default: null }
   },
+  dailyCheckin: {
+    streak: { type: Number, default: 0 },
+    lastCheckinDate: { type: String, default: null }, // 'YYYY-MM-DD' (Asia/Ho_Chi_Minh)
+    totalCheckins: { type: Number, default: 0 },
+    lastCheckinAt: { type: Date, default: null }
+  },
   stats: {
     ichingCount: { type: Number, default: 0 },
     baziCount: { type: Number, default: 0 },

@@ -14,6 +14,24 @@ const LUNAR_HOURS_MAP = [
   "Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"
 ];
 
+const HISTORY_SLUG_MAP = {
+  'kinh-dich': 'iching',
+  'iching': 'iching',
+  'bat-tu': 'bazi',
+  'bazi': 'bazi',
+  'tu-vi': 'ziwei',
+  'ziwei': 'ziwei',
+  'hon-nhan': 'marriage',
+  'marriage': 'marriage'
+};
+
+const TAB_TO_HISTORY_SLUG = {
+  'iching': 'kinh-dich',
+  'bazi': 'bat-tu',
+  'ziwei': 'tu-vi',
+  'marriage': 'hon-nhan'
+};
+
 const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage, preloadedData, onCacheInvalidate, active, onSaveCache }) => {
     const { user } = useContext(AuthContext);
     const [hexagrams, setHexagrams] = useState([]);
@@ -28,7 +46,53 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
         return true;
     });
     const [actionLoading, setActionLoading] = useState(false);
-    const [activeTab, setActiveTab] = useState('iching'); // 'iching' | 'bazi' | 'ziwei' | 'marriage'
+
+    const getInitialHistoryTab = () => {
+        if (typeof window !== 'undefined') {
+            const match = window.location.pathname.match(/^\/history\/([a-zA-Z0-9_-]+)/);
+            if (match && HISTORY_SLUG_MAP[match[1]]) {
+                return HISTORY_SLUG_MAP[match[1]];
+            }
+        }
+        return 'iching';
+    };
+
+    const [activeTab, setActiveTab] = useState(getInitialHistoryTab); // 'iching' | 'bazi' | 'ziwei' | 'marriage'
+
+    const handleTabSwitch = (newTab) => {
+        setActiveTab(newTab);
+        setCurrentPage(1);
+        const slug = TAB_TO_HISTORY_SLUG[newTab];
+        if (slug) {
+            const targetUrl = `/history/${slug}`;
+            if (window.location.pathname !== targetUrl) {
+                window.history.pushState({ path: targetUrl }, '', targetUrl);
+                window.dispatchEvent(new PopStateEvent('popstate'));
+            }
+        }
+    };
+
+    useEffect(() => {
+        const onPopState = () => {
+            if (window.location.pathname.startsWith('/history')) {
+                const match = window.location.pathname.match(/^\/history\/([a-zA-Z0-9_-]+)/);
+                if (match && HISTORY_SLUG_MAP[match[1]]) {
+                    setActiveTab(HISTORY_SLUG_MAP[match[1]]);
+                } else if (window.location.pathname === '/history') {
+                    setActiveTab('iching');
+                }
+            }
+        };
+        window.addEventListener('popstate', onPopState);
+        return () => window.removeEventListener('popstate', onPopState);
+    }, []);
+
+    useEffect(() => {
+        if (typeof window !== 'undefined' && window.location.pathname === '/history') {
+            const slug = TAB_TO_HISTORY_SLUG[activeTab] || 'kinh-dich';
+            window.history.replaceState({ path: `/history/${slug}` }, '', `/history/${slug}`);
+        }
+    }, []);
     const [dialog, setDialog] = useState(null); // { type: 'confirm' | 'success' | 'error', message: '', onConfirm: null }
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
@@ -566,25 +630,25 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
             
             <div className="flex flex-wrap md:flex-nowrap justify-center gap-2 md:gap-4 mb-6 md:mb-8">
                 <button 
-                    onClick={() => setActiveTab('iching')}
+                    onClick={() => handleTabSwitch('iching')}
                     className={`flex-1 sm:flex-none px-4 py-2 text-xs md:text-base rounded-full font-bold transition-all ${activeTab === 'iching' ? 'bg-amber-800 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
                 >
                     Kinh Dịch ({user?.stats?.ichingCount !== undefined ? user.stats.ichingCount : hexagrams.length})
                 </button>
                 <button 
-                    onClick={() => setActiveTab('bazi')}
+                    onClick={() => handleTabSwitch('bazi')}
                     className={`flex-1 sm:flex-none px-4 py-2 text-xs md:text-base rounded-full font-bold transition-all ${activeTab === 'bazi' ? 'bg-blue-800 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
                 >
                     Bát Tự ({user?.stats?.baziCount !== undefined ? user.stats.baziCount : bazis.length})
                 </button>
                 <button 
-                    onClick={() => setActiveTab('ziwei')}
+                    onClick={() => handleTabSwitch('ziwei')}
                     className={`flex-1 sm:flex-none px-4 py-2 text-xs md:text-base rounded-full font-bold transition-all ${activeTab === 'ziwei' ? 'bg-purple-800 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
                 >
                     Tử Vi ({user?.stats?.ziweiCount !== undefined ? user.stats.ziweiCount : ziweis.length})
                 </button>
                 <button 
-                    onClick={() => setActiveTab('marriage')}
+                    onClick={() => handleTabSwitch('marriage')}
                     className={`flex-1 sm:flex-none px-4 py-2 text-xs md:text-base rounded-full font-bold transition-all ${activeTab === 'marriage' ? 'bg-rose-800 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
                 >
                     Hôn Nhân ({user?.stats?.marriageCount !== undefined ? user.stats.marriageCount : marriages.length})

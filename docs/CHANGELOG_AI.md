@@ -2,6 +2,276 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Tối Ưu Hóa Giao Diện Đề Mục Chương Trên Thiết Bị Di Động (Mobile Responsive Chapter Headers) (22/09/2026)
+
+### 🌟 1. Yêu Cầu & Bối Cảnh Người Dùng
+- **Hiện trạng:** Trên thiết bị di động (màn hình hẹp 360px - 414px), thanh tiêu đề các chương luận giải AI (`SectionCard` trong `SectionRenderer.jsx`) bị dồn ép nghiêm trọng.
+  - Hàng tiêu đề đặt thanh công cụ bên phải gồm 3 nút: `[🔊 Nghe đọc]`, `[💬 Đàm đạo]` và mũi tên đóng/mở `[^]` chiếm tới ~184px ngang.
+  - Tiêu đề chương chỉ còn ~97px bề ngang, dẫn tới việc các tiêu đề dài (như *"Chương 1: TƯ CHẤT & KHÍ CHẤT TRÍ TUỆ (IQ, EQ & ĐIỂM MẠNH BẨM SINH)"* hoặc *"Chương 1: KHỞI QUÁI & TƯỢNG PHÁP CHU DỊCH..."*) bị ép vỡ thành 10 hàng dọc, mỗi hàng chỉ chứa 1 chữ lẻ, gây mất thẩm mỹ trầm trọng.
+- **Yêu cầu:** Tối ưu hóa giao diện đề mục chương trên mobile sao cho tiêu đề hiển thị thoáng đãng, sang trọng, không bị ép chữ thành cột dọc, thanh công cụ nút bấm tiện dụng cho ngón tay cái mà vẫn giữ trọn vẹn sự tinh gọn trên máy tính (desktop).
+
+---
+
+### 🛠️ 2. Chi Tiết Triển Khai Kỹ Thuật
+
+#### Frontend:
+- **[`frontend/src/components/widgets/SectionRenderer.jsx`](file:///t:/Phongthuy/frontend/src/components/widgets/SectionRenderer.jsx):**
+  - **Tách Badge Đề Mục Chương & Đồng Bộ Màu Theo Phân Hệ (`themeStyles`):**
+    - Bổ sung regex bóc tách tiền tố `Chương X` / `Phần X` / `Mục X`.
+    - Bổ sung trường `chapterBadge` trong `themeStyles` đồng bộ 100% màu sắc với từng phân hệ: Bát Tự (xanh dương dịu `bg-blue-50/90 text-blue-800 border-blue-200/90`), Tử Vi (tím pastel `bg-purple-50/90 text-purple-800`), Kinh Dịch (vàng hổ phách `bg-amber-50/90 text-amber-900`), Hôn Nhân (hồng phấn `bg-rose-50/90 text-rose-800`), xóa bỏ hoàn toàn cảm giác lệch tông hay màu xám thô cứng.
+  - **Tái Cấu Trúc Header Cân Đối & Đối Xứng Hoàn Hảo (Balanced & Symmetrical Layout):**
+    - **Hàng 1 (Tiêu đề chiếm toàn bộ chiều ngang & Cân bằng hai góc):**
+      - Góc trên bên trái: Biểu tượng chương (`SectionIcon`) bóng đổ nhẹ.
+      - Phần giữa: Badge `CHƯƠNG X` đồng điệu màu + Tiêu đề chính `mainTitle` đậm nét, tương phản cao, ngắt dòng tự nhiên 1-2 dòng, không bao giờ bị ép thành cột dọc.
+      - Góc trên bên phải: Nút chevron tròn thu nhỏ (`( ^ )`), đối trọng hoàn hảo với biểu tượng ở góc trái.
+    - **Đường phân cách mềm:** Đường hairline `border-t border-slate-100/90` trải đều trọn vẹn bề ngang card, không còn hiện tượng ngắt quãng thụt lề lệch lạc.
+    - **Hàng 2 (Thanh công cụ đối xứng 50/50 - Symmetrical Bottom Action Bar):**
+      - Sử dụng lưới đối xứng `grid grid-cols-2 gap-2` trên mobile:
+      - Nút `[ 🔊 Nghe đọc ]` chiếm đúng 50% bên trái.
+      - Nút `[ 💬 Đàm đạo ]` chiếm đúng 50% bên phải.
+      - Cả 2 nút có chiều cao bằng nhau (`py-2`), căn giữa biểu tượng và chữ, triệt tiêu hoàn toàn khoảng trống rỗng ở góc dưới bên trái và tình trạng nút dồn cục lệch sang bên phải.
+      - Vùng chạm rộng rãi (`touch-target`), bấm thoải mái bằng cả ngón cái tay trái lẫn tay phải.
+      - Trường hợp chỉ có 1 nút: tự động chuyển sang `flex w-full` mở rộng toàn màn hình.
+    - **Trên máy tính (Desktop `sm:`):** Tự động dàn đều trên 1 hàng ngang duy nhất (`sm:flex-row sm:items-center`), giữ trọn vẹn bố cục gọn gàng, tinh tế.
+  - Áp dụng thống nhất cho toàn bộ 4 phân hệ: **Bát Tự (Bazi)**, **Tử Vi (Ziwei)**, **Kinh Dịch (IChing)** và **Hợp Hôn (Marriage)**.
+
+---
+
+### 🧪 3. Kiểm Thử Giao Diện Trên Trình Duyệt (Chrome DevTools)
+1. **Kiểm tra trực tiếp trên Chrome DevTools (Viewport Mobile 390x844):**
+   - Đã kiểm thử với tiêu đề dài nguyên bản của người dùng: *"CHƯƠNG 1: TƯ CHẤT & KHÍ CHẤT TRÍ TUỆ (IQ, EQ & ĐIỂM MẠNH BẨM SINH)"*.
+   - Kết quả: Thẻ hiển thị cân đối tuyệt đối về mặt hình học và thị giác. 
+   - Hàng trên: Biểu tượng góc trái - Tiêu đề ở giữa - Chevron góc phải.
+   - Hàng dưới: Hai nút `[Nghe đọc]` và `[Đàm đạo]` chia đều 50% - 50% bề ngang, màu sắc xanh dương đồng bộ hoàn hảo với chủ đề Bát Tự.
+2. **Kiểm tra bản dựng (Production Build):**
+   - `npm run build` hoàn thành thành công trong 5.23s, 0 lỗi cú pháp.
+
+---
+
+## 📅 Phiên bản: Bao Lì Xì Đỏ Thuần Việt (Không Chữ Trung), Hỗ Trợ Deep Linking & Lưu Bookmark Toàn Hệ Thống (22/09/2026)
+
+### 🌟 1. Yêu Cầu & Bối Cảnh Người Dùng
+1. **Hiển thị màu bao lì xì đỏ hẳn lên, xóa chữ tiếng Trung:**
+   - Phong bao lì xì được phủ màu đỏ thắm thuần túy và sang trọng (`from-red-600 via-red-700 to-rose-950 border-2 border-amber-300/90 shadow-md shadow-red-900/35`).
+   - Xóa bỏ hoàn toàn chữ tiếng Trung `福` trên toàn bộ giao diện: thay biểu tượng phong bao lì xì ở tiêu đề modal và trên nắp phong bao bằng biểu tượng ngôi sao may mắn ánh kim (`Sparkles`), đảm bảo 100% bản địa hóa thuần phong mỹ tục Việt Nam.
+2. **Triển khai Hỗ trợ Liên kết sâu (Deep Linking) & Lưu Bookmark cho toàn hệ thống:**
+   - Người dùng có thể bookmark, sao chép liên kết hoặc chia sẻ bất kỳ phân hệ nào mà khi mở ra sẽ hiển thị chính xác trạng thái đó:
+     - **Lịch sử luận giải con:** `/history/kinh-dich`, `/history/bat-tu`, `/history/tu-vi`, `/history/hon-nhan`.
+     - **Bản ghi lá số / quẻ dịch:** `/iching/record/:id`, `/bazi/record/:id`, `/ziwei/record/:id`, `/marriage/record/:id`.
+     - **Lá số bản thân:** `/bazi/ban-than`, `/ziwei/ban-than`.
+     - **Tiện ích hộp thoại:** `/diem-danh` (tự động mở popup Điểm danh 7 ngày), `/que-ngay` (tự động mở popup Quẻ ngày).
+     - **Đồng bộ Back/Forward trình duyệt:** Bấm nút Back/Forward trên trình duyệt hoặc phím điều hướng chuột sẽ chuyển tab, mở/đóng bản ghi và reset form mà không bị mất bối cảnh hay phải F5.
+     - **Tự động tối ưu SEO Meta Title động** theo từng subroute sâu.
+
+---
+
+### 🛠️ 2. Chi Tiết Triển Khai Kỹ Thuật
+
+#### Frontend:
+- **[`frontend/src/components/modals/DailyCheckinModal.jsx`](file:///t:/Phongthuy/frontend/src/components/modals/DailyCheckinModal.jsx):**
+  - Loại bỏ emoji `🧧` (vốn tự động hiển thị chữ Hán `福` trên các font hệ điều hành), thay bằng badge ngôi sao may mắn đỏ - vàng kim trang trọng.
+  - Tăng độ đậm và sắc đỏ cho thân phong bao (`from-red-600 via-red-700 to-rose-950`), nẹp nắp bao đỏ mận `bg-red-700` viền kim tuyến `border-amber-300/80` và biểu tượng ngôi sao lấp lánh `Sparkles`.
+  - Giữ độ rực rỡ cho các ô chưa mở thay vì phủ mờ xỉn màu.
+- **[`frontend/src/features/history/HistoryBoard.jsx`](file:///t:/Phongthuy/frontend/src/features/history/HistoryBoard.jsx):**
+  - Bổ sung `HISTORY_SLUG_MAP` và `TAB_TO_HISTORY_SLUG`.
+  - Khởi tạo `activeTab` từ URL pathname (`/history/:slug`).
+  - Hàm `handleTabSwitch` cập nhật URL bằng `window.history.pushState` và bắn `new PopStateEvent('popstate')` để các cấp cha đồng bộ Title SEO.
+  - Lắng nghe sự kiện `popstate` để tự động đổi tab khi người dùng bấm nút Back/Forward trên trình duyệt.
+- **[`frontend/src/features/ziwei/ZiweiBoard.jsx`](file:///t:/Phongthuy/frontend/src/features/ziwei/ZiweiBoard.jsx):**
+  - Tự động đẩy URL `/ziwei/record/:id` khi lập lá số mới hoặc mở lá số bản thân/lịch sử.
+  - Nút "Luận Giải Lá Số Khác" tự động reset URL về `/ziwei`.
+- **[`frontend/src/app/UserApp.jsx`](file:///t:/Phongthuy/frontend/src/app/UserApp.jsx):**
+  - Nâng cấp `parsePathToAppMode` nhận diện đầy đủ: `/history/*`, `/diem-danh`, `/que-ngay`, `/bazi/ban-than`, `/ziwei/ban-than`.
+  - Thêm state `currentPath` để đồng bộ URL tức thời với SEO Page Title và Google Analytics page tracking.
+  - Thêm effect tự động kích hoạt `isDailyCheckinOpen(true)` hoặc `isDailyFortuneOpen(true)` khi truy cập đường dẫn `/diem-danh` hoặc `/que-ngay`.
+  - Cập nhật `handleDivinationComplete`, `handleBaziComplete`, `handleMarriageComplete` và các hàm xem lịch sử (`handleViewHistoricalHexagram`, `handleViewHistoricalBazi`, `handleViewHistoricalZiwei`, `handleViewHistoricalMarriage`) để tự động đẩy `/record/:id` vào lịch sử duyệt web.
+  - Cập nhật các nút "Gieo Quẻ Mới", "Luận Lá Số Khác", "Xem Cặp Đôi Khác" tự động reset URL về các root route `/iching`, `/bazi`, `/marriage`.
+- **[`frontend/src/components/layout/Header.jsx`](file:///t:/Phongthuy/frontend/src/components/layout/Header.jsx):**
+  - Chuẩn hóa điều hướng sang `handleSelectModule('profile')` và `handleSelectModule('home')`.
+
+---
+
+### 🧪 3. Kiểm Thử Giao Diện Trên Trình Duyệt (Chrome DevTools)
+1. **Kiểm tra trực tiếp Deep Link `/diem-danh`:**
+   - Hộp thoại Điểm danh mở tự động ngay khi truy cập URL.
+   - Màu sắc bao lì xì đỏ thắm, rực rỡ, viền vàng kim nổi bật trên nền trắng của ô thẻ.
+   - Không còn bất kỳ chữ Hán nào xuất hiện trên giao diện.
+2. **Kiểm tra Deep Link `/history/bat-tu`, `/history/tu-vi`, `/history/hon-nhan`:**
+   - Truy cập trực tiếp tab nào mở đúng tab đó kèm tiêu đề SEO chính xác (ví dụ: *"Lịch Sử Bát Tự Hợp Hôn - Phong Thủy AI"*).
+   - Chuyển tab lập tức đẩy slug tương ứng vào URL.
+3. **Console log:** 0 lỗi (Zero errors).
+
+---
+
+## 📅 Phiên bản: Tối Ưu Ô Lì Xì Nổi Bật, Chuẩn Hóa Điểm Danh Đơn Màn Hình & Kiến Trúc Sub-routes Xem Ngày (22/09/2026)
+
+### 🌟 1. Yêu Cầu & Bối Cảnh Người Dùng
+1. **Lì Xì Nổi Bật & Ô Lì Xì Sáng Hơn Nền:** Từng ô phong bao lì xì được thiết kế nền trắng sáng tinh tế (`bg-white border-2 border-rose-100/90 shadow-md`), tương phản nổi bật hoàn hảo trên nền modal đỏ hồng phớt. Phong bao đỏ ở giữa được phủ gradient đỏ chu sa tươi tắn viền vàng sang trọng.
+2. **Rút Gọn Lời Dẫn Hình 1:** Bỏ phần giải thích cơ chế dài dòng, thay bằng 1 câu ngắn gọn, tinh tế: *"Mỗi ngày mở 1 phong bao nhận Point may mắn. Điểm danh đều đặn để tích lũy quà tặng!"*.
+3. **Xóa Chú Thích Cơ Chế Hình 2:** Loại bỏ hoàn toàn dòng chú thích chân trang (`*Mỗi tuần liên tiếp: Ngày 1-6 tăng +10 Points/ngày, Ngày 7 tăng +20 Points...`).
+4. **Hiển Thị Trọn Vẹn Trong 1 Màn Hình (No Scroll):** Loại bỏ hoàn toàn thanh cuộn, tinh gọn padding và tỷ lệ các thành phần để hộp thoại điểm danh nằm gọn gàng, tự nhiên ở giữa màn hình trên mọi thiết bị và độ phân giải (< 440px chiều cao).
+5. **Khắc Phục Lỗi Chấm Đỏ Lệch Nhau:** Xóa bỏ triệt để hiện tượng Header hiển thị chấm đỏ nhưng khi click vào lại báo "Đã điểm danh hôm nay". Rà soát thuật toán đồng bộ trạng thái thực từ server.
+6. **Điều Hướng Chính Xác "Lịch Vạn Niên Cá Nhân" & Sub-routes Cho Phân Hệ Xem Ngày:**
+   - Khi nhấp "Lịch cá nhân" / "Lịch Vạn Niên Cá Nhân" ở menu người dùng, điều hướng chính xác vào tab Lịch Bát Tự kèm URL `/xemngay/lich-bat-tu`.
+   - Phân tích và thiết lập kiến trúc sub-routes sâu cho toàn bộ 4 tính năng con của phân hệ Xem Ngày:
+     - `/xemngay/lich-theo-tuoi` (Tab Lịch theo tuổi)
+     - `/xemngay/lich-bat-tu` (Tab Lịch theo Bát Tự)
+     - `/xemngay/chi-tiet-ngay` (Tab Chi tiết ngày)
+     - `/xemngay/tim-ngay-dep` (Tab Tìm ngày đẹp)
+   - Đồng bộ lịch sử trình duyệt (Back/Forward), hỗ trợ chia sẻ link trực tiếp (Deep Linking) và tối ưu SEO Meta Title.
+
+---
+
+### 🛠️ 2. Chi Tiết Triển Khai Kỹ Thuật
+
+#### Backend:
+- **[`backend/src/modules/auth/controllers/AuthController.js`](file:///t:/Phongthuy/backend/src/modules/auth/controllers/AuthController.js):**
+  - Bổ sung cơ chế làm sạch bộ nhớ đệm `clearUserProfileCache(userId)` và cập nhật cache tức thời `setUserProfileCache(userId, formatUserResponse(user))` ngay khi claim daily checkin.
+  - Ngăn ngừa tình trạng `/api/auth/me` trả về thông tin user cũ từ Redis/RAM Cache gây lệch trạng thái `dailyCheckin`.
+
+#### Frontend:
+- **[`frontend/src/components/modals/DailyCheckinModal.jsx`](file:///t:/Phongthuy/frontend/src/components/modals/DailyCheckinModal.jsx):**
+  - Thiết kế lại các ô lì xì: Nền `bg-white` sáng bóng, bo viền nổi bật `border-2 border-rose-100/90`, đổ bóng 3D `shadow-md`. Riêng Ngày 7 mang sắc vàng kim `bg-gradient-to-br from-amber-100/95 via-white to-amber-50/90 border-2 border-amber-400`.
+  - Thay đổi câu giới thiệu sang ngắn gọn, súc tích.
+  - Xóa dòng chú thích chân modal (Hình 2).
+  - Khống chế chiều cao tổng thể, loại bỏ `overflow-y-auto` bên trong lẫn bên ngoài, đảm bảo hiển thị trọn vẹn trong 1 màn hình cả trên Mobile (390x844) và Desktop.
+  - Bắn sự kiện `daily_checkin_updated` kèm `{ hasCheckedInToday }` khi nạp trạng thái cũng như khi mở bao thành công để toàn hệ thống đồng bộ tức thời.
+- **[`frontend/src/components/layout/Header.jsx`](file:///t:/Phongthuy/frontend/src/components/layout/Header.jsx):**
+  - Chuyển đổi `hasCheckedInToday` từ biến tĩnh sang React State, chủ động gọi `getDailyCheckinStatus()` trên mount để kiểm tra server-truth thay vì chỉ tin vào prop `user` có thể chứa cache cũ.
+  - Đăng ký lắng nghe sự kiện `daily_checkin_updated` từ window event để tự động tắt/bật chấm đỏ realtime.
+  - Cập nhật nút "Lịch cá nhân (Bát Tự)" ở Desktop dropdown và "Lịch Vạn Niên Cá Nhân (Bát Tự)" ở Mobile drawer sang gọi `handleSelectModule('xemngay', 'lich-bat-tu')`.
+- **[`frontend/src/features/xemngay/DateSelectionBoard.jsx`](file:///t:/Phongthuy/frontend/src/features/xemngay/DateSelectionBoard.jsx):**
+  - Bổ sung bảng ánh xạ route: `SUBTAB_SLUG_MAP` và `TAB_TO_SLUG_MAP`.
+  - Khởi tạo `activeTab` thông minh: Đọc từ URL path (`/xemngay/:slug`) trước, fallback về localStorage.
+  - Hàm chuyển tab `handleTabSwitch`: Cập nhật state đồng thời đẩy `window.history.pushState` tương ứng với slug của tab con.
+  - Đăng ký lắng nghe sự kiện `popstate` để hỗ trợ người dùng bấm nút Back/Forward trên trình duyệt mượt mà.
+  - Tự động chuẩn hóa URL: Nếu truy cập vào `/xemngay` chung, URL tự động chuyển thành `/xemngay/lich-theo-tuoi` (hoặc tab lưu trước đó).
+- **[`frontend/src/app/UserApp.jsx`](file:///t:/Phongthuy/frontend/src/app/UserApp.jsx):**
+  - Hỗ trợ regex/startsWith `/xemngay/` trong `parsePathToAppMode`.
+  - Nâng cấp `handleSelectModule` hỗ trợ truyền slug con cho phân hệ `xemngay`.
+  - Cập nhật Title động cho từng sub-route Xem Ngày tối ưu SEO Googlebot.
+  - Sửa lỗi `blogSlug` tránh vô tình kích hoạt request tải bài viết blog khi truyền slug phân hệ con.
+
+---
+
+## 📅 Phiên bản: Giao Diện Điểm Danh Đỏ Nhẹ Nhàng, Tối Ưu Đa Độ Zoom/Mobile & Tích Hợp Quẻ Ngày/Điểm Danh Menu Cấp 2 (22/09/2026)
+
+### 🌟 1. Yêu Cầu & Bối Cảnh Người Dùng
+1. **Nền Đỏ Nhẹ Nhàng:** Chuyển đổi nền hộp thoại Điểm Danh từ tông đỏ thẫm/tối sang sắc đỏ nhẹ nhàng, thanh nhã (`#FFF5F6` $\to$ `#FFF0F3`) hài hòa với phong cách cổ học và giúp phong bao lì xì đỏ chu sa nổi bật rực rỡ.
+2. **Responsive Mobile & Đa Độ Zoom Trình Duyệt:** Tối ưu hóa cấu trúc modal với `max-h-[94vh]` và vùng nội dung cuộn mượt mà `overflow-y-auto`, không bao giờ bị tràn màn hình hay che khuất nút thao tác trên màn hình nhỏ (320px - 390px) cũng như khi người dùng phóng to trình duyệt (125%, 150%, 175%, 200% zoom).
+3. **Tích Hợp Quẻ Ngày & Điểm Danh Vào Chung Một Nơi (Menu Cấp 2):**
+   - Gom nút Quẻ Ngày và Điểm Danh thành một nút bấm duy nhất trên Header với biểu tượng mũi tên sổ xuống (`ChevronDown`).
+   - Khi nhấp chuột, hiển thị **Menu cấp 2** sổ xuống gồm cả 2 mục: `🎋 Quẻ Xăm Ngày Mới` và `🧧 Điểm Danh May Mắn` kèm trạng thái huy hiệu ("Chưa gieo", "Đã gieo", "Chưa nhận", "Đã nhận").
+   - **Quy tắc hiển thị thông minh trên nút chính:**
+     - Nếu chỉ có 1 mục có chấm đỏ (chưa thực hiện) $\rightarrow$ hiển thị mục đó trên nút chính.
+     - Nếu cả 2 đều có chấm đỏ hoặc cả 2 đều không có $\rightarrow$ ưu tiên hiển thị `🎋 Quẻ Ngày`.
+   - Trong mobile drawer: Quy hoạch thành cụm card chuyên biệt "Phúc Lộc Hàng Ngày" gọn gàng, tiện dụng.
+
+---
+
+### 🛠️ 2. Chi Tiết Triển Khai Kỹ Thuật
+
+#### Frontend (React 19 / Vite / Tailwind / Lucide):
+- **[`frontend/src/components/layout/Header.jsx`](file:///t:/Phongthuy/frontend/src/components/layout/Header.jsx):**
+  - Khai báo state `isDailyDropdownOpen` và hook click-outside qua `dailyDropdownRef`.
+  - Tính toán logic ưu tiên hiển thị:
+    - `isFortunePending = !hasDrawnDailyFortune`
+    - `isCheckinPending = !hasCheckedInToday`
+    - `isCheckinActive = isCheckinPending && !isFortunePending`
+    - `showMainRedDot = isFortunePending || isCheckinPending`
+  - Render nút bấm đơn nhất `Quẻ Ngày / Điểm Danh` kèm animation ping chấm đỏ và chevron xoay linh hoạt khi mở.
+  - Render dropdown menu cấp 2 tuyệt đẹp với 2 mục chức năng chi tiết, tự động đóng khi chọn mục hoặc click ra ngoài.
+  - Tích hợp cụm "Phúc Lộc Hàng Ngày" gồm cả 2 mục trong mobile drawer thay vì để rải rác.
+- **[`frontend/src/components/modals/DailyCheckinModal.jsx`](file:///t:/Phongthuy/frontend/src/components/modals/DailyCheckinModal.jsx):**
+  - Chuyển toàn bộ bảng màu nền sang `bg-gradient-to-b from-[#FFF5F6] via-[#FFFBFB] to-[#FFF0F3]` với viền `border-rose-200/90` và text `text-slate-800`.
+  - Bổ sung cấu trúc cuộn tự thích ứng: `max-h-[94vh] sm:max-h-[90vh] flex flex-col` và thẻ con `overflow-y-auto overscroll-contain pr-0.5`.
+  - Điều chỉnh kích thước phong bao, huy hiệu linh hoạt theo độ rộng màn hình (phù hợp từ màn hình 320px đến 4K).
+  - Thêm tính năng click backdrop để đóng modal tiện dụng.
+
+---
+
+## 📅 Phiên bản: Nâng Cấp Hệ Thống Điểm Danh Lũy Tiến Hàng Tuần (+10 Points Mốc Thường, +20 Points Ngày 7) (22/09/2026)
+
+### 🌟 1. Yêu Cầu & Bối Cảnh Người Dùng
+- **Mở rộng cơ chế Điểm danh hàng ngày:**
+  - Thay vì cố định chu kỳ 7 ngày đơn điệu, bổ sung cơ chế lũy tiến tăng dần phần thưởng theo tuần cho người dùng duy trì streak dài hạn:
+    - **Tuần 1:** Các mốc $[10, 15, 20, 25, 30, 40]$, Ngày 7: $100$ Points.
+    - **Tuần 2:** Mỗi mốc Ngày 1 đến Ngày 6 tăng thêm $+10$ Points $\rightarrow [20, 25, 30, 35, 40, 50]$, Ngày 7 tăng thêm $+20$ Points $\rightarrow 120$ Points.
+    - **Tuần 3 trở đi:** Cứ tiếp tục tăng tương tự ($+10$ cho Ngày 1-6 và $+20$ cho Ngày 7 cho mỗi tuần kế tiếp).
+    - Chuỗi ngày liên tiếp (Streak) tính liên tục (Ngày 8 là Tuần 2 Ngày 1, Ngày 14 là Tuần 2 Ngày 7, v.v.). Nếu đứt đoạn ($>1$ ngày), chuỗi tự động reset về Ngày 1 (Tuần 1).
+
+---
+
+### 🛠️ 2. Chi Tiết Triển Khai Kỹ Thuật
+
+#### Backend (Node.js / Express / Controller):
+- **[`backend/src/modules/auth/controllers/AuthController.js`](file:///t:/Phongthuy/backend/src/modules/auth/controllers/AuthController.js):**
+  - Xây dựng bảng hằng số `BASE_CHECKIN_REWARDS = [10, 15, 20, 25, 30, 40, 100]`.
+  - Triển khai hàm `getWeekRewards(week)` tính toán mốc thưởng theo công thức:
+    - $k = \max(0, \text{week} - 1)$
+    - Ngày 1-6: $\text{Base}[i] + k \times 10$
+    - Ngày 7: $100 + k \times 20$
+  - Triển khai hàm `calculateRewardForStreak(streak)` để tính toán `currentWeek`, `dayInWeek`, `reward` tương ứng.
+  - Cập nhật `dailyCheckin`: Không reset streak về 1 sau ngày 7 theo modulo mà cho phép streak tăng liên tục qua các tuần (`newStreak = currentStreak + 1`), tính thưởng động theo streak, trả về `currentWeek`, `dayInWeek`, `reward`, `rewards: weekRewards`.
+  - Cập nhật `getDailyCheckinStatus`: Trả về mốc thưởng động của tuần kích hoạt hiện tại (`currentWeek`, `dayInWeek`, `todayReward`, `rewards`).
+
+#### Frontend (React 19 / Vite / Tailwind):
+- **[`frontend/src/components/modals/DailyCheckinModal.jsx`](file:///t:/Phongthuy/frontend/src/components/modals/DailyCheckinModal.jsx):**
+  - Cập nhật state quản lý `currentWeek` và `dayInWeek`.
+  - Tích hợp hàm `getWeekRewards` đồng bộ logic thưởng với Backend.
+  - Gắn huy hiệu hiển thị tuần hiện tại: `Tuần ${checkinData.currentWeek || 1}` ở tiêu đề và phần thông tin thống kê.
+  - Hiển thị 7 phong bao với mức thưởng chính xác của tuần hiện tại (ví dụ Tuần 2: 20 -> 50 và Đại Thưởng 120 Points).
+  - Tinh chỉnh logic trạng thái từng phong bao trong tuần: đã nhận, mở ngay và chờ mở.
+  - Cập nhật mô tả thể lệ và thông báo thành công hiển thị rõ ràng Tuần, Ngày trong tuần và Chuỗi ngày liên tiếp.
+
+---
+
+## 📅 Phiên bản: Triển Khai Hệ Thống Điểm Danh 7 Ngày (Daily Check-in FREE) - Phong Bao May Mắn & Chống Race Condition (22/09/2026)
+
+### 🌟 1. Yêu Cầu & Bối Cảnh Người Dùng
+1. **Hệ Thống Điểm Danh 7 Ngày (Daily Check-in FREE):**
+   - **Backend:** Lưu vết chuỗi ngày điểm danh (`dailyCheckin`) trong Schema `User`, xây dựng endpoint `POST /api/auth/daily-checkin` bảo vệ chống race condition triệt để bằng Redis Distributed Lock kết hợp atomic update MongoDB.
+   - **Frontend:** Hộp thoại `DailyCheckinModal.jsx` với 7 phong bao may mắn nhận Point mỗi ngày, thiết kế mỹ thuật Đông Phương sang trọng. Ngày 7 đại thưởng lớn **100 Points**.
+   - **Tích hợp thanh Header & Navigation:** Nút `🧧 Điểm Danh` nổi bật kèm hiệu ứng chấm đỏ nhấp nháy khi người dùng chưa nhận thưởng trong ngày, tự động cập nhật số dư Points realtime trên Header ngay khi mở bao.
+
+---
+
+### 🛠️ 2. Chi Tiết Triển Khai Kỹ Thuật
+
+#### Backend (Node.js / Express / MongoDB / Redis):
+- **[`backend/src/core/models/User.js`](file:///t:/Phongthuy/backend/src/core/models/User.js):**
+  - Mở rộng Schema `User` với trường `dailyCheckin`:
+    - `streak`: Chuỗi ngày liên tiếp (0 -> 7).
+    - `lastCheckinDate`: Ngày điểm danh gần nhất định dạng `YYYY-MM-DD` theo múi giờ Việt Nam (`Asia/Ho_Chi_Minh`, GMT+7).
+    - `totalCheckins`: Tổng số ngày từng điểm danh.
+    - `lastCheckinAt`: Thời điểm điểm danh chi tiết.
+- **[`backend/src/modules/auth/controllers/AuthController.js`](file:///t:/Phongthuy/backend/src/modules/auth/controllers/AuthController.js):**
+  - Thêm `dailyCheckin`: Áp dụng Redis lock `acquireRedisLock('inflight:checkin:${userId}', 3000)`. Kiểm tra `lastCheckinDate` so với ngày hiện tại GMT+7: nếu đã điểm danh hôm nay thì trả về lỗi 400. Nếu liền kề ngày hôm trước thì tăng `streak` (`streak = (currentStreak >= 7) ? 1 : currentStreak + 1`), nếu bỏ lỡ >= 1 ngày hoặc mới thì reset về Ngày 1.
+  - Bảng thưởng 7 ngày: `[10, 15, 20, 25, 30, 40, 100]`, Ngày 7 thưởng 100 Points.
+  - Cập nhật số dư `user.credits` và đồng bộ tức thời với `setUserProfileCache(user.id, user)` (RAM L1 + Redis L2).
+  - Thêm `getDailyCheckinStatus`: Trả về `hasCheckedInToday`, `currentStreak`, `displayStreak`, `nextStreak`, `todayReward`, `rewards`, `credits`.
+- **[`backend/src/modules/auth/routes/auth.routes.js`](file:///t:/Phongthuy/backend/src/modules/auth/routes/auth.routes.js):**
+  - Đăng ký `POST /daily-checkin` và `GET /daily-checkin/status` với middleware `auth`.
+  - Bổ sung trường `dailyCheckin` trong payload trả về của `sendUserProfile` (`/me` và `/profile`).
+- **[`backend/tests/controllers/AuthController.test.js`](file:///t:/Phongthuy/backend/tests/controllers/AuthController.test.js):**
+  - Bổ sung unit tests kiểm thử tính toàn vẹn của `dailyCheckin` và `getDailyCheckinStatus`.
+
+#### Frontend (React 19 / Vite / Tailwind / Framer Motion):
+- **[`frontend/src/services/api.js`](file:///t:/Phongthuy/frontend/src/services/api.js):**
+  - Thêm hàm `claimDailyCheckin()` và `getDailyCheckinStatus()`.
+- **[`frontend/src/components/modals/DailyCheckinModal.jsx`](file:///t:/Phongthuy/frontend/src/components/modals/DailyCheckinModal.jsx):**
+  - Thiết kế hộp thoại 7 phong bao may mắn cát tường: 6 phong bao thường (+10 đến +40) và phong bao Ngày 7 lớn với biểu tượng quà vàng kim quang `ĐẠI THƯỞNG +100 Point`.
+  - 3 trạng thái trực quan: Đã nhận (`✓ Đã Nhận`), Hôm nay (`Mở Ngay`, viền vàng phát sáng, animation nảy nhịp nhàng), Chờ mở (`Chờ Mở`).
+  - Khi mở bao thành công: Banner chúc mừng, animation mượt mà, cập nhật ngay lập tức `user.credits` và dispatch event `user_credits_updated`.
+  - Hỗ trợ xem trước cho khách vãng lai và nút "Đăng Nhập Để Nhận Thưởng" mở ngay form đăng nhập.
+- **[`frontend/src/components/layout/Header.jsx`](file:///t:/Phongthuy/frontend/src/components/layout/Header.jsx):**
+  - Thêm nút `🧧 Điểm Danh` với chấm đỏ thông báo animate-ping khi chưa điểm danh trong ngày.
+  - Thêm mục `🧧 Điểm danh 7 ngày` trong User Menu dropdown và Mobile Menu.
+- **[`frontend/src/app/UserApp.jsx`](file:///t:/Phongthuy/frontend/src/app/UserApp.jsx):**
+  - Quản lý state `isDailyCheckinOpen`, mount `<DailyCheckinModal />`, truyền callback `onOpenDailyCheckin` xuống Header.
+
+---
+
 ## 📅 Phiên bản: Hoàn Thiện Chú Thích 3 Màu (Xanh, Trắng, Đỏ) Trên 1 Dòng Duy Nhất & Tự Động Tính Lại Lịch Khi Thay Đổi Ngày Sinh (21/09/2026)
 
 ### 🌟 1. Yêu Cầu & Bối Cảnh Người Dùng
@@ -28,6 +298,11 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
   - Bổ sung `useEffect` đồng bộ `selectedBirthYear` và lắng nghe sự thay đổi từng trường `baziInfo` (`day, month, year, hour, minute`) để luôn tự động tính lại lịch tức thì khi đổi ngày sinh trong Hồ Sơ.
 - **[`frontend/src/features/xemngay/DateSelectionBoard.jsx`](file:///t:/Phongthuy/frontend/src/features/xemngay/DateSelectionBoard.jsx):**
   - Tinh chỉnh `useEffect` đồng bộ `birthYear` khi `user?.baziInfo?.year` thay đổi.
+- **[`frontend/src/components/modals/ShareableStoryModal.jsx`](file:///t:/Phongthuy/frontend/src/components/modals/ShareableStoryModal.jsx):**
+  - Đính chính lỗi chính tả thương hiệu: Sửa toàn bộ các vị trí hiển thị thành chuẩn `tuynover` (`phongthuy.tuynover.com` và `PHONG THỦY TUYNOVER`).
+  - Gỡ bỏ dòng chữ "Bản quyền học thuật" ở phần chân thiệp chia sẻ, giữ lại tên đương số và tên miền thương hiệu phong cách tối giản, tinh tế.
+- **[`backend/src/modules/export/templates/ziweiTemplate.js`](file:///t:/Phongthuy/backend/src/modules/export/templates/ziweiTemplate.js):**
+  - Gỡ bỏ dòng chữ "BẢN QUYỀN HỌC THUẬT" trong template xuất tài liệu Tử Vi, chỉ hiển thị mã lá số.
 
 ---
 

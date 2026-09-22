@@ -211,6 +211,13 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
       const chartRes = await createZiweiChart(dateStr, hourIndexConverted, genderStr, uid, nameStr, { calendarMode, isLeap });
       const record = chartRes.data;
       setResult(record);
+      const recId = record._id || record.id || record.recordId;
+      if (recId) {
+        const newUrl = `/ziwei/record/${recId}`;
+        if (window.location.pathname !== newUrl) {
+          window.history.pushState({ path: newUrl }, '', newUrl);
+        }
+      }
       setProgress(100);
       setLoading(false);
       if (onCalculationComplete) onCalculationComplete();
@@ -256,6 +263,13 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
             record.inputInfo.gender === genderStr &&
             !record.isDeleted) {
           setResult(record);
+          const recId = record._id || record.id || record.recordId;
+          if (recId) {
+            const newUrl = `/ziwei/record/${recId}`;
+            if (window.location.pathname !== newUrl) {
+              window.history.pushState({ path: newUrl }, '', newUrl);
+            }
+          }
           setLoading(false);
           return;
         }
@@ -278,6 +292,13 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
       const chartRes = await createZiweiChart(formattedDate, hourIndexConverted, genderStr, uid, activeUser.name);
       const record = chartRes.data;
       setResult(record);
+      const recId = record._id || record.id || record.recordId;
+      if (recId) {
+        const newUrl = `/ziwei/record/${recId}`;
+        if (window.location.pathname !== newUrl) {
+          window.history.pushState({ path: newUrl }, '', newUrl);
+        }
+      }
       setProgress(100);
       setLoading(false);
       if (onCalculationComplete) onCalculationComplete();
@@ -315,6 +336,13 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
     try {
       const res = await getZiweiRecord(id);
       setResult(res.data);
+      const recId = res.data?._id || res.data?.id || id;
+      if (recId) {
+        const newUrl = `/ziwei/record/${recId}`;
+        if (window.location.pathname !== newUrl) {
+          window.history.pushState({ path: newUrl }, '', newUrl);
+        }
+      }
     } catch (err) {
       setError(err.response?.data?.error || 'Không thể nạp lá số từ lịch sử.');
     } finally {
@@ -705,6 +733,10 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
             <button
               onClick={() => {
                 setResult(null);
+                const newUrl = '/ziwei';
+                if (window.location.pathname !== newUrl) {
+                  window.history.pushState({ path: newUrl }, '', newUrl);
+                }
                 setTimeout(() => {
                   const element = document.getElementById('ziwei-input-gender');
                   if (element) {

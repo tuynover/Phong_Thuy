@@ -265,6 +265,7 @@ const themeStyles = {
     chevronActive: "bg-purple-50 text-purple-500 border-purple-200",
     consultBtn: "bg-purple-50 hover:bg-purple-100 text-purple-700 hover:text-purple-900 border-purple-200/80 hover:border-purple-300",
     consultIcon: "text-purple-600",
+    chapterBadge: "bg-purple-50/90 text-purple-800 border-purple-200/90",
     prose: "prose-slate prose-headings:text-purple-950 prose-a:text-purple-600 prose-strong:text-purple-900 prose-code:text-purple-600 prose-code:bg-purple-50",
     playAllBanner: "from-purple-950 via-indigo-950 to-slate-900 border-purple-500/30",
     playAllBtn: "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white shadow-purple-900/40",
@@ -277,6 +278,7 @@ const themeStyles = {
     chevronActive: "bg-purple-50 text-purple-500 border-purple-200",
     consultBtn: "bg-purple-50 hover:bg-purple-100 text-purple-700 hover:text-purple-900 border-purple-200/80 hover:border-purple-300",
     consultIcon: "text-purple-600",
+    chapterBadge: "bg-purple-50/90 text-purple-800 border-purple-200/90",
     prose: "prose-slate prose-headings:text-purple-950 prose-a:text-purple-600 prose-strong:text-purple-900 prose-code:text-purple-600 prose-code:bg-purple-50",
     playAllBanner: "from-purple-950 via-indigo-950 to-slate-900 border-purple-500/30",
     playAllBtn: "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white shadow-purple-900/40",
@@ -289,6 +291,7 @@ const themeStyles = {
     chevronActive: "bg-blue-50 text-blue-500 border-blue-200",
     consultBtn: "bg-blue-50 hover:bg-blue-100 text-blue-700 hover:text-blue-900 border-blue-200/80 hover:border-blue-300",
     consultIcon: "text-blue-600",
+    chapterBadge: "bg-blue-50/90 text-blue-800 border-blue-200/90",
     prose: "prose-blue prose-headings:text-blue-950 prose-a:text-blue-600 prose-strong:text-blue-900 prose-code:text-blue-600 prose-code:bg-blue-50",
     playAllBanner: "from-blue-950 via-sky-950 to-slate-900 border-blue-500/30",
     playAllBtn: "bg-gradient-to-r from-blue-600 to-sky-600 hover:from-blue-500 hover:to-sky-500 text-white shadow-blue-900/40",
@@ -301,6 +304,7 @@ const themeStyles = {
     chevronActive: "bg-amber-50 text-amber-500 border-amber-200",
     consultBtn: "bg-amber-50 hover:bg-amber-100 text-amber-700 hover:text-amber-900 border-amber-200/80 hover:border-amber-300",
     consultIcon: "text-amber-600",
+    chapterBadge: "bg-amber-50/90 text-amber-900 border-amber-200/90",
     prose: "prose-amber prose-headings:text-amber-950 prose-a:text-amber-600 prose-strong:text-amber-900 prose-code:text-amber-600 prose-code:bg-amber-50",
     playAllBanner: "from-amber-950 via-orange-950 to-slate-900 border-amber-500/30",
     playAllBtn: "bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white shadow-amber-900/40",
@@ -313,6 +317,7 @@ const themeStyles = {
     chevronActive: "bg-rose-50 text-rose-500 border-rose-200",
     consultBtn: "bg-rose-50 hover:bg-rose-100 text-rose-700 hover:text-rose-900 border-rose-200/80 hover:border-rose-300",
     consultIcon: "text-rose-600",
+    chapterBadge: "bg-rose-50/90 text-rose-800 border-rose-200/90",
     prose: "prose-rose prose-headings:text-rose-950 prose-a:text-rose-600 prose-strong:text-rose-900 prose-code:text-rose-600 prose-code:bg-rose-50",
     playAllBanner: "from-rose-950 via-pink-950 to-slate-900 border-rose-500/30",
     playAllBtn: "bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white shadow-rose-900/40",
@@ -430,8 +435,13 @@ const SectionCard = ({
     }
   };
 
+  const cleanTitle = (section.title || '').replace(/\bvip\b/gi, 'chuyên sâu');
+  const chapterMatch = cleanTitle.match(/^(chương\s+\d+|phần\s+\d+|mục\s+\d+)[:\s.-]+(.*)$/i);
+  const chapterBadge = chapterMatch ? chapterMatch[1].trim() : null;
+  const mainTitle = chapterMatch ? chapterMatch[2].trim() : cleanTitle;
+
   return (
-    <div id={section.id} className={`scroll-mt-24 mb-6 bg-white/70 backdrop-blur-md rounded-2xl border ${styles.border} shadow-lg ${styles.shadow} overflow-hidden transition-all duration-300`}>
+    <div id={section.id} className={`scroll-mt-24 mb-5 sm:mb-6 bg-white/80 backdrop-blur-md rounded-2xl border ${styles.border} shadow-sm sm:shadow-lg ${styles.shadow} overflow-hidden transition-all duration-300`}>
       {/* Header Bar */}
       <div
         role="button"
@@ -443,37 +453,129 @@ const SectionCard = ({
             toggleOpen();
           }
         }}
-        className={`w-full px-5 sm:px-6 py-3.5 sm:py-4 flex items-center justify-between gap-3 sm:gap-4 text-left transition-all duration-200 cursor-pointer select-none ${styles.hoverBg}`}
+        className={`w-full px-3.5 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-4 text-left transition-all duration-200 cursor-pointer select-none ${styles.hoverBg}`}
       >
-        <div className="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-          <div className="flex items-center gap-3 min-w-0 flex-1">
-            <div className={`w-9.5 h-9.5 rounded-lg bg-gradient-to-br ${gradientColor} flex items-center justify-center text-white shadow-md shrink-0`}>
-              <IconComponent size={18} />
+        {/* Top Header Row (Mobile) / Left Content (Desktop) */}
+        <div className="flex items-start sm:items-center justify-between gap-2.5 sm:gap-3.5 min-w-0 flex-1">
+          <div className="flex items-start sm:items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+            <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br ${gradientColor} flex items-center justify-center text-white shadow-sm shrink-0 mt-0.5 sm:mt-0`}>
+              <IconComponent size={18} className="sm:w-5 sm:h-5" />
             </div>
-            <h3 className="font-black text-slate-800 text-base sm:text-[18px] md:text-[19.5px] tracking-wide leading-snug break-words">
-              {(section.title || '').replace(/\bvip\b/gi, 'chuyên sâu')}
-            </h3>
+
+            <div className="min-w-0 flex-1 flex flex-col sm:flex-row sm:items-center sm:gap-2.5">
+              <div className="flex items-center flex-wrap gap-1.5 mb-1 sm:mb-0">
+                {chapterBadge && (
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10.5px] sm:text-[11px] font-extrabold uppercase tracking-wider border w-fit shrink-0 shadow-2xs ${styles.chapterBadge}`}>
+                    {chapterBadge}
+                  </span>
+                )}
+                {/* Mobile-only sources tags shown with metadata */}
+                {section.sources && section.sources.length > 0 && (
+                  <div className="sm:hidden flex flex-wrap gap-1">
+                    {section.sources.map((src, idx) => (
+                      <span 
+                        key={idx} 
+                        className="text-[9.5px] px-1.5 py-0.5 rounded-md bg-slate-100/90 text-slate-600 border border-slate-200/70 font-semibold uppercase tracking-wider whitespace-nowrap"
+                      >
+                        {src.replace('_', ' ')}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <h3 className="font-bold sm:font-black text-slate-800 text-[14.5px] sm:text-[17.5px] md:text-[19px] tracking-tight sm:tracking-wide leading-snug break-words">
+                {mainTitle}
+              </h3>
+            </div>
           </div>
+
+          {/* Chevron for Mobile: placed top-right counterbalancing the left icon */}
+          <div className={`sm:hidden p-1.5 rounded-full bg-slate-50/90 text-slate-400 border border-slate-200/80 transition-transform duration-300 shrink-0 mt-0.5 ${isOpen ? `rotate-180 ${styles.chevronActive}` : ''}`}>
+            <ChevronDown size={16} />
+          </div>
+        </div>
+
+        {/* Mobile Action Bar: Symmetrical 2 equal 50/50 buttons spanning full width */}
+        <div className={`sm:hidden pt-2.5 border-t border-slate-100/90 w-full ${onConsultSection ? 'grid grid-cols-2 gap-2' : 'flex'}`}>
+          {/* TTS Audio Read Button (Mobile) */}
+          <button
+            type="button"
+            onClick={handleToggleSpeech}
+            className={`w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border text-xs font-semibold shadow-2xs transition-all duration-200 active:scale-95 ${
+              isSpeakingNow
+                ? 'bg-purple-600 text-white border-purple-600 shadow-purple-500/30'
+                : isSpeakingPaused
+                ? 'bg-amber-500 text-white border-amber-500 shadow-amber-500/30'
+                : styles.consultBtn
+            }`}
+            title={
+              isSpeakingNow
+                ? "Tạm dừng giọng đọc AI"
+                : isSpeakingPaused
+                ? "Tiếp tục đọc"
+                : "Nghe đọc bằng giọng AI tự nhiên"
+            }
+          >
+            {isSpeakingNow ? (
+              <>
+                <div className="flex items-end gap-0.5 h-3.5 px-0.5">
+                  <span className="w-1 h-3 bg-white rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                  <span className="w-1 h-2 bg-white rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                  <span className="w-1 h-3.5 bg-white rounded-full animate-bounce"></span>
+                </div>
+                <span>Tạm dừng</span>
+              </>
+            ) : isSpeakingPaused ? (
+              <>
+                <Play size={12} fill="currentColor" className="text-white" />
+                <span>Tiếp tục</span>
+              </>
+            ) : (
+              <>
+                <Volume2 size={13} className={styles.consultIcon} />
+                <span>Nghe đọc</span>
+              </>
+            )}
+          </button>
+
+          {/* Consult Button (Mobile) */}
+          {onConsultSection && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onConsultSection(section);
+              }}
+              className={`w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border text-xs font-semibold shadow-2xs transition-all duration-200 active:scale-95 ${styles.consultBtn}`}
+              title="Đàm đạo chuyên sâu cùng Thầy về mục này"
+            >
+              <MessageSquare size={13} className={styles.consultIcon} />
+              <span>Đàm đạo</span>
+            </button>
+          )}
+        </div>
+
+        {/* Desktop Actions Bar (hidden on mobile) */}
+        <div className="hidden sm:flex items-center gap-2 shrink-0">
           {section.sources && section.sources.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 shrink-0">
+            <div className="flex flex-wrap gap-1.5 mr-1">
               {section.sources.map((src, idx) => (
                 <span 
                   key={idx} 
-                  className="text-[10px] px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-600 border border-purple-100 font-bold uppercase tracking-wider whitespace-nowrap"
+                  className="text-[10px] px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200/80 font-bold uppercase tracking-wider whitespace-nowrap"
                 >
                   {src.replace('_', ' ')}
                 </span>
               ))}
             </div>
           )}
-        </div>
-        
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 ml-1 sm:ml-2">
-          {/* TTS Audio Read Button */}
+
+          {/* Desktop TTS Audio Read Button */}
           <button
             type="button"
             onClick={handleToggleSpeech}
-            className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl border text-xs font-semibold shadow-2xs hover:shadow-xs transition-all duration-200 active:scale-95 group ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold shadow-2xs hover:shadow-xs transition-all duration-200 active:scale-95 group ${
               isSpeakingNow
                 ? 'bg-purple-600 text-white border-purple-600 shadow-purple-500/30 ring-2 ring-purple-400/40'
                 : isSpeakingPaused
@@ -495,24 +597,22 @@ const SectionCard = ({
                   <span className="w-1 h-2 bg-white rounded-full animate-bounce [animation-delay:-0.15s]"></span>
                   <span className="w-1 h-3.5 bg-white rounded-full animate-bounce"></span>
                 </div>
-                <span className="hidden sm:inline">Tạm dừng</span>
-                <span className="sm:hidden text-[11px]">Dừng</span>
+                <span>Tạm dừng</span>
               </>
             ) : isSpeakingPaused ? (
               <>
-                <Play size={13} fill="currentColor" className="text-white" />
-                <span className="hidden sm:inline">Tiếp tục</span>
-                <span className="sm:hidden text-[11px]">Tiếp</span>
+                <Play size={12} fill="currentColor" className="text-white" />
+                <span>Tiếp tục</span>
               </>
             ) : (
               <>
                 <Volume2 size={13} className={`${styles.consultIcon} group-hover:scale-110 transition-transform`} />
-                <span className="hidden sm:inline">Nghe đọc</span>
-                <span className="sm:hidden text-[11px]">Nghe</span>
+                <span>Nghe đọc</span>
               </>
             )}
           </button>
 
+          {/* Desktop Consult Button */}
           {onConsultSection && (
             <button
               type="button"
@@ -520,14 +620,15 @@ const SectionCard = ({
                 e.stopPropagation();
                 onConsultSection(section);
               }}
-              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl border text-xs font-semibold shadow-2xs hover:shadow-xs transition-all duration-200 active:scale-95 group ${styles.consultBtn}`}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold shadow-2xs hover:shadow-xs transition-all duration-200 active:scale-95 group ${styles.consultBtn}`}
               title="Đàm đạo chuyên sâu cùng Thầy về mục này"
             >
               <MessageSquare size={13} className={`${styles.consultIcon} group-hover:scale-110 transition-transform`} />
-              <span className="hidden sm:inline">Đàm đạo mục này</span>
-              <span className="sm:hidden text-[11px]">Đàm đạo</span>
+              <span>Đàm đạo mục này</span>
             </button>
           )}
+
+          {/* Desktop Chevron */}
           <div className={`p-1.5 rounded-full bg-slate-50 text-slate-400 border border-slate-200 transition-transform duration-300 ${isOpen ? `rotate-180 ${styles.chevronActive}` : ''}`}>
             <ChevronDown size={18} />
           </div>

@@ -8,6 +8,8 @@ describe('AuthController Integrity & Reference Tests', () => {
         expect(typeof AuthController.login).toBe('function');
         expect(typeof AuthController.googleLogin).toBe('function');
         expect(typeof AuthController.submitAppeal).toBe('function');
+        expect(typeof AuthController.dailyCheckin).toBe('function');
+        expect(typeof AuthController.getDailyCheckinStatus).toBe('function');
     });
 
     test('sseService should be defined and expose sendToAdmins method', () => {

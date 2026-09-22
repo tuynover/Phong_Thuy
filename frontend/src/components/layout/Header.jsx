@@ -15,10 +15,13 @@ import {
   Home,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
+  Sparkles,
   Folder
 } from 'lucide-react';
 import NotificationBell from '@/components/common/NotificationBell';
 import { checkHasDrawnDailyFortune, DAILY_FORTUNE_EVENT } from '@/features/iching/data/dailyFortuneData';
+import { getDailyCheckinStatus } from '@/services/api';
 
 export default function Header({
   appMode,
@@ -40,7 +43,8 @@ export default function Header({
   setAppMode,
   setHistoricalZiweiId,
   logout,
-  onOpenDailyFortune
+  onOpenDailyFortune,
+  onOpenDailyCheckin
 }) {
   const cleanLunarDate = (str) => {
     if (!str) return '';
@@ -48,9 +52,66 @@ export default function Header({
   };
 
   const userId = user?.id || user?._id || 'guest';
+  const todayGmt7 = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
+  
+  // Trạng thái điểm danh đồng bộ với database máy chủ
+  const [hasCheckedInToday, setHasCheckedInToday] = React.useState(() => {
+    if (!user) return false;
+    return user?.dailyCheckin?.lastCheckinDate === todayGmt7;
+  });
+
+  React.useEffect(() => {
+    if (!user) {
+      setHasCheckedInToday(false);
+      return;
+    }
+
+    const localIsDone = user?.dailyCheckin?.lastCheckinDate === todayGmt7;
+    setHasCheckedInToday(localIsDone);
+
+    // Truy vấn máy chủ để xác thực chính xác nhất (loại trừ stale cache)
+    let isMounted = true;
+    getDailyCheckinStatus()
+      .then(res => {
+        if (isMounted && res.data) {
+          setHasCheckedInToday(!!res.data.hasCheckedInToday);
+        }
+      })
+      .catch(() => {});
+
+    const handleCheckinEvent = (e) => {
+      if (e.detail?.hasCheckedInToday !== undefined) {
+        setHasCheckedInToday(e.detail.hasCheckedInToday);
+      }
+    };
+
+    window.addEventListener('daily_checkin_updated', handleCheckinEvent);
+    return () => {
+      isMounted = false;
+      window.removeEventListener('daily_checkin_updated', handleCheckinEvent);
+    };
+  }, [user, todayGmt7]);
+
   const [hasDrawnDailyFortune, setHasDrawnDailyFortune] = React.useState(() => {
     return checkHasDrawnDailyFortune(userId);
   });
+
+  const dailyDropdownRef = React.useRef(null);
+  const [isDailyDropdownOpen, setIsDailyDropdownOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dailyDropdownRef.current && !dailyDropdownRef.current.contains(event.target)) {
+        setIsDailyDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, []);
 
   React.useEffect(() => {
     const updateDailyStatus = () => {
@@ -65,6 +126,11 @@ export default function Header({
       window.removeEventListener('storage', updateDailyStatus);
     };
   }, [userId]);
+
+  const isFortunePending = !hasDrawnDailyFortune;
+  const isCheckinPending = !hasCheckedInToday;
+  const isCheckinActive = isCheckinPending && !isFortunePending;
+  const showMainRedDot = isFortunePending || isCheckinPending;
 
   return (
     <motion.header 
@@ -145,23 +211,131 @@ export default function Header({
         {/* RIGHT SIDE SECTION: UTILITIES & AUTH */}
         <div className="flex items-center gap-3 shrink-0">
 
-          {/* Nút Quẻ Ngày Mới */}
-          {onOpenDailyFortune && (
-            <button
-              type="button"
-              onClick={onOpenDailyFortune}
-              className="relative hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-50 to-yellow-50 hover:from-amber-100 hover:to-yellow-100 text-amber-950 border border-amber-300/80 rounded-full text-xs font-bold transition-all shadow-2xs hover:shadow-xs active:scale-95 cursor-pointer"
-              title="Gieo quẻ xăm tre ngày mới"
-            >
-              <span className="text-sm leading-none">🎋</span>
-              <span className="font-extrabold tracking-wide">Quẻ Ngày</span>
-              {!hasDrawnDailyFortune && (
-                <span className="relative flex h-2 w-2 ml-0.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-600"></span>
+          {/* NÚT TÍCH HỢP QUẺ NGÀY & ĐIỂM DANH (DROPDOWN MENU CẤP 2) */}
+          {(onOpenDailyFortune || onOpenDailyCheckin) && (
+            <div className="relative" ref={dailyDropdownRef}>
+              <button
+                type="button"
+                onClick={() => setIsDailyDropdownOpen(prev => !prev)}
+                className={`relative hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all shadow-2xs hover:shadow-xs active:scale-95 cursor-pointer border ${
+                  isCheckinActive
+                    ? 'bg-gradient-to-r from-rose-50 via-amber-50 to-yellow-50 hover:from-rose-100 hover:to-yellow-100 text-rose-950 border-rose-300/80'
+                    : 'bg-gradient-to-r from-amber-50 to-yellow-50 hover:from-amber-100 hover:to-yellow-100 text-amber-950 border-amber-300/80'
+                }`}
+                title="Phúc lộc hôm nay: Quẻ ngày & Điểm danh"
+              >
+                <span className="text-sm leading-none">{isCheckinActive ? '🧧' : '🎋'}</span>
+                <span className="font-extrabold tracking-wide">
+                  {isCheckinActive ? 'Điểm Danh' : 'Quẻ Ngày'}
                 </span>
-              )}
-            </button>
+                {showMainRedDot && (
+                  <span className="relative flex h-2 w-2 ml-0.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-600"></span>
+                  </span>
+                )}
+                <ChevronDown 
+                  size={13} 
+                  className={`text-slate-500 transition-transform duration-200 ${isDailyDropdownOpen ? 'rotate-180' : ''}`} 
+                />
+              </button>
+
+              {/* MENU CẤP 2 SỔ XUỐNG */}
+              <AnimatePresence>
+                {isDailyDropdownOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: 8 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: 8 }}
+                    transition={{ duration: 0.15, ease: "easeOut" }}
+                    className="absolute right-0 mt-2 w-64 sm:w-72 bg-white rounded-2xl shadow-xl border border-slate-200/80 p-1.5 z-50 overflow-hidden font-sans"
+                  >
+                    <div className="px-3 py-1.5 border-b border-slate-100 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+                      <span>Phúc Lộc Hôm Nay</span>
+                      <span className="text-[10px] text-amber-700 font-bold bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                        Hàng ngày
+                      </span>
+                    </div>
+
+                    <div className="space-y-1 mt-1">
+                      {/* Mục 1: Quẻ Xăm Ngày Mới */}
+                      {onOpenDailyFortune && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsDailyDropdownOpen(false);
+                            onOpenDailyFortune();
+                          }}
+                          className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-amber-50 text-left transition-all group cursor-pointer border border-transparent hover:border-amber-200"
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <span className="text-xl shrink-0 p-1.5 rounded-xl bg-amber-50 group-hover:bg-amber-100/80 border border-amber-200/60">
+                              🎋
+                            </span>
+                            <div className="min-w-0">
+                              <div className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                <span className="truncate">Quẻ Ngày Mới</span>
+                                {isFortunePending && (
+                                  <span className="relative flex h-2 w-2 shrink-0">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-600"></span>
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-[10px] text-slate-500 truncate">Lắc xăm tre nhận thông điệp cát hung</p>
+                            </div>
+                          </div>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
+                            isFortunePending 
+                              ? 'bg-rose-100 text-rose-700 font-extrabold' 
+                              : 'bg-emerald-100 text-emerald-700'
+                          }`}>
+                            {isFortunePending ? 'Chưa gieo' : 'Đã gieo'}
+                          </span>
+                        </button>
+                      )}
+
+                      {/* Mục 2: Điểm Danh May Mắn */}
+                      {onOpenDailyCheckin && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsDailyDropdownOpen(false);
+                            onOpenDailyCheckin();
+                          }}
+                          className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-rose-50 text-left transition-all group cursor-pointer border border-transparent hover:border-rose-200"
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <span className="text-xl shrink-0 p-1.5 rounded-xl bg-rose-50 group-hover:bg-rose-100/80 border border-rose-200/60">
+                              🧧
+                            </span>
+                            <div className="min-w-0">
+                              <div className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                <span className="truncate">Điểm Danh May Mắn</span>
+                                {isCheckinPending && (
+                                  <span className="relative flex h-2 w-2 shrink-0">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-[10px] text-slate-500 truncate">Mở phong bao nhận Point mỗi ngày</p>
+                            </div>
+                          </div>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
+                            isCheckinPending 
+                              ? 'bg-amber-100 text-amber-800 font-extrabold' 
+                              : 'bg-emerald-100 text-emerald-700'
+                          }`}>
+                            {isCheckinPending ? 'Chưa nhận' : 'Đã nhận'}
+                          </span>
+                        </button>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           )}
 
           {/* Sliding Pill Toggle Switch for Admin/Co-admin in UserApp */}
@@ -212,7 +386,7 @@ export default function Header({
                     <div className="absolute right-0 mt-3 w-44 bg-white rounded-2xl shadow-xl border border-gray-150 z-50 overflow-hidden py-1 animate-in fade-in slide-in-from-top-2 duration-200">
                       <button 
                         onClick={() => {
-                          setAppMode('profile');
+                          handleSelectModule('profile');
                           setIsUserMenuOpen(false);
                         }}
                         className="w-full text-left px-4 py-2 text-xs sm:text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-950 font-bold transition-colors flex items-center gap-2"
@@ -232,14 +406,31 @@ export default function Header({
                       </button>
                       <button 
                         onClick={() => {
-                          setAppMode('xemngay');
+                          handleSelectModule('xemngay', 'lich-bat-tu');
                           setIsUserMenuOpen(false);
                         }}
                         className="w-full text-left px-4 py-2 text-xs sm:text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-950 font-bold transition-colors flex items-center gap-2 border-t border-gray-100"
                       >
                         <Calendar size={15} className="text-emerald-600" />
-                        Lịch cá nhân
+                        Lịch cá nhân (Bát Tự)
                       </button>
+                      {onOpenDailyCheckin && (
+                        <button 
+                          onClick={() => {
+                            onOpenDailyCheckin();
+                            setIsUserMenuOpen(false);
+                          }}
+                          className="w-full text-left px-4 py-2 text-xs sm:text-sm text-rose-800 hover:bg-rose-50 font-bold transition-colors flex items-center justify-between border-t border-gray-100"
+                        >
+                          <span className="flex items-center gap-2">
+                            <span className="text-sm leading-none">🧧</span>
+                            Điểm danh 7 ngày
+                          </span>
+                          {!hasCheckedInToday && (
+                            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                          )}
+                        </button>
+                      )}
                       {(user?.role === 'admin' || user?.role === 'co-admin') && (
                         <button 
                           onClick={() => {
@@ -256,7 +447,7 @@ export default function Header({
                         onClick={() => {
                           logout();
                           setIsUserMenuOpen(false);
-                          setAppMode('home');
+                          handleSelectModule('home');
                         }}
                         className="w-full text-left px-4 py-2 text-xs sm:text-sm text-red-650 hover:bg-red-50 font-bold transition-colors flex items-center gap-2 border-t border-gray-100"
                       >
@@ -355,7 +546,7 @@ export default function Header({
               title="Menu"
             >
               <Menu size={20} />
-              {!hasDrawnDailyFortune && (
+              {showMainRedDot && (
                 <span className="absolute top-1 right-1 flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-600 border border-white"></span>
@@ -455,31 +646,69 @@ export default function Header({
                   <span className="font-extrabold text-xs text-slate-800">Kiến Thức Phong Thủy</span>
                 </button>
 
-                {/* QUẺ NGÀY MỚI CHO MOBILE */}
-                {onOpenDailyFortune && (
-                  <button 
-                    onClick={() => { onOpenDailyFortune(); setIsMobileMenuOpen(false); }}
-                    className="col-span-2 p-3.5 rounded-2xl bg-amber-50/70 hover:bg-amber-100/70 border border-amber-200 flex items-center justify-between transition-all cursor-pointer shadow-2xs relative"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-xl">🎋</span>
-                      <div className="flex flex-col text-left">
-                        <div className="flex items-center gap-2">
-                          <span className="font-extrabold text-xs text-amber-950">Quẻ Xăm Ngày Mới</span>
-                          {!hasDrawnDailyFortune && (
-                            <span className="relative flex h-2 w-2">
-                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                              <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-600"></span>
-                            </span>
-                          )}
-                        </div>
-                        <span className="text-[10px] text-amber-800/80 font-medium">Lắc xăm tre nhận lộc mỗi ngày</span>
-                      </div>
+                {/* PHÚC LỘC HÔM NAY: QUẺ NGÀY & ĐIỂM DANH CHO MOBILE */}
+                {(onOpenDailyFortune || onOpenDailyCheckin) && (
+                  <div className="col-span-2 bg-gradient-to-br from-amber-50/60 via-rose-50/50 to-amber-50/60 rounded-2xl p-3 border border-amber-200/80 space-y-2">
+                    <div className="flex items-center justify-between text-[11px] font-extrabold text-amber-900/80 uppercase tracking-wider">
+                      <span className="flex items-center gap-1.5">
+                        <Sparkles size={12} className="text-amber-600" />
+                        <span>Phúc Lộc Hàng Ngày</span>
+                      </span>
+                      {showMainRedDot && (
+                        <span className="text-[9px] font-black bg-rose-500 text-white px-1.5 py-0.2 rounded-full">
+                          Có lộc mới
+                        </span>
+                      )}
                     </div>
-                    <span className="text-xs font-bold text-amber-800 bg-amber-100/80 px-2.5 py-1 rounded-full">
-                      Gieo quẻ →
-                    </span>
-                  </button>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      {onOpenDailyFortune && (
+                        <button
+                          onClick={() => { onOpenDailyFortune(); setIsMobileMenuOpen(false); }}
+                          className="p-2.5 rounded-xl bg-white hover:bg-amber-50/80 border border-amber-200/70 flex flex-col gap-1 items-start text-left shadow-2xs transition-all cursor-pointer relative"
+                        >
+                          <div className="flex items-center justify-between w-full">
+                            <span className="text-lg">🎋</span>
+                            {isFortunePending && (
+                              <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-600"></span>
+                              </span>
+                            )}
+                          </div>
+                          <span className="font-black text-xs text-slate-850">Quẻ Ngày Mới</span>
+                          <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded-full ${
+                            isFortunePending ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'
+                          }`}>
+                            {isFortunePending ? 'Chưa gieo' : 'Đã gieo'}
+                          </span>
+                        </button>
+                      )}
+
+                      {onOpenDailyCheckin && (
+                        <button
+                          onClick={() => { onOpenDailyCheckin(); setIsMobileMenuOpen(false); }}
+                          className="p-2.5 rounded-xl bg-white hover:bg-rose-50/80 border border-rose-200/70 flex flex-col gap-1 items-start text-left shadow-2xs transition-all cursor-pointer relative"
+                        >
+                          <div className="flex items-center justify-between w-full">
+                            <span className="text-lg">🧧</span>
+                            {isCheckinPending && (
+                              <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                              </span>
+                            )}
+                          </div>
+                          <span className="font-black text-xs text-slate-850">Điểm Danh</span>
+                          <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded-full ${
+                            isCheckinPending ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-700'
+                          }`}>
+                            {isCheckinPending ? 'Chưa nhận' : 'Đã nhận'}
+                          </span>
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 )}
 
                 {/* AUTH PROFILE / LOGIN BUTTON FOR MOBILE (CENTERED) */}
@@ -515,11 +744,11 @@ export default function Header({
                           Lá số của tôi
                         </button>
                         <button 
-                          onClick={() => { handleSelectModule('xemngay'); setIsMobileMenuOpen(false); }}
+                          onClick={() => { handleSelectModule('xemngay', 'lich-bat-tu'); setIsMobileMenuOpen(false); }}
                           className="w-full py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-center font-bold text-xs text-emerald-800 transition-colors cursor-pointer flex items-center justify-center gap-1.5"
                         >
                           <Calendar size={14} className="text-emerald-600" />
-                          Lịch Vạn Niên Cá Nhân
+                          Lịch Vạn Niên Cá Nhân (Bát Tự)
                         </button>
                         {(user?.role === 'admin' || user?.role === 'co-admin') && (
                           <button 

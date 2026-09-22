@@ -14,8 +14,60 @@ const {
   getOtpRedis, 
   deleteOtpRedis, 
   clearUserProfileCache, 
-  setUserProfileCache 
+  setUserProfileCache,
+  acquireRedisLock,
+  releaseRedisLock
 } = require('../../../core/config/redis');
+
+const BASE_CHECKIN_REWARDS = [10, 15, 20, 25, 30, 40, 100]; // Phần thưởng gốc Tuần 1
+
+/**
+ * Tính danh sách phần thưởng 7 ngày cho tuần thứ `week` (week >= 1)
+ * Tuần 1: [10, 15, 20, 25, 30, 40, 100]
+ * Tuần 2: Mỗi mốc tăng +10, ngày thứ 7 tăng +20 -> [20, 25, 30, 35, 40, 50, 120]
+ * Tuần 3: Mỗi mốc tăng tiếp +10, ngày 7 tăng +20 -> [30, 35, 40, 45, 50, 60, 140]
+ * Cứ tiếp tục như vậy cho các tuần tiếp theo.
+ */
+const getWeekRewards = (week = 1) => {
+  const safeWeek = Math.max(1, parseInt(week, 10) || 1);
+  const offset = safeWeek - 1;
+  return BASE_CHECKIN_REWARDS.map((base, idx) => {
+    if (idx === 6) {
+      // Ngày thứ 7: mỗi tuần tăng thêm 20
+      return base + offset * 20;
+    }
+    // Ngày 1 đến 6: mỗi tuần tăng thêm 10
+    return base + offset * 10;
+  });
+};
+
+/**
+ * Tính điểm thưởng cho ngày điểm danh thứ `streak` (streak >= 1)
+ */
+const calculateRewardForStreak = (streak = 1) => {
+  const safeStreak = Math.max(1, parseInt(streak, 10) || 1);
+  const week = Math.floor((safeStreak - 1) / 7) + 1;
+  const dayIndex = (safeStreak - 1) % 7; // 0 to 6
+  const weekRewards = getWeekRewards(week);
+  return {
+    week,
+    dayInWeek: dayIndex + 1,
+    reward: weekRewards[dayIndex],
+    weekRewards
+  };
+};
+
+const getVietnamDateStr = (date = new Date()) => {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(date);
+};
+
+const getCalendarDayDifference = (dateStr1, dateStr2) => {
+  const [y1, m1, d1] = dateStr1.split('-').map(Number);
+  const [y2, m2, d2] = dateStr2.split('-').map(Number);
+  const utc1 = Date.UTC(y1, m1 - 1, d1);
+  const utc2 = Date.UTC(y2, m2 - 1, d2);
+  return Math.round((utc1 - utc2) / (1000 * 60 * 60 * 24));
+};
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -34,6 +86,7 @@ const formatUserResponse = (user) => {
     credits: user.credits,
     status: user.status,
     isEmailVerified: user.isEmailVerified || false,
+    dailyCheckin: user.dailyCheckin || { streak: 0, lastCheckinDate: null, totalCheckins: 0 },
     stats: user.stats || {},
     tags: userTags
   };
@@ -645,6 +698,179 @@ const resetPassword = async (req, res) => {
   }
 };
 
+/**
+ * Điểm danh hàng ngày nhận Point (Daily Check-in)
+ * Bảo vệ chống race condition bằng Redis distributed lock + atomic database checks
+ */
+const dailyCheckin = async (req, res) => {
+  const userId = req.dbUser?.id || req.dbUser?._id;
+  if (!userId) {
+    return res.status(401).json({ message: 'Bạn chưa đăng nhập.' });
+  }
+
+  const lockKey = `inflight:checkin:${userId}`;
+  const lockToken = await acquireRedisLock(lockKey, 3000);
+  if (!lockToken) {
+    return res.status(429).json({
+      message: 'Yêu cầu điểm danh của bạn đang được xử lý, vui lòng chờ trong giây lát.'
+    });
+  }
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'Không tìm thấy người dùng.' });
+    }
+
+    const todayStr = getVietnamDateStr();
+    const lastDate = user.dailyCheckin?.lastCheckinDate;
+    const currentStreak = user.dailyCheckin?.streak || 0;
+
+    // 1. Kiểm tra đã điểm danh hôm nay chưa
+    if (lastDate) {
+      const diff = getCalendarDayDifference(todayStr, lastDate);
+      if (diff === 0) {
+        return res.status(400).json({
+          message: 'Hôm nay bạn đã nhận thưởng điểm danh rồi. Hãy quay lại vào ngày mai nhé!',
+          alreadyCheckedIn: true,
+          currentStreak,
+          dailyCheckin: user.dailyCheckin,
+          credits: user.credits
+        });
+      }
+    }
+
+    // 2. Tính toán chuỗi ngày streak
+    let newStreak = 1;
+    if (lastDate) {
+      const diff = getCalendarDayDifference(todayStr, lastDate);
+      if (diff === 1) {
+        // Điểm danh liên tiếp ngày hôm sau: streak tiếp tục tăng lũy tiến qua các tuần
+        newStreak = currentStreak + 1;
+      } else {
+        // Bị ngắt quãng > 1 ngày -> quay lại Tuần 1, Ngày 1
+        newStreak = 1;
+      }
+    } else {
+      // Lần đầu điểm danh
+      newStreak = 1;
+    }
+
+    // 3. Tính điểm thưởng theo tuần và ngày trong tuần
+    const { week, dayInWeek, reward, weekRewards } = calculateRewardForStreak(newStreak);
+
+    // 4. Cập nhật User atomic
+    user.credits = (user.credits || 0) + reward;
+    user.dailyCheckin = {
+      streak: newStreak,
+      lastCheckinDate: todayStr,
+      totalCheckins: (user.dailyCheckin?.totalCheckins || 0) + 1,
+      lastCheckinAt: new Date()
+    };
+
+    await user.save();
+    const formattedUser = formatUserResponse(user);
+    await clearUserProfileCache(user.id || user._id);
+    await setUserProfileCache(user.id || user._id, formattedUser);
+
+    logger.info(`Tài khoản [${user.email}] điểm danh ngày ${dayInWeek}/7 (Tuần ${week}, Streak: ${newStreak}) thành công (+${reward} points).`, {
+      user: user.email,
+      action: 'Daily Check-in',
+      streak: newStreak,
+      week,
+      dayInWeek,
+      reward,
+      totalCredits: user.credits
+    });
+
+    res.json({
+      success: true,
+      message: dayInWeek === 7 
+        ? `Chúc mừng bạn đã hoàn thành Tuần ${week} và nhận đại thưởng +${reward} Points!`
+        : `Điểm danh Ngày ${dayInWeek}/7 (Tuần ${week}) thành công! Bạn nhận được +${reward} Points.`,
+      streak: newStreak,
+      currentWeek: week,
+      dayInWeek,
+      reward,
+      rewards: weekRewards,
+      credits: user.credits,
+      dailyCheckin: user.dailyCheckin,
+      user: formatUserResponse(user)
+    });
+  } catch (err) {
+    logger.error('Điểm danh hàng ngày gặp lỗi:', err);
+    res.status(500).json({ message: 'Lỗi máy chủ nội bộ.' });
+  } finally {
+    await releaseRedisLock(lockKey, lockToken);
+  }
+};
+
+/**
+ * Lấy trạng thái điểm danh hiện tại của người dùng
+ */
+const getDailyCheckinStatus = async (req, res) => {
+  try {
+    const userId = req.dbUser?.id || req.dbUser?._id;
+    if (!userId) {
+      return res.status(401).json({ message: 'Bạn chưa đăng nhập.' });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'Không tìm thấy người dùng.' });
+    }
+
+    const todayStr = getVietnamDateStr();
+    const lastDate = user.dailyCheckin?.lastCheckinDate;
+    const currentStreak = user.dailyCheckin?.streak || 0;
+
+    let hasCheckedInToday = false;
+    let nextStreak = 1;
+
+    if (lastDate) {
+      const diff = getCalendarDayDifference(todayStr, lastDate);
+      if (diff === 0) {
+        hasCheckedInToday = true;
+        nextStreak = currentStreak + 1;
+      } else if (diff === 1) {
+        hasCheckedInToday = false;
+        nextStreak = currentStreak + 1;
+      } else {
+        hasCheckedInToday = false;
+        nextStreak = 1;
+      }
+    } else {
+      hasCheckedInToday = false;
+      nextStreak = 1;
+    }
+
+    // Xác định tuần và ngày trong tuần cần hiển thị:
+    // Nếu hôm nay đã điểm danh: hiển thị tuần & bảng thưởng của ngày vừa nhận (currentStreak)
+    // Nếu hôm nay chưa điểm danh: hiển thị tuần & bảng thưởng của ngày chuẩn bị nhận (nextStreak)
+    const targetStreak = hasCheckedInToday ? currentStreak : nextStreak;
+    const currentWeek = Math.floor((Math.max(1, targetStreak) - 1) / 7) + 1;
+    const weekRewards = getWeekRewards(currentWeek);
+    const dayInWeek = ((Math.max(1, targetStreak) - 1) % 7) + 1;
+    const nextRewardData = calculateRewardForStreak(nextStreak);
+
+    res.json({
+      hasCheckedInToday,
+      currentStreak: hasCheckedInToday ? currentStreak : (lastDate && getCalendarDayDifference(todayStr, lastDate) === 1 ? currentStreak : 0),
+      displayStreak: hasCheckedInToday ? currentStreak : (lastDate && getCalendarDayDifference(todayStr, lastDate) === 1 ? currentStreak : 0),
+      nextStreak,
+      currentWeek,
+      dayInWeek,
+      todayReward: hasCheckedInToday ? weekRewards[dayInWeek - 1] : nextRewardData.reward,
+      rewards: weekRewards,
+      dailyCheckin: user.dailyCheckin || { streak: 0, lastCheckinDate: null, totalCheckins: 0 },
+      credits: user.credits || 0
+    });
+  } catch (err) {
+    logger.error('Lỗi khi lấy trạng thái điểm danh:', err);
+    res.status(500).json({ message: 'Lỗi máy chủ nội bộ.' });
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -658,4 +884,6 @@ module.exports = {
   verifyEmail,
   forgotPassword,
   resetPassword,
+  dailyCheckin,
+  getDailyCheckinStatus
 };

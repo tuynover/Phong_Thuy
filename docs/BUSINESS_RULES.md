@@ -136,6 +136,25 @@ Sử dụng phương pháp Tử Vi Bắc Phái định vị Mệnh - Thân:
   - Hệ thống hỗ trợ xuất và in toàn văn bài luận giải tổng thể thông qua scope `intro` hoặc `all_interpretation` ở cả Tử Vi, Kinh Dịch, Hôn Nhân và Bát Tự.
   - Bố cục các phân đoạn luận giải được hiển thị trang nhã qua `.chapter-block` với khoảng cách tự nhiên (~20px), tránh ngắt trang cưỡng bức gây lãng phí giấy.
 
+### 4.11 Quy Tắc Điểm Danh 7 Ngày May Mắn (Daily Check-in FREE)
+- **Chu kỳ điểm danh 7 ngày:**
+  - Mỗi ngày đăng nhập (tính theo múi giờ Việt Nam `Asia/Ho_Chi_Minh`, GMT+7), người dùng được mở 1 phong bao may mắn nhận Point miễn phí.
+  - Chuỗi ngày liên tiếp (Streak) tăng từ Ngày 1 đến Ngày 7.
+  - Bảng thưởng tích lũy:
+    - Ngày 1: **+10 Points**
+    - Ngày 2: **+15 Points**
+    - Ngày 3: **+20 Points**
+    - Ngày 4: **+25 Points**
+    - Ngày 5: **+30 Points**
+    - Ngày 6: **+40 Points**
+    - Ngày 7: **+100 Points** (Đại thưởng hoàn thành chu kỳ).
+  - Sau khi hoàn thành Ngày 7, sang ngày tiếp theo chuỗi sẽ tự động quay vòng về Ngày 1.
+  - Nếu người dùng bỏ lỡ >= 1 ngày không điểm danh, chuỗi streak sẽ bị đứt và quay lại Ngày 1.
+- **Bảo vệ chống Race Condition & Chống Gian lận:**
+  - Áp dụng Redis Distributed Lock (`acquireRedisLock('inflight:checkin:${userId}', 3000)`) để ngăn chặn việc gửi nhiều request đồng thời / double-click.
+  - So khớp ngày lịch GMT+7 (`YYYY-MM-DD`). Nếu đã điểm danh trong ngày hôm nay, hệ thống lập tức từ chối và trả về mã lỗi `400`.
+  - Cập nhật số dư Points nguyên tử và đồng bộ ngay với bộ nhớ RAM L1 và Redis L2.
+
 ---
 
 ## 🌌 5. Quy tắc Học thuật Bát tự Ngũ hành (Bazi) - Phiên bản 5.0 (Toán Học Cân Bằng Động)
@@ -844,3 +863,43 @@ Dành cho thành viên đăng nhập, cá nhân hóa đến từng cá thể th�
    - **Ngày Tốt (🟢):** Tổng điểm $\ge 75$.
    - **Ngày Xấu / Thận Trọng (🔴):** Tổng điểm $< 50$.
    - **Bình Thường (⚪):** Tổng điểm từ $50$ đến $74$.
+
+---
+
+## 13. HỆ THỐNG ĐIỂM DANH MAY MẮN HÀNG NGÀY (DAILY CHECK-IN PROGRESSIVE REWARDS)
+
+Nhằm khuyến khích người dùng duy trì thói quen tương tác học thuật hàng ngày, hệ thống cung cấp tính năng **Điểm Danh May Mắn** nhận Point miễn phí.
+
+### 13.1 Bảng Thưởng Cơ Sở (Tuần 1)
+Chu kỳ chuẩn gồm 7 ngày với các mốc thưởng cơ sở:
+*   **Ngày 1:** $+10$ Points
+*   **Ngày 2:** $+15$ Points
+*   **Ngày 3:** $+20$ Points
+*   **Ngày 4:** $+25$ Points
+*   **Ngày 5:** $+30$ Points
+*   **Ngày 6:** $+40$ Points
+*   **Ngày 7 (Đại Thưởng):** $+100$ Points
+
+### 13.2 Công Thức Lũy Tiến Tăng Thưởng Hàng Tuần (Weekly Scaling)
+Khi người dùng duy trì chuỗi liên tục qua các tuần tiếp theo (Streak $\ge 8$), giá trị phần thưởng của từng ngày sẽ tự động tăng tiến theo tuần $W$ ($W \ge 1$):
+*   **Xác định Tuần hiện tại:** $W = \lfloor (\text{Streak} - 1) / 7 \rfloor + 1$
+*   **Xác định Ngày trong tuần:** $\text{DayInWeek} = ((\text{Streak} - 1) \pmod 7) + 1$ (từ $1$ đến $7$)
+*   **Hệ số tăng tuần:** $k = W - 1$
+*   **Mức thưởng Ngày 1 đến Ngày 6:** $\text{Reward} = \text{BaseReward}[\text{DayInWeek} - 1] + k \times 10$
+*   **Mức thưởng Ngày 7 (Đại Thưởng):** $\text{Reward} = 100 + k \times 20$
+
+**Bảng minh họa các tuần:**
+| Tuần ($W$) | Ngày 1 | Ngày 2 | Ngày 3 | Ngày 4 | Ngày 5 | Ngày 6 | Ngày 7 (Đại Thưởng) |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Tuần 1** | $+10$ | $+15$ | $+20$ | $+25$ | $+30$ | $+40$ | **$+100$** |
+| **Tuần 2** | $+20$ | $+25$ | $+30$ | $+35$ | $+40$ | $+50$ | **$+120$** |
+| **Tuần 3** | $+30$ | $+35$ | $+40$ | $+45$ | $+50$ | $+60$ | **$+140$** |
+| **Tuần 4** | $+40$ | $+45$ | $+50$ | $+55$ | $+60$ | $+70$ | **$+160$** |
+
+### 13.3 Quy Tắc Duy Trì & Đứt Đoạn Chuỗi (Streak Rules)
+1. **Liên tục theo ngày lịch:** So khớp ngày hiện tại theo múi giờ hệ thống (`YYYY-MM-DD`).
+2. **Khoảng cách điểm danh:**
+   *   Nếu khoảng cách giữa ngày hôm nay và lần điểm danh gần nhất là **1 ngày**: Chuỗi tăng tiếp ($\text{newStreak} = \text{currentStreak} + 1$).
+   *   Nếu khoảng cách $> 1$ ngày (bị lỡ/quên điểm danh): Chuỗi bị đứt đoạn và **reset về Ngày 1 (Tuần 1)** ($\text{newStreak} = 1$).
+3. **Phòng chống Thao Tác Kép & Race Condition:** Áp dụng khóa phân tán Redis (`acquireRedisLock`) theo `userId` với thời gian hiệu lực 5 giây, bảo đảm tính toàn vẹn số dư Point và streak khi bấm nhanh hoặc mạng lag.
+

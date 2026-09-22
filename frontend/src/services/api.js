@@ -51,6 +51,8 @@ export const sendVerificationEmail = () => axios.post(`${API_URL}/auth/send-veri
 export const verifyEmail = (otp) => axios.post(`${API_URL}/auth/verify-email`, { otp });
 export const forgotPassword = (email) => axios.post(`${API_URL}/auth/forgot-password`, { email });
 export const resetPassword = (email, otp, newPassword) => axios.post(`${API_URL}/auth/reset-password`, { email, otp, newPassword });
+export const claimDailyCheckin = () => axios.post(`${API_URL}/auth/daily-checkin`);
+export const getDailyCheckinStatus = () => axios.get(`${API_URL}/auth/daily-checkin/status`);
 
 export const getInterpretationStreamUrl = (type, id) => {
   if (type === 'tu_vi' || type === 'ziwei') return `${API_URL}/ai/ziwei/${id}/interpret`;

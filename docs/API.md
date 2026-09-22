@@ -182,6 +182,68 @@ Cập nhật thông tin ngày giờ sinh mặc định và thiết lập liên k
   }
   ```
 
+### 1.10 Điểm danh hàng ngày nhận Point (Daily Check-in)
+Mỗi ngày mở 1 phong bao nhận Point miễn phí. Cơ chế lũy tiến hàng tuần: Sang tuần mới (Tuần $W$), mốc thưởng Ngày 1-6 tăng thêm $+(W-1) \times 10$ Points, mốc Ngày 7 tăng thêm $+(W-1) \times 20$ Points. Được bảo vệ chống race condition bằng Redis distributed lock (`acquireRedisLock`).
+- **Endpoint:** `POST /api/auth/daily-checkin`
+- **Headers:** `Authorization: Bearer <token>`
+- **Phản hồi Thành công (200):**
+  ```json
+  {
+    "success": true,
+    "message": "Điểm danh Ngày 1 (Tuần 1) thành công! Bạn nhận được +10 Points.",
+    "streak": 1,
+    "currentWeek": 1,
+    "dayInWeek": 1,
+    "reward": 10,
+    "rewards": [10, 15, 20, 25, 30, 40, 100],
+    "credits": 210,
+    "dailyCheckin": {
+      "streak": 1,
+      "lastCheckinDate": "2026-09-22",
+      "totalCheckins": 1,
+      "lastCheckinAt": "2026-09-21T17:05:36.625Z"
+    },
+    "user": { ... }
+  }
+  ```
+- **Phản hồi đã nhận hôm nay (400):**
+  ```json
+  {
+    "message": "Hôm nay bạn đã nhận thưởng điểm danh rồi. Hãy quay lại vào ngày mai nhé!",
+    "alreadyCheckedIn": true,
+    "currentStreak": 1,
+    "currentWeek": 1,
+    "dayInWeek": 1,
+    "dailyCheckin": { ... },
+    "credits": 210
+  }
+  ```
+
+### 1.11 Lấy trạng thái điểm danh hiện tại
+- **Endpoint:** `GET /api/auth/daily-checkin/status`
+- **Headers:** `Authorization: Bearer <token>`
+- **Phản hồi (200):**
+  ```json
+  {
+    "success": true,
+    "hasCheckedInToday": false,
+    "currentStreak": 0,
+    "displayStreak": 0,
+    "nextStreak": 1,
+    "currentWeek": 1,
+    "dayInWeek": 1,
+    "todayReward": 10,
+    "rewards": [10, 15, 20, 25, 30, 40, 100],
+    "dailyCheckin": {
+      "streak": 0,
+      "lastCheckinDate": null,
+      "totalCheckins": 0,
+      "lastCheckinAt": null
+    },
+    "credits": 200
+  }
+  ```
+
 ---
 
 ## ☯️ 2. Gieo Quẻ & Tính toán Số lý
