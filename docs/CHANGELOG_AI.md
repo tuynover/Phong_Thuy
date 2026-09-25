@@ -2,6 +2,63 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Tối Ưu Kết Nối Redis Production & Cơ Chế Reconnect Chống Tràn Logs (25/09/2026)
+
+### 🌟 1. Phân Tích Nguyên Nhân Gốc Rễ (Root Cause Analysis)
+Khi triển khai trên môi trường Production (Docker Compose / Cloud Server), phát hiện lỗi:
+```text
+phongthuy-backend | [WARN] [Redis] Redis server unavailable at 127.0.0.1:6379. Falling back to in-memory cache.
+phongthuy-backend | [INFO] [Redis] Reconnecting to Redis...
+```
+1. **Lỗi Địa Chỉ Kết Nối Trong Docker Container:**
+   - Trong môi trường Docker Compose, container `phongthuy-backend` có namespace mạng riêng biệt. `127.0.0.1` bên trong container trỏ về chính container đó (loopback interface), nơi không hề chạy Redis server.
+   - Container Redis (`phongthuy-redis`) chạy độc lập trên mạng nội bộ `phongthuy-network` với hostname là `redis`.
+   - Khi cấu hình `.env` trên production ghi `REDIS_HOST=127.0.0.1` (hoặc `localhost`), hoặc khi biến `NODE_ENV` chưa được định nghĩa khiến hệ thống fallback về `127.0.0.1`, backend sẽ cố gắng kết nối tới `127.0.0.1:6379` bên trong container và bị từ chối kết nối (`ECONNREFUSED`).
+2. **Hiện Tượng Tràn Logs (Log Flooding):**
+   - Trước đây, `retryStrategy` sử dụng độ trễ cố định `Math.min(times * 500, 5000)` (tối đa 5 giây).
+   - Mỗi lần thất bại (5s/lần), ioredis đồng thời bắn cả 2 sự kiện: `reconnecting` (ghi `[INFO] Reconnecting to Redis...`) và `error` (ghi `[WARN] Redis server unavailable at 127.0.0.1:6379...`).
+   - Cứ mỗi 5 giây sinh ra 2 dòng log -> 24 dòng/phút -> 1.440 dòng/giờ -> 34.560 dòng/ngày, gây nghẽn log, đầy dung lượng đĩa và khó khăn khi giám sát hệ thống.
+
+---
+
+### 🏛️ 2. Giải Pháp Triển Khai
+
+1. **Cơ Chế Tự Động Nhận Diện Môi Trường & Chuyển Hướng Host (`redis.js`):**
+   - Bổ sung hàm kiểm tra `isRunningInDocker()` thông qua các file hệ thống `/.dockerenv`, `/run/.containerenv`, và `/proc/1/cgroup`.
+   - **Tự động định tuyến thông minh:** Nếu phát hiện đang chạy trong Docker container mà `REDIS_HOST` bị cấu hình là `127.0.0.1` hoặc `localhost` (hoặc để trống), hệ thống tự động định tuyến sang hostname `redis` (service name trong Docker network). Đồng thời ghi log cảnh báo hướng dẫn rõ ràng.
+   - Hỗ trợ `REDIS_URL`: Tự động thay thế `://127.0.0.1` và `://localhost` thành `://redis` khi ở trong Docker.
+
+2. **Thuật Toán Exponential Backoff & Jitter Cho Reconnect (`retryStrategy`):**
+   - Chuyển từ chu kỳ 5 giây cố định sang **Số mũ suy giảm kèm nhiễu ngẫu nhiên (Exponential Backoff with Jitter)**:
+     - Lần 1: ~1s
+     - Lần 2: ~2s
+     - Lần 3: ~4s
+     - Lần 4: ~8s
+     - Lần 5: ~16s
+     - Lần 6 trở đi: Chặn trần ở mức tối đa ~30s kèm ±15% jitter ngẫu nhiên để triệt tiêu hiện tượng thundering herd.
+
+3. **Cơ Chế Chống Tràn Logs Êm Dịu (Quiet Reconnect & Log Throttling):**
+   - Thiết lập bộ đệm thời gian ngắt log `LOG_SUPPRESSION_INTERVAL_MS = 5 * 60 * 1000` (5 phút).
+   - Khi mất kết nối: Ghi duy nhất 1 lần log WARN và 1 lần INFO thông báo bắt đầu quá trình kết nối lại ngầm.
+   - Trong quá trình reconnect: Triệt tiêu toàn bộ log lỗi lặp đi lặp lại. Cứ 5 phút chỉ ghi duy nhất 1 thông báo heartbeat trạng thái.
+   - Khi Redis hồi phục: Ghi 1 log INFO thông báo đã kết nối lại thành công sau bao nhiêu lần thử và khôi phục L2 cache.
+
+4. **Đồng Bộ Docker Compose & Container Image:**
+   - `docker-compose.yml`:
+     - Bổ sung `environment: - NODE_ENV=production`, `- REDIS_HOST=${REDIS_HOST:-redis}`, `- REDIS_PORT=${REDIS_PORT:-6379}` vào service `backend`.
+     - Thêm `depends_on: [ redis ]` và `extra_hosts: ["host.docker.internal:host-gateway"]` để linh hoạt kết nối Redis máy host khi cần.
+     - Bổ sung `healthcheck: test: ["CMD", "redis-cli", "ping"]` vào service `redis`.
+   - `backend/Dockerfile`:
+     - Thiết lập sẵn `ENV NODE_ENV=production`.
+
+---
+
+### 🧪 3. Kiểm Thử & Nghiệm Thu
+- Cú pháp Node.js: `node --check src/core/config/redis.js` đạt 100% không có lỗi.
+- Toàn bộ Test Suite Jest: 45 passed, 45 total (323 passed, 323 total, 100% PASS).
+
+---
+
 ## 📅 Phiên bản: Tối Ưu Hóa Giao Diện Đề Mục Chương Trên Thiết Bị Di Động (Mobile Responsive Chapter Headers) (22/09/2026)
 
 ### 🌟 1. Yêu Cầu & Bối Cảnh Người Dùng

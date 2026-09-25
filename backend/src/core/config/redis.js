@@ -1,15 +1,53 @@
+const fs = require('fs');
 const Redis = require('ioredis');
 const { v7: uuidv7 } = require('uuid');
 const logger = require('../services/LoggerService');
 
 let isConnected = false;
+let isReconnecting = false;
+let reconnectAttemptCount = 0;
+let lastErrorLogTimestamp = 0;
+let lastReconnectLogTimestamp = 0;
+const LOG_SUPPRESSION_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes quiet interval
 
-const redisHost = process.env.REDIS_HOST || (process.env.NODE_ENV === 'production' ? 'redis' : '127.0.0.1');
+/**
+ * Detect if Node process is running inside a Docker/containerized environment.
+ */
+const isRunningInDocker = () => {
+    try {
+        if (process.env.IS_DOCKER === 'true' || process.env.DOCKER === 'true') return true;
+        if (fs.existsSync('/.dockerenv') || fs.existsSync('/run/.containerenv')) return true;
+        if (fs.existsSync('/proc/1/cgroup')) {
+            const cgroup = fs.readFileSync('/proc/1/cgroup', 'utf8');
+            if (cgroup.includes('docker') || cgroup.includes('containerd') || cgroup.includes('kubepods')) {
+                return true;
+            }
+        }
+        return false;
+    } catch {
+        return false;
+    }
+};
+
+const inDocker = isRunningInDocker();
+
+let redisHost = process.env.REDIS_HOST;
 const redisPort = parseInt(process.env.REDIS_PORT || '6379', 10);
 const redisPassword = process.env.REDIS_PASSWORD || undefined;
 const redisTls = process.env.REDIS_TLS === 'true' || (process.env.REDIS_URL && process.env.REDIS_URL.startsWith('rediss://'));
 
 const isTestEnv = process.env.NODE_ENV === 'test';
+
+// Smart host resolution:
+if (!redisHost) {
+    // If not specified, in Docker Compose or production default to 'redis', else '127.0.0.1'
+    redisHost = (inDocker || process.env.NODE_ENV === 'production') ? 'redis' : '127.0.0.1';
+} else if (inDocker && (redisHost === '127.0.0.1' || redisHost === 'localhost') && process.env.REDIS_FORCE_LOCALHOST !== 'true') {
+    // Crucial: inside Docker container, 127.0.0.1 points to the container itself (where Redis isn't running),
+    // which is the #1 mistake on production! Auto-redirect to docker compose service 'redis'.
+    logger.warn(`[Redis Config] Đang chạy trong Docker nhưng REDIS_HOST=${redisHost} (loopback của container). Tự động chuyển hướng sang host 'redis' (service container). Nếu bạn cố ý nối ra host máy thật, hãy đặt REDIS_HOST=host.docker.internal.`);
+    redisHost = 'redis';
+}
 
 const redisOptions = {
     host: redisHost,
@@ -23,8 +61,18 @@ const redisOptions = {
     keepAlive: 5000,           // Heartbeat keep-alive to prevent AWS VPC NAT Gateway from killing idle socket after 350s
     retryStrategy(times) {
         if (isTestEnv && times > 1) return null; // Stop infinite reconnect loops in test runner
-        const delay = Math.min(times * 500, 5000);
-        return delay;
+        
+        // Exponential backoff with jitter to eliminate CPU spin & socket congestion:
+        // times = 1 -> ~1s
+        // times = 2 -> ~2s
+        // times = 3 -> ~4s
+        // times = 4 -> ~8s
+        // times = 5 -> ~16s
+        // times >= 6 -> ~30s max
+        const exponent = Math.min(times - 1, 5);
+        const baseDelay = Math.min(Math.pow(2, exponent) * 1000, 30000);
+        const jitter = Math.floor(Math.random() * (baseDelay * 0.15));
+        return baseDelay + jitter;
     },
     maxRetriesPerRequest: 1
 };
@@ -35,31 +83,63 @@ if (redisTls) {
     };
 }
 
+let redisUrl = process.env.REDIS_URL;
+if (redisUrl && inDocker && process.env.REDIS_FORCE_LOCALHOST !== 'true') {
+    if (redisUrl.includes('://127.0.0.1') || redisUrl.includes('://localhost')) {
+        logger.warn(`[Redis Config] Phát hiện REDIS_URL trỏ về localhost trong container Docker. Tự động chuyển hướng sang host 'redis'.`);
+        redisUrl = redisUrl.replace('://127.0.0.1', '://redis').replace('://localhost', '://redis');
+    }
+}
+
 let redisClient;
-if (process.env.REDIS_URL) {
-    redisClient = new Redis(process.env.REDIS_URL, redisOptions);
+if (redisUrl) {
+    redisClient = new Redis(redisUrl, redisOptions);
 } else {
     redisClient = new Redis(redisOptions);
 }
 
 redisClient.on('connect', () => {
-    logger.info(`[Redis] TCP connected to Redis at ${redisHost}:${redisPort}`);
+    logger.info(`[Redis] Đã thiết lập kết nối TCP tới Redis tại ${redisHost}:${redisPort}`);
 });
 
 redisClient.on('ready', () => {
+    const wasReconnecting = isReconnecting || reconnectAttemptCount > 0;
     isConnected = true;
-    logger.info(`[Redis] Successfully ready at ${redisHost}:${redisPort}`);
+    isReconnecting = false;
+    
+    if (wasReconnecting) {
+        logger.info(`[Redis] Đã kết nối lại thành công tới Redis tại ${redisHost}:${redisPort} (phục hồi sau ${reconnectAttemptCount} lần thử). Khôi phục bộ đệm L2 Redis.`);
+    } else {
+        logger.info(`[Redis] Kết nối Redis sẵn sàng hoạt động tại ${redisHost}:${redisPort}`);
+    }
+    
+    reconnectAttemptCount = 0;
+    lastErrorLogTimestamp = 0;
+    lastReconnectLogTimestamp = 0;
 });
 
 redisClient.on('error', (err) => {
+    const wasConnected = isConnected;
     isConnected = false;
-    if (err.code === 'ECONNREFUSED' || err.code === 'ENOTFOUND') {
+    
+    const isConnIssue = err.code === 'ECONNREFUSED' || err.code === 'ENOTFOUND' || err.code === 'ETIMEDOUT';
+    
+    if (isConnIssue) {
         if (!isTestEnv) {
-            logger.warn(`[Redis] Redis server unavailable at ${redisHost}:${redisPort}. Falling back to in-memory cache.`);
+            const now = Date.now();
+            // Ghi log WARN khi chuyển từ Connected -> Disconnected, hoặc chỉ ghi lặp lại sau mỗi 5 phút (chống tràn logs)
+            if (wasConnected || (now - lastErrorLogTimestamp > LOG_SUPPRESSION_INTERVAL_MS)) {
+                logger.warn(`[Redis] Không thể kết nối Redis tại ${redisHost}:${redisPort} (${err.code || err.message}). Hệ thống tự động chuyển sang dùng In-memory Cache (L1 RAM). Quá trình kết nối lại chạy ngầm chế độ êm dịu.`);
+                lastErrorLogTimestamp = now;
+            }
         }
     } else {
         if (!isTestEnv) {
-            logger.error(`[Redis] Redis error: ${err.message}`);
+            const now = Date.now();
+            if (now - lastErrorLogTimestamp > LOG_SUPPRESSION_INTERVAL_MS) {
+                logger.error(`[Redis] Lỗi Redis: ${err.message}`);
+                lastErrorLogTimestamp = now;
+            }
         }
     }
 });
@@ -68,10 +148,23 @@ redisClient.on('close', () => {
     isConnected = false;
 });
 
-redisClient.on('reconnecting', () => {
+redisClient.on('reconnecting', (delay) => {
     isConnected = false;
+    isReconnecting = true;
+    reconnectAttemptCount++;
+    
     if (!isTestEnv) {
-        logger.info('[Redis] Reconnecting to Redis...');
+        const now = Date.now();
+        // Lần đầu tiên mất kết nối: Thông báo bắt đầu quy trình reconnect ngầm
+        if (reconnectAttemptCount === 1) {
+            logger.info(`[Redis] Mất kết nối tới Redis tại ${redisHost}:${redisPort}. Đang tiến hành kết nối lại ngầm (Exponential backoff, chế độ chống tràn log kích hoạt)...`);
+            lastReconnectLogTimestamp = now;
+        } else if (now - lastReconnectLogTimestamp > LOG_SUPPRESSION_INTERVAL_MS) {
+            // Sau đó chỉ ghi log định kỳ mỗi 5 phút để thông báo trạng thái
+            const nextDelaySec = Math.round((delay || 30000) / 1000);
+            logger.info(`[Redis] Đang tiếp tục thử kết nối lại Redis tại ${redisHost}:${redisPort} (lần thứ #${reconnectAttemptCount}, thử lại sau ~${nextDelaySec}s). Bộ đệm RAM cục bộ vẫn hoạt động bình thường.`);
+            lastReconnectLogTimestamp = now;
+        }
     }
 });
 

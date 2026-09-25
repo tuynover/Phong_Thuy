@@ -11,8 +11,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Cấu hình Puppeteer sử dụng Chromium của hệ điều hành
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
+# Cấu hình Puppeteer sử dụng Chromium của hệ điều hành và thiết lập NODE_ENV production
+ENV NODE_ENV=production \
+    PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
     PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 # Sao chép package.json và package-lock.json để tận dụng Docker cache cho dependencies
