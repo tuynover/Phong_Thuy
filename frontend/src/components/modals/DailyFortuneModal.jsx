@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { 
   getDailyFortune, 
+  getRandomDailyFortune,
   getTodayDateString, 
   checkHasDrawnDailyFortune, 
   saveDailyFortuneResult,
@@ -67,10 +68,15 @@ export default function DailyFortuneModal({ isOpen, onClose, user }) {
     }
   }, [revealedFortune]);
 
-  // Khởi tạo quẻ hôm nay deterministically theo user + ngày
-  const destinedFortune = React.useMemo(() => {
-    return getDailyFortune(todayStr, userId);
-  }, [todayStr, userId]);
+  // Khởi tạo quẻ ngẫu nhiên cho lần lắc
+  const [destinedFortune, setDestinedFortune] = useState(() => getRandomDailyFortune());
+
+  // Cập nhật quẻ ngẫu nhiên mới mỗi khi mở modal nếu chưa có kết quả lưu
+  useEffect(() => {
+    if (isOpen && !revealedFortune) {
+      setDestinedFortune(getRandomDailyFortune());
+    }
+  }, [isOpen, revealedFortune]);
 
   // Đọc kết quả đã lưu trong ngày nếu người dùng đã từng lắc
   useEffect(() => {
@@ -96,7 +102,7 @@ export default function DailyFortuneModal({ isOpen, onClose, user }) {
 
   // Xử lý khi ống tre hoàn thành lắc và thẻ tiếp đất
   const handleShakingComplete = (drawnFortune) => {
-    const fortuneToSave = drawnFortune || destinedFortune;
+    const fortuneToSave = drawnFortune || destinedFortune || getRandomDailyFortune();
     setRevealedFortune(fortuneToSave);
     saveDailyFortuneResult({
       date: todayStr,
@@ -105,12 +111,13 @@ export default function DailyFortuneModal({ isOpen, onClose, user }) {
     }, userId);
   };
 
-  // Nút Reset Phục Vụ Kiểm Thử (Xóa cache hôm nay và hiển thị lại chấm đỏ)
+  // Nút Reset Phục Vụ Kiểm Thử (Xóa cache hôm nay và hiển thị lại chấm đỏ, tạo quẻ ngẫu nhiên mới)
   const handleResetDailyFortune = () => {
     try {
       const storageKey = getDailyFortuneStorageKey(userId);
       localStorage.removeItem(storageKey);
       setRevealedFortune(null);
+      setDestinedFortune(getRandomDailyFortune());
       window.dispatchEvent(new CustomEvent(DAILY_FORTUNE_EVENT, { detail: { userId, hasDrawn: false } }));
     } catch (e) {
       setRevealedFortune(null);
@@ -364,8 +371,17 @@ export default function DailyFortuneModal({ isOpen, onClose, user }) {
                   </p>
                 </div>
 
-                {/* 6. Nút Hành Động: Chia Sẻ Story 9:16 & Đóng */}
+                {/* 6. Nút Hành Động: Gieo Lại, Chia Sẻ Story 9:16 & Đóng */}
                 <div className="flex items-center gap-2.5 pt-2">
+                  <button
+                    type="button"
+                    onClick={handleResetDailyFortune}
+                    title="Gieo quẻ ngẫu nhiên khác"
+                    className="py-3 px-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl font-bold text-xs shadow-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer border border-slate-200"
+                  >
+                    <RotateCcw size={15} />
+                    <span className="hidden sm:inline">Gieo lại</span>
+                  </button>
                   <button
                     type="button"
                     onClick={() => setIsStoryModalOpen(true)}

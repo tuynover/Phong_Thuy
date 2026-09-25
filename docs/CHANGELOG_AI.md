@@ -2,6 +2,43 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Hoàn Thiện Toàn Diện 64 Thẻ Quẻ Dịch Hằng Ngày (Daily Fortune Bamboo Sticks) (25/09/2026)
+
+### 🌟 1. Bối Cảnh & Vấn Đề
+- Phân hệ lắc quẻ tre hằng ngày (`DailyFortuneModal.jsx` / `dailyFortuneData.js`) trước đây chỉ mới định nghĩa **16 quẻ mẫu** (quẻ 1 đến 16).
+- Trong khi thuật toán gieo quẻ tính chỉ số dựa trên ngày và ID người dùng: `index = Math.abs(hash) % DAILY_FORTUNES.length`.
+- Khi mảng chỉ có 16 phần tử, modulo 16 khiến người dùng trong suốt 365 ngày chỉ có thể rút được 1 trong 16 quẻ đầu tiên, thiếu vắng hoàn toàn 48 quẻ còn lại (từ quẻ 17 Trạch Lôi Tùy đến quẻ 64 Hỏa Thủy Vị Tế).
+
+---
+
+### 🏛️ 2. Chi Tiết Triển Khai
+1. **Bổ sung 48 Quẻ Dịch Chuẩn Cổ Học (Quẻ 17 đến 64):**
+   - Bổ sung đầy đủ 48 quẻ còn lại vào `DAILY_FORTUNES` tại `frontend/src/features/iching/data/dailyFortuneData.js`.
+   - Mỗi quẻ được thiết kế văn phong Dịch học nho nhã, bác học với đầy đủ 14 trường thông tin:
+     - `id`: Định danh chuẩn Kinh Dịch Chu Văn Vương (1 đến 64).
+     - `hexagramName`: Tên quẻ kèm ý nghĩa 4 chữ (VD: `Trạch Lôi Tùy (Tùy Thuận Đi Theo)`, `Hỏa Phong Đỉnh (Luyện Khí Thành Tài)`).
+     - `chineseName`: Tên Hán tự cổ chuẩn mực (VD: `澤雷隨`, `火風鼎`, `火水未濟`).
+     - `rank`: Đánh giá mức độ cát hung 4 cấp bậc (`Đại Cát`, `Thượng Cát`, `Trung Cát`, `Cẩn Trọng`).
+     - `symbol`: Biểu tượng nhị quái Unicode chuẩn (`Thượng quái` + `Hạ quái`, VD: `☱ ☳`, `☲ ☴`).
+     - `tagline`: Khái quát năng lượng trong ngày bằng 1 câu văn triết lý.
+     - `poem`: Thơ quẻ 4 câu thất ngôn hoặc ngũ ngôn giàu ý nghĩa tu thân lập nghiệp.
+     - `career`, `wealth`, `love`: Dự báo 3 phương diện Công danh, Tài lộc, Tình cảm thực tế và sắc bén.
+     - `luckyDirections`, `luckyHours`, `luckyNumbers`, `luckyColor`: Hướng xuất hành (Hỷ Thần, Tài Thần), giờ hoàng đạo, số may mắn và màu sắc tương sinh ngũ hành.
+     - `advice`: Lời khuyên Đạo Dịch (Đạo quân tử) làm kim chỉ nam ứng xử trong ngày.
+2. **Khớp nối Bảng Họ Quẻ & Ngũ Hành (`HEXAGRAM_PALACES` & `PALACE_ELEMENT_THEMES`):**
+   - 100% 64 quẻ đều có ánh xạ Cung (Bát Cung: Càn, Khảm, Cấn, Chấn, Tốn, Ly, Khôn, Đoài) và Ngũ Hành (Kim, Mộc, Thủy, Hỏa, Thổ).
+   - Màu nền thẻ quẻ tre, đường viền và hiệu ứng hào quang tự động hiển thị theo Ngũ Hành tương ứng của từng quẻ.
+3. **Chuyển Đổi Sang Cơ Chế Ngẫu Nhiên Thuần Túy (True Random Divination):**
+   - Loại bỏ cơ chế băm chuỗi cố định (deterministic hash theo ngày).
+   - Thay thế bằng hàm `getRandomDailyFortune()` sử dụng CSPRNG (`crypto.getRandomValues`) và fallback `Math.random()`, phản ánh chính xác tính chất bốc quẻ ngẫu nhiên tự nhiên của ống xăm tre truyền thống.
+   - Thêm nút **"Gieo lại"** (`RotateCcw`) trên giao diện kết quả modal, cho phép người dùng hoặc kiểm thử viên reset và rút quẻ ngẫu nhiên mới tức thì.
+4. **Kiểm Thử & Nghiệm Thu:**
+   - Bổ sung bộ kiểm thử đơn vị `frontend/src/tests/dailyFortune.test.js`: 5/5 bài kiểm tra chuyên sâu kiểm tra 64 quẻ, logic ngẫu nhiên và lưu vết `localStorage`.
+   - Toàn bộ Vitest trên frontend vượt qua 34/34 bài test (5/5 files).
+   - **Kiểm thử thực tế trên Chrome DevTools MCP**: Đã trực tiếp click mở modal, thực hiện lắc xăm 3 lần liên tiếp, ghi nhận 3 quẻ ngẫu nhiên khác nhau với đầy đủ hiệu ứng nhị quái, ngũ hành và chụp ảnh màn hình nghiệm thu thành công 100%.
+
+---
+
 ## 📅 Phiên bản: Tái Cấu Trúc Toàn Diện Luồng CI/CD Chuẩn DevOps Zero-Downtime & Immutable Tagging (25/09/2026)
 
 ### 🌟 1. Bối Cảnh & Phân Tích Hiện Trạng
