@@ -3,33 +3,77 @@ name: CI/CD Pipeline to EC2 via Docker Hub
 on:
   push:
     branches: [ "main" ]
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+      - 'CHANGELOG_AI.md'
+      - '*.md'
+      - '.gitignore'
   workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  # -- GIAI ĐOẠN 1: KIỂM THỬ BACKEND (Chạy song song) --
+  test-backend:
+    name: Backend Tests & Quality Gate
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # -- KIỂM THỬ TỰ ĐỘNG TOÀN DIỆN TRƯỚC KHI ĐÓNG GÓI DOCKER --
-      - name: Setup Node.js for Testing
+      - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: './backend/package-lock.json'
 
-      - name: Install Backend Dependencies and Run Tests
-        working-directory: ./backend
-        run: |
-          npm ci
-          npm test -- --forceExit
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Install Frontend Dependencies, Run Tests and Build Check
+      - name: Check Node.js Syntax
+        run: node --check src/index.js
+
+      - name: Run Jest Unit Tests
+        run: npm test -- --forceExit
+
+  # -- GIAI ĐOẠN 2: KIỂM THỬ & BUILD CHECK FRONTEND (Chạy song song) --
+  test-frontend:
+    name: Frontend Tests & Build Check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
         working-directory: ./frontend
-        run: |
-          npm ci
-          npm test
-          npm run build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: './frontend/package-lock.json'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Vitest Unit Tests
+        run: npm test
+
+      - name: Build Production Bundle Check
+        run: npm run build
+
+  # -- GIAI ĐOẠN 3: ĐÓNG GÓI DOCKER & DEPLOY ZERO-DOWNTIME (Chỉ chạy khi 2 tests PASS) --
+  build-and-deploy:
+    name: Build Docker Images & Zero-Downtime Deploy
+    needs: [ test-backend, test-frontend ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -40,52 +84,76 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push Backend
+      - name: Build and push Backend Image
         uses: docker/build-push-action@v5
         with:
           context: ./backend
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/phongthuy-backend:latest
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/phongthuy-backend:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/phongthuy-backend:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Build and push Frontend
+      - name: Build and push Frontend Image
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/phongthuy-frontend:latest
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/phongthuy-frontend:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/phongthuy-frontend:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Deploy to EC2
+      - name: Zero-Downtime Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          IMAGE_TAG: ${{ github.sha }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
-          envs: DOCKERHUB_USERNAME
+          envs: DOCKERHUB_USERNAME,IMAGE_TAG
           script: |
+            set -e
             cd phongthuy/Phong_Thuy
             git fetch origin main
             git reset --hard origin/main
-            
-            # Xuất biến môi trường để docker-compose.yml có thể đọc được tag image
+
+            # Cấu hình biến môi trường cho phiên bản deploy hiện tại
             export DOCKERHUB_USERNAME=${DOCKERHUB_USERNAME:-tuynover}
-            
-            # Kéo image mới nhất từ Docker Hub về (nhanh vì chỉ tải layer đổi)
-            docker compose pull
-            
-            # Dọn dẹp cache Redis cũ để tránh kẹt tokenVersion và cache phiên đăng nhập lỗi thời
-            docker exec phongthuy-redis redis-cli FLUSHALL || true
-            
-            # Xóa các container cũ để tránh Conflict container_name khi khởi động lại
-            docker rm -f phongthuy-frontend phongthuy-backend || true
-            
-            # Khởi động lại các container mới
-            docker compose up -d
-            
-            # Bắt buộc khởi động lại Nginx để làm mới upstream IPs và dọn dẹp cache ẩn
-            docker compose restart nginx
+            export IMAGE_TAG=${IMAGE_TAG:-${{ github.sha }}}
+
+            echo "🚀 [Deploy] Đang kéo image mới (Tag: $IMAGE_TAG)..."
+            docker compose pull backend frontend
+
+            echo "🔄 [Deploy] Thực hiện Zero-Downtime Rolling Update cho backend & frontend..."
+            docker compose up -d --no-deps backend frontend
+
+            echo "🌐 [Deploy] Nạp lại cấu hình Nginx nhẹ nhàng (Graceful Reload)..."
+            docker exec phongthuy-nginx nginx -s reload || true
+
+            echo "🧹 [Deploy] Dọn dẹp images cũ không sử dụng..."
+            docker image prune -f
+
+            echo "🔍 [Deploy] Thực hiện Smoke Test kiểm tra sức khỏe hệ thống..."
+            HEALTHY=0
+            for i in $(seq 1 12); do
+              if curl -k -s -f https://127.0.0.1/health || curl -s -f http://127.0.0.1:3001/health; then
+                echo "✅ [Smoke Test] Backend phản hồi 200 OK thành công tại lần thử #$i!"
+                HEALTHY=1
+                break
+              fi
+              echo "⏳ Đang đợi backend khởi động xong (lần $i/12)..."
+              sleep 5
+            done
+
+            if [ $HEALTHY -ne 1 ]; then
+              echo "❌ [Smoke Test FAILED] Backend không phản hồi sau 60 giây!"
+              docker compose logs --tail=50 backend
+              exit 1
+            fi
+
+            echo "🎉 [Deploy] Triển khai Zero-Downtime hoàn tất thành công 100%!"

@@ -1,13 +1,16 @@
-name: Frontend CI
+name: Frontend CI (PR Check)
 
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend-ci.yml'
+  workflow_dispatch:
 
 jobs:
   test-and-build:
+    name: Frontend Unit Tests & Build Check
     runs-on: ubuntu-latest
 
     defaults:

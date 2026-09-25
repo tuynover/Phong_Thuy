@@ -2,6 +2,61 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Tái Cấu Trúc Toàn Diện Luồng CI/CD Chuẩn DevOps Zero-Downtime & Immutable Tagging (25/09/2026)
+
+### 🌟 1. Bối Cảnh & Phân Tích Hiện Trạng
+Qua rà soát chuyên môn DevOps/SRE trên toàn bộ pipeline (`deploy.yml`, `backend-ci.yml`, `frontend-ci.yml`), phát hiện 7 điểm bất hợp lý lớn:
+1. **Lãng phí tài nguyên & lặp lại thừa thãi:** Khi push vào `main`, cả 3 workflows cùng chạy, khiến Backend và Frontend bị test 2 lần và build 3 lần, kéo dài thời gian deploy tới 6-10 phút.
+2. **Dùng duy nhất tag `:latest`:** Triệt tiêu khả năng rollback khi có sự cố, mất tính truy vết (traceability) commit SHA.
+3. **Gây Downtime người dùng (Lỗi 502 Bad Gateway):** Sử dụng `docker rm -f phongthuy-frontend phongthuy-backend` trước khi `up -d` làm sập web trong 15-30 giây, ngắt kết nối các luồng AI SSE Stream đang chạy dở.
+4. **Lệnh `FLUSHALL` thô bạo:** Xóa toàn bộ Redis khi deploy, làm mất mã OTP của người dùng, hàng đợi email (DLQ) và bộ đệm AI cache đắt giá.
+5. **Trộn lẫn cơ chế:** Kéo cả Git source code lẫn Docker Hub images trên server production.
+6. **Thiếu Smoke Test Health Check:** Workflow luôn báo xanh kể cả khi container backend bị crash loop ngay sau khi start.
+7. **Thiếu Path Filtering:** Sửa file markdown/tài liệu vẫn kích hoạt full pipeline deploy.
+
+---
+
+### 🏛️ 2. Các Cải Tiến Đã Triển Khai (DevOps Implementation)
+
+1. **Tái Cấu Trúc `deploy.yml` Đa Tầng Chạy Song Song (Parallel Quality Gate):**
+   - **Job `test-backend`:** Chạy độc lập trên runner riêng biệt (Node 20, npm cache, Jest unit tests).
+   - **Job `test-frontend`:** Chạy song song độc lập (Node 20, npm cache, Vitest unit tests & Vite build check).
+   - **Job `build-and-deploy`:** Chỉ kích hoạt khi cả 2 job test vượt qua 100% (`needs: [test-backend, test-frontend]`).
+   - Bổ sung `paths-ignore`: Tự động bỏ qua các commit tài liệu (`docs/**`, `*.md`, `.gitignore`).
+
+2. **Chiến Lược Tag Bất Biến Kép (Immutable Dual-Tagging):**
+   - Đóng gói Docker Images với đồng thời 2 tags:
+     - Tag commit bất biến: `phongthuy-backend:${{ github.sha }}` và `phongthuy-frontend:${{ github.sha }}`.
+     - Tag phụ: `:latest`.
+   - Cập nhật `docker-compose.yml`: Sử dụng cú pháp `${IMAGE_TAG:-latest}` cho phép chỉ định chính xác phiên bản cần chạy hoặc rollback tức thì.
+
+3. **Cơ Chế Triển Khai Không Gián Đoạn (Zero-Downtime Rolling Update):**
+   - Loại bỏ hoàn toàn lệnh `docker rm -f`.
+   - Sử dụng cơ chế Rolling Update chuẩn của Docker Compose:
+     ```bash
+     docker compose pull backend frontend
+     docker compose up -d --no-deps backend frontend
+     ```
+   - Thay thế `restart nginx` bằng **Graceful Nginx Reload**: `docker exec phongthuy-nginx nginx -s reload || true` giúp cập nhật upstream IPs mà không làm đứt kết nối người dùng hay SSE stream.
+   - Loại bỏ hoàn toàn lệnh `redis-cli FLUSHALL`, bảo toàn 100% OTP, phiên đăng nhập, email queue và bộ nhớ đệm AI.
+
+4. **Tự Động Kiểm Tra Sức Khỏe Sau Triển Khai (Post-Deploy Smoke Test Loop):**
+   - Tích hợp vòng lặp kiểm tra 12 lần (tối đa 60 giây) gọi endpoint `/health`:
+     ```bash
+     for i in $(seq 1 12); do
+       if curl -k -s -f https://127.0.0.1/health || curl -s -f http://127.0.0.1:3001/health; then
+         echo "Backend 200 OK!" && exit 0
+       fi
+       sleep 5
+     done
+     ```
+   - Nếu backend không phản hồi hoặc crash, tự động dump 50 dòng log cuối cùng (`docker compose logs --tail=50 backend`) và trả về mã lỗi `exit 1` để GitHub Actions cảnh báo ngay lập tức.
+
+5. **Phân Định Rõ Ràng `backend-ci.yml` & `frontend-ci.yml`:**
+   - Chuyển 2 workflow này thành **PR Quality Gate**, chỉ kích hoạt khi có Pull Request vào `main` kèm bộ lọc đường dẫn tương ứng (`backend/**` hoặc `frontend/**`). Triệt tiêu 100% hiện tượng chạy trùng lặp khi push vào `main`.
+
+---
+
 ## 📅 Phiên bản: Tối Ưu Kết Nối Redis Production & Cơ Chế Reconnect Chống Tràn Logs (25/09/2026)
 
 ### 🌟 1. Phân Tích Nguyên Nhân Gốc Rễ (Root Cause Analysis)

@@ -1,13 +1,16 @@
-name: Backend CI
+name: Backend CI (PR Check)
 
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-ci.yml'
+  workflow_dispatch:
 
 jobs:
   build:
+    name: Backend Syntax & Unit Tests
     runs-on: ubuntu-latest
 
     defaults:

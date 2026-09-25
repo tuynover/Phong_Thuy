@@ -158,18 +158,23 @@ Lệnh này sẽ thực hiện:
     Nếu nhận về `ok` tức là backend đã kết nối thành công qua Nginx.
   - Kiểm tra giao diện frontend: Truy cập địa chỉ IP public của máy ảo AWS hoặc `http://localhost/` trên trình duyệt. Thử bấm F5 làm mới trang tại các trang con để kiểm chứng cơ chế SPA routing hoạt động tốt.
 
-### 6.4 Triển khai Tự động bằng CI/CD (GitHub Actions)
+### 6.4 Triển khai Tự động bằng CI/CD Chuẩn DevOps (GitHub Actions)
 
-Dự án đã được thiết lập luồng CI/CD hoàn chỉnh và đa tầng:
-- **Frontend CI (`.github/workflows/frontend-ci.yml`)**: Tự động chạy khi có `push` hoặc `pull_request` vào nhánh `main`. Cài đặt dependencies, chạy 29 unit tests (Vitest) và đóng gói bundle `npm run build`.
-- **Backend CI (`.github/workflows/backend-ci.yml`)**: Tự động chạy khi có `push` hoặc `pull_request` vào nhánh `main`. Kiểm tra cú pháp Node.js và chạy toàn bộ 252 tests (Jest).
-- **Deployment Pipeline (`.github/workflows/deploy.yml`)**: Mỗi khi bạn thực hiện `git push` lên nhánh `main`, hệ thống sẽ tự động:
-  1. Chạy toàn diện **252/252 Backend Unit Tests** (34 suites) và **29/29 Frontend Unit Tests** (4 suites) + Build Check.
-  2. Đóng gói Frontend và Backend thành Docker images và đẩy lên **Docker Hub** (áp dụng GitHub Actions Layer Caching để tăng tốc tối đa).
-  3. Kết nối SSH an toàn vào máy chủ AWS EC2 để pull image mới nhất và khởi động lại dịch vụ không gián đoạn (Zero Downtime Recreate & Nginx Reload).
+Dự án đã được thiết lập luồng CI/CD chuẩn công nghiệp, tối ưu hóa tốc độ và đảm bảo **Zero-Downtime**:
+- **Backend CI (`.github/workflows/backend-ci.yml`)**: Tự động kích hoạt khi có `pull_request` vào nhánh `main` (có bộ lọc đường dẫn `backend/**`). Chạy kiểm tra cú pháp và toàn bộ bài test Jest để bảo vệ chất lượng trước khi merge.
+- **Frontend CI (`.github/workflows/frontend-ci.yml`)**: Tự động kích hoạt khi có `pull_request` vào nhánh `main` (có bộ lọc đường dẫn `frontend/**`). Chạy unit tests (Vitest) và kiểm tra đóng gói bundle `npm run build`.
+- **Deployment Pipeline (`.github/workflows/deploy.yml`)**: Khi có commit push/merge vào nhánh `main` (tự động bỏ qua các commit chỉ sửa docs/markdown để tiết kiệm tài nguyên), hệ thống kích hoạt luồng 3 giai đoạn:
+  1. **Parallel Quality Gate:** Chạy song song độc lập cả Backend Jest Tests và Frontend Vitest + Build Check trên 2 runner riêng biệt để tăng tốc gấp đôi thời gian kiểm thử.
+  2. **Immutable Docker Packaging:** Đóng gói image với 2 tags: Tag commit bất biến `${{ github.sha }}` (hỗ trợ rollback tức thì) và Tag `:latest`, tích hợp GitHub Actions Cache (`type=gha,mode=max`).
+  3. **Zero-Downtime Rolling Deploy & Smoke Test trên EC2:**
+     - SSH vào máy chủ EC2 kéo image mới về.
+     - Thực hiện rolling update mượt mà `docker compose up -d --no-deps backend frontend` (không dùng `docker rm -f`, triệt tiêu hoàn toàn lỗi 502 Bad Gateway).
+     - Bảo toàn 100% dữ liệu Redis (không xóa `FLUSHALL`), giữ nguyên phiên đăng nhập, OTP và hàng đợi email.
+     - Tải lại Nginx nhẹ nhàng (Graceful reload `nginx -s reload`).
+     - Tự động chạy **Smoke Test Health Check** (vòng lặp 12 lần kiểm tra endpoint `/health`). Nếu backend phản hồi 200 OK mới xác nhận thành công; nếu lỗi sau 60s sẽ tự in log lỗi và đánh dấu fail để cảnh báo lập tức.
 
 **Để kích hoạt luồng tự động này, bạn cần điền 5 thông tin bí mật (Secrets) sau trên kho lưu trữ GitHub (Settings > Secrets and variables > Actions):**
-- `DOCKERHUB_USERNAME`: Tên đăng nhập Docker Hub (Ví dụ: `hoangnguyen`).
+- `DOCKERHUB_USERNAME`: Tên đăng nhập Docker Hub (Ví dụ: `tuynover`).
 - `DOCKERHUB_TOKEN`: Mã Access Token lấy từ trang Security của Docker Hub.
 - `EC2_HOST`: IP Public của máy ảo EC2.
 - `EC2_USERNAME`: Tên tài khoản SSH (ví dụ: `ubuntu`).

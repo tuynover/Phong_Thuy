@@ -1,6 +1,6 @@
 services:
   backend:
-    image: ${DOCKERHUB_USERNAME:-tuynover}/phongthuy-backend:latest
+    image: ${DOCKERHUB_USERNAME:-tuynover}/phongthuy-backend:${IMAGE_TAG:-latest}
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -29,7 +29,7 @@ services:
           memory: 256M
   
   frontend:
-    image: ${DOCKERHUB_USERNAME:-tuynover}/phongthuy-frontend:latest
+    image: ${DOCKERHUB_USERNAME:-tuynover}/phongthuy-frontend:${IMAGE_TAG:-latest}
     build:
       context: ./frontend
       dockerfile: Dockerfile
