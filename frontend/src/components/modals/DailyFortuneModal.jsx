@@ -7,7 +7,6 @@ import {
   Briefcase, 
   Coins, 
   Heart,
-  RotateCcw,
   Share2
 } from 'lucide-react';
 import { 
@@ -109,19 +108,6 @@ export default function DailyFortuneModal({ isOpen, onClose, user }) {
       fortune: fortuneToSave,
       drawnAt: new Date().toISOString()
     }, userId);
-  };
-
-  // Nút Reset Phục Vụ Kiểm Thử (Xóa cache hôm nay và hiển thị lại chấm đỏ, tạo quẻ ngẫu nhiên mới)
-  const handleResetDailyFortune = () => {
-    try {
-      const storageKey = getDailyFortuneStorageKey(userId);
-      localStorage.removeItem(storageKey);
-      setRevealedFortune(null);
-      setDestinedFortune(getRandomDailyFortune());
-      window.dispatchEvent(new CustomEvent(DAILY_FORTUNE_EVENT, { detail: { userId, hasDrawn: false } }));
-    } catch (e) {
-      setRevealedFortune(null);
-    }
   };
 
   if (!isOpen) return null;
@@ -371,17 +357,8 @@ export default function DailyFortuneModal({ isOpen, onClose, user }) {
                   </p>
                 </div>
 
-                {/* 6. Nút Hành Động: Gieo Lại, Chia Sẻ Story 9:16 & Đóng */}
+                {/* 6. Nút Hành Động: Chia Sẻ Story 9:16 & Đóng */}
                 <div className="flex items-center gap-2.5 pt-2">
-                  <button
-                    type="button"
-                    onClick={handleResetDailyFortune}
-                    title="Gieo quẻ ngẫu nhiên khác"
-                    className="py-3 px-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl font-bold text-xs shadow-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer border border-slate-200"
-                  >
-                    <RotateCcw size={15} />
-                    <span className="hidden sm:inline">Gieo lại</span>
-                  </button>
                   <button
                     type="button"
                     onClick={() => setIsStoryModalOpen(true)}

@@ -31,11 +31,11 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
 3. **Chuyển Đổi Sang Cơ Chế Ngẫu Nhiên Thuần Túy (True Random Divination):**
    - Loại bỏ cơ chế băm chuỗi cố định (deterministic hash theo ngày).
    - Thay thế bằng hàm `getRandomDailyFortune()` sử dụng CSPRNG (`crypto.getRandomValues`) và fallback `Math.random()`, phản ánh chính xác tính chất bốc quẻ ngẫu nhiên tự nhiên của ống xăm tre truyền thống.
-   - Thêm nút **"Gieo lại"** (`RotateCcw`) trên giao diện kết quả modal, cho phép người dùng hoặc kiểm thử viên reset và rút quẻ ngẫu nhiên mới tức thì.
+   - Cơ chế bốc quẻ áp dụng triệt để nguyên tắc Dịch học "Mỗi ngày một quẻ" (Nhật khóa linh ứng duy nhất), đã loại bỏ hoàn toàn nút và logic "Gieo lại" để bảo toàn tính chuẩn mực và nghiêm cẩn của quẻ xăm ngày mới.
 4. **Kiểm Thử & Nghiệm Thu:**
    - Bổ sung bộ kiểm thử đơn vị `frontend/src/tests/dailyFortune.test.js`: 5/5 bài kiểm tra chuyên sâu kiểm tra 64 quẻ, logic ngẫu nhiên và lưu vết `localStorage`.
    - Toàn bộ Vitest trên frontend vượt qua 34/34 bài test (5/5 files).
-   - **Kiểm thử thực tế trên Chrome DevTools MCP**: Đã trực tiếp click mở modal, thực hiện lắc xăm 3 lần liên tiếp, ghi nhận 3 quẻ ngẫu nhiên khác nhau với đầy đủ hiệu ứng nhị quái, ngũ hành và chụp ảnh màn hình nghiệm thu thành công 100%.
+   - **Kiểm thử thực tế trên Chrome DevTools MCP**: Đã trực tiếp mở modal, thực hiện lắc quẻ, kiểm tra giao diện thanh nút hành động chỉ còn 2 nút chuẩn ("Chia Sẻ Story 9:16" và "Đã hiểu"), chụp ảnh màn hình nghiệm thu thành công 100%.
 
 ---
 
