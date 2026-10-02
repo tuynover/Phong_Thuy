@@ -40,16 +40,12 @@ export default function Header({
   setIsMobileModulesExpanded,
   setIsAuthModalOpen,
   setIsMyFoldersOpen,
-  setAppMode,
+  setAppMode: _setAppMode,
   setHistoricalZiweiId,
   logout,
   onOpenDailyFortune,
   onOpenDailyCheckin
 }) {
-  const cleanLunarDate = (str) => {
-    if (!str) return '';
-    return str.replace(/^Âm lịch:\s*/, '');
-  };
 
   const userId = user?.id || user?._id || 'guest';
   const todayGmt7 = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());

@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
 import { AuthContext } from '@/context/AuthContext';
-import { getUserTags, createTag, updateTag, deleteTag, getAllHistory, updateRecordTags } from '@/services/api';
+import { getUserTags, createTag, updateTag, deleteTag, getAllHistory } from '@/services/api';
 import { 
     Folder, FolderPlus, Edit2, Trash2, X, Search, Filter, Calendar, User, 
     Sparkles, Eye, Lock, Globe, ChevronLeft, ChevronRight, Plus, Check, Loader2, Tag, Clock
@@ -44,24 +44,12 @@ export default function MyFoldersModal({ isOpen, onClose, onViewHexagram, onView
     const [startDateFilter, setStartDateFilter] = useState('');
     const [endDateFilter, setEndDateFilter] = useState('');
 
-    useEffect(() => {
-        if (isOpen && user) {
-            fetchTags();
-        }
-    }, [isOpen, user]);
-
-    useEffect(() => {
-        if (selectedTag && user) {
-            fetchFolderRecords();
-        }
-    }, [selectedTag, activeSubTab]);
-
     const showToast = (msg) => {
         setToastMessage(msg);
         setTimeout(() => setToastMessage(null), 3000);
     };
 
-    const fetchTags = async () => {
+    const fetchTags = useCallback(async () => {
         setLoading(true);
         try {
             const res = await getUserTags();
@@ -72,10 +60,10 @@ export default function MyFoldersModal({ isOpen, onClose, onViewHexagram, onView
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
 
-    const fetchFolderRecords = async () => {
-        if (!selectedTag) return;
+    const fetchFolderRecords = useCallback(async () => {
+        if (!selectedTag || !user) return;
         setRecordsLoading(true);
         try {
             const params = {
@@ -98,7 +86,19 @@ export default function MyFoldersModal({ isOpen, onClose, onViewHexagram, onView
         } finally {
             setRecordsLoading(false);
         }
-    };
+    }, [selectedTag, user, searchQuery, isPublicFilter, genderFilter, birthDayFilter, birthMonthFilter, birthYearFilter, birthHourFilter, startDateFilter, endDateFilter]);
+
+    useEffect(() => {
+        if (isOpen && user) {
+            fetchTags();
+        }
+    }, [isOpen, user, fetchTags]);
+
+    useEffect(() => {
+        if (selectedTag && user) {
+            fetchFolderRecords();
+        }
+    }, [selectedTag, activeSubTab, user, fetchFolderRecords]);
 
     const handleCreateTag = async (e) => {
         e.preventDefault();
@@ -380,7 +380,7 @@ export default function MyFoldersModal({ isOpen, onClose, onViewHexagram, onView
                                         <button
                                             type="button"
                                             onClick={resetFilters}
-                                            disabled={!Boolean(searchQuery || (isPublicFilter && isPublicFilter !== 'all') || (genderFilter && genderFilter !== 'all') || birthDayFilter || birthMonthFilter || birthYearFilter || (birthHourFilter !== undefined && birthHourFilter !== '') || startDateFilter || endDateFilter)}
+                                            disabled={!(searchQuery || (isPublicFilter && isPublicFilter !== 'all') || (genderFilter && genderFilter !== 'all') || birthDayFilter || birthMonthFilter || birthYearFilter || (birthHourFilter !== undefined && birthHourFilter !== '') || startDateFilter || endDateFilter)}
                                             className="text-[11px] font-bold text-red-600 hover:bg-red-50 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white px-2.5 py-1 rounded-xl transition-all border border-red-100 bg-white shadow-2xs cursor-pointer"
                                         >
                                             Đặt lại
@@ -388,7 +388,7 @@ export default function MyFoldersModal({ isOpen, onClose, onViewHexagram, onView
                                         <button
                                             type="button"
                                             onClick={fetchFolderRecords}
-                                            disabled={!Boolean(searchQuery || (isPublicFilter && isPublicFilter !== 'all') || (genderFilter && genderFilter !== 'all') || birthDayFilter || birthMonthFilter || birthYearFilter || (birthHourFilter !== undefined && birthHourFilter !== '') || startDateFilter || endDateFilter)}
+                                            disabled={!(searchQuery || (isPublicFilter && isPublicFilter !== 'all') || (genderFilter && genderFilter !== 'all') || birthDayFilter || birthMonthFilter || birthYearFilter || (birthHourFilter !== undefined && birthHourFilter !== '') || startDateFilter || endDateFilter)}
                                             className="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-indigo-600 text-white font-bold text-[11px] rounded-xl shadow-xs transition-all flex items-center gap-1 cursor-pointer active:scale-95"
                                         >
                                             <Search size={12} />

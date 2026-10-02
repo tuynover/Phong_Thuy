@@ -1,5 +1,5 @@
 module.exports = {
-    ACTIVE_MODEL: process.env.GEMINI_MODEL || "gemini-3.1-flash-lite",
+    ACTIVE_MODEL: process.env.GEMINI_MODEL || "gemini-3.5-flash-lite",
     ICHING_PROMPT_VERSION: "v1.2",
     BAZI_PROMPT_VERSION: "v3_1_daymaster_lock",
     ZIWEI_PROMPT_VERSION: "v4_15_sections_deep_analysis",

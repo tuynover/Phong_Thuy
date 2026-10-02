@@ -12,7 +12,7 @@ const BAZI_VIP_CONFIG = {
       id: 1,
       title: 'Sự Nghiệp & Công Danh',
       provider: 'gemini',
-      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      model: process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite',
       keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Năng lực cốt lõi và thiên hướng nghề nghiệp vượt trội (ánh xạ kinh tế tri thức)',
@@ -26,7 +26,7 @@ const BAZI_VIP_CONFIG = {
       id: 2,
       title: 'Tài Chính & Dòng Tiền',
       provider: 'gemini',
-      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      model: process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite',
       keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Chính Tài vs Thiên Tài: Nguồn thu chủ lực và bản chất dòng tiền',
@@ -40,7 +40,7 @@ const BAZI_VIP_CONFIG = {
       id: 3,
       title: 'Hôn Nhân & Gia Đạo',
       provider: 'gemini',
-      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      model: process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite',
       keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Mô hình nhân duyên chủ đạo và xu hướng gắn kết tình cảm',
@@ -54,7 +54,7 @@ const BAZI_VIP_CONFIG = {
       id: 4,
       title: 'Sức Khỏe & Tạng Phủ',
       provider: 'gemini',
-      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      model: process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite',
       keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Cân bằng Ngũ hành và trạng thái 5 tạng phủ theo lý luận Đông Y',
@@ -68,7 +68,7 @@ const BAZI_VIP_CONFIG = {
       id: 5,
       title: 'Phong Thủy & Cải Vận',
       provider: 'gemini',
-      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      model: process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite',
       keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Định hình Persona phong cách sống kích hoạt vận may theo độ tuổi',
@@ -82,7 +82,7 @@ const BAZI_VIP_CONFIG = {
       id: 6,
       title: 'Mốc Đại Vận 100 Năm',
       provider: 'gemini',
-      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      model: process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite',
       keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Bảng ma trận chu kỳ 10 năm từng bước Đại Vận suốt cuộc đời',
@@ -95,7 +95,7 @@ const BAZI_VIP_CONFIG = {
   ],
 
   getReplicas(ageInfo = null) {
-    const defaultModel = process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite';
+    const defaultModel = process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite';
 
     // Nhóm 1: Trẻ nhỏ & Học đường (< 18 tuổi)
     if (ageInfo?.ageGroup === 'CHILD') {
@@ -309,7 +309,7 @@ const ZIWEI_VIP_CONFIG = {
       id: 1,
       title: 'Mệnh - Thân - Phúc Đức (Cốt Cách & Bài Học Nghiệp Duyên)',
       provider: 'gemini',
-      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      model: process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite',
       keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Cung Mệnh: Cốt cách tinh đẩu tọa thủ, ngũ hành bản mệnh, diện mạo, tư chất và thiên phú trời sinh',
@@ -323,7 +323,7 @@ const ZIWEI_VIP_CONFIG = {
       id: 2,
       title: 'Quan Lộc - Tài Bạch - Điền Trạch (Công Danh, Tài Lộc & Sản Nghiệp)',
       provider: 'gemini',
-      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      model: process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite',
       keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Cung Quan Lộc: Khả năng nắm giữ chức quyền, tư chất làm chủ (khởi nghiệp) hay làm tướng (quản trị), định hướng ngành nghề mũi nhọn',
@@ -337,7 +337,7 @@ const ZIWEI_VIP_CONFIG = {
       id: 3,
       title: 'Phu Thê - Tử Tức (Hôn Nhân, Bạn Đời & Hậu Duệ)',
       provider: 'gemini',
-      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      model: process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite',
       keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Cung Phu Thê: Khí chất, tính cách, gia thế người bạn đời; các tinh đẩu chủ quản và ngũ hành bổ trợ',
@@ -351,7 +351,7 @@ const ZIWEI_VIP_CONFIG = {
       id: 4,
       title: 'Tật Ách - Thiên Di (Sức Khỏe Tạng Phủ & Xuất Ngoại Giao Tế)',
       provider: 'gemini',
-      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      model: process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite',
       keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Cung Tật Ách: Cân bằng tạng phủ theo ngũ hành tinh đẩu (Kim - Phế, Mộc - Can, Thủy - Thận, Hỏa - Tâm, Thổ - Tỳ)',
@@ -365,7 +365,7 @@ const ZIWEI_VIP_CONFIG = {
       id: 5,
       title: 'Nô Bộc - Phụ Mẫu - Huynh Đệ (Bằng Hữu, Quý Nhân & Dòng Tộc)',
       provider: 'gemini',
-      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      model: process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite',
       keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Cung Nô Bộc: Mạng lưới bằng hữu, đồng sự cấp dưới, đối tác làm ăn; tiêu chí nhận diện bạn hiền vs kẻ trắc trở',
@@ -378,7 +378,7 @@ const ZIWEI_VIP_CONFIG = {
   ],
 
   getReplicas(ageInfo = null) {
-    const defaultModel = process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite';
+    const defaultModel = process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite';
     if (ageInfo?.ageGroup === 'CHILD') {
       return [
         {
@@ -531,7 +531,7 @@ const MARRIAGE_VIP_CONFIG = {
       id: 1,
       title: 'Cốt Cách & Tâm Lý Hai Bản Thể',
       provider: 'gemini',
-      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      model: process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite',
       keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'So sánh Nhật Chủ, ngũ hành bản mệnh và bản chất khí chất của Chồng vs Vợ',
@@ -545,7 +545,7 @@ const MARRIAGE_VIP_CONFIG = {
       id: 2,
       title: 'Tài Chính & Quản Trị Tổ Ấm Gia Đình',
       provider: 'gemini',
-      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      model: process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite',
       keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Đối chiếu Thập Thần Tài Tinh: Chính Tài (thu nhập vững) vs Thiên Tài (đầu tư, kinh doanh)',
@@ -559,7 +559,7 @@ const MARRIAGE_VIP_CONFIG = {
       id: 3,
       title: 'Hóa Giải Xung Khắc & Phong Thủy Phòng Cưới',
       provider: 'gemini',
-      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      model: process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite',
       keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Phân tích Cung Phi Bát Trạch (Đông Tứ Mệnh vs Tây Tứ Mệnh, Diên Niên/Thiên Y vs Tuyệt Mệnh/Họa Hại)',
@@ -573,7 +573,7 @@ const MARRIAGE_VIP_CONFIG = {
       id: 4,
       title: 'Con Cái, Dòng Tộc & Lộ Trình Vận Trình Trăm Năm',
       provider: 'gemini',
-      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      model: process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite',
       keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Đường con cái (Tử Tức) qua Trụ Giờ và Cung Phúc: Cơ duyên thụ thai và phúc trạch con cái',
@@ -618,7 +618,7 @@ const ICHING_VIP_CONFIG = {
       id: 1,
       title: 'Khởi Quái & Tượng Pháp Chu Dịch (Bản Chất Thời Thế & Quái Tượng Vĩ Mô)',
       provider: 'gemini',
-      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      model: process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite',
       keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Bản chất Quẻ Chủ (Thể) và xu hướng chuyển hóa sang Quẻ Biến (Dụng), Quẻ Hỗ tiềm ẩn',
@@ -632,7 +632,7 @@ const ICHING_VIP_CONFIG = {
       id: 2,
       title: 'Biện Chứng Lục Hào & Vị Thế Dụng Thần (Thực Lực Cốt Lõi Trọng Tâm)',
       provider: 'gemini',
-      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      model: process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite',
       keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Định vị Dụng Thần chuẩn xác duy nhất theo câu hỏi cốt lõi (Tài, Quan, Phụ, Tử, Huynh)',
@@ -646,7 +646,7 @@ const ICHING_VIP_CONFIG = {
       id: 3,
       title: 'Động Hào Biến Khí & Yếu Tố Ẩn Tàng (Dòng Chảy Biến Động & Tâm Lý Vi Mô)',
       provider: 'gemini',
-      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      model: process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite',
       keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Giải phẫu chi tiết các Hào Động: Hào phát động sinh hay khắc Dụng Thần, hỗ trợ hay phá hoại',
@@ -660,7 +660,7 @@ const ICHING_VIP_CONFIG = {
       id: 4,
       title: 'Đối Chiếu Biện Chứng Tượng - Hào & Phán Quyết Thực Thể (Nút Thắt Cốt Lõi - Không Thiên Vị)',
       provider: 'gemini',
-      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      model: process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite',
       keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Bảng Đối Chiếu Ma Trận Biểu (Tượng 64 Quẻ) vs Lý (Lục Hào Dụng Thần)',
@@ -674,7 +674,7 @@ const ICHING_VIP_CONFIG = {
       id: 5,
       title: 'Định Lượng Thời Khắc Ứng Kỳ & Bản Đồ Không - Thời Gian Theo Ngữ Cảnh',
       provider: 'gemini',
-      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      model: process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite',
       keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Phân loại câu hỏi theo 4 Nhóm Thời Gian: Chu kỳ sinh học (theo tháng) vs Chuyển dịch cơ hội (tháng + ngày vàng gần nhất) vs Ngắn hạn/Giao dịch (ngày gần nhất + giờ hoàng đạo) vs Tìm đồ/Người (còn/mất + giờ/ngày gần nhất)',
@@ -688,7 +688,7 @@ const ICHING_VIP_CONFIG = {
       id: 6,
       title: 'Kim Chỉ Nam Đạo Dịch & Diệu Kế Hành Động "Tùy Thời Biến Dịch"',
       provider: 'gemini',
-      model: process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite',
+      model: process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite',
       keyEnv: 'GEMINI_API_KEY',
       subtopics: [
         'Phác đồ hành động từng bước (Step-by-step Action Blueprint) giải quyết nút thắt câu hỏi',

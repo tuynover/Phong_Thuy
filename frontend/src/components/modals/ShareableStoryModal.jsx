@@ -89,7 +89,7 @@ export default function ShareableStoryModal({
 }) {
   const [selectedThemeId, setSelectedThemeId] = useState('obsidian');
   const [aspectRatio, setAspectRatio] = useState('9:16'); // '9:16' | '1:1'
-  const [displayName, setDisplayName] = useState(user?.name || 'Đương Số');
+  const displayName = user?.name || 'Đương Số';
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [isCopied, setIsCopied] = useState(false);

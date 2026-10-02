@@ -6,13 +6,18 @@ export default function NetworkStatusBanner() {
   const { isOnline, wasOffline, resetWasOffline } = useNetworkStatus();
   const [showRestored, setShowRestored] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+  const [prevOnline, setPrevOnline] = useState(isOnline);
 
-  useEffect(() => {
+  if (isOnline !== prevOnline) {
+    setPrevOnline(isOnline);
     if (!isOnline) {
       setDismissed(false);
       setShowRestored(false);
-    } else if (wasOffline) {
-      setShowRestored(true);
+    }
+  }
+
+  useEffect(() => {
+    if (isOnline && wasOffline) {
       const timer = setTimeout(() => {
         setShowRestored(false);
         resetWasOffline();

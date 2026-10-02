@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
-import ReactMarkdown from 'react-markdown';
+import React, { useState, useContext } from 'react';
 import { AuthContext } from '@/context/AuthContext';
 import { getInterpretationStreamUrl, rateMarriage, togglePublicCalculation } from '@/services/api';
 import { AlertCircle, BookOpen, ScrollText, Heart, X, ArrowUp, ArrowDown, MessageCircle, Star, Zap, Crown, FileDown } from 'lucide-react';
@@ -20,8 +19,460 @@ import {
     stemElements,
     branchElements,
     getColorClass,
-    getBgColorClass,
 } from '@/utils/astrologyHelpers';
+
+const getNaYinColorClass = (naYinText) => {
+    if (!naYinText) return 'text-slate-500 bg-slate-100/80 border-slate-200/40';
+    if (naYinText.includes('Kim')) return 'text-slate-700 bg-slate-100 border-slate-350';
+    if (naYinText.includes('Mộc')) return 'text-emerald-700 bg-emerald-50 border-emerald-250/30';
+    if (naYinText.includes('Thủy')) return 'text-blue-700 bg-blue-50 border-blue-200/40';
+    if (naYinText.includes('Hỏa')) return 'text-red-700 bg-red-50 border-red-200/40';
+    if (naYinText.includes('Thổ')) return 'text-amber-800 bg-amber-50/60 border-amber-250/30';
+    return 'text-slate-500 bg-slate-100/80 border-slate-200/40';
+};
+
+const getAbbreviatedTruongSinh = (name) => {
+    if (!name) return '';
+    const abbrev = {
+        'Trường Sinh': 'T.Sinh',
+        'Mộc Dục': 'M.Dục',
+        'Quan Đới': 'Q.Đới',
+        'Lâm Quan': 'L.Quan',
+        'Đế Vượng': 'Đ.Vượng',
+        'Suy': 'Suy',
+        'Bệnh': 'Bệnh',
+        'Tử': 'Tử',
+        'Mộ': 'Mộ',
+        'Tuyệt': 'Tuyệt',
+        'Thai': 'Thai',
+        'Dưỡng': 'Dưỡng'
+    };
+    return abbrev[name] || name;
+};
+
+// radar chart element drawing helper
+const FiveElementsDiagram = ({ scores, canChi }) => {
+    const safeScores = scores || {};
+    const totalScore = Object.values(safeScores).reduce((a, b) => a + b, 0);
+    const getPercentage = (key) => {
+        if (!totalScore) return 0;
+        return Math.round(((safeScores[key] || 0) / totalScore) * 100);
+    };
+    
+    const width = 360;
+    const height = 280;
+    const cx = width / 2;
+    const cy = 140;
+    const rLayout = 100; // Radius for grid
+    const rLabel = 120; // Radius for label
+    
+    const order = ['Moc', 'Hoa', 'Tho', 'Kim', 'Thuy'];
+    const dmElem = canChi && canChi.day && canChi.day.gan ? stemElements[canChi.day.gan] : null;
+    const dmIndex = dmElem ? order.indexOf(dmElem) : -1;
+    
+    const getSubLabel = (key) => {
+        if (dmIndex === -1) return '';
+        const idx = order.indexOf(key);
+        const diff = (idx - dmIndex + 5) % 5;
+        const subLabels = {
+            0: 'KẾT NỐI',
+            1: 'SÁNG TẠO',
+            2: 'QUẢN LÝ',
+            3: 'HỖ TRỢ',
+            4: 'TƯ DUY'
+        };
+        return subLabels[diff] || '';
+    };
+
+    const getBezierPath = (points, tension = 0.08) => {
+        if (points.length === 0) return '';
+        let d = `M ${points[0].x} ${points[0].y}`;
+        const n = points.length;
+        for (let i = 0; i < n; i++) {
+            const p0 = points[(i - 1 + n) % n];
+            const p1 = points[i];
+            const p2 = points[(i + 1) % n];
+            const p3 = points[(i + 2) % n];
+            
+            const cp1x = p1.x + (p2.x - p0.x) * tension;
+            const cp1y = p1.y + (p2.y - p0.y) * tension;
+            const cp2x = p2.x - (p3.x - p1.x) * tension;
+            const cp2y = p2.y - (p3.y - p1.y) * tension;
+            
+            d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
+        }
+        return d;
+    };
+    
+    const elementsDef = [
+        { key: 'Hoa', label: 'Hỏa', color: '#b91c1c', bgColor: '#fee2e2', char: '火', emoji: '🔥', subLabel: getSubLabel('Hoa'), angle: -Math.PI / 2 },
+        { key: 'Tho', label: 'Thổ', color: '#854d0e', bgColor: '#fef3c7', char: '土', emoji: '⛰️', subLabel: getSubLabel('Tho'), angle: -Math.PI / 2 + (2 * Math.PI) / 5 },
+        { key: 'Kim', label: 'Kim', color: '#4b5563', bgColor: '#f3f4f6', char: '金', emoji: '🪙', subLabel: getSubLabel('Kim'), angle: -Math.PI / 2 + (4 * Math.PI) / 5 },
+        { key: 'Thuy', label: 'Thủy', color: '#1d4ed8', bgColor: '#dbeafe', char: '水', emoji: '💧', subLabel: getSubLabel('Thuy'), angle: -Math.PI / 2 + (6 * Math.PI) / 5 },
+        { key: 'Moc', label: 'Mộc', color: '#15803d', bgColor: '#d1fae5', char: '木', emoji: '🌲', subLabel: getSubLabel('Moc'), angle: -Math.PI / 2 + (8 * Math.PI) / 5 }
+    ];
+    
+    const nodes = elementsDef.map(el => {
+        const pct = getPercentage(el.key);
+        const rData = rLayout * (pct / 100);
+        
+        return {
+            ...el,
+            x: cx + rData * Math.cos(el.angle),
+            y: cy + rData * Math.sin(el.angle),
+            xLabel: cx + rLabel * Math.cos(el.angle),
+            yLabel: cy + rLabel * Math.sin(el.angle),
+            pct
+        };
+    });
+    
+    const gridLevels = [1, 2, 3, 4, 5];
+    
+    return (
+        <div className="relative flex flex-col items-center justify-center max-w-sm mx-auto w-full select-none mt-2">
+            <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto overflow-visible">
+                <defs>
+                    <filter id="marriageGlow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feDropShadow dx="0" dy="3" stdDeviation="4" floodColor="#b91c1c" floodOpacity="0.1" />
+                    </filter>
+                    <radialGradient id="marriageGrad" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stopColor="#f43f5e" stopOpacity="0.05" />
+                        <stop offset="85%" stopColor="#f43f5e" stopOpacity="0.2" />
+                        <stop offset="100%" stopColor="#e11d48" stopOpacity="0.35" />
+                    </radialGradient>
+                </defs>
+
+                {gridLevels.map(level => {
+                    const rLevel = rLayout * (level / 5);
+                    const points = elementsDef.map(el => {
+                        const x = cx + rLevel * Math.cos(el.angle);
+                        const y = cy + rLevel * Math.sin(el.angle);
+                        return `${x},${y}`;
+                    }).join(' ');
+                    const isOuter = level === 5;
+                    return (
+                        <polygon 
+                            key={`grid-${level}`}
+                            points={points} 
+                            fill="none" 
+                            stroke={isOuter ? "rgba(226, 115, 150, 0.4)" : "rgba(226, 115, 150, 0.15)"} 
+                            strokeWidth={isOuter ? "1.5" : "1"} 
+                            strokeDasharray={isOuter ? "none" : "3,3"}
+                        />
+                    );
+                })}
+                
+                {elementsDef.map((el, idx) => {
+                    const xOuter = cx + rLayout * Math.cos(el.angle);
+                    const yOuter = cy + rLayout * Math.sin(el.angle);
+                    return (
+                        <line 
+                            key={`spoke-${idx}`} 
+                            x1={cx} y1={cy} 
+                            x2={xOuter} y2={yOuter} 
+                            stroke="rgba(226, 115, 150, 0.25)" 
+                            strokeWidth="1" 
+                            strokeDasharray="2,2"
+                        />
+                    );
+                })}
+
+                <circle cx={cx} cy={cy} r="3" fill="#f43f5e" opacity="0.6" />
+                
+                <path 
+                    d={getBezierPath(nodes, 0.08)} 
+                    fill="url(#marriageGrad)" 
+                    stroke="#f43f5e" 
+                    strokeWidth="2.5" 
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    filter="url(#marriageGlow)"
+                />
+                
+                {nodes.map((node, idx) => (
+                    <g key={`marker-${idx}`}>
+                        <circle cx={node.x} cy={node.y} r="4" fill={node.color} stroke="#white" strokeWidth="1" />
+                        <foreignObject 
+                            x={node.xLabel - 32} 
+                            y={node.yLabel - 20} 
+                            width="64" 
+                            height="44"
+                            className="overflow-visible"
+                        >
+                            <div className="flex flex-col items-center justify-center text-center">
+                                <div 
+                                    className="text-[10px] font-black px-1.5 py-0.5 rounded-full shadow-sm border flex items-center gap-0.5"
+                                    style={{ backgroundColor: node.bgColor, borderColor: node.color + '20', color: node.color }}
+                                >
+                                    <span>{node.emoji}</span>
+                                    <span>{node.label} ({node.pct}%)</span>
+                                </div>
+                                {node.subLabel && (
+                                    <div className="text-[7.5px] font-extrabold text-neutral-400 mt-0.5 tracking-wider uppercase">{node.subLabel}</div>
+                                )}
+                            </div>
+                        </foreignObject>
+                    </g>
+                ))}
+            </svg>
+        </div>
+    );
+};
+
+const SHEN_SHA_COLORS = {
+    // --- 1. NHÓM CÁT THẦN (MÀU XANH - Emerald) ---
+    'Thiên Ất': 'text-emerald-600',
+    'Thiên Ất Quý Nhân': 'text-emerald-600',
+    'Thái Cực': 'text-emerald-600',
+    'Thái Cực Quý Nhân': 'text-emerald-600',
+    'Thiên Đức': 'text-emerald-600',
+    'Thiên Đức Quý Nhân': 'text-emerald-600',
+    'Nguyệt Đức': 'text-emerald-600',
+    'Nguyệt Đức Quý Nhân': 'text-emerald-600',
+    'Lộc Thần': 'text-emerald-600',
+    'Tuế Lộc': 'text-emerald-600',
+    'Kiến Lộc': 'text-emerald-600',
+    'Chuyên Lộc': 'text-emerald-600',
+    'Quy Lộc': 'text-emerald-600',
+    'Văn Xương': 'text-emerald-600',
+    'Văn Xương Quý Nhân': 'text-emerald-600',
+    'Học Đường': 'text-emerald-600',
+    'Học Đường Quý Nhân': 'text-emerald-600',
+    'Từ Quán': 'text-emerald-600',
+    'Từ Quán Quý Nhân': 'text-emerald-600',
+    'Tướng Tinh': 'text-emerald-600',
+    'Phúc Tinh': 'text-emerald-600',
+    'Phúc Tinh Quý Nhân': 'text-emerald-600',
+    'Thiên Y': 'text-emerald-600',
+    'Quốc Ấn': 'text-emerald-600',
+    'Quốc Ấn Quý Nhân': 'text-emerald-600',
+    'Thiên Trù': 'text-emerald-600',
+    'Thiên Trù Quý Nhân': 'text-emerald-600',
+    'Đường Phù': 'text-emerald-600',
+    'Thiên Hỷ': 'text-emerald-600',
+    'Thiên Hỷ Quý Nhân': 'text-emerald-600',
+    'Kim Dư': 'text-emerald-600',
+    'Kim Dư Quý Nhân': 'text-emerald-600',
+    'Thiên Xá': 'text-emerald-600',
+    'Âm Chú Dương Thụ': 'text-emerald-600',
+    'Thiên Thượng Tam Kỳ': 'text-emerald-600',
+    'Địa Thượng Tam Kỳ': 'text-emerald-600',
+    'Nhân Gian Tam Kỳ': 'text-emerald-600',
+    'Thiếu Dương': 'text-emerald-600',
+    'Thiếu Âm': 'text-emerald-600',
+    'Long Đức': 'text-emerald-600',
+    'Phúc Đức': 'text-emerald-600',
+
+    // --- 2. NHÓM HUNG SÁT (MÀU ĐỎ - Rose) ---
+    'Kình Dương': 'text-rose-600',
+    'Đà La': 'text-rose-600',
+    'Kiếp Sát': 'text-rose-600',
+    'Vong Thần': 'text-rose-600',
+    'Vong Sát': 'text-rose-600',
+    'Cô Thần': 'text-rose-600',
+    'Quả Tú': 'text-rose-600',
+    'Đại Hao': 'text-rose-600',
+    'Tiểu Hao': 'text-rose-600',
+    'Tai Sát': 'text-rose-600',
+    'Nguyên Thần': 'text-rose-600',
+    'Huyết Nhận': 'text-rose-600',
+    'Huyết Nhận Sát': 'text-rose-600',
+    'Tử Phù': 'text-rose-600',
+    'Bệnh Phù': 'text-rose-600',
+    'Thương Quan Kiến Quan': 'text-rose-600',
+    'Thiên La': 'text-rose-600',
+    'Địa Võng': 'text-rose-600',
+    'Cô Loan Sát': 'text-rose-600',
+    'Lưu Hà': 'text-rose-600',
+    'Lưu Hà Sát': 'text-rose-600',
+    'Quan Phù': 'text-rose-600',
+    'Thập Ác Đại Bại': 'text-rose-600',
+    'Tỷ Kiên Cô Quả': 'text-rose-600',
+    'Phi Nhẫn': 'text-rose-600',
+    'Tứ Phế': 'text-rose-600',
+    'Câu Sát': 'text-rose-600',
+    'Giảo Sát': 'text-rose-600',
+    'Ngũ Quỷ': 'text-rose-600',
+    'Cách Giác': 'text-rose-600',
+    'Tang Môn': 'text-rose-600',
+    'Điếu Khách': 'text-rose-600',
+    'Bạch Hổ': 'text-rose-600',
+    'Tuế Phá': 'text-rose-600',
+    'Trực Phù': 'text-rose-600',
+
+    // --- 3. NHÓM TRUNG TÍNH / CÁT HUNG LẪN LỘN (MÀU ĐEN - Slate) ---
+    'Đào Hoa': 'text-slate-800',
+    'Hồng Loan': 'text-slate-800',
+    'Hồng Diễm Sát': 'text-slate-800',
+    'Không Vong': 'text-slate-800',
+    'Dịch Mã': 'text-slate-800',
+    'Hoa Cái': 'text-slate-800',
+    'Khôi Cương': 'text-slate-800',
+    'Khôi Canh': 'text-slate-800',
+    'Âm Dương Sai Thác': 'text-slate-800',
+    'Kim Thần': 'text-slate-800',
+    'Thái Tuế': 'text-slate-800'
+};
+
+const getShenShaColorClass = (ss, isFemale) => {
+    if (!ss) return isFemale ? 'text-rose-700' : 'text-blue-700';
+    if (SHEN_SHA_COLORS[ss]) return SHEN_SHA_COLORS[ss];
+
+    const baseTerm = ss.split(' (')[0].trim();
+    if (SHEN_SHA_COLORS[baseTerm]) return SHEN_SHA_COLORS[baseTerm];
+
+    const lower = ss.toLowerCase();
+    // Cát Thần (Xanh)
+    if (lower.includes('lộc') || lower.includes('đức') || lower.includes('quý nhân') || lower.includes('ấn') || lower.includes('y') || lower.includes('hỷ') || lower.includes('xương') || lower.includes('đường') || lower.includes('quán') || lower.includes('dư') || lower.includes('tinh') || lower.includes('phúc')) {
+        return 'text-emerald-600';
+    }
+    // Hung Sát (Đỏ)
+    if (lower.includes('sát') || lower.includes('phù') || lower.includes('đại bại') || lower.includes('vong') || lower.includes('cô') || lower.includes('tú') || lower.includes('dương') || lower.includes('đà') || lower.includes('hao') || lower.includes('nhận') || lower.includes('kiến quan') || lower.includes('phế') || lower.includes('quỷ') || lower.includes('giác') || lower.includes('môn') || lower.includes('khách') || lower.includes('hổ')) {
+        return 'text-rose-600';
+    }
+
+    return 'text-slate-800';
+};
+
+const getAbbreviatedThapThan = (name) => {
+    if (!name) return '';
+    return name.trim();
+};
+
+const PillarCard = ({ title, gan, zhi, thapThanGan, tangCan = [], naYin, truongSinh, shenSha = [], isFemale, isDayMaster }) => {
+    const ganElem = stemElements[gan];
+    const zhiElem = branchElements[zhi];
+    const showTruongSinh = truongSinh;
+
+    const isHighlighted = isDayMaster;
+    const themeBorder = isFemale
+        ? (isHighlighted ? 'border-rose-500 bg-rose-50/20 ring-4 ring-rose-100' : 'border-rose-100 bg-white hover:border-rose-300')
+        : (isHighlighted ? 'border-blue-500 bg-blue-50/20 ring-4 ring-blue-100' : 'border-blue-100 bg-white hover:border-blue-300');
+
+    return (
+        <div className={`relative flex flex-col justify-start items-center py-4 sm:py-6 rounded-2xl shadow-sm border-2 transition-all hover:scale-[1.02] flex-1 self-stretch h-full min-h-[385px] sm:min-h-[415px] md:min-h-[455px] px-3 sm:px-5 md:px-6 mx-0.5 sm:mx-1 ${themeBorder}`}>
+            <Tooltip term={title} unstyled={true}>
+                <div className={`text-[9px] sm:text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${isDayMaster ? (isFemale ? 'bg-rose-100 text-rose-800' : 'bg-blue-100 text-blue-800') : 'bg-gray-100 text-gray-505'}`}>
+                    {title}
+                </div>
+            </Tooltip>
+
+            {/* Horizontal dashed divider line */}
+            <div className="w-full border-t border-dashed border-gray-200 my-2"></div>
+            
+            <div className="text-[10px] sm:text-sm font-bold text-gray-400 mb-1.5 h-4 sm:h-5">
+                {thapThanGan !== 'Nhật Chủ' && thapThanGan !== 'Bản Thể' ? (
+                    <Tooltip term={thapThanGan} unstyled={true}>
+                        <span className="cursor-help hover:text-rose-700 transition-colors">{thapThanGan}</span>
+                    </Tooltip>
+                ) : ''}
+            </div>
+            
+            <Tooltip term={gan} unstyled={true}>
+                <div className={`text-2xl sm:text-4xl font-black mt-1 mb-1 sm:mb-2 hover:scale-110 transition-transform ${getColorClass(ganElem)}`}>{gan}</div>
+            </Tooltip>
+            
+            {/* Địa chi và Trường sinh ngang hàng (xoay dọc sát mép trái giống bên Bát Tự) */}
+            <div className="flex items-center justify-center relative w-full select-none">
+                {showTruongSinh && (
+                    <div className="absolute -left-3 sm:-left-4 md:-left-5 top-1/2 -translate-y-1/2 flex items-center justify-center w-4 h-8 select-none">
+                        <Tooltip term={truongSinh} unstyled={true}>
+                            <span className={`text-[10px] sm:text-[11.5px] font-black cursor-help transition-colors transform -rotate-90 origin-center inline-block whitespace-nowrap leading-none tracking-tighter ${isFemale ? 'text-rose-650 hover:text-rose-850' : 'text-blue-650 hover:text-blue-850'}`}>
+                                {getAbbreviatedTruongSinh(truongSinh)}
+                            </span>
+                        </Tooltip>
+                    </div>
+                )}
+                <Tooltip term={zhi} unstyled={true}>
+                    <div className={`text-2xl sm:text-4xl font-black mb-1 sm:mb-2 hover:scale-110 transition-transform ${getColorClass(zhiElem)}`}>{zhi}</div>
+                </Tooltip>
+            </div>
+            
+            {naYin && (
+                <Tooltip term={naYin} unstyled={true}>
+                    <div className={`text-[8.5px] sm:text-xs font-semibold px-2 py-0.5 rounded-full border my-1 text-center max-w-full truncate hover:brightness-95 transition-all ${getNaYinColorClass(naYin)}`}>
+                        {naYin}
+                    </div>
+                </Tooltip>
+            )}
+            
+            {/* Tàng can: pad lên đủ 3 dòng cố định chiều cao */}
+            <div className="w-full border-t border-dashed border-gray-200 mt-4 pt-2 flex flex-col items-center justify-center">
+                <div className="w-full max-w-[125px] sm:max-w-[145px] flex flex-col gap-1 mt-1">
+                    {(() => {
+                        const paddedTangCan = [...tangCan];
+                        while (paddedTangCan.length < 3) {
+                            paddedTangCan.push({ gan: '', thapThan: '' });
+                        }
+                        return paddedTangCan.map((tc, idx) => (
+                            <div key={idx} className="flex justify-between items-center text-[10px] sm:text-[12.5px] leading-tight w-full font-sans h-[15px] sm:h-[18px]">
+                                {tc.gan ? (
+                                    <>
+                                        <Tooltip term={tc.gan} unstyled={true}>
+                                            <span className={`font-bold shrink-0 text-left hover:scale-110 transition-transform ${getColorClass(stemElements[tc.gan])}`}>{tc.gan}</span>
+                                        </Tooltip>
+                                        <Tooltip term={tc.thapThan} unstyled={true}>
+                                            <span className={`font-bold text-right truncate pl-1 hover:underline transition-all ${isFemale ? 'text-rose-800 hover:text-rose-950' : 'text-blue-800 hover:text-blue-950'}`}>{getAbbreviatedThapThan(tc.thapThan)}</span>
+                                        </Tooltip>
+                                    </>
+                                ) : (
+                                    <span className="invisible">&nbsp;</span>
+                                )}
+                            </div>
+                        ));
+                    })()}
+                </div>
+            </div>
+
+            {/* Thần Sát Bát Tự: pad lên đủ 4 dòng cố định chiều cao */}
+            <div className="w-full border-t border-dashed border-gray-200 mt-2.5 pt-2 flex flex-col items-center justify-center">
+                <div className="w-full max-w-[125px] sm:max-w-[145px] flex flex-col gap-1 mt-1">
+                    {(() => {
+                        const paddedShenSha = [...shenSha];
+                        while (paddedShenSha.length < 4) {
+                            paddedShenSha.push('');
+                        }
+                        return paddedShenSha.map((ss, idx) => {
+                            const baseTerm = ss ? ss.split(' (')[0] : '';
+                            const cleanSS = ss ? ss.replace(/\(\s+/g, '(').replace(/\s+\)/g, ')') : '';
+                            const colorClass = getShenShaColorClass(ss, isFemale);
+                            return (
+                                <div key={idx} className="flex justify-center items-center text-[10px] sm:text-[12px] leading-tight w-full font-black h-[15px] sm:h-[18px]">
+                                    {ss ? (
+                                        <Tooltip term={baseTerm} unstyled={true}>
+                                            <span className={`${colorClass} hover:scale-105 transition-transform cursor-help whitespace-nowrap`}>
+                                                {cleanSS}
+                                            </span>
+                                        </Tooltip>
+                                    ) : (
+                                        <span className="invisible">&nbsp;</span>
+                                    )}
+                                </div>
+                            );
+                        });
+                    })()}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const BaziPillarsSection = ({ canChi, isFemale }) => {
+    const safeCanChi = {
+        year: canChi?.year || {},
+        month: canChi?.month || {},
+        day: canChi?.day || {},
+        hour: canChi?.hour || {}
+    };
+    return (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 justify-center items-stretch w-full pb-2">
+            <PillarCard title="Năm Sinh" gan={safeCanChi.year.gan} zhi={safeCanChi.year.zhi} thapThanGan={safeCanChi.year.thapThanGan} tangCan={safeCanChi.year.tangCan} naYin={safeCanChi.year.naYin} truongSinh={safeCanChi.year.truongSinh} shenSha={safeCanChi.year.shenSha} isFemale={isFemale} isDayMaster={false} />
+            <PillarCard title="Nguyệt Lệnh" gan={safeCanChi.month.gan} zhi={safeCanChi.month.zhi} thapThanGan={safeCanChi.month.thapThanGan} tangCan={safeCanChi.month.tangCan} naYin={safeCanChi.month.naYin} truongSinh={safeCanChi.month.truongSinh} shenSha={safeCanChi.month.shenSha} isFemale={isFemale} isDayMaster={false} />
+            <PillarCard title="Nhật Chủ" gan={safeCanChi.day.gan} zhi={safeCanChi.day.zhi} thapThanGan="Nhật Chủ" tangCan={safeCanChi.day.tangCan} naYin={safeCanChi.day.naYin} truongSinh={safeCanChi.day.truongSinh} shenSha={safeCanChi.day.shenSha} isFemale={isFemale} isDayMaster={true} />
+            <PillarCard title="Giờ Sinh" gan={safeCanChi.hour.gan} zhi={safeCanChi.hour.zhi} thapThanGan={safeCanChi.hour.thapThanGan} tangCan={safeCanChi.hour.tangCan} naYin={safeCanChi.hour.naYin} truongSinh={safeCanChi.hour.truongSinh} shenSha={safeCanChi.hour.shenSha} isFemale={isFemale} isDayMaster={false} />
+        </div>
+    );
+};
 
 const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHistory }) => {
     const { user, setUser, token } = useContext(AuthContext);
@@ -60,9 +511,9 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
 
     const {
         interpretation,
-        setInterpretation,
+        setInterpretation: _setInterpretation,
         interpretationMode,
-        setInterpretationMode,
+        setInterpretationMode: _setInterpretationMode,
         isInterpreting,
         vipChapter,
         vipCompletedChapters,
@@ -73,8 +524,8 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
         streamError,
         setStreamError,
         startStream,
-        abortStream,
-        resetStream
+        abortStream: _abortStream,
+        resetStream: _resetStream
     } = useInterpretationStream({
         initialContent: getInitialInterpretationText(data?.aiInterpretation),
         initialMode: data?.aiInterpretation?.mode || 'standard',
@@ -93,7 +544,7 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
         feedback,
         setFeedback,
         justRated,
-        setJustRated,
+        setJustRated: _setJustRated,
         submitRating
     } = useRecordRating({
         recordId: data?.recordId || data?._id,
@@ -103,16 +554,15 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
     });
 
     const [result, setResult] = useState(data);
-    const [isPublicState, setIsPublicState] = useState(false);
+    const [prevData, setPrevData] = useState(data);
+    const [isPublicState, setIsPublicState] = useState(() => data?.isPublic || false);
     const [toastMsg, setToastMsg] = useState('');
 
-    useEffect(() => {
+    if (prevData !== data) {
+        setPrevData(data);
         setResult(data);
-    }, [data]);
-
-    useEffect(() => {
-        setIsPublicState(result?.isPublic || false);
-    }, [result]);
+        setIsPublicState(data?.isPublic || false);
+    }
 
     const handleTogglePublic = async () => {
         const resolvedId = result?.recordId || result?._id;
@@ -154,204 +604,6 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
     const maleBaziData = data.maleBaziData || {};
     const femaleBaziData = data.femaleBaziData || {};
     const resolvedRecordId = recordId || data._id;
-
-    const getNaYinColorClass = (naYinText) => {
-        if (!naYinText) return 'text-slate-500 bg-slate-100/80 border-slate-200/40';
-        if (naYinText.includes('Kim')) return 'text-slate-700 bg-slate-100 border-slate-350';
-        if (naYinText.includes('Mộc')) return 'text-emerald-700 bg-emerald-50 border-emerald-250/30';
-        if (naYinText.includes('Thủy')) return 'text-blue-700 bg-blue-50 border-blue-200/40';
-        if (naYinText.includes('Hỏa')) return 'text-red-700 bg-red-50 border-red-200/40';
-        if (naYinText.includes('Thổ')) return 'text-amber-800 bg-amber-50/60 border-amber-250/30';
-        return 'text-slate-500 bg-slate-100/80 border-slate-200/40';
-    };
-
-    const getAbbreviatedTruongSinh = (name) => {
-        if (!name) return '';
-        const abbrev = {
-            'Trường Sinh': 'T.Sinh',
-            'Mộc Dục': 'M.Dục',
-            'Quan Đới': 'Q.Đới',
-            'Lâm Quan': 'L.Quan',
-            'Đế Vượng': 'Đ.Vượng',
-            'Suy': 'Suy',
-            'Bệnh': 'Bệnh',
-            'Tử': 'Tử',
-            'Mộ': 'Mộ',
-            'Tuyệt': 'Tuyệt',
-            'Thai': 'Thai',
-            'Dưỡng': 'Dưỡng'
-        };
-        return abbrev[name] || name;
-    };
-
-    // radar chart element drawing helper
-    const FiveElementsDiagram = ({ scores, canChi }) => {
-        const safeScores = scores || {};
-        const totalScore = Object.values(safeScores).reduce((a, b) => a + b, 0);
-        const getPercentage = (key) => {
-            if (!totalScore) return 0;
-            return Math.round(((safeScores[key] || 0) / totalScore) * 100);
-        };
-        
-        const width = 360;
-        const height = 280;
-        const cx = width / 2;
-        const cy = 140;
-        const rLayout = 100; // Radius for grid
-        const rLabel = 120; // Radius for label
-        
-        const order = ['Moc', 'Hoa', 'Tho', 'Kim', 'Thuy'];
-        const dmElem = canChi && canChi.day && canChi.day.gan ? stemElements[canChi.day.gan] : null;
-        const dmIndex = dmElem ? order.indexOf(dmElem) : -1;
-        
-        const getSubLabel = (key) => {
-            if (dmIndex === -1) return '';
-            const idx = order.indexOf(key);
-            const diff = (idx - dmIndex + 5) % 5;
-            const subLabels = {
-                0: 'KẾT NỐI',
-                1: 'SÁNG TẠO',
-                2: 'QUẢN LÝ',
-                3: 'HỖ TRỢ',
-                4: 'TƯ DUY'
-            };
-            return subLabels[diff] || '';
-        };
-
-        const getBezierPath = (points, tension = 0.08) => {
-            if (points.length === 0) return '';
-            let d = `M ${points[0].x} ${points[0].y}`;
-            const n = points.length;
-            for (let i = 0; i < n; i++) {
-                const p0 = points[(i - 1 + n) % n];
-                const p1 = points[i];
-                const p2 = points[(i + 1) % n];
-                const p3 = points[(i + 2) % n];
-                
-                const cp1x = p1.x + (p2.x - p0.x) * tension;
-                const cp1y = p1.y + (p2.y - p0.y) * tension;
-                const cp2x = p2.x - (p3.x - p1.x) * tension;
-                const cp2y = p2.y - (p3.y - p1.y) * tension;
-                
-                d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
-            }
-            return d;
-        };
-        
-        const elementsDef = [
-            { key: 'Hoa', label: 'Hỏa', color: '#b91c1c', bgColor: '#fee2e2', char: '火', emoji: '🔥', subLabel: getSubLabel('Hoa'), angle: -Math.PI / 2 },
-            { key: 'Tho', label: 'Thổ', color: '#854d0e', bgColor: '#fef3c7', char: '土', emoji: '⛰️', subLabel: getSubLabel('Tho'), angle: -Math.PI / 2 + (2 * Math.PI) / 5 },
-            { key: 'Kim', label: 'Kim', color: '#4b5563', bgColor: '#f3f4f6', char: '金', emoji: '🪙', subLabel: getSubLabel('Kim'), angle: -Math.PI / 2 + (4 * Math.PI) / 5 },
-            { key: 'Thuy', label: 'Thủy', color: '#1d4ed8', bgColor: '#dbeafe', char: '水', emoji: '💧', subLabel: getSubLabel('Thuy'), angle: -Math.PI / 2 + (6 * Math.PI) / 5 },
-            { key: 'Moc', label: 'Mộc', color: '#15803d', bgColor: '#d1fae5', char: '木', emoji: '🌲', subLabel: getSubLabel('Moc'), angle: -Math.PI / 2 + (8 * Math.PI) / 5 }
-        ];
-        
-        const nodes = elementsDef.map(el => {
-            const pct = getPercentage(el.key);
-            const rData = rLayout * (pct / 100);
-            
-            return {
-                ...el,
-                x: cx + rData * Math.cos(el.angle),
-                y: cy + rData * Math.sin(el.angle),
-                xLabel: cx + rLabel * Math.cos(el.angle),
-                yLabel: cy + rLabel * Math.sin(el.angle),
-                pct
-            };
-        });
-        
-        const gridLevels = [1, 2, 3, 4, 5];
-        
-        return (
-            <div className="relative flex flex-col items-center justify-center max-w-sm mx-auto w-full select-none mt-2">
-                <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto overflow-visible">
-                    <defs>
-                        <filter id="marriageGlow" x="-20%" y="-20%" width="140%" height="140%">
-                            <feDropShadow dx="0" dy="3" stdDeviation="4" floodColor="#b91c1c" floodOpacity="0.1" />
-                        </filter>
-                        <radialGradient id="marriageGrad" cx="50%" cy="50%" r="50%">
-                            <stop offset="0%" stopColor="#f43f5e" stopOpacity="0.05" />
-                            <stop offset="85%" stopColor="#f43f5e" stopOpacity="0.2" />
-                            <stop offset="100%" stopColor="#e11d48" stopOpacity="0.35" />
-                        </radialGradient>
-                    </defs>
-
-                    {gridLevels.map(level => {
-                        const rLevel = rLayout * (level / 5);
-                        const points = elementsDef.map(el => {
-                            const x = cx + rLevel * Math.cos(el.angle);
-                            const y = cy + rLevel * Math.sin(el.angle);
-                            return `${x},${y}`;
-                        }).join(' ');
-                        const isOuter = level === 5;
-                        return (
-                            <polygon 
-                                key={`grid-${level}`}
-                                points={points} 
-                                fill="none" 
-                                stroke={isOuter ? "rgba(226, 115, 150, 0.4)" : "rgba(226, 115, 150, 0.15)"} 
-                                strokeWidth={isOuter ? "1.5" : "1"} 
-                                strokeDasharray={isOuter ? "none" : "3,3"}
-                            />
-                        );
-                    })}
-                    
-                    {elementsDef.map((el, idx) => {
-                        const xOuter = cx + rLayout * Math.cos(el.angle);
-                        const yOuter = cy + rLayout * Math.sin(el.angle);
-                        return (
-                            <line 
-                                key={`spoke-${idx}`} 
-                                x1={cx} y1={cy} 
-                                x2={xOuter} y2={yOuter} 
-                                stroke="rgba(226, 115, 150, 0.25)" 
-                                strokeWidth="1" 
-                                strokeDasharray="2,2"
-                            />
-                        );
-                    })}
-
-                    <circle cx={cx} cy={cy} r="3" fill="#f43f5e" opacity="0.6" />
-                    
-                    <path 
-                        d={getBezierPath(nodes, 0.08)} 
-                        fill="url(#marriageGrad)" 
-                        stroke="#f43f5e" 
-                        strokeWidth="2.5" 
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        filter="url(#marriageGlow)"
-                    />
-                    
-                    {nodes.map((node, idx) => (
-                        <g key={`marker-${idx}`}>
-                            <circle cx={node.x} cy={node.y} r="4" fill={node.color} stroke="#white" strokeWidth="1" />
-                            <foreignObject 
-                                x={node.xLabel - 32} 
-                                y={node.yLabel - 20} 
-                                width="64" 
-                                height="44"
-                                className="overflow-visible"
-                            >
-                                <div className="flex flex-col items-center justify-center text-center">
-                                    <div 
-                                        className="text-[10px] font-black px-1.5 py-0.5 rounded-full shadow-sm border flex items-center gap-0.5"
-                                        style={{ backgroundColor: node.bgColor, borderColor: node.color + '20', color: node.color }}
-                                    >
-                                        <span>{node.emoji}</span>
-                                        <span>{node.label} ({node.pct}%)</span>
-                                    </div>
-                                    {node.subLabel && (
-                                        <div className="text-[7.5px] font-extrabold text-neutral-400 mt-0.5 tracking-wider uppercase">{node.subLabel}</div>
-                                    )}
-                                </div>
-                            </foreignObject>
-                        </g>
-                    ))}
-                </svg>
-            </div>
-        );
-    };
 
     const handleInterpretClick = () => {
         if (!user) {
@@ -412,261 +664,6 @@ const MarriageBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalida
                 }
             }
         });
-    };
-
-    const SHEN_SHA_COLORS = {
-        // --- 1. NHÓM CÁT THẦN (MÀU XANH - Emerald) ---
-        'Thiên Ất': 'text-emerald-600',
-        'Thiên Ất Quý Nhân': 'text-emerald-600',
-        'Thái Cực': 'text-emerald-600',
-        'Thái Cực Quý Nhân': 'text-emerald-600',
-        'Thiên Đức': 'text-emerald-600',
-        'Thiên Đức Quý Nhân': 'text-emerald-600',
-        'Nguyệt Đức': 'text-emerald-600',
-        'Nguyệt Đức Quý Nhân': 'text-emerald-600',
-        'Lộc Thần': 'text-emerald-600',
-        'Tuế Lộc': 'text-emerald-600',
-        'Kiến Lộc': 'text-emerald-600',
-        'Chuyên Lộc': 'text-emerald-600',
-        'Quy Lộc': 'text-emerald-600',
-        'Văn Xương': 'text-emerald-600',
-        'Văn Xương Quý Nhân': 'text-emerald-600',
-        'Học Đường': 'text-emerald-600',
-        'Học Đường Quý Nhân': 'text-emerald-600',
-        'Từ Quán': 'text-emerald-600',
-        'Từ Quán Quý Nhân': 'text-emerald-600',
-        'Tướng Tinh': 'text-emerald-600',
-        'Phúc Tinh': 'text-emerald-600',
-        'Phúc Tinh Quý Nhân': 'text-emerald-600',
-        'Thiên Y': 'text-emerald-600',
-        'Quốc Ấn': 'text-emerald-600',
-        'Quốc Ấn Quý Nhân': 'text-emerald-600',
-        'Thiên Trù': 'text-emerald-600',
-        'Thiên Trù Quý Nhân': 'text-emerald-600',
-        'Đường Phù': 'text-emerald-600',
-        'Thiên Hỷ': 'text-emerald-600',
-        'Thiên Hỷ Quý Nhân': 'text-emerald-600',
-        'Kim Dư': 'text-emerald-600',
-        'Kim Dư Quý Nhân': 'text-emerald-600',
-        'Thiên Xá': 'text-emerald-600',
-        'Âm Chú Dương Thụ': 'text-emerald-600',
-        'Thiên Thượng Tam Kỳ': 'text-emerald-600',
-        'Địa Thượng Tam Kỳ': 'text-emerald-600',
-        'Nhân Gian Tam Kỳ': 'text-emerald-600',
-        'Thiếu Dương': 'text-emerald-600',
-        'Thiếu Âm': 'text-emerald-600',
-        'Long Đức': 'text-emerald-600',
-        'Phúc Đức': 'text-emerald-600',
-
-        // --- 2. NHÓM HUNG SÁT (MÀU ĐỎ - Rose) ---
-        'Kình Dương': 'text-rose-600',
-        'Đà La': 'text-rose-600',
-        'Kiếp Sát': 'text-rose-600',
-        'Vong Thần': 'text-rose-600',
-        'Vong Sát': 'text-rose-600',
-        'Cô Thần': 'text-rose-600',
-        'Quả Tú': 'text-rose-600',
-        'Đại Hao': 'text-rose-600',
-        'Tiểu Hao': 'text-rose-600',
-        'Tai Sát': 'text-rose-600',
-        'Nguyên Thần': 'text-rose-600',
-        'Huyết Nhận': 'text-rose-600',
-        'Huyết Nhận Sát': 'text-rose-600',
-        'Tử Phù': 'text-rose-600',
-        'Bệnh Phù': 'text-rose-600',
-        'Thương Quan Kiến Quan': 'text-rose-600',
-        'Thiên La': 'text-rose-600',
-        'Địa Võng': 'text-rose-600',
-        'Cô Loan Sát': 'text-rose-600',
-        'Lưu Hà': 'text-rose-600',
-        'Lưu Hà Sát': 'text-rose-600',
-        'Quan Phù': 'text-rose-600',
-        'Thập Ác Đại Bại': 'text-rose-600',
-        'Tỷ Kiên Cô Quả': 'text-rose-600',
-        'Phi Nhẫn': 'text-rose-600',
-        'Tứ Phế': 'text-rose-600',
-        'Câu Sát': 'text-rose-600',
-        'Giảo Sát': 'text-rose-600',
-        'Ngũ Quỷ': 'text-rose-600',
-        'Cách Giác': 'text-rose-600',
-        'Tang Môn': 'text-rose-600',
-        'Điếu Khách': 'text-rose-600',
-        'Bạch Hổ': 'text-rose-600',
-        'Tuế Phá': 'text-rose-600',
-        'Trực Phù': 'text-rose-600',
-
-        // --- 3. NHÓM TRUNG TÍNH / CÁT HUNG LẪN LỘN (MÀU ĐEN - Slate) ---
-        'Đào Hoa': 'text-slate-800',
-        'Hồng Loan': 'text-slate-800',
-        'Hồng Diễm Sát': 'text-slate-800',
-        'Không Vong': 'text-slate-800',
-        'Dịch Mã': 'text-slate-800',
-        'Hoa Cái': 'text-slate-800',
-        'Khôi Cương': 'text-slate-800',
-        'Khôi Canh': 'text-slate-800',
-        'Âm Dương Sai Thác': 'text-slate-800',
-        'Kim Thần': 'text-slate-800',
-        'Thái Tuế': 'text-slate-800'
-    };
-
-    const getShenShaColorClass = (ss, isFemale) => {
-        if (!ss) return isFemale ? 'text-rose-700' : 'text-blue-700';
-        if (SHEN_SHA_COLORS[ss]) return SHEN_SHA_COLORS[ss];
-
-        const baseTerm = ss.split(' (')[0].trim();
-        if (SHEN_SHA_COLORS[baseTerm]) return SHEN_SHA_COLORS[baseTerm];
-
-        const lower = ss.toLowerCase();
-        // Cát Thần (Xanh)
-        if (lower.includes('lộc') || lower.includes('đức') || lower.includes('quý nhân') || lower.includes('ấn') || lower.includes('y') || lower.includes('hỷ') || lower.includes('xương') || lower.includes('đường') || lower.includes('quán') || lower.includes('dư') || lower.includes('tinh') || lower.includes('phúc')) {
-            return 'text-emerald-600';
-        }
-        // Hung Sát (Đỏ)
-        if (lower.includes('sát') || lower.includes('phù') || lower.includes('đại bại') || lower.includes('vong') || lower.includes('cô') || lower.includes('tú') || lower.includes('dương') || lower.includes('đà') || lower.includes('hao') || lower.includes('nhận') || lower.includes('kiến quan') || lower.includes('phế') || lower.includes('quỷ') || lower.includes('giác') || lower.includes('môn') || lower.includes('khách') || lower.includes('hổ')) {
-            return 'text-rose-600';
-        }
-
-        return 'text-slate-800';
-    };
-
-    const getAbbreviatedThapThan = (name) => {
-        if (!name) return '';
-        return name.trim();
-    };
-
-    const PillarCard = ({ title, gan, zhi, thapThanGan, tangCan = [], naYin, truongSinh, shenSha = [], isFemale, isDayMaster }) => {
-        const ganElem = stemElements[gan];
-        const zhiElem = branchElements[zhi];
-        const showTruongSinh = truongSinh;
-
-        const isHighlighted = isDayMaster;
-        const themeBorder = isFemale
-            ? (isHighlighted ? 'border-rose-500 bg-rose-50/20 ring-4 ring-rose-100' : 'border-rose-100 bg-white hover:border-rose-300')
-            : (isHighlighted ? 'border-blue-500 bg-blue-50/20 ring-4 ring-blue-100' : 'border-blue-100 bg-white hover:border-blue-300');
-
-        return (
-            <div className={`relative flex flex-col justify-start items-center py-4 sm:py-6 rounded-2xl shadow-sm border-2 transition-all hover:scale-[1.02] flex-1 self-stretch h-full min-h-[385px] sm:min-h-[415px] md:min-h-[455px] px-3 sm:px-5 md:px-6 mx-0.5 sm:mx-1 ${themeBorder}`}>
-                <Tooltip term={title} unstyled={true}>
-                    <div className={`text-[9px] sm:text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${isDayMaster ? (isFemale ? 'bg-rose-100 text-rose-800' : 'bg-blue-100 text-blue-800') : 'bg-gray-100 text-gray-505'}`}>
-                        {title}
-                    </div>
-                </Tooltip>
-
-                {/* Horizontal dashed divider line */}
-                <div className="w-full border-t border-dashed border-gray-200 my-2"></div>
-                
-                <div className="text-[10px] sm:text-sm font-bold text-gray-400 mb-1.5 h-4 sm:h-5">
-                    {thapThanGan !== 'Nhật Chủ' && thapThanGan !== 'Bản Thể' ? (
-                        <Tooltip term={thapThanGan} unstyled={true}>
-                            <span className="cursor-help hover:text-rose-700 transition-colors">{thapThanGan}</span>
-                        </Tooltip>
-                    ) : ''}
-                </div>
-                
-                <Tooltip term={gan} unstyled={true}>
-                    <div className={`text-2xl sm:text-4xl font-black mt-1 mb-1 sm:mb-2 hover:scale-110 transition-transform ${getColorClass(ganElem)}`}>{gan}</div>
-                </Tooltip>
-                
-                {/* Địa chi và Trường sinh ngang hàng (xoay dọc sát mép trái giống bên Bát Tự) */}
-                <div className="flex items-center justify-center relative w-full select-none">
-                    {showTruongSinh && (
-                        <div className="absolute -left-3 sm:-left-4 md:-left-5 top-1/2 -translate-y-1/2 flex items-center justify-center w-4 h-8 select-none">
-                            <Tooltip term={truongSinh} unstyled={true}>
-                                <span className={`text-[10px] sm:text-[11.5px] font-black cursor-help transition-colors transform -rotate-90 origin-center inline-block whitespace-nowrap leading-none tracking-tighter ${isFemale ? 'text-rose-650 hover:text-rose-850' : 'text-blue-650 hover:text-blue-850'}`}>
-                                    {getAbbreviatedTruongSinh(truongSinh)}
-                                </span>
-                            </Tooltip>
-                        </div>
-                    )}
-                    <Tooltip term={zhi} unstyled={true}>
-                        <div className={`text-2xl sm:text-4xl font-black mb-1 sm:mb-2 hover:scale-110 transition-transform ${getColorClass(zhiElem)}`}>{zhi}</div>
-                    </Tooltip>
-                </div>
-                
-                {naYin && (
-                    <Tooltip term={naYin} unstyled={true}>
-                        <div className={`text-[8.5px] sm:text-xs font-semibold px-2 py-0.5 rounded-full border my-1 text-center max-w-full truncate hover:brightness-95 transition-all ${getNaYinColorClass(naYin)}`}>
-                            {naYin}
-                        </div>
-                    </Tooltip>
-                )}
-                
-                {/* Tàng can: pad lên đủ 3 dòng cố định chiều cao */}
-                <div className="w-full border-t border-dashed border-gray-200 mt-4 pt-2 flex flex-col items-center justify-center">
-                    <div className="w-full max-w-[125px] sm:max-w-[145px] flex flex-col gap-1 mt-1">
-                        {(() => {
-                            const paddedTangCan = [...tangCan];
-                            while (paddedTangCan.length < 3) {
-                                paddedTangCan.push({ gan: '', thapThan: '' });
-                            }
-                            return paddedTangCan.map((tc, idx) => (
-                                <div key={idx} className="flex justify-between items-center text-[10px] sm:text-[12.5px] leading-tight w-full font-sans h-[15px] sm:h-[18px]">
-                                    {tc.gan ? (
-                                        <>
-                                            <Tooltip term={tc.gan} unstyled={true}>
-                                                <span className={`font-bold shrink-0 text-left hover:scale-110 transition-transform ${getColorClass(stemElements[tc.gan])}`}>{tc.gan}</span>
-                                            </Tooltip>
-                                            <Tooltip term={tc.thapThan} unstyled={true}>
-                                                <span className={`font-bold text-right truncate pl-1 hover:underline transition-all ${isFemale ? 'text-rose-800 hover:text-rose-950' : 'text-blue-800 hover:text-blue-950'}`}>{getAbbreviatedThapThan(tc.thapThan)}</span>
-                                            </Tooltip>
-                                        </>
-                                    ) : (
-                                        <span className="invisible">&nbsp;</span>
-                                    )}
-                                </div>
-                            ));
-                        })()}
-                    </div>
-                </div>
-
-                {/* Thần Sát Bát Tự: pad lên đủ 4 dòng cố định chiều cao */}
-                <div className="w-full border-t border-dashed border-gray-200 mt-2.5 pt-2 flex flex-col items-center justify-center">
-                    <div className="w-full max-w-[125px] sm:max-w-[145px] flex flex-col gap-1 mt-1">
-                        {(() => {
-                            const paddedShenSha = [...shenSha];
-                            while (paddedShenSha.length < 4) {
-                                paddedShenSha.push('');
-                            }
-                            return paddedShenSha.map((ss, idx) => {
-                                const baseTerm = ss ? ss.split(' (')[0] : '';
-                                const cleanSS = ss ? ss.replace(/\(\s+/g, '(').replace(/\s+\)/g, ')') : '';
-                                const colorClass = getShenShaColorClass(ss, isFemale);
-                                return (
-                                    <div key={idx} className="flex justify-center items-center text-[10px] sm:text-[12px] leading-tight w-full font-black h-[15px] sm:h-[18px]">
-                                        {ss ? (
-                                            <Tooltip term={baseTerm} unstyled={true}>
-                                                <span className={`${colorClass} hover:scale-105 transition-transform cursor-help whitespace-nowrap`}>
-                                                    {cleanSS}
-                                                </span>
-                                            </Tooltip>
-                                        ) : (
-                                            <span className="invisible">&nbsp;</span>
-                                        )}
-                                    </div>
-                                );
-                            });
-                        })()}
-                    </div>
-                </div>
-            </div>
-        );
-    };
-
-    const BaziPillarsSection = ({ canChi, isFemale }) => {
-        const safeCanChi = {
-            year: canChi?.year || {},
-            month: canChi?.month || {},
-            day: canChi?.day || {},
-            hour: canChi?.hour || {}
-        };
-        return (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 justify-center items-stretch w-full pb-2">
-                <PillarCard title="Năm Sinh" gan={safeCanChi.year.gan} zhi={safeCanChi.year.zhi} thapThanGan={safeCanChi.year.thapThanGan} tangCan={safeCanChi.year.tangCan} naYin={safeCanChi.year.naYin} truongSinh={safeCanChi.year.truongSinh} shenSha={safeCanChi.year.shenSha} isFemale={isFemale} isDayMaster={false} />
-                <PillarCard title="Nguyệt Lệnh" gan={safeCanChi.month.gan} zhi={safeCanChi.month.zhi} thapThanGan={safeCanChi.month.thapThanGan} tangCan={safeCanChi.month.tangCan} naYin={safeCanChi.month.naYin} truongSinh={safeCanChi.month.truongSinh} shenSha={safeCanChi.month.shenSha} isFemale={isFemale} isDayMaster={false} />
-                <PillarCard title="Nhật Chủ" gan={safeCanChi.day.gan} zhi={safeCanChi.day.zhi} thapThanGan="Nhật Chủ" tangCan={safeCanChi.day.tangCan} naYin={safeCanChi.day.naYin} truongSinh={safeCanChi.day.truongSinh} shenSha={safeCanChi.day.shenSha} isFemale={isFemale} isDayMaster={true} />
-                <PillarCard title="Giờ Sinh" gan={safeCanChi.hour.gan} zhi={safeCanChi.hour.zhi} thapThanGan={safeCanChi.hour.thapThanGan} tangCan={safeCanChi.hour.tangCan} naYin={safeCanChi.hour.naYin} truongSinh={safeCanChi.hour.truongSinh} shenSha={safeCanChi.hour.shenSha} isFemale={isFemale} isDayMaster={false} />
-            </div>
-        );
     };
 
     return (

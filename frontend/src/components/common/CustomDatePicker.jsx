@@ -5,7 +5,7 @@ export default function CustomDatePicker({
   value, 
   onChange, 
   label, 
-  activeTheme, 
+  _activeTheme, 
   activeTab, 
   align = 'left', 
   minDate, 
@@ -17,10 +17,12 @@ export default function CustomDatePicker({
   
   const selectedDate = value ? new Date(value) : new Date();
   const [viewDate, setViewDate] = useState(selectedDate);
-  
-  useEffect(() => {
+  const [prevValue, setPrevValue] = useState(value);
+
+  if (value !== prevValue) {
+    setPrevValue(value);
     if (value) setViewDate(new Date(value));
-  }, [value]);
+  }
 
   useEffect(() => {
     const handleClickOutside = (e) => {

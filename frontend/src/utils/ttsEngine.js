@@ -104,6 +104,7 @@ export function cleanMarkdownForSpeech(markdownText) {
         .replace(/[[\]{}()]/g, ' ')
         .replace(/[\\/|]/g, ' ')
         .replace(/["“”«»]/g, ' ')
+        // eslint-disable-next-line no-misleading-character-class
         .replace(/[\p{Extended_Pictographic}\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{FE00}-\u{FE0F}]/gu, '');
 
     // 1.5 Chuẩn hóa khoảng trắng
@@ -1173,7 +1174,7 @@ class TtsAudioEngine {
         return data;
     }
 
-    async _fetchChapterAudioBlob(content, voiceId, sectionId, signal = null) {
+    async _fetchChapterAudioBlob(content, voiceId, sectionId, _signal = null) {
         const ticket = await this._getStreamTicket(content, voiceId, sectionId);
         const apiBase = getApiBase();
         return `${apiBase}/tts/stream/${ticket.ticketId}`;
@@ -1502,7 +1503,7 @@ class TtsAudioEngine {
         this._notify();
     }
 
-    setGender(gender, shouldRestart = true) {
+    setGender(gender, _shouldRestart = true) {
         this.gender = gender === 'male' ? 'male' : 'female';
         const targetVoice = VOICES.find(v => v.gender === this.gender) || VOICES[0];
         this.setVoiceId(targetVoice.id);

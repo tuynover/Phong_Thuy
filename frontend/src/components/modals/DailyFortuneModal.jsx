@@ -10,10 +10,8 @@ import {
   Share2
 } from 'lucide-react';
 import { 
-  getDailyFortune, 
   getRandomDailyFortune,
   getTodayDateString, 
-  checkHasDrawnDailyFortune, 
   saveDailyFortuneResult,
   getDailyFortuneStorageKey,
   DAILY_FORTUNE_EVENT,
@@ -52,13 +50,41 @@ function parseHexagramTitle(fullName) {
   return { title: fullName, subtitle: '' };
 }
 
+function getSavedFortune(userId, todayStr) {
+  try {
+    const storageKey = getDailyFortuneStorageKey(userId);
+    const saved = localStorage.getItem(storageKey);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed && parsed.date === todayStr && parsed.fortune) {
+        return parsed.fortune;
+      }
+    }
+  } catch {}
+  return null;
+}
+
 export default function DailyFortuneModal({ isOpen, onClose, user }) {
-  const [revealedFortune, setRevealedFortune] = useState(null);
+  const userId = user?.id || user?._id || 'guest';
+  const todayStr = getTodayDateString();
+
+  const [prevModalState, setPrevModalState] = useState({ isOpen: false, userId: null });
+  const [revealedFortune, setRevealedFortune] = useState(() => getSavedFortune(userId, todayStr));
+  const [destinedFortune, setDestinedFortune] = useState(() => getRandomDailyFortune());
   const [isStoryModalOpen, setIsStoryModalOpen] = useState(false);
   const modalBodyRef = useRef(null);
 
-  const userId = user?.id || user?._id || 'guest';
-  const todayStr = getTodayDateString();
+  // Điều chỉnh state tức thì khi mở modal hoặc đổi user trong render phase (không delay, không render giật)
+  if (prevModalState.isOpen !== isOpen || prevModalState.userId !== userId) {
+    setPrevModalState({ isOpen, userId });
+    if (isOpen) {
+      const saved = getSavedFortune(userId, todayStr);
+      setRevealedFortune(saved);
+      if (!saved) {
+        setDestinedFortune(getRandomDailyFortune());
+      }
+    }
+  }
 
   // Tự động cuộn lên đầu khi hiển thị kết quả quẻ
   useEffect(() => {
@@ -66,38 +92,6 @@ export default function DailyFortuneModal({ isOpen, onClose, user }) {
       modalBodyRef.current.scrollTop = 0;
     }
   }, [revealedFortune]);
-
-  // Khởi tạo quẻ ngẫu nhiên cho lần lắc
-  const [destinedFortune, setDestinedFortune] = useState(() => getRandomDailyFortune());
-
-  // Cập nhật quẻ ngẫu nhiên mới mỗi khi mở modal nếu chưa có kết quả lưu
-  useEffect(() => {
-    if (isOpen && !revealedFortune) {
-      setDestinedFortune(getRandomDailyFortune());
-    }
-  }, [isOpen, revealedFortune]);
-
-  // Đọc kết quả đã lưu trong ngày nếu người dùng đã từng lắc
-  useEffect(() => {
-    if (isOpen) {
-      try {
-        const storageKey = getDailyFortuneStorageKey(userId);
-        const saved = localStorage.getItem(storageKey);
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (parsed && parsed.date === todayStr && parsed.fortune) {
-            setRevealedFortune(parsed.fortune);
-          } else {
-            setRevealedFortune(null);
-          }
-        } else {
-          setRevealedFortune(null);
-        }
-      } catch (e) {
-        setRevealedFortune(null);
-      }
-    }
-  }, [isOpen, userId, todayStr]);
 
   // Xử lý khi ống tre hoàn thành lắc và thẻ tiếp đất
   const handleShakingComplete = (drawnFortune) => {

@@ -32,7 +32,9 @@ export default function ProfileBoard() {
   const [verificationSuccess, setVerificationSuccess] = useState('');
 
   // Update local state when user context changes
-  useEffect(() => {
+  const [prevUser, setPrevUser] = useState(user);
+  if (user !== prevUser) {
+    setPrevUser(user);
     if (user) {
       setName(user.name || '');
       setPhone(user.phone || '');
@@ -43,7 +45,7 @@ export default function ProfileBoard() {
       setHour(user.baziInfo?.hour !== undefined ? user.baziInfo.hour : '');
       setMinute(user.baziInfo?.minute !== undefined ? user.baziInfo.minute : '');
     }
-  }, [user]);
+  }
 
   // Smooth scroll to profile and password error/success messages
   useEffect(() => {

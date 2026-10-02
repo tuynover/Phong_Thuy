@@ -111,19 +111,19 @@ async function run() {
   });
 
   // 6. Gemini 1
-  await testProvider('Gemini 1 (gemini-3.1-flash-lite)', async () => {
+  await testProvider('Gemini 1 (gemini-3.5-flash-lite)', async () => {
     const { GoogleGenerativeAI } = require('@google/generative-ai');
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: 'gemini-3.1-flash-lite' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash-lite' });
     const res = await model.generateContent('Say hello in 5 words');
     return res.response.text();
   });
 
   // 7. Gemini 2
-  await testProvider('Gemini 2 (gemini-3.1-flash-lite)', async () => {
+  await testProvider('Gemini 2 (gemini-3.5-flash-lite)', async () => {
     const { GoogleGenerativeAI } = require('@google/generative-ai');
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY_2);
-    const model = genAI.getGenerativeModel({ model: 'gemini-3.1-flash-lite' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash-lite' });
     const res = await model.generateContent('Say hello in 5 words');
     return res.response.text();
   });

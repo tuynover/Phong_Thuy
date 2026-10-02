@@ -3,7 +3,6 @@ import { createPortal } from 'react-dom';
 import Tooltip from '@/components/common/Tooltip';
 import FloatingNotificationToast from '@/components/common/FloatingNotificationToast';
 import { hexagramDictionary } from '@/data/hexagrams';
-import ReactMarkdown from 'react-markdown';
 import { getInterpretationStreamUrl, rateIChing, togglePublicCalculation } from '@/services/api';
 import { AlertCircle, BookOpen, ScrollText, MessageCircle, ArrowUp, ArrowDown, Star, Zap, Crown, FileDown } from 'lucide-react';
 import AiChatWidget from '@/components/widgets/AiChatWidget';
@@ -209,6 +208,27 @@ const HexagramVisual = ({ lines }) => {
     );
 };
 
+const HexTitle = ({ hexagram, onSelectHex }) => {
+    const hexData = hexagramDictionary[hexagram.binary_code] || {
+        summary: "Chưa có thông tin", type: "Chưa Rõ", image: "...", desc: "..."
+    };
+    const color = getColorClass(hexagram.palace_element);
+    
+    return (
+        <div className="relative group cursor-pointer inline-block text-center z-20" onClick={() => onSelectHex({ ...hexagram, ...hexData })}>
+            <h3 className={`text-2xl font-black uppercase tracking-widest mb-1 hover:underline transition-all ${color}`}>
+                {hexData.name || hexagram.name}
+            </h3>
+            {/* TOOLTIP */}
+            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-[9999] w-[300px] bg-slate-800 text-white shadow-2xl p-4 rounded-xl text-left border border-slate-600">
+                <span className="block text-xs font-bold text-amber-400 uppercase tracking-widest mb-1">{hexData.type}</span>
+                <span className="text-sm font-medium leading-relaxed">{hexData.summary}</span>
+                <div className="mt-2 text-xs text-gray-400 italic">Nhấp vào để xem chi tiết quẻ</div>
+            </div>
+        </div>
+    );
+};
+
 const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidateHistory }) => {
     const { user: ctxUser, setUser, token } = useContext(AuthContext);
     const activeUser = ctxUser || user;
@@ -229,9 +249,9 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
 
     const {
         interpretation,
-        setInterpretation,
+        setInterpretation: _setInterpretation,
         interpretationMode,
-        setInterpretationMode,
+        setInterpretationMode: _setInterpretationMode,
         isInterpreting,
         vipChapter,
         vipCompletedChapters,
@@ -242,8 +262,8 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
         streamError,
         setStreamError,
         startStream,
-        abortStream,
-        resetStream
+        abortStream: _abortStream,
+        resetStream: _resetStream
     } = useInterpretationStream({
         initialContent: getInitialInterpretationText(result?.aiInterpretation),
         initialMode: result?.aiInterpretation?.mode || 'standard',
@@ -262,7 +282,7 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
         feedback,
         setFeedback,
         justRated,
-        setJustRated,
+        setJustRated: _setJustRated,
         submitRating
     } = useRecordRating({
         recordId: result?._id || result?.recordId,
@@ -280,12 +300,14 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
         }
     }, [result]);
 
-    const [isPublicState, setIsPublicState] = useState(false);
+    const [isPublicState, setIsPublicState] = useState(() => result?.isPublic || false);
+    const [prevResult, setPrevResult] = useState(result);
     const [toastMsg, setToastMsg] = useState('');
 
-    useEffect(() => {
+    if (prevResult !== result) {
+        setPrevResult(result);
         setIsPublicState(result?.isPublic || false);
-    }, [result]);
+    }
 
     const handleTogglePublic = async () => {
         const resolvedId = result?._id || result?.recordId;
@@ -396,27 +418,6 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
         rows.push({ pLine, sLine, index: i + 1 });
     }
 
-    const HexTitle = ({ hexagram }) => {
-        const hexData = hexagramDictionary[hexagram.binary_code] || {
-            summary: "Chưa có thông tin", type: "Chưa Rõ", image: "...", desc: "..."
-        };
-        const color = getColorClass(hexagram.palace_element);
-        
-        return (
-            <div className="relative group cursor-pointer inline-block text-center z-20" onClick={() => setSelectedHex({ ...hexagram, ...hexData })}>
-                <h3 className={`text-2xl font-black uppercase tracking-widest mb-1 hover:underline transition-all ${color}`}>
-                    {hexData.name || hexagram.name}
-                </h3>
-                {/* TOOLTIP */}
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-[9999] w-[300px] bg-slate-800 text-white shadow-2xl p-4 rounded-xl text-left border border-slate-600">
-                    <span className="block text-xs font-bold text-amber-400 uppercase tracking-widest mb-1">{hexData.type}</span>
-                    <span className="text-sm font-medium leading-relaxed">{hexData.summary}</span>
-                    <div className="mt-2 text-xs text-gray-400 italic">Nhấp vào để xem chi tiết quẻ</div>
-                </div>
-            </div>
-        );
-    };
-
     return (
         <div className="bg-white px-4 md:px-12 py-6 md:py-10 max-w-6xl mx-auto my-4 md:my-10 font-sans text-gray-900 shadow-2xl rounded-3xl border-t-8 border-t-amber-800 relative">
             
@@ -516,14 +517,14 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
 
             <div id="iching-hexagrams" className="scroll-mt-24 flex flex-col md:flex-row mb-8">
                 <div className="flex-1 flex flex-col items-center relative">
-                    {primaryHex && <HexTitle hexagram={primaryHex} />}
+                    {primaryHex && <HexTitle hexagram={primaryHex} onSelectHex={setSelectedHex} />}
                     <HexagramVisual lines={primaryLinesArr} />
                     {primaryHex && <span className={`text-[13px] font-bold uppercase tracking-widest mt-2 px-3 py-1 rounded-full border ${getBgColorClass(primaryHex.palace_element)} ${getColorClass(primaryHex.palace_element)}`}>HỌ {primaryHex.palace} - {primaryHex.palace_element}</span>}
                 </div>
                 
                 {renderSecondarySide && secondaryHex && (
                     <div className="flex-1 flex flex-col items-center border-t md:border-t-0 md:border-l-[1.5px] border-amber-300 pt-8 md:pt-0 relative">
-                        <HexTitle hexagram={secondaryHex} />
+                        <HexTitle hexagram={secondaryHex} onSelectHex={setSelectedHex} />
                         <HexagramVisual lines={secondaryLinesArr} />
                         <span className={`text-[13px] font-bold uppercase tracking-widest mt-2 px-3 py-1 rounded-full border ${getBgColorClass(secondaryHex.palace_element)} ${getColorClass(secondaryHex.palace_element)}`}>HỌ {secondaryHex.palace} - {secondaryHex.palace_element}</span>
                     </div>
@@ -695,7 +696,7 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-100">
-                                        {rows.map((row, idx) => {
+                                        {rows.map((row) => {
                                             const { pLine, index } = row;
                                             const isVuongTuong = pLine.vuong_suy === 'Vượng' || pLine.vuong_suy === 'Tướng';
                                             const vuongSuyColor = isVuongTuong ? 'text-red-600 bg-red-50' : 'text-gray-700';
@@ -742,7 +743,7 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-100">
-                                            {rows.map((row, idx) => {
+                                            {rows.map((row) => {
                                                 const { sLine, index } = row;
                                                 const isVuongTuong = sLine.vuong_suy === 'Vượng' || sLine.vuong_suy === 'Tướng';
                                                 const vuongSuyColor = isVuongTuong ? 'text-red-600 bg-red-50' : 'text-gray-700';

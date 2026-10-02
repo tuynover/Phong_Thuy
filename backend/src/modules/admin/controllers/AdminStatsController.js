@@ -6,11 +6,19 @@ const MarriageRecord = require('../../bazi/models/MarriageRecord');
 const Conversation = require('../../../core/models/Conversation');
 const SystemLog = require('../models/SystemLog');
 const BanAppeal = require('../models/BanAppeal');
+const memoryCacheService = require('../../../core/services/MemoryCacheService');
 
 class AdminStatsController {
   static async getAnalytics(req, res) {
     try {
       const { startDate, endDate, groupBy = 'day' } = req.query;
+
+      // 0. Check L1 RAM / L2 Redis cache first to avoid firing 19 heavy queries
+      const cacheKey = `admin:analytics:${startDate || 'default'}:${endDate || 'default'}:${groupBy}`;
+      const cachedResult = await memoryCacheService.getAsync(cacheKey);
+      if (cachedResult) {
+        return res.json(cachedResult);
+      }
 
       const start = startDate ? new Date(startDate) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
       let end = endDate ? new Date(endDate) : new Date();
@@ -305,7 +313,7 @@ class AdminStatsController {
         interpretationTokens: u.stats?.totalInterpretTokens || 0
       }));
 
-      return res.json({
+      const payload = {
         overview: {
           totalUsers,
           totalIching,
@@ -316,7 +324,12 @@ class AdminStatsController {
         },
         timeline,
         userConsumption: userConsumptionList
-      });
+      };
+
+      // Cache result for 5 minutes (300,000 ms) in L1 RAM + L2 Redis
+      await memoryCacheService.set(cacheKey, payload, 300000);
+
+      return res.json(payload);
     } catch (error) {
       console.error('[AdminStatsController.getAnalytics] Error:', error);
       return res.status(500).json({ error: 'Lỗi tải dữ liệu thống kê.' });

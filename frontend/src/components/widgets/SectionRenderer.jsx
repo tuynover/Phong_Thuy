@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import rehypeSanitize from 'rehype-sanitize';
 import { 
   User, 
   Briefcase, 
@@ -667,6 +668,7 @@ const SectionCard = ({
 
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
+            rehypePlugins={[rehypeSanitize]}
             components={{
               p: ({ children }) => <p className="mb-5 last:mb-0 leading-relaxed font-normal text-slate-700">{children}</p>,
               h1: ({ children }) => <h1 className="text-xl md:text-2xl font-bold text-slate-900 mt-6 mb-3 tracking-wide">{children}</h1>,

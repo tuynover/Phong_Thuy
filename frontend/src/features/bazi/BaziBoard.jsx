@@ -78,7 +78,7 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
         streamError,
         setStreamError,
         startStream,
-        resetStream
+        resetStream: _resetStream
     } = useInterpretationStream({
         initialContent: data?.aiInterpretation?.content || '',
         initialMode: data?.aiInterpretation?.mode || 'standard',
@@ -97,7 +97,7 @@ const BaziBoard = ({ data: rawData, onUpdateData, onRequireLogin, onInvalidateHi
         feedback,
         setFeedback,
         justRated,
-        setJustRated,
+        setJustRated: _setJustRated,
         submitRating
     } = useRecordRating({
         recordId: data?.recordId || data?._id,

@@ -28,7 +28,6 @@ import MarriageInput from '@/features/marriage/MarriageInput';
 import HistoryBoard from '@/features/history/HistoryBoard';
 import MyFoldersModal from '@/components/modals/MyFoldersModal';
 import HomeBoard from '@/features/home/HomeBoard';
-// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion';
 
 import BaziBoard from '@/features/bazi/BaziBoard';
@@ -39,6 +38,7 @@ import BlogBoard from '@/features/blog/BlogBoard';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { AboutUs, PrivacyPolicy, TermsOfService } from '@/features/info/InfoBoards';
+import NotFoundPage from '@/features/info/NotFoundPage';
 import ThankYouModal from '@/components/modals/ThankYouModal';
 import DailyFortuneModal from '@/components/modals/DailyFortuneModal';
 import DailyCheckinModal from '@/components/modals/DailyCheckinModal';
@@ -64,7 +64,7 @@ export default function UserApp({ onSwitchToAdmin }) {
   const [loadingShared, setLoadingShared] = useState(false);
   const [sharedError, setSharedError] = useState(null);
 
-  const parsePathToAppMode = (pathname) => {
+  const parsePathToAppMode = useCallback((pathname) => {
     if (!pathname || pathname === '/') return 'home';
     if (pathname.startsWith('/bazi/record/') || pathname === '/bazi' || pathname === '/bazi/ban-than') return 'bazi';
     if (pathname.startsWith('/ziwei/record/') || pathname === '/ziwei' || pathname === '/ziwei/ban-than') return 'ziwei';
@@ -80,7 +80,7 @@ export default function UserApp({ onSwitchToAdmin }) {
     if (pathname === '/diem-danh' || pathname === '/que-ngay') return 'home';
     if (initialUrlSlug) return 'blog';
     return '404';
-  };
+  }, [initialUrlSlug]);
 
   const [appMode, setAppMode] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -187,7 +187,7 @@ export default function UserApp({ onSwitchToAdmin }) {
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, [fetchSharedData]);
+  }, [fetchSharedData, parsePathToAppMode]);
 
   useEffect(() => {
     fetchSharedData();
@@ -466,7 +466,7 @@ export default function UserApp({ onSwitchToAdmin }) {
   const [autoSubmitZiwei, setAutoSubmitZiwei] = useState(null);
 
   // I Ching State
-  const [mode, setMode] = useState(() => localStorage.getItem('mode') || 'coin'); // 'coin' | 'manual' | 'maihoa'
+  const [mode, _setMode] = useState(() => localStorage.getItem('mode') || 'coin'); // 'coin' | 'manual' | 'maihoa'
   const [result, setResult] = useState(() => {
     try {
       const saved = localStorage.getItem('result');
@@ -526,7 +526,7 @@ export default function UserApp({ onSwitchToAdmin }) {
     actionLabel: 'Đã Hiểu & Đóng'
   });
 
-  const showThankYou = (title, message, subtext = '', actionLabel = 'Đã Hiểu & Đóng') => {
+  const _showThankYou = (title, message, subtext = '', actionLabel = 'Đã Hiểu & Đóng') => {
     setThankYouConfig({ title, message, subtext, actionLabel });
     setIsThankYouOpen(true);
   };
@@ -725,8 +725,6 @@ export default function UserApp({ onSwitchToAdmin }) {
       window.history.pushState({ path: newUrl }, '', newUrl);
     }
   }, []);
-
-  const handleViewHexagramDetail = handleViewHistoricalHexagram;
 
   const handleViewHistoricalBazi = useCallback(async (record) => {
     if (!record) return;

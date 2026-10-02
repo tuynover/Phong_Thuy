@@ -7,6 +7,7 @@ class RedisQueueService {
     constructor() {
         this.queueName = 'queue:emails';
         this.dlqName = 'queue:emails:dlq';
+        this.processingQueueName = 'queue:emails:processing';
         this.isProcessing = false;
         this.maxConcurrency = 3;
         this.activeJobs = 0;
@@ -90,15 +91,80 @@ class RedisQueueService {
     }
 
     /**
-     * Rút và xử lý 1 job đơn lẻ từ Redis Queue (Non-blocking)
+     * Rút job nguyên tử từ active queue sang processing queue (LMOVE / fallback)
+     * Đảm bảo không mất job khi server bị restart / crash đột ngột
+     * @returns {Promise<string|null>}
+     */
+    async popJobForProcessing() {
+        if (!isRedisConnected()) return null;
+        try {
+            if (typeof redisClient.lmove === 'function') {
+                try {
+                    return await redisClient.lmove(this.queueName, this.processingQueueName, 'LEFT', 'RIGHT');
+                } catch (e) {
+                    if (!e.message || !e.message.includes('unknown command')) throw e;
+                }
+            }
+            // Fallback cho môi trường Redis cũ hoặc test mock
+            const rawJob = await redisClient.lpop(this.queueName);
+            if (rawJob) {
+                await redisClient.rpush(this.processingQueueName, rawJob);
+            }
+            return rawJob;
+        } catch (err) {
+            if (err.message && !err.message.includes('Connection is closed')) {
+                logger.warn(`[RedisQueue Worker] Error popping job for processing: ${err.message}`);
+            }
+            return null;
+        }
+    }
+
+    /**
+     * Xác nhận xử lý xong job và xóa khỏi processing queue (ack)
+     * @param {string} rawJob
+     */
+    async ackJob(rawJob) {
+        if (!isRedisConnected() || !rawJob) return;
+        try {
+            await redisClient.lrem(this.processingQueueName, 1, rawJob);
+        } catch (err) {
+            logger.warn(`[RedisQueue Worker] Failed to ack job from processing queue: ${err.message}`);
+        }
+    }
+
+    /**
+     * Thu hồi các job bị bỏ rơi trong processing queue (khi tiến trình trước đó bị crash/restart đột ngột)
+     */
+    async reclaimStaleJobs() {
+        if (!isRedisConnected()) return;
+        try {
+            const staleJobs = await redisClient.lrange(this.processingQueueName, 0, -1);
+            if (staleJobs && staleJobs.length > 0) {
+                logger.info(`[RedisQueue] Reclaiming ${staleJobs.length} unacknowledged jobs from processing queue back to active queue.`);
+                for (const rawJob of staleJobs) {
+                    await redisClient.rpush(this.queueName, rawJob);
+                    await redisClient.lrem(this.processingQueueName, 1, rawJob);
+                }
+            }
+        } catch (err) {
+            logger.warn(`[RedisQueue] Error reclaiming stale processing jobs: ${err.message}`);
+        }
+    }
+
+    /**
+     * Rút và xử lý 1 job đơn lẻ từ Redis Queue một cách bền vững (Reliable)
      * @returns {Promise<{success: boolean, job: Object, error?: string}|null>}
      */
     async processNextJobOnce() {
         if (!isRedisConnected()) return null;
         try {
-            const result = await redisClient.lpop(this.queueName);
-            if (!result) return null;
-            return await this.processJob(result);
+            const rawJob = await this.popJobForProcessing();
+            if (!rawJob) return null;
+            try {
+                return await this.processJob(rawJob);
+            } finally {
+                await this.ackJob(rawJob);
+            }
         } catch (err) {
             logger.warn(`[RedisQueue Worker] Error in processNextJobOnce: ${err.message}`);
             return null;
@@ -106,12 +172,16 @@ class RedisQueueService {
     }
 
     /**
-     * Tiến trình Worker chạy ngầm liên tục rút job từ Redis Queue để gửi mail (Non-blocking LPOP với concurrency pool)
+     * Tiến trình Worker chạy ngầm liên tục rút job từ Redis Queue để gửi mail
+     * Sử dụng Reliable Queue Pattern (LMOVE/Processing Queue) chống mất job
      */
     async startWorker() {
         if (process.env.NODE_ENV === 'test') return;
         if (this.isProcessing) return;
         this.isProcessing = true;
+
+        // Khôi phục các job bị kẹt từ phiên chạy trước (nếu có)
+        await this.reclaimStaleJobs();
 
         const processLoop = async () => {
             let nextDelayMs = 2000; // Mặc định nghỉ 2 giây khi queue rỗng
@@ -119,11 +189,12 @@ class RedisQueueService {
             if (isRedisConnected()) {
                 while (this.activeJobs < this.maxConcurrency) {
                     try {
-                        const rawJob = await redisClient.lpop(this.queueName);
+                        const rawJob = await this.popJobForProcessing();
                         if (!rawJob) break; // Queue trống
 
                         this.activeJobs++;
-                        this.processJob(rawJob).finally(() => {
+                        this.processJob(rawJob).finally(async () => {
+                            await this.ackJob(rawJob);
                             this.activeJobs = Math.max(0, this.activeJobs - 1);
                         });
                         nextDelayMs = 150; // Có job, kiểm tra tiếp nhanh
@@ -144,26 +215,28 @@ class RedisQueueService {
     }
 
     /**
-     * Lấy thống kê trạng thái hàng đợi và DLQ
-     * @returns {Promise<{active: number, dlq: number, isConnected: boolean}>}
+     * Lấy thống kê trạng thái hàng đợi, DLQ và processing
+     * @returns {Promise<{active: number, dlq: number, processing: number, isConnected: boolean}>}
      */
     async getQueueStatus() {
         if (!isRedisConnected()) {
-            return { active: 0, dlq: 0, isConnected: false };
+            return { active: 0, dlq: 0, processing: 0, isConnected: false };
         }
         try {
-            const [active, dlq] = await Promise.all([
+            const [active, dlq, processing] = await Promise.all([
                 redisClient.llen(this.queueName),
-                redisClient.llen(this.dlqName)
+                redisClient.llen(this.dlqName),
+                redisClient.llen(this.processingQueueName)
             ]);
             return {
                 active: Number.isInteger(active) ? active : 0,
                 dlq: Number.isInteger(dlq) ? dlq : 0,
+                processing: Number.isInteger(processing) ? processing : 0,
                 isConnected: true
             };
         } catch (err) {
             logger.warn(`[RedisQueue] Failed to get queue status: ${err.message}`);
-            return { active: 0, dlq: 0, isConnected: false, error: err.message };
+            return { active: 0, dlq: 0, processing: 0, isConnected: false, error: err.message };
         }
     }
 

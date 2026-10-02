@@ -169,8 +169,8 @@ export const TableOfContents = ({
         const parentSec = sections.find(s => 
           s.id === current || (s.subsections && s.subsections.some(sub => sub.id === current))
         );
-        if (parentSec && !expandedSections[parentSec.id]) {
-          setExpandedSections(prev => ({ ...prev, [parentSec.id]: true }));
+        if (parentSec) {
+          setExpandedSections(prev => (prev[parentSec.id] ? prev : { ...prev, [parentSec.id]: true }));
         }
       }
     };

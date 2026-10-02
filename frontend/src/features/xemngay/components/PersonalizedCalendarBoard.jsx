@@ -277,12 +277,7 @@ export default function PersonalizedCalendarBoard({
       }
     }
   }, [
-    user?.baziInfo?.day,
-    user?.baziInfo?.month,
-    user?.baziInfo?.year,
-    user?.baziInfo?.hour,
-    user?.baziInfo?.minute,
-    user?.gender,
+    user,
     hasBirthInfo,
     currentYear,
     currentMonth,

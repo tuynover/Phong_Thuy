@@ -7,12 +7,8 @@ jest.mock('../../src/core/models/User', () => ({ find: jest.fn().mockResolvedVal
 jest.mock('../../src/modules/notification/models/Notification', () => ({ deleteMany: jest.fn().mockResolvedValue({}) }));
 jest.mock('../../src/modules/admin/models/SystemLog', () => ({ countDocuments: jest.fn().mockResolvedValue(0) }));
 jest.mock('../../src/modules/admin/models/AdminNotification', () => ({ create: jest.fn().mockResolvedValue({}) }));
-jest.mock('../../src/modules/bazi/models/BaziRecord', () => ({ deleteMany: jest.fn().mockResolvedValue({}) }));
-jest.mock('../../src/modules/ziwei/models/ZiweiRecord', () => ({ deleteMany: jest.fn().mockResolvedValue({}) }));
-jest.mock('../../src/modules/bazi/models/MarriageRecord', () => ({ deleteMany: jest.fn().mockResolvedValue({}) }));
-jest.mock('../../src/core/models/Conversation', () => ({ deleteMany: jest.fn().mockResolvedValue({}) }));
-jest.mock('../../src/core/models/Message', () => ({ deleteMany: jest.fn().mockResolvedValue({}) }));
-jest.mock('../../src/modules/admin/models/BanAppeal', () => ({ deleteMany: jest.fn().mockResolvedValue({}) }));
+jest.mock('../../src/modules/bazi/models/BaziRecord', () => ({ find: jest.fn().mockResolvedValue([]) }));
+jest.mock('../../src/modules/ziwei/models/ZiweiRecord', () => ({ find: jest.fn().mockResolvedValue([]) }));
 jest.mock('../../src/modules/auth/services/EmailService', () => ({ sendNotificationEmail: jest.fn().mockResolvedValue(true) }));
 jest.mock('../../src/core/services/LoggerService', () => ({
   info: jest.fn(),

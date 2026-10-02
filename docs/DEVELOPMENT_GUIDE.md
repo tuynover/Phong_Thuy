@@ -20,7 +20,7 @@ PORT=3001
 MONGODB_URI=mongodb://localhost:27017/phongthuy
 JWT_SECRET=your_jwt_secret_key_here
 GEMINI_API_KEY=your_gemini_api_key_here
-# GEMINI_MODEL=gemini-3.1-flash-lite
+# GEMINI_MODEL=gemini-3.5-flash-lite
 ```
 
 ### 2.2 Cấu hình Frontend

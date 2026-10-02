@@ -8,7 +8,7 @@ const SYSTEM_BADGES = {
   iching: 'Toàn Cảnh Ứng Kỳ'
 };
 
-const VipUpgradeBanner = ({ onUpgradeClick, userCredits = 0, system = 'bazi' }) => {
+const VipUpgradeBanner = ({ onUpgradeClick, _userCredits = 0, system = 'bazi' }) => {
   const badgeText = SYSTEM_BADGES[system] || SYSTEM_BADGES.bazi;
   return (
     <div className="w-full bg-gradient-to-r from-amber-950/80 via-slate-900 to-amber-950/80 border border-amber-500/40 rounded-2xl p-4 mb-6 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 text-white">

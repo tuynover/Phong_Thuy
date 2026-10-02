@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import Tooltip from '@/components/common/Tooltip';
 import BaziPillar from './BaziPillar';
 import {
@@ -13,9 +13,24 @@ import {
     getShenShaColorClass
 } from '@/features/bazi/baziConstants';
 
+const getDefaultYunAndLuuNian = (daYunList) => {
+    if (!daYunList || daYunList.length === 0) return { yunIdx: 0, luuNianYear: null };
+    const currentYear = new Date().getFullYear();
+    const defaultYunIdx = daYunList.findIndex(yun => currentYear >= yun.startYear && currentYear <= yun.startYear + 9);
+    const activeIdx = defaultYunIdx !== -1 ? defaultYunIdx : 0;
+    const activeYun = daYunList[activeIdx];
+    let luuNianYear = null;
+    if (activeYun && activeYun.liuNian && activeYun.liuNian.length > 0) {
+        const hasCurrentYear = activeYun.liuNian.some(ln => ln.year === currentYear);
+        luuNianYear = hasCurrentYear ? currentYear : activeYun.liuNian[0].year;
+    }
+    return { yunIdx: activeIdx, luuNianYear };
+};
+
 const BaziDaiYunTimeline = ({ daYun = [], canChi = {} }) => {
-    const [selectedYunIndex, setSelectedYunIndex] = useState(0);
-    const [selectedLuuNianYear, setSelectedLuuNianYear] = useState(null);
+    const [prevDaYun, setPrevDaYun] = useState(daYun);
+    const [selectedYunIndex, setSelectedYunIndex] = useState(() => getDefaultYunAndLuuNian(daYun).yunIdx);
+    const [selectedLuuNianYear, setSelectedLuuNianYear] = useState(() => getDefaultYunAndLuuNian(daYun).luuNianYear);
 
     // Mouse drag-to-scroll & touchpad scroll for DaYun timeline
     const daYunScrollRef = useRef(null);
@@ -55,20 +70,12 @@ const BaziDaiYunTimeline = ({ daYun = [], canChi = {} }) => {
     };
 
     // Tự động chọn Đại Vận và Lưu Niên phù hợp với năm hiện tại khi dữ liệu Bát Tự thay đổi
-    useEffect(() => {
-        if (daYun && daYun.length > 0) {
-            const currentYear = new Date().getFullYear();
-            const defaultYunIdx = daYun.findIndex(yun => currentYear >= yun.startYear && currentYear <= yun.startYear + 9);
-            const activeIdx = defaultYunIdx !== -1 ? defaultYunIdx : 0;
-            setSelectedYunIndex(activeIdx);
-            
-            const activeYun = daYun[activeIdx];
-            if (activeYun && activeYun.liuNian && activeYun.liuNian.length > 0) {
-                const hasCurrentYear = activeYun.liuNian.some(ln => ln.year === currentYear);
-                setSelectedLuuNianYear(hasCurrentYear ? currentYear : activeYun.liuNian[0].year);
-            }
-        }
-    }, [daYun]);
+    if (prevDaYun !== daYun) {
+        setPrevDaYun(daYun);
+        const nextDefaults = getDefaultYunAndLuuNian(daYun);
+        setSelectedYunIndex(nextDefaults.yunIdx);
+        setSelectedLuuNianYear(nextDefaults.luuNianYear);
+    }
 
     const handleSelectYun = (idx) => {
         setSelectedYunIndex(idx);

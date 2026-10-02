@@ -59,12 +59,14 @@ const cardItemVariants = {
 // UNIFIED COMBOBOX SELECTOR (BLUE THEME)
 function CustomSelect({ value, onChange, options, placeholder }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [prevValue, setPrevValue] = useState(value);
   const [search, setSearch] = useState(value || '');
   const containerRef = useRef(null);
 
-  useEffect(() => {
+  if (prevValue !== value) {
+    setPrevValue(value);
     setSearch(value || '');
-  }, [value]);
+  }
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -127,7 +129,7 @@ function CustomSelect({ value, onChange, options, placeholder }) {
 function HomeBoard({ 
   onSelectModule, 
   user, 
-  onRequireLogin, 
+  onRequireLogin: _onRequireLogin, 
   onViewDestiny,
   onOpenDailyFortune
 }) {
@@ -641,7 +643,7 @@ function HomeBoard({
           viewport={{ once: true }}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
         >
-          {modules.map((item, idx) => {
+          {modules.map((item) => {
             const Icon = item.icon;
             const isHovered = hoveredCard === item.id;
             return (

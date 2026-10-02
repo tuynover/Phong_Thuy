@@ -14,7 +14,7 @@ export default function AdminAlertsTab({
   alerts = [],
   setAlerts,
   appeals = [],
-  setAppeals,
+  setAppeals: _setAppeals,
   showAlert,
   showConfirm,
   onGoToUser,

@@ -12,9 +12,7 @@ import VipUpgradeBanner from '@/components/widgets/VipUpgradeBanner';
 import VipProgressTracker from '@/components/widgets/VipProgressTracker';
 import { AuthContext } from '@/context/AuthContext';
 import { parseMarkdownSections } from '@/utils/markdownParser';
-import { validateInputDate, getMaxDaysInMonth } from '@/utils/dateValidator';
 import FloatingErrorToast from '@/components/common/FloatingErrorToast';
-import CustomSelect from '@/components/common/CustomSelect';
 import ZiweiInput from '@/features/ziwei/ZiweiInput';
 import PdfExportModal from '@/components/modals/PdfExportModal';
 import useInterpretationStream from '@/hooks/useInterpretationStream';
@@ -40,21 +38,6 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
   const { user: ctxUser, setUser, token } = useContext(AuthContext);
   const activeUser = ctxUser || user;
 
-  const days = Array.from({ length: 31 }, (_, i) => String(i + 1));
-  const months = Array.from({ length: 12 }, (_, i) => String(i + 1));
-  const years = Array.from({ length: 97 }, (_, i) => String(2026 - i));
-  const hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
-  const minutes = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
-
-  const [day, setDay] = useState('');
-  const [month, setMonth] = useState('');
-  const [year, setYear] = useState('');
-  const [hour, setHour] = useState('09');
-  const [minute, setMinute] = useState('00');
-  const [gender, setGender] = useState('Nam');
-  const [name, setName] = useState('');
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
-
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [loadingStep, setLoadingStep] = useState('Đang lập mệnh bàn...');
@@ -78,9 +61,9 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
 
   const {
     interpretation,
-    setInterpretation,
+    setInterpretation: _setInterpretation,
     interpretationMode,
-    setInterpretationMode,
+    setInterpretationMode: _setInterpretationMode,
     isInterpreting,
     vipChapter,
     vipCompletedChapters,
@@ -91,7 +74,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
     streamError,
     setStreamError,
     startStream,
-    abortStream,
+    abortStream: _abortStream,
     resetStream
   } = useInterpretationStream({
     initialContent: result?.aiInterpretation?.content || '',
@@ -120,31 +103,6 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
     onInvalidateHistory
   });
 
-  // Auto-clamp Day when Month or Year changes (e.g. 29/02/2023 -> automatically pushes to 28)
-  useEffect(() => {
-    if (day && month && year) {
-      const maxDays = getMaxDaysInMonth(month, year);
-      const dNum = parseInt(day, 10);
-      if (!isNaN(dNum) && dNum > maxDays) {
-        setDay(String(maxDays));
-      }
-    }
-  }, [month, year, day]);
-
-  // Real-time dynamic validation for ZiweiBoard
-  useEffect(() => {
-    if (day || month || year) {
-      const val = validateInputDate(day, month, year);
-      if (!val.isValid) {
-        setError(val.message);
-      } else {
-        setError('');
-      }
-    } else {
-      setError('');
-    }
-  }, [day, month, year]);
-
   const prevIdRef = useRef(null);
 
   useEffect(() => {
@@ -162,12 +120,14 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
     }
   }, [result, onResultChange, resetStream]);
 
-  const [isPublicState, setIsPublicState] = useState(false);
+  const [isPublicState, setIsPublicState] = useState(() => result?.isPublic || false);
+  const [prevResult, setPrevResult] = useState(result);
   const [toastMsg, setToastMsg] = useState('');
 
-  useEffect(() => {
+  if (prevResult !== result) {
+    setPrevResult(result);
     setIsPublicState(result?.isPublic || false);
-  }, [result]);
+  }
 
   const handleTogglePublic = async () => {
     const resolvedId = result?._id || result?.id;
@@ -233,6 +193,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
       handleZiweiComplete(autoSubmitInfo.dateStr, autoSubmitInfo.hourStr, autoSubmitInfo.genderStr, autoSubmitInfo.nameStr || activeUser?.name, autoSubmitInfo.calendarMode || 'solar', autoSubmitInfo.isLeap || false);
       if (onClearAutoSubmit) onClearAutoSubmit();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoSubmitInfo]);
 
   const handleViewOwnZiwei = async () => {
@@ -328,6 +289,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
     if (historicalRecordId) {
       loadHistoricalRecord(historicalRecordId);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [historicalRecordId]);
 
   const loadHistoricalRecord = async (id) => {
@@ -347,60 +309,6 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
       setError(err.response?.data?.error || 'Không thể nạp lá số từ lịch sử.');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-
-    if (!day || !month || !year) {
-      setError('Vui lòng chọn đầy đủ ngày, tháng và năm sinh.');
-      return;
-    }
-
-    const val = validateInputDate(day, month, year);
-    if (!val.isValid) {
-      setError(val.message);
-      return;
-    }
-
-    setLoading(true);
-    setProgress(0);
-    setResult(null);
-    setJustRated(false);
-    setRating(0);
-    setFeedback('');
-
-    const formattedDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    const uid = activeUser?.id || activeUser?._id || 'guest';
-
-    try {
-      setLoadingStep('Đang lập mệnh bàn Tử Vi...');
-      setProgress(50);
-      const parsedH = parseInt(hour, 10) || 0;
-      const calcHourIndex = getZiweiHourIndex(parsedH);
-      const chartRes = await createZiweiChart(formattedDate, calcHourIndex, gender, uid, name);
-      const record = chartRes.data;
-      setResult(record);
-      setProgress(100);
-      setLoading(false);
-      if (onCalculationComplete) onCalculationComplete();
-    } catch (err) {
-      console.error(err);
-      setError(err.response?.data?.error || 'Lỗi xảy ra trong quá trình lập lá số.');
-      setLoading(false);
-    }
-  };
-
-  const decrementCreditLocally = () => {
-    if (activeUser && activeUser.role !== 'admin' && activeUser.role !== 'co-admin') {
-      setUser(prev => {
-        if (!prev) return prev;
-        const updated = { ...prev, credits: Math.max(0, prev.credits - 100) };
-        localStorage.setItem('user', JSON.stringify(updated));
-        return updated;
-      });
     }
   };
 
@@ -455,6 +363,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
     if (result && result._id && result.isGeneratingInterpretation && !isInterpreting && activeUser) {
       handleTriggerInterpretation();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result, isInterpreting, activeUser]);
 
   const handleAILuanGiaiClick = () => {
@@ -480,14 +389,7 @@ const ZiweiBoard = ({ user, onRequireLogin, historicalRecordId, onCalculationCom
       {/* 1. DEDICATED ZIWEI INPUT COMPONENT */}
       {!result && !loading && (
         <ZiweiInput 
-          onSubmit={({ day, month, year, hour, minute, gender, name, calendarMode, isLeap }) => {
-            setDay(day);
-            setMonth(month);
-            setYear(year);
-            setHour(hour);
-            setMinute(minute);
-            setGender(gender);
-            setName(name);
+          onSubmit={({ day, month, year, hour, gender, name, calendarMode, isLeap }) => {
             handleZiweiComplete(
               `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`,
               hour,

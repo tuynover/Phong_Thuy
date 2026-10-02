@@ -60,32 +60,47 @@ async function getHtmlTemplate() {
 }
 
 /**
+ * Mã hóa ký tự đặc biệt để chống Stored XSS và HTML Injection trong SEO Meta tags
+ */
+function escapeHtml(unsafe) {
+    if (unsafe === null || unsafe === undefined) return '';
+    return String(unsafe)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+/**
  * Tiêm meta tags vào HTML
  */
 function injectMetaTags(html, { title, description, url, image }) {
     if (!html) return '';
     
-    const canonicalUrl = url || appConfig.appDomain;
-    const ogImage = image || `${appConfig.appDomain}/assets/images/og-default.jpg`; // Ảnh mặc định
+    const safeTitle = escapeHtml(title || 'Phong Thủy & Cổ Học Phương Đông');
+    const safeDesc = escapeHtml(description || '');
+    const canonicalUrl = escapeHtml(url || appConfig.appDomain);
+    const ogImage = escapeHtml(image || `${appConfig.appDomain}/assets/images/og-default.jpg`);
 
     const metaTags = `
-  <title>${title}</title>
-  <meta name="description" content="${description}" />
+  <title>${safeTitle}</title>
+  <meta name="description" content="${safeDesc}" />
   <link rel="canonical" href="${canonicalUrl}" />
   
   <!-- Open Graph / Facebook / Zalo -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="${canonicalUrl}" />
-  <meta property="og:title" content="${title}" />
+  <meta property="og:title" content="${safeTitle}" />
   <meta property="og:site_name" content="Phong Thủy Luận Giải" />
-  <meta property="og:description" content="${description}" />
+  <meta property="og:description" content="${safeDesc}" />
   <meta property="og:image" content="${ogImage}" />
 
   <!-- Twitter -->
   <meta property="twitter:card" content="summary_large_image" />
   <meta property="twitter:url" content="${canonicalUrl}" />
-  <meta property="twitter:title" content="${title}" />
-  <meta property="twitter:description" content="${description}" />
+  <meta property="twitter:title" content="${safeTitle}" />
+  <meta property="twitter:description" content="${safeDesc}" />
   <meta property="twitter:image" content="${ogImage}" />
 `;
 

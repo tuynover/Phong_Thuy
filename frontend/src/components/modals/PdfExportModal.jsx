@@ -1,20 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { X, FileDown, CheckSquare, Square, AlertCircle, Sparkles, ShieldAlert } from 'lucide-react';
-import { exportPdf, triggerNativePdfDownload } from '@/services/api';
+import { triggerNativePdfDownload } from '@/services/api';
 
 export default function PdfExportModal({
   isOpen,
   onClose,
   system = 'bazi',
   recordId,
-  recordData,
+  _recordData,
   hasInterpretation = false,
   interpretationMode = 'standard',
   rawInterpretation = '',
   onDownloadStart
 }) {
-  if (!isOpen) return null;
-
   // Cấu hình các mục theo từng phân hệ
   const getSectionsConfig = () => {
     const chartSections = [
@@ -115,12 +113,14 @@ export default function PdfExportModal({
 
   const [selectedIds, setSelectedIds] = useState(allAvailableIds);
   const [errorMessage, setErrorMessage] = useState('');
+  const [prevModalKey, setPrevModalKey] = useState('');
 
-  useEffect(() => {
-    // Reset selection khi modal mở
+  const modalKey = `${isOpen}:${recordId}:${hasInterpretation}`;
+  if (modalKey !== prevModalKey) {
+    setPrevModalKey(modalKey);
     setSelectedIds(allAvailableIds);
     setErrorMessage('');
-  }, [isOpen, recordId, hasInterpretation]);
+  }
 
   const toggleItem = (id) => {
     setSelectedIds(prev => {
@@ -158,6 +158,8 @@ export default function PdfExportModal({
     // 3. Kích hoạt luồng tải tự nhiên của Trình duyệt (Chrome/Edge Native Download)
     triggerNativePdfDownload(system, recordId, selectedIds);
   };
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">

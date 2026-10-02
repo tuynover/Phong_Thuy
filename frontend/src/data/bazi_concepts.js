@@ -19,9 +19,9 @@ export const baziConcepts = {
     },
     "Năm Sinh": {
         "term": "Năm Sinh",
-        "category": "Tứ Trụ Bát Tự",
-        "short_description": "Đại diện cho căn cơ, gốc rễ, gia tiên và tuổi thơ (0-16 tuổi).",
-        "full_detail": "▸ Bản chất: Thiên can địa chi năm sinh.\n▸ Ý nghĩa: Phản ánh gia thế, mối quan hệ với tổ tiên, ông bà, nền tảng thể chất lúc nhỏ."
+        "category": "Trụ Bát Tự",
+        "short_description": "Trụ Năm (Nhiên Trụ) - Đại diện cho nguồn cội tổ tiên.",
+        "full_detail": "▸ Đại diện: Tổ tiên, ông bà, thời thơ ấu (1-16 tuổi), gốc rễ gia đình.\n▸ Tốt: Được hưởng âm đức tổ tiên sâu dày, tuổi thơ hạnh phúc khỏe mạnh.\n▸ Xấu: Bị hình xung phá hại dẫn đến ly hương lập nghiệp sớm, xa cách tổ tiên.\n▸ Tác động: Ảnh hưởng lớn đến diện mạo bộc lộ bên ngoài xã hội."
     },
     "Trụ Tháng": {
         "term": "Trụ Tháng",
@@ -31,9 +31,9 @@ export const baziConcepts = {
     },
     "Nguyệt Lệnh": {
         "term": "Nguyệt Lệnh",
-        "category": "Tứ Trụ Bát Tự",
-        "short_description": "Nguồn khí vượng suy chính, đại diện cho cha mẹ và sự nghiệp (17-32 tuổi).",
-        "full_detail": "▸ Bản chất: Thiên can địa chi tháng sinh, quyết định thời tiết tiết khí vượng suy.\n▸ Ý nghĩa: Chìa khóa định dạng Cách Cục, phản ánh quan hệ với cha mẹ, anh em và môi trường công việc."
+        "category": "Trụ Bát Tự",
+        "short_description": "Trụ Tháng (Nguyệt Trụ) - Quyết định vượng suy toàn bộ lá số.",
+        "full_detail": "▸ Đại diện: Cha mẹ, anh chị em ruột, thời thanh niên (17-32 tuổi).\n▸ Tốt: Gia đình hòa thuận nâng đỡ lớn, sự nghiệp ban đầu thăng tiến tốt.\n▸ Xấu: Bị xung khắc phá hại gây chia rẽ gia đình, cuộc sống thanh niên vất vả.\n▸ Tác động: Quyết định mùa sinh (khí hậu vượng suy của ngũ hành) và thiên hướng nghề nghiệp."
     },
     "Trụ Ngày": {
         "term": "Trụ Ngày",
@@ -43,9 +43,9 @@ export const baziConcepts = {
     },
     "Nhật Chủ": {
         "term": "Nhật Chủ",
-        "category": "Tứ Trụ Bát Tự",
-        "short_description": "Thiên can ngày sinh - Đại diện cho bản mệnh người xem.",
-        "full_detail": "▸ Bản chất: Thiên can đại diện cho bản mệnh (Nhật Chủ).\n▸ Ý nghĩa: Trung tâm phân tích vượng suy ngũ hành, sức khỏe và đời sống."
+        "category": "Trụ Bát Tự",
+        "short_description": "Trụ Ngày (Nhật Trụ / Nhật Nguyên) - Đại diện cho bản thân chủ mệnh.",
+        "full_detail": "▸ Đại diện: Bản thân người xem (Can ngày) và cung Phu Thê (Chi ngày), thời trung niên (33-48 tuổi).\n▸ Tốt: Bản thân mạnh mẽ ôn hòa, hôn nhân hòa hợp hạnh phúc lâu dài.\n▸ Xấu: Nhật chủ quá suy nhược hoặc cung Phu Thê bị xung khắc chấn động mạnh.\n▸ Tác động: Can ngày là hạt nhân cốt lõi để xác định tính cách thật sự của bạn."
     },
     "Trụ Giờ": {
         "term": "Trụ Giờ",
@@ -55,9 +55,9 @@ export const baziConcepts = {
     },
     "Giờ Sinh": {
         "term": "Giờ Sinh",
-        "category": "Tứ Trụ Bát Tự",
-        "short_description": "Đại diện cho con cái, hậu vận, kết quả công việc (49 tuổi trở đi).",
-        "full_detail": "▸ Bản chất: Thiên can địa chi giờ sinh.\n▸ Ý nghĩa: Phản ánh thành quả cuộc sống lúc về già, năng lực lãnh đạo và nhân duyên với con cháu."
+        "category": "Trụ Bát Tự",
+        "short_description": "Trụ Giờ (Thời Trụ) - Đại diện cho hậu vận cuộc đời.",
+        "full_detail": "▸ Đại diện: Con cái, cấp dưới, hậu vận lúc tuổi già (sau 49 tuổi).\n▸ Tốt: Con cái hiếu thảo thành đạt, hậu vận an nhàn phú quý hưởng phước.\n▸ Xấu: Trụ giờ phạm xung hại hung tinh gây cô độc nghèo túng lúc về già.\n▸ Tác động: Thể hiện những mong muốn thầm kín và kết quả sự nghiệp cả đời."
     },
     "Trụ Vận Hạn": {
         "term": "Trụ Vận Hạn",
@@ -67,27 +67,27 @@ export const baziConcepts = {
     },
     "Cách Cục": {
         "term": "Cách Cục",
-        "category": "Tứ Trụ Bát Tự",
-        "short_description": "Cấu trúc định dạng năng lượng chủ đạo của lá số Bát Tự.",
-        "full_detail": "▸ Ý nghĩa: Xác định mô hình lá số (Chính quan cách, Thiên tài cách, Ấn thụ cách, Tòng cách...) để định hướng phát triển."
+        "category": "Bát Tự",
+        "short_description": "Cấu trúc tổng thể định hướng cuộc đời của lá số Bát Tự.",
+        "full_detail": "▸ Ý nghĩa: Xác định thông qua Nguyệt Lệnh và sự hiển lộ của các Thiên Can.\n▸ Phân loại: Chính cách (Chính Quan cách, Chính Tài cách...) và Biến cách (Tòng cách, Hóa khí...).\n▸ Tốt: Cách cục cao quý, thanh thuần dễ đạt được danh vọng tiền tài lớn."
     },
     "Trạng Thái Nhật Chủ": {
         "term": "Trạng Thái Nhật Chủ",
-        "category": "Tứ Trụ Bát Tự",
-        "short_description": "Mức độ vượng suy năng lượng của bản mệnh.",
-        "full_detail": "▸ Ý nghĩa: Đo lường Nhật Chủ ở trạng thái Thân Vượng, Thân Nhược, hay Tòng Cách để lựa chọn Dụng Thần điều hòa."
+        "category": "Bát Tự",
+        "short_description": "Sức mạnh của Can ngày sinh (Nhật Chủ) so với mùa sinh và các trụ khác.",
+        "full_detail": "▸ Phân loại: Vượng (mạnh), Nhược (yếu), Bình hòa (cân bằng), Tòng cách (cực đoan).\n▸ Ý nghĩa: Giúp xác định chính xác Dụng Thần và khả năng gánh vác Tài Quan của lá số.\n▸ Chú ý: Nhật chủ vượng mới gánh được Tài Quan lớn. Nhật chủ nhược cần sinh trợ."
     },
     "Dụng Thần": {
         "term": "Dụng Thần",
-        "category": "Tứ Trụ Bát Tự",
-        "short_description": "Ngũ hành quan trọng nhất giúp cân bằng lá số cải vận.",
-        "full_detail": "▸ Ý nghĩa: Yếu tố ngũ hành trung hòa mộc/hỏa/thổ/kim/thủy giúp hóa giải xung đột và nâng cao vận thế."
+        "category": "Bổ Trợ",
+        "short_description": "Ngũ hành quan trọng nhất giúp cân bằng dòng năng lượng trong lá số.",
+        "full_detail": "▸ Vai trò: Chìa khóa hóa giải xung đột ngũ hành, mang lại may mắn lớn.\n▸ Ứng dụng: Lựa chọn màu sắc, phương hướng, nghề nghiệp và vật phẩm trợ mệnh cát tường.\n▸ Trạng thái: Dụng thần vượng tướng hoặc được đại vận sinh trợ giúp cuộc sống phát đạt."
     },
     "Hỷ Thần": {
         "term": "Hỷ Thần",
-        "category": "Tứ Trụ Bát Tự",
-        "short_description": "Ngũ hành trợ giúp và bảo vệ cho Dụng Thần.",
-        "full_detail": "▸ Ý nghĩa: Ngũ hành sinh cho Dụng Thần hoặc khắc chế Kỵ Thần, mang lại sự hanh thông."
+        "category": "Học Thuật",
+        "short_description": "Trong Bát Tự: Ngũ hành trợ giúp Dụng Thần. Trong Tử Vi: Sao chủ niềm vui, tiếng cười.",
+        "full_detail": "▸ Trong Bát Tự: Ngũ hành đồng minh hỗ trợ đắc lực cho Dụng Thần phát huy tối đa tác dụng cát tường.\n▸ Trong Tử Vi: Cát tinh chủ về sự vui vẻ, tiếng cười, hài hước và tinh thần lạc quan yêu đời (còn gọi là sao Hỷ Thần, hành Hỏa)."
     },
     "Kỵ Thần": {
         "term": "Kỵ Thần",
@@ -521,30 +521,6 @@ export const baziConcepts = {
         "short_description": "Giai đoạn thai nhi được nuôi dưỡng an toàn đợi ngày chào đời.",
         "full_detail": "▸ Tượng trưng: Sự chuẩn bị âm thầm, tích lũy năng lượng chờ thời cơ chín muồi.\n▸ Tốt: Được nuôi dưỡng chăm sóc tốt, gia đạo cát tường bình an.\n▸ Xấu: Chưa thể tự lập hoạt động đột phá một mình ngay lập tức được.\n▸ Tính cách: Ôn hòa, hiền lành, hiếu thảo với cha mẹ, nhẫn nại bền bỉ."
     },
-    "Năm Sinh": {
-        "term": "Năm Sinh",
-        "category": "Trụ Bát Tự",
-        "short_description": "Trụ Năm (Nhiên Trụ) - Đại diện cho nguồn cội tổ tiên.",
-        "full_detail": "▸ Đại diện: Tổ tiên, ông bà, thời thơ ấu (1-16 tuổi), gốc rễ gia đình.\n▸ Tốt: Được hưởng âm đức tổ tiên sâu dày, tuổi thơ hạnh phúc khỏe mạnh.\n▸ Xấu: Bị hình xung phá hại dẫn đến ly hương lập nghiệp sớm, xa cách tổ tiên.\n▸ Tác động: Ảnh hưởng lớn đến diện mạo bộc lộ bên ngoài xã hội."
-    },
-    "Nguyệt Lệnh": {
-        "term": "Nguyệt Lệnh",
-        "category": "Trụ Bát Tự",
-        "short_description": "Trụ Tháng (Nguyệt Trụ) - Quyết định vượng suy toàn bộ lá số.",
-        "full_detail": "▸ Đại diện: Cha mẹ, anh chị em ruột, thời thanh niên (17-32 tuổi).\n▸ Tốt: Gia đình hòa thuận nâng đỡ lớn, sự nghiệp ban đầu thăng tiến tốt.\n▸ Xấu: Bị xung khắc phá hại gây chia rẽ gia đình, cuộc sống thanh niên vất vả.\n▸ Tác động: Quyết định mùa sinh (khí hậu vượng suy của ngũ hành) và thiên hướng nghề nghiệp."
-    },
-    "Nhật Chủ": {
-        "term": "Nhật Chủ",
-        "category": "Trụ Bát Tự",
-        "short_description": "Trụ Ngày (Nhật Trụ / Nhật Nguyên) - Đại diện cho bản thân chủ mệnh.",
-        "full_detail": "▸ Đại diện: Bản thân người xem (Can ngày) và cung Phu Thê (Chi ngày), thời trung niên (33-48 tuổi).\n▸ Tốt: Bản thân mạnh mẽ ôn hòa, hôn nhân hòa hợp hạnh phúc lâu dài.\n▸ Xấu: Nhật chủ quá suy nhược hoặc cung Phu Thê bị xung khắc chấn động mạnh.\n▸ Tác động: Can ngày là hạt nhân cốt lõi để xác định tính cách thật sự của bạn."
-    },
-    "Giờ Sinh": {
-        "term": "Giờ Sinh",
-        "category": "Trụ Bát Tự",
-        "short_description": "Trụ Giờ (Thời Trụ) - Đại diện cho hậu vận cuộc đời.",
-        "full_detail": "▸ Đại diện: Con cái, cấp dưới, hậu vận lúc tuổi già (sau 49 tuổi).\n▸ Tốt: Con cái hiếu thảo thành đạt, hậu vận an nhàn phú quý hưởng phước.\n▸ Xấu: Trụ giờ phạm xung hại hung tinh gây cô độc nghèo túng lúc về già.\n▸ Tác động: Thể hiện những mong muốn thầm kín và kết quả sự nghiệp cả đời."
-    },
     "Thai Nguyên": {
         "term": "Thai Nguyên",
         "category": "Cung Đặc Biệt",
@@ -557,18 +533,6 @@ export const baziConcepts = {
         "short_description": "Ngôi nhà trú ngụ của linh hồn và số phận chủ mệnh.",
         "full_detail": "▸ Ý nghĩa: Đại diện bản ngã sâu kín, năng lực tiềm ẩn bên trong.\n▸ Tốt: Cát tinh chiếu mệnh nâng cao cách cục lá số, giúp vượt qua tai ương hiểm nghèo.\n▸ Xấu: Cung Mệnh phạm hung sát kỵ thần làm giảm đáng kể phước đức thọ mạng.\n▸ Tác động: Quyết định ý chí chiến đấu vượt khó và khát vọng sống của cuộc đời."
     },
-    "Dụng Thần": {
-        "term": "Dụng Thần",
-        "category": "Bổ Trợ",
-        "short_description": "Ngũ hành quan trọng nhất giúp cân bằng dòng năng lượng trong lá số.",
-        "full_detail": "▸ Vai trò: Chìa khóa hóa giải xung đột ngũ hành, mang lại may mắn lớn.\n▸ Ứng dụng: Lựa chọn màu sắc, phương hướng, nghề nghiệp và vật phẩm trợ mệnh cát tường.\n▸ Trạng thái: Dụng thần vượng tướng hoặc được đại vận sinh trợ giúp cuộc sống phát đạt."
-    },
-    "Hỷ Thần": {
-        "term": "Hỷ Thần",
-        "category": "Học Thuật",
-        "short_description": "Trong Bát Tự: Ngũ hành trợ giúp Dụng Thần. Trong Tử Vi: Sao chủ niềm vui, tiếng cười.",
-        "full_detail": "▸ Trong Bát Tự: Ngũ hành đồng minh hỗ trợ đắc lực cho Dụng Thần phát huy tối đa tác dụng cát tường.\n▸ Trong Tử Vi: Cát tinh chủ về sự vui vẻ, tiếng cười, hài hước và tinh thần lạc quan yêu đời (còn gọi là sao Hỷ Thần, hành Hỏa)."
-    },
     "Mệnh Quái": {
         "term": "Mệnh Quái",
         "category": "Phong Thủy",
@@ -580,18 +544,6 @@ export const baziConcepts = {
         "category": "Bát Tự",
         "short_description": "Âm thanh ngũ hành đại diện cho lớp vỏ bọc năng lượng bên ngoài.",
         "full_detail": "▸ Ý nghĩa: Kết hợp 2 Can Chi tạo nên 30 nạp âm (ví dụ: Hải Trung Kim, Đại Lâm Mộc).\n▸ Ứng dụng: Xem sự hòa hợp hôn nhân, quan hệ làm ăn, bổ sung năng lượng bên ngoài.\n▸ Tác động: Thể hiện tính chất cụ thể của ngũ hành (ví dụ: Kim trang sức hay Kim sắt thép)."
-    },
-    "Cách Cục": {
-        "term": "Cách Cục",
-        "category": "Bát Tự",
-        "short_description": "Cấu trúc tổng thể định hướng cuộc đời của lá số Bát Tự.",
-        "full_detail": "▸ Ý nghĩa: Xác định thông qua Nguyệt Lệnh và sự hiển lộ của các Thiên Can.\n▸ Phân loại: Chính cách (Chính Quan cách, Chính Tài cách...) và Biến cách (Tòng cách, Hóa khí...).\n▸ Tốt: Cách cục cao quý, thanh thuần dễ đạt được danh vọng tiền tài lớn."
-    },
-    "Trạng Thái Nhật Chủ": {
-        "term": "Trạng Thái Nhật Chủ",
-        "category": "Bát Tự",
-        "short_description": "Sức mạnh của Can ngày sinh (Nhật Chủ) so với mùa sinh và các trụ khác.",
-        "full_detail": "▸ Phân loại: Vượng (mạnh), Nhược (yếu), Bình hòa (cân bằng), Tòng cách (cực đoan).\n▸ Ý nghĩa: Giúp xác định chính xác Dụng Thần và khả năng gánh vác Tài Quan của lá số.\n▸ Chú ý: Nhật chủ vượng mới gánh được Tài Quan lớn. Nhật chủ nhược cần sinh trợ."
     },
     "Mộc": {
         "term": "Mộc",

@@ -3,7 +3,7 @@ const { AiRotator, GeminiRotator } = require('./AiRotator');
 
 class AiService {
     constructor() {
-        this.defaultModelName = process.env.GEMINI_MODEL || "gemini-3.1-flash-lite";
+        this.defaultModelName = process.env.GEMINI_MODEL || "gemini-3.5-flash-lite";
         const primaryKey = process.env.GEMINI_API_KEY || (AiRotator.gemini.getKeys().length > 0 ? AiRotator.gemini.getKeys()[0] : null);
         if (primaryKey) {
             this.genAI = AiRotator.gemini.getGenAI(primaryKey);
@@ -52,7 +52,8 @@ class AiService {
     async _executeWithFallback(action, options = {}) {
         const chain = [
             options.model || this.defaultModelName,
-            process.env.GEMINI_MODEL || "gemini-3.1-flash-lite",
+            process.env.GEMINI_MODEL || "gemini-3.5-flash-lite",
+            "gemini-3.5-flash-lite",
             "gemini-3.1-flash-lite",
             "gemini-2.5-flash-lite",
             "gemini-2.5-flash",

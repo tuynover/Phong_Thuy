@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Calendar, Clock, User, Sparkles, HelpCircle } from 'lucide-react';
 import CustomSelect from '@/components/common/CustomSelect';
 import FloatingErrorToast from '@/components/common/FloatingErrorToast';
@@ -10,7 +10,7 @@ import { getCanhGioInfo } from '@/utils/canhGioHelper';
 export default function ZiweiInput({ 
     onSubmit, 
     activeUser, 
-    onRequireLogin, 
+    _onRequireLogin, 
     handleViewOwnZiwei 
 }) {
     const [showCanhGioModal, setShowCanhGioModal] = useState(false);
@@ -30,83 +30,80 @@ export default function ZiweiInput({
     const [gender, setGender] = useState('Nam');
     const [name, setName] = useState('');
     const [isLeap, setIsLeap] = useState(false);
-    const [hasLeap, setHasLeap] = useState(false);
-    const [errorMsg, setErrorMsg] = useState('');
-
-
+    const [submitError, setSubmitError] = useState('');
+    const [dismissedError, setDismissedError] = useState('');
 
     // Auto-check lunar leap month
-    useEffect(() => {
+    const hasLeap = useMemo(() => {
         if (calendarMode === 'lunar' && year && month) {
             try {
                 const ly = LunarYear.fromYear(parseInt(year, 10));
                 const leapMonth = ly ? ly.getLeapMonth() : 0;
-                const isCandidate = leapMonth > 0 && parseInt(month, 10) === leapMonth;
-                setHasLeap(isCandidate);
-                if (!isCandidate) setIsLeap(false);
-            } catch (e) {
-                setHasLeap(false);
-                setIsLeap(false);
+                return leapMonth > 0 && parseInt(month, 10) === leapMonth;
+            } catch {
+                return false;
             }
-        } else {
-            setHasLeap(false);
-            setIsLeap(false);
         }
+        return false;
     }, [calendarMode, year, month]);
 
     // Auto-clamp Day when Month or Year changes
-    useEffect(() => {
-        if (day && month && year) {
-            let maxDays = 31;
-            if (calendarMode === 'lunar') {
-                try {
-                    const lm = LunarMonth.fromYm(parseInt(year, 10), isLeap ? -parseInt(month, 10) : parseInt(month, 10));
-                    maxDays = lm ? lm.getDayCount() : 30;
-                } catch (e) {
-                    maxDays = 30;
-                }
-            } else {
-                maxDays = getMaxDaysInMonth(month, year);
-            }
-            const dNum = parseInt(day, 10);
-            if (!isNaN(dNum) && dNum > maxDays) {
-                setDay(String(maxDays));
+    const maxDays = useMemo(() => {
+        if (!month || !year) return 31;
+        if (calendarMode === 'lunar') {
+            try {
+                const lm = LunarMonth.fromYm(parseInt(year, 10), isLeap && hasLeap ? -parseInt(month, 10) : parseInt(month, 10));
+                return lm ? lm.getDayCount() : 30;
+            } catch {
+                return 30;
             }
         }
-    }, [calendarMode, month, year, day, isLeap]);
+        return getMaxDaysInMonth(month, year);
+    }, [calendarMode, month, year, isLeap, hasLeap]);
+
+    const [prevClampKey, setPrevClampKey] = useState('');
+    const currentClampKey = `${calendarMode}:${month}:${year}:${isLeap && hasLeap}`;
+    if (currentClampKey !== prevClampKey) {
+        setPrevClampKey(currentClampKey);
+        const dNum = parseInt(day, 10);
+        if (!isNaN(dNum) && dNum > maxDays) {
+            setDay(String(maxDays));
+        }
+    }
 
     // Real-time dynamic validation for ZiweiInput
-    useEffect(() => {
+    const validationError = useMemo(() => {
         if (day || month || year) {
             const val = validateInputDate(day, month, year);
-            if (!val.isValid) {
-                setErrorMsg(val.message);
-            } else {
-                setErrorMsg('');
-            }
-        } else {
-            setErrorMsg('');
+            if (!val.isValid) return val.message;
         }
+        return '';
     }, [day, month, year]);
+
+    const errorMsg = submitError || (validationError !== dismissedError ? validationError : '');
+    const clearError = () => {
+        setSubmitError('');
+        if (validationError) setDismissedError(validationError);
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        setErrorMsg('');
+        setSubmitError('');
 
         if (!day || !month || !year) {
-            setErrorMsg('Vui lòng chọn đầy đủ ngày, tháng và năm sinh.');
+            setSubmitError('Vui lòng chọn đầy đủ ngày, tháng và năm sinh.');
             return;
         }
 
         if (!hour || minute === undefined || minute === '') {
-            setErrorMsg('Vui lòng nhập đầy đủ giờ và phút sinh.');
+            setSubmitError('Vui lòng nhập đầy đủ giờ và phút sinh.');
             return;
         }
 
         if (calendarMode === 'solar') {
             const val = validateInputDate(day, month, year);
             if (!val.isValid) {
-                setErrorMsg(val.message);
+                setSubmitError(val.message);
                 return;
             }
         }
@@ -128,7 +125,7 @@ export default function ZiweiInput({
 
     return (
         <>
-            <FloatingErrorToast message={errorMsg} onClose={() => setErrorMsg('')} />
+            <FloatingErrorToast message={errorMsg} onClose={clearError} />
             <div className="w-full max-w-6xl mx-auto px-4 pb-12 font-sans">
                 {/* Xem lá số của bản thân */}
                 {activeUser && (

@@ -7,7 +7,7 @@
  * Bóc tách khối Tóm tắt 1 phút và Điểm số Radar Cuộc đời ([EXECUTIVE_SUMMARY])
  * Nếu văn bản chưa có khối này (ví dụ lá số cũ trong lịch sử), hệ thống tự động sinh bản tóm tắt học thuật thông minh chuẩn xác.
  */
-export const getFallbackExecutiveSummary = (text = '', theme = 'bazi') => {
+export const getFallbackExecutiveSummary = (_text = '', theme = 'bazi') => {
   const isZiwei = theme === 'ziwei' || theme === 'tu_vi';
   const isIching = theme === 'iching';
   const isMarriage = theme === 'marriage';
@@ -279,7 +279,7 @@ export const parseMarkdownSections = (text, prefix = 'sec') => {
   const isZiwei = prefix === 'ziwei' || prefix === 'tu_vi';
   const isMarriage = prefix === 'marriage';
   const isIChing = prefix === 'iching';
-  const isBazi = prefix === 'bazi';
+  const _isBazi = prefix === 'bazi';
 
   const cleanRawTitle = (str) => {
     if (!str) return '';

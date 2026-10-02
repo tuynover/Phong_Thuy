@@ -214,10 +214,10 @@ const AiChatWidget = ({
 
     const isIching = type === 'hexagrams';
     const isBazi = type === 'bazi';
-    const isTuVi = type === 'tu_vi' || type === 'ziwei';
+    const _isTuVi = type === 'tu_vi' || type === 'ziwei';
     const isMarriage = type === 'marriage';
     
-    const themeColor = isIching ? 'amber' : isBazi ? 'blue' : isMarriage ? 'rose' : 'purple';
+    const _themeColor = isIching ? 'amber' : isBazi ? 'blue' : isMarriage ? 'rose' : 'purple';
     const themeBg = isIching 
         ? 'bg-amber-800 hover:bg-amber-900 text-white' 
         : isBazi 
@@ -326,6 +326,7 @@ const AiChatWidget = ({
         if (isOpen && messages.length === 0 && recordId) {
             fetchHistoryPage(1, true);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen, recordId]);
 
     // Auto scroll to bottom

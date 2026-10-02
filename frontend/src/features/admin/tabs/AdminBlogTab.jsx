@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import rehypeSanitize from 'rehype-sanitize';
 import {
   getBlogPosts,
   getBlogCategories,
@@ -23,7 +24,7 @@ import {
 
 export default function AdminBlogTab({ showAlert, showConfirm }) {
   const [blogPosts, setBlogPosts] = useState([]);
-  const [blogTotal, setBlogTotal] = useState(0);
+  const [_blogTotal, setBlogTotal] = useState(0);
   const [blogPage, setBlogPage] = useState(1);
   const [blogPages, setBlogPages] = useState(1);
   const [blogLimit] = useState(10);
@@ -98,6 +99,7 @@ export default function AdminBlogTab({ showAlert, showConfirm }) {
   useEffect(() => {
     fetchBlogPostsData();
     loadBlogCategories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [blogPage, blogCategory]);
 
   const handleOpenBlogModal = (post = null) => {
@@ -536,7 +538,15 @@ export default function AdminBlogTab({ showAlert, showConfirm }) {
                       {blogFormContent.trim() ? (
                         <ReactMarkdown
                           remarkPlugins={[remarkGfm]}
+                          rehypePlugins={[rehypeSanitize]}
                           components={{
+                            p: ({ node, children }) => {
+                              const hasImage = node?.children?.some(c => c.tagName === 'img');
+                              if (hasImage) {
+                                return <div className="mb-4 last:mb-0 leading-relaxed">{children}</div>;
+                              }
+                              return <p className="mb-4 last:mb-0 leading-relaxed">{children}</p>;
+                            },
                             table: ({ children }) => (
                               <div className="overflow-x-auto my-4 rounded-xl border border-slate-800 shadow-xs">
                                 <table className="min-w-full divide-y divide-slate-800 text-left text-xs">

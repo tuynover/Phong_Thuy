@@ -5,7 +5,6 @@ import {
     getChatStreamUrl, 
     calculateDivination, 
     analyzeBazi, 
-    createZiweiChart,
     checkAuspiciousDate,
     exportPdf
 } from '../services/api';

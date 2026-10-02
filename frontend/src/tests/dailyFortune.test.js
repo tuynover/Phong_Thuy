@@ -6,7 +6,6 @@ import {
   HEXAGRAM_PALACES, 
   PALACE_ELEMENT_THEMES,
   getTodayDateString,
-  getDailyFortuneStorageKey,
   checkHasDrawnDailyFortune,
   saveDailyFortuneResult
 } from '../features/iching/data/dailyFortuneData';

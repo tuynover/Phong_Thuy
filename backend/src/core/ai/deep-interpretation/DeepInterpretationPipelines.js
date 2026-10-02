@@ -49,13 +49,13 @@ class BaziDeepPipeline {
 
     try {
       const geminiKey = GeminiRotator.getNextKey();
-      const geminiModel = model || process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite';
+      const geminiModel = model || process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite';
       logger.info(`[BaziDeepPipeline - Tầng 2] Replica ${id} (${title}) gọi Google Gemini SDK [${geminiModel}] qua [${GeminiRotator.getKeyLabel(geminiKey)}]...`);
       return await LlmProviderService.callGeminiWithKey(geminiKey, replicaPrompt, geminiModel);
     } catch (err) {
       logger.warn(`[BaziDeepPipeline - Tầng 2] Replica ${id} error: ${err.message}. Xoay tua sang Gemini fallback key...`);
       const fallbackKey = GeminiRotator.getFallbackKey();
-      return await LlmProviderService.callGeminiWithKey(fallbackKey, replicaPrompt, process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite');
+      return await LlmProviderService.callGeminiWithKey(fallbackKey, replicaPrompt, process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite');
     }
   }
 
@@ -292,13 +292,13 @@ class ZiweiDeepPipeline {
 
     try {
       const geminiKey = GeminiRotator.getNextKey();
-      const geminiModel = model || process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite';
+      const geminiModel = model || process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite';
       logger.info(`[ZiweiDeepPipeline - Tầng 2] Cluster ${id} (${title}) gọi Gemini [${geminiModel}] qua [${GeminiRotator.getKeyLabel(geminiKey)}]...`);
       return await LlmProviderService.callGeminiWithKey(geminiKey, clusterPrompt, geminiModel);
     } catch (err) {
       logger.warn(`[ZiweiDeepPipeline - Tầng 2] Cluster ${id} fallback error: ${err.message}`);
       const fallbackKey = GeminiRotator.getFallbackKey();
-      return await LlmProviderService.callGeminiWithKey(fallbackKey, clusterPrompt, process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite');
+      return await LlmProviderService.callGeminiWithKey(fallbackKey, clusterPrompt, process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite');
     }
   }
 
@@ -538,13 +538,13 @@ class MarriageDeepPipeline {
 
     try {
       const geminiKey = GeminiRotator.getNextKey();
-      const geminiModel = model || process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite';
+      const geminiModel = model || process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite';
       logger.info(`[MarriageDeepPipeline - Tầng 2] Trụ ${id} (${title}) gọi Gemini [${geminiModel}] qua [${GeminiRotator.getKeyLabel(geminiKey)}]...`);
       return await LlmProviderService.callGeminiWithKey(geminiKey, replicaPrompt, geminiModel);
     } catch (err) {
       logger.warn(`[MarriageDeepPipeline - Tầng 2] Chương ${id} fallback error: ${err.message}`);
       const fallbackKey = GeminiRotator.getFallbackKey();
-      return await LlmProviderService.callGeminiWithKey(fallbackKey, replicaPrompt, process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite');
+      return await LlmProviderService.callGeminiWithKey(fallbackKey, replicaPrompt, process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite');
     }
   }
 
@@ -795,13 +795,13 @@ class IChingDeepPipeline {
     let generatedText = '';
     try {
       const geminiKey = GeminiRotator.getNextKey();
-      const geminiModel = model || process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite';
+      const geminiModel = model || process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite';
       logger.info(`[IChingDeepPipeline - Phân tích] Chương ${id} (${title}) gọi Gemini [${geminiModel}] qua [${GeminiRotator.getKeyLabel(geminiKey)}]...`);
       generatedText = await LlmProviderService.callGeminiWithKey(geminiKey, replicaPrompt, geminiModel);
     } catch (err) {
       logger.warn(`[IChingDeepPipeline - Phân tích] Chương ${id} fallback error: ${err.message}`);
       const fallbackKey = GeminiRotator.getFallbackKey();
-      generatedText = await LlmProviderService.callGeminiWithKey(fallbackKey, replicaPrompt, process.env.GEMINI_MODEL || 'gemini-3.1-flash-lite');
+      generatedText = await LlmProviderService.callGeminiWithKey(fallbackKey, replicaPrompt, process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite');
     }
 
     return SseStreamHelper.sanitizeMetaIntro(generatedText);

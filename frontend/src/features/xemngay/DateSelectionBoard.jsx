@@ -20,12 +20,14 @@ function CustomDatePicker({ value, onChange, minDate, maxDate }) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
   
+  const [prevValue, setPrevValue] = useState(value);
   const selectedDate = value ? new Date(value) : new Date();
   const [viewDate, setViewDate] = useState(selectedDate);
   
-  useEffect(() => {
+  if (prevValue !== value) {
+    setPrevValue(value);
     if (value) setViewDate(new Date(value));
-  }, [value]);
+  }
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -146,12 +148,14 @@ function CustomDatePicker({ value, onChange, minDate, maxDate }) {
 // CUSTOM YEAR PICKER COMBOBOX - Requirement 3
 function CustomYearPicker({ value, onChange }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [prevValue, setPrevValue] = useState(value);
   const [search, setSearch] = useState(value || '');
   const containerRef = useRef(null);
 
-  useEffect(() => {
+  if (prevValue !== value) {
+    setPrevValue(value);
     setSearch(value || '');
-  }, [value]);
+  }
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -336,7 +340,7 @@ function DateSelectionBoard({ user, setUser, setIsAuthModalOpen }) {
       const slug = TAB_TO_SLUG_MAP[activeTab] || 'lich-theo-tuoi';
       window.history.replaceState({ path: `/xemngay/${slug}` }, '', `/xemngay/${slug}`);
     }
-  }, []);
+  }, [activeTab]);
 
   const getHourClassifications = (hoursList) => {
     if (!hoursList || hoursList.length === 0) return { best: [], backup: [] };
@@ -436,11 +440,13 @@ function DateSelectionBoard({ user, setUser, setIsAuthModalOpen }) {
   }, [activity]);
 
   // Synchronize birth year from user profile if changed
-  useEffect(() => {
+  const [prevUserYear, setPrevUserYear] = useState(user?.baziInfo?.year);
+  if (prevUserYear !== user?.baziInfo?.year) {
+    setPrevUserYear(user?.baziInfo?.year);
     if (user?.baziInfo?.year) {
       setBirthYear(String(user.baziInfo.year));
     }
-  }, [user?.baziInfo?.year]);
+  }
 
   const handleCheck = async (e) => {
     if (e) e.preventDefault();

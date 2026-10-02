@@ -12,6 +12,7 @@ services:
       - NODE_ENV=production
       - REDIS_HOST=${REDIS_HOST:-redis}
       - REDIS_PORT=${REDIS_PORT:-6379}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-phongthuy_secure_redis_pass_2026}
     depends_on:
       - redis
     extra_hosts:
@@ -67,7 +68,7 @@ services:
     image: redis:alpine
     container_name: phongthuy-redis
     restart: always
-    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    command: redis-server --requirepass ${REDIS_PASSWORD:-phongthuy_secure_redis_pass_2026} --maxmemory 256mb --maxmemory-policy allkeys-lru
     ports:
       - "127.0.0.1:6379:6379"
     volumes:
@@ -75,7 +76,7 @@ services:
     networks:
       - phongthuy-network
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-phongthuy_secure_redis_pass_2026}", "ping"]
       interval: 5s
       timeout: 3s
       retries: 5

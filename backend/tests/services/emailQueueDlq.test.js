@@ -162,8 +162,25 @@ describe('RedisQueueService with Retry & Dead Letter Queue (DLQ)', () => {
     expect(status).toEqual({
       active: 2,
       dlq: 1,
+      processing: 0,
       isConnected: true
     });
+  });
+
+  test('should reclaim orphaned jobs from processing queue back to active queue on recovery', async () => {
+    const orphanedJob = JSON.stringify({ id: 'orphaned-1', to: 'recovered@example.com' });
+    mockMemoryQueues.set('queue:emails:processing', [orphanedJob]);
+    mockMemoryQueues.set('queue:emails', []);
+
+    await RedisQueueService.reclaimStaleJobs();
+
+    // Processing queue should now be emptied
+    expect((mockMemoryQueues.get('queue:emails:processing') || []).length).toBe(0);
+
+    // Active queue should have reclaimed the job
+    const activeJobs = mockMemoryQueues.get('queue:emails') || [];
+    expect(activeJobs.length).toBe(1);
+    expect(JSON.parse(activeJobs[0]).id).toBe('orphaned-1');
   });
 
   test('should retrieve DLQ jobs as parsed objects', async () => {

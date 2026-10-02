@@ -25,6 +25,13 @@ RUN npm ci --omit=dev
 # Sao chép toàn bộ mã nguồn của backend vào container
 COPY . .
 
+# Tạo thư mục scratch cache và cấp quyền sở hữu toàn bộ cho user node
+RUN mkdir -p /usr/src/app/scratch/pdf_cache /usr/src/app/scratch/tts_cache \
+    && chown -R node:node /usr/src/app
+
+# Hạ quyền container: Chạy bằng non-root user node
+USER node
+
 # Mở cổng kết nối mặc định của backend
 EXPOSE 3001
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { AuthContext } from './context/AuthContext';
 import NetworkStatusBanner from './components/common/NetworkStatusBanner';
 // Pre-trigger import in background for zero-latency module resolution
@@ -22,18 +22,19 @@ function App() {
     return false;
   });
 
-  useEffect(() => {
+  const [prevAuth, setPrevAuth] = useState({ user, authLoading });
+  if (prevAuth.user !== user || prevAuth.authLoading !== authLoading) {
+    setPrevAuth({ user, authLoading });
     if (!authLoading) {
       const savedMode = localStorage.getItem('adminMode');
       if (savedMode === null) {
-        if (user && (user.role === 'admin' || user.role === 'co-admin')) {
-          setIsAdminMode(true);
-        } else {
-          setIsAdminMode(false);
+        const shouldBeAdmin = Boolean(user && (user.role === 'admin' || user.role === 'co-admin'));
+        if (isAdminMode !== shouldBeAdmin) {
+          setIsAdminMode(shouldBeAdmin);
         }
       }
     }
-  }, [user, authLoading]);
+  }
 
   const handleSwitchToUser = () => {
     localStorage.setItem('adminMode', 'false');

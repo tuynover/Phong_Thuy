@@ -1,15 +1,17 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Calendar, Clock, User, ChevronDown, HelpCircle, Sparkles } from 'lucide-react';
 
 // UNIFIED COMBOBOX SELECTOR (BLUE THEME)
 function CustomSelect({ value, onChange, options, placeholder, editable = true }) {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState(value || '');
+  const [prevValue, setPrevValue] = useState(value);
   const containerRef = useRef(null);
 
-  useEffect(() => {
+  if (value !== prevValue) {
+    setPrevValue(value);
     setSearch(value || '');
-  }, [value]);
+  }
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -112,7 +114,8 @@ const BaziInput = ({ onComplete }) => {
     const [hour, setHour] = useState('');
     const [minute, setMinute] = useState('');
     const [isLeap, setIsLeap] = useState(false);
-    const [hasLeap, setHasLeap] = useState(false);
+    const [submitError, setSubmitError] = useState('');
+    const [dismissedError, setDismissedError] = useState('');
 
     // Manual States
     const [manualYear, setManualYear] = useState('');
@@ -127,7 +130,6 @@ const BaziInput = ({ onComplete }) => {
 
     const [gender, setGender] = useState(1); // 1 = Nam, 0 = Nữ
     const [name, setName] = useState('');
-    const [errorMsg, setErrorMsg] = useState('');
 
     const stems = ['Giáp', 'Ất', 'Bính', 'Đinh', 'Mậu', 'Kỷ', 'Canh', 'Tân', 'Nhâm', 'Quý'];
     const zhis = ['Tý', 'Sửu', 'Dần', 'Mão', 'Thìn', 'Tỵ', 'Ngọ', 'Mùi', 'Thân', 'Dậu', 'Tuất', 'Hợi'];
@@ -146,72 +148,72 @@ const BaziInput = ({ onComplete }) => {
         return YANG_ZHIS.includes(zhi) ? YANG_STEMS : stems.filter(s => !YANG_STEMS.includes(s));
     };
 
-    // Auto-check lunar leap month
-    useEffect(() => {
+    // Calculate lunar leap month capability directly in render
+    const hasLeap = useMemo(() => {
         if (calendarMode === 'lunar' && year && month) {
             try {
                 const ly = LunarYear.fromYear(parseInt(year, 10));
                 const leapMonth = ly ? ly.getLeapMonth() : 0;
-                const isCandidate = leapMonth > 0 && parseInt(month, 10) === leapMonth;
-                setHasLeap(isCandidate);
-                if (!isCandidate) setIsLeap(false);
-            } catch (e) {
-                setHasLeap(false);
-                setIsLeap(false);
+                return leapMonth > 0 && parseInt(month, 10) === leapMonth;
+            } catch {
+                return false;
             }
-        } else {
-            setHasLeap(false);
-            setIsLeap(false);
         }
+        return false;
     }, [calendarMode, year, month]);
 
-    // Auto-clamp Day when Month or Year changes
-    useEffect(() => {
-        if (day && month && year) {
-            let maxDays = 31;
-            if (calendarMode === 'lunar') {
-                try {
-                    const lm = LunarMonth.fromYm(parseInt(year, 10), isLeap ? -parseInt(month, 10) : parseInt(month, 10));
-                    maxDays = lm ? lm.getDayCount() : 30;
-                } catch (e) {
-                    maxDays = 30;
-                }
-            } else {
-                maxDays = getMaxDaysInMonth(month, year);
-            }
-            const dNum = parseInt(day, 10);
-            if (!isNaN(dNum) && dNum > maxDays) {
-                setDay(String(maxDays));
+    // Calculate max days for the selected month/year
+    const maxDays = useMemo(() => {
+        if (!month || !year) return 31;
+        if (calendarMode === 'lunar') {
+            try {
+                const lm = LunarMonth.fromYm(parseInt(year, 10), isLeap && hasLeap ? -parseInt(month, 10) : parseInt(month, 10));
+                return lm ? lm.getDayCount() : 30;
+            } catch {
+                return 30;
             }
         }
-    }, [calendarMode, month, year, day, isLeap]);
+        return getMaxDaysInMonth(month, year);
+    }, [calendarMode, month, year, isLeap, hasLeap]);
+
+    // Adjust day during render if it exceeds maxDays
+    const [prevClampKey, setPrevClampKey] = useState('');
+    const currentClampKey = `${calendarMode}:${month}:${year}:${isLeap && hasLeap}`;
+    if (currentClampKey !== prevClampKey) {
+        setPrevClampKey(currentClampKey);
+        const dNum = parseInt(day, 10);
+        if (!isNaN(dNum) && dNum > maxDays) {
+            setDay(String(maxDays));
+        }
+    }
 
     // Real-time dynamic validation for Solar/Lunar mode
-    useEffect(() => {
+    const validationError = useMemo(() => {
         if (calendarMode !== 'manual' && (day || month || year || hour || minute)) {
             const val = validateInputDate(day, month, year, hour, minute);
-            if (!val.isValid) {
-                setErrorMsg(val.message);
-            } else {
-                setErrorMsg('');
-            }
-        } else {
-            setErrorMsg('');
+            if (!val.isValid) return val.message;
         }
+        return '';
     }, [calendarMode, day, month, year, hour, minute]);
+
+    const errorMsg = submitError || (validationError !== dismissedError ? validationError : '');
+    const clearError = () => {
+        setSubmitError('');
+        if (validationError) setDismissedError(validationError);
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        setErrorMsg('');
+        setSubmitError('');
         
         if (calendarMode === 'manual') {
             if (!manualYear || !manualYearGan || !manualYearZhi || !manualMonthGan || !manualMonthZhi || !manualDayGan || !manualDayZhi || !manualHourGan || !manualHourZhi) {
-                setErrorMsg('Vui lòng chọn đầy đủ 8 ô Can Chi và Năm sinh dương lịch.');
+                setSubmitError('Vui lòng chọn đầy đủ 8 ô Can Chi và Năm sinh dương lịch.');
                 return;
             }
             const yNum = parseInt(manualYear, 10);
             if (isNaN(yNum) || yNum < 1900 || yNum > 2100) {
-                setErrorMsg('Năm sinh dương lịch phải nằm trong khoảng từ 1900 đến 2100.');
+                setSubmitError('Năm sinh dương lịch phải nằm trong khoảng từ 1900 đến 2100.');
                 return;
             }
 
@@ -233,7 +235,7 @@ const BaziInput = ({ onComplete }) => {
         }
 
         if (!day || !month || !year || !hour || !minute) {
-            setErrorMsg('Vui lòng chọn đầy đủ ngày, tháng, năm, giờ và phút sinh.');
+            setSubmitError('Vui lòng chọn đầy đủ ngày, tháng, năm, giờ và phút sinh.');
             return;
         }
 
@@ -244,30 +246,30 @@ const BaziInput = ({ onComplete }) => {
         const minNum = parseInt(minute, 10);
 
         if (isNaN(dNum) || isNaN(mNum) || isNaN(yNum) || isNaN(hNum) || isNaN(minNum)) {
-            setErrorMsg('Vui lòng nhập ngày giờ sinh hợp lệ.');
+            setSubmitError('Vui lòng nhập ngày giờ sinh hợp lệ.');
             return;
         }
 
         if (yNum < 1900 || yNum > 2100) {
-            setErrorMsg('Năm sinh phải nằm trong khoảng từ 1900 đến 2100.');
+            setSubmitError('Năm sinh phải nằm trong khoảng từ 1900 đến 2100.');
             return;
         }
 
         if (calendarMode === 'solar') {
             const testDate = new Date(Date.UTC(yNum, mNum - 1, dNum));
             if (testDate.getUTCFullYear() !== yNum || (testDate.getUTCMonth() + 1) !== mNum || testDate.getUTCDate() !== dNum) {
-                setErrorMsg(`Ngày sinh ${dNum}/${mNum}/${yNum} không tồn tại trên thực tế.`);
+                setSubmitError(`Ngày sinh ${dNum}/${mNum}/${yNum} không tồn tại trên thực tế.`);
                 return;
             }
 
             if (testDate.getTime() > Date.now()) {
-                setErrorMsg('Ngày sinh không thể nằm ở tương lai.');
+                setSubmitError('Ngày sinh không thể nằm ở tương lai.');
                 return;
             }
         }
 
         if (hNum < 0 || hNum > 23 || minNum < 0 || minNum > 59) {
-            setErrorMsg('Giờ sinh (0-23h) hoặc phút sinh (0-59m) không hợp lệ.');
+            setSubmitError('Giờ sinh (0-23h) hoặc phút sinh (0-59m) không hợp lệ.');
             return;
         }
 
@@ -294,7 +296,7 @@ const BaziInput = ({ onComplete }) => {
     const minutes = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
 
     const isSubmitDisabled = () => {
-        if (!!errorMsg) return true;
+        if (errorMsg) return true;
         if (calendarMode === 'manual') {
             return !manualYear || !manualYearGan || !manualYearZhi || !manualMonthGan || !manualMonthZhi || !manualDayGan || !manualDayZhi || !manualHourGan || !manualHourZhi;
         }
@@ -303,7 +305,7 @@ const BaziInput = ({ onComplete }) => {
 
     return (
         <>
-            <FloatingErrorToast message={errorMsg} onClose={() => setErrorMsg('')} />
+            <FloatingErrorToast message={errorMsg} onClose={clearError} />
             <div className="flex flex-col items-center bg-white/95 backdrop-blur-md p-6 md:p-10 rounded-3xl shadow-xl shadow-blue-900/5 border border-slate-200/80 max-w-3xl mx-auto font-sans">
                 <h3 id="bazi-input-header" className="text-2xl font-black text-slate-900 mb-4 uppercase tracking-tight">Nhập Thông Tin Bát Tự</h3>
                 <p className="text-slate-500 mb-8 text-center text-sm md:text-base leading-relaxed">Hệ thống phân tích Tứ Trụ Tử Bình hỗ trợ cả Dương lịch, Âm lịch và nhập thủ công 8 chữ Can Chi để an sao cải vận.</p>

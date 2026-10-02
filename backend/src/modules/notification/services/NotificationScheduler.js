@@ -8,10 +8,6 @@ const SystemLog = require('../../admin/models/SystemLog');
 const AdminNotification = require('../../admin/models/AdminNotification');
 const BaziRecord = require('../../bazi/models/BaziRecord');
 const ZiweiRecord = require('../../ziwei/models/ZiweiRecord');
-const MarriageRecord = require('../../bazi/models/MarriageRecord');
-const Conversation = require('../../../core/models/Conversation');
-const Message = require('../../../core/models/Message');
-const BanAppeal = require('../../admin/models/BanAppeal');
 
 const logger = require('../../../core/services/LoggerService');
 const console = {
@@ -32,36 +28,6 @@ function getDayDifference(date1, date2) {
     d2.setUTCHours(0, 0, 0, 0);
     const diffTime = d1.getTime() - d2.getTime();
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-}
-
-async function purgeSoftDeletedUsers() {
-    console.log('[NotificationScheduler] Purging soft-deleted users inactive for 30+ days...');
-    try {
-        const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-        const expiredUsers = await User.find({ isDeleted: true, updatedAt: { $lt: thirtyDaysAgo } });
-
-        console.log(`[NotificationScheduler] Found ${expiredUsers.length} users to purge.`);
-
-        if (expiredUsers.length === 0) return;
-
-        const userIds = expiredUsers.map(u => u._id);
-
-        await Promise.all([
-            BaziRecord.deleteMany({ userId: { $in: userIds } }),
-            IChingRecord.deleteMany({ userId: { $in: userIds } }),
-            ZiweiRecord.deleteMany({ userId: { $in: userIds } }),
-            MarriageRecord.deleteMany({ userId: { $in: userIds } }),
-            Conversation.deleteMany({ userId: { $in: userIds } }),
-            Message.deleteMany({ userId: { $in: userIds } }),
-            BanAppeal.deleteMany({ userId: { $in: userIds } }),
-            Notification.deleteMany({ userId: { $in: userIds } }),
-            User.deleteMany({ _id: { $in: userIds } })
-        ]);
-
-        console.log(`[NotificationScheduler] Permanently purged ${expiredUsers.length} soft-deleted users in batch.`);
-    } catch (err) {
-        console.error('[NotificationScheduler] Error during purging soft-deleted users:', err);
-    }
 }
 
 async function purgeExpiredCacheFiles() {
@@ -102,10 +68,7 @@ async function purgeExpiredCacheFiles() {
 async function checkAndSendNotifications() {
     console.log('[NotificationScheduler] Running daily check...');
     
-    // 1. Purge expired soft-deleted users
-    await purgeSoftDeletedUsers();
-
-    // 2. Purge expired temporary PDF and TTS cache files (>24h)
+    // Purge expired temporary PDF and TTS cache files (>24h)
     await purgeExpiredCacheFiles();
 
     try {

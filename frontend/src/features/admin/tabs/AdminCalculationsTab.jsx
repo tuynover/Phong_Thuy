@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import rehypeSanitize from 'rehype-sanitize';
 import {
   getAdminCalculations,
   getAdminCalculationDetail,
@@ -802,7 +803,7 @@ export default function AdminCalculationsTab({
                 </span>
                 {selectedCalc.aiInterpretation?.content ? (
                   <div className="text-slate-300 text-xs sm:text-sm leading-relaxed max-h-[350px] overflow-y-auto pr-2 prose prose-invert max-w-none border-t border-slate-850 pt-3">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeSanitize]}>
                       {selectedCalc.aiInterpretation.content}
                     </ReactMarkdown>
                   </div>

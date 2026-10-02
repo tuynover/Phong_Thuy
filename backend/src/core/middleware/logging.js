@@ -144,12 +144,44 @@ const auditLogger = async (req, res, next) => {
         ip: ip
     };
 
-    // Construct a descriptive request detail string (masking passwords)
+    // Sensitive keys blacklist for PII and security protection
+    const SENSITIVE_KEYS = new Set([
+        'password',
+        'newpassword',
+        'currentpassword',
+        'oldpassword',
+        'confirmpassword',
+        'otp',
+        'credential',
+        'token',
+        'refreshtoken',
+        'authorization'
+    ]);
+
+    const sanitizeSensitiveData = (data) => {
+        if (!data || typeof data !== 'object') return data;
+        if (Array.isArray(data)) {
+            return data.map(item => sanitizeSensitiveData(item));
+        }
+        const clean = {};
+        for (const [key, value] of Object.entries(data)) {
+            const lowerKey = key.toLowerCase();
+            if (SENSITIVE_KEYS.has(lowerKey)) {
+                clean[key] = '******';
+            } else if (value && typeof value === 'object') {
+                clean[key] = sanitizeSensitiveData(value);
+            } else {
+                clean[key] = value;
+            }
+        }
+        return clean;
+    };
+
+    // Construct a descriptive request detail string (masking passwords, OTPs, tokens)
     let requestDetail = "";
-    if (req.body && Object.keys(req.body).length > 0) {
-        const bodyCopy = { ...req.body };
-        if (bodyCopy.password) bodyCopy.password = '******';
-        requestDetail = ` | Params: ${JSON.stringify(bodyCopy)}`;
+    const sanitizedBody = req.body && Object.keys(req.body).length > 0 ? sanitizeSensitiveData(req.body) : null;
+    if (sanitizedBody) {
+        requestDetail = ` | Params: ${JSON.stringify(sanitizedBody)}`;
     }
 
     // Log request entry
@@ -173,11 +205,7 @@ const auditLogger = async (req, res, next) => {
             path: req.originalUrl,
             statusCode: status,
             duration: duration,
-            requestParams: req.body && Object.keys(req.body).length > 0 ? (() => {
-                const bodyCopy = { ...req.body };
-                if (bodyCopy.password) bodyCopy.password = '******';
-                return bodyCopy;
-            })() : null
+            requestParams: sanitizedBody
         }).catch(err => {
             console.error('[auditLogger] Failed to write SystemLog:', err);
         });

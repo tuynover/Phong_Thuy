@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, useRef } from 'react';
+import React, { useState, useContext, useEffect, useRef, useCallback } from 'react';
 import { AuthContext } from '@/context/AuthContext';
 import { X, AlertTriangle, Check } from 'lucide-react';
 import { submitBanAppeal, forgotPassword, resetPassword } from '@/services/api';
@@ -36,10 +36,11 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [forgotSuccess, setForgotSuccess] = useState('');
   const [resetCompleted, setResetCompleted] = useState(false);
+  const { login, register, loginWithGoogle } = useContext(AuthContext);
 
   const googleButtonRef = useRef(null);
 
-  const handleGoogleLoginCallback = async (response) => {
+  const handleGoogleLoginCallback = useCallback(async (response) => {
     setError('');
     setAppealUserId('');
     setAppealMode(false);
@@ -62,7 +63,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
         setError(res.message === 'Invalid Credentials' ? 'Tài khoản hoặc mật khẩu không đúng' : res.message);
       }
     }
-  };
+  }, [loginWithGoogle, onClose, onLoginSuccess]);
 
   // Effect 1: Reset state only when modal opens
   useEffect(() => {
@@ -103,9 +104,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
     }, 150);
 
     return () => clearTimeout(timer);
-  }, [isOpen, isLogin, appealMode, appealSuccess, appealUserId]);
-
-  const { login, register, loginWithGoogle } = useContext(AuthContext);
+  }, [isOpen, isLogin, appealMode, appealSuccess, appealUserId, forgotMode, handleGoogleLoginCallback]);
 
   if (!isOpen) return null;
 

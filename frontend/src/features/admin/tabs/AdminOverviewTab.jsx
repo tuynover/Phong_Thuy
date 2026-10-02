@@ -46,16 +46,17 @@ export default function AdminOverviewTab({
   onRefreshHealth,
   onOpenDlqModal
 }) {
-  const handlePresetClick = (days) => {
+  const handlePresetClick = React.useCallback((days) => {
     if (onPresetClick) {
       onPresetClick(days);
     } else {
-      const start = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-      const end = new Date().toISOString().split('T')[0];
+      const now = Date.now();
+      const start = new Date(now - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      const end = new Date(now).toISOString().split('T')[0];
       setStartDate(start);
       setEndDate(end);
     }
-  };
+  }, [onPresetClick, setStartDate, setEndDate]);
 
   return (
     <div className="space-y-8 animate-in fade-in duration-300">

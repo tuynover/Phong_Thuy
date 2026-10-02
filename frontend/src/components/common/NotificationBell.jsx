@@ -9,20 +9,27 @@ export default function NotificationBell({ onNotificationClick }) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  const fetchNotifications = async () => {
-    if (!token) return;
-    try {
-      const res = await getNotifications();
-      setNotifications(res.data);
-    } catch (err) {
-      console.error("Lỗi khi tải thông báo:", err);
-    }
-  };
-
   useEffect(() => {
-    fetchNotifications();
-    const interval = setInterval(fetchNotifications, 60000);
-    return () => clearInterval(interval);
+    let ignore = false;
+    if (!token) return;
+
+    const loadNotifications = async () => {
+      try {
+        const res = await getNotifications();
+        if (!ignore) {
+          setNotifications(res.data);
+        }
+      } catch (err) {
+        console.error("Lỗi khi tải thông báo:", err);
+      }
+    };
+
+    loadNotifications();
+    const interval = setInterval(loadNotifications, 60000);
+    return () => {
+      ignore = true;
+      clearInterval(interval);
+    };
   }, [token]);
 
   useEffect(() => {

@@ -1,15 +1,17 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Calendar, Clock, User, ChevronDown, HelpCircle } from 'lucide-react';
 
 // UNIFIED COMBOBOX COMPONENT - ALLOWS TYPING AND SELECTING
 function CustomSelect({ value, onChange, options, placeholder, borderClass, focusBorderClass, hoverClass, activeClass }) {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState(value || '');
+  const [prevValue, setPrevValue] = useState(value);
   const containerRef = useRef(null);
 
-  useEffect(() => {
+  if (value !== prevValue) {
+    setPrevValue(value);
     setSearch(value || '');
-  }, [value]);
+  }
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -104,67 +106,78 @@ const MarriageInput = ({ onComplete }) => {
     const [fHour, setFHour] = useState('');
     const [fMinute, setFMinute] = useState('');
 
-    const [errorMsg, setErrorMsg] = useState('');
+    const [submitError, setSubmitError] = useState('');
+    const [dismissedError, setDismissedError] = useState('');
 
     // Auto-clamp Male Day when Month or Year changes
-    useEffect(() => {
-        if (mDay && mMonth && mYear) {
-            const maxDays = getMaxDaysInMonth(mMonth, mYear);
-            const dNum = parseInt(mDay, 10);
-            if (!isNaN(dNum) && dNum > maxDays) {
-                setMDay(String(maxDays));
-            }
+    const maxDaysM = useMemo(() => {
+        if (!mMonth || !mYear) return 31;
+        return getMaxDaysInMonth(mMonth, mYear);
+    }, [mMonth, mYear]);
+
+    const [prevClampM, setPrevClampM] = useState('');
+    const currentClampM = `${mMonth}:${mYear}`;
+    if (currentClampM !== prevClampM) {
+        setPrevClampM(currentClampM);
+        const dNum = parseInt(mDay, 10);
+        if (!isNaN(dNum) && dNum > maxDaysM) {
+            setMDay(String(maxDaysM));
         }
-    }, [mMonth, mYear, mDay]);
+    }
 
     // Auto-clamp Female Day when Month or Year changes
-    useEffect(() => {
-        if (fDay && fMonth && fYear) {
-            const maxDays = getMaxDaysInMonth(fMonth, fYear);
-            const dNum = parseInt(fDay, 10);
-            if (!isNaN(dNum) && dNum > maxDays) {
-                setFDay(String(maxDays));
-            }
+    const maxDaysF = useMemo(() => {
+        if (!fMonth || !fYear) return 31;
+        return getMaxDaysInMonth(fMonth, fYear);
+    }, [fMonth, fYear]);
+
+    const [prevClampF, setPrevClampF] = useState('');
+    const currentClampF = `${fMonth}:${fYear}`;
+    if (currentClampF !== prevClampF) {
+        setPrevClampF(currentClampF);
+        const dNum = parseInt(fDay, 10);
+        if (!isNaN(dNum) && dNum > maxDaysF) {
+            setFDay(String(maxDaysF));
         }
-    }, [fMonth, fYear, fDay]);
+    }
 
     // Real-time dynamic validation for Male & Female
-    useEffect(() => {
+    const validationError = useMemo(() => {
         if (mDay || mMonth || mYear || mHour || mMinute) {
             const valM = validateInputDate(mDay, mMonth, mYear, mHour, mMinute);
-            if (!valM.isValid) {
-                setErrorMsg(`Thông tin Nam: ${valM.message}`);
-                return;
-            }
+            if (!valM.isValid) return `Thông tin Nam: ${valM.message}`;
         }
         if (fDay || fMonth || fYear || fHour || fMinute) {
             const valF = validateInputDate(fDay, fMonth, fYear, fHour, fMinute);
-            if (!valF.isValid) {
-                setErrorMsg(`Thông tin Nữ: ${valF.message}`);
-                return;
-            }
+            if (!valF.isValid) return `Thông tin Nữ: ${valF.message}`;
         }
-        setErrorMsg('');
+        return '';
     }, [mDay, mMonth, mYear, mHour, mMinute, fDay, fMonth, fYear, fHour, fMinute]);
+
+    const errorMsg = submitError || (validationError !== dismissedError ? validationError : '');
+    const clearError = () => {
+        setSubmitError('');
+        if (validationError) setDismissedError(validationError);
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        setErrorMsg('');
+        setSubmitError('');
         
         if (!mDay || !mMonth || !mYear || !mHour || !mMinute || !fDay || !fMonth || !fYear || !fHour || !fMinute) {
-            setErrorMsg('Vui lòng chọn đầy đủ thông tin ngày giờ sinh cho cả Nam và Nữ.');
+            setSubmitError('Vui lòng chọn đầy đủ thông tin ngày giờ sinh cho cả Nam và Nữ.');
             return;
         }
 
         const valM = validateInputDate(mDay, mMonth, mYear, mHour, mMinute);
         if (!valM.isValid) {
-            setErrorMsg(`Thông tin Nam: ${valM.message}`);
+            setSubmitError(`Thông tin Nam: ${valM.message}`);
             return;
         }
 
         const valF = validateInputDate(fDay, fMonth, fYear, fHour, fMinute);
         if (!valF.isValid) {
-            setErrorMsg(`Thông tin Nữ: ${valF.message}`);
+            setSubmitError(`Thông tin Nữ: ${valF.message}`);
             return;
         }
 
@@ -203,7 +216,7 @@ const MarriageInput = ({ onComplete }) => {
 
     return (
         <>
-            <FloatingErrorToast message={errorMsg} onClose={() => setErrorMsg('')} />
+            <FloatingErrorToast message={errorMsg} onClose={clearError} />
             <div className="flex flex-col items-center bg-white p-5 md:p-8 rounded-2xl md:rounded-[2rem] shadow-xl border border-gray-100 max-w-4xl mx-auto font-sans">
                 <h3 id="marriage-input-header" className="text-2xl font-bold text-slate-800 mb-6 uppercase tracking-wide text-center">Lập Lá Số Hợp Hôn (Bát Tự Hợp Hôn)</h3>
                 <p className="text-gray-500 mb-8 text-center text-[15px] max-w-2xl">Nhập đầy đủ thông tin ngày giờ sinh Dương lịch của Nam và Nữ để hệ thống quy đổi tiết khí và đối chiếu tương sinh hợp khắc.</p>

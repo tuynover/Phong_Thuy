@@ -21,7 +21,7 @@ function randomBetween(min, max) {
  * - Thẻ định mệnh: Nhô lên -> Tạm dừng -> Rơi parabol 3D -> Tiếp đất foreground -> Mở kết quả.
  */
 export default function BambooShakerScene({ onComplete, destinedFortune }) {
-  const shouldReduceMotion = useReducedMotion();
+  const _shouldReduceMotion = useReducedMotion();
   const [phase, setPhase] = useState('idle');
 
   // Trạng thái tương tác chuột

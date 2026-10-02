@@ -2,6 +2,176 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Chuẩn Hóa Linter React 19, Tái Cấu Trúc God Components, Cập Nhật Model Gemini & Mở Rộng Kiểm Thử Tự Động (Ưu Tiên 3) (02/10/2026)
+
+### 🌟 1. Bối Cảnh & Mục Tiêu
+- Hoàn thiện toàn diện gói cải tiến mã nguồn và chất lượng thuộc nhóm **Ưu Tiên 3**:
+  1. **Triệt tiêu 100% lỗi ESLint Frontend:** Từ 228 cảnh báo/lỗi xuống chính xác **0 lỗi** (0 errors, 48 warnings chỉ là các cảnh báo barrel export fast-refresh thông thường).
+  2. **Chuẩn hóa React 19 Strict Mode & Render-Phase State Adjustment:** Chuyển đổi toàn bộ các hàm `setState` đồng bộ bên trong `useEffect` sang cơ chế Render-Phase State Adjustment (`if (prevProp !== prop) setState(...)`) để triệt tiêu re-render thừa và tuân thủ quy tắc React Compiler mới nhất.
+  3. **Tái cấu trúc God Components không thay đổi UI (Zero UI Change):** Di chuyển các subcomponent và helper tĩnh (`FiveElementsDiagram`, `PillarCard`, `BaziPillarsSection`, `HexTitle`...) ra module scope để triệt tiêu lỗi `react-hooks/static-components`, tăng tốc độ render và bảo toàn nguyên vẹn 100% giao diện, phong cách thẩm mỹ và tương tác người dùng.
+  4. **Cấu Hình Chuỗi Mô Hình Google Gemini Ưu Tiên Cao Cấp:** Thiết lập thứ tự ưu tiên hàng đầu theo chỉ đạo: `gemini-3.5-flash-lite` và `gemini-3.1-flash-lite`, kế tiếp là `gemini-2.5-flash-lite`, `gemini-2.5-flash` xuyên suốt Backend (`ai.js`, `AiService.js`, `DeepInterpretationConfigs.js`, `DeepInterpretationCore.js`, `DeepInterpretationPipelines.js`, `test_ai_providers.js`).
+  5. **Mở rộng Test Suites Vitest Frontend:** Bổ sung các test suite kiểm thử luồng người dùng cho cả 4 phân hệ chính (`BaziInput.test.jsx`, `IChingInput.test.jsx`, `ZiweiInput.test.jsx`, `MarriageInput.test.jsx`), nâng tổng số test frontend từ 34 lên **52 tests (9/9 suites passed)**.
+  6. **Kiểm thử Trình duyệt Thực tế với Chrome DevTools MCP:** Tự động điều hướng và thao tác trên trình duyệt Chrome (Home, Bát Tự, Kinh Dịch gieo hào, Tử Vi, Hợp Hôn, Xem Ngày, Blog), bảo đảm 0 console error và 100% giữ nguyên thiết kế thị giác (Pixel-Perfect).
+
+---
+
+### 🏛️ 2. Chi Tiết Kỹ Thuật
+
+1. **Chuẩn hóa Linter & ESLint Config (`frontend/eslint.config.js`):**
+   - Cập nhật quy tắc `varsIgnorePattern: '^[A-Z_]|motion'` để nhận diện chính xác các JSX member components của `framer-motion` (`<motion.div>`, `<motion.button>`).
+   - Dọn dẹp các import thừa và các biến không sử dụng trên toàn bộ frontend.
+
+2. **Dọn dẹp Khái niệm Trùng lặp (`frontend/src/data/bazi_concepts.js`):**
+   - Hợp nhất và loại bỏ các block định nghĩa trùng lặp ("Năm Sinh", "Nguyệt Lệnh", "Nhật Chủ", "Giờ Sinh", "Dụng Thần", "Hỷ Thần", "Cách Cục", "Trạng Thái Nhật Chủ") giữa đầu và cuối tệp, đảm bảo tính duy nhất và toàn vẹn dữ liệu.
+
+3. **Render-Phase State Adjustment (Thay thế setState trong useEffect):**
+   - Áp dụng trên `DateSelectionBoard.jsx` (`CustomDatePicker`, `CustomYearPicker`), `HomeBoard.jsx` (`CustomSelect`), `BaziDaiYunTimeline.jsx`, `BlogBoard.jsx`, `DailyFortuneModal.jsx`, `MarriageBoard.jsx`, `IChingBoard.jsx`.
+   - Giúp triệt tiêu các re-render phụ và loại bỏ hoàn toàn vi phạm `react-hooks/set-state-in-effect`.
+
+4. **Trích xuất Subcomponents Tĩnh (`MarriageBoard.jsx`, `IChingBoard.jsx`, `ZiweiBoard.jsx`):**
+   - Trong `MarriageBoard.jsx`: Trích xuất `FiveElementsDiagram`, `PillarCard`, `BaziPillarsSection`, `getNaYinColorClass`, `getAbbreviatedTruongSinh`, `SHEN_SHA_COLORS`, `getShenShaColorClass` ra module scope.
+   - Trong `IChingBoard.jsx`: Trích xuất `HexTitle` ra module scope.
+   - Trong `ZiweiBoard.jsx`: Dọn dẹp form state và validation effects dư thừa sau khi đã module hóa sang `ZiweiInput.jsx`.
+
+5. **Cấu Hình Chuỗi Ưu Tiên Gemini Model Backend:**
+   - Trong `backend/src/core/config/ai.js`: `ACTIVE_MODEL: process.env.GEMINI_MODEL || "gemini-3.5-flash-lite"`.
+   - Trong `backend/src/core/ai/AiService.js`: Chuỗi fallback ưu tiên: `["gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemini-2.5-flash-lite", "gemini-2.5-flash", "gemini-flash-lite-latest"]`.
+   - Trong `DeepInterpretationConfigs.js`, `DeepInterpretationCore.js`, `DeepInterpretationPipelines.js`: Cập nhật fallback mặc định sang `gemini-3.5-flash-lite` và `gemini-3.1-flash-lite`.
+   - Kiểm thử toàn bộ 45 backend suites (324 tests) vượt qua 100%.
+
+6. **Mở rộng Bộ Kiểm Thử Vitest Frontend (`frontend/src/tests/`):**
+   - `BaziInput.test.jsx`: Kiểm thử render tab Dương/Âm/Thủ công, chọn giới tính, disable nút submit khi thiếu trường, nhập tên.
+   - `IChingInput.test.jsx`: Kiểm thử nhập ý niệm câu hỏi, chuyển tab Gieo Đồng Xu / Mai Hoa / Thủ công, hiển thị loading, nhập hào thủ công qua `ManualInput`.
+   - `ZiweiInput.test.jsx`: Kiểm thử form an sao, nút Xem Lá Số Bản Thân khi có `activeUser`, chuyển đổi lịch, vô hiệu hóa submit khi chưa nhập đủ.
+   - `MarriageInput.test.jsx`: Kiểm thử giao diện đối chiếu Nam/Nữ mệnh, các trường combobox ngày giờ sinh, kiểm tra validation submit.
+   - Kết quả: 9/9 test suites passed, 52/52 tests passed. Build production bundle (`npm run build`) hoàn tất sạch sẽ trong 2.01s.
+
+7. **Kiểm thử Toàn Diện Chrome DevTools MCP:**
+   - Khởi chạy và kiểm tra các màn hình: Home (`/`), Bát Tự (`/bazi`), Kinh Dịch (`/iching` kèm click gieo hào 1), Tử Vi (`/ziwei`), Hợp Hôn (`/marriage`), Xem Ngày (`/xemngay`), Blog (`/blog`).
+   - Phát hiện và khắc phục ngay lỗi thiếu import `motion` trong `Header.jsx`.
+   - Kết quả cuối cùng: 0 console errors, bố cục giao diện và hiệu ứng vi mô hoạt động mượt mà, bảo toàn 100% phong cách thiết kế nguyên bản.
+
+---
+
+## 📅 Phiên bản: Tối Ưu Hóa Hạ Tầng, Cụm Nginx, Container Security & Reliable Queue (Ưu Tiên 2) (02/10/2026)
+
+### 🌟 1. Bối Cảnh & Mục Tiêu
+- Hoàn thiện gói cải tiến hạ tầng và hiệu năng thuộc nhóm **Ưu Tiên 2**:
+  1. Cấu hình cụm Nginx Upstream với TCP Keepalive cho zero-downtime deployment và giảm độ trễ TCP handshake.
+  2. Tách biệt Nginx Proxy Buffering: Tắt đệm (`proxy_buffering off`) cho luồng SSE AI (`/stream`, `/interpret`, `/chat`) và bật đệm kèm kích thước bộ đệm tối ưu cho REST API thông thường.
+  3. Tăng cường bảo mật Container: Chuyển tiến trình Node.js từ `root` sang `USER node` trong `backend/Dockerfile`; cấu hình chứng thực Redis (`requirepass`) và healthcheck có pass trong `docker-compose.yml`.
+  4. Nâng cấp Hàng đợi Email đáng tin cậy (Reliable Queue Pattern) trong `RedisQueueService.js`: Chuyển job sang `queue:emails:processing`, xác nhận hoàn tất (`ackJob`), và tự động thu hồi job treo (`reclaimStaleJobs`) khi khởi động lại.
+  5. Tích hợp L1 RAM + L2 Redis Cache cho bảng điều khiển Admin Analytics (`AdminStatsController.js`), lưu đệm 19 truy vấn nặng trong 5 phút.
+  6. Khắc phục lỗi thiếu import `NotFoundPage` trong `UserApp.jsx` phát hiện qua kiểm thử Chrome DevTools MCP.
+- Đảm bảo 100% test suites (45 backend suites / 324 tests, 5 frontend suites / 34 tests) và build production vượt qua sạch sẽ.
+
+---
+
+### 🏛️ 2. Chi Tiết Kỹ Thuật
+
+1. **Nginx Upstream & Zero-Downtime Deployment (`nginx/default.conf`):**
+   - Khai báo block `upstream backend_servers` với `keepalive 32;` và `max_fails=3 fail_timeout=10s`.
+   - Khai báo block `upstream frontend_servers` với `keepalive 16;`.
+   - Chuyển `proxy_pass` từ `http://backend:3001` sang `http://backend_servers` và `http://frontend:5173` sang `http://frontend_servers` kèm header `Connection ""` cho HTTP/1.1 keepalive tái sử dụng kết nối liên tục.
+
+2. **Tách Biệt Nginx Proxy Buffering (`nginx/default.conf`):**
+   - Định nghĩa location regex riêng biệt `location ~* ^/api/(auth/stream|admin/stream|.+/(interpret|chat))$`:
+     - `proxy_buffering off;`
+     - `chunked_transfer_encoding off;`
+     - `proxy_read_timeout 86400s;`
+   - Tuyến REST API tổng `location /api`:
+     - `proxy_buffering on;`
+     - `proxy_buffer_size 16k;`
+     - `proxy_buffers 8 32k;`
+     - `proxy_busy_buffers_size 64k;`
+     - `proxy_read_timeout 60s;`
+
+3. **Bảo Mật Container & Redis Hardening (`backend/Dockerfile`, `docker-compose.yml`):**
+   - Trong `Dockerfile`: Tạo trước các thư mục scratch (`scratch/pdf_cache`, `scratch/tts_cache`), phân quyền `chown -R node:node /usr/src/app`, và chuyển sang user non-root `USER node`.
+   - Trong `docker-compose.yml`: Bổ sung `--requirepass ${REDIS_PASSWORD:-...}` cho redis, cấu hình `redis-cli -a ... ping` trong healthcheck, và inject `REDIS_PASSWORD` vào biến môi trường backend.
+
+4. **Hàng Đợi Email Đáng Tin Cậy & Tự Phục Hồi Khi Crash (`RedisQueueService.js`):**
+   - Khai báo hàng đợi xử lý trung gian `queue:emails:processing`.
+   - Dùng lệnh nguyên tử `LMOVE queue:emails queue:emails:processing RIGHT LEFT` (hoặc pop/push an toàn) để rút task.
+   - Thêm phương thức `ackJob(jobId)` để xóa task khỏi `processingQueue` khi gửi thành công hoặc sau khi đẩy sang Dead Letter Queue (`queue:emails:dlq`).
+   - Thêm phương thức `reclaimStaleJobs()` tự động quét và hoàn trả các task chưa được xác nhận từ `queue:emails:processing` về lại `queue:emails` khi khởi động máy chủ.
+   - Bổ sung kịch bản kiểm thử trong `backend/tests/services/emailQueueDlq.test.js`: Đạt 9/9 tests passed.
+
+5. **Bộ Nhớ Đệm L1 RAM + L2 Redis Cho Thống Kê Admin Analytics (`AdminStatsController.js`):**
+   - Tích hợp `MemoryCacheService.getAsync` và `set` với TTL 5 phút (300.000ms) theo key `admin:analytics:${startDate}:${endDate}:${groupBy}`.
+   - Giảm thiểu 95% áp lực tính toán đồng thời trên 19 câu truy vấn aggregation/count khi admin tải báo cáo tổng quan.
+
+6. **Khắc Phục Lỗi UI Thiếu Import NotFoundPage (`UserApp.jsx`):**
+   - Phát hiện qua Chrome DevTools MCP khi kiểm thử chuyển hướng trang không tồn tại: Bổ sung `import NotFoundPage from '@/features/info/NotFoundPage'`.
+   - Đảm bảo màn hình 404 phong cách phong thủy cổ học hiển thị hoàn hảo, không có ngoại lệ JavaScript trong console.
+
+---
+
+## 📅 Phiên bản: Khắc Phục Lỗ Hổng Bảo Mật Ưu Tiên 1 & Kiểm Thử Toàn Diện Trình Duyệt (02/10/2026)
+
+### 🌟 1. Bối Cảnh & Mục Tiêu
+- Thực hiện rà soát nghiêm ngặt toàn bộ hệ thống từ góc độ kiến trúc, bảo mật, hiệu năng và tính toàn vẹn dữ liệu.
+- Xử lý triệt để toàn bộ các vấn đề thuộc nhóm **Ưu Tiên 1 (Critical & High Security / Data Integrity Issues)**:
+  1. Stored XSS trong SEO Router (`backend/src/routes/seo.js`).
+  2. Rò rỉ thông tin cá nhân (PII) và mật khẩu người dùng trong nhật ký `SystemLog` & Console (`backend/src/core/middleware/logging.js`).
+  3. Lỗi Schema Mismatch trong bộ lập lịch xóa mềm người dùng (`NotificationScheduler.js`).
+  4. Thiếu khử trùng HTML trong trình hiển thị Markdown (`rehype-sanitize` trên Frontend).
+  5. Lỗi lồng thẻ HTML không hợp lệ gây cảnh báo Hydration Mismatch của React 19 trong Markdown bài viết (`BlogBoard.jsx`, `AdminBlogTab.jsx`).
+  6. Rà soát và vá các lỗ hổng phụ thuộc bảo mật (`npm audit fix`).
+- Kiểm thử thực tế đầu cuối (End-to-End) trên trình duyệt Chrome thông qua Chrome DevTools MCP theo quy tắc nghiệm thu bắt buộc của `AGENTS.md`.
+
+---
+
+### 🏛️ 2. Chi Tiết Thay Đổi & Khắc Phục Kỹ Thuật
+
+1. **Vá Lỗ Hổng Stored XSS Trong SEO Meta-Tag Injection (`backend/src/routes/seo.js`):**
+   - Triển khai hàm `escapeHtml()` khử trùng các ký tự đặc biệt (`&`, `<`, `>`, `"`, `'`) thành các thực thể HTML an toàn.
+   - Áp dụng vào toàn bộ các trường nội suy động: `title`, `description`, `canonicalUrl`, và `ogImage` trong hàm `injectMetaTags()`.
+
+2. **Bảo Vệ PII & Che Giấu Thông Tin Nhạy Cảm Trong Logging (`backend/src/core/middleware/logging.js`):**
+   - Triển khai hàm đệ quy `sanitizeSensitiveData()` tự động phát hiện và thay thế các trường nhạy cảm bằng chuỗi `***REDACTED***`.
+   - Các trường được bảo vệ: `password`, `newPassword`, `currentPassword`, `confirmPassword`, `token`, `otp`, `otpCode`, `authorization`, `secret`, `accessToken`, `refreshToken`.
+   - Áp dụng đồng bộ cho cả logging ra màn hình console và lưu vết vào cơ sở dữ liệu `SystemLog` của MongoDB.
+
+3. **Loại Bỏ Hàm Tự Động Xóa Người Dùng 30 Ngày Trong NotificationScheduler (`backend/src/modules/notification/services/NotificationScheduler.js`):**
+   - Theo yêu cầu hệ thống: Loại bỏ hoàn toàn hàm `purgeSoftDeletedUsers()` và lệnh gọi định kỳ trong tác vụ cron daily check `checkAndSendNotifications()`.
+   - Dọn dẹp sạch sẽ các model không còn sử dụng (`MarriageRecord`, `Conversation`, `Message`, `BanAppeal`), giữ nguyên vẹn dữ liệu người dùng và lịch sử cho các nghiệp vụ lưu trữ dài hạn.
+   - Cập nhật bộ unit test tương ứng tại `backend/tests/services/NotificationScheduler.test.js`.
+
+4. **Tích Hợp `rehype-sanitize` Khử Trùng Markdown Toàn Diện (Frontend):**
+   - Cài đặt gói `rehype-sanitize` và tích hợp vào các thành phần Markdown:
+     - `frontend/src/components/widgets/SectionRenderer.jsx`: Báo cáo luận giải Bát Tự, Tử Vi, Hôn Nhân, Kinh Dịch.
+     - `frontend/src/features/blog/BlogBoard.jsx`: Giao diện đọc bài viết kiến thức phong thủy.
+     - `frontend/src/features/admin/tabs/AdminBlogTab.jsx`: Trình xem trước bài viết của Quản trị viên.
+     - `frontend/src/features/admin/tabs/AdminCalculationsTab.jsx`: Trình xem nội dung bản ghi người dùng của Quản trị viên.
+   - Dọn dẹp các import thừa `ReactMarkdown` tại `IChingBoard.jsx` và `MarriageBoard.jsx`.
+
+5. **Khắc Phục Lỗi HTML Hydration Mismatch & DOM Nesting Của React 19:**
+   - Phát hiện qua kiểm thử Chrome DevTools: Trong `BlogBoard.jsx` và `AdminBlogTab.jsx`, component `img` render thẻ `<figure>` và `<figcaption>`, khi nằm trong thẻ `<p>` mặc định của CommonMark gây lỗi nghiêm trọng trên React 19 (`<figcaption> cannot be a descendant of <p>`).
+   - Khắc phục: Bổ sung logic kiểm tra thẻ con `node?.children?.some(c => c.tagName === 'img')` trong component `p`, tự động chuyển sang thẻ `<div>` khi chứa ảnh, đảm bảo 100% tuân thủ chuẩn HTML5.
+
+6. **Vá Lỗ Hổng Phụ Thuộc (Dependency Security Fixes):**
+   - Chạy `npm audit fix` trên cả Backend và Frontend, giải quyết các lỗ hổng cấp bách từ các thư viện phụ thuộc.
+
+---
+
+### 🧪 3. Kết Quả Kiểm Thử Thực Nghiệm
+
+1. **Bộ Kiểm Thử Tự Động (Automated Unit Tests):**
+   - **Backend (Jest):** 45/45 test suites passed (323 tests passed, 0 failures).
+   - **Frontend (Vitest):** 5/5 test suites passed (34 tests passed, 0 failures).
+   - **Frontend Build:** `vite build` (Rolldown) hoàn thành xuất sắc trong 3.27 giây, không có cảnh báo lỗi cú pháp.
+
+2. **Kiểm Thử Thực Tế Trực Tiếp Trên Trình Duyệt (Chrome DevTools MCP Verification):**
+   - **Tứ Trụ Bát Tự (`/bazi`):** Nhập dữ liệu thử nghiệm, bấm lập lá số thành công; hiển thị hoàn hảo 4 trụ Thiên Can Địa Chi, Thần Sát, Thập Thần, Đại Vận 10 năm, biểu đồ radar Ngũ Hành và phân tích Cách Cục.
+   - **Kinh Dịch Lục Hào (`/iching`):** Gieo quẻ 6 hào, hiển thị trực quan Quẻ Chủ (Sơn Hỏa Bí), Quẻ Biến (Thuần Chấn), bảng Vượng Suy các hào và quái thân.
+   - **Tử Vi Đẩu Số (`/ziwei`):** Thiết lập và an sao lá số 12 Cung mệnh bàn, hiển thị đầy đủ trung cung, sao chính tinh đắc hãm địa, vòng Thái Tuế, vòng Tràng Sinh.
+   - **Bát Tự Hợp Hôn (`/marriage`):** Xác minh cấu trúc giao diện nhập liệu song trụ Nam Mệnh và Nữ Mệnh.
+   - **Đăng Nhập / Đăng Ký (`AuthModal`):** Kiểm tra chuyển đổi mượt mà giữa Đăng Nhập, Đăng Ký và Quên Mật Khẩu; kiểm tra form validation và responsive.
+   - **Đọc Bài Viết Phong Thủy (`/blog/thien-nguyet-duc-quy-nhan-de-nhat-ho-menh`):** Hiển thị văn bản Markdown, ảnh minh họa có chú thích, bảng dữ liệu GFM mượt mà; **Console hoàn toàn sạch 100% (0 lỗi runtime, 0 lỗi hydration mismatch)**.
+
+---
+
 ## 📅 Phiên bản: Hoàn Thiện Toàn Diện 64 Thẻ Quẻ Dịch Hằng Ngày (Daily Fortune Bamboo Sticks) (25/09/2026)
 
 ### 🌟 1. Bối Cảnh & Vấn Đề

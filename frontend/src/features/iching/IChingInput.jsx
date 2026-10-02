@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Coins, CalendarDays, Clock, Settings2, Sparkles, HelpCircle, ChevronDown, Zap } from 'lucide-react';
 import { Lunar, Solar } from 'lunar-javascript';
 import { validateInputDate, getMaxDaysInMonth } from '@/utils/dateValidator';
@@ -12,7 +12,6 @@ export const CoinToss = ({ onComplete }) => {
     const [lines, setLines] = useState([]);
     const [tossing, setTossing] = useState(false);
     const [quickTossing, setQuickTossing] = useState(false);
-    const [quickTossCoinSets, setQuickTossCoinSets] = useState([]);
     
     // Each coin state stores an absolute Y rotation and current face (1 = Sấp, 0 = Ngửa)
     const [coinStates, setCoinStates] = useState([
@@ -285,11 +284,13 @@ const LUNAR_HOURS = [
 function CustomSelect({ value, onChange, options, placeholder }) {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState(value || '');
+  const [prevValue, setPrevValue] = useState(value);
   const containerRef = useRef(null);
 
-  useEffect(() => {
+  if (value !== prevValue) {
+    setPrevValue(value);
     setSearch(value || '');
-  }, [value]);
+  }
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -376,76 +377,58 @@ export const MaiHoaInput = ({ onComplete }) => {
     const [month, setMonth] = useState(() => String(now.getMonth() + 1));
     const [day, setDay] = useState(() => String(now.getDate()));
 
-    useEffect(() => {
-        if (day && month && year) {
-            const maxDays = getMaxDaysInMonth(month, year);
-            const dNum = parseInt(day, 10);
-            if (!isNaN(dNum) && dNum > maxDays) {
-                setDay(String(maxDays));
-            }
+    const maxDays = useMemo(() => {
+        return getMaxDaysInMonth(month, year);
+    }, [month, year]);
+
+    const [prevClampKey, setPrevClampKey] = useState('');
+    const currentClampKey = `${month}:${year}`;
+    if (currentClampKey !== prevClampKey) {
+        setPrevClampKey(currentClampKey);
+        const dNum = parseInt(day, 10);
+        if (!isNaN(dNum) && dNum > maxDays) {
+            setDay(String(maxDays));
         }
-    }, [month, year, day]);
+    }
 
     const getInitialHourIndex = (hr) => {
         if (hr >= 23 || hr < 1) return 0;
         return Math.floor((hr - 1) / 2) + 1;
     };
     const [hourIndex, setHourIndex] = useState(() => getInitialHourIndex(now.getHours()));
-
-    const [lunarDetail, setLunarDetail] = useState(null);
     const [serialStr, setSerialStr] = useState('');
-    const [serialDetail, setSerialDetail] = useState(null);
-    const [serialError, setSerialError] = useState('');
-    const [errorMsg, setErrorMsg] = useState('');
+    const [submitError, setSubmitError] = useState('');
+    const [dismissedError, setDismissedError] = useState('');
 
-    useEffect(() => {
+    const validationError = useMemo(() => {
         if (subMethod === 'datetime') {
             if (day || month || year) {
                 const val = validateInputDate(day, month, year);
-                if (!val.isValid) {
-                    setErrorMsg(val.message);
-                } else {
-                    setErrorMsg('');
-                }
-            } else {
-                setErrorMsg('');
+                if (!val.isValid) return val.message;
             }
+            return '';
         }
-    }, [day, month, year, subMethod]);
-
-    useEffect(() => {
         if (subMethod === 'serial' && serialStr) {
             if (isNaN(Number(serialStr))) {
-                setErrorMsg('Dãy số seri chỉ được nhập chữ số, không chứa chữ hoặc ký tự đặc biệt.');
+                return 'Dãy số seri chỉ được nhập chữ số, không chứa chữ hoặc ký tự đặc biệt.';
             } else if (serialStr.trim().length !== 8) {
-                setErrorMsg('Dãy số seri tiền/sim phải có đúng 8 chữ số (ví dụ: 12345678).');
-            } else {
-                setErrorMsg('');
+                return 'Dãy số seri tiền/sim phải có đúng 8 chữ số (ví dụ: 12345678).';
             }
-        } else if (subMethod === 'serial' && !serialStr) {
-            setErrorMsg('');
         }
-    }, [serialStr, subMethod]);
+        return '';
+    }, [day, month, year, subMethod, serialStr]);
 
-    const getDaysInMonth = (m, y) => {
-        const parsedM = parseInt(m);
-        const parsedY = parseInt(y);
-        if (isNaN(parsedM) || isNaN(parsedY)) return 31;
-        return new Date(parsedY, parsedM, 0).getDate();
+    const errorMsg = submitError || (validationError !== dismissedError ? validationError : '');
+    const clearError = () => {
+        setSubmitError('');
+        if (validationError) setDismissedError(validationError);
     };
-    const daysInMonth = getDaysInMonth(month, year);
 
-    useEffect(() => {
-        if (day > daysInMonth) {
-            setDay(daysInMonth);
-        }
-    }, [month, year, daysInMonth, day]);
-
-    useEffect(() => {
-        if (!day || !month || !year) return;
+    const lunarDetail = useMemo(() => {
+        if (!day || !month || !year) return null;
         try {
             const solarHour = LUNAR_HOURS[hourIndex].hour;
-            const dateObj = new Date(year, month - 1, day, solarHour, 0, 0);
+            const dateObj = new Date(parseInt(year, 10), parseInt(month, 10) - 1, parseInt(day, 10), solarHour, 0, 0);
             const solar = Solar.fromDate(dateObj);
             const lunar = solar.getLunar();
 
@@ -485,7 +468,7 @@ export const MaiHoaInput = ({ onComplete }) => {
                 return res.trim();
             };
 
-            setLunarDetail({
+            return {
                 lunarDateStr: `Ngày ${lunar.getDay()} tháng ${lunar.getMonth()} năm ${lunar.getYear()} Âm lịch`,
                 canChiStr: `${toVietnamese(hourCanChi)} - ${toVietnamese(dayCanChi)} - ${toVietnamese(monthCanChi)} - ${toVietnamese(yearCanChi)}`,
                 math: {
@@ -497,29 +480,23 @@ export const MaiHoaInput = ({ onComplete }) => {
                     lowerSum, lowerVal,
                     movingSum, movingVal
                 }
-            });
-        } catch (err) {
-            console.error(err);
+            };
+        } catch {
+            return null;
         }
     }, [year, month, day, hourIndex]);
 
-    useEffect(() => {
-        if (subMethod !== 'serial') return;
+    const { serialDetail, serialError } = useMemo(() => {
+        if (subMethod !== 'serial') return { serialDetail: null, serialError: '' };
 
         const cleaned = serialStr.trim();
         if (!cleaned) {
-            setSerialDetail(null);
-            setSerialError('');
-            return;
+            return { serialDetail: null, serialError: '' };
         }
 
         if (!/^\d{8}$/.test(cleaned)) {
-            setSerialDetail(null);
-            setSerialError('Dãy số seri phải có độ dài đúng 8 chữ số (ví dụ: 12345678).');
-            return;
+            return { serialDetail: null, serialError: 'Dãy số seri phải có độ dài đúng 8 chữ số (ví dụ: 12345678).' };
         }
-
-        setSerialError('');
 
         const digits = cleaned.split('').map(Number);
         const first4 = digits.slice(0, 4);
@@ -534,20 +511,23 @@ export const MaiHoaInput = ({ onComplete }) => {
         const movingSum = digits.reduce((a, b) => a + b, 0);
         const movingVal = movingSum % 6 || 6;
 
-        setSerialDetail({
-            serialStr: cleaned,
-            digits,
-            first4,
-            last4,
-            math: {
-                upperSum,
-                upperVal,
-                lowerSum,
-                lowerVal,
-                movingSum,
-                movingVal
-            }
-        });
+        return {
+            serialDetail: {
+                serialStr: cleaned,
+                digits,
+                first4,
+                last4,
+                math: {
+                    upperSum,
+                    upperVal,
+                    lowerSum,
+                    lowerVal,
+                    movingSum,
+                    movingVal
+                }
+            },
+            serialError: ''
+        };
     }, [serialStr, subMethod]);
 
     const handleSubmit = () => {
@@ -586,7 +566,7 @@ export const MaiHoaInput = ({ onComplete }) => {
 
     return (
         <>
-            <FloatingErrorToast message={errorMsg} onClose={() => setErrorMsg('')} />
+            <FloatingErrorToast message={errorMsg} onClose={clearError} />
             <div className="flex flex-col items-center w-full max-w-xl mx-auto">
                 <h3 className="text-2xl font-bold text-amber-900 mb-4 font-serif">Gieo Quẻ Mai Hoa Dịch Số</h3>
             

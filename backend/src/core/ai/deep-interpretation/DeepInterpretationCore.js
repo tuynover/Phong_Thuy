@@ -27,16 +27,17 @@ class LlmProviderService {
    * Hỗ trợ systemInstruction để tận dụng cơ chế Implicit Context Caching máy chủ Google
    * Khi vào fallback hoặc gặp lỗi Rate Limit (429 / Resource Exhausted), tự động xoay tua sang khóa Gemini thứ hai
    */
-  static async callGeminiWithKey(apiKey, prompt, modelName = process.env.GEMINI_MODEL || 'gemini-2.5-flash-lite', retries = 2, systemInstruction = null) {
+  static async callGeminiWithKey(apiKey, prompt, modelName = process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite', retries = 2, systemInstruction = null) {
     let key = apiKey || GeminiRotator.getNextKey();
     if (!key) throw new Error('GEMINI_API_KEY is not set');
 
     const fallbackModels = Array.from(new Set([
       modelName,
       process.env.GEMINI_MODEL,
+      'gemini-3.5-flash-lite',
+      'gemini-3.1-flash-lite',
       'gemini-2.5-flash-lite',
       'gemini-2.5-flash',
-      'gemini-3.1-flash-lite',
       'gemini-flash-lite-latest'
     ].filter(Boolean)));
 

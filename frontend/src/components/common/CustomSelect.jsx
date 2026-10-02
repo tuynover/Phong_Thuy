@@ -27,11 +27,16 @@ const CustomSelect = ({
         return value || '';
     };
 
-    const [inputValue, setInputValue] = useState(displayLabel());
+    const currentLabel = displayLabel();
+    const [inputValue, setInputValue] = useState(currentLabel);
+    const [prevValue, setPrevValue] = useState(value);
+    const [prevOptions, setPrevOptions] = useState(options);
 
-    useEffect(() => {
-        setInputValue(displayLabel());
-    }, [value, options]);
+    if (value !== prevValue || options !== prevOptions) {
+        setPrevValue(value);
+        setPrevOptions(options);
+        setInputValue(currentLabel);
+    }
 
     useEffect(() => {
         const handleClickOutside = (e) => {

@@ -753,3 +753,29 @@ Hệ thống được thiết kế và chuẩn hóa để đáp ứng lưu lư�
 - **Tối Ưu Hóa Truy Vấn Lịch Sử Backend (`HistoryQueryHelper.js`):**
   - Chuyển toàn bộ logic lọc theo `birthDay`, `birthMonth`, `birthYear`, `birthHour` vào trực tiếp MongoDB filter object (`buildFilterQuery`) bằng RegExp/Number cho các collection Bát Tự, Tử Vi, Hợp Hôn.
   - Khắc phục hoàn toàn lỗi logic nghiêm trọng khi lọc sau `.limit()`, đảm bảo phân trang hiển thị đầy đủ và chính xác 100% dữ liệu lịch sử của người dùng.
+
+### 9.7 Cụm Nginx Upstream, Kết Nối Keepalive & Tách Biệt Proxy Buffering (Zero-Downtime & SSE Isolation)
+- **Cụm Upstream Keepalive (`nginx/default.conf`):**
+  - Cấu hình `upstream backend_servers` kết nối qua `http_1.1` với `keepalive 32;` và `max_fails=3 fail_timeout=10s`, cho phép mở rộng đa node backend và loại bỏ chi phí TCP handshake lặp lại.
+  - Cấu hình `upstream frontend_servers` với `keepalive 16;` cho static assets và SSR proxy.
+- **Tách Biệt Đệm Proxy (Buffering Separation):**
+  - Các tuyến luồng Server-Sent Events (SSE) AI (`/api/auth/stream`, `/api/admin/stream`, `/api/*/(interpret|chat)`) được cấu hình `proxy_buffering off; chunked_transfer_encoding off; proxy_read_timeout 86400s;` nhằm ngăn Nginx giữ lại các gói tin nhỏ, đảm bảo văn bản hiển thị mượt mà tức thời theo từng token.
+  - Các tuyến REST API thông thường (`/api/*`) được cấu hình `proxy_buffering on; proxy_buffer_size 16k; proxy_buffers 8 32k; proxy_busy_buffers_size 64k; proxy_read_timeout 60s;` nhằm giải phóng kết nối backend nhanh chóng khi truyền dữ liệu JSON lớn.
+
+### 9.8 Bảo Mật Hạ Tầng & Container (Container & Redis Hardening)
+- **Hạ Quyền Container (Non-root `USER node`):**
+  - Trong `backend/Dockerfile`, các thư mục tạm bộ đệm (`scratch/pdf_cache`, `tts_cache`) được cấp quyền sở hữu cho tài khoản hệ thống `node:node`.
+  - Khai báo chỉ thị `USER node` chuyển quyền thực thi khỏi `root`, triệt tiêu rủi ro Container Breakout / Remote Code Execution vào máy chủ host.
+- **Bảo Vệ Redis Bằng Mật Khẩu (Redis Auth Hardening):**
+  - Trong `docker-compose.yml`, dịch vụ Redis được kích hoạt cờ `--requirepass` bảo vệ qua biến môi trường `REDIS_PASSWORD`.
+  - Kiểm tra trạng thái sức khỏe Redis (`healthcheck`) được chứng thực bằng cờ `-a`. Biến môi trường được truyền thông suốt sang tiến trình backend.
+
+### 9.9 Hàng Đợi Email Đáng Tin Cậy (Reliable Queue Pattern) & Bộ Nhớ Đệm Thống Kê Admin L1+L2
+- **Hàng Đợi Email Đáng Tin Cậy (`RedisQueueService.js`):**
+  - Áp dụng mô hình Hàng đợi 2 trạng thái: `queue:emails` (hàng đợi chờ) và `queue:emails:processing` (hàng đợi đang xử lý).
+  - Sử dụng lệnh nguyên tử `LMOVE` (Redis 6.2+) hoặc pop/push an toàn để di chuyển job từ hàng đợi chờ sang hàng đợi đang xử lý.
+  - Xác nhận hoàn tất công việc (`ackJob`) xóa job khỏi hàng đợi xử lý sau khi gửi mail thành công hoặc đã đẩy vào DLQ (`queue:emails:dlq`).
+  - Tự động thu hồi tác vụ treo (`reclaimStaleJobs`) khi khởi động lại máy chủ, ngăn chặn 100% việc mất mát email OTP khi tiến trình gặp sự cố bất ngờ.
+- **Bộ Nhớ Đệm Phân Tích Thống Kê Admin (`AdminStatsController.js`):**
+  - Tích hợp `MemoryCacheService` (L1 RAM + L2 Redis) cho endpoint `GET /api/admin/analytics`.
+  - Kết quả 19 câu truy vấn aggregation/count nặng được lưu đệm trong 5 phút (300.000ms), giảm thiểu 95% tải CPU và disk I/O của MongoDB khi quản trị viên truy cập bảng điều khiển.

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { togglePublicCalculation } from '@/services/api';
 
 /**
@@ -13,11 +13,14 @@ export function usePublicToggle({
     onInvalidateHistory
 }) {
     const [isPublic, setIsPublic] = useState(!!initialIsPublic);
+    const [prevKey, setPrevKey] = useState(`${recordId}:${initialIsPublic}`);
     const [toastMsg, setToastMsg] = useState('');
 
-    useEffect(() => {
+    const currentKey = `${recordId}:${initialIsPublic}`;
+    if (prevKey !== currentKey) {
+        setPrevKey(currentKey);
         setIsPublic(!!initialIsPublic);
-    }, [initialIsPublic, recordId]);
+    }
 
     const handleTogglePublic = useCallback(async () => {
         if (!recordId) return;

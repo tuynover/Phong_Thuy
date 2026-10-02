@@ -55,7 +55,7 @@ const getCategoryColor = (cat) => {
 
 function BlogBoard({ onSelectModule, initialSlug, onClearSlug, onSelectPost }) {
   const [posts, setPosts] = useState([]);
-  const [total, setTotal] = useState(0);
+  const [_total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
   const [categories, setCategories] = useState(['all']);
@@ -63,6 +63,13 @@ function BlogBoard({ onSelectModule, initialSlug, onClearSlug, onSelectPost }) {
   const [searchText, setSearchText] = useState('');
   const [searchTerm, setSearchTerm] = useState(''); // Trigger fetch when term changes
   const [selectedPost, setSelectedPost] = useState(null);
+  const [prevInitialSlug, setPrevInitialSlug] = useState(initialSlug);
+  if (prevInitialSlug !== initialSlug) {
+    setPrevInitialSlug(initialSlug);
+    if (!initialSlug) {
+      setSelectedPost(null);
+    }
+  }
   const [relatedPosts, setRelatedPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -121,32 +128,26 @@ function BlogBoard({ onSelectModule, initialSlug, onClearSlug, onSelectPost }) {
     }
   };
 
-  // Fetch posts listing
-  const fetchPosts = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await getBlogPosts({
+  useEffect(() => {
+    let ignore = false;
+    if (!selectedPost && !initialSlug) {
+      getBlogPosts({
         category: selectedCategory,
         search: searchTerm,
         page,
         limit: 6
+      }).then(res => {
+        if (!ignore && res.data && res.data.success) {
+          setPosts(res.data.posts || []);
+          setTotal(res.data.total || 0);
+          setPages(res.data.pages || 1);
+        }
+      }).catch(err => {
+        console.error('Error fetching blog posts:', err);
       });
-      if (res.data && res.data.success) {
-        setPosts(res.data.posts || []);
-        setTotal(res.data.total || 0);
-        setPages(res.data.pages || 1);
-      }
-    } catch (err) {
-      console.error('Error fetching blog posts:', err);
     }
-    setLoading(false);
-  }, [selectedCategory, searchTerm, page]);
-
-  useEffect(() => {
-    if (!selectedPost && !initialSlug) {
-      fetchPosts();
-    }
-  }, [fetchPosts, selectedPost, initialSlug]);
+    return () => { ignore = true; };
+  }, [selectedCategory, searchTerm, page, selectedPost, initialSlug]);
 
   useEffect(() => {
     if (selectedPost && selectedPost.title) {
@@ -194,12 +195,26 @@ function BlogBoard({ onSelectModule, initialSlug, onClearSlug, onSelectPost }) {
   }, [onSelectPost]);
 
   useEffect(() => {
+    let ignore = false;
     if (initialSlug) {
-      fetchPostDetail(initialSlug);
-    } else {
-      setSelectedPost(null);
+      getBlogPost(initialSlug).then(res => {
+        if (!ignore && res.data && res.data.success) {
+          setSelectedPost(res.data.post);
+          setRelatedPosts(res.data.related || []);
+          if (onSelectPost) {
+            onSelectPost(initialSlug);
+          } else {
+            const newUrl = `${window.location.origin}${window.location.pathname}?post=${encodeURIComponent(initialSlug)}`;
+            window.history.replaceState({ path: newUrl }, '', newUrl);
+          }
+          window.scrollTo(0, 0);
+        }
+      }).catch(err => {
+        console.error('Error fetching blog post detail:', err);
+      });
     }
-  }, [initialSlug, fetchPostDetail]);
+    return () => { ignore = true; };
+  }, [initialSlug, onSelectPost]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -496,7 +511,13 @@ function BlogBoard({ onSelectModule, initialSlug, onClearSlug, onSelectPost }) {
                   remarkPlugins={[remarkGfm]}
                   rehypePlugins={[rehypeSanitize]}
                   components={{
-                    p: ({ children }) => <p className="mb-6 last:mb-0 leading-relaxed font-sans">{children}</p>,
+                    p: ({ node, children }) => {
+                      const hasImage = node?.children?.some(c => c.tagName === 'img');
+                      if (hasImage) {
+                        return <div className="mb-6 last:mb-0 leading-relaxed font-sans">{children}</div>;
+                      }
+                      return <p className="mb-6 last:mb-0 leading-relaxed font-sans">{children}</p>;
+                    },
                     h1: ({ children }) => <h1 className="text-xl md:text-2xl font-extrabold font-[Montserrat] text-slate-900 mt-10 mb-4">{children}</h1>,
                     h2: ({ children }) => <h2 className="text-lg md:text-xl font-extrabold font-[Montserrat] text-slate-900 mt-8 mb-3">{children}</h2>,
                     h3: ({ children }) => <h3 className="text-base md:text-lg font-extrabold font-[Montserrat] text-slate-900 mt-6 mb-2">{children}</h3>,
