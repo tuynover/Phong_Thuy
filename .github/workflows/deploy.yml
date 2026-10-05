@@ -126,6 +126,9 @@ jobs:
             export DOCKERHUB_USERNAME=${DOCKERHUB_USERNAME:-tuynover}
             export IMAGE_TAG=${IMAGE_TAG:-${{ github.sha }}}
 
+            echo "🧹 [Deploy] Dọn dẹp sơ bộ ảnh rác/dangling trước khi kéo image mới để chống đầy ổ đĩa..."
+            docker image prune -f || true
+
             echo "🚀 [Deploy] Đang kéo image mới (Tag: $IMAGE_TAG)..."
             docker compose pull backend frontend
 

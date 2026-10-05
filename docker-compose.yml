@@ -28,6 +28,11 @@ services:
           cpus: '1.5'
         reservations:
           memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
   
   frontend:
     image: ${DOCKERHUB_USERNAME:-tuynover}/phongthuy-frontend:${IMAGE_TAG:-latest}
@@ -46,6 +51,11 @@ services:
           memory: 256M
         reservations:
           memory: 64M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   nginx:
     image: nginx:alpine
@@ -63,6 +73,11 @@ services:
       - frontend
     networks:
       - phongthuy-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   redis:
     image: redis:alpine
@@ -86,6 +101,11 @@ services:
           memory: 384M
         reservations:
           memory: 64M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 networks:
   phongthuy-network:

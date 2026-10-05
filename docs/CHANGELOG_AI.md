@@ -2,6 +2,32 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Khắc Phục Sự Cố Tràn Đĩa Máy Chủ EC2 (`no space left on device`), Tối Ưu Quy Trình Deploy & Giới Hạn Log Xoay Vòng (06/10/2026)
+
+### 🌟 1. Tổng Quan Sự Cố & Nguyên Nhân Gốc Rễ
+Khi GitHub Actions thực hiện bước `Zero-Downtime Deploy to EC2`, quá trình kéo image `phongthuy-backend` bị văng lỗi dừng khẩn cấp:
+- **Thông báo lỗi:**
+  ```text
+  failed to extract layer (...) to overlayfs ...: write /var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots/2196/fs/usr/lib/chromium/chromium: no space left on device
+  Process exited with status 1
+  ```
+- **Nguyên nhân cốt lõi:**
+  1. **Tràn ổ cứng máy chủ EC2 (Disk Full - 100%):** Máy chủ AWS EC2 (thường có dung lượng ổ EBS từ 8GB - 20GB) sau nhiều lần build/pull liên tục bị tích tụ các layers của Docker image cũ, dangling images, và build cache.
+  2. **Layer Chromium nặng:** Backend có chứa binary Chromium (dùng để xuất PDF Tinh Bàn A4) nặng vài trăm MB, khi giải nén ra đĩa bị thiếu dung lượng.
+  3. **Thứ tự thực thi trong script deploy chưa tối ưu:** Trước đây lệnh `docker image prune -f` đặt ở cuối script (sau khi `docker compose up`). Do đó khi máy chủ tiệm cận 95-98% dung lượng, việc pull thêm image mới trước khi xóa image cũ đã làm đĩa bị đầy ngay tại bước pull.
+  4. **Log container không giới hạn:** Chưa có cấu hình `logging` max-size trong `docker-compose.yml`, dẫn đến nguy cơ log tích tụ âm thầm qua thời gian.
+
+### 🛠️ 2. Các Biện Pháp Đã Triển Khai
+1. **Bổ Sung Dọn Dẹp Trực Tiếp Trước Khi Kéo Image (`.github/workflows/deploy.yml`):**
+   - Đưa lệnh `docker image prune -f || true` lên chạy ngay trước lệnh `docker compose pull backend frontend`, giải phóng dung lượng rác và các layers dangling trước khi tải image mới về.
+2. **Kích Hoạt Giới Hạn & Xoay Vòng Log Container (`docker-compose.yml`):**
+   - Bổ sung cấu hình `logging: driver: "json-file", options: { max-size: "10m", max-file: "3" }` cho toàn bộ 4 dịch vụ (`backend`, `frontend`, `nginx`, `redis`).
+   - Đảm bảo mỗi container không bao giờ chiếm quá 30MB log, loại trừ 100% rủi ro đĩa bị đầy do log hệ thống.
+3. **Cung cấp cẩm nang dọn dẹp khẩn cấp trên máy chủ EC2:**
+   - Hướng dẫn người dùng SSH vào máy chủ để chạy lệnh dọn dẹp Docker storage (`docker system prune -a -f`) và giải phóng system journal (`journalctl --vacuum-size=100M`).
+
+---
+
 ## 📅 Phiên bản: Chuẩn Hóa Ô Nhập Ngày Giờ Sinh Đồng Bộ Bát Tự/Tử Vi, Kiểm Soát Độ Dài Số Lý & Tinh Chỉnh Giao Diện Số Học (05/10/2026)
 
 ### 🌟 1. Tổng Quan Cải Tiến Theo Phản Hồi Trực Tiếp Của Người Dùng
