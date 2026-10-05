@@ -363,6 +363,56 @@ class InputValidator {
 
         return { isValid: true, error: null };
     }
+
+    /**
+     * Validate FeiXing (Huyền Không Phi Tinh) Input (period, facingDegree, ownerName, buildingYear)
+     */
+    static validateFeiXingInput(data) {
+        if (!data || typeof data !== 'object') {
+            return { isValid: false, error: 'Dữ liệu yêu cầu không hợp lệ.' };
+        }
+
+        const { period, facingDegree, ownerName, buildingYear } = data;
+
+        // 1. Validate Period (1-9)
+        const p = parseInt(period, 10);
+        if (isNaN(p) || p < 1 || p > 9) {
+            return { isValid: false, error: 'Vận phong thủy phải là một số nguyên từ 1 đến 9.' };
+        }
+
+        // 2. Validate Facing Degree (0 - 359.99)
+        const deg = parseFloat(facingDegree);
+        if (isNaN(deg) || deg < 0 || deg >= 360) {
+            return { isValid: false, error: 'Số độ hướng nhà trên La Kinh phải nằm trong khoảng từ 0° đến 359.9°.' };
+        }
+
+        // 3. Validate Owner Name (Optional string)
+        if (ownerName && typeof ownerName === 'string' && ownerName.trim().length > 100) {
+            return { isValid: false, error: 'Tên gia chủ không được vượt quá 100 ký tự.' };
+        }
+
+        // 4. Validate Building Year (Optional number between 1864 and 2100)
+        if (buildingYear !== undefined && buildingYear !== null && buildingYear !== '') {
+            const yr = parseInt(buildingYear, 10);
+            if (isNaN(yr) || yr < 1864 || yr > 2100) {
+                return { isValid: false, error: 'Năm xây dựng hoặc nhập trạch phải từ năm 1864 đến 2100.' };
+            }
+        }
+
+        // 5. Validate Birth Info (Optional)
+        const birthDate = data.birthDate || data.ownerBirthInfo?.birthDate;
+        if (birthDate && typeof birthDate === 'string' && birthDate.trim().length > 0) {
+            const bStr = birthDate.trim();
+            const isYMD = /^\d{4}-\d{1,2}-\d{1,2}$/.test(bStr);
+            const isDMY = /^\d{1,2}\/\d{1,2}\/\d{4}$/.test(bStr);
+            const isYearOnly = /^\d{4}$/.test(bStr);
+            if (!isYMD && !isDMY && !isYearOnly) {
+                return { isValid: false, error: 'Định dạng ngày sinh gia chủ không hợp lệ (hỗ trợ YYYY-MM-DD hoặc DD/MM/YYYY).' };
+            }
+        }
+
+        return { isValid: true, error: null };
+    }
 }
 
 module.exports = InputValidator;

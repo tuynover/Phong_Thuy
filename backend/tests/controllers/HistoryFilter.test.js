@@ -4,6 +4,7 @@ jest.mock('../../src/modules/iching/models/IChingRecord');
 jest.mock('../../src/modules/bazi/models/BaziRecord');
 jest.mock('../../src/modules/ziwei/models/ZiweiRecord');
 jest.mock('../../src/modules/bazi/models/MarriageRecord');
+jest.mock('../../src/modules/feixing/models/FeiXingRecord');
 jest.mock('../../src/core/models/Conversation');
 jest.mock('../../src/core/models/Message');
 jest.mock('../../src/core/models/User');
@@ -27,6 +28,7 @@ const IChingRecord = require('../../src/modules/iching/models/IChingRecord');
 const BaziRecord = require('../../src/modules/bazi/models/BaziRecord');
 const ZiweiRecord = require('../../src/modules/ziwei/models/ZiweiRecord');
 const MarriageRecord = require('../../src/modules/bazi/models/MarriageRecord');
+const FeiXingRecord = require('../../src/modules/feixing/models/FeiXingRecord');
 
 const createChainableQuery = (resolvedValue) => {
     return {
@@ -108,11 +110,12 @@ describe('HistoryFilter Unit Tests', () => {
     });
 
     describe('getAllHistory', () => {
-        test('should query all 4 subsystems and return combined counts', async () => {
+        test('should query all subsystems and return combined counts', async () => {
             IChingRecord.find.mockReturnValue(createChainableQuery([{ _id: 'i1', question: 'Gieo quẻ 1' }]));
             BaziRecord.find.mockReturnValue(createChainableQuery([{ _id: 'b1', inputInfo: { name: 'Nam 1', date: '01/01/1990' } }]));
             ZiweiRecord.find.mockReturnValue(createChainableQuery([{ _id: 'z1', inputInfo: { name: 'Nam 2', date: '1990-01-01', hour: 2 } }]));
             MarriageRecord.find.mockReturnValue(createChainableQuery([]));
+            FeiXingRecord.find.mockReturnValue(createChainableQuery([]));
 
             const req = {
                 params: { userId: 'user-123' },
@@ -128,6 +131,7 @@ describe('HistoryFilter Unit Tests', () => {
                         bazis: 1,
                         ziweis: 1,
                         marriages: 0,
+                        feixings: 0,
                         total: 3
                     }
                 })

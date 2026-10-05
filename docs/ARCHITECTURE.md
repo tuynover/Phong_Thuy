@@ -18,6 +18,7 @@ graph TD
             UserApp --> BaziB[features/bazi/BaziBoard.jsx]
             UserApp --> ZiweiB[features/ziwei/ZiweiBoard.jsx]
             UserApp --> MarriageB[features/marriage/MarriageBoard.jsx]
+            UserApp --> FeiXingB[features/feixing/FeiXingBoard.jsx]
             UserApp --> HistoryB[features/history/HistoryBoard.jsx]
             UserApp --> ProfileB[features/profile/ProfileBoard.jsx]
             UserApp --> DateB[features/xemngay/DateSelectionBoard.jsx]
@@ -39,6 +40,10 @@ graph TD
             BaziB --> BaziRemedy[features/bazi/components/BaziRemedyAndRelations.jsx]
             BaziB --> ThapThanTbl[features/bazi/components/ThapThanStrengthTable.jsx]
             
+            FeiXingB --> FeiXingCompass[features/feixing/FeiXingCompass.jsx]
+            FeiXingB --> FeiXingGrid[features/feixing/FeiXingGrid.jsx]
+            FeiXingB --> FeiXingIn[features/feixing/FeiXingInput.jsx]
+            
             HistoryB --> HistCards[features/history/components/*Cards.jsx]
             
             IChingB --> IChingIn[features/iching/IChingInput.jsx]
@@ -47,18 +52,18 @@ graph TD
         end
 
         subgraph SharedHooks [src/hooks/*]
-            IChingB & BaziB & ZiweiB & MarriageB --> HookStream[useInterpretationStream.js]
-            IChingB & BaziB & ZiweiB & MarriageB --> HookRating[useRecordRating.js]
-            BaziB & ZiweiB & MarriageB --> HookPublic[usePublicToggle.js]
+            IChingB & BaziB & ZiweiB & MarriageB & FeiXingB --> HookStream[useInterpretationStream.js]
+            IChingB & BaziB & ZiweiB & MarriageB & FeiXingB --> HookRating[useRecordRating.js]
+            BaziB & ZiweiB & MarriageB & FeiXingB --> HookPublic[usePublicToggle.js]
         end
 
         subgraph SharedWidgets [src/components/widgets/* & modals/* & common/*]
-            IChingB & BaziB & ZiweiB & MarriageB --> ChatW[widgets/AiChatWidget.jsx]
-            IChingB & BaziB & ZiweiB & MarriageB --> FloatT[widgets/FloatingErrorToast.jsx]
-            IChingB & BaziB & ZiweiB & MarriageB --> Tooltip[common/Tooltip.jsx]
-            IChingB & BaziB & ZiweiB & MarriageB --> TierM[modals/InterpretationTierModal.jsx]
-            IChingB & BaziB & ZiweiB & MarriageB --> VipB[widgets/VipUpgradeBanner.jsx]
-            IChingB & BaziB & ZiweiB & MarriageB --> VipT[widgets/VipProgressTracker.jsx]
+            IChingB & BaziB & ZiweiB & MarriageB & FeiXingB --> ChatW[widgets/AiChatWidget.jsx]
+            IChingB & BaziB & ZiweiB & MarriageB & FeiXingB --> FloatT[widgets/FloatingErrorToast.jsx]
+            IChingB & BaziB & ZiweiB & MarriageB & FeiXingB --> Tooltip[common/Tooltip.jsx]
+            IChingB & BaziB & ZiweiB & MarriageB & FeiXingB --> TierM[modals/InterpretationTierModal.jsx]
+            IChingB & BaziB & ZiweiB & MarriageB & FeiXingB --> VipB[widgets/VipUpgradeBanner.jsx]
+            IChingB & BaziB & ZiweiB & MarriageB & FeiXingB --> VipT[widgets/VipProgressTracker.jsx]
             HistoryB --> DatePicker[common/CustomDatePicker.jsx]
             ChatW --> SecR[common/SectionRenderer.jsx]
             SecR --> TtsE[services/ttsEngine.js]
@@ -112,6 +117,7 @@ graph TD
             Modules --> TtsMod[modules/tts/ - Chuyển Văn Bản Âm Thanh]
             Modules --> ExportMod[modules/export/ - Xuất Bản PDF A4]
             Modules --> HistMod[modules/history/ - Lịch Sử Đa Phân Hệ]
+            Modules --> FeiXingMod[modules/feixing/ - Huyền Không Phi Tinh]
         end
 
         subgraph SharedEngines [src/shared/* - Cổ Học Dùng Chung]
@@ -338,9 +344,13 @@ Tổ chức biện chứng Chu Dịch cổ điển kết hợp Lục Hào Nạp 
 - **Tầng 3 (Gemini Chief Editor & Strategic Harmonizer):** Tổng kết Ma Trận SWOT Dịch Lý (Thế mạnh, Nguy cơ, Cơ hội, Thách thức) và Đạo Dịch Chỉ Nam cô đọng. Toàn bộ tiến trình được khử sạch 100% các từ ngữ nội bộ hệ thống (Gemini, CoT, Replicas, Tầng, Chief Editor).
 
 #### E. Hạ Tầng Xoay Tua Đa Khóa Google Gemini SDK, Progressive Streaming & Bình Dân Hóa Xuyên Suốt
-1. **Kiến Trúc Multi-Key Round-Robin 100% Google Gemini SDK:**
+1. **Kiến Trúc Multi-Key Round-Robin & Khóa Cố Định Chuỗi Model Gemini:**
    - Hệ thống đã loại bỏ hoàn toàn OpenRouter để triệt tiêu các rủi ro treo kết nối, nghẽn mạng upstream và lỗi cạn số dư (HTTP 402).
    - Sử dụng trung tâm điều phối `AiRotator.gemini` (hoặc `GeminiRotator`) tự động phát hiện và nạp danh sách `GEMINI_API_KEY`, `GEMINI_API_KEY_2`, `GEMINI_API_KEY_3...`.
+   - **Chuỗi Ưu Tiên Model Google Gemini Cố Định:**
+     + **Ưu tiên 1 (Primary):** `gemini-3.5-flash-lite`
+     + **Ưu tiên 2 (Secondary Fallback):** `gemini-3.1-flash-lite`
+     + **Dự phòng sâu (Deeper Fallbacks):** `gemini-2.5-flash-lite` $\rightarrow$ `gemini-2.5-flash` $\rightarrow$ `gemini-flash-lite-latest`.
    - Cơ chế xoay vòng liên tục theo chu kỳ (Round-Robin) chia đều tải API trên từng luồng song song (Stage 1 Dual CoT, Stage 2 Replicas, Stage 3 Chief Editor), đảm bảo không bao giờ chạm ngưỡng giới hạn RPM/TPM của Google.
    - Nhãn nhận diện model lưu trữ database được chuẩn hóa thành `'Chuyên Sâu'` (thay vì lộ các chuỗi kỹ thuật nội bộ).
 2. **Quy Chuẩn Bình Dân Hóa Tự Nhiên Xuyên Suốt (Continuous Plain-Language Narrative):**
@@ -779,3 +789,22 @@ Hệ thống được thiết kế và chuẩn hóa để đáp ứng lưu lư�
 - **Bộ Nhớ Đệm Phân Tích Thống Kê Admin (`AdminStatsController.js`):**
   - Tích hợp `MemoryCacheService` (L1 RAM + L2 Redis) cho endpoint `GET /api/admin/analytics`.
   - Kết quả 19 câu truy vấn aggregation/count nặng được lưu đệm trong 5 phút (300.000ms), giảm thiểu 95% tải CPU và disk I/O của MongoDB khi quản trị viên truy cập bảng điều khiển.
+
+### 9.10 An Toàn Trình Diễn Frontend, Khử Trùng Markdown & Chuẩn Hóa React 19
+- **Khử Trùng Markdown Toàn Diện (`rehype-sanitize`):**
+  - Mọi luồng render Markdown (`SectionRenderer.jsx`, `BlogBoard.jsx`, `AdminBlogTab.jsx`, `AdminCalculationsTab.jsx`) bắt buộc tích hợp `rehype-sanitize` kết hợp `remark-gfm`. Triệt tiêu hoàn toàn nguy cơ chèn script độc hại (Stored/Reflected XSS) từ bài viết hoặc nội dung AI sinh ra.
+  - Sửa lỗi DOM Nesting Hydration Mismatch của React 19: Tách thẻ `<figure>` và `<figcaption>` không bị lồng bên trong `<p>` trong trình phân tích bài viết phong thủy.
+- **Tối Ưu Chu Trình State React 19 (Render-Phase State Adjustment):**
+  - Thay thế toàn bộ các lời gọi `setState` đồng bộ bên trong `useEffect` để đồng bộ props sang kỹ thuật Render-Phase State Adjustment (`if (prevProp !== prop) setState(...)`).
+  - Triệt tiêu 100% lỗi ESLint Frontend (0 errors), đồng thời bảo toàn tốc độ render 60fps và ngăn ngừa unmount subtree ngoài ý muốn.
+
+### 9.11 Phòng Ngự Stored XSS Dynamic SEO Meta & Che Giấu PII trong Nhật Ký
+- **Khử Trùng Meta Tags SEO (`backend/src/routes/seo.js`):**
+  - Sử dụng hàm `escapeHtml()` khử trùng các ký tự độc hại (`&`, `<`, `>`, `"`, `'`) đối với toàn bộ các trường nội suy động (`title`, `description`, `canonicalUrl`, `ogImage`) trước khi tiêm vào file `index.html`.
+- **Bảo Vệ Thông Tin Nhạy Cảm & PII Trong Logging (`backend/src/core/middleware/logging.js`):**
+  - Triển khai hàm đệ quy `sanitizeSensitiveData()` tự động phát hiện và che giấu các trường bảo mật (`password`, `newPassword`, `currentPassword`, `token`, `otp`, `otpCode`, `authorization`, `secret`) thành `***REDACTED***` trong cả console output lẫn cơ sở dữ liệu `SystemLog`.
+
+### 9.12 Chính Sách Bảo Toàn Dữ Liệu Tài Khoản Trọn Đời (Lifetime User Data Retention)
+- **Loại Bỏ Hoàn Toàn Tác Vụ Xóa Tài Khoản 30 Ngày:**
+  - Hệ thống đã xóa bỏ hoàn toàn hàm `purgeSoftDeletedUsers()` và lịch chạy định kỳ trong `NotificationScheduler.js`.
+  - Mọi tài khoản và bản ghi lá số phong thủy của người dùng được lưu trữ và bảo toàn vĩnh viễn trong cơ sở dữ liệu (kể cả khi ở trạng thái xóa mềm `isDeleted: true`), phục vụ mục đích kiểm toán lịch sử, thống kê tăng trưởng và bảo vệ quyền sở hữu trọn đời của người dùng.

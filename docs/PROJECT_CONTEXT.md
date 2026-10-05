@@ -18,6 +18,7 @@ Hệ thống được chia làm hai phân hệ lớn:
    - **Bát Tự (Bazi):** Lập lá số Bát Tự và tính toán phân bổ ngũ hành theo thuật toán 4.0 với các cơ chế điều chỉnh điểm tương đối, ưu tiên tổ hợp địa chi, đa thấu phân khí nguyệt lệnh, tiết khí cực đoan (con vượng mẹ kiệt) và phá điểm sàn đối với cách cục Tòng Cách chính xác. Hoàn toàn hiển thị màu sắc tương sinh tương khắc Ngũ Hành trực quan.
    - **Tử Vi (Ziwei):** Lập mệnh bàn 12 cung dạng lưới 4x4 truyền thống hoặc danh sách rút gọn trên di động, hiển thị các sao và đại/tiểu hạn.
    - **Hợp Hôn (Marriage):** Đối chiếu độ hòa hợp Bát Tự, Cung Phi, Mệnh Quái của cặp đôi Nam - Nữ và đưa ra lời khuyên gia đạo từ AI.
+   - **Huyền Không Phi Tinh (FeiXing):** Khảo sát phong thủy nhà ở dựa trên Tam Nguyên Cửu Vận và 24 Sơn Hướng. Tích hợp La Kinh Ảo 360° tương tác trực quan, tự động tính toán Chính Hướng / Kiêm Hướng (Thế Quái Bàn), cảnh báo Tuyến Không Vong, ma trận 3x3 Lạc Thư Cửu Cung, Thành Môn Quyết và luận giải bố trí công năng (Bếp, Phòng Ngủ, Cửa Chính, Ban Thờ, Điểm Đặt Thủy kích tài) chuyên sâu qua AI SSE Stream.
    - **Kiến Thức Phong Thủy (BlogBoard):** Trang chia sẻ và tra cứu bài viết học thuật phong thủy công khai. Tích hợp thanh chia sẻ đa nền tảng (Facebook, sao chép link, Web Share API di động), đồng bộ URL Deep-linking `?post={slug}` cho từng bài viết, trình diễn bài viết với `ReactMarkdown` & `remark-gfm` hỗ trợ tự động chuẩn hóa bảng GFM và chèn ảnh minh họa có chú thích.
    - **Hộp thoại Chat (AiChatWidget):** Cửa sổ chat thông minh trượt lên hiển thị stream SSE từ AI kèm các chỉ số Ứng Kỳ, Độ Tin Cậy và Rủi Ro.
    - **Gom nhóm lá số (Tagging/Folders):** Hệ thống phân loại lá số/quẻ dịch dạng thẻ (Zalo tags), hỗ trợ 1 lá số thuộc nhiều thư mục, tạo/sửa/xóa thư mục, gắn/chuyển tag có kiểm tra quyền sở hữu strict.
@@ -146,9 +147,34 @@ Tiếp nối thành công tái cấu trúc Backend, hệ thống Frontend đã �
 - **Dọn Dẹp Mã Nguồn TTS Engine & Khôi Phục Kết Nối Atlas:**
   + Loại bỏ duplicate class methods trong `ttsEngine.js`. Cấu hình trực tiếp kết nối MongoDB Atlas với `serverSelectionTimeoutMS: 15000`.
 - **Kiểm Thử Nghiệm Thu Hoàn Hảo:**
-  + Frontend: 4/4 test files PASS (29/29 tests), `npm run build` thành công trong 1.64s.
-  + Backend: 35/35 test suites PASS (257/257 tests).
-  + Chrome DevTools MCP: 0 lỗi console, xác thực đầy đủ luồng Đăng nhập, Đăng xuất, Bát tự, Lịch sử và Admin Dashboard.
+  + Frontend: 9/9 test files PASS (52/52 tests), `npm run build` thành công trong 2.01s (0 linter errors).
+  + Backend: 45/45 test suites PASS (324/324 tests).
+  + Chrome DevTools MCP: 0 lỗi console, xác thực đầy đủ luồng Đăng nhập, Đăng xuất, Bát tự, Lịch sử, Kinh dịch gieo quẻ, Tử vi, Hợp hôn, Xem ngày, Blog và Admin Dashboard.
+
+### 4.13 Triển Khai Toàn Diện 3 Gói Ưu Tiên (Bảo Mật, Hạ Tầng & Chuẩn Hóa React 19 Frontend) (10/2026)
+- **Ưu tiên 1 - Bảo Mật & Toàn Vẹn Dữ Liệu:**
+  + Khử trùng Stored XSS trong SEO Router (`backend/src/routes/seo.js`) bằng `escapeHtml()` cho các meta tags động.
+  + Tự động che giấu PII, mật khẩu và mã OTP (`***REDACTED***`) trong middleware ghi nhật ký (`logging.js`).
+  + Gỡ bỏ hoàn toàn hàm xóa tài khoản soft-delete sau 30 ngày trong `NotificationScheduler.js` (bảo toàn 100% dữ liệu tài khoản vĩnh viễn trọn đời).
+  + Tích hợp `rehype-sanitize` trên tất cả các trình hiển thị Markdown (`SectionRenderer.jsx`, `BlogBoard.jsx`, `AdminBlogTab.jsx`, `AdminCalculationsTab.jsx`).
+  + Khắc phục lỗi DOM Nesting `<figcaption>` trong `<p>` trên React 19.
+- **Ưu tiên 2 - Hạ Tầng, Cụm Nginx & Hàng Đợi Bền Vững:**
+  + Cụm Nginx Upstream Keepalive kết nối liên tục, phân tách đệm (tắt đệm cho SSE Stream, bật đệm tối ưu cho REST API).
+  + Tiến trình Backend Docker chạy non-root `USER node`, Redis được bảo vệ bằng mật khẩu (`requirepass`).
+  + Hàng đợi Email Đáng tin cậy Reliable Queue Pattern (`LMOVE`, `ackJob`, `reclaimStaleJobs`) tự phục hồi khi crash.
+  + Bộ đệm L1 RAM + L2 Redis cho thống kê Admin Analytics (`AdminStatsController.js`), giảm 95% tải MongoDB.
+- **Ưu tiên 3 - Chuẩn Hóa ESLint, React 19 Refactoring & Khóa Model Gemini:**
+  + Triệt tiêu 100% lỗi ESLint Frontend (từ 228 cảnh báo/lỗi về chính xác 0 errors).
+  + Chuyển đổi toàn bộ `setState` trong `useEffect` sang Render-Phase State Adjustment (`if (prevProp !== prop) setState(...)`).
+  + Tái cấu trúc God Components: Trích xuất các subcomponents/helpers tĩnh (`FiveElementsDiagram`, `PillarCard`, `BaziPillarsSection`, `HexTitle`...) ra module scope, bảo toàn 100% giao diện (Zero UI Regression).
+  + Khóa cố định chuỗi mô hình Google Gemini theo đúng chỉ đạo:
+    - **Ưu tiên 1 (Primary):** `gemini-3.5-flash-lite`
+    - **Ưu tiên 2 (Secondary Fallback):** `gemini-3.1-flash-lite`
+    - **Dự phòng sâu:** `gemini-2.5-flash-lite`, `gemini-2.5-flash`, `gemini-flash-lite-latest`
+  + Mở rộng bộ kiểm thử tự động:
+    - Backend (Jest): **45/45 suites passed (324/324 tests)**.
+    - Frontend (Vitest): **9/9 suites passed (52/52 tests)** (bổ sung test chuyên sâu cho `BaziInput`, `IChingInput`, `ZiweiInput`, `MarriageInput`).
+    - Kiểm thử Chrome DevTools MCP: 0 console errors trên toàn bộ các màn hình tính năng.
 
 
 

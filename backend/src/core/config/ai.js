@@ -4,6 +4,7 @@ module.exports = {
     BAZI_PROMPT_VERSION: "v3_1_daymaster_lock",
     ZIWEI_PROMPT_VERSION: "v4_15_sections_deep_analysis",
     MARRIAGE_PROMPT_VERSION: "v2_0_marriage_advanced",
+    FEIXING_PROMPT_VERSION: "v1_0_feixing_9palaces",
     COOLDOWN_TIME_SECONDS: 10,
     CHAT_LIMIT_PER_HOUR: 10,
     TIMEOUT_MS: 25000,

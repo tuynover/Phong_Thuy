@@ -2,6 +2,7 @@ const BaziRecord = require('../../bazi/models/BaziRecord');
 const ZiweiRecord = require('../../ziwei/models/ZiweiRecord');
 const IChingRecord = require('../../iching/models/IChingRecord');
 const MarriageRecord = require('../../bazi/models/MarriageRecord');
+const FeiXingRecord = require('../../feixing/models/FeiXingRecord');
 const pdfTemplateService = require('../services/PdfTemplateService');
 const pdfGeneratorService = require('../services/PdfGeneratorService');
 const logger = require('../../../core/services/LoggerService');
@@ -42,6 +43,9 @@ class ExportController {
       normalizedType = 'iching';
     } else if (normalizedType === 'marriage') {
       Model = MarriageRecord;
+    } else if (normalizedType === 'feixing' || normalizedType === 'xuan-kong') {
+      Model = FeiXingRecord;
+      normalizedType = 'feixing';
     }
 
     if (!Model) {
@@ -121,12 +125,16 @@ class ExportController {
         const maleName = record.inputInfo?.male?.name || 'Nam';
         const femaleName = record.inputInfo?.female?.name || 'Nu';
         defaultFileName = `Hop_Hon_${sanitizeFileName(maleName)}_${sanitizeFileName(femaleName)}`;
+      } else if (normalizedType === 'feixing') {
+        htmlContent = pdfTemplateService.generateFeiXingHtml(record, scope);
+        const name = record.ownerName || 'Gia_Chu';
+        defaultFileName = `La_So_Phi_Tinh_${sanitizeFileName(name)}`;
       }
 
       // 6. Tạo khóa Cache Redis dựa trên Scope và thời gian sửa đổi bản ghi
       const scopeKey = scope.sort().join('_');
       const recordUpdatedMs = record.updatedAt ? new Date(record.updatedAt).getTime() : 0;
-      const cacheKey = `pdf:cache:v5:${normalizedType}:${id}:${scopeKey}:${recordUpdatedMs}`;
+      const cacheKey = `pdf:cache:v10:${normalizedType}:${id}:${scopeKey}:${recordUpdatedMs}`;
 
       // 7. Gọi Generator kết xuất PDF Buffer
       const { buffer, isCacheHit } = await pdfGeneratorService.renderHtmlToPdf(htmlContent, cacheKey);

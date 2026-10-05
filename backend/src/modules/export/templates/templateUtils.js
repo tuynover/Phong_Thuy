@@ -665,6 +665,15 @@ const SYSTEM_COVER_CONFIGS = {
     motto: '"Loan Phụng Hòa Minh • Âm Dương Cân Xứng • Bách Niên Giai Lão"',
     footerDesc: 'HỒ SƠ GIA ĐẠO CÁ NHÂN',
     defaultSeal: ['HỢP', 'HÔN', 'GIA', 'ĐẠO']
+  },
+  feixing: {
+    category: 'HỒ SƠ PHONG THỦY HUYỀN KHÔNG PHI TINH TRẠCH VẬN',
+    badge: 'BẢN THẨM ĐỊNH KHÍ TRƯỜNG ĐỘC BẢN',
+    primaryColor: '#b45309',
+    accentColor: '#d97706',
+    motto: '"Huyền Không Diệu Dụng • Cửu Tinh Luân Chuyển • An Trạch Nạp Tài"',
+    footerDesc: 'HỒ SƠ PHONG THỦY NHÀ Ở',
+    defaultSeal: ['HUYỀN', 'KHÔNG', 'PHI', 'TINH']
   }
 };
 

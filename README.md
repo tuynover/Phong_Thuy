@@ -1,6 +1,6 @@
-# ☯️ Hệ thống Ứng dụng Phong Thủy & Gieo Quẻ (IChing - Bazi - Ziwei - Marriage - Admin)
+# ☯️ Hệ thống Ứng dụng Phong Thủy & Gieo Quẻ (IChing - Bazi - Ziwei - Marriage - FeiXing - Admin)
 
-Dự án này là một hệ thống ứng dụng web cung cấp các công cụ phân tích phong thủy, bao gồm phân tích **Kinh Dịch (IChing)**, **Tứ Trụ - Bát Tự (Bazi)**, **Lá Số Tử Vi (Ziwei)**, và **Xem Tuổi Kết Hôn (Marriage)**, hỗ trợ người dùng xem lá số, gieo quẻ, và nhận luận giải chuyên sâu từ AI tích hợp tính năng hỏi đáp chuyên sâu (Follow-up Chat).
+Dự án này là một hệ thống ứng dụng web cung cấp các công cụ phân tích phong thủy, bao gồm phân tích **Kinh Dịch (IChing)**, **Tứ Trụ - Bát Tự (Bazi)**, **Lá Số Tử Vi (Ziwei)**, **Xem Tuổi Kết Hôn (Marriage)**, và **Huyền Không Phi Tinh (FeiXing)**, hỗ trợ người dùng xem lá số, gieo quẻ, khảo sát trạch vận và nhận luận giải chuyên sâu từ AI tích hợp tính năng hỏi đáp chuyên sâu (Follow-up Chat).
 
 Dự án được chia làm 2 phần chính: **Frontend** (giao diện người dùng) và **Backend** (máy chủ xử lý logic, cơ sở dữ liệu và tích hợp AI).
 
@@ -23,6 +23,7 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
     │   ├── bazi/                # Bát Tự & Hợp Hôn (Bazi + Marriage controllers, models, services, prompts, data)
     │   ├── ziwei/               # Tử Vi Đẩu Số (controllers, models, services, prompts, routes)
     │   ├── iching/              # Kinh Dịch Lục Hào (controllers, models, services, prompts, routes)
+    │   ├── feixing/             # Huyền Không Phi Tinh (controllers, models, services, prompts, routes)
     │   ├── date/                # Xem Ngày Lành (controllers, services, routes)
     │   ├── blog/                # Blog & Khái Niệm (controllers, models, services, routes)
     │   ├── auth/                # Xác Thực & Thẻ Tag (controllers, routes, services)
@@ -45,10 +46,11 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
     │   │   └── components/      # Component con Bát Tự: BaziPillarsTable, BaziPillar, BaziFiveElementsChart, BaziDaiYunTimeline, BaziProfileHeader, BaziRemedyAndRelations, ThapThanStrengthTable
     │   ├── ziwei/               # Tử Vi: ZiweiBoard.jsx, ZiweiChart.jsx, ZiweiInput.jsx
     │   ├── marriage/            # Hợp Hôn: MarriageBoard.jsx, MarriageInput.jsx
+    │   ├── feixing/             # Huyền Không Phi Tinh: FeiXingBoard.jsx, FeiXingCombinedDial.jsx, FeiXingCompass.jsx, FeiXingGrid.jsx, FeiXingInput.jsx
     │   ├── xemngay/             # Xem Ngày & Lịch Vạn Niên: DateSelectionBoard.jsx, components/PersonalizedCalendarBoard.jsx
     │   ├── blog/                # Kiến Thức Phong Thủy: BlogBoard.jsx
     │   ├── history/             # Lịch Sử Phân Tích: HistoryBoard.jsx
-    │   │   └── components/      # Card lịch sử độc lập: IChingHistoryCard, BaziHistoryCard, ZiweiHistoryCard, MarriageHistoryCard
+    │   │   └── components/      # Card lịch sử độc lập: IChingHistoryCard, BaziHistoryCard, ZiweiHistoryCard, MarriageHistoryCard, FeiXingHistoryCard
     │   ├── profile/             # Hồ Sơ Cá Nhân & Quản Trị: ProfileBoard.jsx
     │   ├── home/                # Trang Chủ Giới Thiệu: HomeBoard.jsx
     │   └── admin/               # Quản Trị Hệ Thống: AdminConfirmModal.jsx
@@ -74,8 +76,8 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
 - **Styling:** Tailwind CSS (v3), PostCSS.
 - **Icons:** Lucide React.
 - **HTTP Client:** Axios.
-- **Markdown Renderer:** React Markdown & remark-gfm (hiển thị kết quả luận giải và bài viết phong thủy định dạng Markdown/GFM đẹp mắt, hỗ trợ bảng tự động và chèn ảnh minh họa).
-- **Linter:** ESLint.
+- **Markdown Renderer:** React Markdown, remark-gfm & rehype-sanitize (hiển thị kết quả luận giải và bài viết phong thủy định dạng Markdown/GFM đẹp mắt, hỗ trợ bảng tự động, chèn ảnh minh họa và lọc sạch mã độc XSS).
+- **Linter:** ESLint (0 errors - chuẩn hóa toàn diện cho React 19 và Render-Phase State Adjustment).
 
 ### 🌟 Chức năng chính theo từng Phân hệ
 
@@ -110,7 +112,16 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
 * AI hỗ trợ giải đoán chi tiết về hôn nhân gia đạo, ưu nhược điểm của cặp đôi và giải pháp hóa giải xung khắc.
 * Tệp tin liên quan: [MarriageBoard.jsx](file:///t:/Phongthuy/frontend/src/features/marriage/MarriageBoard.jsx), [MarriageInput.jsx](file:///t:/Phongthuy/frontend/src/features/marriage/MarriageInput.jsx).
 
-#### E. Kiến Thức Phong Thủy & Chia Sẻ (Blog Board)
+#### E. Huyền Không Phi Tinh & Bát Trạch (FeiXing Board)
+* **Giao Diện Tone Sáng Hoàng Gia (Light Theme):** Nền trắng ấm, ngà voi parchment, viền hổ phách ấm sang trọng, loại bỏ hoàn toàn các khung nền đen tối.
+* **Tự Động Nhận Diện Vận 9:** Hệ thống tự động xác định Vận 9 (2024 - 2043: Cửu Tử Ly Hỏa) theo thời gian thực năm 2026, tự động phản ứng tính lại Vận khi thay đổi năm xây dựng/nhập trạch.
+* **Nhập Bản Mệnh Gia Chủ & Autofill:** Hỗ trợ nhập ngày/tháng/năm sinh, giờ sinh, giới tính; nút "Dùng thông tin của tôi" tự động trích xuất thông tin tài khoản; tính toán Cung Phi Bát Trạch (Đông/Tây tứ mệnh) hiển thị tức thì.
+* **La Kinh Bát Quái Hoàng Gia 360°:** Đồ họa SVG tinh xảo gồm 8 quái tượng Dịch học (☰ ☱ ☲ ☳ ☴ ☵ ☶ ☷), 24 sơn vị khắc ngũ hành, đĩa đồng hoàng gia, kim nam châm 2 đầu Tọa - Hướng (Xanh/Đỏ) và thước trượt tinh chỉnh góc độ.
+* **Sơ Đồ Mệnh Trạch Tương Phối & Ma Trận Cửu Cung 3x3:** Đối chiếu trực quan Bản Mệnh Gia Chủ vs Trạch Đất Ngôi Nhà kèm huy hiệu kết luận `⭐ HỢP TRẠCH (ĐẠI CÁT)` hoặc `⚡ NGHỊCH TRẠCH (CẦN HÓA GIẢI)`; tích hợp sao Bát Trạch của gia chủ (Sinh Khí, Diên Niên, Tuyệt Mệnh...) trực tiếp lên từng ô ma trận 3x3.
+* **Luận Giải AI Chuẩn Hệ Thống:** Tích hợp `InterpretationTierModal` (Cơ bản 100 Points vs VIP 500 Points), nút nổi floating action `Thầy Luận Giải Phong Thủy`, nút nâng cấp VIP và hỏi thêm chuyên gia sau khi luận giải.
+* Tệp tin liên quan: [FeiXingBoard.jsx](file:///t:/Phongthuy/frontend/src/features/feixing/FeiXingBoard.jsx), [FeiXingInput.jsx](file:///t:/Phongthuy/frontend/src/features/feixing/FeiXingInput.jsx), [FeiXingCompass.jsx](file:///t:/Phongthuy/frontend/src/features/feixing/FeiXingCompass.jsx), [FeiXingGrid.jsx](file:///t:/Phongthuy/frontend/src/features/feixing/FeiXingGrid.jsx).
+
+#### F. Kiến Thức Phong Thủy & Chia Sẻ (Blog Board)
 * Trang tin tức và bài viết chiêm nghiệm học thuật công khai với 6 danh mục phong thủy chính.
 * Đồng bộ đường dẫn tĩnh Deep-Linking dạng `https://tuynover.ddns.net/?post={slug}` cho từng bài viết.
 * Tích hợp thanh chia sẻ đa nền tảng (Sao chép link, Facebook Sharer, Web Share API di động).
@@ -152,8 +163,8 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
 - **Core:** Node.js, Express.js (v5).
 - **Database & Cache:** MongoDB (Mongoose v9, maxPoolSize: 100), Redis (`ioredis`, Redis Alpine), Hybrid L1 RAM + L2 Redis Cache.
 - **PDF Engine:** Puppeteer (Headless Chromium pool, Semaphore FIFO Queue, SSD Disk Cache 24h).
-- **Security & Reliability:** JWT, bcryptjs, CORS, Global API Rate Limiter (300 req/5min), creditCheck Middleware, antiSpamLock Middleware (Distributed Mutex Lock), Readiness & Observability Health Probes (`/health`, `/health/detailed`).
-- **AI Engine:** Google Gemini API (`@google/generative-ai` model `gemini-3.1-flash-lite`, tích hợp chuỗi dự phòng đa tầng OpenRouter Qwen / Groq Llama, AI VIP Concurrency Limiter).
+- **Security & Reliability:** JWT, bcryptjs, CORS, Global API Rate Limiter (300 req/5min), creditCheck Middleware, antiSpamLock Middleware (Distributed Mutex Lock 2.5s), PII Redaction in Logging, Nginx Upstream Keepalive & SSE Buffering Separation, Container Non-root USER node, Redis Requirepass Auth, Readiness & Observability Health Probes (`/health`, `/health/detailed`).
+- **AI Engine:** Google Gemini API (`@google/generative-ai` với chuỗi ưu tiên cố định: `gemini-3.5-flash-lite` [Ưu tiên 1], `gemini-3.1-flash-lite` [Ưu tiên 2], dự phòng sâu `gemini-2.5-flash-lite` / `gemini-2.5-flash`, tích hợp AI VIP Concurrency Limiter).
 - **Phong thủy Logic:** `lunar-javascript` (Lịch pháp âm dương, Can Chi, Bát Tự).
 
 
@@ -303,7 +314,7 @@ Hệ thống API Backend sử dụng tiền tố `/api` và phân chia thành c�
    ```bash
    npm run dev
    ```
-5. Khởi chạy Unit Test Suite (Jest - 35 Test Suites, 257/257 Tests PASSED 100%):
+5. Khởi chạy Unit Test Suite (Jest - 45 Test Suites, 324/324 Tests PASSED 100%):
    ```bash
    npm test
    ```
@@ -321,7 +332,7 @@ Hệ thống API Backend sử dụng tiền tố `/api` và phân chia thành c�
    ```env
    VITE_API_URL=http://localhost:3001/api
    ```
-4. Khởi chạy Unit Test Suite Frontend (Vitest - 4 Test Suites, 29/29 Tests PASSED 100%):
+4. Khởi chạy Unit Test Suite Frontend (Vitest - 9 Test Suites, 52/52 Tests PASSED 100%):
    ```bash
    npm test
    ```
@@ -334,8 +345,8 @@ Hệ thống API Backend sử dụng tiền tố `/api` và phân chia thành c�
 ### 🐳 Cách 2: Khởi chạy bằng Docker Compose và Luồng Tự Động CI/CD
 
 Dự án đã được tích hợp quy trình **Tích hợp và Triển khai Liên tục (CI/CD) Chuẩn DevOps Zero-Downtime** qua GitHub Actions:
-- **Frontend CI (`.github/workflows/frontend-ci.yml`)**: Tự động kích hoạt khi có PR vào nhánh `main` (lọc path `frontend/**`), chạy 29 bài unit tests Vitest và kiểm tra build `npm run build`.
-- **Backend CI (`.github/workflows/backend-ci.yml`)**: Tự động kích hoạt khi có PR vào nhánh `main` (lọc path `backend/**`), kiểm tra cú pháp và chạy toàn bộ tests Jest tự động.
+- **Frontend CI (`.github/workflows/frontend-ci.yml`)**: Tự động kích hoạt khi có PR vào nhánh `main` (lọc path `frontend/**`), chạy 52 bài unit tests Vitest (9 test suites) và kiểm tra build `npm run build` (0 linter errors).
+- **Backend CI (`.github/workflows/backend-ci.yml`)**: Tự động kích hoạt khi có PR vào nhánh `main` (lọc path `backend/**`), kiểm tra cú pháp và chạy toàn bộ 324 tests Jest (45 suites) tự động.
 - **Deploy Pipeline (`.github/workflows/deploy.yml`)**: Kích hoạt khi merge/push vào `main`, chạy song song Quality Gate (Backend + Frontend), đóng gói Docker kép (tag bất biến `sha-${commit_id}` + `:latest`), rolling update không gián đoạn (Zero-Downtime, không `docker rm -f`, không `FLUSHALL`), graceful reload Nginx và tự động Smoke Test `/health`.
 (Xem chi tiết tại [DEVELOPMENT_GUIDE.md](file:///t:/Phongthuy/docs/DEVELOPMENT_GUIDE.md)).
 

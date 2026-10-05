@@ -23,7 +23,9 @@ async function incrementRecordCount(userId, system, delta = 1) {
       bat_tu: 'stats.baziCount',
       ziwei: 'stats.ziweiCount',
       tu_vi: 'stats.ziweiCount',
-      marriage: 'stats.marriageCount'
+      marriage: 'stats.marriageCount',
+      feixing: 'stats.feixingCount',
+      huyen_khong: 'stats.feixingCount'
     };
 
     const countField = systemMap[system];
@@ -58,7 +60,9 @@ async function incrementInterpretTokens(userId, system, tokensUsed = 0) {
       bat_tu: 'stats.baziTokens',
       ziwei: 'stats.ziweiTokens',
       tu_vi: 'stats.ziweiTokens',
-      marriage: 'stats.marriageTokens'
+      marriage: 'stats.marriageTokens',
+      feixing: 'stats.feixingTokens',
+      huyen_khong: 'stats.feixingTokens'
     };
 
     const tokenField = systemMap[system];
@@ -97,7 +101,9 @@ async function incrementChatTokens(userId, system, tokensUsed = 0) {
       bat_tu: 'stats.baziChatTokens',
       ziwei: 'stats.ziweiChatTokens',
       tu_vi: 'stats.ziweiChatTokens',
-      marriage: 'stats.marriageChatTokens'
+      marriage: 'stats.marriageChatTokens',
+      feixing: 'stats.feixingChatTokens',
+      huyen_khong: 'stats.feixingChatTokens'
     };
 
     const tokenField = systemMap[system];

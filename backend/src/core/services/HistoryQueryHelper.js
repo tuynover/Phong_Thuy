@@ -83,6 +83,15 @@ const buildFilterQuery = (system, queryParams, userId) => {
                     { 'inputInfo.female.name': regex }
                 ]
             });
+        } else if (system === 'feixing') {
+            andConditions.push({
+                $or: [
+                    { ownerName: regex },
+                    { title: regex },
+                    { facingMountain: regex },
+                    { sittingMountain: regex }
+                ]
+            });
         }
     }
 

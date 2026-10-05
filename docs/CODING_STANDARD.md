@@ -47,13 +47,18 @@ Dịch vụ `SseService.js` quản lý danh sách các kết nối client mở (
 
 ## ✍️ 3. Quy chuẩn viết code & Ràng buộc cú pháp
 
-- **ESLint Rule:** Dự án cấu hình ESLint nghiêm ngặt. Đặc biệt quy tắc kiểm tra biến chưa sử dụng:
+- **ESLint Rule:** Dự án cấu hình ESLint nghiêm ngặt (đạt chuẩn 0 errors). Đặc biệt quy tắc kiểm tra biến chưa sử dụng:
   ```javascript
-  'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }]
+  'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]|motion' }]
   ```
-  Cho phép bỏ qua các biến bắt đầu bằng chữ in hoa hoặc dấu gạch dưới (thường là hằng số hoặc module import cấu hình).
+  Cho phép bỏ qua các biến bắt đầu bằng chữ in hoa, dấu gạch dưới hoặc JSX namespace component `motion` của `framer-motion`.
+- **Chuẩn Hóa React 19 & Render-Phase State Adjustment:**
+  + Tuyệt đối không dùng `setState` đồng bộ bên trong `useEffect` để đồng bộ props; bắt buộc áp dụng cơ chế Render-Phase State Adjustment (`if (prevProp !== prop) setState(...)`).
+  + Các subcomponent và hàm helper tĩnh trong board/form phải được trích xuất ra phạm vi module (module-scope) để tuân thủ quy tắc React Compiler và ngăn ngừa unmount subtree ngoài ý muốn.
+- **Khử Trùng Markdown & Chống XSS:**
+  + Mọi component hiển thị Markdown (`SectionRenderer.jsx`, `BlogBoard.jsx`, `AdminBlogTab.jsx`, `AdminCalculationsTab.jsx`) bắt buộc phải tích hợp plugin `rehype-sanitize` cùng `remark-gfm` để triệt tiêu hoàn toàn nguy cơ XSS.
 - **Asynchronous Code:** Ưu tiên sử dụng cú pháp `async/await` kết hợp với khối `try/catch` để xử lý các tác vụ bất đồng bộ (truy vấn DB, gọi API AI).
-- **Ghi log an toàn:** TUYỆT ĐỐI không ghi đè các tham số nhạy cảm như `password` vào logger. Hàm logging trung gian trong `logging.js` phải có cơ chế lọc bỏ trường này trước khi in ra hoặc lưu file log.
+- **Ghi log an toàn & Bảo vệ PII:** TUYỆT ĐỐI không ghi đè các tham số nhạy cảm như `password`, `token`, `otp` vào logger. Hàm logging trung gian trong `logging.js` tự động khử trùng đệ quy qua `sanitizeSensitiveData` thành `***REDACTED***` trước khi in ra console hoặc lưu vào database `SystemLog`.
 - **Thành phần Giao diện & Cấm Native Date Input (Rule 2.2):**
   + TUYỆT ĐỐI không sử dụng thẻ `<input type="date">` mặc định của trình duyệt ở bất kỳ phân hệ nào. Bắt buộc sử dụng component React tùy chỉnh `CustomDatePicker`.
   + Tuân thủ Premium UI Aesthetics: Bo góc lớn (`rounded-2xl` hoặc `rounded-3xl`), sử dụng màu sắc HSL phối hài hòa nhẹ nhàng, tránh dùng màu sắc chói thô cứng, tích hợp modal backdrop ở giữa màn hình trên thiết bị di động.

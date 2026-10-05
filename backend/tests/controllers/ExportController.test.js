@@ -5,6 +5,7 @@ jest.mock('../../src/modules/bazi/models/BaziRecord');
 jest.mock('../../src/modules/ziwei/models/ZiweiRecord');
 jest.mock('../../src/modules/iching/models/IChingRecord');
 jest.mock('../../src/modules/bazi/models/MarriageRecord');
+jest.mock('../../src/modules/feixing/models/FeiXingRecord');
 jest.mock('../../src/modules/admin/models/SystemLog', () => ({
     create: jest.fn().mockResolvedValue({})
 }));
@@ -24,6 +25,7 @@ const BaziRecord = require('../../src/modules/bazi/models/BaziRecord');
 const ZiweiRecord = require('../../src/modules/ziwei/models/ZiweiRecord');
 const IChingRecord = require('../../src/modules/iching/models/IChingRecord');
 const MarriageRecord = require('../../src/modules/bazi/models/MarriageRecord');
+const FeiXingRecord = require('../../src/modules/feixing/models/FeiXingRecord');
 const PdfGeneratorService = require('../../src/modules/export/services/PdfGeneratorService');
 
 describe('ExportController Unit Tests', () => {
@@ -200,4 +202,34 @@ describe('ExportController Unit Tests', () => {
         expect(PdfGeneratorService.renderHtmlToPdf).toHaveBeenCalled();
         expect(res.send).toHaveBeenCalled();
     });
+
+    test('should succeed for feixing system PDF export', async () => {
+        FeiXingRecord.findById = jest.fn().mockResolvedValue({
+            _id: 'feixing-test-123',
+            userId: 'owner-user-id',
+            isPublic: true,
+            ownerName: 'Nguyen Van A',
+            sittingMountain: 'Tý',
+            sittingPalace: 'Khảm',
+            facingMountain: 'Ngọ',
+            facingPalace: 'Ly',
+            period: 9,
+            buildingYear: 2024,
+            grid: [],
+            analysisSnapshot: {
+                majorPatternName: 'Vượng Sơn Vượng Hướng'
+            }
+        });
+
+        req.params = { type: 'feixing', id: 'feixing-test-123' };
+        req.query = { scope: 'feixing_overview,feixing_grid' };
+
+        await ExportController.exportPdf(req, res);
+
+        expect(PdfGeneratorService.renderHtmlToPdf).toHaveBeenCalled();
+        expect(res.setHeader).toHaveBeenCalledWith('Content-Type', 'application/pdf');
+        expect(res.setHeader).toHaveBeenCalledWith('Content-Disposition', expect.stringContaining('attachment; filename='));
+        expect(res.send).toHaveBeenCalled();
+    });
 });
+

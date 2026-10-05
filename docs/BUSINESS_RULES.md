@@ -57,7 +57,74 @@ Sử dụng phương pháp Tử Vi Bắc Phái định vị Mệnh - Thân:
 
 ---
 
-## 🔒 4. Quy tắc Kiểm soát Tài nguyên & Vận hành
+## 🏡 4. Quy tắc Nghiệp vụ Huyền Không Phi Tinh (FeiXing)
+
+### 4.1 Nguyên lý Tọa Hướng & 24 Sơn Hướng
+- **Phân bổ Sơn Hướng:** Mỗi phương vị trong Bát Quái ($45^\circ$) thống lãnh 3 Sơn ($15^\circ$/Sơn), tổng cộng 24 Sơn. Mỗi Sơn thuộc 1 trong 3 nhóm Nguyên Long:
+  - **Địa Nguyên Long:** Giáp, Canh, Nhâm, Bính (Dương); Thìn, Tuất, Sửu, Mùi (Âm).
+  - **Thiên Nguyên Long:** Càn, Khôn, Cấn, Tốn (Dương); Tý, Ngọ, Mão, Dậu (Âm).
+  - **Nhân Nguyên Long:** Dần, Thân, Tị, Hợi (Dương); Ất, Tân, Đinh, Quý (Âm).
+- **Quy tắc Chính Hướng & Kiêm Hướng:**
+  - Lệch $\le 3^\circ$ so với tâm sơn: **Chính Quái Bàn (Chính Hướng)** — thuần khí, không bị pha tạp.
+  - Lệch $> 3^\circ$ đến $4.5^\circ$: **Kiêm Hướng (Thế Quái Bàn)** — khí trường bị pha tạp giữa 2 sơn, áp dụng đồ hình Thế Quái.
+  - Lệch $> 4.5^\circ$ đến $7.5^\circ$: **Xuất Quái** hoặc nằm trên ranh giới quẻ (Không Vong).
+
+### 4.2 Lập Cửu Cung Tinh Bàn (Tam Nguyên Cửu Vận)
+- **Vận Tinh:** Sao của Vận đương thời (Vận 9 Ly Hỏa: 2024 - 2043) nhập trung cung và phi thuận theo thứ tự cửu tinh Lạc Thư.
+- **Sơn Tinh & Hướng Tinh (Phi Thuận / Bay Nghịch):**
+  - Số sao tại phương Tọa trên Vận bàn nhập trung cung làm Sơn Tinh (bên trái).
+  - Số sao tại phương Hướng trên Vận bàn nhập trung cung làm Hướng Tinh (bên phải).
+  - **Quy tắc Bay Thuận (+)/Bay Nghịch (-):**
+    - Chiếu sao đó về phương vị nguyên thủy trên Lạc Thư Bàn.
+    - Tìm Sơn cùng nhóm Nguyên Long của căn nhà tại phương vị nguyên thủy đó.
+    - Nếu Sơn đó mang tính **Dương**: Sao bay **Thuận (↗)** (thứ tự số tăng dần $1 \to 9$).
+    - Nếu Sơn đó mang tính **Âm**: Sao bay **Nghịch (↘)** (thứ tự số lùi dần $9 \to 1$).
+- **Tứ Đại Cách Cục:**
+  - **Vượng Sơn Vượng Hướng:** Sao Đương Vượng của Sơn đáo Tọa, sao Đương Vượng của Hướng đáo Hướng $\to$ Đại cát về cả nhân đinh và tài lộc.
+  - **Song Tinh Đáo Hướng:** Cả Sơn Tinh và Hướng Tinh đương vượng đều tụ tại phương Hướng $\to$ Vượng tài lộc nhưng tổn hao nhân đinh; cần phía trước có Thủy rồi mới đến Sơn.
+  - **Song Tinh Đáo Tọa:** Cả Sơn Tinh và Hướng Tinh đương vượng đều tụ tại phương Tọa $\to$ Vượng đinh nhưng chậm tài lộc; cần phía sau có Thủy gần rồi Sơn xa.
+  - **Thượng Sơn Hạ Thủy:** Sơn tinh đương vượng ra Hướng, Hướng tinh đương vượng về Tọa $\to$ Đại hung về cả tài lộc và nhân đinh (Tiền bại tài, hậu tổn nhân).
+
+### 4.3 Phối Hợp Bát Trạch & Bát Tự (Tứ Trụ) Bản Mệnh
+- **Mệnh Trạch Tương Phối:**
+  - Xác định Cung Phi của gia chủ (Nam/Nữ theo năm sinh dương lịch/âm lịch).
+  - Phân loại: **Đông Tứ Mệnh** (Khảm, Ly, Chấn, Tốn) hợp với nhà **Đông Tứ Trạch**; **Tây Tứ Mệnh** (Càn, Khôn, Cấn, Đoài) hợp với nhà **Tây Tứ Trạch**.
+- **Tích Hợp Dụng Thần Bát Tự:** Giờ ngày tháng năm sinh được dùng để phân tích Thân Vượng/Thân Nhược và Dụng Thần (Kim, Mộc, Thủy, Hỏa, Thổ) của gia chủ, dùng ngũ hành Dụng Thần để chọn vật phẩm và màu sắc bài trí tại cung vị cát tinh Huyền Không.
+
+### 4.4 Quy Ước Hiển Thị Cửu Cung & Màu Sắc (Standard Luxury UI)
+- **Chuẩn Hóa 4 Mức Độ Cát Hung & Rút Gọn Trên Mobile:**
+  - **Tối Cát / Đương Vượng - Sinh Khí (Xanh lá):** Viền xanh lá, huy hiệu xanh lá đậm (Mobile hiển thị: `Tối Cát`).
+  - **Tiến Khí / Cát Tinh (Xanh dương):** Viền xanh dương, huy hiệu xanh dương (Mobile hiển thị rút gọn: `Cát`).
+  - **Bình Hòa / Thoái Khí (Viền đen):** Nền trắng tinh tế, viền đen thanh lịch (Mobile hiển thị: `Bình`).
+  - **Đại Hung / Hung Sát (Viền đỏ thuần):** Viền đỏ thuần (`border-2 border-red-600`), huy hiệu đỏ (`bg-red-600 text-white font-bold`). Tuyệt đối không dùng nền hồng (Mobile hiển thị: `Đại Hung` / `Hung`).
+- **Quy Ước Mũi Tên & Chiều Bay Cửu Cung:**
+  - **Mũi tên Bay Thuận (+):** Luôn hiển thị màu xanh lá (`text-emerald-600 font-black`) và hướng xiên lên trên (`↗`).
+  - **Mũi tên Bay Nghịch (-):** Luôn hiển thị màu đỏ hung sát (`text-rose-600 font-black`) và hướng xiên xuống dưới (`↘`).
+  - Chú giải tinh gọn: `Quy ước: 🟢 Cát / Vượng  🔵 Tiến khí  ⚫ Bình thường  🔴 Hung sát   ↗ Thuận (+) | ↘ Nghịch (-)`.
+- **La Kinh Bát Quái Cổ Điển & Nhãn Phương Vị Chống Tràn Viền:**
+  - 3 vòng đồng tâm rõ ràng: Vòng ngoài 360 độ, vòng giữa 24 Sơn Hướng, vòng trong Bát Quái.
+  - Định vị cổ truyền chuẩn xác: **Ly (Nam, $180^\circ$) ở trên đỉnh**, **Khảm (Bắc, $0^\circ$) ở đáy**, **Chấn (Đông, $90^\circ$) bên trái**, **Đoài (Tây, $270^\circ$) bên phải**.
+  - Kích thước thích ứng: $220\text{px}$ trên mobile và $300\text{px}$ trên desktop.
+  - 4 nhãn phương vị chính (`180° NAM (LY)`, `0° BẮC (KHẢM)`, `90° ĐÔNG`, `270° TÂY`) thiết kế trong suốt (không nền, không viền đặc), giữ khoảng cách thoáng đãng với vành ngoài, hoàn toàn không dính vòng và không tràn viền thẻ bao bọc.
+  - **Nhãn Hướng / Tọa Không Nền & Tự Xoay Chiều:** Nhãn `HƯỚNG` (đỏ) và `TỌA` (xanh dương) định vị trong lòng giếng Thiên Trì bao quanh vành Thái Cực, không sử dụng nền đặc (`bỏ nền đi`). Tích hợp cơ chế tự động xoay lộn ngược (`transform: isUpsideDown ? rotate(180deg) : none`) khi góc xoay rơi vào nửa dưới màn hình ($90^\circ < \theta < 270^\circ$), đảm bảo người dùng luôn đọc xuôi chữ từ trái sang phải, không bao giờ bị chữ lộn ngược (`∀Ọ⟘` hay `⅁NƯỚH`).
+  - **Thái Cực Âm Dương Đồ Nổi Bật & Gỡ Bỏ Chốt Đồng Tâm:** Loại bỏ hoàn toàn khối chốt đồng tròn ở tâm (`bỏ cái hình 1 đi`) từng che khuất tâm Thiên Trì. Nâng cấp đồ hình **Thái Cực Âm Dương Đồ** ($R = 36$) ở tâm giếng Thiên Trì đạt độ tương phản cao (Đen mực cổ điển `#18181B` & Trắng tinh khôi `#FFFFFF`), mắt cá Âm Dương sắc nét, viền ngoài chỉ vàng kim (`#D4AF37`) kèm hiệu ứng đổ bóng chiều sâu trang nhã.
+  - **Duy Nhất 2 Mũi Tên Ngoài Vòng Tròn (Dáng Uốn Mềm Mại Cổ Điển):** Triệt tiêu hoàn toàn thân kim dài và các mũi kim nằm cắt ngang bên trong mặt la bàn gây che lấp 24 Sơn Hướng và Bát Quái. Thay bằng DUY NHẤT 2 mũi tên đặt ngoài vòng tròn La Kinh dáng uốn cánh phượng/mái đình mềm mại: Mũi tên ĐỎ (`#dc2626`) tiếp xúc vành ngoài tại phương Hướng (chỉ ra ngoài), Mũi tên XANH DƯƠNG (`#2563eb`) tiếp xúc vành ngoài tại phương Tọa (chỉ ra ngoài). Mặt trong la bàn hoàn toàn thông thoáng.
+- **Bố Cục Cân Đối Thẻ Hướng/Tọa & Số Độ (Mobile vs Desktop):**
+  - Trên mobile: Tách Hộp Số Độ `180.0°` nằm giữa nổi bật ở trên, bên dưới là grid 2 cột cân xứng cho thẻ HƯỚNG NHÀ (nền đỏ nhạt) và TỌA NHÀ (nền xanh chàm nhạt).
+  - Trên desktop: Hiển thị 3 cột đối xứng thanh lịch, không bị dồn ép.
+- **Tự Động Xác Định Vận Phong Thủy:**
+  - Năm xây dựng/nhập trạch tự động kích hoạt tính Vận tương ứng (Vận 1 đến Vận 9), loại bỏ hoàn toàn dropdown chọn Vận thủ công gây dư thừa.
+- **Co Giãn Ma Trận 9 Cung Trên Mobile:**
+  - Loại bỏ ép cứng `aspect-square`, sử dụng chiều cao thích ứng `min-h-[118px] sm:min-h-[145px]`, `gap-1.5 sm:gap-3.5`, padding thẻ $p-3.5$ giúp 9 ô vuông vức, đều đặn, chữ số rõ nét, không bị kéo dãn dị dạng.
+- **Tách Rời Ngày Sinh Gia Chủ:** Tách thành 3 dropdown `Ngày` (1-31), `Tháng` (1-12), `Năm` (1926-2026) bằng `CustomSelect` bo tròn.
+
+### 4.5 Xuất Bản Tệp PDF Hồ Sơ & Quyền Riêng Tư
+- **Xuất PDF Khổ A4 Hoàng Gia:** Hỗ trợ mô hình in ấn A4 phân tách rõ ràng Đồ hình Tinh Bàn (Bìa, Tổng quan, Ma trận $3\times 3$, Mệnh Trạch) và 6 Chương Thẩm Định Chi Tiết.
+- **Chia Sẻ Thời Gian Thực (Toggle Switch):** Cho phép bật/tắt công khai `isPublic` thông qua công tắc gạt tức thì, bảo vệ tối đa tính riêng tư của dữ liệu phong thủy cá nhân.
+
+---
+
+## 🔒 5. Quy tắc Kiểm soát Tài nguyên & Vận hành
 
 ### 4.1 Cơ chế Chống Spam & Kiểm soát AI
 - **Chống spam yêu cầu đồng thời (In-Flight Mutex Lock):** Áp dụng middleware `antiSpamLock.js` sử dụng Redis/RAM lock (TTL 3000ms) tự động giải phóng khi response kết thúc (`res.on('finish')`) để chặn việc click đúp hoặc spam liên tục trên cùng một route.
@@ -66,9 +133,9 @@ Sử dụng phương pháp Tử Vi Bắc Phái định vị Mệnh - Thân:
 - **Hoàn Credit Tự Động Khi Luận Giải AI Bị Lỗi (SSE Stream Refund):** Tất cả các phân hệ (`IChingAiController`, `BaziAiController`, `ZiweiAiController`, `MarriageAiController`) đều được tích hợp biến cờ `isCompleted`, lắng nghe sự kiện ngắt kết nối sớm của client (`req.on('close')`) và bắt lỗi `catch (error)` để hoàn trả 100% point (`req.refundCredit()`) nếu bài luận giải chưa hoàn thành.
 - **Lọc chủ đề chat (`isDivinationRelated`):** Dịch vụ phân tích ý định (`ConversationContextService.js`) sẽ từ chối trả lời nếu người dùng hỏi lệch hướng (ví dụ: hỏi viết code, làm toán, lập trình...). Ngoại trừ việc hỏi về thời tiết và chọn ngày cát lành được phép thông qua.
 
-### 4.2 Cấp phát Credits/Points & Xóa tài khoản soft-delete
+### 4.2 Cấp phát Credits/Points & Chính sách Lưu trữ Dữ liệu Tài khoản (User Retention)
 - **Quản trị Points (1 Credit = 100 Points):** Đơn vị tiền tệ chính thức hiển thị trên toàn hệ thống là **Points** (hoặc Xu). Đăng ký tài khoản mới được cấp mặc định 200 points (2 credits cũ), xác thực email tặng thêm +200 points. Đã loại bỏ hoàn toàn cơ chế tự động tặng credit miễn phí hàng ngày (`DAILY_CREDIT_INCREMENT`) để đảm bảo giá trị của Points và duy trì kiểm soát tài nguyên chặt chẽ.
-- **Dọn dẹp database:** Tìm kiếm những tài khoản bị xóa mềm (`isDeleted: true`) quá **30 ngày** thông qua `NotificationScheduler.js` (`purgeSoftDeletedUsers`). Hệ thống tự động xóa sạch toàn bộ dữ liệu liên quan ở 9 bảng (`BaziRecord`, `IChingRecord`, `ZiweiRecord`, `MarriageRecord`, `Conversation`, `Message`, `BanAppeal`, `Notification` và `User`), ngăn chặn triệt để bản ghi mồ côi.
+- **Chính sách Lưu trữ Vĩnh viễn (Không tự động xóa tài khoản):** Hệ thống đã loại bỏ hoàn toàn cơ chế tự động xóa tài khoản sau 30 ngày (`purgeSoftDeletedUsers` trong `NotificationScheduler.js` đã được gỡ bỏ triệt để). Toàn bộ dữ liệu người dùng, hồ sơ cá nhân và lịch sử tính toán (Bát Tự, Tử Vi, Kinh Dịch, Hôn Nhân) được lưu trữ và bảo toàn vĩnh viễn trong cơ sở dữ liệu để phục vụ kiểm toán, thống kê báo cáo và bảo vệ quyền sở hữu dữ liệu trọn đời, kể cả khi tài khoản đang ở trạng thái xóa mềm (`isDeleted: true`).
 
 ### 4.3 Quét lịch thông báo Ứng Kỳ
 - Mỗi ngày, scheduler quét các bản ghi Kinh Dịch có mảng `ungKy` đang ở trạng thái `pending`.
@@ -902,4 +969,146 @@ Khi người dùng duy trì chuỗi liên tục qua các tuần tiếp theo (Str
    *   Nếu khoảng cách giữa ngày hôm nay và lần điểm danh gần nhất là **1 ngày**: Chuỗi tăng tiếp ($\text{newStreak} = \text{currentStreak} + 1$).
    *   Nếu khoảng cách $> 1$ ngày (bị lỡ/quên điểm danh): Chuỗi bị đứt đoạn và **reset về Ngày 1 (Tuần 1)** ($\text{newStreak} = 1$).
 3. **Phòng chống Thao Tác Kép & Race Condition:** Áp dụng khóa phân tán Redis (`acquireRedisLock`) theo `userId` với thời gian hiệu lực 5 giây, bảo đảm tính toàn vẹn số dư Point và streak khi bấm nhanh hoặc mạng lag.
+
+---
+
+## 14. QUY TẮC NGHIỆP VỤ HỌC THUẬT HUYỀN KHÔNG PHI TINH (XUAN KONG FEI XING)
+
+Hệ thống Huyền Không Phi Tinh (`FeiXingEngineService.js`) số hóa toàn bộ hệ thống lý thuyết cổ truyền về trạch vận, tương tác thời gian (Tam Nguyên Cửu Vận) và không gian (24 Sơn Hướng) để định vị dòng khí vượng suy trên mặt bằng công trình.
+
+### 14.1 Nhị Thập Tứ Sơn & Ánh Xạ Độ Số La Kinh (24 Mountains Mapping)
+Mỗi hướng chính (45°) chia làm 3 sơn vị, mỗi sơn vị chiếm chính xác 15°:
+*   **Trục Bắc - Tý:** Trung tâm 0° (trải dài từ 352.5° đến 7.5°).
+*   **8 Cung tương ứng:**
+    *   **Khảm (Bắc):** Nhâm (345°), Tý (0°), Quý (15°).
+    *   **Cấn (Đông Bắc):** Sửu (30°), Cấn (45°), Dần (60°).
+    *   **Chấn (Đông):** Giáp (75°), Mão (90°), Ất (105°).
+    *   **Tốn (Đông Nam):** Thìn (120°), Tốn (135°), Tị (150°).
+    *   **Ly (Nam):** Bính (165°), Ngọ (180°), Đinh (195°).
+    *   **Khôn (Tây Nam):** Mùi (210°), Khôn (225°), Thân (240°).
+    *   **Đoài (Tây):** Canh (255°), Dậu (270°), Tân (285°).
+    *   **Càn (Tây Bắc):** Tuất (300°), Càn (315°), Hợi (330°).
+
+### 14.2 Tam Nguyên Cửu Vận & Tự Động Nhận Diện Năm Xây Dựng
+*   **Thượng Nguyên:** Vận 1 (1864–1883), Vận 2 (1884–1903), Vận 3 (1904–1923).
+*   **Trung Nguyên:** Vận 4 (1924–1943), Vận 5 (1944–1963), Vận 6 (1964–1983).
+*   **Hạ Nguyên:** Vận 7 (1984–2003), Vận 8 (2004–2023), Vận 9 (2024–2043 • Cửu Tử Ly Hỏa).
+*   Khi người dùng nhập năm xây dựng công trình, hệ thống tự động suy ra Vận tương ứng (ví dụ: năm 2024 → Vận 9).
+
+### 14.3 Phân Định Tam Nguyên Long & Âm Dương Phi Tinh (12 Âm, 12 Dương)
+Quy tắc bay thuận (Forward: tăng dần theo Lạc Thư) hay bay nghịch (Reverse: giảm dần) phụ thuộc vào tính chất Âm (-) hay Dương (+) của sao tọa/hướng:
+1.  **Tam Nguyên Long:** Mỗi cung gồm 3 sơn vị đại diện cho Địa Nguyên Long (Sơn 1), Thiên Nguyên Long (Sơn 2), Nhân Nguyên Long (Sơn 3).
+2.  **Cực tính Âm Dương:**
+    *   **4 Cung Chính (Khảm, Ly, Chấn, Đoài):** Địa Nguyên Long mang tính Dương (+), Thiên Nguyên Long và Nhân Nguyên Long mang tính Âm (-).
+    *   **4 Cung Góc (Càn, Khôn, Cấn, Tốn):** Địa Nguyên Long mang tính Âm (-), Thiên Nguyên Long và Nhân Nguyên Long mang tính Dương (+).
+    *   Đảm bảo quy tắc cân bằng âm dương tuyệt đối của tự nhiên: đúng 12 Sơn mang tính Dương và 12 Sơn mang tính Âm.
+3.  **Bay Thuận / Bay Nghịch:**
+    *   Dương (+) $\rightarrow$ Bay Thuận (1 $\rightarrow$ 2 $\rightarrow$ ... $\rightarrow$ 9 $\rightarrow$ 1).
+    *   Âm (-) $\rightarrow$ Bay Nghịch (9 $\rightarrow$ 8 $\rightarrow$ ... $\rightarrow$ 1 $\rightarrow$ 9).
+
+### 14.4 Trường Hợp Đặc Biệt Của Ngũ Hoàng (Số 5 Đáo Trung Cung)
+Sao số 5 (Ngũ Hoàng) thuộc Thổ Trung Cung, vốn không có cung vị riêng ngoài bát quái.
+*   **Quy tắc:** Khi sao số 5 bay tới vị trí Tọa hoặc Hướng, cực tính Âm/Dương của nó sẽ **mượn theo cực tính của chính Sơn tọa hoặc Sơn hướng của ngôi nhà**.
+    *   *Ví dụ:* Nhà Tọa Tý Hướng Ngọ (Tý thuộc Thiên Nguyên Long cung Khảm mang tính Âm -). Nếu sao số 5 đóng tại Tọa, nó sẽ kế thừa tính Âm (-) và bay nghịch.
+
+### 14.5 Chính Hướng vs Kiêm Hướng (Thế Quái Bàn) & Tuyến Không Vong
+Dựa vào góc lệch $\Delta$ giữa hướng đo được và tâm của sơn vị ($15^\circ$):
+1.  **Chính Hướng (Thuần Khí):** $\Delta < 3.0^\circ$. Khí thuần chính, nạp khí theo chính tinh (Chính Quái Bàn).
+2.  **Kiêm Hướng (Thế Quái Bàn):** $3.0^\circ \le \Delta \le 6.0^\circ$. Khí bị pha tạp, bắt buộc áp dụng **Bài Ca Thế Quái** để hoán đổi sao trung cung:
+    *   *Khảm Cung:* Tý/Quý thay bằng Tham Lang (1), Nhâm thay bằng Cự Môn (2).
+    *   *Khôn Cung:* Thân thay bằng Tham Lang (1), Khôn/Mùi thay bằng Phá Quân (7).
+    *   *Chấn Cung:* Mão/Ất thay bằng Cự Môn (2), Giáp thay bằng Tham Lang (1).
+    *   *Tốn Cung:* Tốn/Tị thay bằng Vũ Khúc (6), Thìn thay bằng Phá Quân (7).
+    *   *Càn Cung:* Càn/Hợi thay bằng Vũ Khúc (6), Tuất thay bằng Phá Quân (7).
+    *   *Đoài Cung:* Dậu/Tân thay bằng Phá Quân (7), Canh thay bằng Cự Môn (2).
+    *   *Cấn Cung:* Cấn/Dần thay bằng Phá Quân (7), Sửu thay bằng Cự Môn (2).
+    *   *Ly Cung:* Ngọ/Đinh thay bằng Phá Quân (7), Bính thay bằng Cự Môn (2).
+3.  **Tuyến Không Vong:** $\Delta > 6.0^\circ$:
+    *   Nếu tiếp giáp 2 sơn trong cùng một cung: **Tiểu Không Vong** (Tạp khí, hao tài tốn của).
+    *   Nếu tiếp giáp ranh giới giữa 2 quẻ (ví dụ ranh giới Khảm - Cấn tại 22.5°): **Đại Không Vong** (Tuyến tuyệt mạng, tán gia bại sản, cần chuyển hướng hoặc xoay cửa).
+
+### 14.6 Tứ Đại Cách Cục Huyền Không Phi Tinh
+Phân loại theo vị trí đỗ của sao Đương Vận (trong Vận 9 là sao Cửu Tử số 9):
+1.  **Vượng Sơn Vượng Hướng (Đinh Tài Lưỡng Đắc):** Sao Sơn đương vận đáo Tọa, Sao Hướng đương vận đáo Hướng. Phía trước cần thủy (sông hồ, đường rộng), phía sau cần sơn (núi, nhà cao).
+2.  **Song Tinh Đáo Hướng (Vượng Tài Hao Đinh):** Cả sao Sơn và sao Hướng đương vận cùng đáo về cung Hướng. Mặt tiền cần có Thủy trước rồi Sơn sau (hoặc nhà cao phía sau ao hồ).
+3.  **Song Tinh Đáo Tọa (Vượng Đinh Bại Tài):** Cả sao Sơn và sao Hướng đương vận cùng đáo về cung Tọa. Khí vượng tụ phía sau nhà, chủ nhân đinh đông đúc hòa thuận nhưng tài lộc khó tích lũy lớn.
+4.  **Thượng Sơn Hạ Thủy (Tổn Đinh Phá Tài):** Sao Sơn đáo Hướng và Sao Hướng đáo Tọa (đảo nghịch tự nhiên). Cực xấu nếu bố trí sai địa hình; cần địa hình nghịch thủy (sau nhà có hồ, trước mặt có đồi) để cứu cách.
+
+### 14.7 Thành Môn Quyết (Castle Gate)
+Kỹ thuật khai mở cửa phụ hoặc cổng nạp khí bổ trợ tại 2 cung liền kề cung Hướng:
+*   Kiểm tra 2 cung vị hai bên cung Hướng (Thành môn Trái và Thành môn Phải).
+*   Nếu hướng tinh bay đến sơn vị thành môn đồng khí tương cầu với vận tinh, thành môn được kích hoạt, đón nạp vượng khí gia tăng tài lộc vượt bậc cho trạch đất.
+
+### 14.8 Tích Hợp Bát Trạch Minh Kính Phối Mệnh Gia Chủ & Trạch Đất
+Hệ thống kết hợp đồng thời hai trường phái phong thủy cốt lõi: **Huyền Không Phi Tinh (Lý khí thời vận)** và **Bát Trạch Minh Kính (Hình thế bản mệnh)**:
+1.  **Công thức tính Cung Phi Bát Trạch:**
+    *   Tổng các chữ số năm sinh rút gọn về 1 chữ số $\text{sum} \in [1..9]$.
+    *   *Nam mệnh:* $\text{guaNum} = 11 - \text{sum}$. Nếu $\text{guaNum} \le 0 \rightarrow +9$; nếu $\text{guaNum} > 9 \rightarrow -9$. (Nếu rơi vào số 5 $\rightarrow$ quy về Cung Khôn, Tây tứ mệnh).
+    *   *Nữ mệnh:* $\text{guaNum} = 4 + \text{sum}$. Nếu $\text{guaNum} > 9 \rightarrow -9$. (Nếu rơi vào số 5 $\rightarrow$ quy về Cung Cấn, Tây tứ mệnh).
+    *   *Phân nhóm Mệnh:*
+        *   **Đông tứ mệnh:** Cung Khảm (1 - Thủy), Chấn (3 - Mộc), Tốn (4 - Mộc), Ly (9 - Hỏa).
+        *   **Tây tứ mệnh:** Cung Khôn (2 - Thổ), Càn (6 - Kim), Đoài (7 - Kim), Cấn (8 - Thổ).
+2.  **Mệnh Trạch Tương Phối:**
+    *   Trạch đất xác định theo **Cung Tọa** (Hậu trạch): Tọa Khảm/Chấn/Tốn/Ly $\rightarrow$ **Đông tứ trạch**; Tọa Càn/Khôn/Cấn/Đoài $\rightarrow$ **Tây tứ trạch**.
+    *   Nếu nhóm Bản Mệnh trùng nhóm Trạch Đất: **⭐ HỢP TRẠCH (ĐẠI CÁT)**, thuận lợi nạp vượng khí.
+    *   Nếu nhóm Bản Mệnh khác nhóm Trạch Đất: **⚡ NGHỊCH TRẠCH (CẦN HÓA GIẢI)**, hệ thống đề xuất xoay hướng giường ngủ Master, đặt bếp "tọa hung hướng cát" để hóa giải tương khắc.
+3.  **Gán Sao Bát Trạch Lên Ma Trận Cửu Cung:**
+    *   Mỗi ô trong 9 cung Lạc Thư đều hiển thị đồng thời sao Huyền Không (Sơn/Hướng/Vận) và sao Bát Trạch tương ứng của gia chủ (`Sinh Khí`, `Diên Niên`, `Thiên Y`, `Phục Vị` - Cát tinh; `Tuyệt Mệnh`, `Ngũ Quỷ`, `Lục Sát`, `Họa Hại` - Hung tinh).
+
+### 14.9 Tự Động Nhận Diện Vận Theo Thời Gian Thực
+*   Hệ thống tự động phát hiện năm hiện tại của máy chủ/client (`new Date().getFullYear() = 2026`) để mặc định chọn **Vận 9 (2024 - 2043: Cửu Tử Ly Hỏa)**.
+*   Khi người dùng sửa năm xây dựng/nhập trạch, giao diện và backend tự động phản ứng tính toán lại Vận tương ứng (Vận 1 đến Vận 9) mà không cần thao tác chọn thủ công.
+
+### 14.10 Quy Ước 4 Cấp Độ Màu Sắc Cát Hung & Ký Hiệu Mũi Tên Phi Tinh
+*   **4 Cấp độ màu sắc Cửu Cung:**
+    *   **Tối Cát (Đương Vượng / Sinh Khí):** Màu **Xanh lá** (`border-emerald-500 bg-emerald-50/60`). Áp dụng cho cung đắc Hướng tinh hoặc Sơn tinh đương vận (sao 9 Vận 9), cặp Song Cửu 9-9, Nhất Lục 1-6, Bát Cửu 8-9.
+    *   **Tiến Khí / Cát Tinh Cố Định:** Màu **Xanh dương** (`border-blue-400 bg-blue-50/50`). Áp dụng cho cung đắc sao Tiến khí (sao 1 trong Vận 9), sao Cận khí (sao 8), hoặc đắc sao cát Bát Trạch (Sinh Khí, Thiên Y, Diên Niên).
+    *   **Bình Thường / Thoái Khí:** Màu **Viền đen** (`border-slate-800 bg-white`). Áp dụng cho cung khí trường bình hòa, thoái khí hoặc tử khí nhưng không phạm hung sát.
+    *   **Đại Hung / Hung Sát:** Màu **Đỏ** (`border-rose-500 bg-rose-50/60`). Áp dụng cho các cung phạm Ngũ Hoàng Đại Sát (sao 5), Nhị Hắc Bệnh Phù (sao 2), cặp Nhị Ngũ Giao Gia (2-5, 5-2), Tam Thất Đấu Ngưu (3-7), Giao Kiếm Sát (6-7) hoặc Hỏa Thiêu Thiên Môn (7-9).
+*   **Ký hiệu Mũi Tên Phi Tinh:**
+    *   `↗` **Bay Thuận (+ Dương):** Quỹ đạo số sao tăng tiến tuần tự theo Cửu Cung Lạc Thư ($1 \rightarrow 2 \rightarrow 3 \rightarrow 4 \rightarrow 5 \rightarrow 6 \rightarrow 7 \rightarrow 8 \rightarrow 9$).
+    *   `↘` **Bay Nghịch (- Âm):** Quỹ đạo số sao giảm lùi tuần tự theo Cửu Cung Lạc Thư ($9 \rightarrow 8 \rightarrow 7 \rightarrow 6 \rightarrow 5 \rightarrow 4 \rightarrow 3 \rightarrow 2 \rightarrow 1$).
+*   **Quy Chuẩn Nhập Liệu Góc La Kinh:**
+    *   Hỗ trợ nhập song song **Độ (°: 0 - 359)** và **Phút (': 0 - 59)** trực tiếp từ bàn phím với tính toán số thập phân chính xác: $\text{degree} = \text{deg} + \frac{\text{min}}{60}$.
+    *   Hệ thống tự động xác định chính xác Sơn, Cung Bát Quái, và phân loại Chính Hướng, Kiêm Hướng (Thế Quái Bàn) hoặc Tuyến Không Vong.
+
+### 14.11 Mối Quan Hệ Giữa Bát Trạch, Bát Tự (Tứ Trụ) và Huyền Không Phi Tinh
+*   **Tại sao Bát Trạch chỉ cần năm sinh:** Bát Trạch Minh Kính cổ điển dùng Cung Phi Mệnh Quái, tính dựa trên năm sinh (Thái Tuế) để phân định 2 nhóm Đông Tứ Mệnh và Tây Tứ Mệnh. Nếu chỉ cần Bát Trạch cơ bản, người dùng chỉ cần nhập năm sinh.
+*   **Tại sao nên nhập đủ Giờ - Ngày - Tháng - Năm sinh (Bát Tự):** Vì trong cùng một năm sinh có hàng triệu người chung Cung Phi, nhưng vận mệnh và cấu trúc khí huyết của mỗi người lại hoàn toàn khác nhau phụ thuộc vào **Nhật Chủ** và **Dụng Thần** Bát Tự.
+*   **Cách Bát Tự kết hợp Huyền Không Phi Tinh trong hệ thống:**
+    *   Huyền Không xác định vị trí năng lượng ngũ hành của Trạch Đất (Cát/Hung của từng phương vị trong 20 năm).
+    *   Bát Trạch xác định phương vị tương phối giữa Trạch Đất và Mệnh Chủ (Hợp Trạch hay Nghịch Trạch).
+### 14.12 Chuẩn Mực Bố Cục La Kinh Bát Quái Hoàng Gia & Hậu Thiên Bát Quái
+*   **Cấu trúc 3 Vòng La Kinh:**
+    *   *Vòng 1 (Ngoại Vi: $R = 189 - 212$):* Vành chia 360 độ kèm 4 nhãn phương vị chính ngoài đĩa xoay (`180° NAM (LY)`, `0° BẮC (KHẢM)`, `90° ĐÔNG`, `270° TÂY`).
+    *   *Vòng 2 (Trung Gian: $R = 138 - 188$):* 24 Sơn Hướng phân bổ đều $15^\circ/\text{sơn}$, hiển thị tên Sơn thẳng đứng dễ đọc kèm chấm màu bản mệnh ngũ hành.
+    *   *Vòng 3 (Hậu Thiên Bát Quái: $R = 70 - 138$):* 8 Cung Bát Quái phân bổ $45^\circ/\text{cung}$, vạch phân chia ranh giới từ $R = 70$ đến $R = 138$.
+*   **Quy Chuẩn Bố Cục 8 Cung Bát Quái:**
+    *   Tâm cung Bát Quái tại bán kính $R = 104$.
+    *   Xếp dọc đồng nhất cả 8 phương vị:
+        *   Ký hiệu Dịch tượng Bát Quái (`☲, ☷, ☱, ☰, ☵, ☶, ☳, ☴`) đặt ở trên tại $cy - 9$ (`fontSize="17"`).
+        *   Tên quẻ (`Ly, Khôn, Đoài, Càn, Khảm, Cấn, Chấn, Tốn`) đặt ở dưới tại $cy + 11$ (`fontSize="12"`, `font-black`).
+    *   Loại bỏ hoàn toàn các nhãn phương vị phụ bên trong ("Đông Bắc", "Tây Nam",...) để bảo toàn không gian thoáng đãng, chống đè chữ và chống tràn viền.
+*   **Thiên Trì & Kim Chỉ Hướng/Tọa:**
+    *   Tâm Thiên Trì ($R = 36$) là đồ hình Thái Cực Âm Dương tương phản cao (Đen mực `#18181B` & Trắng `#FFFFFF`).
+    *   Hai chữ `HƯỚNG` (đỏ) và `TỌA` (xanh dương) không nền, tự động đảo góc $180^\circ$ khi kim lộn ngược để luôn xuôi mắt người đọc.
+    *   Hai mũi tên chỉ phương vị đặt ngoài vòng tròn la bàn với dáng uốn cánh phượng cổ điển (Mũi tên ĐỎ hướng ra ngoài tại phương Hướng, Mũi tên XANH DƯƠNG hướng ra ngoài tại phương Tọa).
+
+### 14.13 Tinh Bàn Master Đồng Nhất: Vành La Kinh 24 Sơn Hướng (Hình 1) Bao Quanh Ma Trận 9 Cung (Hình 2)
+*   **Mô hình Kiến trúc Đồ hình Kết hợp Trực tiếp:**
+    *   Loại bỏ hoàn toàn bộ chuyển chế độ xem (View Mode Switcher) để hợp nhất làm một Tinh Bàn duy nhất, trực quan và chuẩn phong thủy phương Đông.
+    *   *Trung tâm (Ma Trận 3x3 Cửu Cung - Hình 2):* 9 thẻ Cung Vị bo góc lớn viền màu Cát Hung theo chuẩn mực (`Tối Cát`, `Tiến Khí / Cát`, `Bình Hòa`, `Đại Hung`), hiển thị đầy đủ Sơn Tinh (Đinh), Hướng Tinh (Tài) kèm chiều bay (↗/↘), Vận Tinh, tên Quẻ, Vận Tinh, Nguyên Long và Cặp Sơn Hướng.
+    *   *Bỏ Dấu Ngoặc Đơn Phương Vị:* Toàn bộ nhãn phương vị địa lý (`Nam`, `Bắc`, `Đông Nam`, `Đông`, `Tây`, `Tây Nam`, `Đông Bắc`, `Tây Bắc`) trên các thẻ và trong Modal chi tiết cung được bỏ hoàn toàn dấu ngoặc đơn `()` nhằm tối ưu mỹ cảm và độ thoáng mắt.
+    *   *Vành La Kinh Ngoại Vi (Hình 1):*
+        *   4 phương vị chính ngoài cùng (`180° NAM (LY)`, `0° BẮC (KHẢM)`, `90° ĐÔNG`, `270° TÂY`).
+        *   2 mũi tên dáng cánh phượng uốn mềm mại chỉ phương Hướng (Màu Đỏ) và phương Tọa (Màu Xanh Dương) tại ngoại vi.
+        *   Vành chia độ 360° với vạch chia 1°, 5°, 15°, 45° và mốc số độ mỗi 30°.
+        *   Vành 24 Sơn Hướng ($15^\circ/\text{sơn}$) kèm chấm màu Ngũ Hành và quầng sáng đỏ/xanh làm nổi bật Sơn Hướng và Sơn Tọa của trạch đất.
+        *   8 tia phân cung nét đứt kết nối trực tiếp từ các cạnh và góc của ma trận 3x3 ra các cung Bát Quái tương ứng.
+    *   *Khung Hình & Tối Ưu Mobile:*
+        *   Trên Desktop: Mở rộng đồ hình đến tối đa khung chứa web (`max-w-[780px]`) cho trải nghiệm hoành tráng, các thẻ cung rộng rãi, phóng khoáng.
+        *   Trên Mobile ($390\text{px}$): Co giãn tự nhiên theo tỉ lệ khung hình (aspect-square), cỡ chữ và huy hiệu tự động thu phóng vector sắc nét, chống tràn viền tuyệt đối.
+
+
+
 

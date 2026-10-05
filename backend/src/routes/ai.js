@@ -4,6 +4,7 @@ const IChingAiController = require('../modules/iching/controllers/IChingAiContro
 const BaziAiController = require('../modules/bazi/controllers/BaziAiController');
 const ZiweiAiController = require('../modules/ziwei/controllers/ZiweiAiController');
 const MarriageAiController = require('../modules/bazi/controllers/MarriageAiController');
+const FeiXingAiController = require('../modules/feixing/controllers/FeiXingAiController');
 const creditCheck = require('../core/middleware/creditCheck');
 const optionalAuth = require('../core/middleware/optionalAuth');
 const checkRecordOwnership = require('../core/middleware/checkRecordOwnership');
@@ -29,5 +30,11 @@ router.post('/ziwei/:id/chat', optionalAuth, checkRecordOwnership, chatRateLimit
 // Marriage (Hợp Hôn) endpoints
 router.post('/marriage/:id/interpret', optionalAuth, checkRecordOwnership, antiSpamLock(), creditCheck, MarriageAiController.interpretMarriage);
 router.post('/marriage/:id/chat', optionalAuth, checkRecordOwnership, chatRateLimiter, chatCreditCheck, MarriageAiController.chatMarriage);
+
+// FeiXing (Huyền Không Phi Tinh) endpoints
+router.post('/feixing/:id/interpret', optionalAuth, checkRecordOwnership, antiSpamLock(), creditCheck, FeiXingAiController.interpretFeiXing);
+router.post('/feixing/:id/chat', optionalAuth, checkRecordOwnership, chatRateLimiter, chatCreditCheck, FeiXingAiController.chatFeiXing);
+router.post('/huyen-khong/:id/interpret', optionalAuth, checkRecordOwnership, antiSpamLock(), creditCheck, FeiXingAiController.interpretFeiXing);
+router.post('/huyen-khong/:id/chat', optionalAuth, checkRecordOwnership, chatRateLimiter, chatCreditCheck, FeiXingAiController.chatFeiXing);
 
 module.exports = router;

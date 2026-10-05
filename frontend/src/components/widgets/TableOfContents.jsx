@@ -55,6 +55,15 @@ const themeColors = {
     fabBg: 'bg-rose-900 hover:bg-rose-950 text-rose-100 shadow-rose-950/30 border border-rose-800/60',
     headerBadge: 'bg-rose-50 text-rose-800 border-rose-200',
     groupHeader: 'text-rose-600'
+  },
+  feixing: {
+    activeBg: 'bg-amber-50 text-amber-950 border-amber-300 font-bold',
+    activeDot: 'bg-amber-700',
+    activeSubText: 'text-amber-900 font-bold',
+    accentBorder: 'border-amber-500',
+    fabBg: 'bg-gradient-to-r from-amber-700 to-amber-800 hover:from-amber-800 hover:to-amber-900 text-white shadow-amber-900/30 border border-amber-500/60',
+    headerBadge: 'bg-amber-100 text-amber-900 border-amber-300',
+    groupHeader: 'text-amber-800'
   }
 };
 
@@ -316,7 +325,7 @@ export const TableOfContents = ({
                         <span className={`w-2 h-2 rounded-full shrink-0 ${
                           isPsActive ? colors.activeDot : 'bg-slate-300'
                         }`}></span>
-                        <span className="truncate">{ps.title}</span>
+                        <span className="truncate">{ps.title || ps.label}</span>
                       </div>
                     );
                   })}

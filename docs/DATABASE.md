@@ -6,7 +6,7 @@ Hệ thống sử dụng **MongoDB** làm cơ sở dữ liệu chính, được 
 
 ## 🔑 1. Quy tắc Thiết kế Khóa chính, Chỉ mục (Indexes) & Connection Pool
 - **UUIDv7 làm Khóa chính:** Mọi bảng dữ liệu nghiệp vụ chính (`User`, `IChingRecord`, `BaziRecord`, `ZiweiRecord`, `MarriageRecord`, `Conversation`, `Message`, `Notification`, `AdminNotification`, `BanAppeal`, `BlogPost`) đều ghi đè trường `_id` mặc định bằng chuỗi sinh ra từ thuật toán **UUIDv7** (`default: uuidv7`) để đảm bảo tính sắp xếp theo thời gian tốt hơn và tránh đoán định ID tuần tự. Riêng bảng `SystemLog` hiện sử dụng `ObjectId` mặc định của MongoDB.
-- **Xóa mềm (Soft Delete):** Hầu hết các tài liệu nghiệp vụ đều sử dụng cờ `isDeleted: { type: Boolean, default: false }` kết hợp với trạng thái `status: { type: String, enum: ['active', 'locked'] }`.
+- **Xóa mềm (Soft Delete) & Bảo toàn Dữ liệu Trọn đời:** Hầu hết các tài liệu nghiệp vụ đều sử dụng cờ `isDeleted: { type: Boolean, default: false }` kết hợp với trạng thái `status: { type: String, enum: ['active', 'locked'] }`. Hệ thống TUYỆT ĐỐI KHÔNG tự động xóa cứng (không purge) tài khoản hay bản ghi sau 30 ngày; toàn bộ dữ liệu được bảo toàn vĩnh viễn trong MongoDB để phục vụ đối soát và báo cáo O(1).
 - **Compound Indexes:** Được thiết lập sẵn trên các trường truy vấn thường xuyên như `userId`, `createdAt`, và cờ trạng thái để tối ưu hóa hiệu năng tìm kiếm của MongoDB, triệt tiêu 100% các bước In-memory sorting (SORT stage).
 - **Tinh gọn Chỉ mục Trùng lặp Tiền tố (Prefix Redundancy Elimination):**
   Trong 4 bảng bản ghi (`BaziRecord`, `IChingRecord`, `ZiweiRecord`, `MarriageRecord`), compound index `{ userId: 1, isDeleted: 1, isPinned: -1, createdAt: -1 }` đã bao quát hoàn toàn các tiền tố `{ userId: 1, isDeleted: 1, createdAt: -1 }` và `{ userId: 1, createdAt: -1 }`. Loại bỏ các index tiền tố thừa giúp giảm 30-40% bộ nhớ RAM WiredTiger dành cho index và tăng tốc độ ghi (Write IOPS) khi tạo bản ghi mới.
@@ -57,14 +57,17 @@ Lưu trữ thông tin tài khoản, hồ sơ Bát Tự mặc định, số dư c
     baziCount: { type: Number, default: 0 },
     ziweiCount: { type: Number, default: 0 },
     marriageCount: { type: Number, default: 0 },
+    feixingCount: { type: Number, default: 0 },
     ichingTokens: { type: Number, default: 0 },
     baziTokens: { type: Number, default: 0 },
     ziweiTokens: { type: Number, default: 0 },
     marriageTokens: { type: Number, default: 0 },
+    feixingTokens: { type: Number, default: 0 },
     ichingChatTokens: { type: Number, default: 0 },
     baziChatTokens: { type: Number, default: 0 },
     ziweiChatTokens: { type: Number, default: 0 },
     marriageChatTokens: { type: Number, default: 0 },
+    feixingChatTokens: { type: Number, default: 0 },
     totalInterpretTokens: { type: Number, default: 0 },
     totalChatTokens: { type: Number, default: 0 },
     totalTokens: { type: Number, default: 0 },
@@ -223,13 +226,73 @@ Lưu trữ kết quả so sánh Bát Tự và độ hòa hợp của hai đối 
   }
   ```
 
-### 2.6 Bảng Hội thoại dùng chung (`conversations`)
+### 2.6 Bảng Kỷ lục Huyền Không Phi Tinh (`feixingrecords`)
+Lưu trữ thông tin trạch vận, độ số 24 sơn hướng, ma trận 9 cung phi tinh Lạc Thư, Thành Môn Quyết và luận giải AI.
+- **Model:** [FeiXingRecord.js](file:///t:/Phongthuy/backend/src/modules/feixing/models/FeiXingRecord.js)
+- **Cấu trúc Schema:**
+  ```javascript
+  {
+    _id: { type: String, default: uuidv7 },
+    userId: { type: String, required: true, default: 'guest' },
+    facingDegree: { type: Number, required: true },
+    sittingDegree: { type: Number, required: true },
+    facingMountain: { type: String, required: true },
+    sittingMountain: { type: String, required: true },
+    facingPalace: { type: String, required: true },
+    sittingPalace: { type: String, required: true },
+    chartType: { type: String, enum: ['CHINH_HUONG', 'KIEM_HUONG', 'TIEU_KHONG_VONG', 'DAI_KHONG_VONG'], default: 'CHINH_HUONG' },
+    isSubstitution: { type: Boolean, default: false },
+    substitutionInfo: { type: String, default: '' },
+    deviationDegree: { type: Number, default: 0 },
+    period: { type: Number, required: true, min: 1, max: 9, default: 9 },
+    buildingYear: { type: Number, default: null },
+    title: { type: String, default: 'Lá Số Phong Thủy Nhà Ở' },
+    ownerBirthInfo: {
+      birthDate: { type: String, default: null },
+      birthHour: { type: Number, default: null },
+      gender: { type: Number, enum: [0, 1], default: 1 },
+      genderLabel: { type: String, default: 'Nam' },
+      solarYear: { type: Number, default: null },
+      cungPhi: { type: String, default: null },
+      menhNguHanh: { type: String, default: null },
+      menhTrachGroup: { type: String, default: null },
+      houseTrachGroup: { type: String, default: null },
+      isMenhTrachMatch: { type: Boolean, default: null },
+      menhTrachSummary: { type: String, default: '' }
+    },
+    analysisSnapshot: { type: Object, default: {} },
+    rating: { type: Number, default: null },
+    feedback: { type: String, default: null },
+    aiInterpretation: { type: mongoose.Schema.Types.Mixed, default: null },
+    chatTokens: { type: Number, default: 0 },
+    isPinned: { type: Boolean, default: false },
+    status: { type: String, enum: ['active', 'locked'], default: 'active' },
+    isPublic: { type: Boolean, default: false },
+    isDeleted: { type: Boolean, default: false }
+  }
+  ```
+- **Cấu trúc Cửu Cung (Cell Schema trong `analysisSnapshot.grid`):**
+  - `palaceKey`: Mã cung (`KHAM`, `KHON`, `CHAN`, `TON`, `TRUNG`, `CAN`, `DOAI`, `CAN_NE`, `LY`).
+  - `baseStar`: Sao nguyên thủy Lạc Thư (1-9).
+  - `periodStar`: Vận tinh (1-9).
+  - `mountainStar`: Sơn tinh (tọa tinh).
+  - `waterStar`: Hướng tinh (thủy tinh).
+  - `mountainFlight` / `waterFlight`: Thuận phi (`FORWARD`) hay Nghịch phi (`REVERSE`).
+  - `auspiciousLevel`: Mức độ cát hung (`DAI_CAT`, `CAT`, `BINH`, `HUNG`, `DAI_HUNG`).
+  - `batTrachStar`: Tên sao Bát Trạch theo Cung Phi gia chủ (`Sinh Khí`, `Diên Niên`, `Thiên Y`, `Phục Vị`, `Tuyệt Mệnh`, `Ngũ Quỷ`, `Lục Sát`, `Họa Hại`).
+  - `batTrachType`: Phân loại Bát Trạch (`CAT`, `HUNG`, `TRUNG_TINH`).
+  - `batTrachDesc`: Ý nghĩa phong thủy ứng với bản mệnh gia chủ.
+- **Chỉ mục phụ (Compound Indexes):**
+  - `{"userId": 1, "isDeleted": 1, "isPinned": -1, "createdAt": -1}`: Tối ưu phân trang và ghim bản ghi.
+  - `{"isPublic": 1, "isDeleted": 1, "createdAt": -1}`: Tối ưu tra cứu liên kết chia sẻ công khai.
+
+### 2.7 Bảng Hội thoại dùng chung (`conversations`)
 - **Model:** [Conversation.js](file:///t:/Phongthuy/backend/src/core/models/Conversation.js)
 - **Cấu trúc Schema:**
   ```javascript
   {
     _id: { type: String, default: uuidv7 },
-    system: { type: String, required: true, enum: ['iching', 'bazi', 'ziwei', 'marriage'] },
+    system: { type: String, required: true, enum: ['iching', 'bazi', 'ziwei', 'marriage', 'feixing'] },
     recordId: { type: String, required: true, index: true },
     userId: { type: String, required: true },
     summary: { type: String, default: '' },

@@ -140,7 +140,21 @@ const sectionIcons = {
   marriage_6: TrendingUp,   // Đồng điệu đại vận
   marriage_7: Users,        // Trụ năm & Trụ tháng (Gia đạo)
   marriage_8: User,         // Trụ giờ (Con cái)
-  marriage_9: BookOpen      // Kết luận & Hóa giải
+  marriage_9: BookOpen,     // Kết luận & Hóa giải
+
+  // Huyền Không Phi Tinh (Fei Xing)
+  feixing_ch_1: Compass,     // Tọa Hướng & Tinh Bàn
+  feixing_ch_2: Sparkles,    // Mệnh Trạch Tương Phối
+  feixing_ch_3: Award,       // Cửu Cung Chi Tiết
+  feixing_ch_4: Layers,      // Bố Trí Nội Thất
+  feixing_ch_5: ShieldAlert, // Pháp Bảo & Hóa Sát
+  feixing_ch_6: BookOpen,    // Chiến Lược An Gia
+  feixing_1: Compass,
+  feixing_2: Sparkles,
+  feixing_3: Award,
+  feixing_4: Layers,
+  feixing_5: ShieldAlert,
+  feixing_6: BookOpen
 };
 
 const sectionColors = {
@@ -255,7 +269,21 @@ const sectionColors = {
   marriage_6: "from-rose-700 to-slate-900",
   marriage_7: "from-rose-500 to-pink-500",
   marriage_8: "from-pink-400 to-rose-500",
-  marriage_9: "from-rose-800 to-rose-950"
+  marriage_9: "from-rose-800 to-rose-950",
+
+  // FeiXing Chapters
+  feixing_ch_1: "from-amber-600 to-orange-700",
+  feixing_ch_2: "from-amber-500 to-yellow-600",
+  feixing_ch_3: "from-orange-500 to-amber-600",
+  feixing_ch_4: "from-amber-700 to-amber-900",
+  feixing_ch_5: "from-rose-600 to-amber-700",
+  feixing_ch_6: "from-amber-800 to-slate-900",
+  feixing_1: "from-amber-600 to-orange-700",
+  feixing_2: "from-amber-500 to-yellow-600",
+  feixing_3: "from-orange-500 to-amber-600",
+  feixing_4: "from-amber-700 to-amber-900",
+  feixing_5: "from-rose-600 to-amber-700",
+  feixing_6: "from-amber-800 to-slate-900"
 };
 
 const themeStyles = {
@@ -323,6 +351,19 @@ const themeStyles = {
     playAllBanner: "from-rose-950 via-pink-950 to-slate-900 border-rose-500/30",
     playAllBtn: "bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white shadow-rose-900/40",
     bannerBadge: "bg-rose-500/20 text-rose-300 border-rose-500/30"
+  },
+  feixing: {
+    border: "border-amber-200/90 hover:border-amber-400",
+    shadow: "shadow-amber-950/5 hover:shadow-amber-900/10",
+    hoverBg: "hover:bg-amber-50/30",
+    chevronActive: "bg-amber-100 text-amber-700 border-amber-300",
+    consultBtn: "bg-amber-50 hover:bg-amber-100 text-amber-800 hover:text-amber-950 border-amber-200/80 hover:border-amber-300",
+    consultIcon: "text-amber-600",
+    chapterBadge: "bg-amber-100/90 text-amber-950 border-amber-300 font-black",
+    prose: "prose-amber font-serif prose-headings:font-sans prose-headings:font-bold prose-headings:text-amber-950 prose-a:text-amber-700 prose-strong:text-amber-950 prose-code:text-amber-700 prose-code:bg-amber-50",
+    playAllBanner: "from-amber-950 via-orange-950 to-slate-900 border-amber-500/30",
+    playAllBtn: "bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white shadow-amber-900/40",
+    bannerBadge: "bg-amber-500/20 text-amber-300 border-amber-500/30"
   }
 };
 

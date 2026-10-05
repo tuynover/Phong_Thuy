@@ -40,11 +40,33 @@ export default function PdfExportModal({
         { id: 'marriage_compare', label: 'Đối Chiếu 5 Tiêu Chí Cổ Học & Tỷ Lệ Ngũ Hành', desc: 'Nạp Âm, Thiên Can, Địa Chi Phu Thê, Cung Phi Bát Trạch, Hỷ Kỵ Dụng Thần & Tỷ lệ 5 hành' },
         { id: 'marriage_pillars', label: 'Cấu Trúc Tứ Trụ Can Chi (Nam Trên - Nữ Dưới)', desc: 'Tứ Trụ Chồng & Vợ: Thập Thần, Can Chi, Nạp Âm, Tàng Can' }
       );
+    } else if (system === 'feixing' || system === 'xuan-kong') {
+      chartSections.push(
+        { id: 'feixing_overview', label: 'Tổng Quan Tinh Bàn & Tứ Đại Cách Cục', desc: 'Tọa, Hướng, Vận, Kiêm/Chính Hướng, Nguyên Long và độ lệch' },
+        { id: 'feixing_grid', label: 'Cửu Cung Phi Tinh Trạch Bàn (Ma Trận 3x3)', desc: 'Sơn Tinh, Hướng Tinh, Vận Tinh, Cát Hung & Cặp Sao từng phương vị' },
+        { id: 'feixing_menhtrach', label: 'Sơ Đồ Mệnh Trạch Tương Phối', desc: 'Bát Trạch Cung Phi & Ngũ Hành Dụng Thần kết hợp Cung Tọa' }
+      );
     }
 
     const interpretSections = [];
     if (hasInterpretation) {
-      if (system === 'iching' || system === 'hexagrams') {
+      if (system === 'feixing' || system === 'xuan-kong') {
+        const isVip = interpretationMode === 'vip' || (rawInterpretation && /(?:CHƯƠNG|Chương)\s*1/i.test(rawInterpretation));
+        if (isVip) {
+          interpretSections.push(
+            { id: 'ch1', label: 'Chương 1: Tổng Quan Tinh Bàn & Vận Đương Thời', desc: 'Đặc tính Vận 9 Ly Hỏa, Tứ Đại Cách Cục & khí trường trạch đất' },
+            { id: 'ch2', label: 'Chương 2: Phân Tích Cửa Chính & Khí Khẩu', desc: 'Phương vị nạp khí, khí khẩu nạp tài lộc và giải pháp kích tài' },
+            { id: 'ch3', label: 'Chương 3: Chi Tiết Cửu Cung & Sự Phối Hợp Sơn - Hướng', desc: 'Cặp sao Sơn - Hướng tại 9 cung, vượng suy sinh khắc và công năng phòng' },
+            { id: 'ch4', label: 'Chương 4: Phối Hợp Bát Trạch & Ngũ Hành Dụng Thần', desc: 'Đối chiếu Cung Phi, Hỷ Dụng Thần bản mệnh gia chủ với cung vị nhà' },
+            { id: 'ch5', label: 'Chương 5: Phương Án Hóa Sát & Kích Hoạt Tài Lộc', desc: 'Bố trí Bếp Táo, Ban Thờ, Phòng Ngủ Master, Điểm đặt Nước & pháp bảo' },
+            { id: 'ch6', label: 'Chương 6: Lời Khuyên Ứng Kỳ & Lưu Niên Phi Tinh', desc: 'Niên tinh phi đáo, thời điểm cát hung phát tác và sách lược an gia' }
+          );
+        } else {
+          interpretSections.push(
+            { id: 'intro', label: 'Toàn Văn Luận Giải Phong Thủy Huyền Không', desc: 'Luận giải thẩm định chi tiết toàn diện từ hệ thống AI' }
+          );
+        }
+      } else if (system === 'iching' || system === 'hexagrams') {
         const isVip = interpretationMode === 'vip' || (rawInterpretation && /(?:CHƯƠNG|Chương)\s*1/i.test(rawInterpretation));
         if (isVip) {
           interpretSections.push(

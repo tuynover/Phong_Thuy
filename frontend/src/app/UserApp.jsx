@@ -33,6 +33,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import BaziBoard from '@/features/bazi/BaziBoard';
 import ZiweiBoard from '@/features/ziwei/ZiweiBoard';
 import MarriageBoard from '@/features/marriage/MarriageBoard';
+import FeiXingBoard from '@/features/feixing/FeiXingBoard';
 import DateSelectionBoard from '@/features/xemngay/DateSelectionBoard';
 import BlogBoard from '@/features/blog/BlogBoard';
 import Header from '@/components/layout/Header';
@@ -70,6 +71,7 @@ export default function UserApp({ onSwitchToAdmin }) {
     if (pathname.startsWith('/ziwei/record/') || pathname === '/ziwei' || pathname === '/ziwei/ban-than') return 'ziwei';
     if (pathname.startsWith('/iching/record/') || pathname === '/iching') return 'iching';
     if (pathname.startsWith('/marriage/record/') || pathname === '/marriage') return 'marriage';
+    if (pathname.startsWith('/feixing/record/') || pathname === '/feixing' || pathname.startsWith('/huyen-khong')) return 'feixing';
     if (pathname === '/xemngay' || pathname.startsWith('/xemngay/')) return 'xemngay';
     if (pathname === '/blog' || pathname.startsWith('/blog/')) return 'blog';
     if (pathname === '/about') return 'about';
@@ -174,6 +176,14 @@ export default function UserApp({ onSwitchToAdmin }) {
       }
       return;
     }
+
+    // 5. Huyền Không Phi Tinh
+    const feixingMatch = path.match(/^\/(?:feixing|huyen-khong)\/record\/([a-zA-Z0-9-]+)/);
+    if (feixingMatch) {
+      const id = feixingMatch[1];
+      setHistoricalFeiXingId(id);
+      return;
+    }
   }, []);
 
   useEffect(() => {
@@ -219,6 +229,7 @@ export default function UserApp({ onSwitchToAdmin }) {
       bazi: "Lập Lá Số Tứ Trụ Bát Tự & Phân Tích Ngũ Hành - Phong Thủy AI",
       ziwei: "Lập Mệnh Bàn Tử Vi Đẩu Số 12 Cung - Phong Thủy AI",
       marriage: "Xem Tuổi Kết Hôn & Hợp Hôn Gia Đạo - Phong Thủy AI",
+      feixing: "Lập Tinh Bàn Huyền Không Phi Tinh - Phong Thủy AI",
       xemngay: "Xem Ngày Tốt Hoàng Đạo & Cát Hung Trạch Cát - Phong Thủy AI",
       about: "Giới Thiệu - Phong Thủy Luận Giải AI",
       privacy: "Chính Sách Bảo Mật - Phong Thủy Luận Giải AI",
@@ -272,6 +283,7 @@ export default function UserApp({ onSwitchToAdmin }) {
       bazi: "Lập lá số Tứ Trụ Bát Tự chính xác theo giờ sinh. Phân tích ngũ hành vượng suy, Dụng thần, Hỷ thần, Thần sát và vận hạn cuộc đời.",
       ziwei: "Lập mệnh bàn Tử Vi Đẩu Số 12 cung chi tiết. An sao chính tinh, phụ tinh, Tứ Hóa, Đại Vận, Tiểu Vận và luận giải tử vi chuyên sâu.",
       marriage: "Xem tuổi kết hôn, luận giải Bát Tự Hợp Hôn gia đạo. Phân tích xung hợp Thiên Can Địa Chi, Cung Mệnh và giải pháp cải vận gia đạo.",
+      feixing: "Lập tinh bàn Huyền Không Phi Tinh theo 24 sơn hướng và Tam Nguyên Cửu Vận. Khảo sát vượng suy tài lộc, bố trí nội thất phòng và pháp bảo phong thủy.",
       xemngay: "Tra cứu ngày tốt hoàng đạo, chọn ngày đẹp khai trương, động thổ, cưới hỏi, xuất hành theo lịch pháp Âm Dương và Cát Thần.",
       blog: "Tổng hợp bài viết chiêm nghiệm, kiến thức phong thủy cổ học, Kinh Dịch, Bát Tự và hướng dẫn ứng dụng phong thủy trong cuộc sống.",
       history: "Quản lý và tra cứu lịch sử luận giải Kinh Dịch, lá số Bát Tự, Tử Vi Đẩu Số và Hợp Hôn cá nhân.",
@@ -342,7 +354,7 @@ export default function UserApp({ onSwitchToAdmin }) {
       const newUrl = `/profile`;
       setCurrentPath(newUrl);
       window.history.pushState({ path: newUrl }, '', newUrl);
-    } else if (['iching', 'bazi', 'ziwei', 'marriage'].includes(mode) && slug === null) {
+    } else if (['iching', 'bazi', 'ziwei', 'marriage', 'feixing'].includes(mode) && slug === null) {
       const newUrl = `/${mode}`;
       setCurrentPath(newUrl);
       window.history.pushState({ path: newUrl }, '', newUrl);
@@ -464,6 +476,9 @@ export default function UserApp({ onSwitchToAdmin }) {
   // Ziwei State
   const [historicalZiweiId, setHistoricalZiweiId] = useState(null);
   const [autoSubmitZiwei, setAutoSubmitZiwei] = useState(null);
+
+  // FeiXing State
+  const [historicalFeiXingId, setHistoricalFeiXingId] = useState(null);
 
   // I Ching State
   const [mode, _setMode] = useState(() => localStorage.getItem('mode') || 'coin'); // 'coin' | 'manual' | 'maihoa'
@@ -799,6 +814,17 @@ export default function UserApp({ onSwitchToAdmin }) {
     setAppMode('marriage');
     if (id && typeof window !== 'undefined') {
       const newUrl = `/marriage/record/${id}`;
+      window.history.pushState({ path: newUrl }, '', newUrl);
+    }
+  }, []);
+
+  const handleViewHistoricalFeiXing = useCallback((record) => {
+    if (!record) return;
+    const id = record._id || record.id;
+    setHistoricalFeiXingId(id);
+    setAppMode('feixing');
+    if (id && typeof window !== 'undefined') {
+      const newUrl = `/feixing/record/${id}`;
       window.history.pushState({ path: newUrl }, '', newUrl);
     }
   }, []);
@@ -1339,6 +1365,18 @@ export default function UserApp({ onSwitchToAdmin }) {
           )}
         </div>
         
+        {/* SYSTEM: HUYỀN KHÔNG PHI TINH */}
+        <div className={`${appMode === 'feixing' ? 'block' : 'hidden'}`}>
+          <ErrorBoundary>
+            <FeiXingBoard 
+              user={user} 
+              onRequireLogin={handleRequireLogin} 
+              historicalRecordId={historicalFeiXingId}
+              onInvalidateHistory={invalidateHistoryCache}
+            />
+          </ErrorBoundary>
+        </div>
+
         {/* SYSTEM 6: DATE SELECTION */}
         <div className={`${appMode === 'xemngay' ? 'block' : 'hidden'}`}>
           <DateSelectionBoard user={user} setUser={setUser} setIsAuthModalOpen={setIsAuthModalOpen} />
@@ -1362,6 +1400,7 @@ export default function UserApp({ onSwitchToAdmin }) {
               onViewBazi={handleViewHistoricalBazi} 
               onViewZiwei={handleViewHistoricalZiwei}
               onViewMarriage={handleViewHistoricalMarriage}
+              onViewFeiXing={handleViewHistoricalFeiXing}
               preloadedData={preloadedHistory}
               onCacheInvalidate={invalidateHistoryCache}
               onSaveCache={setPreloadedHistory}

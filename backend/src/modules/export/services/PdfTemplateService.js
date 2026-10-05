@@ -12,6 +12,7 @@ const { generateBaziHtml } = require('../templates/baziTemplate');
 const { generateZiweiHtml } = require('../templates/ziweiTemplate');
 const { generateIChingHtml } = require('../templates/ichingTemplate');
 const { generateMarriageHtml } = require('../templates/marriageTemplate');
+const { generateFeiXingHtml } = require('../templates/feixingTemplate');
 const { parseInterpretationSections } = require('../templates/templateUtils');
 
 module.exports = {
@@ -19,5 +20,6 @@ module.exports = {
   generateZiweiHtml,
   generateIChingHtml,
   generateMarriageHtml,
+  generateFeiXingHtml,
   parseInterpretationSections
 };

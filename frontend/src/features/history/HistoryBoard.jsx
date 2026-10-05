@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { AuthContext } from '@/context/AuthContext';
-import { getIChingHistory, getBaziHistory, getZiweiHistory, getMarriageHistory, rateIChing, rateBazi, rateZiwei, rateMarriage, deleteCalculation, getIChingRecord, getBaziRecord, getZiweiRecord, getMarriageRecord, pinCalculation, togglePublicCalculation, getUserTags, updateRecordTags, createTag } from '@/services/api';
-import { Star, Clock, Calendar, Trash2, X, Info, Check, AlertTriangle, Loader2, ChevronLeft, ChevronRight, Pin, Eye, Share2, Tag, Filter, Search, Globe, Plus, Folder, User, ChevronDown, ChevronUp } from 'lucide-react';
+import { getIChingHistory, getBaziHistory, getZiweiHistory, getMarriageHistory, getFeiXingHistory, rateIChing, rateBazi, rateZiwei, rateMarriage, rateFeiXing, deleteCalculation, getIChingRecord, getBaziRecord, getZiweiRecord, getMarriageRecord, getFeiXingRecord, pinCalculation, togglePublicCalculation, getUserTags, updateRecordTags, createTag } from '@/services/api';
+import { Star, Clock, Calendar, Trash2, X, Info, Check, AlertTriangle, Loader2, ChevronLeft, ChevronRight, Pin, Eye, Share2, Tag, Filter, Search, Globe, Plus, Folder, User, ChevronDown, ChevronUp, Compass } from 'lucide-react';
 import FloatingNotificationToast from '@/components/common/FloatingNotificationToast';
 import CustomSelect from '@/components/common/CustomSelect';
 import CustomDatePicker from '@/components/common/CustomDatePicker';
@@ -9,6 +9,7 @@ import IChingHistoryCard from './components/IChingHistoryCard';
 import BaziHistoryCard from './components/BaziHistoryCard';
 import ZiweiHistoryCard from './components/ZiweiHistoryCard';
 import MarriageHistoryCard from './components/MarriageHistoryCard';
+import FeiXingHistoryCard from './components/FeiXingHistoryCard';
 
 const LUNAR_HOURS_MAP = [
   "Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"
@@ -22,22 +23,26 @@ const HISTORY_SLUG_MAP = {
   'tu-vi': 'ziwei',
   'ziwei': 'ziwei',
   'hon-nhan': 'marriage',
-  'marriage': 'marriage'
+  'marriage': 'marriage',
+  'huyen-khong': 'feixing',
+  'feixing': 'feixing'
 };
 
 const TAB_TO_HISTORY_SLUG = {
   'iching': 'kinh-dich',
   'bazi': 'bat-tu',
   'ziwei': 'tu-vi',
-  'marriage': 'hon-nhan'
+  'marriage': 'hon-nhan',
+  'feixing': 'huyen-khong'
 };
 
-const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage, preloadedData, onCacheInvalidate, active, onSaveCache }) => {
+const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage, onViewFeiXing, preloadedData, onCacheInvalidate, active, onSaveCache }) => {
     const { user } = useContext(AuthContext);
     const [hexagrams, setHexagrams] = useState([]);
     const [bazis, setBazis] = useState([]);
     const [ziweis, setZiweis] = useState([]);
     const [marriages, setMarriages] = useState([]);
+    const [feixings, setFeixings] = useState([]);
     const [toastMsg, setToastMsg] = useState('');
     const [loading, setLoading] = useState(() => {
         if (preloadedData && preloadedData.hexagrams) {
@@ -175,6 +180,7 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
         if (activeTab === 'bazi') return bazis;
         if (activeTab === 'ziwei') return ziweis;
         if (activeTab === 'marriage') return marriages;
+        if (activeTab === 'feixing') return feixings;
         return [];
     };
 
@@ -191,7 +197,9 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
             ? { text: 'text-blue-800', bg: 'bg-blue-800 hover:bg-blue-900', border: 'border-blue-100', textAccent: 'text-blue-600' }
             : activeTab === 'ziwei'
                 ? { text: 'text-purple-800', bg: 'bg-purple-800 hover:bg-purple-900', border: 'border-purple-100', textAccent: 'text-purple-600' }
-                : { text: 'text-rose-800', bg: 'bg-rose-800 hover:bg-rose-900', border: 'border-rose-100', textAccent: 'text-rose-600' };
+                : activeTab === 'marriage'
+                    ? { text: 'text-rose-800', bg: 'bg-rose-800 hover:bg-rose-900', border: 'border-rose-100', textAccent: 'text-rose-600' }
+                    : { text: 'text-amber-700', bg: 'bg-amber-600 hover:bg-amber-700', border: 'border-amber-200', textAccent: 'text-amber-600' };
 
     const showConfirm = (message, onConfirm) => {
         setDialog({ type: 'confirm', message, onConfirm });
@@ -370,16 +378,18 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
             if (filters.birthHour !== undefined && filters.birthHour !== '') params.birthHour = filters.birthHour;
             if (filters.search) params.search = filters.search;
 
-            const [hexRes, baziRes, ziweiRes, marriageRes] = await Promise.all([
+            const [hexRes, baziRes, ziweiRes, marriageRes, feixingRes] = await Promise.all([
                 getIChingHistory(userId, params),
                 getBaziHistory(userId, params),
                 getZiweiHistory(userId, params),
-                getMarriageHistory(userId, params)
+                getMarriageHistory(userId, params),
+                getFeiXingHistory(userId, params).catch(() => ({ data: [] }))
             ]);
             setHexagrams(hexRes.data);
             setBazis(baziRes.data);
             setZiweis(ziweiRes.data);
             setMarriages(marriageRes.data);
+            setFeixings(feixingRes.data || []);
         } catch (error) {
             console.error("Error fetching history", error);
         }
@@ -400,6 +410,8 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                 res = await getZiweiRecord(id);
             } else if (type === 'marriage') {
                 res = await getMarriageRecord(id);
+            } else if (type === 'feixing') {
+                res = await getFeiXingRecord(id);
             }
             if (res && res.data) {
                 prefetchedDetails.current[cacheKey] = res.data;
@@ -428,6 +440,26 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
             setActionLoading(false);
         }
         onViewMarriage(detail);
+    };
+
+    const handleViewFeiXingDetail = async (record) => {
+        const cacheKey = `feixing:${record._id}`;
+        let detail = prefetchedDetails.current[cacheKey];
+        if (!detail || detail === 'loading') {
+            setActionLoading(true);
+            try {
+                const res = await getFeiXingRecord(record._id);
+                detail = res.data;
+                prefetchedDetails.current[cacheKey] = detail;
+            } catch (err) {
+                console.error("Lỗi khi tải chi tiết tinh bàn:", err);
+                showAlert("Không thể tải thông tin chi tiết tinh bàn.", "error");
+                setActionLoading(false);
+                return;
+            }
+            setActionLoading(false);
+        }
+        if (onViewFeiXing) onViewFeiXing(detail);
     };
 
     const handleViewHexagramDetail = async (record) => {
@@ -484,8 +516,11 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
             } else if (type === 'marriage') {
                 await rateMarriage(id, rating, feedback);
                 setMarriages(marriages.map(m => m._id === id ? { ...m, rating, feedback } : m));
+            } else if (type === 'feixing') {
+                await rateFeiXing(id, rating, feedback);
+                setFeixings(feixings.map(f => f._id === id ? { ...f, rating, feedback } : f));
             }
-            const cacheKey = `${type === 'iching' ? 'iching' : type === 'bazi' ? 'bazi' : type === 'ziwei' ? 'ziwei' : 'marriage'}:${id}`;
+            const cacheKey = `${type}:${id}`;
             delete prefetchedDetails.current[cacheKey];
             if (onCacheInvalidate) onCacheInvalidate();
         } catch (err) {
@@ -505,8 +540,10 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                     setZiweis(ziweis.filter(t => t._id !== id));
                 } else if (type === 'marriage') {
                     setMarriages(marriages.filter(m => m._id !== id));
+                } else if (type === 'feixing') {
+                    setFeixings(feixings.filter(f => f._id !== id));
                 }
-                const cacheKey = `${type === 'iching' || type === 'hexagrams' ? 'iching' : type === 'bazi' ? 'bazi' : type === 'ziwei' ? 'ziwei' : 'marriage'}:${id}`;
+                const cacheKey = `${type}:${id}`;
                 delete prefetchedDetails.current[cacheKey];
                 if (onCacheInvalidate) onCacheInvalidate();
                 showAlert("Xóa bản ghi lịch sử thành công.", "success");
@@ -535,6 +572,8 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                 setZiweis(updateList(ziweis));
             } else if (type === 'marriage') {
                 setMarriages(updateList(marriages));
+            } else if (type === 'feixing') {
+                setFeixings(updateList(feixings));
             }
             
             if (onCacheInvalidate) onCacheInvalidate();
@@ -561,6 +600,8 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                 setZiweis(prev => updatePublicInList(prev));
             } else if (type === 'marriage') {
                 setMarriages(prev => updatePublicInList(prev));
+            } else if (type === 'feixing') {
+                setFeixings(prev => updatePublicInList(prev));
             }
 
             if (preloadedData) {
@@ -570,6 +611,7 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                 else if (type === 'bazi') key = 'bazis';
                 else if (type === 'ziwei') key = 'tuvis';
                 else if (type === 'marriage') key = 'marriages';
+                else if (type === 'feixing') key = 'feixings';
 
                 if (key && updatedPreloaded[key]) {
                     updatedPreloaded[key] = updatePublicInList(updatedPreloaded[key]);
@@ -652,6 +694,12 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                     className={`flex-1 sm:flex-none px-4 py-2 text-xs md:text-base rounded-full font-bold transition-all ${activeTab === 'marriage' ? 'bg-rose-800 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
                 >
                     Hôn Nhân ({user?.stats?.marriageCount !== undefined ? user.stats.marriageCount : marriages.length})
+                </button>
+                <button 
+                    onClick={() => handleTabSwitch('feixing')}
+                    className={`flex-1 sm:flex-none px-4 py-2 text-xs md:text-base rounded-full font-bold transition-all ${activeTab === 'feixing' ? 'bg-amber-600 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
+                >
+                    Huyền Không ({user?.stats?.feixingCount !== undefined ? user.stats.feixingCount : feixings.length})
                 </button>
             </div>
 
@@ -933,6 +981,23 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                         key={record._id}
                         record={record}
                         onView={handleViewMarriageDetail}
+                        onPreload={preloadRecord}
+                        onTogglePublic={handleTogglePublic}
+                        onCopyLink={handleCopyLink}
+                        onTogglePin={handleTogglePin}
+                        onOpenTagModal={setTagModalRecord}
+                        onDelete={handleDelete}
+                        onRate={handleRate}
+                        renderStars={renderStars}
+                    />
+                ))}
+
+                {activeTab === 'feixing' && feixings.length === 0 && <p className="text-center text-gray-500">Không có</p>}
+                {activeTab === 'feixing' && paginatedList.map((record) => (
+                    <FeiXingHistoryCard
+                        key={record._id}
+                        record={record}
+                        onView={handleViewFeiXingDetail}
                         onPreload={preloadRecord}
                         onTogglePublic={handleTogglePublic}
                         onCopyLink={handleCopyLink}

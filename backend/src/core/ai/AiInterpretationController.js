@@ -2,6 +2,7 @@ const IChingAiController = require('../../modules/iching/controllers/IChingAiCon
 const BaziAiController = require('../../modules/bazi/controllers/BaziAiController');
 const ZiweiAiController = require('../../modules/ziwei/controllers/ZiweiAiController');
 const MarriageAiController = require('../../modules/bazi/controllers/MarriageAiController');
+const FeiXingAiController = require('../../modules/feixing/controllers/FeiXingAiController');
 
 class AiInterpretationController {
     static interpretHexagram = IChingAiController.interpretHexagram;
@@ -12,6 +13,8 @@ class AiInterpretationController {
     static chatZiwei = ZiweiAiController.chatZiwei;
     static interpretMarriage = MarriageAiController.interpretMarriage;
     static chatMarriage = MarriageAiController.chatMarriage;
+    static interpretFeiXing = FeiXingAiController.interpretFeiXing;
+    static chatFeiXing = FeiXingAiController.chatFeiXing;
 }
 
 module.exports = AiInterpretationController;

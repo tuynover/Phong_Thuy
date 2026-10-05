@@ -40,6 +40,14 @@ export const rateZiwei = (id, rating, feedback) => axios.put(`${API_URL}/ziwei/$
 export const getZiweiChatMessages = (id, page = 1, limit = 20) => axios.get(`${API_URL}/ziwei/${id}/messages?page=${page}&limit=${limit}`);
 export const linkZiwei = (id, userId) => axios.put(`${API_URL}/history/ziwei/${id}/link`, { userId });
 
+// FeiXing (Huyền Không Phi Tinh) API Endpoints
+export const calculateFeiXing = (payload) => axios.post(`${API_URL}/feixing/calculate`, payload);
+export const getFeiXingRecord = (id) => axios.get(`${API_URL}/feixing/record/${id}`);
+export const getFeiXingHistory = (userId, params) => axios.get(`${API_URL}/feixing/history/${userId}`, { params });
+export const rateFeiXing = (id, rating, feedback) => axios.post(`${API_URL}/feixing/record/${id}/rate`, { rating, feedback });
+export const togglePublicFeiXing = (id) => axios.post(`${API_URL}/feixing/record/${id}/toggle-public`);
+export const deleteFeiXing = (id) => axios.delete(`${API_URL}/feixing/record/${id}`);
+
 // Notifications & User Profile API
 export const getNotifications = () => axios.get(`${API_URL}/notifications`);
 export const markNotificationRead = (id) => axios.put(`${API_URL}/notifications/${id}/read`);

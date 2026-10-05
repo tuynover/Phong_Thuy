@@ -91,7 +91,7 @@ VITE_API_URL=http://localhost:3001/api
    node --check src/modules/bazi/controllers/BaziController.js
    ```
 
-2. **Chạy Unit Test Suite Backend (Jest - 35 Test Suites, 257/257 Tests PASSED):**
+2. **Chạy Unit Test Suite Backend (Jest - 45 Test Suites, 324/324 Tests PASSED 100%):**
    ```bash
    cd backend
    npm test
@@ -101,20 +101,26 @@ VITE_API_URL=http://localhost:3001/api
    npm run test:regression
    ```
 
-3. **Chạy Unit Test Suite Frontend (Vitest - 4 Test Files, 29/29 Tests PASSED):**
+3. **Kiểm tra Linter Frontend (ESLint - 0 errors):**
+   ```bash
+   cd frontend
+   npm run lint
+   ```
+
+4. **Chạy Unit Test Suite Frontend (Vitest - 9 Test Suites, 52/52 Tests PASSED 100%):**
    ```bash
    cd frontend
    npm test
    ```
 
-4. **Kiểm tra Đóng gói Production Build:**
+5. **Kiểm tra Đóng gói Production Build:**
    Đảm bảo toàn bộ import, CSS và cú pháp JSX biên dịch sạch sẽ không có lỗi:
    ```bash
    cd frontend
    npm run build
    ```
 
-5. **Quy tắc Kiểm thử Giao diện trên Trình duyệt (Chrome DevTools Verification):**
+6. **Quy tắc Kiểm thử Giao diện trên Trình duyệt (Chrome DevTools Verification):**
    Theo quy định bắt buộc trong `AGENTS.md`, mọi thay đổi liên quan đến giao diện người dùng (UI/Frontend) phải được khởi chạy và tương tác trực tiếp trên trình duyệt bằng `chrome-devtools-mcp` (click button, điền form, mở popup/modal, chuyển tab, kiểm tra console log) để đảm bảo **100% không có lỗi console (0 console errors)** trước khi hoàn thành nhiệm vụ.
 
 ---

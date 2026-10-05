@@ -14,7 +14,7 @@ Dưới đây là danh mục toàn bộ các thư viện bên thứ ba (Dependen
 | `ioredis` | `^5.4.2` | MIT | Client Redis hiệu năng cao phục vụ Anti-Spam lock, Rate limiting, OTP storage, Blacklist tokens và Caching L2. |
 | `lunar-javascript` | `1.7.7` | MIT | Lõi tính toán lịch pháp âm dương, can chi, nhật nguyệt phục vụ cho cả Kinh Dịch, Bát Tự và Hợp Hôn. |
 | `iztro` | `2.5.8` | MIT | Thư viện chuyên biệt dành cho Tử Vi Bắc Phái, hỗ trợ an sao 12 cung vị. |
-| `@google/generative-ai`| `^0.24.1` | Apache-2.0 | SDK gọi mô hình Gemini 1.5 Pro / Gemini 2.0 / 3.1 Flash để sinh văn bản luận giải AI. |
+| `@google/generative-ai`| `^0.24.1` | Apache-2.0 | SDK gọi mô hình Gemini 3.5 Flash Lite (Ưu tiên 1), Gemini 3.1 Flash Lite (Ưu tiên 2) để sinh văn bản luận giải AI. |
 | `jsonwebtoken` | `^9.0.3` | MIT | Tạo và xác thực mã JWT phục vụ cho hệ thống Authentication. |
 | `bcrypt` | `^5.1.1` | MIT | Mã hóa một chiều (hashing) mật khẩu người dùng với salt rounds trước khi lưu MongoDB. |
 | `uuid` | `^14.0.0` | MIT | Sinh mã định danh duy nhất theo chuẩn UUIDv7 làm khóa chính `_id` cho cơ sở dữ liệu. |
@@ -36,7 +36,7 @@ Dưới đây là danh mục toàn bộ các thư viện bên thứ ba (Dependen
 ### DevDependencies (Backend):
 | Tên thư viện | Phiên bản | Bản quyền (License) | Mục đích |
 | :--- | :--- | :--- | :--- |
-| `jest` | `^30.4.2` | MIT | Framework kiểm thử tự động (Unit Test / Integration Test) với 35 test suites / 257 tests. |
+| `jest` | `^30.4.2` | MIT | Framework kiểm thử tự động (Unit Test / Integration Test) với 45 test suites / 324 tests PASS 100%. |
 
 ---
 
@@ -67,9 +67,9 @@ Dưới đây là danh mục toàn bộ các thư viện bên thứ ba (Dependen
 ### DevDependencies (Frontend):
 | Tên thư viện | Phiên bản | Bản quyền (License) | Mục đích |
 | :--- | :--- | :--- | :--- |
-| `vitest` | `^5.0.0` | MIT | Test runner tốc độ cao tích hợp chặt chẽ với Vite (29 tests PASS). |
+| `vitest` | `^5.0.0` | MIT | Test runner tốc độ cao tích hợp chặt chẽ với Vite (9 test suites / 52 tests PASS 100%). |
 | `@testing-library/react` | `^16.3.3` | MIT | Thư viện kiểm thử render và tương tác người dùng trên React components. |
 | `@testing-library/jest-dom` | `^7.0.1` | MIT | Mở rộng các hàm matcher DOM (toBeInTheDocument, toHaveClass...). |
 | `jsdom` | `^29.1.1` | MIT | Môi trường giả lập DOM trên Node.js phục vụ chạy Vitest. |
-| `eslint` | `^9.39.4` | MIT | Linter kiểm tra tĩnh cú pháp và chất lượng mã nguồn JavaScript/React. |
+| `eslint` | `^9.39.4` | MIT | Linter kiểm tra tĩnh cú pháp và chất lượng mã nguồn JavaScript/React (0 errors). |
 

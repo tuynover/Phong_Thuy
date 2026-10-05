@@ -30,7 +30,12 @@ AI Agent có vai trò:
   - **L1 RAM + L2 Redis Hybrid:** Profile User phải được lưu vết ở bộ nhớ RAM Local L1 (`userProfileRamCache`) kết hợp L2 Redis. Phải đọc RAM Local trước để đạt tốc độ phản hồi sub-millisecond (< 1ms), chỉ gọi Redis L2 khi RAM miss.
   - **IPv4 Forcing & Fast Fail Timeout:** Cấu hình `ioredis` bắt buộc có `family: 4` để triệt tiêu độ trễ 3000ms do DNS IPv6 AAAA trên AWS EC2. Toàn bộ câu lệnh Redis phải được bọc `withTimeout(promise, 300ms-500ms)` để Instant Fallback về RAM/Mongo nếu Redis phản hồi chậm.
   - **Redis Pipeline:** Các middleware như `rateLimiter.js` bắt buộc gộp các lệnh Redis (`INCR` + `PTTL`) trong 1 gói tin TCP (Redis Pipeline) duy nhất.
-  - **Worker Non-blocking:** Không dùng các câu lệnh block socket lâu (như `BLPOP 5s`) làm đụng độ `commandTimeout` của ioredis. Sử dụng `LPOP` non-blocking có khoảng nghỉ linh hoạt.
+  - **Worker Non-blocking & Hàng đợi Email Bền vững (Reliable Queue Pattern):** Không dùng các câu lệnh block socket lâu (như `BLPOP 5s`) làm đụng độ `commandTimeout` của ioredis. Hàng đợi email sử dụng mô hình 2 trạng thái `queue:emails` và `queue:emails:processing` qua lệnh nguyên tử `LMOVE`, có xác nhận `ackJob` và tự động thu hồi tác vụ treo (`reclaimStaleJobs`) khi khởi động lại server.
+- **Chính sách Lưu trữ Dữ liệu Tài khoản (User Retention Policy):**
+  - Tuyệt đối KHÔNG tự động xóa tài khoản người dùng sau 30 ngày hay bất kỳ khoảng thời gian nào. Mọi tài khoản và bản ghi của người dùng được lưu trữ vĩnh viễn (kể cả khi ở trạng thái xóa mềm `isDeleted: true`) để phục vụ đối soát, thống kê và bảo vệ quyền sở hữu trọn đời.
+- **Bảo mật Container & Cụm Nginx Upstream:**
+  - Tiến trình Backend trong `Dockerfile` bắt buộc chạy dưới quyền tài khoản không có quyền root (`USER node`). Redis bắt buộc có mật khẩu xác thực (`requirepass`).
+  - Nginx cấu hình cụm Upstream (`upstream backend_servers`, `upstream frontend_servers`) với kết nối TCP `keepalive` để hỗ trợ zero-downtime deployment; đồng thời phân tách rõ ràng: tắt đệm (`proxy_buffering off`) cho các luồng SSE AI Stream (`/stream`, `/interpret`, `/chat`) và bật đệm tối ưu cho REST API.
 - **Cập nhật Thống kê Tài nguyên Nguyên tử O(1):**
   - Mọi thao tác ghi nhận thống kê lượt tạo/xóa lá số phải sử dụng hàm cập nhật nguyên tử O(1) `$inc` (`UserStatsService.incrementRecordCount()`) trực tiếp tại Controller.
   - TUYỆT ĐỐI KHÔNG viết các Mongoose `post('save')` hooks lặp lại 12 câu lệnh Mongo Aggregation (`$group`, `countDocuments`) vì gây nghẽn đĩa I/O nghiêm trọng khi triển khai trên server.
@@ -42,7 +47,10 @@ AI Agent có vai trò:
 - **Trải nghiệm Luồng Quên Mật Khẩu (OTP UI/UX):**
   - Khi người dùng nhấn nút gửi mã OTP khôi phục mật khẩu, bắt buộc phải kích hoạt chuyển sang bước 2 (nhập OTP và mật khẩu mới) ngay lập tức để tạo cảm giác mượt mà, không được bắt người dùng đợi phản hồi từ API gửi thư. Nếu API gửi ngầm thất bại, giao diện sẽ rollback lại bước 1 kèm theo banner thông báo lỗi.
   - Khi khôi phục mật khẩu thành công (happy path), toàn bộ input và form nhập liệu phải được ẩn đi hoàn toàn, chỉ hiển thị thông báo thành công nguyên màn hình modal kèm hiệu ứng nhún (bounce) và tự động chuyển hướng về form đăng nhập chính sau 1.2 giây.
-- **Quy tắc Trình diễn Markdown & Bảng GFM:** Bắt buộc sử dụng `ReactMarkdown` tích hợp plugin `remark-gfm` cho các nội dung luận giải AI và tệp tin bài viết. Mọi nội dung bài viết bắt buộc phải đi qua hàm tiền xử lý chuẩn hóa ngắt dòng (`normalizeMarkdownContent`) để ngăn chặn việc vỡ giao diện bảng hoặc hiển thị sai thẻ in đậm trên các thiết bị di động.
+- **Quy tắc Trình diễn Markdown & Khử trùng XSS:** Bắt buộc sử dụng `ReactMarkdown` tích hợp plugin `remark-gfm` và `rehype-sanitize` cho toàn bộ các nội dung luận giải AI và bài viết blog để triệt tiêu 100% rủi ro XSS. Mọi nội dung bài viết bắt buộc phải đi qua hàm tiền xử lý chuẩn hóa ngắt dòng (`normalizeMarkdownContent`) để ngăn chặn việc vỡ giao diện bảng hoặc hiển thị sai thẻ in đậm trên các thiết bị di động.
+- **Chuẩn Hóa React 19 & State Synchronization:**
+  - Tuyệt đối không dùng `setState` đồng bộ bên trong `useEffect` để đồng bộ props; bắt buộc áp dụng cơ chế Render-Phase State Adjustment (`if (prevProp !== prop) setState(...)`).
+  - Các subcomponent và hàm helper tĩnh trong board/form phải được khai báo ở phạm vi module (module-scope) để tuân thủ quy tắc React Compiler và tránh unmount subtree thừa khi re-render.
 
 ---
 
@@ -68,6 +76,8 @@ AI Agent có vai trò:
 - **Hủy phiên tức thời khi Đăng xuất (Token Revocation):** Khi đăng xuất, bắt buộc phải gọi request `POST /api/auth/logout` lên Backend trước khi xóa thông tin lưu trữ cục bộ, mục đích là tăng `tokenVersion` của người dùng trong cơ sở dữ liệu lên 1 để vô hiệu hóa token này vễn viễn trên máy chủ.
 - **Hủy phiên đăng nhập cũ khi thay đổi/khôi phục mật khẩu:** Khi thực hiện đổi mật khẩu hoặc khôi phục mật khẩu thành công, máy chủ bắt buộc phải tăng `tokenVersion` lên 1 để vô hiệu hóa tất cả các JWT token cũ đang lưu hành.
 - **Quản lý mã Email OTP:** Mã OTP khôi phục mật khẩu gồm 6 chữ số ngẫu nhiên gửi qua email có thời hạn hết hạn nghiêm ngặt là 15 phút. Nội dung email gửi đi bắt buộc phải ở định dạng HTML có CSS inline đồng bộ phong cách học thuật.
+- **Che giấu PII & Thông tin Nhạy cảm (PII Redaction):** Mọi middleware và logger (`logging.js`, `LoggerService.js`) tuyệt đối không được in hoặc lưu vết các thông tin nhạy cảm (`password`, `newPassword`, `token`, `otp`, `otpCode`, `authorization`) ra console hoặc cơ sở dữ liệu `SystemLog`; bắt buộc phải được che giấu đệ quy thành chuỗi `***REDACTED***`.
+- **Khử trùng Dữ liệu SEO (Stored XSS Sanitization):** Mọi tham số nội suy động vào thẻ HTML meta trong `seo.js` (`title`, `description`, `canonicalUrl`, `ogImage`) bắt buộc phải đi qua hàm `escapeHtml()` để chống triệt để tấn công Stored XSS.
 
 ---
 
@@ -89,6 +99,12 @@ AI Agent có vai trò:
 3. **Tuân thủ quy trình kiểm thử:** Khi sửa đổi Backend, phải kiểm tra cú pháp node của tệp tin trước bằng lệnh `node --check src/path/to/file.js`.
 4. **Cập nhật CHANGELOG_AI.md:** Bất kỳ thay đổi cấu trúc lớn nào do AI thực hiện phải được ghi nhận vào tài liệu lịch sử AI.
 5. **Quy tắc thiết kế giao diện (UI Aesthetics):** Khi viết code CSS/Tailwind cho các thành phần UI, phải tuân thủ chuẩn Premium Aesthetics (bo góc lớn `rounded-2xl` hoặc `rounded-3xl`, sử dụng màu sắc HSL phối hài hòa nhẹ nhàng, tránh dùng màu sắc chói thô cứng, và tích hợp các micro-animations chuyển đổi mượt mà).
+6. **Khóa Cố Định Mô Hình AI (AI Model Lock-in):**
+   Tuyệt đối tuân thủ thứ tự ưu tiên các mô hình Google Gemini theo đúng chỉ đạo:
+   - **Ưu tiên 1 (Primary):** `gemini-3.5-flash-lite`
+   - **Ưu tiên 2 (Secondary Fallback):** `gemini-3.1-flash-lite`
+   - **Dự phòng sâu:** `gemini-2.5-flash-lite`, `gemini-2.5-flash`, `gemini-flash-lite-latest`
+   Nghiêm cấm tự ý thay đổi, hoán đổi hoặc xóa các model này khỏi chuỗi ưu tiên nếu không có yêu cầu trực tiếp từ người dùng.
 
 ---
 

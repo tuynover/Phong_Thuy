@@ -348,8 +348,8 @@ Lấy thông tin chi tiết (Lục Thân, Lục Thú, Hào Thế/Ứng) để hi
 - **Chính sách Trừ Credit:**
   - **Bản Cơ Bản (`mode: "standard"`):** Trừ **1 Credit**. Dung lượng 800 - 1.200 từ, luận giải tổng quan tức thời.
   - **Bản Chuyên Sâu VIP (`mode: "vip"`):** Trừ **5 Credits**.
-    + **Bát Tự:** Kiến trúc Multi-Agent 3 Tầng, dung lượng 6.500+ từ (~34.000 ký tự), giải mã qua 6 Chương học thuật, Ma Trận SWOT và Điều Hòa Chiến Lược Đa Mục Tiêu.
-    + **Tử Vi:** Kiến trúc Multi-Agent 4 Tầng (Cốt Cách CoT + Tứ Hóa CoT + 5 Replicas Cụm Cung song song + Gemini Flash Lite Chief Editor tổng kết 3 Bước Ngoặt & Cải Vận).
+    + **Bát Tự:** Kiến trúc Multi-Agent 3 Tầng, dung lượng 6.500+ từ (~34.000 ký tự), giải mã qua 6 Chương học thuật, Ma Trận SWOT và Điều Hòa Chiến Lược Đa Mục Tiêu (vận hành trên chuỗi model ưu tiên: `gemini-3.5-flash-lite` [Ưu tiên 1], `gemini-3.1-flash-lite` [Ưu tiên 2]).
+    + **Tử Vi:** Kiến trúc Multi-Agent 4 Tầng (Cốt Cách CoT + Tứ Hóa CoT + 5 Replicas Cụm Cung song song + Gemini Chief Editor `gemini-3.5-flash-lite` / `gemini-3.1-flash-lite` tổng kết 3 Bước Ngoặt & Cải Vận).
     + **Hợp Hôn:** Kiến trúc Multi-Agent 3 Tầng (Tương Quan CoT + 4 Replicas 4 Trụ Cột song song: Cốt Cách Tâm Lý, Tài Chính Tổ Ấm, Hóa Giải Xung Khắc, Con Cái Trăm Năm + Gemini Chief Editor tổng hợp phác đồ hòa hợp).
     + **Kinh Dịch:** Kiến trúc Multi-Agent 3 Tầng (Lục Hào CoT + 3 Replicas 3 Khối song song: Biện Chứng Lục Hào, 3 Kịch Bản Diễn Tiến Thuận/Nghịch/Đột Phá, Mốc Thời Gian Ứng Kỳ + Gemini Chief Editor đúc kết Đạo Dịch).
   - **Tối Ưu Hóa Theo Độ Tuổi Âm Lịch (Age-Adaptive Optimization):**
@@ -836,28 +836,29 @@ Lấy sơ đồ trang web động phục vụ Googlebot lập chỉ mục.
 
 ## 9. Xuất Bản Tệp PDF Học Thuật (Export PDF API)
 
-Hỗ trợ kết xuất tài liệu PDF chuẩn A4 (Eastern Imperial Luxury) cho 4 phân hệ: Bát Tự (`bazi`), Tử Vi (`ziwei`), Kinh Dịch (`iching`), và Hợp Hôn (`marriage`).
+Hỗ trợ kết xuất tài liệu PDF chuẩn A4 (Eastern Imperial Luxury) cho 5 phân hệ: Bát Tự (`bazi`), Tử Vi (`ziwei`), Kinh Dịch (`iching`), Hợp Hôn (`marriage`), và Huyền Không Phi Tinh (`feixing` / `xuan-kong`).
 
 ### 9.1 Xuất tệp PDF theo phân hệ và phạm vi (Scope)
 - **Endpoint:** 
   - `GET /api/export/pdf/:type/:id?scope=...&token=...`
   - `POST /api/export/pdf/:type/:id`
-- **Rate Limit:** Tối đa 5 lượt xuất PDF / phút / IP hoặc tài khoản (`pdfExportLimiter`).
+- **Rate Limit:** Tối đa 15 lượt xuất PDF / 5 phút / IP hoặc tài khoản (`pdfExportLimiter`).
 - **Xác thực & Phân quyền:**
   - Lá số công khai (`isPublic: true`): Cho phép khách vãng lai và mọi người dùng tải về không cần đăng nhập.
-  - Lá số riêng tư (`isPublic: false`): **Nghiêm ngặt chỉ chính chủ sở hữu** (`currentUserId === record.userId`) mới được tải. Từ chối người dùng khác với mã lỗi `403 Forbidden` (hoặc `401 Unauthorized` nếu chưa đăng nhập).
+  - Lá số riêng tư (`isPublic: false`): **Nghiêm ngặt chỉ chính chủ sở hữu** (`currentUserId === record.userId`) hoặc Admin/Co-Admin mới được tải. Từ chối người dùng khác với mã lỗi `403 Forbidden` (hoặc `401 Unauthorized` nếu chưa đăng nhập).
 - **Tham số Đường dẫn (Params):**
-  - `type`: `bazi` | `ziwei` | `iching` | `marriage`
+  - `type`: `bazi` | `ziwei` | `iching` | `marriage` | `feixing` (hoặc `xuan-kong`)
   - `id`: UUIDv7 của bản ghi cần xuất
 - **Tham số Phân đoạn (Scope):**
-  - Qua Query: `?scope=bazi_pillars,bazi_dayun` (chuỗi phân cách dấu phẩy) hoặc `?scope=all`
-  - Qua Body (POST): `{ "scope": ["bazi_pillars", "bazi_dayun", "ch1", "ch2"] }`
+  - Qua Query: `?scope=feixing_overview,feixing_grid` (chuỗi phân cách dấu phẩy) hoặc `?scope=all`
+  - Qua Body (POST): `{ "scope": ["cover", "feixing_overview", "feixing_grid", "feixing_menhtrach", "ch1"] }`
   - **Quy tắc Kiểm tra Rỗng:** Nếu danh sách `scope` rỗng hoặc không chọn mục nào, API từ chối với mã lỗi `400 Bad Request` (`Vui lòng chọn ít nhất 1 mục nội dung cần xuất PDF`).
 - **Phạm vi Phân đoạn Hợp lệ Theo Phân hệ:**
   - **Bát Tự:** `bazi_pillars`, `bazi_dayun`, `bazi_wuxing`, `bazi_shensha`, `nhat_chu`, `ch1`..`ch6`, `harmonizer`, `intro`, `all_interpretation`
   - **Tử Vi:** `ziwei_grid`, `ch1`..`ch15`, `intro`, `all_interpretation`
   - **Kinh Dịch:** `iching_hexagram`, `iching_table`, `iching_analysis`, `iching_ungky`, `ch1`..`ch4`, `intro`, `all_interpretation`
   - **Hợp Hôn:** `marriage_compare`, `intro`, `all_interpretation`
+  - **Huyền Không Phi Tinh:** `cover`, `feixing_overview`, `feixing_grid`, `feixing_menhtrach`, `ch1`..`ch6`, `intro`, `all_interpretation`
 - **Phản hồi Thành công (200):**
   - `Content-Type: application/pdf`
   - `Content-Disposition: attachment; filename="<Ten_Tep>.pdf"`
@@ -981,7 +982,7 @@ Hệ thống cung cấp dịch vụ kết xuất đồ hình lá số và toàn 
 - **Endpoint:** `POST /api/export/pdf/:type/:recordId`
 - **Headers:** `Authorization: Bearer <token>`
 - **URL Parameters:**
-  - `type` (string, bắt buộc): Phân hệ cần xuất (`bazi` | `ziwei` | `iching` | `marriage`).
+  - `type` (string, bắt buộc): Phân hệ cần xuất (`bazi` | `ziwei` | `iching` | `marriage` | `feixing`).
   - `recordId` (string, bắt buộc): Mã định danh UUIDv7 của bản ghi cần xuất.
 - **Request Body:**
   ```json
@@ -1303,3 +1304,138 @@ Cung cấp công cụ tra cứu ngày hoàng đạo, chọn ngày đẹp theo c�
     }
   }
   ```
+
+---
+
+## 🧭 16. Huyền Không Phi Tinh (`/api/feixing` & `/api/ai/feixing`)
+
+Hệ thống tính toán phong thủy Huyền Không Phi Tinh kết hợp Tam Nguyên Cửu Vận, 24 Sơn Hướng, Chính Hướng / Kiêm Hướng (Thế Quái Bàn), ma trận Lạc Thư Cửu Cung 3x3, Thành Môn Quyết và luận giải AI chuyên sâu.
+
+### 16.1 Lập Tinh Bàn Phong Thủy Nhà Ở (Calculate Chart)
+- **Endpoint:** `POST /api/feixing/calculate` (Alias: `POST /api/huyen-khong/calculate`)
+- **Tần suất giới hạn:** Rate limiter 30 lượt / 15 phút.
+- **In-Flight Lock:** Khóa chống click kép Redis 2.5 giây (`acquireRedisLock('feixing:calc:...')`).
+- **Body Request:**
+  ```json
+  {
+    "facingDegree": 180.0,
+    "period": 9,
+    "buildingYear": 2026,
+    "ownerName": "Nguyễn Văn A",
+    "title": "Nhà riêng số 18",
+    "userId": "uuid-v7...",
+    "birthDate": "1990-05-21",
+    "birthHour": 8,
+    "gender": 1
+  }
+  ```
+- **Phản hồi (200 OK):**
+  ```json
+  {
+    "recordId": "01a0fd29-6d0e-7560-8a43-24df1c5eff80",
+    "_id": "01a0fd29-6d0e-7560-8a43-24df1c5eff80",
+    "facingDegree": 180.0,
+    "sittingDegree": 0.0,
+    "facingMountain": "Ngọ",
+    "sittingMountain": "Tý",
+    "facingPalace": "Ly",
+    "sittingPalace": "Khảm",
+    "chartType": "CHINH_HUONG",
+    "isSubstitution": false,
+    "period": 9,
+    "buildingYear": 2026,
+    "ownerName": "Nguyễn Văn A",
+    "title": "Nhà riêng số 18",
+    "ownerBirthInfo": {
+      "birthDate": "1990-05-21",
+      "birthHour": 8,
+      "gender": 1,
+      "genderLabel": "Nam",
+      "solarYear": 1990,
+      "cungPhi": "Khảm",
+      "menhNguHanh": "Thủy",
+      "menhTrachGroup": "Đông tứ mệnh",
+      "houseTrachGroup": "Đông tứ trạch",
+      "isMenhTrachMatch": true,
+      "menhTrachSummary": "Gia chủ Đông tứ mệnh (Cung Khảm, hành Thủy) ở nhà Đông tứ trạch (Tọa Khảm): Mệnh Trạch Tương Phối (Hợp Trạch - Đại Cát), nạp vượng khí thuận lợi."
+    },
+    "analysisSnapshot": {
+      "majorPattern": "SONG_TINH_DAO_TOA",
+      "majorPatternName": "Song Tinh Đáo Tọa",
+      "majorPatternDescription": "Vượng đinh bại tài: Khí vượng tụ phía sau nhà...",
+      "specialFormations": [],
+      "castleGate": {
+        "left": { "direction": "TON", "mountain": "Tốn", "valid": true, "description": "Thành môn bên trái tại cung Tốn (Đông Nam), hợp nạp tài khí." },
+        "right": { "direction": "KHON", "mountain": "Khôn", "valid": true, "description": "Thành môn bên phải tại cung Khôn (Tây Nam)." }
+      },
+      "ownerProfile": {
+        "birthDate": "1990-05-21",
+        "birthHour": 8,
+        "gender": 1,
+        "genderLabel": "Nam",
+        "solarYear": 1990,
+        "cungPhi": "Khảm",
+        "menhNguHanh": "Thủy",
+        "menhTrachGroup": "Đông tứ mệnh",
+        "houseTrachGroup": "Đông tứ trạch",
+        "isMenhTrachMatch": true,
+        "menhTrachSummary": "Gia chủ Đông tứ mệnh (Cung Khảm, hành Thủy) ở nhà Đông tứ trạch (Tọa Khảm): Mệnh Trạch Tương Phối (Hợp Trạch - Đại Cát), nạp vượng khí thuận lợi."
+      },
+      "grid": [
+        {
+          "palaceKey": "KHAM",
+          "palaceName": "Khảm",
+          "directionName": "Bắc",
+          "baseStar": 1,
+          "periodStar": 5,
+          "mountainStar": 9,
+          "waterStar": 9,
+          "mountainFlight": "REVERSE",
+          "waterFlight": "FORWARD",
+          "auspiciousLevel": "DAI_CAT",
+          "starPairMeaning": "Cửu Tử Đương Lệnh: Đệ nhất thịnh vượng Vận 9...",
+          "recommendedRooms": ["Cửa chính", "Phòng khách", "Khu kinh doanh"],
+          "curesAndActivators": "Kích hoạt bằng ánh sáng, mở cửa đón khí vượng...",
+          "batTrachStar": "Phục Vị",
+          "batTrachType": "CAT",
+          "batTrachDesc": "Bình yên, hòa thuận, củng cố tinh thần"
+        }
+      ]
+    }
+  }
+  ```
+
+### 16.2 Xem Chi Tiết Tinh Bàn Bản Ghi (Get Record)
+- **Endpoint:** `GET /api/feixing/record/:id`
+- **Xác thực:** Tùy chọn (`optionalAuth`). Tự động bảo mật quyền riêng tư: Nếu `isPublic: false` thì chỉ chính chủ hoặc Admin mới có quyền truy cập.
+
+### 16.3 Lấy Lịch Sử Tinh Bàn Của Người Dùng (Get User History)
+- **Endpoint:** `GET /api/feixing/history/:userId`
+- **Xác thực:** Bắt buộc (`verifyToken`).
+- **Query Params:** `page`, `limit`, `search`, `fromDate`, `toDate`.
+
+### 16.4 Bật/Tắt Công Khai Lá Số (Toggle Public)
+- **Endpoint:** `PATCH /api/feixing/record/:id/toggle-public`
+- **Xác thực:** Bắt buộc (`verifyToken`). Kiểm tra quyền sở hữu bản ghi.
+- **Tác vụ ngầm:** Tự động gọi `GoogleIndexingService` gửi thông báo URL_UPDATED hoặc URL_DELETED lên Googlebot.
+
+### 16.5 Đánh Giá Tinh Bàn (Rate Record)
+- **Endpoint:** `PATCH /api/feixing/record/:id/rate`
+- **Xác thực:** Bắt buộc (`verifyToken`).
+- **Body Request:** `{ "rating": 5, "feedback": "Rất chuẩn xác" }`
+
+### 16.6 Xóa Bản Ghi Tinh Bàn (Delete Record)
+- **Endpoint:** `DELETE /api/feixing/record/:id`
+- **Xác thực:** Bắt buộc (`verifyToken`). Cập nhật nguyên tử O(1) giảm `feixingCount` và xóa mềm/xóa cứng theo chính sách.
+
+### 16.7 Luận Giải Toàn Diện Phong Thủy Bằng AI (SSE Stream)
+- **Endpoint:** `POST /api/ai/feixing/:id/interpret`
+- **Xác thực:** Bắt buộc (`verifyToken`).
+- **Kiểm soát Quota:** Đi qua middleware `creditCheck.js` (trừ 1 credit nguyên tử, tự hoàn trả nếu luồng stream bị ngắt kết nối giữa chừng).
+- **Phản hồi:** Server-Sent Events (`text/event-stream`) với Heartbeat Ping rỗng mỗi 15s.
+
+### 16.8 Hỏi Thêm Chuyên Gia Phong Thủy Theo Bối Cảnh (SSE Stream Follow-up Chat)
+- **Endpoint:** `POST /api/ai/feixing/:id/chat`
+- **Xác thực:** Bắt buộc (`verifyToken`).
+- **Lọc Chủ Đề:** Đi qua `ConversationContextService.isDivinationRelated` để chặn các câu hỏi lạc đề không liên quan phong thủy / trạch mệnh.
+- **Phản hồi:** Server-Sent Events (`text/event-stream`).

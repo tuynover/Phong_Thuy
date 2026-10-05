@@ -192,6 +192,12 @@ export default function Header({
           >
             Xem Ngày
           </button>
+          <button 
+            onClick={() => handleSelectModule('feixing')} 
+            className={`px-4 py-1.5 rounded-full font-bold text-xs tracking-wider font-[Montserrat] uppercase ${appMode === 'feixing' ? 'bg-amber-600 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/50'}`}
+          >
+            Huyền Không
+          </button>
           {user && (
             <button 
               onClick={() => handleSelectModule('history')} 
@@ -631,6 +637,15 @@ export default function Header({
                 >
                   <Calendar className="text-emerald-600" size={18} />
                   <span className="font-extrabold text-xs text-slate-800">Xem Ngày Đẹp Hoàng Đạo</span>
+                </button>
+
+                {/* HUYỀN KHÔNG PHI TINH */}
+                <button 
+                  onClick={() => { handleSelectModule('feixing'); setIsMobileMenuOpen(false); }}
+                  className="col-span-2 p-3.5 rounded-2xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-200/80 flex gap-3 items-center text-left transition-all cursor-pointer"
+                >
+                  <Compass className="text-amber-600" size={18} />
+                  <span className="font-extrabold text-xs text-slate-800">Huyền Không Phi Tinh (Phong Thủy Nhà Ở)</span>
                 </button>
 
                 {/* KIẾN THỨC (BLOG) */}

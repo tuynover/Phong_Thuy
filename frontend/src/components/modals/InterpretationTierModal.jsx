@@ -129,6 +129,38 @@ const SYSTEM_TIER_INFO = {
         { bold: 'Kim Chỉ Nam Đạo Dịch Thực Chiến:', text: ' Phác đồ hành động từng bước tùy thời biến dịch' }
       ]
     }
+  },
+  feixing: {
+    systemName: 'Huyền Không Phi Tinh',
+    upgradeTitle: 'Bản Thẩm Định Phong Thủy 6 Chương Toàn Đồ',
+    upgradeDescription: 'Hệ thống kích hoạt Đại Sư Huyền Không Phi Tinh & Bát Trạch Minh Kính thẩm định toàn diện 5.000+ từ: Khí trường 9 Cung Lạc Thư, Phối hợp Mệnh Trạch Gia Chủ, Bố trí Phòng Cát Hướng Hung, Pháp bảo Kích Tài Hóa Sát và Phác đồ an gia thịnh vượng Vận 9.',
+    upgradeBullets: [
+      'Phân tích sâu sắc tương tác Sơn Tinh - Hướng Tinh - Vận Tinh tại từng cung vị',
+      'Định vị chính xác Cửa Chính, Bếp Táo, Ban Thờ và Phòng Ngủ theo nguyên tắc Tọa Hung Hướng Cát & Mệnh Trạch Tương Phối',
+      'Pháp bảo Kích hoạt Tài Vận Cửu Tử Ly Hỏa và Hóa giải Đại Sát Nhị Ngũ Giao Gia, Ngũ Hoàng, Tam Sát'
+    ],
+    standard: {
+      title: 'Luận Giải Phong Thủy Cơ Bản',
+      badge: '100 Points',
+      description: 'Phân tích tổng quan trạch vận, xác định đại cách cục và bố trí phong thủy sơ khởi cho ngôi nhà.',
+      bullets: [
+        'Xác định Tứ Đại Cách Cục: Vượng Sơn Vượng Hướng, Song Tinh, Thượng Sơn Hạ Thủy',
+        'Tổng quan Cửu Cung Lạc Thư và khí trường thời đại Vận 9',
+        'Đề xuất bố trí công năng các phòng chính (800 - 1.200 từ)',
+        'Phương án hóa giải căn bản cho phương vị hung sát'
+      ]
+    },
+    vip: {
+      title: 'Luận Giải Thẩm Định Chuyên Sâu',
+      badge: '500 Points',
+      description: 'Công trình phong thủy học thuật chuyên sâu 5.000+ từ, kết hợp Huyền Không Phi Tinh, Bát Trạch Bản Mệnh và Pháp Bảo Phong Thủy Thực Chiến.',
+      bullets: [
+        { bold: '6 Chương Thẩm Định Toàn Diện:', text: ' Đại Cách Cục, Cửu Cung Chi Tiết, Bố Trí Nội Thất, Pháp Bảo Kích Tài Hóa Sát, Mệnh Trạch Tương Phối, An Gia Vận 9' },
+        { bold: 'Khảo Cứu Cặp Sao 81 Sơn Hướng:', text: ' Phân tích sâu sắc tương tác phi tinh, Thế Quái và Thành Môn Quyết' },
+        { bold: 'Đồng Bộ Bản Mệnh Gia Chủ:', text: ' Kết hợp Cung Phi Bát Trạch, Đông/Tây Tứ Mệnh với trạch đất' },
+        { bold: 'Phác Đồ Bố Trí Pháp Bảo Thực Chiến:', text: ' Định vị chính xác điểm đặt Nước (Thủy kích tài) và Núi (Sơn tụ đinh)' }
+      ]
+    }
   }
 };
 
