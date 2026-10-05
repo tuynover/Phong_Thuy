@@ -3,6 +3,7 @@ const BaziRecord = require('../../bazi/models/BaziRecord');
 const ZiweiRecord = require('../../ziwei/models/ZiweiRecord');
 const MarriageRecord = require('../../bazi/models/MarriageRecord');
 const FeiXingRecord = require('../../feixing/models/FeiXingRecord');
+const NumerologyRecord = require('../../numerology/models/NumerologyRecord');
 const User = require('../../../core/models/User');
 const MemoryCacheService = require('../../../core/services/MemoryCacheService');
 const GoogleIndexingService = require('../../../core/services/GoogleIndexingService');
@@ -25,7 +26,7 @@ class GeneralHistoryController {
 
             const limit = parseInt(req.query.limit) || 100;
 
-            const [hexagrams, bazisRaw, ziweisRaw, marriagesRaw, feixings] = await Promise.all([
+            const [hexagrams, bazisRaw, ziweisRaw, marriagesRaw, feixings, numerologies] = await Promise.all([
                 IChingRecord.find(buildFilterQuery('iching', req.query, userId))
                     .sort({ isPinned: -1, createdAt: -1 })
                     .select('-analysisSnapshot -aiInterpretation -ungKy -movingLines')
@@ -50,6 +51,11 @@ class GeneralHistoryController {
                     .sort({ isPinned: -1, createdAt: -1 })
                     .select('-analysisSnapshot -aiInterpretation')
                     .limit(limit)
+                    .lean(),
+                NumerologyRecord.find(buildFilterQuery('numerology', req.query, userId))
+                    .sort({ isPinned: -1, createdAt: -1 })
+                    .select('-analysisSnapshot -aiInterpretation')
+                    .limit(limit)
                     .lean()
             ]);
 
@@ -67,13 +73,15 @@ class GeneralHistoryController {
                 ziweis,
                 marriages,
                 feixings,
+                numerologies,
                 counts: {
                     hexagrams: hexagrams.length,
                     bazis: bazis.length,
                     ziweis: ziweis.length,
                     marriages: marriages.length,
                     feixings: feixings.length,
-                    total: hexagrams.length + bazis.length + ziweis.length + marriages.length + feixings.length
+                    numerologies: numerologies.length,
+                    total: hexagrams.length + bazis.length + ziweis.length + marriages.length + feixings.length + numerologies.length
                 }
             });
         } catch (error) {
@@ -102,6 +110,8 @@ class GeneralHistoryController {
                 Model = MarriageRecord;
             } else if (type === 'feixing' || type === 'huyen_khong' || type === 'huyen-khong') {
                 Model = FeiXingRecord;
+            } else if (type === 'numerology' || type === 'phong_thuy_so' || type === 'phong-thuy-so') {
+                Model = NumerologyRecord;
             } else {
                 return res.status(400).json({ error: 'Loại quẻ/lá số không hợp lệ.' });
             }
@@ -168,6 +178,8 @@ class GeneralHistoryController {
                 Model = MarriageRecord;
             } else if (type === 'feixing' || type === 'huyen_khong' || type === 'huyen-khong') {
                 Model = FeiXingRecord;
+            } else if (type === 'numerology' || type === 'phong_thuy_so' || type === 'phong-thuy-so') {
+                Model = NumerologyRecord;
             } else {
                 return res.status(400).json({ error: 'Loại quẻ/lá số không hợp lệ.' });
             }
@@ -221,6 +233,9 @@ class GeneralHistoryController {
             } else if (type === 'feixing' || type === 'huyen_khong' || type === 'huyen-khong') {
                 Model = FeiXingRecord;
                 typePath = 'feixing';
+            } else if (type === 'numerology' || type === 'phong_thuy_so' || type === 'phong-thuy-so') {
+                Model = NumerologyRecord;
+                typePath = 'numerology';
             } else {
                 return res.status(400).json({ error: 'Loại quẻ/lá số không hợp lệ.' });
             }

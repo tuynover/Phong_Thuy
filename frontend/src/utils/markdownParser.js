@@ -11,6 +11,29 @@ export const getFallbackExecutiveSummary = (_text = '', theme = 'bazi') => {
   const isZiwei = theme === 'ziwei' || theme === 'tu_vi';
   const isIching = theme === 'iching';
   const isMarriage = theme === 'marriage';
+  const isNumerology = theme === 'numerology';
+
+  if (isNumerology) {
+    return {
+      tldr: [
+        "Dãy số mang năng lượng vượng khí, hỗ trợ thúc đẩy tài lộc và hanh thông giao tế.",
+        "Trường khí âm dương hài hòa, tạo thế quân bình ổn định trong công việc lẫn cuộc sống.",
+        "Nên tận dụng nguồn năng lượng cát lợi của các cặp tinh tổ để tự tin hành sự."
+      ],
+      scores: { career: 85, wealth: 84, love: 76, health: 80, mentors: 82 },
+      strengths: [
+        "Đắc khí Cửu Tinh Đương Vận, năng lượng lưu chuyển thông suốt.",
+        "Tượng quẻ Mai Hoa dự báo cơ hội hanh thông và quý nhân tương trợ.",
+        "Đuôi số tụ khí vững chắc, giữ vững thành quả tích lũy."
+      ],
+      pitfalls: [
+        "Tránh chủ quan khi đã đạt được mục tiêu ngắn hạn ban đầu.",
+        "Chú ý chế hóa các cặp số xung khắc nếu có bằng phong thủy phụ trợ.",
+        "Giữ gìn chữ tín và sự minh bạch trong mọi giao dịch tài chính."
+      ],
+      actionAdvice: "Khai thác tối đa năng lượng tích cực của dãy số, kết hợp tâm thế chính đạo để vạn sự thành công."
+    };
+  }
 
   if (isIching) {
     return {

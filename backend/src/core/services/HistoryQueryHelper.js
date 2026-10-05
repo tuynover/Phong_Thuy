@@ -92,6 +92,15 @@ const buildFilterQuery = (system, queryParams, userId) => {
                     { sittingMountain: regex }
                 ]
             });
+        } else if (system === 'numerology' || system === 'phong_thuy_so') {
+            andConditions.push({
+                $or: [
+                    { targetNumber: regex },
+                    { displayNumber: regex },
+                    { ownerName: regex },
+                    { bankName: regex }
+                ]
+            });
         }
     }
 

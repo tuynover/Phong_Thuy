@@ -46,6 +46,12 @@ export default function PdfExportModal({
         { id: 'feixing_grid', label: 'Cửu Cung Phi Tinh Trạch Bàn (Ma Trận 3x3)', desc: 'Sơn Tinh, Hướng Tinh, Vận Tinh, Cát Hung & Cặp Sao từng phương vị' },
         { id: 'feixing_menhtrach', label: 'Sơ Đồ Mệnh Trạch Tương Phối', desc: 'Bát Trạch Cung Phi & Ngũ Hành Dụng Thần kết hợp Cung Tọa' }
       );
+    } else if (system === 'numerology' || system === 'phong-thuy-so') {
+      chartSections.push(
+        { id: 'numerology_overview', label: 'Tổng Quan Số Lý & Cửu Tinh Động Vận', desc: 'Điểm số tổng hợp, Âm Dương hòa hợp, Đuôi số & Cặp sao tinh tổ' },
+        { id: 'numerology_iching', label: 'Kinh Dịch Mai Hoa Lập Quẻ', desc: 'Quẻ Chủ (Chính Quái), Quẻ Biến (Biến Quái) & Thoán từ dự đoán' },
+        { id: 'numerology_bazi', label: 'Bát Tự Mệnh Chủ Tương Phối', desc: 'Nhật Chủ, Dụng Thần, Hỷ Thần, Cung Phi & Đánh giá tương hợp' }
+      );
     }
 
     const interpretSections = [];

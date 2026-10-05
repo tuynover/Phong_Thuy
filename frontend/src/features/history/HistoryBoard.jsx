@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { AuthContext } from '@/context/AuthContext';
-import { getIChingHistory, getBaziHistory, getZiweiHistory, getMarriageHistory, getFeiXingHistory, rateIChing, rateBazi, rateZiwei, rateMarriage, rateFeiXing, deleteCalculation, getIChingRecord, getBaziRecord, getZiweiRecord, getMarriageRecord, getFeiXingRecord, pinCalculation, togglePublicCalculation, getUserTags, updateRecordTags, createTag } from '@/services/api';
-import { Star, Clock, Calendar, Trash2, X, Info, Check, AlertTriangle, Loader2, ChevronLeft, ChevronRight, Pin, Eye, Share2, Tag, Filter, Search, Globe, Plus, Folder, User, ChevronDown, ChevronUp, Compass } from 'lucide-react';
+import { getIChingHistory, getBaziHistory, getZiweiHistory, getMarriageHistory, getFeiXingHistory, getNumerologyHistory, rateIChing, rateBazi, rateZiwei, rateMarriage, rateFeiXing, rateNumerology, deleteCalculation, getIChingRecord, getBaziRecord, getZiweiRecord, getMarriageRecord, getFeiXingRecord, getNumerologyRecord, pinCalculation, togglePublicCalculation, getUserTags, updateRecordTags, createTag } from '@/services/api';
+import { Star, Clock, Calendar, Trash2, X, Info, Check, AlertTriangle, Loader2, ChevronLeft, ChevronRight, Pin, Eye, Share2, Tag, Filter, Search, Globe, Plus, Folder, User, ChevronDown, ChevronUp, Compass, Hash } from 'lucide-react';
 import FloatingNotificationToast from '@/components/common/FloatingNotificationToast';
 import CustomSelect from '@/components/common/CustomSelect';
 import CustomDatePicker from '@/components/common/CustomDatePicker';
@@ -10,6 +10,7 @@ import BaziHistoryCard from './components/BaziHistoryCard';
 import ZiweiHistoryCard from './components/ZiweiHistoryCard';
 import MarriageHistoryCard from './components/MarriageHistoryCard';
 import FeiXingHistoryCard from './components/FeiXingHistoryCard';
+import NumerologyHistoryCard from './components/NumerologyHistoryCard';
 
 const LUNAR_HOURS_MAP = [
   "Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"
@@ -25,7 +26,10 @@ const HISTORY_SLUG_MAP = {
   'hon-nhan': 'marriage',
   'marriage': 'marriage',
   'huyen-khong': 'feixing',
-  'feixing': 'feixing'
+  'feixing': 'feixing',
+  'so-hoc': 'numerology',
+  'phong-thuy-so': 'numerology',
+  'numerology': 'numerology'
 };
 
 const TAB_TO_HISTORY_SLUG = {
@@ -33,16 +37,18 @@ const TAB_TO_HISTORY_SLUG = {
   'bazi': 'bat-tu',
   'ziwei': 'tu-vi',
   'marriage': 'hon-nhan',
-  'feixing': 'huyen-khong'
+  'feixing': 'huyen-khong',
+  'numerology': 'so-hoc'
 };
 
-const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage, onViewFeiXing, preloadedData, onCacheInvalidate, active, onSaveCache }) => {
+const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage, onViewFeiXing, onViewNumerology, preloadedData, onCacheInvalidate, active, onSaveCache }) => {
     const { user } = useContext(AuthContext);
     const [hexagrams, setHexagrams] = useState([]);
     const [bazis, setBazis] = useState([]);
     const [ziweis, setZiweis] = useState([]);
     const [marriages, setMarriages] = useState([]);
     const [feixings, setFeixings] = useState([]);
+    const [numerologies, setNumerologies] = useState([]);
     const [toastMsg, setToastMsg] = useState('');
     const [loading, setLoading] = useState(() => {
         if (preloadedData && preloadedData.hexagrams) {
@@ -181,6 +187,7 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
         if (activeTab === 'ziwei') return ziweis;
         if (activeTab === 'marriage') return marriages;
         if (activeTab === 'feixing') return feixings;
+        if (activeTab === 'numerology') return numerologies;
         return [];
     };
 
@@ -199,7 +206,9 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                 ? { text: 'text-purple-800', bg: 'bg-purple-800 hover:bg-purple-900', border: 'border-purple-100', textAccent: 'text-purple-600' }
                 : activeTab === 'marriage'
                     ? { text: 'text-rose-800', bg: 'bg-rose-800 hover:bg-rose-900', border: 'border-rose-100', textAccent: 'text-rose-600' }
-                    : { text: 'text-amber-700', bg: 'bg-amber-600 hover:bg-amber-700', border: 'border-amber-200', textAccent: 'text-amber-600' };
+                    : activeTab === 'feixing'
+                        ? { text: 'text-amber-700', bg: 'bg-amber-600 hover:bg-amber-700', border: 'border-amber-200', textAccent: 'text-amber-600' }
+                        : { text: 'text-amber-900', bg: 'bg-amber-700 hover:bg-amber-800', border: 'border-amber-200', textAccent: 'text-amber-700' };
 
     const showConfirm = (message, onConfirm) => {
         setDialog({ type: 'confirm', message, onConfirm });
@@ -329,6 +338,8 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
             else if (recordType === 'bazi') setBazis(updateList);
             else if (recordType === 'ziwei') setZiweis(updateList);
             else if (recordType === 'marriage') setMarriages(updateList);
+            else if (recordType === 'feixing') setFeixings(updateList);
+            else if (recordType === 'numerology') setNumerologies(updateList);
             setToastMsg("Đã cập nhật thẻ thành công.");
         } catch (err) {
             setToastMsg(err.response?.data?.error || "Không thể cập nhật thẻ.");
@@ -378,18 +389,20 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
             if (filters.birthHour !== undefined && filters.birthHour !== '') params.birthHour = filters.birthHour;
             if (filters.search) params.search = filters.search;
 
-            const [hexRes, baziRes, ziweiRes, marriageRes, feixingRes] = await Promise.all([
+            const [hexRes, baziRes, ziweiRes, marriageRes, feixingRes, numerologyRes] = await Promise.all([
                 getIChingHistory(userId, params),
                 getBaziHistory(userId, params),
                 getZiweiHistory(userId, params),
                 getMarriageHistory(userId, params),
-                getFeiXingHistory(userId, params).catch(() => ({ data: [] }))
+                getFeiXingHistory(userId, params).catch(() => ({ data: [] })),
+                getNumerologyHistory(userId, params).catch(() => ({ data: [] }))
             ]);
             setHexagrams(hexRes.data);
             setBazis(baziRes.data);
             setZiweis(ziweiRes.data);
             setMarriages(marriageRes.data);
             setFeixings(feixingRes.data || []);
+            setNumerologies(numerologyRes.data || []);
         } catch (error) {
             console.error("Error fetching history", error);
         }
@@ -412,6 +425,8 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                 res = await getMarriageRecord(id);
             } else if (type === 'feixing') {
                 res = await getFeiXingRecord(id);
+            } else if (type === 'numerology') {
+                res = await getNumerologyRecord(id);
             }
             if (res && res.data) {
                 prefetchedDetails.current[cacheKey] = res.data;
@@ -420,6 +435,26 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
             console.error(`Error preloading ${type} ${id}:`, err);
             delete prefetchedDetails.current[cacheKey];
         }
+    };
+
+    const handleViewNumerologyDetail = async (record) => {
+        const cacheKey = `numerology:${record._id}`;
+        let detail = prefetchedDetails.current[cacheKey];
+        if (!detail || detail === 'loading') {
+            setActionLoading(true);
+            try {
+                const res = await getNumerologyRecord(record._id);
+                detail = res.data;
+                prefetchedDetails.current[cacheKey] = detail;
+            } catch (err) {
+                console.error("Lỗi khi tải chi tiết số học:", err);
+                showAlert("Không thể tải thông tin chi tiết số học.", "error");
+                setActionLoading(false);
+                return;
+            }
+            setActionLoading(false);
+        }
+        if (onViewNumerology) onViewNumerology(detail);
     };
 
     const handleViewMarriageDetail = async (record) => {
@@ -519,6 +554,9 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
             } else if (type === 'feixing') {
                 await rateFeiXing(id, rating, feedback);
                 setFeixings(feixings.map(f => f._id === id ? { ...f, rating, feedback } : f));
+            } else if (type === 'numerology') {
+                await rateNumerology(id, rating, feedback);
+                setNumerologies(numerologies.map(n => n._id === id ? { ...n, rating, feedback } : n));
             }
             const cacheKey = `${type}:${id}`;
             delete prefetchedDetails.current[cacheKey];
@@ -542,6 +580,8 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                     setMarriages(marriages.filter(m => m._id !== id));
                 } else if (type === 'feixing') {
                     setFeixings(feixings.filter(f => f._id !== id));
+                } else if (type === 'numerology') {
+                    setNumerologies(numerologies.filter(n => n._id !== id));
                 }
                 const cacheKey = `${type}:${id}`;
                 delete prefetchedDetails.current[cacheKey];
@@ -574,6 +614,8 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                 setMarriages(updateList(marriages));
             } else if (type === 'feixing') {
                 setFeixings(updateList(feixings));
+            } else if (type === 'numerology') {
+                setNumerologies(updateList(numerologies));
             }
             
             if (onCacheInvalidate) onCacheInvalidate();
@@ -602,6 +644,8 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                 setMarriages(prev => updatePublicInList(prev));
             } else if (type === 'feixing') {
                 setFeixings(prev => updatePublicInList(prev));
+            } else if (type === 'numerology') {
+                setNumerologies(prev => updatePublicInList(prev));
             }
 
             if (preloadedData) {
@@ -612,6 +656,7 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                 else if (type === 'ziwei') key = 'tuvis';
                 else if (type === 'marriage') key = 'marriages';
                 else if (type === 'feixing') key = 'feixings';
+                else if (type === 'numerology') key = 'numerologies';
 
                 if (key && updatedPreloaded[key]) {
                     updatedPreloaded[key] = updatePublicInList(updatedPreloaded[key]);
@@ -701,6 +746,12 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                 >
                     Huyền Không ({user?.stats?.feixingCount !== undefined ? user.stats.feixingCount : feixings.length})
                 </button>
+                <button 
+                    onClick={() => handleTabSwitch('numerology')}
+                    className={`flex-1 sm:flex-none px-4 py-2 text-xs md:text-base rounded-full font-bold transition-all ${activeTab === 'numerology' ? 'bg-amber-700 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
+                >
+                    Số học ({user?.stats?.numerologyCount !== undefined ? user.stats.numerologyCount : numerologies.length})
+                </button>
             </div>
 
             {/* Section Bộ Lọc Tìm Kiếm */}
@@ -709,7 +760,7 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                 <div className="flex items-center justify-between border-b border-gray-200/80 pb-3">
                     <div className="flex items-center gap-2.5">
                         <div className={`w-9 h-9 rounded-2xl flex items-center justify-center transition-colors duration-500 ${
-                            activeTab === 'iching' ? 'bg-amber-100 text-amber-800' : activeTab === 'bazi' ? 'bg-blue-100 text-blue-800' : activeTab === 'ziwei' ? 'bg-purple-100 text-purple-800' : 'bg-rose-100 text-rose-800'
+                            activeTab === 'iching' ? 'bg-amber-100 text-amber-800' : activeTab === 'bazi' ? 'bg-blue-100 text-blue-800' : activeTab === 'ziwei' ? 'bg-purple-100 text-purple-800' : activeTab === 'marriage' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-900'
                         }`}>
                             <Filter size={18} />
                         </div>
@@ -998,6 +1049,23 @@ const HistoryBoard = ({ onViewHexagram, onViewBazi, onViewZiwei, onViewMarriage,
                         key={record._id}
                         record={record}
                         onView={handleViewFeiXingDetail}
+                        onPreload={preloadRecord}
+                        onTogglePublic={handleTogglePublic}
+                        onCopyLink={handleCopyLink}
+                        onTogglePin={handleTogglePin}
+                        onOpenTagModal={setTagModalRecord}
+                        onDelete={handleDelete}
+                        onRate={handleRate}
+                        renderStars={renderStars}
+                    />
+                ))}
+
+                {activeTab === 'numerology' && numerologies.length === 0 && <p className="text-center text-gray-500">Không có bản ghi số học nào</p>}
+                {activeTab === 'numerology' && paginatedList.map((record) => (
+                    <NumerologyHistoryCard
+                        key={record._id}
+                        record={record}
+                        onView={handleViewNumerologyDetail}
                         onPreload={preloadRecord}
                         onTogglePublic={handleTogglePublic}
                         onCopyLink={handleCopyLink}

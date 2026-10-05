@@ -413,6 +413,72 @@ class InputValidator {
 
         return { isValid: true, error: null };
     }
+
+    /**
+     * Validate Numerology Input (Phong Thủy Số: Sim, Biển Số Xe, Tài Khoản Ngân Hàng)
+     */
+    static validateNumerologyInput(data) {
+        if (!data || typeof data !== 'object') {
+            return { isValid: false, error: 'Dữ liệu yêu cầu không hợp lệ.' };
+        }
+
+        const { rawInput, targetNumber, type = 'sim', mode = 'quick', ownerName, bankName, ownerBirthInfo } = data;
+        const numberVal = rawInput || targetNumber;
+
+        // 1. Kiểm tra dãy số đầu vào
+        if (!numberVal || typeof numberVal !== 'string' || numberVal.trim().length === 0) {
+            return { isValid: false, error: 'Vui lòng cung cấp dãy số cần xem phong thủy.' };
+        }
+
+        const digitsOnly = numberVal.replace(/\D/g, '');
+        if (digitsOnly.length < 3) {
+            return { isValid: false, error: 'Dãy số phải chứa ít nhất 3 chữ số.' };
+        }
+        if (digitsOnly.length > 25) {
+            return { isValid: false, error: 'Dãy số không được vượt quá 25 chữ số.' };
+        }
+
+        // 2. Kiểm tra loại hình & độ dài chuyên biệt từng loại
+        if (!['sim', 'plate', 'bank'].includes(type)) {
+            return { isValid: false, error: 'Loại hình số học không hợp lệ (hỗ trợ sim, plate, bank).' };
+        }
+
+        if (type === 'plate' && digitsOnly.length !== 5) {
+            return { isValid: false, error: 'Biển số xe phong thủy yêu cầu đúng 5 chữ số (Ví dụ: 591.23 hoặc 888.88). Không cần nhập mã vùng tỉnh thành.' };
+        }
+
+        if (type === 'sim' && digitsOnly.length !== 10) {
+            return { isValid: false, error: 'Số điện thoại phải có đúng 10 chữ số (chuẩn viễn thông Việt Nam).' };
+        }
+
+        if (type === 'bank' && (digitsOnly.length < 10 || digitsOnly.length > 16)) {
+            return { isValid: false, error: 'Số tài khoản ngân hàng thông dụng phải từ 10 đến 16 chữ số.' };
+        }
+
+        // 3. Kiểm tra chế độ
+        if (!['quick', 'bazi'].includes(mode)) {
+            return { isValid: false, error: 'Chế độ xem không hợp lệ (hỗ trợ quick hoặc bazi).' };
+        }
+
+        // 4. Nếu xem phối Bát tự, kiểm tra ngày sinh
+        if (mode === 'bazi') {
+            const birthDate = data.birthDate || ownerBirthInfo?.birthDate;
+            if (!birthDate || typeof birthDate !== 'string' || birthDate.trim().length === 0) {
+                return { isValid: false, error: 'Khi xem phối Bát Tự, thông tin ngày sinh của gia chủ là bắt buộc.' };
+            }
+        }
+
+        // 5. Kiểm tra độ dài tên
+        if (ownerName && typeof ownerName === 'string' && ownerName.trim().length > 100) {
+            return { isValid: false, error: 'Tên gia chủ không được vượt quá 100 ký tự.' };
+        }
+
+        if (bankName && typeof bankName === 'string' && bankName.trim().length > 100) {
+            return { isValid: false, error: 'Tên ngân hàng không được vượt quá 100 ký tự.' };
+        }
+
+        return { isValid: true, error: null };
+    }
 }
 
 module.exports = InputValidator;

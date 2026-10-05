@@ -3,6 +3,7 @@ const ZiweiRecord = require('../../ziwei/models/ZiweiRecord');
 const IChingRecord = require('../../iching/models/IChingRecord');
 const MarriageRecord = require('../../bazi/models/MarriageRecord');
 const FeiXingRecord = require('../../feixing/models/FeiXingRecord');
+const NumerologyRecord = require('../../numerology/models/NumerologyRecord');
 const pdfTemplateService = require('../services/PdfTemplateService');
 const pdfGeneratorService = require('../services/PdfGeneratorService');
 const logger = require('../../../core/services/LoggerService');
@@ -46,6 +47,9 @@ class ExportController {
     } else if (normalizedType === 'feixing' || normalizedType === 'xuan-kong') {
       Model = FeiXingRecord;
       normalizedType = 'feixing';
+    } else if (normalizedType === 'numerology' || normalizedType === 'phong-thuy-so') {
+      Model = NumerologyRecord;
+      normalizedType = 'numerology';
     }
 
     if (!Model) {
@@ -129,6 +133,10 @@ class ExportController {
         htmlContent = pdfTemplateService.generateFeiXingHtml(record, scope);
         const name = record.ownerName || 'Gia_Chu';
         defaultFileName = `La_So_Phi_Tinh_${sanitizeFileName(name)}`;
+      } else if (normalizedType === 'numerology') {
+        htmlContent = pdfTemplateService.generateNumerologyHtml(record, scope);
+        const targetStr = record.targetNumber || 'So_Hoc';
+        defaultFileName = `Phong_Thuy_So_${sanitizeFileName(targetStr)}`;
       }
 
       // 6. Tạo khóa Cache Redis dựa trên Scope và thời gian sửa đổi bản ghi

@@ -5,6 +5,7 @@ jest.mock('../../src/modules/bazi/models/BaziRecord');
 jest.mock('../../src/modules/ziwei/models/ZiweiRecord');
 jest.mock('../../src/modules/bazi/models/MarriageRecord');
 jest.mock('../../src/modules/feixing/models/FeiXingRecord');
+jest.mock('../../src/modules/numerology/models/NumerologyRecord');
 jest.mock('../../src/core/models/Conversation');
 jest.mock('../../src/core/models/Message');
 jest.mock('../../src/core/models/User');
@@ -29,6 +30,7 @@ const BaziRecord = require('../../src/modules/bazi/models/BaziRecord');
 const ZiweiRecord = require('../../src/modules/ziwei/models/ZiweiRecord');
 const MarriageRecord = require('../../src/modules/bazi/models/MarriageRecord');
 const FeiXingRecord = require('../../src/modules/feixing/models/FeiXingRecord');
+const NumerologyRecord = require('../../src/modules/numerology/models/NumerologyRecord');
 
 const createChainableQuery = (resolvedValue) => {
     return {
@@ -116,6 +118,7 @@ describe('HistoryFilter Unit Tests', () => {
             ZiweiRecord.find.mockReturnValue(createChainableQuery([{ _id: 'z1', inputInfo: { name: 'Nam 2', date: '1990-01-01', hour: 2 } }]));
             MarriageRecord.find.mockReturnValue(createChainableQuery([]));
             FeiXingRecord.find.mockReturnValue(createChainableQuery([]));
+            NumerologyRecord.find.mockReturnValue(createChainableQuery([]));
 
             const req = {
                 params: { userId: 'user-123' },
@@ -132,6 +135,7 @@ describe('HistoryFilter Unit Tests', () => {
                         ziweis: 1,
                         marriages: 0,
                         feixings: 0,
+                        numerologies: 0,
                         total: 3
                     }
                 })

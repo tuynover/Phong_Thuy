@@ -3,6 +3,7 @@ const BaziRecord = require('../../modules/bazi/models/BaziRecord');
 const ZiweiRecord = require('../../modules/ziwei/models/ZiweiRecord');
 const MarriageRecord = require('../../modules/bazi/models/MarriageRecord');
 const FeiXingRecord = require('../../modules/feixing/models/FeiXingRecord');
+const NumerologyRecord = require('../../modules/numerology/models/NumerologyRecord');
 
 module.exports = async (req, res, next) => {
   const { id } = req.params;
@@ -24,6 +25,8 @@ module.exports = async (req, res, next) => {
     Model = MarriageRecord;
   } else if (path.includes('/feixing') || path.includes('/huyen-khong')) {
     Model = FeiXingRecord;
+  } else if (path.includes('/numerology') || path.includes('/phong-thuy-so')) {
+    Model = NumerologyRecord;
   }
 
   if (!Model) {

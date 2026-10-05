@@ -9,7 +9,7 @@ const conversationSchema = new mongoose.Schema({
   system: {
     type: String,
     required: true,
-    enum: ['iching', 'bazi', 'ziwei', 'marriage']
+    enum: ['iching', 'bazi', 'ziwei', 'marriage', 'feixing', 'numerology']
   },
   recordId: {
     type: String,

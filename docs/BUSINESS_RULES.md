@@ -1109,6 +1109,74 @@ Hệ thống kết hợp đồng thời hai trường phái phong thủy cốt l
         *   Trên Desktop: Mở rộng đồ hình đến tối đa khung chứa web (`max-w-[780px]`) cho trải nghiệm hoành tráng, các thẻ cung rộng rãi, phóng khoáng.
         *   Trên Mobile ($390\text{px}$): Co giãn tự nhiên theo tỉ lệ khung hình (aspect-square), cỡ chữ và huy hiệu tự động thu phóng vector sắc nét, chống tràn viền tuyệt đối.
 
+---
 
+## 🔢 15. Quy tắc Nghiệp vụ Phong Thủy Số Học (Numerology)
 
+### 15.1 Nguyên Tắc Tính Vận Động (Dynamic Nine Periods)
+- Hệ thống **tuyệt đối không áp cứng Vận 9**. Vận được tính toán động dựa trên năm hiện tại theo chu kỳ Tam Nguyên Cửu Vận (bắt đầu từ năm 1864):
+  $$\text{Period} = \left\lfloor \frac{(\text{Year} - 1864) \bmod 180}{20} \right\rfloor + 1$$
+- Sao Đương Lệnh = $\text{Period}$, Sao Tiến Khí = $(\text{Period} \bmod 9) + 1$, Sao Thoái Khí = $\text{Period} = 1 ? 9 : \text{Period} - 1$.
 
+### 15.2 Mai Hoa Lập Quẻ & Chuẩn Mực 64 Quẻ Dịch Kinh Điển (6 Cấp Bậc Cát Hung)
+- **Bỏ Quẻ Hỗ:** Chỉ lập **Quẻ Chủ (Chính Quái)** và **Quẻ Biến (Biến Quái)** qua 1 Hào Động duy nhất theo quy thức Mai Hoa Dịch Số.
+- **Chuẩn Hóa Đánh Giá Cát Hung Đầy Đủ:** Mọi phán đoán quẻ (Xếp hạng, Thoán từ, Lời khuyên) phân định rành mạch 6 cấp bậc học thuật, bao gồm cả các quẻ Hung và Đại Hung:
+  - **Đại Cát** (+14 điểm quẻ chủ / +12 điểm quẻ biến): Thuần Càn (1), Địa Thiên Thái (11), Hỏa Thiên Đại Hữu (14), Địa Sơn Khiêm (15), Phong Lôi Ích (42), Hỏa Phong Đỉnh (50).
+  - **Thượng Cát** (+8 điểm quẻ chủ / +6 điểm quẻ biến): 24 quẻ cát lành thịnh vượng (Thuần Khôn, Thủy Thiên Nhu, Đồng Nhân, Giải, Thăng...).
+  - **Trung Cát** (+3 điểm quẻ chủ / +2 điểm quẻ biến): 10 quẻ tiến trình trung bình (Mông, Sư, Tiểu Súc, Di, Tổn, Tỉnh, Chấn, Tốn, Tiết...).
+  - **Cẩn Trọng** (-4 điểm quẻ chủ / -4 điểm quẻ biến): 5 quẻ cần tĩnh tâm dè dặt (Lý, Quán, Vô Vọng, Cấn, Vị Tế).
+  - **Hung** (-12 điểm quẻ chủ / -10 điểm quẻ biến): 12 quẻ tranh chấp, trắc trở, hư hao (Truân, Tụng, Cổ, Phệ Hạp, Đại Quá, Độn, Khuê, Quải, Cấu, Lữ, Hoán, Tiểu Quá).
+  - **Đại Hung** (-20 điểm quẻ chủ / -16 điểm quẻ biến): 7 quẻ đại hung hiểm độc (Thiên Địa Bĩ (12), Sơn Địa Bác (23), Thuần Khảm (29), Địa Hỏa Minh Di (36), Thủy Sơn Kiển (39), Trạch Thủy Khốn (47), Lôi Trạch Quy Muội (54)).
+
+### 15.3 Ngũ Hành Chữ Số & Dòng Chảy Khí Trường
+- Bảng ánh xạ ngũ hành từng con số:
+  - `1`: Dương Thủy (Xanh lam `#0284C7`)
+  - `2`: Âm Thổ (Vàng nâu `#B45309`)
+  - `3`: Dương Mộc (Xanh lá `#059669`)
+  - `4`: Âm Mộc (Xanh ngọc `#10B981`)
+  - `5`: Dương Thổ (Vàng đậm `#CA8A04`)
+  - `6`: Dương Kim (Trắng bạc `#475569`)
+  - `7`: Âm Kim (Vàng kim / Bạc `#64748B`)
+  - `8`: Âm Thổ (Nâu trầm `#92400E`)
+  - `9`: Dương Hỏa (Đỏ lửa `#E11D48`)
+  - `0`: Âm Thủy / Thủy Khố (`#2563EB`)
+- Đánh giá dòng chảy: Tính toán số cặp tương sinh (Kim $\rightarrow$ Thủy $\rightarrow$ Mộc $\rightarrow$ Hỏa $\rightarrow$ Thổ $\rightarrow$ Kim) và tương khắc giữa các số liền kề. Dòng chảy tương sinh liên hoàn được cộng điểm thưởng (+5), nhiều tương khắc bị trừ điểm (-6).
+
+### 15.4 Cấu Trúc Nhập Liệu Chuyên Biệt Theo Loại Hình & Giới Hạn Chữ Số
+- **Sim Số (`sim`):** Cấu trúc chuẩn đúng **10 chữ số** di động Việt Nam (`maxLength={10}`, từ chối nếu khác 10 số).
+- **Biển Số Xe (`plate`):** Cấu trúc định sẵn đúng **5 chữ số** (`maxLength={5}`, từ chối nếu khác 5 số). Định dạng chuẩn hiển thị: `xxx.xx` (Ví dụ: `591.23` hoặc `888.88`). Không cần nhập mã vùng tỉnh thành.
+- **Số Tài Khoản (`bank`):** Dãy số tài khoản ngân hàng thông dụng từ **10 đến 16 chữ số** (`maxLength={16}`, từ chối nếu < 10 hoặc > 16 số). Tự động phân cụm 4 chữ số (`xxxx xxxx xxxx`). Loại bỏ hoàn toàn chọn ngân hàng.
+- **Đồng Bộ Chuẩn Hóa Ô Nhập Ngày Giờ Sinh (Bát Tự Phối Trạch):**
+  - Đồng bộ 100% với giao diện Bát Tự và Tử Vi: sử dụng hệ combobox `CustomSelect` cho Ngày (`DD`: 1..31), Tháng (`MM`: 1..12), Năm (`YYYY`: 1930..2026), Giờ (`HH`: 00..23), Phút (`Min`: 00..59).
+  - Tích hợp chuyển đổi chế độ Lịch pháp **Dương lịch** / **Âm lịch** kèm tự động phát hiện và hiển thị checkbox **Tháng nhuận** (`isLeap`).
+  - Hỗ trợ xem 12 Canh Giờ và chip nhận diện Canh Giờ thời gian thực (`Canh Giờ: Thìn (07:00 - 08:59)`).
+  - Nút bấm thông minh duy nhất **"Sử Dụng Thông Tin Bản Thân"**: Tự động trích xuất và điền ngày, tháng, năm, giờ, phút, giới tính và tên gia chủ từ hồ sơ tài khoản cá nhân.
+
+### 15.5 Khử Trùng Cặp Sao Tinh Tổ & Trình Diễn Quẻ Dịch Chuẩn 2 Dòng
+- **Khử trùng Tinh Tổ Trùng Lặp (Star Pairs Deduplication):** Mỗi tổ hợp cặp sao (ví dụ: `88`, `59`, `23`) chỉ xuất hiện duy nhất 1 lần trong danh sách cặp sao Cửu Tinh. Trường hợp tổ hợp xuất hiện nhiều lần (như số lặp `...8888`), hệ thống hiển thị thêm huy hiệu cấp số nhân `x{count}` (ví dụ: `88 Bình thường x8`).
+- **Trình Diễn Quẻ Dịch Chuẩn 2 Dòng (Không Chứa Dấu Ngoặc):**
+  - Dòng 1 (In hoa đậm): `Quẻ {id}: {Tên Quẻ}` (Ví dụ: `Quẻ 2: Thuần Khôn`, `Quẻ 23: Sơn Địa Bác`).
+  - Dòng 2 (Mô tả phụ, xuống 1 dòng riêng biệt, **loại bỏ hoàn toàn dấu ngoặc đơn `()`**): `{Ý Nghĩa Quẻ}` (Ví dụ: `Đất Mẹ Dày Đức`, `Rụng Rơi Tự Lắng`).
+  - Phía dưới là huy hiệu xếp hạng Cát Hung (`Thượng Cát`, `Đại Hung`...).
+
+### 15.6 Bát Tự Tương Phối & Định Hướng Đối Tượng
+- Khi người dùng chọn chế độ **Xem Phối Bát Tự**:
+  - Tính toán chính xác **Ngũ Hành Vượng Nhất Sinh Thần** (% tỷ lệ cao nhất) và **Ngũ Hành Khuyết Suy** (% tỷ lệ thấp nhất).
+  - So khớp ngũ hành dãy số với Dụng Thần, Hỷ Thần và Kỵ Thần của gia chủ.
+  - Tự động sinh nội dung học thuật: **Thích Hợp Cho Đối Tượng** (ai nên dùng) và **Cảnh Báo Không Thích Hợp** (ai không nên dùng để tránh hao tán tài lộc/bệnh tật).
+
+### 15.7 Thuật Toán Chấm Điểm Phân Hóa Đa Tầng (Dải Điểm 38 - 97)
+- Điểm khởi điểm: **50 điểm** (cân bằng trung tính).
+- Biến thiên điểm phản ánh thực tế sự tương tác đa chiều giữa:
+  1. Quẻ Chủ & Quẻ Biến (+14 đến -20 điểm). Khi phạm quẻ Hung / Đại Hung, điểm số bị trừ mạnh mẽ.
+  2. Cửu Tinh Đương Vận & Tiến Khí (+4/số, tối đa +12; trừ phạt sao 5 và sát tinh).
+  3. Cặp sao Tinh Tổ (Hà Đồ, Hợp Thập: +4; Hung Sát 25, 67, 37, 97: -8 đến -12).
+  4. Khí khẩu đuôi số (+8 đến -8).
+  5. Cân bằng Âm Dương (+5 nếu hòa hợp, -10 nếu thuần âm/thuần dương).
+  6. Dòng chảy ngũ hành (+5 / -6).
+  7. Tương hợp Bát Tự (chế độ Bát tự: $\pm 15$ điểm).
+- Kết quả điểm dao động thực tế từ **38 đến 97**, phân tầng 4 cấp bậc rõ rệt: Tối Cát Thượng Đẳng ($\ge 86$), Cát Lợi Hanh Thông ($75 - 85$), Bình Hòa Vừa Phải ($60 - 74$), Cẩn Trọng Chế Hóa ($< 60$).
+
+### 15.8 Giới Hạn Luận Giải AI Chuyên Sâu
+- Chức năng **Luận Giải Chuyên Sâu 5 Chương từ AI** và **Hỏi Đáp Tiếp Nối** chỉ được kích hoạt khi khảo sát ở chế độ **Xem Phối Bát Tự**.
+- Ở chế độ **Xem Nhanh (Số Học)**, hệ thống ẩn nút Luận Giải và hiển thị biểu ngữ điều hướng mời gọi người dùng chuyển sang chế độ Phối Bát Tự để nhận bài phân tích cá nhân hóa.

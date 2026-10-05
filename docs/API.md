@@ -1439,3 +1439,141 @@ Hệ thống tính toán phong thủy Huyền Không Phi Tinh kết hợp Tam Ng
 - **Xác thực:** Bắt buộc (`verifyToken`).
 - **Lọc Chủ Đề:** Đi qua `ConversationContextService.isDivinationRelated` để chặn các câu hỏi lạc đề không liên quan phong thủy / trạch mệnh.
 - **Phản hồi:** Server-Sent Events (`text/event-stream`).
+
+---
+
+## 🔢 17. Phong Thủy Số Học: Sim, Biển Số Xe & Tài Khoản Ngân Hàng (`/api/numerology` & `/api/ai/numerology`)
+
+Phân hệ khảo sát số lý toàn diện tích hợp 3 môn cổ học: **Huyền Không Phi Tinh** (Cửu Tinh Động Vận & Cặp Tinh Tổ), **Kinh Dịch Mai Hoa** (Lập Quẻ Chủ & Quẻ Biến qua hào động, triệt tiêu Quẻ Hỗ) và **Bát Tự Tương Phối** (Dụng Thần, Hỷ Thần, Cung Phi). Hỗ trợ 3 nhóm đối tượng: Sim điện thoại (`sim`), Biển số xe (`plate`), và Số tài khoản ngân hàng (`bank`).
+
+### 17.1 Khảo Sát & Lập Hồ Sơ Số Học (Calculate Numerology)
+- **Endpoint:** `POST /api/numerology/calculate`
+- **Xác thực:** Tùy chọn (`optionalAuth`). Cho phép khách vãng lai (`guest`) tra cứu.
+- **Bảo vệ Concurrency:** Áp dụng In-Flight Concurrency Lock (2.5s) qua Redis để chống spam click đúp.
+- **Body Request:**
+  ```json
+  {
+    "rawInput": "0988199199",
+    "type": "sim",
+    "mode": "quick",
+    "ownerName": "Trịnh Công Tuyền",
+    "year": 2026,
+    "ownerBirthInfo": {
+      "hasBirthInfo": true,
+      "birthDate": "1995-08-18",
+      "birthHour": "12:00",
+      "gender": 1
+    }
+  }
+  ```
+- **Phản hồi (200 OK):**
+  ```json
+  {
+    "success": true,
+    "data": {
+      "_id": "01924b12-9876-7abc-...",
+      "type": "sim",
+      "targetNumber": "0988199199",
+      "displayNumber": "0988.199.199",
+      "mode": "bazi",
+      "period": 9,
+      "ownerName": "Trịnh Công Tuyền",
+      "analysisSnapshot": {
+        "calculatedAtYear": 2026,
+        "period": 9,
+        "periodDetails": { "rulingStar": 9, "futureStar": 1, "retiredStar": 8 },
+        "feixingAnalysis": {
+          "starCounts": { "1": 2, "8": 2, "9": 5 },
+          "pairs": [
+            { "pair": "19", "nature": "HOP_THAP", "label": "Hợp Thập (1-9)", "badgeType": "cat", "desc": "Thủy Hỏa Ký Tế Hợp Thập..." }
+          ],
+          "oddCount": 7,
+          "evenCount": 3,
+          "balanceState": "Thiên Dương (7 Dương : 3 Âm - Năng động, tốc độ)"
+        },
+        "elementAnalysis": {
+          "dominantElement": "Hoa",
+          "dominantPercentage": 50,
+          "flowRating": "Tuần hoàn sinh nhập cát lợi",
+          "distribution": { "Kim": 20, "Moc": 0, "Thuy": 20, "Hoa": 50, "Tho": 10 }
+        },
+        "ichingHexagrams": {
+          "primaryHexagram": {
+            "id": 28,
+            "name": "Trạch Phong Đại Quá",
+            "palace": "Chấn",
+            "element": "Mộc",
+            "rank": "Cẩn Trọng",
+            "tagline": "Cột nóc cong oằn, gánh nặng quá sức...",
+            "advice": "Cần thận trọng, tránh liều lĩnh gánh vác việc quá tầm tay."
+          },
+          "movingLine": 3,
+          "transformedHexagram": {
+            "id": 47,
+            "name": "Trạch Thủy Khốn",
+            "palace": "Đoài",
+            "element": "Kim",
+            "rank": "Cẩn Trọng",
+            "tagline": "Cây cối khô héo trong đầm nước rạn nứt...",
+            "advice": "Kiên nhẫn chờ thời, giữ tâm chính trực vượt qua sóng gió."
+          }
+        },
+        "baziCompatibility": {
+          "isDayMasterHarmonized": true,
+          "isFavorableElement": true,
+          "strongestElement": { "name": "Kim", "percentage": 43.3 },
+          "suitableFor": ["Người mệnh khuyết Hỏa hoặc Thổ", "Lĩnh vực truyền thông, công nghệ"],
+          "unsuitableFor": ["Người bản mệnh Hỏa vượng thái quá", "Lĩnh vực đòi hỏi tính âm trầm tĩnh"]
+        },
+        "overallScore": 86,
+        "auspiciousLevel": "THUONG_CAT",
+        "levelLabel": "Thượng Cát Hanh Thông"
+      }
+    }
+  }
+  ```
+
+### 17.2 Xem Chi Tiết Bản Ghi Số Học (Get Record)
+- **Endpoint:** `GET /api/numerology/record/:id`
+- **Xác thực:** Tùy chọn (`optionalAuth`). Tự động bảo mật quyền riêng tư: Nếu `isPublic: false` thì chỉ chính chủ hoặc Admin mới có quyền truy cập.
+
+### 17.3 Lấy Lịch Sử Số Học Của Người Dùng (Get User History)
+- **Endpoint:** `GET /api/numerology/history/:userId`
+- **Xác thực:** Bắt buộc (`verifyToken`).
+- **Query Params:** `page`, `limit`, `search`, `startDate`, `endDate`, `type`.
+
+### 17.4 Bật/Tắt Chia Sẻ Công Khai (Toggle Public)
+- **Endpoint:** `POST /api/numerology/record/:id/toggle-public`
+- **Xác thực:** Bắt buộc (`verifyToken`). Kiểm tra quyền sở hữu bản ghi.
+- **Tác vụ ngầm:** Tự động gọi `GoogleIndexingService` gửi thông báo URL_UPDATED hoặc URL_DELETED lên Googlebot.
+
+### 17.5 Đánh Giá Bài Luận Giải Số Học (Rate Record)
+- **Endpoint:** `POST /api/numerology/record/:id/rate`
+- **Xác thực:** Bắt buộc (`verifyToken`).
+- **Body Request:** `{ "rating": 5, "feedback": "Rất chuẩn xác và chi tiết" }`
+
+### 17.6 Xóa Bản Ghi Số Học (Delete Record)
+- **Endpoint:** `DELETE /api/numerology/record/:id`
+- **Xác thực:** Bắt buộc (`verifyToken`). Cập nhật nguyên tử O(1) giảm `numerologyCount`.
+
+### 17.7 Luận Giải Toàn Diện Phong Thủy Số Bằng AI (SSE Stream)
+- **Endpoint:** `POST /api/ai/numerology/:id/interpret`
+- **Xác thực:** Bắt buộc (`verifyToken`).
+- **Hạn Mức & Chi Phí (Points):** 
+  - Gói Tiêu Chuẩn (`standard`): 100 Points.
+  - Gói Chuyên Sâu VIP (`vip`): 500 Points.
+  - Trừ điểm nguyên tử qua `creditCheck.js`, tự động hoàn trả nguyên trạng nếu kết nối SSE bị ngắt bất thường.
+- **Phản hồi:** Server-Sent Events (`text/event-stream`) với Heartbeat Ping rỗng mỗi 15s.
+
+### 17.8 Hỏi Thêm Chuyên Gia Phong Thủy Số Theo Bối Cảnh (SSE Stream Follow-up Chat)
+- **Endpoint:** `POST /api/ai/numerology/:id/chat`
+- **Xác thực:** Bắt buộc (`verifyToken`).
+- **Bảo Vệ Đề Tài:** Đi qua `ConversationContextService.isDivinationRelated` để ngăn chặn câu hỏi lạc đề.
+- **Phản hồi:** Server-Sent Events (`text/event-stream`).
+
+### 17.9 Xuất Ấn Phẩm PDF Phong Thủy Số A4 (PDF Export)
+- **Endpoint:** `POST /api/export/pdf/numerology/:id`
+- **Xác thực:** Bắt buộc qua Header `Authorization: Bearer <token>` hoặc Query `?token=<token>`.
+- **Body Request:** `{ "scope": ["chart", "overview", "feixing", "iching", "bazi", "interpretation"] }`
+- **Phản hồi:** `application/pdf` binary stream.
+

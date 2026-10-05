@@ -161,6 +161,38 @@ const SYSTEM_TIER_INFO = {
         { bold: 'Phác Đồ Bố Trí Pháp Bảo Thực Chiến:', text: ' Định vị chính xác điểm đặt Nước (Thủy kích tài) và Núi (Sơn tụ đinh)' }
       ]
     }
+  },
+  numerology: {
+    systemName: 'Phong Thủy Số Học',
+    upgradeTitle: 'Bản Luận Giải Số Học 5 Chương Chuyên Sâu',
+    upgradeDescription: 'Hệ thống kích hoạt Đại Sư Phong Thủy Số Lý & Chu Dịch thẩm định chuyên sâu: Cửu Tinh Động Vận, Tinh Tổ Hà Đồ & Hợp Thập, Kinh Dịch Mai Hoa Lập Quẻ, Mệnh Chủ Bát Tự Tương Phối và Pháp Bảo Hóa Giải.',
+    upgradeBullets: [
+      'Phân tích Cửu Tinh Đương Vận & Tiến Khí Tam Nguyên Cửu Vận',
+      'Kinh Dịch Mai Hoa Dịch Số: Quẻ Chủ & Quẻ Biến định đoạt đại cục',
+      'Bát Tự Tương Phối: Bổ khuyết Dụng Thần & Cung Phi Mệnh Quái'
+    ],
+    standard: {
+      title: 'Luận Giải Số Học Tiêu Chuẩn',
+      badge: '100 Points',
+      description: 'Phân tích tổng quan số lý, âm dương hòa hợp, quẻ dịch mai hoa và cát hung cơ bản của dãy số.',
+      bullets: [
+        'Đánh giá Cửu Tinh Đương Lệnh và các cặp số tinh tổ',
+        'Lập Quẻ Dịch Mai Hoa (Quẻ Chủ & Quẻ Biến)',
+        'Khảo sát độ tương hợp sơ khởi với gia chủ (800 - 1.200 từ)',
+        'Định hướng khai thác năng lượng dãy số đắc lợi'
+      ]
+    },
+    vip: {
+      title: 'Luận Giải Số Học Chuyên Sâu',
+      badge: '500 Points',
+      description: 'Công trình số học chuyên sâu 5.000+ từ, kết hợp Cửu Tinh Động Vận, Chu Dịch Mai Hoa, Bát Tự Tương Phối và Chiến Lược Phong Thủy Số.',
+      bullets: [
+        { bold: '5 Chương Luận Giải Toàn Diện:', text: ' Tổng quan Khí vận, Cửu Tinh & Tinh tổ, Quẻ Dịch Mai Hoa, Bát Tự Mệnh Chủ, Kế Sách Hóa Giải' },
+        { bold: 'Đặc Thù Chuyên Biệt Theo Loại Hình:', text: ' Tối ưu hóa Sim (liên lạc), Biển số (an toàn lộ trình), Tài khoản (kim khố tích lũy)' },
+        { bold: 'Bổ Khuyết Dụng Thần & Hỷ Thần:', text: ' Định lượng chính xác tỷ lệ ngũ hành số học bồi trợ bản mệnh' },
+        { bold: 'Pháp Hóa Giải & Kích Hoạt:', text: ' Phương pháp chuyển hung thành cát, vật phẩm phong thủy phụ trợ' }
+      ]
+    }
   }
 };
 

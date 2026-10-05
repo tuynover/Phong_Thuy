@@ -198,6 +198,12 @@ export default function Header({
           >
             Huyền Không
           </button>
+          <button 
+            onClick={() => handleSelectModule('numerology')} 
+            className={`px-4 py-1.5 rounded-full font-bold text-xs tracking-wider font-[Montserrat] uppercase ${appMode === 'numerology' ? 'bg-amber-700 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/50'}`}
+          >
+            Số học
+          </button>
           {user && (
             <button 
               onClick={() => handleSelectModule('history')} 
@@ -646,6 +652,15 @@ export default function Header({
                 >
                   <Compass className="text-amber-600" size={18} />
                   <span className="font-extrabold text-xs text-slate-800">Huyền Không Phi Tinh (Phong Thủy Nhà Ở)</span>
+                </button>
+
+                {/* PHONG THỦY SỐ (SIM, BIỂN SỐ, TÀI KHOẢN) */}
+                <button 
+                  onClick={() => { handleSelectModule('numerology'); setIsMobileMenuOpen(false); }}
+                  className="col-span-2 p-3.5 rounded-2xl bg-amber-600/10 hover:bg-amber-600/20 border border-amber-300/80 flex gap-3 items-center text-left transition-all cursor-pointer"
+                >
+                  <Sparkles className="text-amber-700" size={18} />
+                  <span className="font-extrabold text-xs text-slate-800">Số học (Sim, Biển Số, STK)</span>
                 </button>
 
                 {/* KIẾN THỨC (BLOG) */}

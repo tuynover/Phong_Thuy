@@ -1,6 +1,6 @@
-# ☯️ Hệ thống Ứng dụng Phong Thủy & Gieo Quẻ (IChing - Bazi - Ziwei - Marriage - FeiXing - Admin)
+# ☯️ Hệ thống Ứng dụng Phong Thủy & Gieo Quẻ (IChing - Bazi - Ziwei - Marriage - FeiXing - Numerology - Admin)
 
-Dự án này là một hệ thống ứng dụng web cung cấp các công cụ phân tích phong thủy, bao gồm phân tích **Kinh Dịch (IChing)**, **Tứ Trụ - Bát Tự (Bazi)**, **Lá Số Tử Vi (Ziwei)**, **Xem Tuổi Kết Hôn (Marriage)**, và **Huyền Không Phi Tinh (FeiXing)**, hỗ trợ người dùng xem lá số, gieo quẻ, khảo sát trạch vận và nhận luận giải chuyên sâu từ AI tích hợp tính năng hỏi đáp chuyên sâu (Follow-up Chat).
+Dự án này là một hệ thống ứng dụng web cung cấp các công cụ phân tích phong thủy, bao gồm phân tích **Kinh Dịch (IChing)**, **Tứ Trụ - Bát Tự (Bazi)**, **Lá Số Tử Vi (Ziwei)**, **Xem Tuổi Kết Hôn (Marriage)**, **Huyền Không Phi Tinh (FeiXing)**, và **Phong Thủy Số Học (Numerology: Sim, Biển Số Xe, Tài Khoản Ngân Hàng)**, hỗ trợ người dùng xem lá số, gieo quẻ, khảo sát số lý, trạch vận và nhận luận giải chuyên sâu từ AI tích hợp tính năng hỏi đáp chuyên sâu (Follow-up Chat).
 
 Dự án được chia làm 2 phần chính: **Frontend** (giao diện người dùng) và **Backend** (máy chủ xử lý logic, cơ sở dữ liệu và tích hợp AI).
 
@@ -24,6 +24,7 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
     │   ├── ziwei/               # Tử Vi Đẩu Số (controllers, models, services, prompts, routes)
     │   ├── iching/              # Kinh Dịch Lục Hào (controllers, models, services, prompts, routes)
     │   ├── feixing/             # Huyền Không Phi Tinh (controllers, models, services, prompts, routes)
+    │   ├── numerology/          # Phong Thủy Số: Sim, Xe, Bank (controllers, models, services, prompts, routes)
     │   ├── date/                # Xem Ngày Lành (controllers, services, routes)
     │   ├── blog/                # Blog & Khái Niệm (controllers, models, services, routes)
     │   ├── auth/                # Xác Thực & Thẻ Tag (controllers, routes, services)
@@ -47,10 +48,11 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
     │   ├── ziwei/               # Tử Vi: ZiweiBoard.jsx, ZiweiChart.jsx, ZiweiInput.jsx
     │   ├── marriage/            # Hợp Hôn: MarriageBoard.jsx, MarriageInput.jsx
     │   ├── feixing/             # Huyền Không Phi Tinh: FeiXingBoard.jsx, FeiXingCombinedDial.jsx, FeiXingCompass.jsx, FeiXingGrid.jsx, FeiXingInput.jsx
+    │   ├── numerology/          # Phong Thủy Số Học: NumerologyBoard.jsx, NumerologyInput.jsx
     │   ├── xemngay/             # Xem Ngày & Lịch Vạn Niên: DateSelectionBoard.jsx, components/PersonalizedCalendarBoard.jsx
     │   ├── blog/                # Kiến Thức Phong Thủy: BlogBoard.jsx
     │   ├── history/             # Lịch Sử Phân Tích: HistoryBoard.jsx
-    │   │   └── components/      # Card lịch sử độc lập: IChingHistoryCard, BaziHistoryCard, ZiweiHistoryCard, MarriageHistoryCard, FeiXingHistoryCard
+    │   │   └── components/      # Card lịch sử độc lập: IChingHistoryCard, BaziHistoryCard, ZiweiHistoryCard, MarriageHistoryCard, FeiXingHistoryCard, NumerologyHistoryCard
     │   ├── profile/             # Hồ Sơ Cá Nhân & Quản Trị: ProfileBoard.jsx
     │   ├── home/                # Trang Chủ Giới Thiệu: HomeBoard.jsx
     │   └── admin/               # Quản Trị Hệ Thống: AdminConfirmModal.jsx

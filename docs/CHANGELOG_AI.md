@@ -2,6 +2,168 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Chuẩn Hóa Ô Nhập Ngày Giờ Sinh Đồng Bộ Bát Tự/Tử Vi, Kiểm Soát Độ Dài Số Lý & Tinh Chỉnh Giao Diện Số Học (05/10/2026)
+
+### 🌟 1. Tổng Quan Cải Tiến Theo Phản Hồi Trực Tiếp Của Người Dùng
+1. **Chuẩn Hóa Hệ Thống Nhập Ngày Giờ Sinh (Đồng Bộ 100% Bát Tự & Tử Vi):**
+   - Triệt tiêu lỗi nhập ngày giờ sinh cũ (loại bỏ `CustomDatePicker` độc lập và dropdown giờ can chi đơn điệu).
+   - Áp dụng nguyên mẫu kiến trúc nhập liệu thống nhất từ phân hệ Bát Tự và Tử Vi:
+     - 3 ô combobox chọn Ngày (`DD`: 1..31), Tháng (`MM`: 1..12), Năm (`YYYY`: 1930..2026) sử dụng `CustomSelect` có khả năng gõ trực tiếp hoặc mở dropdown chọn nhanh.
+     - 2 ô combobox chọn Giờ (`HH`: 00..23) và Phút (`Min`: 00..59) kèm nút mở Modal Hướng dẫn 12 Canh Giờ và chip nhận diện Canh Giờ thời gian thực (`Canh Giờ: Thìn (07:00 - 08:59)`).
+     - Switch chuyển đổi lịch pháp **Dương lịch** / **Âm lịch** mượt mà; tự động tính toán và hiển thị checkbox **Tháng nhuận** (`isLeap`) khi năm và tháng âm lịch chọn có tháng nhuận qua `lunar-javascript`.
+     - Tự động clamp ngày trong tháng (`maxDays`) khi đổi tháng/năm.
+   - Nút duy nhất **"Sử Dụng Thông Tin Bản Thân"**: Tự động trích xuất thông tin ngày, tháng, năm, giờ, phút, giới tính và tên từ tài khoản người dùng (`user.baziInfo` hoặc `user.birthDate`), điền tức thì vào form và kích hoạt toast thông báo êm dịu 3 giây.
+2. **Kiểm Soát Độ Dài Nhập Liệu Nghiêm Ngặt Từng Loại Hình:**
+   - **Sim Số (`sim`):** Ràng buộc đúng **10 chữ số** (`maxLength={10}` trên input, kiểm tra validation chặn đứng nếu khác 10 số cả ở Frontend và Backend `InputValidator`).
+   - **Biển Số Xe (`plate`):** Ràng buộc đúng **5 chữ số** (`maxLength={5}` trên input, kiểm tra validation từ chối nếu khác 5 số). Không cần mã vùng.
+   - **Số Tài Khoản Ngân Hàng (`bank`):** Ràng buộc theo chuẩn thông dụng từ **10 đến 16 chữ số** (`maxLength={16}` trên input, kiểm tra validation từ chối nếu < 10 hoặc > 16 số).
+3. **Khử Trùng Triệt Để Danh Sách Cặp Sao Tinh Tổ (Khắc Phục Hình 1):**
+   - Khắc phục lỗi lặp lại hàng loạt thẻ trùng lặp (ví dụ: `88 Bình thường` lặp 8 lần khi dãy số có nhiều chữ số 8).
+   - Áp dụng cơ chế deduplication theo `pair` key ở cả Backend (`NumerologyRuleEngineService.analyzeFeiXing`) và Frontend (`NumerologyBoard` `uniquePairs` memoization).
+   - Mỗi tổ hợp chỉ hiển thị duy nhất 1 thẻ thẻ tổ hợp tinh tổ; nếu xuất hiện nhiều lần sẽ hiển thị thêm huy hiệu cấp số nhân `x{count}` tinh tế (Ví dụ: `88 Bình thường x8`).
+4. **Trình Diễn Quẻ Dịch Chuẩn 2 Dòng, Bỏ Dấu Ngoặc Đơn (Khắc Phục Hình 2):**
+   - Khắc phục tiêu đề dài dính liền trên 1 dòng `Quẻ 2: Thuần Khôn (Đất Mẹ Dày Đức)` và `Quẻ 23: Sơn Địa Bác (Rụng Rơi Tự Lắng)`.
+   - Bổ sung hàm tiện ích `parseHexagramNameAndMeaning` bóc tách chính xác tên quẻ và ý nghĩa quẻ:
+     - **Dòng 1 (In hoa đậm):** `Quẻ {id}: {Tên Quẻ}` (Ví dụ: `Quẻ 2: Thuần Khôn`, `Quẻ 23: Sơn Địa Bác`).
+     - **Dòng 2 (Mô tả ý nghĩa, xuống 1 dòng riêng biệt, bỏ dấu ngoặc đơn `()`):** `{Ý nghĩa}` (Ví dụ: `Đất Mẹ Dày Đức`, `Rụng Rơi Tự Lắng`).
+     - Phía dưới hiển thị huy hiệu cấp bậc Cát Hung (`Thượng Cát`, `Đại Hung`...).
+5. **Kiểm Thử Toàn Diện & Đạt Tiêu Chuẩn Nghiệm Thu:**
+   - Trực tiếp kiểm thử giao diện bằng Chrome DevTools MCP: Thao tác chuyển tab, test form Bát tự, nhấn "Sử Dụng Thông Tin Bản Thân", kiểm tra validation 9 số sim, 4 số biển xe, submit biển xe 5 số 59123 thành công, giao diện hiển thị chuẩn xác không có lỗi console.
+   - Chụp ảnh màn hình Viewport xác minh mỹ cảm đạt chuẩn Premium Aesthetics.
+   - Toàn bộ 45 test suites Backend (325/325 tests) và 10 test files Frontend (56/56 tests bao gồm `NumerologyInput.test.jsx`) đều PASS 100%.
+
+---
+
+## 📅 Phiên bản: Bổ Sung Phân Hạng Quẻ Hung / Đại Hung, Cấu Trúc Biển Xe 5 Số & Chuẩn Hóa Nhãn "Số Học" (05/10/2026)
+
+### 🌟 1. Tổng Quan Cải Tiến Theo Phản Hồi Trực Tiếp
+1. **Phân Hạng Quẻ Dịch Chuẩn Kinh Điển (Bổ Sung Quẻ Hung & Đại Hung):**
+   - Triệt tiêu tình trạng đánh giá quẻ một chiều "toàn tốt" (chỉ có Đại Cát, Thượng Cát, Trung Cát, Cẩn Trọng).
+   - Phân định rành mạch 6 cấp bậc học thuật cho 64 quẻ Dịch kinh điển: **Đại Cát** (6 quẻ), **Thượng Cát** (24 quẻ), **Trung Cát** (10 quẻ), **Cẩn Trọng** (5 quẻ), **Hung** (12 quẻ - Truân, Tụng, Cổ, Phệ Hạp, Đại Quá, Độn, Khuê, Quải, Cấu, Lữ, Hoán, Tiểu Quá), và **Đại Hung** (7 quẻ - Bĩ, Bác, Khảm, Minh Di, Kiển, Khốn, Quy Muội).
+   - Điểm số học thuật phạt nặng khi quẻ chủ/quẻ biến phạm hung: Quẻ Hung trừ -12 đến -10 điểm, Quẻ Đại Hung trừ -20 đến -16 điểm. Điểm số các dãy số xấu tụt thực tế xuống dải 38 - 55 điểm.
+   - Thẻ hiển thị quẻ trên giao diện tự động đổi màu cảnh báo trực quan: Quẻ Hung mang viền đỏ cam (`border-rose-300 bg-rose-50/30`), Quẻ Đại Hung mang viền đỏ sẫm báo động (`border-red-400 bg-red-50/40 ring-1 ring-red-400`).
+2. **Tối Ưu Form Sinh Thần Với 1 Nút Bấm "Sử Dụng Thông Tin Bản Thân":**
+   - Thay thế việc phân đôi tab phức tạp bằng 1 form nhập sinh thần duy nhất, luôn hiển thị đầy đủ các trường (Tên, Giới tính, Ngày sinh Dương lịch qua `CustomDatePicker`, Giờ sinh Can Chi).
+   - Bổ sung nút **"Sử Dụng Thông Tin Bản Thân"**: Khi người dùng đã đăng nhập click vào nút, hệ thống tự động điền thông tin cá nhân từ tài khoản vào form, có thông báo toast êm dịu mà vẫn cho phép người dùng tùy ý chỉnh sửa.
+3. **Cấu Trúc Định Sẵn Biển Số Xe 5 Số (Không Cần Mã Vùng):**
+   - Biển số xe chỉ lấy đúng **5 chữ số** (theo đúng chuẩn biển kiểm soát 5 số Việt Nam hiện hành), loại bỏ hoàn toàn mã vùng tỉnh thành (như 30A, 51K...).
+   - Input kiểm soát độ dài đúng 5 số, tự động định dạng hiển thị kiểu biển 5 số `xxx.xx` (Ví dụ: `591.23` hoặc `888.88`).
+   - Lập quẻ Mai Hoa theo quy thức: 2 số đầu làm Quẻ Thượng, 3 số sau làm Quẻ Hạ, tổng 5 số làm Hào Động.
+4. **Loại Bỏ Hoàn Toàn Dropdown Chọn Ngân Hàng:**
+   - Số tài khoản ngân hàng tập trung thuần túy vào năng lượng Kim Khố và số lý, không cần chọn tên ngân hàng.
+   - Input số tài khoản ngân hàng thiết kế cấu trúc riêng, tự động tách cụm 4 chữ số thông minh (`xxxx xxxx xxxx`), thẻ Digital Banking mô phỏng kim loại sang trọng.
+5. **Chuẩn Hóa Nhãn "Số Học" Trên Toàn Hệ Thống:**
+   - Header Desktop Nav: Đổi "Phong Thủy Số" $\rightarrow$ **"Số học"**.
+   - Header Mobile Drawer: Đổi "Phong Thủy Số (Sim, Biển Số, Tài Khoản)" $\rightarrow$ **"Số học (Sim, Biển Số, STK)"**.
+   - Trang Lịch Sử (History): Đổi tab "Phong Thủy Số" $\rightarrow$ **"Số học"**, hỗ trợ URL slug chuẩn `/history/so-hoc`.
+
+---
+
+## 📅 Phiên bản: Tối Ưu Điểm Số Phân Hóa, Chuẩn Hóa 64 Quẻ Dịch & Phổ Ngũ Hành Phối Bát Tự (05/10/2026)
+
+### 🌟 1. Tổng Quan Nhiệm Vụ & Bối Cảnh Tinh Chỉnh
+Tiếp thu trực tiếp chỉ đạo và phản hồi của người dùng về phân hệ **Phong Thủy Số Học (Numerology)**:
+1. **Giải Quyết Triệt Để Lỗi "Điểm Số Chấm Sim Nào Cũng Như Nhau":**
+   - Động cơ chấm điểm cũ neo ở mức 75 điểm và chỉ cộng dồn điểm thưởng, khiến gần như mọi dãy số đều đạt ngưỡng 90 - 96 điểm (không phản ánh đúng cát hung thực tế).
+   - Tái cấu trúc toàn diện thuật toán chấm điểm đa tầng với điểm cơ sở 50 điểm: Phạt nặng các cặp hung sát (-8 đến -12 điểm), trừ điểm khi xuất hiện nhiều sát tinh hoặc sao Ngũ hoàng 5, trừ điểm cô âm/độc dương (-10 điểm), trừ điểm xung khắc liên hoàn (-6 điểm), trừ điểm khi phạm kỵ thần Bát tự (-12 đến -18 điểm). Dải điểm đầu ra phân hóa sinh động, trải rộng từ **38 đến 97 điểm**.
+2. **Kế Thừa 100% Đánh Giá Quẻ Dịch Từ Phân Hệ Quẻ Hằng Ngày (`dailyFortuneData.js`):**
+   - Triệt tiêu hoàn toàn các câu từ thoán từ tự sáng tác tùy ý.
+   - Trích xuất toàn bộ dữ liệu 64 quẻ chuẩn mực từ `dailyFortuneData.js` vào `backend/src/modules/numerology/data/hexagramDailyJudgments.json`.
+   - Quẻ Chủ và Quẻ Biến hiển thị đúng 4 cấp bậc xếp hạng chuẩn: **Đại Cát**, **Thượng Cát**, **Trung Cát**, **Cẩn Trọng** kèm Thoán Từ kinh điển và Lời Khuyên Đạo Dịch tinh hoa.
+3. **Phổ Ngũ Hành Từng Con Số & Nhận Diện Bản Mệnh Dãy Số:**
+   - Ánh xạ chính xác ngũ hành của 10 chữ số: 1 (Dương Thủy - Lam), 2 (Âm Thổ - Vàng nâu), 3 (Dương Mộc - Xanh lá), 4 (Âm Mộc - Xanh ngọc), 5 (Dương Thổ - Vàng đậm), 6 (Dương Kim - Trắng bạc), 7 (Âm Kim - Vàng kim/Xám), 8 (Âm Thổ - Nâu trầm), 9 (Dương Hỏa - Đỏ), 0 (Âm Thủy / Thủy Khố - Lam thẫm).
+   - Hiển thị dãy số thành chuỗi thẻ huy hiệu màu sắc ngũ hành trực quan; bổ sung thanh phân bổ % ngũ hành và đánh giá dòng chảy tương sinh/tương khắc liên hoàn.
+4. **Bổ Sung Ngũ Hành Vượng Nhất Sinh Thần & Hồ Sơ Đối Tượng Phù Hợp:**
+   - Trích xuất tỷ lệ % ngũ hành từ `BaziAnalyzer` để xác định **Ngũ Hành Vượng Nhất Sinh Thần** (tránh bồi thêm gây quá vượng) và **Ngũ Hành Khuyết Suy**.
+   - Tự động sinh mục **Thích Hợp Cho Đối Tượng** (ai nên sử dụng theo ngành nghề/bản mệnh/dụng thần) và **Cảnh Báo Không Thích Hợp** (ai cần tránh).
+5. **Tách Biệt Rành Mạch "Dùng Bát Tự Bản Thân" Với Form Nhập Ngày Sinh:**
+   - Nút chế độ chuyển thành `Xem Phối Bát Tự` (loại bỏ chữ "AI" trên nút).
+   - Tách thành 2 tùy chọn độc lập: **[👤 Dùng Bát Tự Bản Thân]** (thẻ thông tin tài khoản chính chủ tự động điền) và **[📝 Nhập Ngày Sinh Khác]** (form thủ công gồm Tên, Giới tính, CustomDatePicker, Giờ sinh Can Chi).
+6. **Ràng Buộc Phân Quyền Luận Giải AI Chuyên Sâu:**
+   - Chỉ mở tính năng Luận giải AI chuyên sâu và Hỏi đáp tiếp nối khi khảo sát ở chế độ **Xem Phối Bát Tự**.
+   - Ở chế độ Xem Nhanh, hiển thị biểu ngữ điều hướng mời gọi người dùng chuyển sang chế độ Bát Tự để nhận bài luận 5 chương từ AI.
+
+---
+
+## 📅 Phiên bản: Ra Mắt Toàn Diện Phân Hệ Phong Thủy Số Học (Sim, Biển Số Xe & Số Tài Khoản Ngân Hàng) (05/10/2026)
+
+### 🌟 1. Tổng Quan Nhiệm Vụ & Bối Cảnh Nghiên Cứu
+Hệ thống hoàn thiện và chính thức ra mắt phân hệ **Phong Thủy Số Học (Numerology)**, ứng dụng sự giao thoa học thuật giữa 3 môn cổ học phương Đông chính thống: **Huyền Không Phi Tinh Động Vận**, **Kinh Dịch Mai Hoa Lập Quẻ** và **Bát Tự Tương Phối Mệnh Chủ**:
+- **3 Nhóm Đối Tượng Khảo Sát:**
+  1. **Sim Số Điện Thoại (`sim`):** Đánh giá năng lượng kết nối, ngoại giao, thương hiệu cá nhân và danh tiếng thương mại.
+  2. **Biển Số Xe (`plate`):** Khảo sát khí trường chuyển động (Động Trạch) & Thần sát Dịch Mã; phòng tránh các tổ hợp hung sát va chạm đâm đụng (`67/76` Giao Kiếm Sát), quá nhiệt hỏa hoạn (`97/79` Hồi Lộc Chi Tai), tai ách tật ách (`25/52` Nhị Ngũ Giao Gia), tranh chấp (`23/32` Đấu Ngưu Sát), và trộm cắp thất thoát (`37/73` Xuyên Tâm Sát).
+  3. **Số Tài Khoản Ngân Hàng (`bank`):** Khảo sát năng lượng Kim Khố / Tụ Bảo Bồn; năng lực giữ tiền, tụ tài, chống hao hụt dòng tiền và phòng tránh lừa đảo chiếm đoạt tài sản.
+- **2 Chế Độ Phân Tích Linh Hoạt:**
+  - **Chế độ 1 (Xem Nhanh - Số Học):** Người dùng chỉ cần nhập số $\rightarrow$ hệ thống tức thời phân loại Cửu Tinh Đương Lệnh theo chu kỳ Vận động, nhận diện các cặp Tinh Tổ liền kề (Hà Đồ, Hợp Thập, Cát Tinh, Hung Sát), phân tích tỷ lệ Âm Dương, khí khẩu đuôi số và Lập Quẻ Kinh Dịch Mai Hoa.
+  - **Chế độ 2 (Xem Phối Bát Tự + AI):** Nhập thêm ngày tháng năm sinh (qua `CustomDatePicker`), giờ sinh Can Chi và giới tính $\rightarrow$ hệ thống đối chiếu thực sự với Nhật Chủ (Day Master), Dụng Thần, Hỷ Thần, Kỵ Thần và Cung Phi của gia chủ; đồng thời mở khóa tính năng Luận Giải Chuyên Sâu AI (5 chương toàn diện) và Chat tư vấn trực tiếp với AI.
+- **Các Nguyên Tắc Bắt Buộc Tuyệt Đối:**
+  - **Tính Vận Động (Dynamic Period):** Vận Tam Nguyên được tính toán hoàn toàn tự động dựa trên năm khảo sát (`NumerologyRuleEngineService.getPeriodFromYear(year)`), triệt tiêu hoàn toàn việc áp cứng Vận 9 để hệ thống tự thích ứng khi bước sang các đại vận tiếp theo (Vận 1, Vận 2...).
+  - **Kinh Dịch Mai Hoa:** Lập quẻ chỉ giữ **Quẻ Chủ (Chính Quái)** và **Quẻ Biến (Biến Quái)** kèm Hào Động; **BỎ HOÀN TOÀN Quẻ Hỗ** theo chỉ đạo trực tiếp của người dùng.
+  - **Quy Chuẩn Đơn Vị Điểm Thưởng (Points):** Sử dụng 100% thuật ngữ **Points** (100 Points cho gói Tiêu Chuẩn, 500 Points cho gói Chuyên Sâu VIP) trên toàn bộ Modal, Thông báo và API; loại bỏ hoàn toàn từ khóa credit.
+
+---
+
+### 🏛️ 2. Các Thay Đổi Kiến Trúc & Mã Nguồn
+
+#### 2.1 Backend (Node.js Express 5 & MongoDB & Redis)
+- **Model Dữ Liệu:**
+  - `backend/src/modules/numerology/models/NumerologyRecord.js`: Tạo Mongoose Model với khóa chính **UUIDv7**, lưu trữ đầy đủ `type` (`sim`, `plate`, `bank`), `mode`, `targetNumber`, `displayNumber`, `bankName`, `period`, `ownerName`, `ownerBirthInfo`, `analysisSnapshot`, `rating`, `feedback`, `aiInterpretation`, soft-delete vĩnh viễn (`isDeleted: false`).
+  - `backend/src/core/models/Conversation.js`: Cập nhật `system` enum bổ sung `'feixing'` và `'numerology'` phục vụ luồng chat theo ngữ cảnh an toàn.
+- **Động Cơ Tính Toán Học Thuật (Rule Engine):**
+  - `backend/src/modules/numerology/services/NumerologyRuleEngineService.js`:
+    + Chuẩn hóa dãy số theo từng loại hình (`normalizeTargetNumber`).
+    + Thuật toán Tam Nguyên Cửu Vận động theo chu kỳ 180 năm (`getPeriodFromYear`).
+    + Thống kê Cửu Tinh: Đương Lệnh Vượng Khí, Tiến Khí, Thoái Khí và Sát Tinh.
+    + Nhận diện các tổ hợp cặp Tinh Tổ: Hà Đồ (1-6, 2-7, 3-8, 4-9, 5-0), Hợp Thập (tổng 10), Cát tinh đặc biệt (1-4 Văn Xương, 8-9 Hỷ Khánh), và các hung sát hung hiểm theo loại hình.
+    + Mai Hoa Lập Quẻ: Thượng Quái, Hạ Quái, Hào Động và Quẻ Biến (chỉ 2 quẻ, không quẻ hỗ).
+    + Tương phối Bát Tự thực sự qua `BaziAnalyzer`: Bổ trợ Dụng Thần, Hỷ Thần, Cung Phi Bát Trạch.
+    + Chấm điểm tổng quan toàn diện từ 35 đến 99 điểm kèm phân hạng cát hung.
+- **Hệ Thống Prompt Chuyên Sâu Tiếng Anh:**
+  - `backend/src/modules/numerology/services/NumerologyPrompts.js`: Cung cấp Master System Prompt 5 chương chuyên biệt cho Sim, Xe và Ngân Hàng, cùng Follow-up Q&A Prompt.
+- **Bộ Điều Khiển & Định Tuyến (Controllers & Routes):**
+  - `backend/src/modules/numerology/controllers/NumerologyController.js`: CRUD bản ghi với Redis In-Flight Lock (2.5s), cập nhật nguyên tử O(1) thống kê lượt tạo (`UserStatsService`), Google Indexing Ping khi bật/tắt công khai.
+  - `backend/src/modules/numerology/controllers/NumerologyAiController.js`: SSE Streaming luận giải (100 / 500 Points qua `creditCheck.js`) và Follow-up Chat lọc chủ đề (`ConversationContextService`).
+  - Đăng ký routes tại `backend/src/routes/index.js` và `backend/src/routes/ai.js`.
+- **Xuất Ấn Phẩm PDF:**
+  - `backend/src/modules/export/templates/numerologyTemplate.js`: Mẫu HTML/CSS PDF A4 chuẩn in ấn hoàng gia với bìa rồng vàng, quốc huy, bảng cửu tinh, đồ hình quẻ dịch và bảng Bát Tự.
+  - Tích hợp vào `PdfTemplateService.js` và `ExportController.js`.
+
+#### 2.2 Frontend (React 19 & Tailwind CSS)
+- **Giao Diện Nhập Liệu Sang Trọng:**
+  - `frontend/src/features/numerology/NumerologyInput.jsx`: 3 Tab loại hình (`sim`, `plate`, `bank`), 2 Chế độ (`quick`, `bazi`), Mô phỏng trực quan Graphic Card (SIM vàng 5G có chip, Biển số xe dập nổi chữ nổi quốc huy Vietnam, Thẻ đen VIP Platinum ngân hàng); sử dụng `CustomDatePicker` và `CustomSelect` Can Chi.
+- **Bảng Hiển Thị Kết Quả Toàn Diện:**
+  - `frontend/src/features/numerology/NumerologyBoard.jsx`:
+    + Hero Score Card (Điểm số / 100, Thanh phân bổ Âm Dương, Đuôi số).
+    + Cửu Tinh Động Vận & Cặp Tinh Tổ (Hộp sao vượng/thoái/sát, danh sách cặp số có viền màu phân biệt cát/hung).
+    + Kinh Dịch Mai Hoa: Trình diễn đồ họa trực quan 6 vạch hào liền/đứt của Quẻ Chủ và Quẻ Biến kèm chỉ thị hào động.
+    + Tương Phối Bát Tự: Thẻ thông số Nhật Chủ, Dụng Thần, Kỵ Thần, Cung Phi và điểm hòa hợp.
+    + Luận Giải AI SSE Streaming qua `SectionRenderer` và `AiChatWidget`.
+    + Đánh giá sao, Toggle Switch chia sẻ công khai và Nút xuất PDF.
+- **Thành Phần Bổ Trợ & Đồng Bộ Hệ Thống:**
+  - `frontend/src/features/history/components/NumerologyHistoryCard.jsx`: Thẻ hiển thị bản ghi phong thủy số trong lịch sử với biểu tượng tương ứng, điểm số, quẻ dịch, gắn thẻ, chia sẻ và đánh giá sao.
+  - `frontend/src/features/history/HistoryBoard.jsx`: Tích hợp Tab "Phong Thủy Số" kèm slug URL `/history/phong-thuy-so`.
+  - `frontend/src/components/modals/InterpretationTierModal.jsx`: Thêm phân hệ `numerology` với 100 Points và 500 Points.
+  - `frontend/src/components/modals/PdfExportModal.jsx`: Cấu hình 4 mục xuất PDF số học.
+  - `frontend/src/components/layout/Header.jsx`: Nút "PHONG THỦY SỐ" trên cả Desktop và Mobile drawer.
+  - `frontend/src/app/UserApp.jsx`: Điều hướng URL `/numerology`, deep link `/numerology/record/:id`, SEO meta tags và render component.
+
+---
+
+### 🧪 3. Quy Trình Kiểm Thử Trình Duyệt (Chrome DevTools MCP)
+- **Kiểm thử Luồng Nhập Liệu & Render:**
+  - Đã mở trình duyệt Chrome điều hướng tới `http://localhost:5173/numerology`.
+  - Khảo sát Mode 1 Sim số `0988199199`: Tính toán và hiển thị thành công Điểm số 99/100, Quẻ 28 Trạch Phong Đại Quá $\rightarrow$ Quẻ 47 Trạch Thủy Khốn.
+  - Khảo sát Mode 2 Biển số xe `30A-916.49` phối sinh thần 18/08/1995: Tính toán chuẩn xác Bát Tự Giáp Mộc, Dụng Thần Kim, Cung Ly, độ hòa hợp 80/100.
+  - Khảo sát Số tài khoản Techcombank `1903686888`: Điểm số 91/100 Tối Cát Thượng Đẳng.
+  - Thử nghiệm Modal Xuất PDF: Cấu hình chuẩn xác 4 mục xuất A4.
+  - Thử nghiệm Tab Lịch Sử: Chuyển tab `/history/phong-thuy-so`, hiển thị danh sách bản ghi và nhấp "Xem chi tiết" mở lại lá số thành công.
+- **Tự Sửa Lỗi (Self-Healing Loop):**
+  - Phát hiện và khắc phục triệt để lỗi `TypeError: Cannot read properties of undefined (reading 'includes')` trong `NumerologyBoard.jsx` do truy cập lệch trường `p.auspicious`. Đã chuẩn hóa sang `p.badgeType` và `p.label`.
+  - Bổ sung `'numerology'` và `'feixing'` vào `Conversation` schema enum.
+- **Kết quả Cuối Cùng:** Trình duyệt chạy mượt mà, **Console 0 Lỗi**, không có bất kỳ warning phá vỡ cấu trúc nào.
+
+---
+
 ## 📅 Phiên bản: Khắc Phục Lỗi CI/CD `npm ci` Backend & Đồng Bộ Toàn Diện Node.js 22 LTS (05/10/2026)
 
 ### 🌟 1. Tổng Quan Sự Cố & Nguyên Nhân Gốc Rễ

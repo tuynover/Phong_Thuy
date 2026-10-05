@@ -16,6 +16,7 @@ const ttsRoutes = require('../modules/tts/routes/tts.routes');
 const exportRoutes = require('../modules/export/routes/export.routes');
 const historyRoutes = require('../modules/history/routes/history.routes');
 const feixingRoutes = require('../modules/feixing/routes/feixing.routes');
+const numerologyRoutes = require('../modules/numerology/routes/numerology.routes');
 const aiRoutes = require('./ai');
 
 // Controllers for root routes & aliases
@@ -25,6 +26,7 @@ const BaziController = require('../modules/bazi/controllers/BaziController');
 const MarriageController = require('../modules/bazi/controllers/MarriageController');
 const DateController = require('../modules/date/controllers/DateController');
 const FeiXingController = require('../modules/feixing/controllers/FeiXingController');
+const NumerologyController = require('../modules/numerology/controllers/NumerologyController');
 
 const rateLimiter = require('../core/middleware/rateLimiter');
 
@@ -60,6 +62,8 @@ router.use('/export', exportRoutes);
 router.use('/history', historyRoutes);
 router.use('/feixing', feixingRoutes);
 router.use('/huyen-khong', feixingRoutes);
+router.use('/numerology', numerologyRoutes);
+router.use('/phong-thuy-so', numerologyRoutes);
 router.use('/ai', aiRoutes);
 
 // Root calculation aliases and legacy routes
@@ -74,5 +78,7 @@ router.post('/date/check', calcLimiter, DateController.check);
 router.post('/date/consult', calcLimiter, DateController.consult);
 router.post('/feixing/calculate', calcLimiter, FeiXingController.calculate);
 router.post('/huyen-khong/calculate', calcLimiter, FeiXingController.calculate);
+router.post('/numerology/calculate', calcLimiter, NumerologyController.calculate);
+router.post('/phong-thuy-so/calculate', calcLimiter, NumerologyController.calculate);
 
 module.exports = router;

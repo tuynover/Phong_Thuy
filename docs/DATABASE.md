@@ -286,13 +286,49 @@ Lưu trữ thông tin trạch vận, độ số 24 sơn hướng, ma trận 9 cu
   - `{"userId": 1, "isDeleted": 1, "isPinned": -1, "createdAt": -1}`: Tối ưu phân trang và ghim bản ghi.
   - `{"isPublic": 1, "isDeleted": 1, "createdAt": -1}`: Tối ưu tra cứu liên kết chia sẻ công khai.
 
-### 2.7 Bảng Hội thoại dùng chung (`conversations`)
+### 2.7 Bảng Phong Thủy Số: Sim, Biển Số Xe, Tài Khoản Ngân Hàng (`numerologyrecords`)
+Lưu trữ kết quả khảo sát số học Tam Nguyên Cửu Vận, Kinh Dịch Mai Hoa Lập Quẻ và Bát Tự Tương Phối cho Sim số, Biển số xe và Số tài khoản ngân hàng.
+- **Model:** [NumerologyRecord.js](file:///t:/Phongthuy/backend/src/modules/numerology/models/NumerologyRecord.js)
+- **Cấu trúc Schema:**
+  ```javascript
+  {
+    _id: { type: String, default: uuidv7 },
+    userId: { type: String, default: 'guest', index: true },
+    type: { type: String, enum: ['sim', 'plate', 'bank'], required: true, index: true },
+    targetNumber: { type: String, required: true, trim: true },
+    displayNumber: { type: String, required: true, trim: true },
+    bankName: { type: String, default: '', trim: true },
+    mode: { type: String, enum: ['quick', 'bazi'], default: 'quick', index: true },
+    period: { type: Number, required: true, min: 1, max: 9, default: 9 },
+    ownerName: { type: String, default: 'Gia Chủ' },
+    ownerBirthInfo: {
+      hasBirthInfo: { type: Boolean, default: false },
+      birthDate: { type: String, default: null },
+      birthHour: { type: String, default: '12:00' },
+      gender: { type: Number, enum: [0, 1], default: 1 }
+    },
+    analysisSnapshot: { type: Object, default: {} },
+    rating: { type: Number, default: null },
+    feedback: { type: String, default: null },
+    aiInterpretation: { type: mongoose.Schema.Types.Mixed, default: null },
+    chatTokens: { type: Number, default: 0 },
+    isPinned: { type: Boolean, default: false },
+    isPublic: { type: Boolean, default: false, index: true },
+    isDeleted: { type: Boolean, default: false, index: true }
+  }
+  ```
+- **Chỉ mục phụ (Compound Indexes):**
+  - `{"userId": 1, "isDeleted": 1, "isPinned": -1, "createdAt": -1}`: Tối ưu phân trang và ghim bản ghi.
+  - `{"type": 1, "isDeleted": 1, "createdAt": -1}`: Lọc nhanh theo loại đối tượng số học.
+  - `{"isPublic": 1, "isDeleted": 1, "createdAt": -1}`: Tối ưu tra cứu liên kết chia sẻ công khai.
+
+### 2.8 Bảng Hội thoại dùng chung (`conversations`)
 - **Model:** [Conversation.js](file:///t:/Phongthuy/backend/src/core/models/Conversation.js)
 - **Cấu trúc Schema:**
   ```javascript
   {
     _id: { type: String, default: uuidv7 },
-    system: { type: String, required: true, enum: ['iching', 'bazi', 'ziwei', 'marriage', 'feixing'] },
+    system: { type: String, required: true, enum: ['iching', 'bazi', 'ziwei', 'marriage', 'feixing', 'numerology'] },
     recordId: { type: String, required: true, index: true },
     userId: { type: String, required: true },
     summary: { type: String, default: '' },
@@ -304,7 +340,7 @@ Lưu trữ thông tin trạch vận, độ số 24 sơn hướng, ma trận 9 cu
   - `{"userId": 1, "recordId": 1}`: Tối ưu hóa việc tìm nhanh cuộc trò chuyện gắn với một bản ghi cụ thể của người dùng (bao quát luôn tiền tố `userId: 1`, không cần index đơn lẻ trên `userId`).
   - `{"userId": 1, "system": 1, "updatedAt": -1}`: Tối ưu hóa việc lấy danh sách các phiên chat gần nhất theo từng phân hệ.
 
-### 2.7 Bảng Tin nhắn dùng chung (`messages`)
+### 2.9 Bảng Tin nhắn dùng chung (`messages`)
 - **Model:** [Message.js](file:///t:/Phongthuy/backend/src/core/models/Message.js)
 - **Cấu trúc Schema:**
   ```javascript

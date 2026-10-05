@@ -5,6 +5,7 @@ module.exports = {
     ZIWEI_PROMPT_VERSION: "v4_15_sections_deep_analysis",
     MARRIAGE_PROMPT_VERSION: "v2_0_marriage_advanced",
     FEIXING_PROMPT_VERSION: "v1_0_feixing_9palaces",
+    NUMEROLOGY_PROMPT_VERSION: "v1_0_numerology_feixing_iching_bazi",
     COOLDOWN_TIME_SECONDS: 10,
     CHAT_LIMIT_PER_HOUR: 10,
     TIMEOUT_MS: 25000,

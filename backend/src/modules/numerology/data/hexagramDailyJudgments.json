@@ -1,0 +1,642 @@
+{
+  "1": {
+    "id": 1,
+    "fullName": "Thuần Càn (Bầu Trời Thịnh Vượng)",
+    "rank": "Đại Cát",
+    "tagline": "Rồng bay lượn trên trời chín tầng, vạn sự hanh thông, đại hiển tài hoa.",
+    "advice": "Đạo Càn lấy chữ 'Cương chính tự cường' làm gốc. Tiến lên không ngừng nhưng tâm phải giữ vững lòng khiêm hạ.",
+    "career": "Thời vận đỉnh cao, ý tưởng lớn được cấp trên và đối tác công nhận. Rất thích hợp để triển khai kế hoạch mới hoặc ký kết văn kiện.",
+    "wealth": "Tài khí dồi dào, tiền bạc luân chuyển hanh thông. Có điềm báo lợi nhuận từ các nguồn thu chính đáng.",
+    "love": "Khí thế mạnh mẽ, phong độ đĩnh đạc thu hút người khác phái. Tuy nhiên cần lắng nghe đối phương, tránh áp đặt ý chí cá nhân."
+  },
+  "2": {
+    "id": 2,
+    "fullName": "Thuần Khôn (Đất Mẹ Dày Đức)",
+    "rank": "Thượng Cát",
+    "tagline": "Đức dày nâng đỡ vạn vật, lấy nhu thắng cương, hậu phúc khôn lường.",
+    "advice": "Đạo Khôn lấy chữ 'Hậu đức tải vật' làm trọng. Biết lui một bước trời yên biển lặng, kiên nhẫn tích đức ắt gặt quả ngọt.",
+    "career": "Thích hợp với các công việc lắng nghe, hỗ trợ, đàm phán ôn hòa và hoàn thiện hồ sơ chi tiết. Không nên tranh giành vị trí tiên phong.",
+    "wealth": "Tài vận ổn định vững chắc như mặt đất. Tích lũy an toàn, tránh đầu cơ mạo hiểm hôm nay.",
+    "love": "Gia đạo êm ấm, tình cảm chan chứa sự bao dung và săn sóc. Lời nói dịu dàng sẽ xua tan mọi hiểu lầm trước đó."
+  },
+  "3": {
+    "id": 3,
+    "fullName": "Thủy Lôi Truân (Khởi Đầu Gian Khó)",
+    "rank": "Hung",
+    "tagline": "Hạt mầm còn đội đất nẩy chồi, kiên nhẫn chờ thời, tích lũy nội lực.",
+    "advice": "Đạo Truân răn dạy: 'Vạn sự khởi đầu nan'. Gặp khó khăn là dấu hiệu của sự chuyển mình, kiên định ắt tới đích.",
+    "career": "Gặp đôi chút trục trặc giấy tờ hoặc ý kiến trái chiều ban đầu. Bình tĩnh rà soát từng chi tiết, tham khảo ý kiến tiền bối sẽ tháo gỡ dễ dàng.",
+    "wealth": "Chưa nên vội vàng chi tiền cho những lời mời gọi đầu tư mới. Bảo toàn vốn là ưu tiên số một.",
+    "love": "Cảm xúc có phần bối rối, chưa hiểu rõ ý đối phương. Hãy để thời gian chứng minh, không nên gượng ép câu trả lời."
+  },
+  "4": {
+    "id": 4,
+    "fullName": "Sơn Thủy Mông (Học Hỏi Khai Sáng)",
+    "rank": "Trung Cát",
+    "tagline": "Suối nguồn dưới chân núi, mở rộng tâm trí học hỏi, ánh sáng trí tuệ bừng nở.",
+    "advice": "Đạo Mông lấy chữ 'Khai mông cầu học' làm cốt. Người hạ mình học hỏi là người sẽ làm chủ thời cuộc mai sau.",
+    "career": "Hôm nay là ngày đại cát cho việc thi cử, đào tạo, đọc sách và tiếp thu kiến thức mới. Được quý nhân giàu kinh nghiệm chỉ bảo.",
+    "wealth": "Tài chính vừa phải, tiền tài sinh sôi nhờ đầu tư vào trí tuệ và công cụ làm việc.",
+    "love": "Mối quan hệ cần sự chân thành và chia sẻ cởi mở. Đừng ngại hỏi han cảm nghĩ của người ấy để hiểu nhau sâu sắc hơn."
+  },
+  "5": {
+    "id": 5,
+    "fullName": "Thủy Thiên Nhu (Chờ Thời Đúng Lúc)",
+    "rank": "Thượng Cát",
+    "tagline": "Mây tụ trên trời đợi mưa rào, an nhiên ăn uống chờ thời, thời đến công thành.",
+    "advice": "Đạo Nhu răn dạy: 'Chờ đợi không phải là bất lực, mà là sự tĩnh lặng của bậc đại trí trước giờ xuất kích'.",
+    "career": "Công việc đang trên đà phát triển tốt nhưng chưa nên thúc ép đẩy nhanh tiến độ. Giữ vững phong độ hiện tại sẽ mang lại kết quả cao nhất.",
+    "wealth": "Tài vận hứa hẹn, nguồn tiền đang trên đường chuyển về tài khoản. Rất thích hợp để mở tiệc chiêu đãi kết nối thân tình.",
+    "love": "Tình cảm ngọt ngào, ấm áp. Cùng nhau thưởng thức một bữa ăn tối ấm cúng sẽ gia tăng gắn kết mạnh mẽ."
+  },
+  "6": {
+    "id": 6,
+    "fullName": "Thiên Thủy Tụng (Hòa Nhã Tránh Tranh Chấp)",
+    "rank": "Hung",
+    "tagline": "Trời nước ngược đường, một câu nhịn chín câu lành, dĩ hòa vi quý.",
+    "advice": "Đạo Tụng khuyên nhủ: 'Thắng trong tranh chấp là thua về nhân tâm'. Hòa giải là cảnh giới cao nhất của người trí huệ.",
+    "career": "Dễ có bất đồng quan điểm trong buổi họp hoặc thảo luận nhóm. Lắng nghe và giữ thái độ trung lập, không nên tranh luận đôi co.",
+    "wealth": "Tránh các vụ việc cho vay mượn thiếu cam kết rõ ràng. Chú ý giữ gìn tư trang, đề phòng thất thoát nhỏ.",
+    "love": "Tránh bới móc chuyện cũ. Một nụ cười và sự chủ động làm hòa sẽ cứu vãn một ngày bầu không khí căng thẳng."
+  },
+  "7": {
+    "id": 7,
+    "fullName": "Địa Thủy Sư (Kỷ Luật Đồng Tâm)",
+    "rank": "Trung Cát",
+    "tagline": "Nước tụ trong lòng đất như quân đội chỉnh tề, kỷ luật nghiêm minh, bách chiến bách thắng.",
+    "advice": "Đạo Sư lấy 'Chính đạo và kỷ luật' làm linh hồn. Muốn dẫn dắt người khác, trước hết phải tự kỷ luật chính bản thân mình.",
+    "career": "Vận may lãnh đạo và làm việc nhóm cực tốt. Khả năng sắp xếp phân công công việc của bạn được đồng nghiệp nể phục.",
+    "wealth": "Tài vận hanh thông từ các hoạt động phối hợp kinh doanh, quản lý tài chính có kế hoạch bài bản.",
+    "love": "Cần sự rõ ràng và tôn trọng nguyên tắc chung. Hãy cùng người ấy xây dựng những quy ước gia đình lành mạnh."
+  },
+  "8": {
+    "id": 8,
+    "fullName": "Thủy Địa Tỷ (Gắn Kết Thân Tình)",
+    "rank": "Thượng Cát",
+    "tagline": "Nước thấm vào đất thân thiết không rời, bạn bè tương trợ, vạn sự thuận hòa.",
+    "advice": "Đạo Tỷ dạy rằng: 'Gần gũi người hiền, xa lánh kẻ ác'. Chọn bạn mà chơi, chọn người mà cộng tác, phúc lộc tự nhiên đến.",
+    "career": "Gặp được đối tác ăn ý hoặc đồng nghiệp tốt bụng sẵn sàng hỗ trợ bạn hoàn thành nhiệm vụ xuất sắc.",
+    "wealth": "Có lộc ăn uống hoặc được tặng quà. Hợp tác kinh doanh mang lại dòng tiền tươi sáng.",
+    "love": "Nhân duyên hòa hợp thắm thiết, người độc thân có cơ hội gặp gỡ tri kỷ qua sự giới thiệu của bạn bè."
+  },
+  "9": {
+    "id": 9,
+    "fullName": "Phong Thiên Tiểu Súc (Tích Lũy Nhỏ Nhoi)",
+    "rank": "Trung Cát",
+    "tagline": "Gió thổi trên trời mây dày đặc chưa mưa, gom từng việc nhỏ làm nên cơ đồ.",
+    "advice": "Đạo Tiểu Súc khuyên răn: 'Biển lớn bắt đầu từ muôn giọt nước'. Đừng khinh việc nhỏ, tích đức bền bỉ ắt có đại công.",
+    "career": "Tập trung hoàn thành các công việc tồn đọng hoặc các chi tiết nhỏ. Chưa phải lúc tạo đột phá lớn nhưng là nền móng then chốt.",
+    "wealth": "Tài lộc nhỏ nhưng đều đặn. Tích tiểu thành đại, hạn chế mua sắm những món đồ theo cảm xúc nhất thời.",
+    "love": "Chăm sóc nhau từ những điều giản dị hàng ngày: một tin nhắn hỏi han hay một cốc nước ấm sẽ làm người ấy rung động."
+  },
+  "10": {
+    "id": 10,
+    "fullName": "Thiên Trạch Lý (Bước Đi Cẩn Trọng)",
+    "rank": "Cẩn Trọng",
+    "tagline": "Đạp lên đuôi cọp mà cọp không cắn, lễ nghĩa vẹn toàn, chuyển nguy thành an.",
+    "advice": "Đạo Lý lấy 'Lễ phép và sự cẩn trọng' làm giáp trụ. Người giữ đúng lễ nghĩa thì đi qua hiểm cảnh vẫn bình an vô sự.",
+    "career": "Cần tiếp xúc với cấp trên hoặc đối tác khó tính. Nhờ thái độ lịch thiệp, chuẩn mực và chuẩn bị kỹ càng, bạn sẽ chinh phục hoàn toàn đối phương.",
+    "wealth": "Kiểm tra kỹ các điều khoản hợp đồng trước khi giao dịch. Hành sự minh bạch sẽ thu hút tài lộc vững bền.",
+    "love": "Tôn trọng không gian riêng của người yêu. Sự chân thành và nhã nhặn sẽ giải quyết mọi khoảng cách."
+  },
+  "11": {
+    "id": 11,
+    "fullName": "Địa Thiên Thái (Vạn Vật Cát Tường)",
+    "rank": "Đại Cát",
+    "tagline": "Trời đất giao hòa, âm dương thông suốt, tiểu khứ đại lai, vạn sự như ý.",
+    "advice": "Đạo Thái là lúc thời vận rực rỡ nhất. Hãy biết sẻ chia tài lộc với người khó khăn hơn để phước báu lưu giữ trường tồn.",
+    "career": "Cơ hội thăng tiến rộng mở, mọi bế tắc trước đây tan biến. Dự án được thông qua dễ dàng, gặp nhiều may mắn bất ngờ.",
+    "wealth": "Tài vận hanh thông bậc nhất, tiền bạc luân chuyển suôn sẻ, mua bán có lãi lớn.",
+    "love": "Tình duyên thăng hoa rực rỡ, gia đạo tràn ngập tiếng cười hạnh phúc, tin vui về con cái hoặc hỷ sự."
+  },
+  "12": {
+    "id": 12,
+    "fullName": "Thiên Địa Bĩ (Thời Vận Tạm Trầm)",
+    "rank": "Đại Hung",
+    "tagline": "Trời đất không giao, bế tắc tạm thời, ẩn mình tu dưỡng, giữ trọn chữ tâm.",
+    "advice": "Đạo Bĩ dạy bậc quân tử: 'Túng cùng tắc biến, biến tắc thông'. Trong nghịch cảnh, người kiên định giữ đạo mới là anh hùng.",
+    "career": "Chưa nên đưa ra quyết định thay đổi lớn hôm nay. Tạm thời thủ thế, hoàn thành công việc hiện tại thật tròn trịa.",
+    "wealth": "Thắt chặt chi tiêu, bảo toàn tiền tiết kiệm. Tuyệt đối tránh xa các trò đỏ đen hoặc đầu tư rủi ro cao.",
+    "love": "Dễ có cảm giác xa cách hoặc thiếu lắng nghe. Thay vì trách móc, hãy cho nhau khoảng lặng để suy ngẫm thấu đáo."
+  },
+  "13": {
+    "id": 13,
+    "fullName": "Thiên Hỏa Đồng Nhân (Đồng Lòng Hiệp Lực)",
+    "rank": "Thượng Cát",
+    "tagline": "Lửa sáng bốc lên trời, mọi người cùng chí hướng kết nghĩa thâm giao, vượt cạn qua sông.",
+    "advice": "Đạo Đồng Nhân lấy 'Công tâm và chí công vô tư' làm đầu. Mở rộng lòng mình đối đãi với thiên hạ, thiên hạ sẽ mở lòng với ta.",
+    "career": "Rất thích hợp cho các buổi họp chiến lược, ký kết hợp tác kinh doanh, gặp gỡ hội đồng quản trị hoặc bạn bè cùng chí hướng.",
+    "wealth": "Hùn hạp làm ăn thắng lợi, tài lộc mở rộng qua các mối quan hệ xã giao chất lượng.",
+    "love": "Tình yêu xây dựng trên nền tảng tri kỷ, thấu hiểu lý tưởng sống của nhau, đồng lòng vượt qua mọi thử thách."
+  },
+  "14": {
+    "id": 14,
+    "fullName": "Hỏa Thiên Đại Hữu (Thịnh Vượng Đủ Đầy)",
+    "rank": "Đại Cát",
+    "tagline": "Mặt trời chiếu sáng giữa bầu trời bao la, tài đức vẹn toàn, vạn vật tôn kính.",
+    "advice": "Đạo Đại Hữu răn: 'Trừ ác dương thiện, thuận thiên hưu mệnh'. Càng giàu có càng phải hành thiện tích đức để phúc khí dài lâu.",
+    "career": "Tài năng được tỏa sáng ở mức cao nhất. Được cấp trên khen thưởng, khách hàng tín nhiệm, khẳng định uy tín thương hiệu.",
+    "wealth": "Tài vận rực rỡ, lợi nhuận về nhiều hướng. Có cơ hội đầu tư sinh lời nhanh chóng và an toàn.",
+    "love": "Tình cảm ấm áp, tự hào về đối phương. Người độc thân dễ lọt vào mắt xanh của đối tượng xuất chúng."
+  },
+  "15": {
+    "id": 15,
+    "fullName": "Địa Sơn Khiêm (Khiêm Tốn Sinh Phúc)",
+    "rank": "Đại Cát",
+    "tagline": "Núi cao giấu mình dưới lòng đất dày, người khiêm tốn ắt được trời đất và con người chở che.",
+    "advice": "Đạo Khiêm là quẻ duy nhất trong 64 quẻ có cả 6 hào đều tốt lành (Toàn Cát). Giữ lòng khiêm hạ, đường đời ắt thênh thang.",
+    "career": "Không cần phô trương nhưng ai cũng kính nể. Công việc tiến triển thuận buồm xuôi gió nhờ đức độ và sự cẩn trọng.",
+    "wealth": "Tài chính ổn định, giữ được tiền của. Tránh khoe khoang để kẻ tiểu nhân khỏi nhòm ngó ghen tị.",
+    "love": "Biết nhường nhịn và trân trọng đối phương giúp tình yêu bền chặt son sắt qua năm tháng."
+  },
+  "16": {
+    "id": 16,
+    "fullName": "Lôi Địa Dự (Hân Hoan Vui Vẻ)",
+    "rank": "Thượng Cát",
+    "tagline": "Sấm động rung chuyển mặt đất sau mùa đông, mầm sống bừng dậy, niềm vui tràn trề.",
+    "advice": "Đạo Dự khuyên răn: 'Vui mừng nhưng chớ buông tuồng'. Thưởng thức niềm vui nhưng vẫn luôn giữ tinh thần tỉnh táo dự phòng.",
+    "career": "Khí thế làm việc hừng hực, truyền cảm hứng tích cực cho toàn đội ngũ. Các kế hoạch giải trí, sự kiện thành công rực rỡ.",
+    "wealth": "Tiền bạc dồi dào, có ngân sách cho việc tận hưởng cuộc sống và tái tạo năng lượng.",
+    "love": "Những buổi hẹn hò ngập tràn tiếng cười và sự lãng mạn. Người độc thân dễ bén duyên trong các cuộc gặp gỡ tiệc tùng."
+  },
+  "17": {
+    "id": 17,
+    "fullName": "Trạch Lôi Tùy (Tùy Thuận Đi Theo)",
+    "rank": "Thượng Cát",
+    "tagline": "Sấm ẩn trong đầm, tùy thời biến hóa, người thuận theo đạo ắt được chở che.",
+    "advice": "Đạo Tùy dạy: 'Tùy thời tùng sự, dĩ hòa vi quý'. Thuận thiên ứng nhân, biết nương theo dòng chảy thì vạn sự hanh thông.",
+    "career": "Thời điểm thích hợp để lắng nghe ý kiến cộng sự, linh hoạt ứng biến theo tình hình thực tế thay vì khăng khăng bảo thủ.",
+    "wealth": "Tài lộc đến từ việc nắm bắt xu hướng thị trường. Thuận theo nhu cầu khách hàng sẽ gặt hái doanh thu dồi dào.",
+    "love": "Tôn trọng sở thích và nhịp sống của người thương. Sự hòa hợp và nhường nhịn tạo nên một ngày ngập tràn ấm áp."
+  },
+  "18": {
+    "id": 18,
+    "fullName": "Sơn Phong Cổ (Sửa Đổi Đổi Mới)",
+    "rank": "Hung",
+    "tagline": "Gió lặng dưới chân núi sinh hư hao, dũng cảm chấn chỉnh tệ đoan, tái tạo sinh khí.",
+    "advice": "Đạo Cổ răn dạy: 'Tiên giáp tam nhật, hậu giáp tam nhật'. Trị tệ đoan phải tính toán trước sau, quyết liệt nhưng thận trọng.",
+    "career": "Cần rà soát lại các quy trình cũ kỹ, sửa chữa sai sót tồn đọng. Mạnh dạn cải cách sẽ mở ra bước ngoặt mới.",
+    "wealth": "Kiểm tra kỹ các khoản chi tiêu thất thoát hoặc nợ đọng. Không nên đầu tư theo thói quen cũ mà cần chiến lược mới.",
+    "love": "Thẳng thắn nhìn nhận và giải quyết những mâu thuẫn âm ỉ bấy lâu. Chân thành đối thoại sẽ hóa giải nút thắt tình cảm."
+  },
+  "19": {
+    "id": 19,
+    "fullName": "Địa Trạch Lâm (Tiến Lớn Đến Gần)",
+    "rank": "Thượng Cát",
+    "tagline": "Đất trùm lên đầm nước bao la, dương khí đang lên, cơ hội lớn đang tới gần.",
+    "advice": "Đạo Lâm dạy rằng: 'Dương trưởng âm tiêu, thừa thế tiến bước'. Nhưng chớ quên lo xa trước tháng tám suy vi.",
+    "career": "Cơ hội thăng tiến và mở rộng quy mô hiển hiện. Thể hiện năng lực lãnh đạo đầy tình người và sự lắng nghe cấp dưới.",
+    "wealth": "Tài vận trên đà khởi sắc mạnh mẽ, dòng tiền về thuận lợi. Rất tốt cho việc xúc tiến các hợp đồng giao thương mới.",
+    "love": "Tình cảm phát triển nồng ấm, hai bên tìm thấy tiếng nói chung và dự định lâu dài cho tương lai."
+  },
+  "20": {
+    "id": 20,
+    "fullName": "Phong Địa Quán (Quan Sát Tĩnh Lặng)",
+    "rank": "Cẩn Trọng",
+    "tagline": "Gió lướt trên mặt đất tĩnh lặng, chiêm nghiệm nhân tâm, quán chiếu nội tâm sáng tỏ.",
+    "advice": "Đạo Quán lấy việc 'Quán sát thiên hạ, soi tỏ chính mình' làm cốt. Tâm không động thì mắt mới sáng tỏ vạn vật.",
+    "career": "Thích hợp cho việc đánh giá hiệu quả, khảo sát thị trường, lập kế hoạch dài hạn hơn là vội vã hành động.",
+    "wealth": "Nên đứng ngoài quan sát các biến động thị trường. Giữ tiền cẩn thận, chờ thời điểm chín muồi mới giải ngân.",
+    "love": "Dành thời gian quan sát và thấu hiểu tâm tư người ấy qua hành động nhỏ. Sự tinh tế sẽ gắn kết hai tâm hồn."
+  },
+  "21": {
+    "id": 21,
+    "fullName": "Hỏa Lôi Phệ Hạp (Cắn Hợp Quyết Đoán)",
+    "rank": "Hung",
+    "tagline": "Sấm chớp rền vang soi tỏ thị phi, cắn đứt chướng ngại, lập lại kỷ cương nghiêm minh.",
+    "advice": "Đạo Phệ Hạp dạy: 'Minh phạt sắc pháp, chấn chỉnh kỷ cương'. Gặp trở ngại phải dũng cảm chặt đứt, không dung dưỡng điều sai.",
+    "career": "Giải quyết dứt điểm các vướng mắc, khiếu nại hoặc tranh cãi tồn đọng. Thái độ cương trực, công tâm sẽ đem lại sự nể phục.",
+    "wealth": "Cần minh bạch hóa các khoản thu chi, hợp đồng. Tránh mập mờ tài chính để ngăn ngừa tranh chấp sau này.",
+    "love": "Nói thẳng thắn điều làm bạn băn khoăn trên tinh thần xây dựng. Giải tỏa triệt để ấm ức để bắt đầu trang mới vui vẻ."
+  },
+  "22": {
+    "id": 22,
+    "fullName": "Sơn Hỏa Bí (Trang Hoàng Tinh Tế)",
+    "rank": "Trung Cát",
+    "tagline": "Lửa sáng dưới chân núi chiếu rực rỡ, vẻ đẹp văn hóa lễ nghi, bên trong chân chất bên ngoài thanh tao.",
+    "advice": "Đạo Bí khuyên rằng: 'Trang sức để tôn vinh bản chất, chớ để hào nhoáng che lấp chân tâm'. Giữ sự chân thật làm gốc.",
+    "career": "Ngày cực tốt cho việc thuyết trình, ra mắt ấn phẩm, thiết kế giao diện, tiếp thị hình ảnh thương hiệu.",
+    "wealth": "Chi tiêu cho diện mạo cá nhân, học tập nghệ thuật hoặc tân trang không gian sống mang lại phong thủy tốt lành.",
+    "love": "Một bộ trang phục tao nhã và nụ cười rạng rỡ sẽ tạo ấn tượng khó phai. Buổi hẹn hò lãng mạn đầy tính nghệ thuật."
+  },
+  "23": {
+    "id": 23,
+    "fullName": "Sơn Địa Bác (Rụng Rơi Tự Lắng)",
+    "rank": "Đại Hung",
+    "tagline": "Núi sạt lở trên mặt đất, âm thịnh dương suy, khéo léo thủ phận, đợi ngày đông qua.",
+    "advice": "Đạo Bác răn: 'Thuận thì nhi chỉ, hậu hạ an trạch'. Biết lúc phải dừng lại và củng cố nền tảng dưới chân mới là người khôn ngoan.",
+    "career": "Môi trường làm việc có thể có sự biến động nhân sự hoặc thay đổi cơ chế. Không nên đối đầu trực diện, giữ thái độ hòa nhã.",
+    "wealth": "Cắt giảm chi tiêu không thiết yếu, bảo vệ vốn. Tuyệt đối không đứng ra bảo lãnh vay nợ cho người khác.",
+    "love": "Cảm xúc có phần trầm lắng hoặc nhạy cảm. Hãy cho nhau không gian riêng tĩnh tại, tránh tranh luận lúc mệt mỏi."
+  },
+  "24": {
+    "id": 24,
+    "fullName": "Địa Lôi Phục (Hồi Sinh Trở Lại)",
+    "rank": "Thượng Cát",
+    "tagline": "Sấm động dưới lòng đất báo hiệu đông tàn xuân đến, nhất dương phục sinh, vận may tái khởi.",
+    "advice": "Đạo Phục răn dạy: 'Hồi phục từ cội nguồn chân tâm'. Sửa sai đổi mới từ những thói quen nhỏ nhất để đón nhận phúc khí mới.",
+    "career": "Các dự án bị đình trệ nay có cơ hội tái khởi động. Tinh thần phấn chấn, tìm lại niềm cảm hứng và hướng đi đúng đắn.",
+    "wealth": "Dòng tiền bắt đầu quay trở lại sau thời gian eo hẹp. Có tín hiệu tài chính tích cực từ các mối quan hệ quen thuộc.",
+    "love": "Gương vỡ lại lành, hóa giải mọi hiểu lầm xưa cũ. Tình cảm thắm thiết trở lại như thuở ban đầu."
+  },
+  "25": {
+    "id": 25,
+    "fullName": "Thiên Lôi Vô Vọng (Chân Thật Tự Nhiên)",
+    "rank": "Cẩn Trọng",
+    "tagline": "Trời sấm vang chuyển động tự nhiên, thuận theo lẽ trời, không vọng tưởng mưu mô.",
+    "advice": "Đạo Vô Vọng dạy: 'Hành sự thuận theo thiên đạo'. Không tham lam vọng tưởng, giữ lòng thanh thản thì họa nào cũng tiêu tan.",
+    "career": "Làm đúng phận sự và chức trách được giao. Tránh mưu mô to tính đường tắt, sự ngay thẳng sẽ bảo vệ uy tín của bạn.",
+    "wealth": "Tài lộc đến từ công sức lao động thực tế. Tránh xa các cơ hội làm giàu nhanh nhưng mập mờ pháp lý.",
+    "love": "Chân thành mộc mạc là chìa khóa chinh phục trái tim đối phương. Đừng dùng lời nói hoa mỹ giả dối."
+  },
+  "26": {
+    "id": 26,
+    "fullName": "Sơn Thiên Đại Súc (Tích Lũy Lớn Lao)",
+    "rank": "Thượng Cát",
+    "tagline": "Núi chứa cả bầu trời bao la, tích đức tụ tài to lớn, thời cơ tung cánh bay xa.",
+    "advice": "Đạo Đại Súc lấy 'Cương kiện đốc thực, huy quang nhật tân' làm chuẩn. Tích lũy đức dày trước khi đảm đương đại nghiệp.",
+    "career": "Nội lực đã đủ đầy, rất thích hợp xuất quân nhận nhiệm vụ quan trọng, thi cử, phỏng vấn hoặc mở rộng quy mô lớn.",
+    "wealth": "Tài lộc dồi dào, tích lũy vững chắc. Các khoản đầu tư dài hạn bắt đầu sinh hoa kết trái ngọt ngào.",
+    "love": "Tình cảm sâu sắc, tin cậy tuyệt đối. Hai người là điểm tựa tinh thần vững chắc cho nhau cùng vươn tới tương lai."
+  },
+  "27": {
+    "id": 27,
+    "fullName": "Sơn Lôi Di (Nuôi Dưỡng Thân Tâm)",
+    "rank": "Trung Cát",
+    "tagline": "Miệng ngậm sấm dưới chân núi, cẩn trọng lời ăn tiếng nói, nuôi dưỡng thân tâm trong sáng.",
+    "advice": "Đạo Di dạy bậc quân tử: 'Cẩn ngôn ngữ, tiết ẩm thực'. Kiểm soát lời nói và thói quen sinh hoạt là gốc rễ của phúc thọ.",
+    "career": "Cẩn trọng trong phát ngôn, email và biên bản làm việc. Chú ý lắng nghe nhiều hơn nói, tránh bàn tán chuyện thị phi chốn công sở.",
+    "wealth": "Cân đối chi tiêu cho ăn uống, chăm sóc sức khỏe và dinh dưỡng một cách hợp lý, tránh lãng phí tiệc tùng vô bổ.",
+    "love": "Lời nói ngọt ngào xây tổ ấm, lời nói cay độc phá hạnh phúc. Hãy dùng ái ngữ để sưởi ấm tâm hồn đối phương."
+  },
+  "28": {
+    "id": 28,
+    "fullName": "Trạch Phong Đại Quá (Gánh Vác Đại Sự)",
+    "rank": "Hung",
+    "tagline": "Đầm nước ngập lụt cả rặng cây, rường cột uốn cong, gánh nặng quá sức cần dũng khí phi thường.",
+    "advice": "Đạo Đại Quá dạy: 'Độc lập bất cụ, độn thế vô muộn'. Khi gánh vác việc phi thường, phải có bản lĩnh kiên cường bất khuất.",
+    "career": "Trọng trách đè nặng lên vai, áp lực tiến độ cao. Cần sự bình tĩnh chia nhỏ công việc và tìm sự trợ lực từ cộng sự tin cậy.",
+    "wealth": "Áp lực tài chính hoặc có khoản chi lớn bất ngờ. Lập kế hoạch quản trị dòng tiền khắt khe, tránh vay nợ thêm.",
+    "love": "Áp lực cuộc sống có thể làm bạn cáu gắt với người thân. Hãy chia sẻ chân thành gánh nặng để đối phương cùng san sẻ."
+  },
+  "29": {
+    "id": 29,
+    "fullName": "Thuần Khảm (Vượt Qua Hiểm Trở)",
+    "rank": "Đại Hung",
+    "tagline": "Nước chảy trùng trùng vực sâu hiểm trở, giữ tâm thành tín, chảy mãi không ngừng ắt vượt ải gian nan.",
+    "advice": "Đạo Khảm dạy: 'Tập khảm hữu phu, duy tâm hanh'. Trong hiểm nạn mà lòng vững như bàn thạch thì hiểm nguy nào cũng hóa bình an.",
+    "career": "Gặp thử thách cam go hoặc tình thế tiến thoái lưỡng nan. Giữ vững đạo đức nghề nghiệp, kiên nhẫn từng bước tháo gỡ khó khăn.",
+    "wealth": "Cẩn trọng nguy cơ hao tài, tránh đầu tư mạo hiểm hoặc ký kết các giấy tờ tài chính chưa rõ ràng hôm nay.",
+    "love": "Mối quan hệ trải qua khúc quanh thử thách lòng chung thủy. Lòng chân thành và sự bao dung sẽ giúp cả hai vượt qua bão tố."
+  },
+  "30": {
+    "id": 30,
+    "fullName": "Thuần Ly (Sáng Rực Soi Đường)",
+    "rank": "Thượng Cát",
+    "tagline": "Hai ngọn lửa sáng rực soi tỏ bốn phương, nương tựa chính đạo, văn minh xán lạn.",
+    "advice": "Đạo Ly răn: 'Nhu thuận hồ thiên, kế minh chiếu tứ phương'. Lửa phải nương vào củi mới cháy bền, người tài phải nương vào chính đạo mới lâu dài.",
+    "career": "Trí tuệ minh mẫn, khả năng sáng tạo và tầm nhìn chiến lược đỉnh cao. Rất thuận lợi cho thi cử, bảo vệ đề án, ký kết.",
+    "wealth": "Tài vận bừng sáng, tiền của minh bạch hanh thông. Nhận được sự hỗ trợ tài chính từ quý nhân.",
+    "love": "Tình cảm nồng nàn thắm thiết như lửa rực cháy. Tuy nhiên cần tiết chế tính khí nóng nảy để giữ lửa yêu thương bền lâu."
+  },
+  "31": {
+    "id": 31,
+    "fullName": "Trạch Sơn Hàm (Cảm Ứng Giao Hòa)",
+    "rank": "Thượng Cát",
+    "tagline": "Đầm nước đọng trên đỉnh núi non, nam nữ tương cầu, tâm linh tương thông, cảm ứng sinh phúc.",
+    "advice": "Đạo Hàm lấy chữ 'Hư tâm thụ nhân' làm gốc. Lòng trống rỗng không định kiến mới cảm hóa và đón nhận được tình cảm chân thành của người khác.",
+    "career": "Gặp được đối tác có cùng chí hướng, dễ dàng tìm được tiếng nói chung trong đàm phán và thuyết phục khách hàng.",
+    "wealth": "Tài lộc nở rộ từ các thương vụ hợp tác đôi bên cùng có lợi (win-win). Tiền tài đến một cách tự nhiên thuận lợi.",
+    "love": "Quẻ đệ nhất về tình duyên. Tình yêu thăng hoa, ánh mắt chạm nhau là hiểu lòng, người độc thân có cơ hội gặp tình yêu định mệnh."
+  },
+  "32": {
+    "id": 32,
+    "fullName": "Lôi Phong Hằng (Kiên Trì Bền Lâu)",
+    "rank": "Thượng Cát",
+    "tagline": "Sấm gió tương trợ cùng chuyển động không ngừng, kiên định giữ vững lập trường, trước sau như một.",
+    "advice": "Đạo Hằng dạy rằng: 'Lập bất dịch phương, thung dung trung đạo'. Kiên định với giá trị cốt lõi của mình thì sóng gió nào cũng qua đi.",
+    "career": "Phát huy tinh thần làm việc bền bỉ, kiên trì theo đuổi mục tiêu ban đầu. Không nên đứng núi này trông núi nọ.",
+    "wealth": "Thu nhập ổn định, tích lũy theo năm tháng bền chặt. Rất tốt cho các kế hoạch tiết kiệm và đầu tư truyền thống.",
+    "love": "Tình cảm sâu nặng, thủy chung son sắt. Sự gắn bó qua bao năm tháng càng trở nên mặn nồng và đáng trân quý."
+  },
+  "33": {
+    "id": 33,
+    "fullName": "Thiên Sơn Độn (Ẩn Nhẫn Tránh Xa)",
+    "rank": "Hung",
+    "tagline": "Trời cao núi lùi lại phía sau, tiểu nhân đang thịnh, bậc quân tử biết lùi bước để bảo toàn khí tiết.",
+    "advice": "Đạo Độn dạy: 'Độn vĩ chi cát, thuận thì nhi thoái'. Rút lui đúng thời điểm không phải hèn nhát, mà là sự minh triết của bậc đại trí.",
+    "career": "Không nên tranh giành quyền lợi hay tham gia phe phái thị phi. Chủ động lùi lại một bước để quan sát và bảo vệ bản thân.",
+    "wealth": "Thủ chặt ví tiền, tạm ngừng các kế hoạch đầu cơ rủi ro. Tránh cho mượn nợ trong thời điểm nhạy cảm này.",
+    "love": "Nếu có xích mích, hãy im lặng lùi lại để hạ hỏa thay vì đôi co gay gắt. Khoảng lùi thông minh sẽ cứu vãn mối quan hệ."
+  },
+  "34": {
+    "id": 34,
+    "fullName": "Lôi Thiên Đại Tráng (Khí Thế Vững Vàng)",
+    "rank": "Thượng Cát",
+    "tagline": "Sấm vang trên bầu trời cao vút, dương khí cực thịnh, hành sự đĩnh đạc hợp lẽ công minh.",
+    "advice": "Đạo Đại Tráng răn: 'Phi lễ bất lý, hùng dũng giữ gìn trung dung'. Khí lực càng mạnh thì cách hành xử càng phải mềm mỏng và tuân thủ lễ nghĩa.",
+    "career": "Khí thế hừng hực, dồi dào năng lượng hành động. Đạt được kết quả vượt bậc nhưng cần tránh kiêu ngạo lấn lướt người khác.",
+    "wealth": "Tài vận hưng thịnh, nhiều nguồn thu chảy về. Quyết đoán nắm bắt cơ hội nhưng hành sự minh bạch theo pháp luật.",
+    "love": "Chủ động bày tỏ tình cảm chân thành sẽ nhận được sự đồng thuận. Tránh tính cách gia trưởng áp đặt người yêu."
+  },
+  "35": {
+    "id": 35,
+    "fullName": "Hỏa Địa Tấn (Tiến Bước Vinh Quang)",
+    "rank": "Thượng Cát",
+    "tagline": "Mặt trời mọc lên khỏi mặt đất, ánh dương rực rỡ chan hòa, bậc hiền tài được quân vương ban thưởng ngựa quý.",
+    "advice": "Đạo Tấn dạy: 'Chiêu minh đức hạnh, nhật nhật tân'. Được trọng vọng càng phải nỗ lực làm rạng danh đạo đức và cống hiến cho xã hội.",
+    "career": "Thời kỳ thăng quan tiến chức, công lao được ghi nhận xứng đáng. Được cấp trên cất nhắc hoặc nhận giải thưởng vinh dự.",
+    "wealth": "Tài lộc dồi dào, tiền thưởng, hoa hồng hoặc lợi tức đổ về tài khoản. Rất cát lợi cho việc đầu tư kinh doanh.",
+    "love": "Tình cảm tươi sáng như bình minh, nhận được sự yêu mến và ngưỡng mộ từ mọi người xung quanh."
+  },
+  "36": {
+    "id": 36,
+    "fullName": "Địa Hỏa Minh Di (Giấu Sáng Trong Đêm)",
+    "rank": "Đại Hung",
+    "tagline": "Mặt trời lặn sâu vào lòng đất, ánh sáng bị che khuất, giấu tài giữ mình vượt qua đêm trường tăm tối.",
+    "advice": "Đạo Minh Di dạy: 'Nội văn minh nhi ngoại nhu thuận, chiếu dĩ mông đại nạn'. Trong lòng sáng suốt nhưng bề ngoài nhẫn nhịn, vượt qua đại nạn bình an.",
+    "career": "Môi trường công việc có phần đố kỵ hoặc áp chế. Không nên thể hiện tài năng quá mức, khiêm nhường làm tròn việc là tốt nhất.",
+    "wealth": "Cẩn thận bảo vệ tài sản, tránh để lộ tiền của khiến kẻ gian dòm ngó. Không nên cho vay tiền trong ngày này.",
+    "love": "Dễ có nỗi buồn khó nói thành lời. Hãy kiên nhẫn và bao dung, tránh để cơn giận làm rạn nứt sự gắn kết."
+  },
+  "37": {
+    "id": 37,
+    "fullName": "Phong Hỏa Gia Nhân (Gia Đạo Hài Hòa)",
+    "rank": "Thượng Cát",
+    "tagline": "Gió từ lửa bốc lên sinh sôi ấm áp, trong nhà chỉnh tề hòa thuận, gia hòa vạn sự hưng.",
+    "advice": "Đạo Gia Nhân răn dạy: 'Chính gia nhi thiên hạ định'. Gia đình là nền tảng của vạn sự, trong ấm thì ngoài mới êm, cư xử đúng đạo thì phúc lộc tràn đầy.",
+    "career": "Nội bộ công ty đoàn kết, sự phân công trách nhiệm rõ ràng giúp công việc tiến triển nhịp nhàng đạt hiệu suất cao.",
+    "wealth": "Tài chính gia đình vững mạnh, tích lũy tốt. Chi tiêu vào các việc chỉnh trang tổ ấm mang lại vượng khí lâu dài.",
+    "love": "Gia đình đầm ấm, vợ chồng hòa thuận tương kính như tân. Người độc thân dễ gặp người bạn đời lý tưởng thích chăm sóc gia đình."
+  },
+  "38": {
+    "id": 38,
+    "fullName": "Hỏa Trạch Khuê (Dị Biệt Hòa Hợp)",
+    "rank": "Hung",
+    "tagline": "Lửa bốc lên cao đầm nước chảy xuống thấp, hai chiều trái ngược, tìm điểm tương đồng giữa muôn điều dị biệt.",
+    "advice": "Đạo Khuê răn: 'Đồng nhi dị, dĩ tiểu sự cát'. Hòa nhập nhưng không hòa tan, trong việc bất đồng hãy tìm lấy điểm tương hòa.",
+    "career": "Dễ phát sinh bất đồng quan điểm với đồng nghiệp hoặc đối tác. Hãy lắng nghe và tìm ra mục tiêu chung thay vì tranh cãi ai đúng ai sai.",
+    "wealth": "Cẩn thận sai sót số liệu kế toán hoặc thanh toán nhầm lẫn. Tạm thời chỉ giải quyết các giao dịch nhỏ lẻ.",
+    "love": "Có sự lệch pha trong suy nghĩ hoặc thói quen sinh hoạt. Học cách chấp nhận sự khác biệt của đối phương thay vì đòi hỏi họ phải giống mình."
+  },
+  "39": {
+    "id": 39,
+    "fullName": "Thủy Sơn Kiển (Gian Nan Dừng Lại)",
+    "rank": "Đại Hung",
+    "tagline": "Nước hiểm trước mặt núi cao sau lưng, bước chân ngập ngừng, dừng lại tự xét lỗi mình để tích lũy nội lực.",
+    "advice": "Đạo Kiển dạy: 'Kiến hiểm nhi năng chỉ, tri hĩ tai'. Thấy hiểm nguy biết dừng lại là kẻ có trí, quay về sửa mình thì gian nan nào cũng hóa cát tường.",
+    "career": "Gặp trở ngại bất khả kháng khiến công việc tạm thời đình trệ. Hãy dừng lại củng cố quy trình, cầu viện chuyên gia giàu kinh nghiệm.",
+    "wealth": "Tài chính gặp khó khăn tạm thời. Thắt lưng buộc bụng, tuyệt đối không vay mượn nóng để lấp liếm khó khăn.",
+    "love": "Cảm thấy bế tắc hoặc cô đơn trong lòng. Hãy dành thời gian tự chữa lành bản thân trước khi kỳ vọng đối phương bù đắp."
+  },
+  "40": {
+    "id": 40,
+    "fullName": "Lôi Thủy Giải (Giải Tỏa Ách Tắc)",
+    "rank": "Thượng Cát",
+    "tagline": "Sấm mưa giao hòa giải phóng khí tù hãm, ách tắc tiêu tan, vạn vật hồi sinh tươi tốt.",
+    "advice": "Đạo Giải dạy: 'Xá quá hữu tội, khoan thứ vi tiên'. Giải tỏa bế tắc thì nên mở rộng lòng tha thứ, nhanh chóng ổn định cục diện.",
+    "career": "Khúc mắc tồn đọng lâu nay được giải quyết êm đẹp. Tinh thần nhẹ nhõm, công việc hanh thông trở lại.",
+    "wealth": "Thu hồi được công nợ khó đòi hoặc giải phóng được dòng vốn ứ đọng. Cơ hội tài chính mới hé lộ.",
+    "love": "Những giận hờn, hoài nghi được hóa giải hoàn toàn nhờ cuộc trò chuyện cởi mở. Tình yêu tìm lại sự ngọt ngào êm ả."
+  },
+  "41": {
+    "id": 41,
+    "fullName": "Sơn Trạch Tổn (Bớt Kỷ Lợi Người)",
+    "rank": "Trung Cát",
+    "tagline": "Đầm sâu bồi đắp cho núi thêm cao, bớt cái thừa bù cái thiếu, hy sinh trước mắt mang lại phúc lộc lâu dài.",
+    "advice": "Đạo Tổn răn: 'Trừng phẫn trất dục, tổn hạ ích thượng'. Kiềm chế cơn giận, tiết giảm dục vọng thì tuy tổn mà thực chất lại là được.",
+    "career": "Cần chấp nhận chịu thiệt một chút hoặc chia sẻ bớt quyền lợi cho đối tác. Sự nhường nhịn này sẽ mở ra quan hệ hợp tác béo bở mai sau.",
+    "wealth": "Chi tiêu tiền của cho việc thiện nguyện, phụng dưỡng cha mẹ hoặc hỗ trợ cộng đồng. Hao tài chính đáng sinh đại phúc.",
+    "love": "Bớt cái tôi cá nhân, biết hạ mình lắng nghe và chiều chuộng người yêu. Hạnh phúc được bồi đắp từ sự hy sinh thầm lặng."
+  },
+  "42": {
+    "id": 42,
+    "fullName": "Phong Lôi Ích (Tăng Trưởng Bồi Đắp)",
+    "rank": "Đại Cát",
+    "tagline": "Gió sấm cùng gia tăng sức mạnh, trên bớt phần mình giúp ích cho dưới, phúc lộc tăng trưởng khôn lường.",
+    "advice": "Đạo Ích dạy: 'Kiến thiện tắc thiên, hữu quá tắc cải'. Thấy điều tốt thì lập tức noi theo, có sai lầm lập tức sửa chữa để phúc lộc ngày càng tăng trưởng.",
+    "career": "Thời điểm hoàng kim để mở rộng kinh doanh, triển khai dự án mới hoặc đề xuất tăng lương thăng chức.",
+    "wealth": "Tài vận cực vượng, tiền bạc dồi dào, doanh thu tăng trưởng vượt chỉ tiêu. Có lộc từ nhiều nguồn đổ về.",
+    "love": "Tình cảm thêm phần mặn nồng và gắn kết sâu đậm. Cùng nhau chia sẻ những ước mơ lớn và cùng hiện thực hóa."
+  },
+  "43": {
+    "id": 43,
+    "fullName": "Trạch Thiên Quải (Quyết Đoán Loại Bỏ)",
+    "rank": "Hung",
+    "tagline": "Đầm nước dâng lên trời muốn vỡ bờ, quyết đoán loại bỏ kẻ tiểu nhân và thói quen tiêu cực, công minh chính trực.",
+    "advice": "Đạo Quải răn: 'Thi ân cập hạ, quyết nhi bất bạo'. Quyết liệt dứt trừ cái xấu nhưng phải giữ tâm từ bi và cư xử có văn hóa lễ độ.",
+    "career": "Cần đưa ra quyết định dứt khoát chấm dứt các hợp đồng bất lợi hoặc cách ly nhân sự tiêu cực. Hành sự minh bạch, tránh dùng bạo lực.",
+    "wealth": "Cắt lỗ dứt khoát các khoản đầu tư trì trệ, không để lún sâu. Quản lý dòng tiền kỷ luật và chặt chẽ.",
+    "love": "Thẳng thắn bày tỏ giới hạn và quan điểm của bản thân. Dũng cảm buông bỏ các mối quan hệ độc hại để tìm kiếm hạnh phúc đích thực."
+  },
+  "44": {
+    "id": 44,
+    "fullName": "Thiên Phong Cấu (Gặp Gỡ Bất Ngờ)",
+    "rank": "Hung",
+    "tagline": "Gió thổi dưới vòm trời bao la, cuộc gặp gỡ duyên nợ bất ngờ, cẩn trọng cám dỗ nhất thời.",
+    "advice": "Đạo Cấu dạy rằng: 'Nữ tráng vật dụng thú nữ'. Khi âm khí mới phát khởi còn yếu ớt nhưng đầy sức hút thì phải giữ tâm định tĩnh, không buông thả.",
+    "career": "Gặp gỡ khách hàng hoặc đối tác mới một cách tình cờ. Cần kiểm tra kỹ hồ sơ năng lực của đối phương trước khi ký kết, tránh bị vẻ bề ngoài thu hút.",
+    "wealth": "Cảnh giác với những lời mời gọi đầu tư kiếm tiền quá nhanh và dễ dàng. Giữ mình trước những cám dỗ vật chất.",
+    "love": "Xuất hiện cơ duyên tình cảm sét đánh đầy ma lực. Tuy nhiên cần thời gian kiểm chứng sự chân thành, chớ vội vàng trao gửi cả con tim."
+  },
+  "45": {
+    "id": 45,
+    "fullName": "Trạch Địa Tụy (Tụ Họp Quần Anh)",
+    "rank": "Thượng Cát",
+    "tagline": "Đầm nước đọng trên mặt đất màu mỡ, quần chúng tụ họp đồng lòng, tinh hoa hội tụ sinh phú quý.",
+    "advice": "Đạo Tụy dạy: 'Tu tĩnh nhung khí, dĩ giới bất ngu'. Khi hội tụ đông người cần có kỷ luật nghiêm minh và phòng bị chu đáo để giữ gìn sự hòa hợp.",
+    "career": "Tổ chức hội nghị, sự kiện lớn, lễ ra mắt hoặc họp mặt công ty thành công vượt mong đợi. Tinh thần đồng đội đạt mức cao nhất.",
+    "wealth": "Huy động vốn dễ dàng, tài lực dồi dào từ sự chung tay của nhiều nhà đầu tư. Tài lộc hội tụ phong phú.",
+    "love": "Gia đình sum họp vui vầy, hỷ sự tiệc tùng tưng bừng. Người độc thân dễ tìm thấy ý trung nhân trong đám đông tụ hội."
+  },
+  "46": {
+    "id": 46,
+    "fullName": "Địa Phong Thăng (Từng Bước Lên Cao)",
+    "rank": "Thượng Cát",
+    "tagline": "Cây gỗ mọc lên từ trong lòng đất, tích lũy từng ngày vươn lên đón ánh dương, thăng tiến vững vàng.",
+    "advice": "Đạo Thăng dạy: 'Tích tiểu dĩ cao đại, thuận đức ứng thời'. Muốn lên cao thì nền móng phải vững, tích đức làm lành mỗi ngày ắt có ngày thành tựu lớn.",
+    "career": "Được cất nhắc lên vị trí cao hơn hoặc đảm nhận trọng trách mới. Tiến bước tuần tự, vững chắc nhờ năng lực thực chất.",
+    "wealth": "Tài vận đi lên theo quỹ đạo ổn định và bền vững. Đầu tư dài hạn bắt đầu mang lại quả ngọt xứng đáng.",
+    "love": "Tình cảm tiến triển từ từ nhưng vô cùng vững chắc. Sự quan tâm chân thành mỗi ngày làm nền móng cho cuộc hôn nhân viên mãn."
+  },
+  "47": {
+    "id": 47,
+    "fullName": "Trạch Thủy Khốn (Khốn Cùng Giữ Tiết)",
+    "rank": "Đại Hung",
+    "tagline": "Nước rỉ hết đáy đầm cạn khô, cùng khốn thử thách người quân tử, giữ trọn khí tiết đợi thời thông.",
+    "advice": "Đạo Khốn răn: 'Trí mệnh toại chí, cùng tắc độc thiện kỳ thân'. Trong cảnh ngộ cùng quẫn, giữ vững nhân cách và khí tiết mới là bậc anh hùng chân chính.",
+    "career": "Gặp tình thế bế tắc, ý tưởng không được ủng hộ hoặc bị hiểu lầm. Đừng cố tranh cãi giải thích vô ích, hãy im lặng hoàn thiện bản thân.",
+    "wealth": "Tài chính eo hẹp, dòng tiền bị nghẽn. Cắt giảm tối đa chi tiêu, tuyệt đối không tham lam đầu cơ gỡ gạc.",
+    "love": "Mối quan hệ rơi vào trạng thái nguội lạnh hoặc hiểu lầm. Hãy kiên nhẫn chịu đựng thử thách, thời gian sẽ chứng minh tấm lòng."
+  },
+  "48": {
+    "id": 48,
+    "fullName": "Thủy Phong Tỉnh (Nguồn Nước Vô Tận)",
+    "rank": "Trung Cát",
+    "tagline": "Gầu nước múc lên từ giếng sâu nuôi sống vạn dân, thành lũy có thể đổi dời nhưng nguồn giếng không bao giờ cạn.",
+    "advice": "Đạo Tỉnh dạy: 'Lao dân khuyến tương, bất cải biến kỳ đức'. Kiên trì nuôi dưỡng giá trị nội tại, luôn sẵn lòng cống hiến cho đời thì phước đức không bao giờ cạn.",
+    "career": "Tập trung bồi dưỡng chuyên môn sâu và hoàn thiện sản phẩm cốt lõi. Giá trị thực sự của bạn sẽ được mọi người tìm đến.",
+    "wealth": "Tài chính bình ổn, tiền vào đều đặn như giếng ngọc. Chú ý giữ gìn công cụ kiếm tiền và mối quan hệ khách hàng ruột.",
+    "love": "Tình yêu bình dị, không ồn ào nhưng thấm đượm sự sẻ chia và chăm sóc như nguồn suối mát lành nuôi dưỡng tâm hồn."
+  },
+  "49": {
+    "id": 49,
+    "fullName": "Trạch Hỏa Cách (Cách Tân Thay Cũ)",
+    "rank": "Thượng Cát",
+    "tagline": "Lửa nước tương tranh thiêu rụi cái cũ, cải cách triệt để đúng thời điểm, lòng người hưởng ứng vạn sự tất thành.",
+    "advice": "Đạo Cách dạy: 'Thuận hồ thiên nhi ứng hồ nhân'. Cách mạng đổi mới phải hợp lòng người và đúng thời cơ mới bền vững và thành công.",
+    "career": "Cải tổ bộ máy, áp dụng công nghệ mới hoặc thay đổi chiến lược kinh doanh toàn diện. Quyết định dũng cảm này sẽ mang lại thắng lợi lớn.",
+    "wealth": "Thay đổi danh mục đầu tư, thanh lý tài sản cũ để rót vốn vào các lĩnh vực tiềm năng mới. Có lợi nhuận đột phá.",
+    "love": "Thay đổi thói quen xấu, đổi mới không khí tình cảm bằng những trải nghiệm hoàn toàn mới lạ để thổi bùng lại ngọn lửa yêu đương."
+  },
+  "50": {
+    "id": 50,
+    "fullName": "Hỏa Phong Đỉnh (Luyện Khí Thành Tài)",
+    "rank": "Đại Cát",
+    "tagline": "Gió thổi bùng lửa dưới vạc đồng quý báu, luyện khí thành tài, nuôi dưỡng bậc hiền nhân, phú quý viên mãn.",
+    "advice": "Đạo Đỉnh dạy: 'Chính vị ngưng mệnh, thánh nhân dưỡng hiền'. Đứng ở vị trí cao càng phải giữ mình đoan chính và chiêu hiền đãi sĩ để giữ vững cơ đồ.",
+    "career": "Vị thế được củng cố vững chắc, được giao quyền lực và uy tín cao nhất. Thích hợp thành lập pháp nhân, khai trương, bổ nhiệm chức vụ.",
+    "wealth": "Tài vận đỉnh cao, nguồn tài chính ổn định và quy mô lớn. Làm ăn phát đạt, tiền của dồi dào.",
+    "love": "Gia đạo thịnh vượng, tình duyên thăng hoa đạt đến độ chín muồi viên mãn. Tương kính tương ái, con cái ngoan ngoãn thành đạt."
+  },
+  "51": {
+    "id": 51,
+    "fullName": "Thuần Chấn (Sấm Vang Tỉnh Thức)",
+    "rank": "Trung Cát",
+    "tagline": "Sấm vang ngàn dặm làm kinh động bốn phương, người giật mình sợ hãi mà tu thân sửa mình, sau đó cười nói hân hoan.",
+    "advice": "Đạo Chấn dạy: 'Khủng cụ tu tỉnh, tiếu ngôn ách ách'. Nghe tiếng sấm biết sợ mà tu sửa mình, thì dẫu có sấm sét rung chuyển trời đất chén rượu tế thần vẫn không đổ.",
+    "career": "Có thể gặp biến động hoặc tin tức giật mình bất ngờ trong công việc. Bình tĩnh ứng phó, không hoảng loạn thì nguy cơ sẽ biến thành cơ hội.",
+    "wealth": "Cẩn thận biến động thị trường tài chính chớp nhoáng. Giữ vững tâm lý, không bán tháo theo cảm xúc hoảng loạn.",
+    "love": "Một biến cố bất ngờ xảy ra là cơ hội để cả hai hiểu rõ bản lĩnh và sự chở che của nhau. Cùng nhau vượt qua thử thách."
+  },
+  "52": {
+    "id": 52,
+    "fullName": "Thuần Cấn (Dừng Lại Định Tâm)",
+    "rank": "Cẩn Trọng",
+    "tagline": "Núi đứng sừng sững sau núi, dừng đúng chỗ và đúng lúc, tâm an tịnh không màng vọng niệm trần ai.",
+    "advice": "Đạo Cấn răn dạy: 'Chỉ kỳ sở dã, tư bất xuất kỳ vị'. Dừng lại đúng lúc và an định vị trí của mình, tâm không nghĩ vượt quá giới hạn thì không bao giờ phạm lỗi.",
+    "career": "Nên án binh bất động, giữ vững vị trí hiện tại. Tập trung làm tốt công việc chuyên môn của mình, không can thiệp việc ngoài phận sự.",
+    "wealth": "Giữ chặt tiền bạc, không nên mở rộng đầu tư hay ký kết mua sắm tài sản lớn trong ngày này. Thủ thế là thượng sách.",
+    "love": "Tránh giận quá mất khôn, khi có căng thẳng hãy dừng lại vài phút để hít thở sâu. Tĩnh lặng là phương thuốc tốt nhất hóa giải xung đột."
+  },
+  "53": {
+    "id": 53,
+    "fullName": "Phong Sơn Tiệm (Tuần Tự Tiến Bước)",
+    "rank": "Thượng Cát",
+    "tagline": "Cây lớn mọc trên đỉnh núi cao, đàn chim nhạn bay từng bước vững vàng, tuần tự tiến bước ắt nên đại sự.",
+    "advice": "Đạo Tiệm dạy: 'Cư hiền đức thiện tục, tiệm tiến bất cấp'. Bước đi chậm mà chắc, tích lũy đức hạnh làm nên phong tục tốt đẹp cho muôn đời.",
+    "career": "Công việc phát triển tuần tự, có bài bản và kế hoạch rõ ràng. Không vội vàng đốt cháy giai đoạn, từng bước xây dựng thành công bền vững.",
+    "wealth": "Tài vận tăng tiến đều đặn mỗi ngày. Các khoản tiết kiệm và đầu tư an toàn tích lũy lớn dần theo thời gian.",
+    "love": "Quẻ rất tốt cho hôn nhân gia đình. Tình yêu đi từ tìm hiểu, gắn bó rồi tiến tới hôn nhân bền vững, đôi lứa hòa hợp dài lâu."
+  },
+  "54": {
+    "id": 54,
+    "fullName": "Lôi Trạch Quy Muội (Chậm Rãi Tùy Duyên)",
+    "rank": "Đại Hung",
+    "tagline": "Sấm động trên đầm nước xao động, tình cảm nóng vội theo cảm tính, chậm rãi tùy duyên chớ hấp tấp phạm sai.",
+    "advice": "Đạo Quy Muội dạy: 'Chinh hung vô du lợi, dĩ vĩnh chung tri tệ'. Hành sự vội vã theo cảm tính ắt gặp hung, biết nhìn xa trông rộng mới tránh được tai họa về sau.",
+    "career": "Tránh nôn nóng ký kết hoặc nhận lời đề bạt vội vã khi chưa rõ quyền hạn và trách nhiệm. Xem xét kỹ nội tình trước khi dấn thân.",
+    "wealth": "Cảnh giác trước các cơ hội đầu tư bốc đồng hoặc mua sắm theo trào lưu ngắn hạn. Cân nhắc kỹ tính hữu dụng của dòng tiền.",
+    "love": "Cảm xúc dễ bị lôi cuốn bởi sự hào nhoáng nhất thời. Cần bình tâm tìm hiểu kỹ nhân phẩm đối phương trước khi quyết định gắn bó sâu hơn."
+  },
+  "55": {
+    "id": 55,
+    "fullName": "Lôi Hỏa Phong (Thịnh Vượng Đầy Đủ)",
+    "rank": "Thượng Cát",
+    "tagline": "Sấm chớp rền vang ánh sáng rực rỡ, thời vận thịnh vượng đầy đủ như mặt trời giữa ngọ, tự tin gánh vác việc lớn.",
+    "advice": "Đạo Phong răn dạy: 'Nhật trung tắc trắc, nguyệt doanh tắc thực'. Cực thịnh thì dễ suy, khi ở đỉnh cao phải biết khiêm tốn lo xa và chuẩn bị phương án dự phòng.",
+    "career": "Công việc đạt tới đỉnh cao của sự thành công và danh tiếng. Nắm bắt cơ hội mở rộng ảnh hưởng và quyết đoán dẫn dắt tập thể.",
+    "wealth": "Tài lộc dồi dào sung túc nhất, tiền bạc thu về đầy kho. Nên trích phần lợi nhuận để tái đầu tư và làm việc nghĩa.",
+    "love": "Tình cảm chan chứa, gia đình viên mãn hạnh phúc. Chia sẻ niềm vui và sự sung túc với người thân yêu để phúc khí thêm bền chặt."
+  },
+  "56": {
+    "id": 56,
+    "fullName": "Hỏa Sơn Lữ (Lữ Khách Thận Trọng)",
+    "rank": "Hung",
+    "tagline": "Lửa cháy lan trên núi không dừng chân, khách đi đường xa nơi đất khách, khiêm nhường cẩn trọng giữ mình an yên.",
+    "advice": "Đạo Lữ răn: 'Minh thận dụng hình, nhi bất lưu ngục'. Bậc quân tử đi xa lấy chữ Khiêm làm đầu, đối đãi với người lạ bằng sự cẩn trọng và khoan dung.",
+    "career": "Thích hợp cho việc công tác xa, di chuyển, khảo sát thực địa. Ở môi trường mới cần tôn trọng văn hóa sở tại và khiêm tốn học hỏi.",
+    "wealth": "Giữ gìn tư trang, hành lý cẩn thận khi đi lại. Chi tiêu hợp lý, dự phòng kinh phí cho các phát sinh đột xuất dọc đường.",
+    "love": "Tình cảm có phần xa cách địa lý hoặc thiếu thấu hiểu. Một cuộc gọi chân thành và tin nhắn ngọt ngào sẽ sưởi ấm lòng nhau."
+  },
+  "57": {
+    "id": 57,
+    "fullName": "Thuần Tốn (Mềm Mại Thấm Sâu)",
+    "rank": "Trung Cát",
+    "tagline": "Gió thổi liên miên luồn qua muôn ngõ ngách, mềm mại thấm sâu vào lòng người, lấy nhu thuận hoàn thành đại sự.",
+    "advice": "Đạo Tốn dạy rằng: 'Thân mệnh hành sự, nhu thuận nhi cương'. Mềm mỏng nhưng không yếu hèn, kiên định mục tiêu bằng phương pháp khéo léo.",
+    "career": "Sử dụng kỹ năng giao tiếp khéo léo, đàm phán mềm mỏng để thuyết phục khách hàng. Lấy nhu thắng cương, mưa dầm thấm lâu.",
+    "wealth": "Tài lộc sinh sôi từ các nguồn kinh doanh dịch vụ, tư vấn hoặc đại lý phân phối. Thu nhập đều đặn ổn định.",
+    "love": "Sự ân cần chu đáo và lời nói dịu dàng sẽ làm mềm lòng đối phương. Lắng nghe và thấu cảm tạo nên sợi dây gắn kết bền chặt."
+  },
+  "58": {
+    "id": 58,
+    "fullName": "Thuần Đoài (Vui Vẻ Hòa Đồng)",
+    "rank": "Thượng Cát",
+    "tagline": "Hai đầm nước liền nhau cùng hòa hợp, niềm vui chan hòa sẻ chia, bạn bè đàm đạo kết giao thâm tình.",
+    "advice": "Đạo Đoài dạy: 'Bằng hữu giảng tập, hòa duyệt nhi chính'. Vui vẻ hòa nhã nhưng phải dựa trên nền tảng chính trực, tránh nói lời a dua xu nịnh.",
+    "career": "Không khí làm việc phấn khởi, giao tiếp cởi mở và hợp tác ăn ý. Rất tốt cho bán hàng, diễn thuyết, tổ chức tiệc chiêu đãi kết nối.",
+    "wealth": "Tài vận vui vẻ, có lộc ăn uống, quà tặng hoặc khoản thu bất ngờ từ bạn bè, khách hàng thân thiết giới thiệu.",
+    "love": "Tình yêu rộn rã niềm vui và tiếng cười sảng khoái. Người độc thân dễ dàng kết bạn và tạo thiện cảm sâu sắc với đối phương."
+  },
+  "59": {
+    "id": 59,
+    "fullName": "Phong Thủy Hoán (Giải Tỏa Nghi Ngờ)",
+    "rank": "Hung",
+    "tagline": "Gió thổi trên mặt nước làm tan băng giá, giải tỏa nghi ngờ ngăn cách, mở rộng tấm lòng dung nạp bốn phương.",
+    "advice": "Đạo Hoán dạy: 'Vương giả hữu miếu, lợi thiệp đại xuyên'. Khi lòng người ly tán thì lấy lòng thành kính và đại nghĩa để quy tụ nhân tâm cùng vượt sóng cả.",
+    "career": "Hóa giải các hiềm khích, nghi kỵ trong nội bộ. Đồng tâm hiệp lực vượt qua dự án khó khăn đầy thử thách.",
+    "wealth": "Dòng tiền bị đóng băng nay bắt đầu lưu thông trở lại. Chi tiền vào các việc củng cố lòng tin và tinh thần đoàn kết.",
+    "love": "Gỡ bỏ mọi hiểu lầm, khúc mắc bấy lâu. Hãy chủ động mở lòng chia sẻ, tình cảm sẽ ấm áp trở lại như băng tuyết gặp nắng xuân."
+  },
+  "60": {
+    "id": 60,
+    "fullName": "Thủy Trạch Tiết (Chừng Mực Tiết Chế)",
+    "rank": "Trung Cát",
+    "tagline": "Đầm nước có bờ ngăn giữ chừng mực, đốt tre có ngấn phân chia rõ ràng, tiết chế đúng mực thì bền lâu hưởng phúc.",
+    "advice": "Đạo Tiết dạy rằng: 'Tiết dĩ chế độ, bất thương tài bất hại dân'. Tiết chế hợp lý thì tâm an thân khỏe, nhưng chớ hà tiện khổ hạnh quá mức làm tổn thương hòa khí.",
+    "career": "Tuân thủ nghiêm ngặt quy chế, định mức thời gian và ngân sách dự án. Không nên vượt quá giới hạn phận sự được giao.",
+    "wealth": "Lập kế hoạch quản lý chi tiêu chặt chẽ, tiết kiệm tích lũy là quốc sách. Tránh mua sắm quá đà vượt quá khả năng chi trả.",
+    "love": "Tôn trọng ranh giới và nguyên tắc riêng của người yêu. Yêu thương nhưng có sự chừng mực, không kiểm soát thái quá."
+  },
+  "61": {
+    "id": 61,
+    "fullName": "Phong Trạch Trung Phu (Thành Tín Nội Tâm)",
+    "rank": "Thượng Cát",
+    "tagline": "Gió thổi trên mặt đầm lay động lòng người, lòng thành tín từ tận đáy lòng cảm hóa cả loài chim muông cá nước.",
+    "advice": "Đạo Trung Phu dạy: 'Nhu tại nội nhi cương đắc trung, tín cập đồn ngư'. Lòng chí thành có thể cảm hóa cả vạn vật, lấy chữ Tín làm gốc thì đường đời không bao giờ bế tắc.",
+    "career": "Chữ Tín là vàng. Uy tín thương hiệu và sự cam kết trung thực giúp bạn ký kết thành công hợp đồng lớn, được đối tác nể phục tuyệt đối.",
+    "wealth": "Kinh doanh thật thà mang lại lợi nhuận bền vững. Dòng tiền về đều đặn nhờ khách hàng tin tưởng và quay lại ủng hộ.",
+    "love": "Tình yêu xây dựng trên sự tin tưởng tuyệt đối, không chút dối lừa. Hai tâm hồn hòa làm một, thủy chung son sắt đến đầu bạc răng long."
+  },
+  "62": {
+    "id": 62,
+    "fullName": "Lôi Sơn Tiểu Quá (Cẩn Thận Việc Nhỏ)",
+    "rank": "Hung",
+    "tagline": "Sấm vang trên đỉnh núi, tiếng chim bay cao không nên mà nên hạ thấp, cẩn thận từng việc nhỏ để phòng ngừa sai sót.",
+    "advice": "Đạo Tiểu Quá răn: 'Hành quá hồ cung, tang quá hồ ai, dụng quá hồ kiệm'. Trong việc nhỏ hãy cẩn trọng, khiêm nhường và tiết kiệm hơn mức bình thường để giữ mình an toàn.",
+    "career": "Tập trung giải quyết các công việc chi tiết vi mô, kiểm tra kỹ từng lỗi chính tả, hợp đồng. Tránh mưu cầu những kế hoạch quá tầm tay.",
+    "wealth": "Tiết kiệm chi li từng khoản nhỏ hôm nay. Không nên mạo hiểm đầu tư lớn, bảo toàn số vốn hiện có là thông minh nhất.",
+    "love": "Cẩn thận lời nói vô tình làm tổn thương người ấy. Hãy nhường nhịn một chút, không nên tranh cãi vì những việc vặt vãnh trong nhà."
+  },
+  "63": {
+    "id": 63,
+    "fullName": "Thủy Hỏa Ký Tế (Viên Mãn Đề Phòng)",
+    "rank": "Thượng Cát",
+    "tagline": "Nước trên lửa dưới nấu chín thức ăn, việc lớn đã xong xuôi hoàn tất, giữ vững thành quả và đề phòng biến cố khi thịnh.",
+    "advice": "Đạo Ký Tế dạy: 'Tư hoạn nhi dự phòng chi'. Thành công rồi càng phải lo phòng ngừa rủi ro, khi nước êm sóng lặng chớ quên chuẩn bị áo phao.",
+    "career": "Dự án đã hoàn thành tốt đẹp, gặt hái kết quả viên mãn. Chú ý duy trì phong độ và rà soát các lỗ hổng kỹ thuật để tránh chủ quan lơ là.",
+    "wealth": "Tài chính đủ đầy, tiền bạc đã an cư trong tài khoản. Tập trung bảo vệ thành quả hơn là vội vã phiêu lưu vào dự án mới.",
+    "love": "Tình cảm êm ấm viên mãn, gia đạo bình an hạnh phúc. Hãy trân trọng và gìn giữ những giây phút bình yên quý giá bên nhau."
+  },
+  "64": {
+    "id": 64,
+    "fullName": "Hỏa Thủy Vị Tế (Chưa Xong Tiếp Tục)",
+    "rank": "Cẩn Trọng",
+    "tagline": "Lửa bốc lên cao nước chảy xuống dưới chưa giao hòa, việc chưa xong là khởi đầu cho chu kỳ mới, tràn trề hy vọng và phấn đấu.",
+    "advice": "Đạo Vị Tế là quẻ kết thúc nhưng cũng là quẻ khởi đầu: 'Thận biện vật cư phương'. Đời người là dòng chảy bất tận, việc chưa xong chính là động lực để không ngừng tiến bước.",
+    "career": "Một giai đoạn cũ khép lại mở ra một hành trình mới đầy thách thức và cơ hội. Chuẩn bị tinh thần sẵn sàng cho những mục tiêu cao hơn.",
+    "wealth": "Các khoản đầu tư đang trong quá trình hoàn thiện, chưa nên vội rút vốn. Tiếp tục kiên trì chăm bón sẽ thu được quả ngọt mai sau.",
+    "love": "Tình cảm còn nhiều điều cần khám phá và hoàn thiện. Sự kiên nhẫn và thấu hiểu lẫn nhau sẽ đưa hai người bước sang nấc thang mới bền chặt hơn."
+  }
+}

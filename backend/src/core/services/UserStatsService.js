@@ -25,7 +25,9 @@ async function incrementRecordCount(userId, system, delta = 1) {
       tu_vi: 'stats.ziweiCount',
       marriage: 'stats.marriageCount',
       feixing: 'stats.feixingCount',
-      huyen_khong: 'stats.feixingCount'
+      huyen_khong: 'stats.feixingCount',
+      numerology: 'stats.numerologyCount',
+      phong_thuy_so: 'stats.numerologyCount'
     };
 
     const countField = systemMap[system];
@@ -62,7 +64,9 @@ async function incrementInterpretTokens(userId, system, tokensUsed = 0) {
       tu_vi: 'stats.ziweiTokens',
       marriage: 'stats.marriageTokens',
       feixing: 'stats.feixingTokens',
-      huyen_khong: 'stats.feixingTokens'
+      huyen_khong: 'stats.feixingTokens',
+      numerology: 'stats.numerologyTokens',
+      phong_thuy_so: 'stats.numerologyTokens'
     };
 
     const tokenField = systemMap[system];
@@ -103,7 +107,9 @@ async function incrementChatTokens(userId, system, tokensUsed = 0) {
       tu_vi: 'stats.ziweiChatTokens',
       marriage: 'stats.marriageChatTokens',
       feixing: 'stats.feixingChatTokens',
-      huyen_khong: 'stats.feixingChatTokens'
+      huyen_khong: 'stats.feixingChatTokens',
+      numerology: 'stats.numerologyChatTokens',
+      phong_thuy_so: 'stats.numerologyChatTokens'
     };
 
     const tokenField = systemMap[system];

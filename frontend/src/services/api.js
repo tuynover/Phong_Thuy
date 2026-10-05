@@ -48,6 +48,14 @@ export const rateFeiXing = (id, rating, feedback) => axios.post(`${API_URL}/feix
 export const togglePublicFeiXing = (id) => axios.post(`${API_URL}/feixing/record/${id}/toggle-public`);
 export const deleteFeiXing = (id) => axios.delete(`${API_URL}/feixing/record/${id}`);
 
+// Numerology (Phong Thủy Số: Sim, Biển Số Xe, Tài Khoản Ngân Hàng) API Endpoints
+export const calculateNumerology = (payload) => axios.post(`${API_URL}/numerology/calculate`, payload);
+export const getNumerologyRecord = (id) => axios.get(`${API_URL}/numerology/record/${id}`);
+export const getNumerologyHistory = (userId, params) => axios.get(`${API_URL}/numerology/history/${userId}`, { params });
+export const rateNumerology = (id, rating, feedback) => axios.post(`${API_URL}/numerology/record/${id}/rate`, { rating, feedback });
+export const togglePublicNumerology = (id) => axios.post(`${API_URL}/numerology/record/${id}/toggle-public`);
+export const deleteNumerology = (id) => axios.delete(`${API_URL}/numerology/record/${id}`);
+
 // Notifications & User Profile API
 export const getNotifications = () => axios.get(`${API_URL}/notifications`);
 export const markNotificationRead = (id) => axios.put(`${API_URL}/notifications/${id}/read`);

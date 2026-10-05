@@ -154,7 +154,19 @@ const sectionIcons = {
   feixing_3: Award,
   feixing_4: Layers,
   feixing_5: ShieldAlert,
-  feixing_6: BookOpen
+  feixing_6: BookOpen,
+
+  // Phong Thủy Số (Numerology)
+  numerology_ch_1: Activity,
+  numerology_ch_2: Compass,
+  numerology_ch_3: Layers,
+  numerology_ch_4: User,
+  numerology_ch_5: Sparkles,
+  numerology_1: Activity,
+  numerology_2: Compass,
+  numerology_3: Layers,
+  numerology_4: User,
+  numerology_5: Sparkles
 };
 
 const sectionColors = {
@@ -283,7 +295,19 @@ const sectionColors = {
   feixing_3: "from-orange-500 to-amber-600",
   feixing_4: "from-amber-700 to-amber-900",
   feixing_5: "from-rose-600 to-amber-700",
-  feixing_6: "from-amber-800 to-slate-900"
+  feixing_6: "from-amber-800 to-slate-900",
+
+  // Numerology Chapters
+  numerology_ch_1: "from-amber-600 to-amber-800",
+  numerology_ch_2: "from-blue-600 to-indigo-700",
+  numerology_ch_3: "from-emerald-600 to-teal-700",
+  numerology_ch_4: "from-purple-600 to-indigo-800",
+  numerology_ch_5: "from-amber-500 to-orange-600",
+  numerology_1: "from-amber-600 to-amber-800",
+  numerology_2: "from-blue-600 to-indigo-700",
+  numerology_3: "from-emerald-600 to-teal-700",
+  numerology_4: "from-purple-600 to-indigo-800",
+  numerology_5: "from-amber-500 to-orange-600"
 };
 
 const themeStyles = {
@@ -353,6 +377,19 @@ const themeStyles = {
     bannerBadge: "bg-rose-500/20 text-rose-300 border-rose-500/30"
   },
   feixing: {
+    border: "border-amber-200/90 hover:border-amber-400",
+    shadow: "shadow-amber-950/5 hover:shadow-amber-900/10",
+    hoverBg: "hover:bg-amber-50/30",
+    chevronActive: "bg-amber-100 text-amber-700 border-amber-300",
+    consultBtn: "bg-amber-50 hover:bg-amber-100 text-amber-800 hover:text-amber-950 border-amber-200/80 hover:border-amber-300",
+    consultIcon: "text-amber-600",
+    chapterBadge: "bg-amber-100/90 text-amber-950 border-amber-300 font-black",
+    prose: "prose-amber font-serif prose-headings:font-sans prose-headings:font-bold prose-headings:text-amber-950 prose-a:text-amber-700 prose-strong:text-amber-950 prose-code:text-amber-700 prose-code:bg-amber-50",
+    playAllBanner: "from-amber-950 via-orange-950 to-slate-900 border-amber-500/30",
+    playAllBtn: "bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white shadow-amber-900/40",
+    bannerBadge: "bg-amber-500/20 text-amber-300 border-amber-500/30"
+  },
+  numerology: {
     border: "border-amber-200/90 hover:border-amber-400",
     shadow: "shadow-amber-950/5 hover:shadow-amber-900/10",
     hoverBg: "hover:bg-amber-50/30",

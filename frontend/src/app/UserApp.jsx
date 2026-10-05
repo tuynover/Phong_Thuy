@@ -34,6 +34,7 @@ import BaziBoard from '@/features/bazi/BaziBoard';
 import ZiweiBoard from '@/features/ziwei/ZiweiBoard';
 import MarriageBoard from '@/features/marriage/MarriageBoard';
 import FeiXingBoard from '@/features/feixing/FeiXingBoard';
+import NumerologyBoard from '@/features/numerology/NumerologyBoard';
 import DateSelectionBoard from '@/features/xemngay/DateSelectionBoard';
 import BlogBoard from '@/features/blog/BlogBoard';
 import Header from '@/components/layout/Header';
@@ -72,6 +73,7 @@ export default function UserApp({ onSwitchToAdmin }) {
     if (pathname.startsWith('/iching/record/') || pathname === '/iching') return 'iching';
     if (pathname.startsWith('/marriage/record/') || pathname === '/marriage') return 'marriage';
     if (pathname.startsWith('/feixing/record/') || pathname === '/feixing' || pathname.startsWith('/huyen-khong')) return 'feixing';
+    if (pathname.startsWith('/numerology/record/') || pathname === '/numerology' || pathname.startsWith('/phong-thuy-so')) return 'numerology';
     if (pathname === '/xemngay' || pathname.startsWith('/xemngay/')) return 'xemngay';
     if (pathname === '/blog' || pathname.startsWith('/blog/')) return 'blog';
     if (pathname === '/about') return 'about';
@@ -115,6 +117,10 @@ export default function UserApp({ onSwitchToAdmin }) {
     }
     if (path === '/marriage') {
       setMarriageResult(null);
+      return;
+    }
+    if (path === '/numerology') {
+      setHistoricalNumerologyId(null);
       return;
     }
 
@@ -184,6 +190,14 @@ export default function UserApp({ onSwitchToAdmin }) {
       setHistoricalFeiXingId(id);
       return;
     }
+
+    // 6. Phong Thủy Số (Sim, Biển Số, Tài Khoản)
+    const numerologyMatch = path.match(/^\/(?:numerology|phong-thuy-so)\/record\/([a-zA-Z0-9-]+)/);
+    if (numerologyMatch) {
+      const id = numerologyMatch[1];
+      setHistoricalNumerologyId(id);
+      return;
+    }
   }, []);
 
   useEffect(() => {
@@ -230,6 +244,7 @@ export default function UserApp({ onSwitchToAdmin }) {
       ziwei: "Lập Mệnh Bàn Tử Vi Đẩu Số 12 Cung - Phong Thủy AI",
       marriage: "Xem Tuổi Kết Hôn & Hợp Hôn Gia Đạo - Phong Thủy AI",
       feixing: "Lập Tinh Bàn Huyền Không Phi Tinh - Phong Thủy AI",
+      numerology: "Số Học (Sim, Biển Số Xe, Tài Khoản Ngân Hàng) - Phong Thủy AI",
       xemngay: "Xem Ngày Tốt Hoàng Đạo & Cát Hung Trạch Cát - Phong Thủy AI",
       about: "Giới Thiệu - Phong Thủy Luận Giải AI",
       privacy: "Chính Sách Bảo Mật - Phong Thủy Luận Giải AI",
@@ -259,16 +274,22 @@ export default function UserApp({ onSwitchToAdmin }) {
         currentTitle = "Lịch Sử Lá Số Tử Vi Đẩu Số - Phong Thủy AI";
       } else if (path.includes('/hon-nhan')) {
         currentTitle = "Lịch Sử Bát Tự Hợp Hôn - Phong Thủy AI";
+      } else if (path.includes('/huyen-khong')) {
+        currentTitle = "Lịch Sử Tinh Bàn Huyền Không - Phong Thủy AI";
+      } else if (path.includes('/so-hoc') || path.includes('/phong-thuy-so')) {
+        currentTitle = "Lịch Sử Số Học - Phong Thủy AI";
       } else {
         currentTitle = "Lịch Sử Gieo Quẻ Kinh Dịch - Phong Thủy AI";
       }
-    } else if (['iching', 'bazi', 'ziwei', 'marriage'].includes(appMode)) {
+    } else if (['iching', 'bazi', 'ziwei', 'marriage', 'feixing', 'numerology'].includes(appMode)) {
       const path = window.location.pathname;
       if (path.includes('/record/')) {
         if (appMode === 'iching') currentTitle = "Chi Tiết Quẻ Dịch Lục Hào - Phong Thủy AI";
         if (appMode === 'bazi') currentTitle = "Chi Tiết Lá Số Tứ Trụ Bát Tự - Phong Thủy AI";
         if (appMode === 'ziwei') currentTitle = "Chi Tiết Mệnh Bàn Tử Vi Đẩu Số - Phong Thủy AI";
         if (appMode === 'marriage') currentTitle = "Chi Tiết Bát Tự Hợp Hôn Cặp Đôi - Phong Thủy AI";
+        if (appMode === 'feixing') currentTitle = "Chi Tiết Tinh Bàn Huyền Không Phi Tinh - Phong Thủy AI";
+        if (appMode === 'numerology') currentTitle = "Chi Tiết Hồ Sơ Số Học - Phong Thủy AI";
       } else if (path.includes('/ban-than')) {
         if (appMode === 'bazi') currentTitle = "Lá Số Bát Tự Bản Thân - Phong Thủy AI";
         if (appMode === 'ziwei') currentTitle = "Mệnh Bàn Tử Vi Bản Thân - Phong Thủy AI";
@@ -284,6 +305,7 @@ export default function UserApp({ onSwitchToAdmin }) {
       ziwei: "Lập mệnh bàn Tử Vi Đẩu Số 12 cung chi tiết. An sao chính tinh, phụ tinh, Tứ Hóa, Đại Vận, Tiểu Vận và luận giải tử vi chuyên sâu.",
       marriage: "Xem tuổi kết hôn, luận giải Bát Tự Hợp Hôn gia đạo. Phân tích xung hợp Thiên Can Địa Chi, Cung Mệnh và giải pháp cải vận gia đạo.",
       feixing: "Lập tinh bàn Huyền Không Phi Tinh theo 24 sơn hướng và Tam Nguyên Cửu Vận. Khảo sát vượng suy tài lộc, bố trí nội thất phòng và pháp bảo phong thủy.",
+      numerology: "Khảo sát phong thủy số học theo Cửu Tinh Động Vận, Kinh Dịch Mai Hoa Lập Quẻ và Bát Tự Mệnh Chủ cho Sim số, Biển số xe và Tài khoản ngân hàng.",
       xemngay: "Tra cứu ngày tốt hoàng đạo, chọn ngày đẹp khai trương, động thổ, cưới hỏi, xuất hành theo lịch pháp Âm Dương và Cát Thần.",
       blog: "Tổng hợp bài viết chiêm nghiệm, kiến thức phong thủy cổ học, Kinh Dịch, Bát Tự và hướng dẫn ứng dụng phong thủy trong cuộc sống.",
       history: "Quản lý và tra cứu lịch sử luận giải Kinh Dịch, lá số Bát Tự, Tử Vi Đẩu Số và Hợp Hôn cá nhân.",
@@ -354,7 +376,7 @@ export default function UserApp({ onSwitchToAdmin }) {
       const newUrl = `/profile`;
       setCurrentPath(newUrl);
       window.history.pushState({ path: newUrl }, '', newUrl);
-    } else if (['iching', 'bazi', 'ziwei', 'marriage', 'feixing'].includes(mode) && slug === null) {
+    } else if (['iching', 'bazi', 'ziwei', 'marriage', 'feixing', 'numerology'].includes(mode) && slug === null) {
       const newUrl = `/${mode}`;
       setCurrentPath(newUrl);
       window.history.pushState({ path: newUrl }, '', newUrl);
@@ -479,6 +501,9 @@ export default function UserApp({ onSwitchToAdmin }) {
 
   // FeiXing State
   const [historicalFeiXingId, setHistoricalFeiXingId] = useState(null);
+
+  // Numerology State
+  const [historicalNumerologyId, setHistoricalNumerologyId] = useState(null);
 
   // I Ching State
   const [mode, _setMode] = useState(() => localStorage.getItem('mode') || 'coin'); // 'coin' | 'manual' | 'maihoa'
@@ -825,6 +850,17 @@ export default function UserApp({ onSwitchToAdmin }) {
     setAppMode('feixing');
     if (id && typeof window !== 'undefined') {
       const newUrl = `/feixing/record/${id}`;
+      window.history.pushState({ path: newUrl }, '', newUrl);
+    }
+  }, []);
+
+  const handleViewHistoricalNumerology = useCallback((record) => {
+    if (!record) return;
+    const id = record._id || record.id;
+    setHistoricalNumerologyId(id);
+    setAppMode('numerology');
+    if (id && typeof window !== 'undefined') {
+      const newUrl = `/numerology/record/${id}`;
       window.history.pushState({ path: newUrl }, '', newUrl);
     }
   }, []);
@@ -1377,6 +1413,18 @@ export default function UserApp({ onSwitchToAdmin }) {
           </ErrorBoundary>
         </div>
 
+        {/* SYSTEM: PHONG THỦY SỐ HỌC (SIM, BIỂN SỐ XE, TÀI KHOẢN NGÂN HÀNG) */}
+        <div className={`${appMode === 'numerology' ? 'block' : 'hidden'}`}>
+          <ErrorBoundary>
+            <NumerologyBoard 
+              user={user} 
+              onRequireLogin={handleRequireLogin} 
+              historicalRecordId={historicalNumerologyId}
+              onInvalidateHistory={invalidateHistoryCache}
+            />
+          </ErrorBoundary>
+        </div>
+
         {/* SYSTEM 6: DATE SELECTION */}
         <div className={`${appMode === 'xemngay' ? 'block' : 'hidden'}`}>
           <DateSelectionBoard user={user} setUser={setUser} setIsAuthModalOpen={setIsAuthModalOpen} />
@@ -1401,6 +1449,7 @@ export default function UserApp({ onSwitchToAdmin }) {
               onViewZiwei={handleViewHistoricalZiwei}
               onViewMarriage={handleViewHistoricalMarriage}
               onViewFeiXing={handleViewHistoricalFeiXing}
+              onViewNumerology={handleViewHistoricalNumerology}
               preloadedData={preloadedHistory}
               onCacheInvalidate={invalidateHistoryCache}
               onSaveCache={setPreloadedHistory}

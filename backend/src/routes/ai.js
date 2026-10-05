@@ -5,6 +5,7 @@ const BaziAiController = require('../modules/bazi/controllers/BaziAiController')
 const ZiweiAiController = require('../modules/ziwei/controllers/ZiweiAiController');
 const MarriageAiController = require('../modules/bazi/controllers/MarriageAiController');
 const FeiXingAiController = require('../modules/feixing/controllers/FeiXingAiController');
+const NumerologyAiController = require('../modules/numerology/controllers/NumerologyAiController');
 const creditCheck = require('../core/middleware/creditCheck');
 const optionalAuth = require('../core/middleware/optionalAuth');
 const checkRecordOwnership = require('../core/middleware/checkRecordOwnership');
@@ -36,5 +37,11 @@ router.post('/feixing/:id/interpret', optionalAuth, checkRecordOwnership, antiSp
 router.post('/feixing/:id/chat', optionalAuth, checkRecordOwnership, chatRateLimiter, chatCreditCheck, FeiXingAiController.chatFeiXing);
 router.post('/huyen-khong/:id/interpret', optionalAuth, checkRecordOwnership, antiSpamLock(), creditCheck, FeiXingAiController.interpretFeiXing);
 router.post('/huyen-khong/:id/chat', optionalAuth, checkRecordOwnership, chatRateLimiter, chatCreditCheck, FeiXingAiController.chatFeiXing);
+
+// Numerology (Phong Thủy Số: Sim, Biển Số Xe, Tài Khoản Ngân Hàng) endpoints
+router.post('/numerology/:id/interpret', optionalAuth, checkRecordOwnership, antiSpamLock(), creditCheck, NumerologyAiController.interpretNumerology);
+router.post('/numerology/:id/chat', optionalAuth, checkRecordOwnership, chatRateLimiter, chatCreditCheck, NumerologyAiController.chatNumerology);
+router.post('/phong-thuy-so/:id/interpret', optionalAuth, checkRecordOwnership, antiSpamLock(), creditCheck, NumerologyAiController.interpretNumerology);
+router.post('/phong-thuy-so/:id/chat', optionalAuth, checkRecordOwnership, chatRateLimiter, chatCreditCheck, NumerologyAiController.chatNumerology);
 
 module.exports = router;
