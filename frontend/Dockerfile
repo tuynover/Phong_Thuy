@@ -1,5 +1,5 @@
 # Giai đoạn 1: Build mã nguồn React/Vite
-FROM node:20-slim AS build
+FROM node:22-slim AS build
 
 # Thiết lập thư mục làm việc
 WORKDIR /app

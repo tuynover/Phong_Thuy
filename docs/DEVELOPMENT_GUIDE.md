@@ -140,8 +140,8 @@ Từ thư mục gốc của dự án, chạy lệnh sau:
 docker compose up -d --build
 ```
 Lệnh này sẽ thực hiện:
-1. Build image của `frontend` dựa trên tệp `frontend/Dockerfile` (sử dụng `node:20-slim` để biên dịch React/Vite và `nginx:alpine` để serve file giao diện tĩnh, đồng thời cấu hình Nginx riêng cho SPA hỗ trợ React Router).
-2. Build image của `backend` dựa trên tệp `backend/Dockerfile` (sử dụng `node:20-slim`).
+1. Build image của `frontend` dựa trên tệp `frontend/Dockerfile` (sử dụng `node:22-slim` để biên dịch React/Vite và `nginx:alpine` để serve file giao diện tĩnh, đồng thời cấu hình Nginx riêng cho SPA hỗ trợ React Router).
+2. Build image của `backend` dựa trên tệp `backend/Dockerfile` (sử dụng `node:22-slim`).
 3. Khởi chạy container `phongthuy-frontend` và `phongthuy-backend` chạy ẩn trong mạng nội bộ.
 4. Khởi chạy container `phongthuy-nginx` lắng nghe cổng `80` trên máy host AWS, phân phối: các yêu cầu `/api` và `/health` sang backend, các yêu cầu còn lại sang frontend.
 

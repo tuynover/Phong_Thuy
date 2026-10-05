@@ -2,6 +2,39 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Khắc Phục Lỗi CI/CD `npm ci` Backend & Đồng Bộ Toàn Diện Node.js 22 LTS (05/10/2026)
+
+### 🌟 1. Tổng Quan Sự Cố & Nguyên Nhân Gốc Rễ
+Khi hệ thống chạy luồng GitHub Actions CI/CD ở Backend, quá trình cài đặt gói phụ thuộc bằng `npm ci` bị lỗi dừng khẩn cấp:
+- **Lỗi 1 (`npm error code EUSAGE`):**
+  - Thông báo: *"`npm ci` can only install packages when your package.json and package-lock.json or npm-shrinkwrap.json are in sync. Invalid: lock file's gcp-metadata@8.1.4 does not satisfy gcp-metadata@7.0.1, Missing: gcp-metadata@8.1.4 from lock file, Missing: gaxios@7.1.3 from lock file"*.
+  - **Nguyên nhân:** Tệp `backend/package-lock.json` bị xung đột cây phụ thuộc (dependency tree drift) giữa `gcp-metadata@8.1.4` (được dùng bởi `@google-cloud/firestore-api`) và `gcp-metadata@7.0.1` (được yêu cầu bởi `google-auth-library`). `gcp-metadata@8.1.4` bị đặt sai vị trí ở root `node_modules` thay vì nested bên dưới `@google-cloud/firestore-api`.
+- **Cảnh báo 2 (`npm warn EBADENGINE Unsupported engine`):**
+  - Các gói thư viện mới (`puppeteer@25.10.0`, `@puppeteer/browsers@3.2.2`, `firebase-admin@14.5.0`, `google-auth-library@11.1.0`, `gcp-metadata@9.0.4`) khai báo yêu cầu nghiêm ngặt `engines: { node: ">=22" }` hoặc `">=22.12.0"`.
+  - Trong khi đó, GitHub Actions runners và các tệp Dockerfile trước đây cấu hình Node.js 20 (`node-version: '20'`, `FROM node:20-slim`), dẫn đến hàng loạt cảnh báo `EBADENGINE` và tiềm ẩn nguy cơ lỗi runtime.
+
+### 🛠️ 2. Các Biện Pháp Khắc Phục Đã Triển Khai
+1. **Đồng bộ hóa & Chuẩn hóa Cây Phụ thuộc (`package-lock.json`):**
+   - Chạy tái đồng bộ và phân giải dependency tree trên Backend. Cấu trúc lồng `gcp-metadata@8.1.4` và `gaxios@7.1.3` được nest chuẩn xác dưới `@google-cloud/firestore-api/node_modules/`, khôi phục `gcp-metadata@7.0.1` chuẩn ở root.
+   - Kiểm tra `npm ci` chạy thành công 100% không còn lỗi EUSAGE (`added 636 packages, audited 637 packages in 17s`).
+   - Kiểm tra xác nhận `frontend/package-lock.json` chạy `npm ci` hoàn hảo (`added 557 packages in 12s`).
+2. **Nâng Cấp Đồng Bộ Node.js 22 LTS Trên Toàn Bộ CI/CD Pipelines:**
+   - `.github/workflows/backend-ci.yml`: Cập nhật `node-version: '22'`.
+   - `.github/workflows/frontend-ci.yml`: Cập nhật `node-version: '22'`.
+   - `.github/workflows/deploy.yml`: Cập nhật `node-version: '22'` cho cả hai jobs `test-backend` và `test-frontend`.
+3. **Nâng Cấp Đồng Bộ Dockerfiles:**
+   - `backend/Dockerfile`: Chuyển base image sang `FROM node:22-slim` tương thích 100% với Puppeteer 25 và Firebase Admin.
+   - `frontend/Dockerfile`: Chuyển build stage sang `FROM node:22-slim AS build`.
+   - `docs/DEVELOPMENT_GUIDE.md`: Cập nhật tài liệu hướng dẫn Docker Compose từ `node:20-slim` sang `node:22-slim`.
+
+### 🧪 3. Kết Quả Kiểm Thử Toàn Diện
+- **Backend Syntax Check:** `node --check src/index.js` $\rightarrow$ **Hợp lệ (Exit 0)**.
+- **Backend Clean Install:** `npm ci` $\rightarrow$ **Thành công (Exit 0)**.
+- **Backend Test Suites:** `npm test -- --forceExit` $\rightarrow$ **45/45 suites Passed, 325/325 tests Passed (100%)**.
+- **Frontend Clean Install:** `npm ci` $\rightarrow$ **Thành công (Exit 0)**.
+- **Frontend Test Suites:** `npm test` $\rightarrow$ **9/9 suites Passed, 52/52 tests Passed (100%)**.
+- **Frontend Build Check:** `npm run build` $\rightarrow$ **Thành công (Exit 0)** (Vite production bundle biên dịch hoàn tất).
+
 ## 📅 Phiên bản: Phóng Đại Tối Đa Đồ Hình Tinh Bàn 24 Sơn Huyền Không Toàn Trang Khổ Giấy A4 Chuẩn Imperial Master Blueprint (05/10/2026)
 
 ### 🌟 1. Tổng Quan Nhiệm Vụ & Phản Hồi Người Dùng

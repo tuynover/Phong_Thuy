@@ -1,5 +1,5 @@
-# Sử dụng Node.js 20-slim làm base image để tương thích tốt với binary của bcrypt và giữ dung lượng nhẹ
-FROM node:20-slim
+# Sử dụng Node.js 22-slim làm base image để tương thích tốt với binary của bcrypt và giữ dung lượng nhẹ
+FROM node:22-slim
 
 # Thiết lập thư mục làm việc trong container
 WORKDIR /usr/src/app
