@@ -33,11 +33,26 @@ Dụng Thần (đối tượng cần xem xét chính trong quẻ) được xác 
   - Thượng quái = (Năm + Tháng + Ngày âm lịch) % 8. (Số dư 0 tính là 8 - Cung Khôn).
   - Hạ quái = (Năm + Tháng + Ngày + Giờ âm lịch) % 8.
   - Hào động = (Năm + Tháng + Ngày + Giờ âm lịch) % 6. (Số dư 0 tính là hào 6).
+- **Lập quẻ theo SIM Điện Thoại (10 Số):**
+  - Chia đều 10 chữ số làm 2 nửa: 5 số đầu và 5 số cuối.
+  - Thượng quái = Tổng 5 số đầu % 8. (Số dư 0 tính là 8 - Khôn).
+  - Hạ quái = Tổng 5 số cuối % 8. (Số dư 0 tính là 8 - Khôn).
+  - Hào động = Tổng toàn bộ 10 số % 6. (Số dư 0 tính là hào 6).
+- **Lập quẻ theo Biển Số Xe (5 Số):**
+  - Dựa trên 5 chữ số đăng ký biển xe.
+  - Thượng quái = Tổng 3 số đầu % 8. (Số dư 0 tính là 8 - Khôn).
+  - Hạ quái = Tổng 2 số sau % 8. (Số dư 0 tính là 8 - Khôn).
+  - Hào động = Tổng toàn bộ 5 số % 6. (Số dư 0 tính là hào 6).
+- **Lập quẻ theo 3 Số (000 - 999):**
+  - Cho phép nhập 3 chữ số từ 000 đến 999 hoặc tạo ngẫu nhiên.
+  - Thượng quái = Số thứ nhất % 8. (Số dư 0 tính là 8 - Khôn).
+  - Hạ quái = Tổng 2 số sau % 8. (Số dư 0 tính là 8 - Khôn).
+  - Hào động = Tổng toàn bộ 3 số % 6. (Số dư 0 tính là hào 6).
 - **Lập quẻ theo Seri Tiền 8 Số:**
   - Chia dãy số làm 2 nửa (mỗi bên 4 số).
-  - Thượng quái = Tổng 4 số đầu % 8.
-  - Hạ quái = Tổng 4 số sau % 8.
-  - Hào động = Tổng 8 số % 6.
+  - Thượng quái = Tổng 4 số đầu % 8. (Số dư 0 tính là 8 - Khôn).
+  - Hạ quái = Tổng 4 số sau % 8. (Số dư 0 tính là 8 - Khôn).
+  - Hào động = Tổng 8 số % 6. (Số dư 0 tính là hào 6).
 
 ---
 

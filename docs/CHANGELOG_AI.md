@@ -2,6 +2,47 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Mở Rộng 3 Phương Thức Gieo Quẻ Mai Hoa Dịch Số (SIM 10 Số, Biển Số Xe 5 Số & 3 Số Ngẫu Nhiên) (06/10/2026)
+
+### 🌟 1. Tổng Quan & Yêu Cầu Học Thuật Dịch Lý
+Hệ thống Kinh Dịch mở rộng phân hệ **Mai Hoa Dịch Số (Tiên Thiên)** nhằm đáp ứng nhu cầu chiêm quẻ thực tế đa dạng theo số lý vạn vật khởi sinh, bổ sung 3 phương thức gieo quẻ mới kèm live breakdown công thức tính toán thời gian thực:
+1. **Gieo bằng SIM Điện Thoại (10 Chữ Số):**
+   - Phân chia đều dãy số 10 chữ số làm 2 nửa theo nguyên tắc Tiên Thiên *Số chẵn thì phân đều*.
+   - **Thượng Quái (Quẻ trên):** $(\sum \text{5 số đầu}) \pmod 8$, nếu dư 0 lấy 8 (Khôn).
+   - **Hạ Quái (Quẻ dưới):** $(\sum \text{5 số cuối}) \pmod 8$, nếu dư 0 lấy 8 (Khôn).
+   - **Hào Động:** $(\sum \text{10 số}) \pmod 6$, nếu dư 0 lấy 6 (Thượng hào).
+2. **Gieo bằng Biển Số Xe (5 Chữ Số):**
+   - Phân chia 5 chữ số đăng ký xe theo quy tắc học thuật yêu cầu:
+   - **Thượng Quái (Quẻ trên):** $(\sum \text{3 số đầu}) \pmod 8$, nếu dư 0 lấy 8 (Khôn).
+   - **Hạ Quái (Quẻ dưới):** $(\sum \text{2 số sau}) \pmod 8$, nếu dư 0 lấy 8 (Khôn).
+   - **Hào Động:** $(\sum \text{5 số}) \pmod 6$, nếu dư 0 lấy 6 (Thượng hào).
+3. **Gieo bằng 3 Số (000 - 999):**
+   - Cho phép người dùng tự nhập 3 chữ số từ 000 đến 999 HOẶC bấm nút **"Tạo 3 số ngẫu nhiên"** (cảm ứng tâm niệm).
+   - **Thượng Quái (Quẻ trên):** $\text{Số đầu tiên} \pmod 8$, nếu dư 0 lấy 8 (Khôn).
+   - **Hạ Quái (Quẻ dưới):** $(\text{Số thứ 2} + \text{Số thứ 3}) \pmod 8$, nếu dư 0 lấy 8 (Khôn).
+   - **Hào Động:** $(\text{Tổng cả 3 số}) \pmod 6$, nếu dư 0 lấy 6 (Thượng hào).
+
+### 🛠️ 2. Các Tệp Tin Thay Đổi & Nâng Cấp
+1. **Frontend - Form Nhập Liệu Mai Hoa (`frontend/src/features/iching/IChingInput.jsx`):**
+   - Mở rộng thanh chọn sub-tab của Mai Hoa thành 5 phương thức: `Giờ Động Tâm`, `SIM (10 Số)`, `Biển Số Xe`, `3 Số (000-999)`, `Seri Tiền (8 Số)`.
+   - Bổ sung các icon chuyên biệt từ `lucide-react`: `Clock`, `Smartphone`, `Car`, `Dices`, `Sparkles`.
+   - Grid layout co giãn thông minh: hiển thị 5 cột trên màn hình rộng, 3 cột trên tablet, và 2 cột tự cân đối hàng cuối trên mobile, chuẩn thẩm mỹ Premium HSL.
+   - Validation chặt chẽ: kiểm tra độ dài số, chỉ nhận ký tự số, hiển thị lỗi qua `FloatingErrorToast`.
+   - Bảng phân tích công thức số lý động tâm realtime (Live Formula Breakdown) hiển thị chi tiết các bước cộng, chia dư cho 8 và 6, giải nghĩa quái danh (Càn, Khảm, Cấn, Chấn, Tốn, Ly, Khôn, Đoài).
+2. **Frontend - Bàn Quẻ Kết Quả (`frontend/src/features/iching/IChingBoard.jsx`):**
+   - Sửa lỗi thiếu import `useMemo` gây lỗi Error Boundary khi chuyển trang chi tiết quẻ.
+   - Trích xuất động nhãn phương pháp từ `questionSuffix` để hiển thị chính xác phương pháp gieo thực tế (ví dụ: `Mai Hoa Dịch Số - SIM [0912...]`, `Mai Hoa Dịch Số - Biển Số Xe [68688]`, `Mai Hoa Dịch Số - 3 Số [168]`) thay vì nhãn cố định `Lục Hào Truyền Thống`.
+3. **Kiểm Thử Tự Động (`frontend/src/tests/IChingInput.test.jsx`):**
+   - Bổ sung 5 unit tests toàn diện cho toàn bộ các phương thức Mai Hoa mới (kiểm tra render sub-tabs, logic tính toán SIM, Biển số xe, 3 số ngẫu nhiên, nút sinh số ngẫu nhiên). Tất cả 9 tests đều đạt 100% Pass.
+4. **Kiểm Thử Thực Tế Trực Quan (`chrome-devtools-mcp`):**
+   - Kiểm tra tương tác thực tế trên Chrome: chuyển tab, nhập số điện thoại, nhập biển số, tạo số ngẫu nhiên, bấm lập quẻ.
+   - Đảm bảo 0 console errors, kiểm tra responsive trên kích thước iPhone/Mobile (390x844) và Desktop (1440x900).
+5. **Cập Nhật Tài Liệu Kỹ Thuật:**
+   - Cập nhật mục 1.3 trong `docs/BUSINESS_RULES.md`.
+   - Cập nhật mục 11 trong `README.md`.
+
+---
+
 ## 📅 Phiên bản: Khắc Phục Sự Cố Tràn Đĩa Máy Chủ EC2 (`no space left on device`), Tối Ưu Quy Trình Deploy & Giới Hạn Log Xoay Vòng (06/10/2026)
 
 ### 🌟 1. Tổng Quan Sự Cố & Nguyên Nhân Gốc Rễ

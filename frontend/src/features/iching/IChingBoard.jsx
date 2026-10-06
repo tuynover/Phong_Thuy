@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
+import React, { useState, useEffect, useContext, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import Tooltip from '@/components/common/Tooltip';
 import FloatingNotificationToast from '@/components/common/FloatingNotificationToast';
@@ -411,6 +411,12 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
     const dateInfo = result.dateInfo || result.lunarDateInfo;
     const renderSecondarySide = Boolean(secondaryHex && primaryHex && (secondaryHex.binary_code !== primaryHex.binary_code));
 
+    const divinationMethod = useMemo(() => {
+        const q = result?.question || '';
+        const match = q.match(/\(Phương pháp:\s*([^)]+)\)/i);
+        return match ? match[1] : 'Lục Hào Truyền Thống';
+    }, [result?.question]);
+
     const rows = [];
     for (let i = 5; i >= 0; i--) {
         const pLine = primaryLinesArr[i] || {};
@@ -447,7 +453,7 @@ const IChingBoard = ({ result, onUpdateResult, user, onRequireLogin, onInvalidat
                         </div>
                         <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 pt-2">
                             <span className="w-40 sm:shrink-0 text-gray-500 font-bold sm:font-normal">Phương pháp gieo:</span>
-                            <span className="font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded inline-block w-fit">Lục Hào Truyền Thống</span>
+                            <span className="font-bold text-amber-900 bg-amber-50 border border-amber-200/60 px-3 py-1 rounded-lg inline-block w-fit text-xs sm:text-sm">{divinationMethod}</span>
                         </div>
                     </div>
 

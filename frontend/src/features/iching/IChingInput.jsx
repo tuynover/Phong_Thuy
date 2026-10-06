@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Coins, CalendarDays, Clock, Settings2, Sparkles, HelpCircle, ChevronDown, Zap } from 'lucide-react';
+import { Coins, CalendarDays, Clock, Settings2, Sparkles, HelpCircle, ChevronDown, Zap, Smartphone, Car, Dices } from 'lucide-react';
 import { Lunar, Solar } from 'lunar-javascript';
 import { validateInputDate, getMaxDaysInMonth } from '@/utils/dateValidator';
 import FloatingErrorToast from '@/components/common/FloatingErrorToast';
@@ -396,6 +396,9 @@ export const MaiHoaInput = ({ onComplete }) => {
         return Math.floor((hr - 1) / 2) + 1;
     };
     const [hourIndex, setHourIndex] = useState(() => getInitialHourIndex(now.getHours()));
+    const [simStr, setSimStr] = useState('');
+    const [plateStr, setPlateStr] = useState('');
+    const [threeDigitsStr, setThreeDigitsStr] = useState('');
     const [serialStr, setSerialStr] = useState('');
     const [submitError, setSubmitError] = useState('');
     const [dismissedError, setDismissedError] = useState('');
@@ -408,15 +411,36 @@ export const MaiHoaInput = ({ onComplete }) => {
             }
             return '';
         }
+        if (subMethod === 'sim' && simStr) {
+            if (isNaN(Number(simStr))) {
+                return 'Số điện thoại chỉ được nhập chữ số, không chứa chữ hoặc ký tự đặc biệt.';
+            } else if (simStr.trim().length !== 10) {
+                return 'Số điện thoại / SIM phải có đúng 10 chữ số (ví dụ: 0912345678).';
+            }
+        }
+        if (subMethod === 'plate' && plateStr) {
+            if (isNaN(Number(plateStr))) {
+                return 'Biển số xe chỉ được nhập chữ số.';
+            } else if (plateStr.trim().length !== 5) {
+                return 'Biển số xe phải có đúng 5 chữ số (ví dụ: 12345 hoặc 68688).';
+            }
+        }
+        if (subMethod === 'three_digits' && threeDigitsStr) {
+            if (isNaN(Number(threeDigitsStr))) {
+                return 'Chỉ được nhập chữ số.';
+            } else if (threeDigitsStr.trim().length !== 3) {
+                return 'Vui lòng nhập đúng 3 chữ số từ 000 đến 999 (ví dụ: 168, 789, 005).';
+            }
+        }
         if (subMethod === 'serial' && serialStr) {
             if (isNaN(Number(serialStr))) {
                 return 'Dãy số seri chỉ được nhập chữ số, không chứa chữ hoặc ký tự đặc biệt.';
             } else if (serialStr.trim().length !== 8) {
-                return 'Dãy số seri tiền/sim phải có đúng 8 chữ số (ví dụ: 12345678).';
+                return 'Dãy số seri tiền phải có đúng 8 chữ số (ví dụ: 12345678).';
             }
         }
         return '';
-    }, [day, month, year, subMethod, serialStr]);
+    }, [day, month, year, subMethod, simStr, plateStr, threeDigitsStr, serialStr]);
 
     const errorMsg = submitError || (validationError !== dismissedError ? validationError : '');
     const clearError = () => {
@@ -486,13 +510,137 @@ export const MaiHoaInput = ({ onComplete }) => {
         }
     }, [year, month, day, hourIndex]);
 
+    // 1. Phân tích số lý SIM (10 chữ số)
+    const { simDetail, simError } = useMemo(() => {
+        if (subMethod !== 'sim') return { simDetail: null, simError: '' };
+
+        const cleaned = simStr.trim();
+        if (!cleaned) return { simDetail: null, simError: '' };
+
+        if (!/^\d{10}$/.test(cleaned)) {
+            return { simDetail: null, simError: 'Số SIM phải có đúng 10 chữ số (ví dụ: 0912345678).' };
+        }
+
+        const digits = cleaned.split('').map(Number);
+        const first5 = digits.slice(0, 5);
+        const last5 = digits.slice(5, 10);
+
+        const upperSum = first5.reduce((a, b) => a + b, 0);
+        const upperVal = upperSum % 8 || 8;
+
+        const lowerSum = last5.reduce((a, b) => a + b, 0);
+        const lowerVal = lowerSum % 8 || 8;
+
+        const movingSum = digits.reduce((a, b) => a + b, 0);
+        const movingVal = movingSum % 6 || 6;
+
+        return {
+            simDetail: {
+                simStr: cleaned,
+                digits,
+                first5,
+                last5,
+                math: {
+                    upperSum,
+                    upperVal,
+                    lowerSum,
+                    lowerVal,
+                    movingSum,
+                    movingVal
+                }
+            },
+            simError: ''
+        };
+    }, [simStr, subMethod]);
+
+    // 2. Phân tích số lý Biển số xe (5 chữ số: 3 số đầu Thượng quái, 2 số sau Hạ quái)
+    const { plateDetail, plateError } = useMemo(() => {
+        if (subMethod !== 'plate') return { plateDetail: null, plateError: '' };
+
+        const cleaned = plateStr.trim();
+        if (!cleaned) return { plateDetail: null, plateError: '' };
+
+        if (!/^\d{5}$/.test(cleaned)) {
+            return { plateDetail: null, plateError: 'Biển số xe phải có đúng 5 chữ số (ví dụ: 12345 hoặc 68688).' };
+        }
+
+        const digits = cleaned.split('').map(Number);
+        const first3 = digits.slice(0, 3);
+        const last2 = digits.slice(3, 5);
+
+        const upperSum = first3.reduce((a, b) => a + b, 0);
+        const upperVal = upperSum % 8 || 8;
+
+        const lowerSum = last2.reduce((a, b) => a + b, 0);
+        const lowerVal = lowerSum % 8 || 8;
+
+        const movingSum = digits.reduce((a, b) => a + b, 0);
+        const movingVal = movingSum % 6 || 6;
+
+        return {
+            plateDetail: {
+                plateStr: cleaned,
+                digits,
+                first3,
+                last2,
+                math: {
+                    upperSum,
+                    upperVal,
+                    lowerSum,
+                    lowerVal,
+                    movingSum,
+                    movingVal
+                }
+            },
+            plateError: ''
+        };
+    }, [plateStr, subMethod]);
+
+    // 3. Phân tích số lý 3 số (000-999: số đầu Thượng quái % 8, tổng 2 số sau Hạ quái % 8, tổng 3 số Hào động % 6)
+    const { threeDigitsDetail, threeDigitsError } = useMemo(() => {
+        if (subMethod !== 'three_digits') return { threeDigitsDetail: null, threeDigitsError: '' };
+
+        const cleaned = threeDigitsStr.trim();
+        if (!cleaned) return { threeDigitsDetail: null, threeDigitsError: '' };
+
+        if (!/^\d{3}$/.test(cleaned)) {
+            return { threeDigitsDetail: null, threeDigitsError: 'Vui lòng nhập đúng 3 chữ số từ 000 đến 999.' };
+        }
+
+        const digits = cleaned.split('').map(Number);
+        const [d1, d2, d3] = digits;
+
+        const upperVal = d1 % 8 || 8;
+        const lowerSum = d2 + d3;
+        const lowerVal = lowerSum % 8 || 8;
+        const movingSum = d1 + d2 + d3;
+        const movingVal = movingSum % 6 || 6;
+
+        return {
+            threeDigitsDetail: {
+                threeDigitsStr: cleaned,
+                digits,
+                d1,
+                d2,
+                d3,
+                math: {
+                    upperVal,
+                    lowerSum,
+                    lowerVal,
+                    movingSum,
+                    movingVal
+                }
+            },
+            threeDigitsError: ''
+        };
+    }, [threeDigitsStr, subMethod]);
+
+    // 4. Phân tích số lý Seri tiền (8 chữ số)
     const { serialDetail, serialError } = useMemo(() => {
         if (subMethod !== 'serial') return { serialDetail: null, serialError: '' };
 
         const cleaned = serialStr.trim();
-        if (!cleaned) {
-            return { serialDetail: null, serialError: '' };
-        }
+        if (!cleaned) return { serialDetail: null, serialError: '' };
 
         if (!/^\d{8}$/.test(cleaned)) {
             return { serialDetail: null, serialError: 'Dãy số seri phải có độ dài đúng 8 chữ số (ví dụ: 12345678).' };
@@ -531,38 +679,57 @@ export const MaiHoaInput = ({ onComplete }) => {
     }, [serialStr, subMethod]);
 
     const handleSubmit = () => {
+        let math = null;
+        let methodSuffix = '';
+        let selectedDate = new Date();
+
         if (subMethod === 'datetime') {
             if (!lunarDetail) return;
-            const { math } = lunarDetail;
-            
-            const lowerLines = TRIGRAM_LINES[math.lowerVal];
-            const upperLines = TRIGRAM_LINES[math.upperVal];
-            
-            const primaryLines = [...lowerLines, ...upperLines];
-            const finalLines = primaryLines.map((type, idx) => ({
-                type,
-                moving: (idx === (math.movingVal - 1))
-            }));
-
+            math = lunarDetail.math;
             const solarHour = LUNAR_HOURS[hourIndex].hour;
-            const selectedDate = new Date(year, month - 1, day, solarHour, 0, 0);
-            onComplete(finalLines, selectedDate, " (Phương pháp: Mai Hoa Dịch Số - Giờ Động Tâm)");
-        } else {
+            selectedDate = new Date(year, month - 1, day, solarHour, 0, 0);
+            methodSuffix = " (Phương pháp: Mai Hoa Dịch Số - Giờ Động Tâm)";
+        } else if (subMethod === 'sim') {
+            if (!simDetail) return;
+            math = simDetail.math;
+            methodSuffix = ` (Phương pháp: Mai Hoa Dịch Số - SIM ${simStr})`;
+        } else if (subMethod === 'plate') {
+            if (!plateDetail) return;
+            math = plateDetail.math;
+            methodSuffix = ` (Phương pháp: Mai Hoa Dịch Số - Biển Số Xe ${plateStr})`;
+        } else if (subMethod === 'three_digits') {
+            if (!threeDigitsDetail) return;
+            math = threeDigitsDetail.math;
+            methodSuffix = ` (Phương pháp: Mai Hoa Dịch Số - 3 Số [${threeDigitsStr}])`;
+        } else if (subMethod === 'serial') {
             if (!serialDetail) return;
-            const { math } = serialDetail;
-            
-            const lowerLines = TRIGRAM_LINES[math.lowerVal];
-            const upperLines = TRIGRAM_LINES[math.upperVal];
-            
-            const primaryLines = [...lowerLines, ...upperLines];
-            const finalLines = primaryLines.map((type, idx) => ({
-                type,
-                moving: (idx === (math.movingVal - 1))
-            }));
-
-            onComplete(finalLines, new Date(), ` (Phương pháp: Mai Hoa Dịch Số - Seri Tiền ${serialStr})`);
+            math = serialDetail.math;
+            methodSuffix = ` (Phương pháp: Mai Hoa Dịch Số - Seri Tiền ${serialStr})`;
         }
+
+        if (!math) return;
+
+        const lowerLines = TRIGRAM_LINES[math.lowerVal];
+        const upperLines = TRIGRAM_LINES[math.upperVal];
+
+        const primaryLines = [...lowerLines, ...upperLines];
+        const finalLines = primaryLines.map((type, idx) => ({
+            type,
+            moving: (idx === (math.movingVal - 1))
+        }));
+
+        onComplete(finalLines, selectedDate, methodSuffix);
     };
+
+    const isSubmitDisabled = useMemo(() => {
+        if (errorMsg) return true;
+        if (subMethod === 'datetime') return !lunarDetail;
+        if (subMethod === 'sim') return !simDetail;
+        if (subMethod === 'plate') return !plateDetail;
+        if (subMethod === 'three_digits') return !threeDigitsDetail;
+        if (subMethod === 'serial') return !serialDetail;
+        return true;
+    }, [errorMsg, subMethod, lunarDetail, simDetail, plateDetail, threeDigitsDetail, serialDetail]);
 
     return (
         <>
@@ -571,44 +738,80 @@ export const MaiHoaInput = ({ onComplete }) => {
                 <h3 className="text-2xl font-bold text-amber-900 mb-4 font-serif">Gieo Quẻ Mai Hoa Dịch Số</h3>
             
             {/* Hướng dẫn ngắn */}
-            <div className="bg-amber-50/50 p-4 rounded-xl border border-amber-100 text-xs text-amber-955/80 mb-6 leading-relaxed flex items-start gap-2.5 shadow-sm w-full">
+            <div className="bg-amber-50/50 p-4 rounded-xl border border-amber-100 text-xs text-amber-950/80 mb-6 leading-relaxed flex items-start gap-2.5 shadow-sm w-full">
                 <Sparkles size={16} className="text-amber-700 shrink-0 mt-0.5" />
                 <div>
-                    <strong>Mai Hoa Dịch Số (Tiên Thiên):</strong> Quẻ được lập hoàn toàn dựa trên sự tương tác năng lượng tại thời điểm khởi sinh sự việc (Giờ Động Tâm hoặc thông qua dãy số ngẫu nhiên của Seri Tiền). Các số lý được tổng hợp để định nên Thượng Quái, Hạ Quái và Hào Động tương ứng.
+                    <strong>Mai Hoa Dịch Số (Tiên Thiên):</strong> Quẻ được lập hoàn toàn dựa trên sự tương tác năng lượng tại thời điểm khởi sinh sự việc (Giờ Động Tâm, SIM Điện Thoại, Biển Số Xe, 3 Số Ngẫu Nhiên hoặc Seri Tiền). Các số lý Tiên Thiên được tổng hợp để định nên Thượng Quái, Hạ Quái và Hào Động tương ứng.
                 </div>
             </div>
 
-            {/* Sub-tab selection */}
-            <div className="flex gap-2.5 mb-6 w-full">
+            {/* Sub-tab selection (5 Phương thức gieo quẻ) */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-2.5 mb-6 w-full">
                 <button
                     type="button"
                     onClick={() => setSubMethod('datetime')}
-                    className={`flex-1 py-3 px-4 rounded-xl border-2 font-bold transition-all text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer ${
+                    className={`py-2.5 px-2 rounded-xl border-2 font-bold transition-all text-xs flex items-center justify-center gap-1.5 cursor-pointer ${
                         subMethod === 'datetime'
-                            ? 'border-amber-600 bg-amber-50/30 text-amber-900 shadow-sm'
+                            ? 'border-amber-600 bg-amber-50/40 text-amber-900 shadow-sm'
                             : 'border-slate-100 text-slate-500 hover:bg-slate-50'
                     }`}
                 >
-                    <Clock size={16} />
-                    Giờ Động Tâm
+                    <Clock size={14} className="shrink-0" />
+                    <span>Giờ Động Tâm</span>
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setSubMethod('sim')}
+                    className={`py-2.5 px-2 rounded-xl border-2 font-bold transition-all text-xs flex items-center justify-center gap-1.5 cursor-pointer ${
+                        subMethod === 'sim'
+                            ? 'border-amber-600 bg-amber-50/40 text-amber-900 shadow-sm'
+                            : 'border-slate-100 text-slate-500 hover:bg-slate-50'
+                    }`}
+                >
+                    <Smartphone size={14} className="shrink-0" />
+                    <span>SIM (10 Số)</span>
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setSubMethod('plate')}
+                    className={`py-2.5 px-2 rounded-xl border-2 font-bold transition-all text-xs flex items-center justify-center gap-1.5 cursor-pointer ${
+                        subMethod === 'plate'
+                            ? 'border-amber-600 bg-amber-50/40 text-amber-900 shadow-sm'
+                            : 'border-slate-100 text-slate-500 hover:bg-slate-50'
+                    }`}
+                >
+                    <Car size={14} className="shrink-0" />
+                    <span>Biển Số Xe</span>
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setSubMethod('three_digits')}
+                    className={`py-2.5 px-2 rounded-xl border-2 font-bold transition-all text-xs flex items-center justify-center gap-1.5 cursor-pointer ${
+                        subMethod === 'three_digits'
+                            ? 'border-amber-600 bg-amber-50/40 text-amber-900 shadow-sm'
+                            : 'border-slate-100 text-slate-500 hover:bg-slate-50'
+                    }`}
+                >
+                    <Dices size={14} className="shrink-0" />
+                    <span>3 Số (000-999)</span>
                 </button>
                 <button
                     type="button"
                     onClick={() => setSubMethod('serial')}
-                    className={`flex-1 py-3 px-4 rounded-xl border-2 font-bold transition-all text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer ${
+                    className={`col-span-2 sm:col-span-1 py-2.5 px-2 rounded-xl border-2 font-bold transition-all text-xs flex items-center justify-center gap-1.5 cursor-pointer ${
                         subMethod === 'serial'
-                            ? 'border-amber-600 bg-amber-50/30 text-amber-900 shadow-sm'
+                            ? 'border-amber-600 bg-amber-50/40 text-amber-900 shadow-sm'
                             : 'border-slate-100 text-slate-500 hover:bg-slate-50'
                     }`}
                 >
-                    <Sparkles size={16} />
-                    Seri Tiền (8 Số)
+                    <Sparkles size={14} className="shrink-0" />
+                    <span>Seri Tiền (8 Số)</span>
                 </button>
             </div>
 
-            {/* Form chọn ngày giờ động tâm hoặc nhập seri tiền */}
+            {/* Form chọn hoặc nhập dữ liệu tương ứng */}
             <div className="w-full bg-white p-5 rounded-2xl border border-amber-50 shadow-sm space-y-4 mb-6">
-                {subMethod === 'datetime' ? (
+                {subMethod === 'datetime' && (
                     <div className="space-y-4">
                         <div>
                             <label className="block text-sm font-black text-amber-900 uppercase tracking-wider mb-3 flex items-center gap-1.5">
@@ -720,7 +923,222 @@ export const MaiHoaInput = ({ onComplete }) => {
                             </div>
                         )}
                     </div>
-                ) : (
+                )}
+
+                {/* Sub-method: SIM (10 số) */}
+                {subMethod === 'sim' && (
+                    <div className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-black text-amber-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                <Smartphone size={15} className="text-amber-700" />
+                                Nhập Số Điện Thoại / SIM (10 Chữ Số)
+                            </label>
+                            <input
+                                type="text"
+                                maxLength={10}
+                                placeholder="Nhập 10 chữ số, ví dụ: 0912345678"
+                                value={simStr}
+                                onChange={(e) => {
+                                    const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                                    setSimStr(val);
+                                }}
+                                className="bg-slate-50/80 border border-slate-200 text-center text-slate-800 text-lg rounded-xl focus:ring-2 focus:ring-amber-400 focus:border-amber-400 block w-full py-3.5 font-bold transition-all placeholder:text-slate-300 tracking-widest"
+                            />
+                            {simError && (
+                                <p className="text-xs text-red-500 font-semibold mt-1">{simError}</p>
+                            )}
+                        </div>
+
+                        {simDetail && (
+                            <div className="border-t border-dashed border-amber-100 pt-4 space-y-3">
+                                <div className="bg-amber-50/30 px-3 py-2 rounded-lg text-xs font-bold text-amber-900 flex flex-col gap-1">
+                                    <span className="text-[10px] text-amber-700 uppercase tracking-widest">Phương pháp gieo quẻ</span>
+                                    <span>Mai Hoa Dịch Số theo SIM Điện Thoại</span>
+                                    <span className="text-slate-500 font-medium text-[11px]">Dãy số: {simDetail.simStr.split('').join(' - ')}</span>
+                                </div>
+
+                                <div className="bg-slate-50 p-4 rounded-xl text-slate-700 space-y-2 border border-slate-100">
+                                    <h4 className="text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200/60 pb-1.5 mb-2">Công thức số lý động tâm</h4>
+                                    
+                                    <div className="grid grid-cols-2 gap-2 text-xs font-semibold">
+                                        <div>5 Số đầu: <span className="font-extrabold text-amber-800">{simDetail.first5.join(', ')}</span></div>
+                                        <div>5 Số cuối: <span className="font-extrabold text-amber-800">{simDetail.last5.join(', ')}</span></div>
+                                    </div>
+
+                                    <div className="border-t border-slate-200/60 pt-2 space-y-1.5 text-xs">
+                                        <div className="flex justify-between items-center bg-white px-2.5 py-1.5 rounded border border-slate-100">
+                                            <span className="text-slate-500">Thượng Quái (5 số đầu)</span>
+                                            <span className="font-bold text-slate-800 text-[11px]">
+                                                ({simDetail.first5.join(' + ')} = {simDetail.math.upperSum}) % 8 = <span className="text-amber-800 font-black">{simDetail.math.upperVal}</span> ({TRIGRAM_NAMES[simDetail.math.upperVal]})
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between items-center bg-white px-2.5 py-1.5 rounded border border-slate-100">
+                                            <span className="text-slate-500">Hạ Quái (5 số cuối)</span>
+                                            <span className="font-bold text-slate-800 text-[11px]">
+                                                ({simDetail.last5.join(' + ')} = {simDetail.math.lowerSum}) % 8 = <span className="text-amber-800 font-black">{simDetail.math.lowerVal}</span> ({TRIGRAM_NAMES[simDetail.math.lowerVal]})
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between items-center bg-white px-2.5 py-1.5 rounded border border-slate-100">
+                                            <span className="text-slate-500">Hào Động (Tổng 10 số)</span>
+                                            <span className="font-bold text-slate-800 text-[11px]">
+                                                ({simDetail.digits.join(' + ')} = {simDetail.math.movingSum}) % 6 = Hào <span className="text-amber-800 font-black">{simDetail.math.movingVal}</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {/* Sub-method: Biển Số Xe (5 số: 3 số đầu Thượng quái, 2 số sau Hạ quái) */}
+                {subMethod === 'plate' && (
+                    <div className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-black text-amber-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                <Car size={15} className="text-amber-700" />
+                                Nhập 5 Chữ Số Biển Số Xe
+                            </label>
+                            <input
+                                type="text"
+                                maxLength={5}
+                                placeholder="Nhập 5 chữ số, ví dụ: 68688 hoặc 12345"
+                                value={plateStr}
+                                onChange={(e) => {
+                                    const val = e.target.value.replace(/\D/g, '').slice(0, 5);
+                                    setPlateStr(val);
+                                }}
+                                className="bg-slate-50/80 border border-slate-200 text-center text-slate-800 text-lg rounded-xl focus:ring-2 focus:ring-amber-400 focus:border-amber-400 block w-full py-3.5 font-bold transition-all placeholder:text-slate-300 tracking-widest"
+                            />
+                            {plateError && (
+                                <p className="text-xs text-red-500 font-semibold mt-1">{plateError}</p>
+                            )}
+                        </div>
+
+                        {plateDetail && (
+                            <div className="border-t border-dashed border-amber-100 pt-4 space-y-3">
+                                <div className="bg-amber-50/30 px-3 py-2 rounded-lg text-xs font-bold text-amber-900 flex flex-col gap-1">
+                                    <span className="text-[10px] text-amber-700 uppercase tracking-widest">Phương pháp gieo quẻ</span>
+                                    <span>Mai Hoa Dịch Số theo Biển Số Xe</span>
+                                    <span className="text-slate-500 font-medium text-[11px]">5 Chữ số biển xe: {plateDetail.plateStr.split('').join(' - ')}</span>
+                                </div>
+
+                                <div className="bg-slate-50 p-4 rounded-xl text-slate-700 space-y-2 border border-slate-100">
+                                    <h4 className="text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200/60 pb-1.5 mb-2">Công thức số lý động tâm</h4>
+                                    
+                                    <div className="grid grid-cols-2 gap-2 text-xs font-semibold">
+                                        <div>3 Số đầu (Thượng): <span className="font-extrabold text-amber-800">{plateDetail.first3.join(', ')}</span></div>
+                                        <div>2 Số sau (Hạ): <span className="font-extrabold text-amber-800">{plateDetail.last2.join(', ')}</span></div>
+                                    </div>
+
+                                    <div className="border-t border-slate-200/60 pt-2 space-y-1.5 text-xs">
+                                        <div className="flex justify-between items-center bg-white px-2.5 py-1.5 rounded border border-slate-100">
+                                            <span className="text-slate-500">Thượng Quái (3 số đầu)</span>
+                                            <span className="font-bold text-slate-800 text-[11px]">
+                                                ({plateDetail.first3.join(' + ')} = {plateDetail.math.upperSum}) % 8 = <span className="text-amber-800 font-black">{plateDetail.math.upperVal}</span> ({TRIGRAM_NAMES[plateDetail.math.upperVal]})
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between items-center bg-white px-2.5 py-1.5 rounded border border-slate-100">
+                                            <span className="text-slate-500">Hạ Quái (2 số sau)</span>
+                                            <span className="font-bold text-slate-800 text-[11px]">
+                                                ({plateDetail.last2.join(' + ')} = {plateDetail.math.lowerSum}) % 8 = <span className="text-amber-800 font-black">{plateDetail.math.lowerVal}</span> ({TRIGRAM_NAMES[plateDetail.math.lowerVal]})
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between items-center bg-white px-2.5 py-1.5 rounded border border-slate-100">
+                                            <span className="text-slate-500">Hào Động (Tổng 5 số)</span>
+                                            <span className="font-bold text-slate-800 text-[11px]">
+                                                ({plateDetail.digits.join(' + ')} = {plateDetail.math.movingSum}) % 6 = Hào <span className="text-amber-800 font-black">{plateDetail.math.movingVal}</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {/* Sub-method: 3 Số (000-999: số đầu Thượng quái, tổng 2 số sau Hạ quái, tổng 3 số Hào động) */}
+                {subMethod === 'three_digits' && (
+                    <div className="space-y-4">
+                        <div>
+                            <div className="flex items-center justify-between mb-2">
+                                <label className="block text-sm font-black text-amber-900 uppercase tracking-wider flex items-center gap-1.5">
+                                    <Dices size={15} className="text-amber-700" />
+                                    Nhập 3 Chữ Số (000 - 999)
+                                </label>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const rnd = String(Math.floor(Math.random() * 1000)).padStart(3, '0');
+                                        setThreeDigitsStr(rnd);
+                                    }}
+                                    className="px-3 py-1 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer active:scale-95 shadow-xs"
+                                >
+                                    <Dices size={13} className="text-amber-700" />
+                                    <span>Tạo 3 số ngẫu nhiên</span>
+                                </button>
+                            </div>
+                            <input
+                                type="text"
+                                maxLength={3}
+                                placeholder="Ví dụ: 168 hoặc 789"
+                                value={threeDigitsStr}
+                                onChange={(e) => {
+                                    const val = e.target.value.replace(/\D/g, '').slice(0, 3);
+                                    setThreeDigitsStr(val);
+                                }}
+                                className="bg-slate-50/80 border border-slate-200 text-center text-slate-800 text-2xl rounded-xl focus:ring-2 focus:ring-amber-400 focus:border-amber-400 block w-full py-3.5 font-bold transition-all placeholder:text-slate-300 tracking-[0.4em]"
+                            />
+                            {threeDigitsError && (
+                                <p className="text-xs text-red-500 font-semibold mt-1">{threeDigitsError}</p>
+                            )}
+                        </div>
+
+                        {threeDigitsDetail && (
+                            <div className="border-t border-dashed border-amber-100 pt-4 space-y-3">
+                                <div className="bg-amber-50/30 px-3 py-2 rounded-lg text-xs font-bold text-amber-900 flex flex-col gap-1">
+                                    <span className="text-[10px] text-amber-700 uppercase tracking-widest">Phương pháp gieo quẻ</span>
+                                    <span>Mai Hoa Dịch Số theo 3 Số</span>
+                                    <span className="text-slate-500 font-medium text-[11px]">3 Chữ số: {threeDigitsDetail.d1} - {threeDigitsDetail.d2} - {threeDigitsDetail.d3}</span>
+                                </div>
+
+                                <div className="bg-slate-50 p-4 rounded-xl text-slate-700 space-y-2 border border-slate-100">
+                                    <h4 className="text-xs font-black text-slate-500 uppercase tracking-widest border-b border-slate-200/60 pb-1.5 mb-2">Công thức số lý động tâm</h4>
+                                    
+                                    <div className="grid grid-cols-3 gap-2 text-xs font-semibold text-center">
+                                        <div className="bg-white p-1.5 rounded border border-slate-100">Số 1: <span className="font-extrabold text-amber-800">{threeDigitsDetail.d1}</span></div>
+                                        <div className="bg-white p-1.5 rounded border border-slate-100">Số 2: <span className="font-extrabold text-amber-800">{threeDigitsDetail.d2}</span></div>
+                                        <div className="bg-white p-1.5 rounded border border-slate-100">Số 3: <span className="font-extrabold text-amber-800">{threeDigitsDetail.d3}</span></div>
+                                    </div>
+
+                                    <div className="border-t border-slate-200/60 pt-2 space-y-1.5 text-xs">
+                                        <div className="flex justify-between items-center bg-white px-2.5 py-1.5 rounded border border-slate-100">
+                                            <span className="text-slate-500">Thượng Quái (Số đầu tiên)</span>
+                                            <span className="font-bold text-slate-800 text-[11px]">
+                                                {threeDigitsDetail.d1} % 8 = <span className="text-amber-800 font-black">{threeDigitsDetail.math.upperVal}</span> ({TRIGRAM_NAMES[threeDigitsDetail.math.upperVal]})
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between items-center bg-white px-2.5 py-1.5 rounded border border-slate-100">
+                                            <span className="text-slate-500">Hạ Quái (Tổng 2 số sau)</span>
+                                            <span className="font-bold text-slate-800 text-[11px]">
+                                                ({threeDigitsDetail.d2} + {threeDigitsDetail.d3} = {threeDigitsDetail.math.lowerSum}) % 8 = <span className="text-amber-800 font-black">{threeDigitsDetail.math.lowerVal}</span> ({TRIGRAM_NAMES[threeDigitsDetail.math.lowerVal]})
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between items-center bg-white px-2.5 py-1.5 rounded border border-slate-100">
+                                            <span className="text-slate-500">Hào Động (Tổng cả 3 số)</span>
+                                            <span className="font-bold text-slate-800 text-[11px]">
+                                                ({threeDigitsDetail.d1} + {threeDigitsDetail.d2} + {threeDigitsDetail.d3} = {threeDigitsDetail.math.movingSum}) % 6 = Hào <span className="text-amber-800 font-black">{threeDigitsDetail.math.movingVal}</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {/* Sub-method: Seri Tiền (8 số) */}
+                {subMethod === 'serial' && (
                     <div className="space-y-4">
                         <div>
                             <label className="block text-sm font-black text-amber-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">
@@ -789,7 +1207,7 @@ export const MaiHoaInput = ({ onComplete }) => {
             <button 
                 type="button"
                 onClick={handleSubmit} 
-                disabled={(subMethod === 'datetime' ? !lunarDetail : !serialDetail) || !!errorMsg}
+                disabled={isSubmitDisabled}
                 className="w-full flex justify-center items-center gap-3 bg-gradient-to-r from-amber-700 to-amber-900 hover:from-amber-800 hover:to-amber-955 text-white px-8 py-4 rounded-xl shadow-xl font-bold text-lg transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
                 <Settings2 />
