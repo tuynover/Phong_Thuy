@@ -2,6 +2,38 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Đồng Bộ & Hiển Thị Các Phân Hệ Mới (Huyền Không & Số Học) Lên Giao Diện Mobile (06/10/2026)
+
+### 🌟 1. Tổng Quan & Yêu Cầu Giao Diện Mobile
+- Bổ sung và đồng bộ đầy đủ các phân hệ mới bao gồm **Huyền Không Phi Tinh (`feixing`)** và **Phong Thủy Số Học (`numerology`)** (cùng với **Trạch Cát / Xem Ngày (`xemngay`)**) lên thanh điều hướng chuyển đổi phân hệ nhanh trên màn hình thiết bị di động (Mobile Module Sub-Header Dropdown).
+- Tối ưu hóa cấu trúc thanh menu chuyển phân hệ dạng thả xuống (khi người dùng bấm biểu tượng La Bàn `🧭 >` trên thanh Header mobile) thành **Lưới Thẻ 2 Cột Đối Xứng Chuẩn Tỉ Lệ (Balanced 2-Column Grid)**:
+  - Khắc phục triệt để lỗi nền trong suốt (`bg-white/98` không được tạo) sang nền trắng mờ đục 100% nguyên khối (`bg-white shadow-xl z-50`), triệt tiêu hoàn toàn hiện tượng chữ nền trang web bị chọc xuyên qua menu.
+  - Bổ sung thanh tiêu đề phân hệ tinh tế: `PHÂN HỆ CHIÊM ĐOÁN • 7 phân hệ`.
+  - Bố trí 6 phân hệ cốt lõi thành 3 cặp thẻ đối xứng 2 cột cân bằng:
+    + Cột 1: `Kinh Dịch`, `Tử Vi`, `Huyền Không`
+    + Cột 2: `Bát Tự`, `Hôn Nhân`, `Số Học`
+  - Hàng cuối cùng mở rộng toàn chiều ngang (`col-span-2`) dành riêng cho **Xem Ngày Đẹp Hoàng Đạo**, tạo điểm neo cân đối tuyệt đối về mặt hình học, không còn tình trạng răng cưa hay nút lệch hàng.
+- Đồng bộ hiển thị 7 phân hệ trên lưới thẻ chức năng Trang Chủ (`HomeBoard.jsx`) và danh mục Dịch Vụ tại Chân Trang (`Footer.jsx`).
+
+### 🛠️ 2. Các Tệp Tin Thay Đổi & Nâng Cấp
+1. **Frontend - Header Mobile Sub-Header (`frontend/src/components/layout/Header.jsx`):**
+   - Nâng cấp khối `isMobileModulesExpanded` hiển thị khi bấm icon La Bàn `(🧭 >)` trên Mobile.
+   - Thiết kế lại toàn bộ bằng lưới `grid grid-cols-2 gap-1.5` bọc trong khung `max-w-sm mx-auto p-3`.
+   - Mỗi nút được bo tròn góc `rounded-xl`, tích hợp icon chuyên biệt (kích thước 15px), màu nền trung tính cao cấp `bg-slate-50 border-slate-200/80` khi chưa kích hoạt, và nổi bật rực rỡ với màu thương hiệu đậm + viền ring thanh thoát khi đang ở phân hệ đó.
+   - Khắc phục lỗi hiển thị nền xuyên thấu bằng `bg-white shadow-xl border-b border-slate-200/90`.
+2. **Frontend - Lưới Phân Hệ Trang Chủ (`frontend/src/features/home/HomeBoard.jsx`):**
+   - Bổ sung 2 mô-đun `feixing` (Huyền Không Phi Tinh) và `numerology` (Phong Thủy Số Học) vào mảng danh mục `modules`.
+   - Cập nhật tiêu đề từ "5 phân hệ tinh tuyển" thành **"7 phân hệ tinh tuyển"**.
+   - Cung cấp đầy đủ icon, màu sắc glow, badge (`Cửu Tinh Bát Trạch`, `Cát Hung Số Vận`) và mô tả học thuật chi tiết.
+3. **Frontend - Chân Trang (`frontend/src/components/layout/Footer.jsx`):**
+   - Bổ sung liên kết điều hướng trực tiếp tới "Huyền Không Phi Tinh" và "Phong Thủy Số Học" trong cột Dịch Vụ.
+4. **Kiểm Thử & Nghiệm Thu Trực Quan (`chrome-devtools-mcp`):**
+   - Thiết lập viewport mobile 390x844 (iPhone) và mô phỏng cảm ứng di động.
+   - Kiểm tra mở dropdown La Bàn `(🧭 >)`: hiển thị hoàn hảo 7 phân hệ chia đều 2 hàng, không tràn màn hình.
+   - Kiểm tra chuyển trang thực tế sang `/feixing` và `/numerology`: hoạt động tức thì, mượt mà.
+   - Kiểm tra cuộn lưới 7 phân hệ trên trang chủ: thẻ Huyền Không Phi Tinh và Phong Thủy Số Học hiển thị chuẩn xác.
+   - Console log sạch sẽ, không có bất kỳ cảnh báo/lỗi JavaScript nào. Đạt 61/61 unit tests (`npm test`).
+
 ## 📅 Phiên bản: Mở Rộng 3 Phương Thức Gieo Quẻ Mai Hoa Dịch Số (SIM 10 Số, Biển Số Xe 5 Số & 3 Số Ngẫu Nhiên) (06/10/2026)
 
 ### 🌟 1. Tổng Quan & Yêu Cầu Học Thuật Dịch Lý
@@ -24,7 +56,8 @@ Hệ thống Kinh Dịch mở rộng phân hệ **Mai Hoa Dịch Số (Tiên Thi
 
 ### 🛠️ 2. Các Tệp Tin Thay Đổi & Nâng Cấp
 1. **Frontend - Form Nhập Liệu Mai Hoa (`frontend/src/features/iching/IChingInput.jsx`):**
-   - Mở rộng thanh chọn sub-tab của Mai Hoa thành 5 phương thức: `Giờ Động Tâm`, `SIM (10 Số)`, `Biển Số Xe`, `3 Số (000-999)`, `Seri Tiền (8 Số)`.
+   - Mở rộng thanh chọn sub-tab của Mai Hoa thành 5 phương thức ngắn gọn, tinh gọn: `Giờ Động Tâm`, `SIM`, `Biển Số`, `3 Số`, `Seri Tiền`.
+   - Lược bỏ toàn bộ các ghi chú số lượng số rườm rà trong ngoặc để giao diện tối giản, thanh thoát và trực quan hơn.
    - Bổ sung các icon chuyên biệt từ `lucide-react`: `Clock`, `Smartphone`, `Car`, `Dices`, `Sparkles`.
    - Grid layout co giãn thông minh: hiển thị 5 cột trên màn hình rộng, 3 cột trên tablet, và 2 cột tự cân đối hàng cuối trên mobile, chuẩn thẩm mỹ Premium HSL.
    - Validation chặt chẽ: kiểm tra độ dài số, chỉ nhận ký tự số, hiển thị lỗi qua `FloatingErrorToast`.

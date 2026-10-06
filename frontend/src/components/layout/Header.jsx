@@ -814,44 +814,116 @@ export default function Header({
       <AnimatePresence>
         {isMobileModulesExpanded && (
           <motion.div 
-            initial={{ opacity: 0, y: -8 }}
+            initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
+            exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.15, ease: "easeOut" }}
-            className="absolute top-full left-0 w-full md:hidden border-b border-slate-200 shadow-md bg-white z-40"
+            className="absolute top-full left-0 w-full md:hidden border-b border-slate-200/90 shadow-xl bg-white z-50"
           >
-            <div className="flex items-center justify-around py-2.5 px-2 max-w-md mx-auto">
-              <button 
-                onClick={() => { handleSelectModule('iching'); setIsMobileModulesExpanded(false); }}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${appMode === 'iching' ? 'bg-amber-800 text-white shadow-sm' : 'text-amber-855 bg-amber-50/50 border border-amber-100/50 hover:bg-amber-100/50'}`}
-              >
-                <Compass size={13} />
-                <span>Kinh Dịch</span>
-              </button>
-              <button 
-                onClick={() => { handleSelectModule('bazi'); setIsMobileModulesExpanded(false); }}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${appMode === 'bazi' ? 'bg-blue-800 text-white shadow-sm' : 'text-blue-855 bg-blue-50/50 border border-blue-100/50 hover:bg-blue-100/50'}`}
-              >
-                <Activity size={13} />
-                <span>Bát Tự</span>
-              </button>
-              <button 
-                onClick={() => {
-                  handleNavZiwei();
-                  setIsMobileModulesExpanded(false);
-                }}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${appMode === 'ziwei' ? 'bg-purple-800 text-white shadow-sm' : 'text-purple-855 bg-purple-50/50 border border-purple-100/50 hover:bg-purple-100/50'}`}
-              >
-                <BarChart3 size={13} />
-                <span>Tử Vi</span>
-              </button>
-              <button 
-                onClick={() => { handleSelectModule('marriage'); setIsMobileModulesExpanded(false); }}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${appMode === 'marriage' ? 'bg-rose-800 text-white shadow-sm' : 'text-rose-855 bg-rose-50/50 border border-rose-100/50 hover:bg-rose-100/50'}`}
-              >
-                <Heart size={13} />
-                <span>Hôn Nhân</span>
-              </button>
+            <div className="p-3 max-w-sm mx-auto">
+              <div className="flex items-center justify-between px-1 pb-2 mb-2 border-b border-slate-100">
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                  Phân Hệ Chiêm Đoán
+                </span>
+                <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+                  7 phân hệ
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-1.5">
+                {/* 1. Kinh Dịch */}
+                <button 
+                  onClick={() => { handleSelectModule('iching'); setIsMobileModulesExpanded(false); }}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    appMode === 'iching' 
+                      ? 'bg-amber-800 text-white shadow-sm ring-1 ring-amber-900/30' 
+                      : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200/80'
+                  }`}
+                >
+                  <Compass size={15} className={`shrink-0 ${appMode === 'iching' ? 'text-amber-200' : 'text-amber-700'}`} />
+                  <span className="truncate">Kinh Dịch</span>
+                </button>
+
+                {/* 2. Bát Tự */}
+                <button 
+                  onClick={() => { handleSelectModule('bazi'); setIsMobileModulesExpanded(false); }}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    appMode === 'bazi' 
+                      ? 'bg-blue-800 text-white shadow-sm ring-1 ring-blue-900/30' 
+                      : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200/80'
+                  }`}
+                >
+                  <Activity size={15} className={`shrink-0 ${appMode === 'bazi' ? 'text-blue-200' : 'text-blue-600'}`} />
+                  <span className="truncate">Bát Tự</span>
+                </button>
+
+                {/* 3. Tử Vi */}
+                <button 
+                  onClick={() => {
+                    handleNavZiwei();
+                    setIsMobileModulesExpanded(false);
+                  }}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    appMode === 'ziwei' 
+                      ? 'bg-purple-800 text-white shadow-sm ring-1 ring-purple-900/30' 
+                      : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200/80'
+                  }`}
+                >
+                  <BarChart3 size={15} className={`shrink-0 ${appMode === 'ziwei' ? 'text-purple-200' : 'text-purple-600'}`} />
+                  <span className="truncate">Tử Vi</span>
+                </button>
+
+                {/* 4. Hôn Nhân */}
+                <button 
+                  onClick={() => { handleSelectModule('marriage'); setIsMobileModulesExpanded(false); }}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    appMode === 'marriage' 
+                      ? 'bg-rose-800 text-white shadow-sm ring-1 ring-rose-900/30' 
+                      : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200/80'
+                  }`}
+                >
+                  <Heart size={15} className={`shrink-0 ${appMode === 'marriage' ? 'text-rose-200' : 'text-rose-600'}`} />
+                  <span className="truncate">Hôn Nhân</span>
+                </button>
+
+                {/* 5. Huyền Không */}
+                <button 
+                  onClick={() => { handleSelectModule('feixing'); setIsMobileModulesExpanded(false); }}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    appMode === 'feixing' 
+                      ? 'bg-amber-600 text-white shadow-sm ring-1 ring-amber-700/30' 
+                      : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200/80'
+                  }`}
+                >
+                  <Compass size={15} className={`shrink-0 ${appMode === 'feixing' ? 'text-amber-100' : 'text-amber-600'}`} />
+                  <span className="truncate">Huyền Không</span>
+                </button>
+
+                {/* 6. Số Học */}
+                <button 
+                  onClick={() => { handleSelectModule('numerology'); setIsMobileModulesExpanded(false); }}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    appMode === 'numerology' 
+                      ? 'bg-amber-700 text-white shadow-sm ring-1 ring-amber-800/30' 
+                      : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200/80'
+                  }`}
+                >
+                  <Sparkles size={15} className={`shrink-0 ${appMode === 'numerology' ? 'text-amber-200' : 'text-amber-700'}`} />
+                  <span className="truncate">Số Học</span>
+                </button>
+
+                {/* 7. Xem Ngày (Hàng đáy toàn phần) */}
+                <button 
+                  onClick={() => { handleSelectModule('xemngay'); setIsMobileModulesExpanded(false); }}
+                  className={`col-span-2 flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    appMode === 'xemngay' 
+                      ? 'bg-emerald-800 text-white shadow-sm ring-1 ring-emerald-900/30' 
+                      : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200/80'
+                  }`}
+                >
+                  <Calendar size={15} className={`shrink-0 ${appMode === 'xemngay' ? 'text-emerald-200' : 'text-emerald-600'}`} />
+                  <span>Xem Ngày Đẹp Hoàng Đạo</span>
+                </button>
+              </div>
             </div>
           </motion.div>
         )}

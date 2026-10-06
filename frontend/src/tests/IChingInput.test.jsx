@@ -68,7 +68,7 @@ describe('IChingInput Component Flow Tests', () => {
         expect(handleComplete.mock.calls[0][0]).toHaveLength(6);
     });
 
-    it('Mai Hoa sub-methods: renders SIM, Biển Số Xe, 3 Số and Seri Tiền tabs', () => {
+    it('Mai Hoa sub-methods: renders SIM, Biển Số, 3 Số and Seri Tiền tabs', () => {
         render(
             <IChingInput 
                 question="Hỏi việc" 
@@ -80,10 +80,10 @@ describe('IChingInput Component Flow Tests', () => {
 
         fireEvent.click(screen.getByText('Mai Hoa Dịch'));
         expect(screen.getByText('Giờ Động Tâm')).toBeInTheDocument();
-        expect(screen.getByText('SIM (10 Số)')).toBeInTheDocument();
-        expect(screen.getByText('Biển Số Xe')).toBeInTheDocument();
-        expect(screen.getByText('3 Số (000-999)')).toBeInTheDocument();
-        expect(screen.getByText('Seri Tiền (8 Số)')).toBeInTheDocument();
+        expect(screen.getByText('SIM')).toBeInTheDocument();
+        expect(screen.getByText('Biển Số')).toBeInTheDocument();
+        expect(screen.getByText('3 Số')).toBeInTheDocument();
+        expect(screen.getByText('Seri Tiền')).toBeInTheDocument();
     });
 
     it('Mai Hoa SIM method calculates correctly and calls onComplete', () => {
@@ -98,7 +98,7 @@ describe('IChingInput Component Flow Tests', () => {
         );
 
         fireEvent.click(screen.getByText('Mai Hoa Dịch'));
-        fireEvent.click(screen.getByText('SIM (10 Số)'));
+        fireEvent.click(screen.getByText('SIM'));
 
         const input = screen.getByPlaceholderText(/Nhập 10 chữ số/i);
         fireEvent.change(input, { target: { value: '0912345678' } });
@@ -117,7 +117,7 @@ describe('IChingInput Component Flow Tests', () => {
         expect(methodSuffix).toContain('SIM 0912345678');
     });
 
-    it('Mai Hoa Biển Số Xe method calculates with 3 first digits upper, 2 last lower', () => {
+    it('Mai Hoa Biển Số method calculates with 3 first digits upper, 2 last lower', () => {
         const handleComplete = vi.fn();
         render(
             <IChingInput 
@@ -129,7 +129,7 @@ describe('IChingInput Component Flow Tests', () => {
         );
 
         fireEvent.click(screen.getByText('Mai Hoa Dịch'));
-        fireEvent.click(screen.getByText('Biển Số Xe'));
+        fireEvent.click(screen.getByText('Biển Số'));
 
         const input = screen.getByPlaceholderText(/Nhập 5 chữ số/i);
         fireEvent.change(input, { target: { value: '68688' } });
@@ -160,7 +160,7 @@ describe('IChingInput Component Flow Tests', () => {
         );
 
         fireEvent.click(screen.getByText('Mai Hoa Dịch'));
-        fireEvent.click(screen.getByText('3 Số (000-999)'));
+        fireEvent.click(screen.getByText('3 Số'));
 
         const input = screen.getByPlaceholderText(/Ví dụ: 168/i);
         fireEvent.change(input, { target: { value: '168' } });
@@ -191,7 +191,7 @@ describe('IChingInput Component Flow Tests', () => {
         );
 
         fireEvent.click(screen.getByText('Mai Hoa Dịch'));
-        fireEvent.click(screen.getByText('3 Số (000-999)'));
+        fireEvent.click(screen.getByText('3 Số'));
 
         const randomBtn = screen.getByRole('button', { name: /Tạo 3 số ngẫu nhiên/i });
         fireEvent.click(randomBtn);

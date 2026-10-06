@@ -271,6 +271,28 @@ function HomeBoard({
       iconColor: 'text-emerald-600',
       glow: 'rgba(16, 185, 129, 0.15)',
       badge: 'Xu cát tị hung'
+    },
+    {
+      id: 'feixing',
+      name: 'Huyền Không Phi Tinh',
+      slogan: 'Phong Thủy Nhà Ở',
+      desc: 'Lập cửu tinh đồ 9 cung, định vượng suy hướng nhà, luận giải trạch vận, sơn tinh hướng tinh và phương pháp hóa giải.',
+      icon: Compass,
+      color: 'from-amber-500/20 to-orange-500/20 border-amber-500/30 hover:shadow-amber-500/10',
+      iconColor: 'text-amber-600',
+      glow: 'rgba(217, 119, 6, 0.15)',
+      badge: 'Cửu Tinh Bát Trạch'
+    },
+    {
+      id: 'numerology',
+      name: 'Phong Thủy Số Học',
+      slogan: 'Năng Lượng Dãy Số',
+      desc: 'Phân tích số điện thoại SIM, biển số xe, số tài khoản ngân hàng theo Du Niên Bát Quái và Cửu Tinh Đương Vận.',
+      icon: Sparkles,
+      color: 'from-amber-600/20 to-yellow-500/20 border-amber-600/30 hover:shadow-amber-600/10',
+      iconColor: 'text-amber-700',
+      glow: 'rgba(180, 83, 9, 0.15)',
+      badge: 'Cát Hung Số Vận'
     }
   ];
 
@@ -629,7 +651,7 @@ function HomeBoard({
         <div className="text-center max-w-2xl mx-auto mb-16 md:mb-20 space-y-4">
           <h2 className="text-sm font-extrabold text-indigo-600 uppercase tracking-widest font-[Montserrat]">Hệ Sinh Thái Phong Thủy</h2>
           <p className="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-900 font-[Montserrat]">
-            5 phân hệ tinh tuyển
+            7 phân hệ tinh tuyển
           </p>
           <p className="text-sm sm:text-base text-slate-500 font-medium leading-relaxed">
             Mỗi mô-đun được kế thừa trọn vẹn lý luận học thuật Cổ học Phương Đông, tích hợp hệ thống luận giải học thuật.

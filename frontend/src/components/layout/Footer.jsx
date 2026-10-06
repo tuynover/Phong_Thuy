@@ -50,6 +50,16 @@ export default function Footer({ onSelectModule }) {
                             </button>
                         </li>
                         <li>
+                            <button onClick={() => onSelectModule('feixing')} className="hover:text-indigo-600 transition-colors text-left">
+                                Huyền Không Phi Tinh
+                            </button>
+                        </li>
+                        <li>
+                            <button onClick={() => onSelectModule('numerology')} className="hover:text-indigo-600 transition-colors text-left">
+                                Phong Thủy Số Học
+                            </button>
+                        </li>
+                        <li>
                             <button onClick={() => onSelectModule('blog')} className="hover:text-indigo-600 transition-colors text-left">
                                 Kiến Thức Phong Thủy
                             </button>

@@ -769,7 +769,7 @@ export const MaiHoaInput = ({ onComplete }) => {
                     }`}
                 >
                     <Smartphone size={14} className="shrink-0" />
-                    <span>SIM (10 Số)</span>
+                    <span>SIM</span>
                 </button>
                 <button
                     type="button"
@@ -781,7 +781,7 @@ export const MaiHoaInput = ({ onComplete }) => {
                     }`}
                 >
                     <Car size={14} className="shrink-0" />
-                    <span>Biển Số Xe</span>
+                    <span>Biển Số</span>
                 </button>
                 <button
                     type="button"
@@ -793,7 +793,7 @@ export const MaiHoaInput = ({ onComplete }) => {
                     }`}
                 >
                     <Dices size={14} className="shrink-0" />
-                    <span>3 Số (000-999)</span>
+                    <span>3 Số</span>
                 </button>
                 <button
                     type="button"
@@ -805,7 +805,7 @@ export const MaiHoaInput = ({ onComplete }) => {
                     }`}
                 >
                     <Sparkles size={14} className="shrink-0" />
-                    <span>Seri Tiền (8 Số)</span>
+                    <span>Seri Tiền</span>
                 </button>
             </div>
 
@@ -931,7 +931,7 @@ export const MaiHoaInput = ({ onComplete }) => {
                         <div>
                             <label className="block text-sm font-black text-amber-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                                 <Smartphone size={15} className="text-amber-700" />
-                                Nhập Số Điện Thoại / SIM (10 Chữ Số)
+                                Nhập Số SIM
                             </label>
                             <input
                                 type="text"
@@ -997,7 +997,7 @@ export const MaiHoaInput = ({ onComplete }) => {
                         <div>
                             <label className="block text-sm font-black text-amber-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                                 <Car size={15} className="text-amber-700" />
-                                Nhập 5 Chữ Số Biển Số Xe
+                                Nhập Biển Số Xe
                             </label>
                             <input
                                 type="text"
@@ -1064,7 +1064,7 @@ export const MaiHoaInput = ({ onComplete }) => {
                             <div className="flex items-center justify-between mb-2">
                                 <label className="block text-sm font-black text-amber-900 uppercase tracking-wider flex items-center gap-1.5">
                                     <Dices size={15} className="text-amber-700" />
-                                    Nhập 3 Chữ Số (000 - 999)
+                                    Nhập 3 Chữ Số
                                 </label>
                                 <button
                                     type="button"
@@ -1143,7 +1143,7 @@ export const MaiHoaInput = ({ onComplete }) => {
                         <div>
                             <label className="block text-sm font-black text-amber-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                                 <Sparkles size={15} className="text-amber-700" />
-                                Nhập Dãy Số Seri Tiền (8 Chữ Số)
+                                Nhập Dãy Số Seri Tiền
                             </label>
                             <input
                                 type="text"
