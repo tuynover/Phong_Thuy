@@ -790,5 +790,503 @@ export const ziweiConcepts = {
         "category": "Hung Tinh Tử Vi",
         "short_description": "Sao chủ về thị phi oán trách, cờ bạc, khách viếng thăm buồn.",
         "full_detail": "▸ Ngũ hành: Hỏa\n▸ Ý nghĩa: Chủ về ăn nói khéo léo nhưng dễ dính líu thị phi, cờ bạc hao tài, đi thăm hỏi tang chế hoặc buồn lòng."
+    },
+    "Tả Phù": {
+            "term": "Tả Phù",
+            "category": "Cát Tinh Tử Vi",
+            "short_description": "Sao phò tá chủ động, quý nhân trợ giúp công việc.",
+            "full_detail": "▸ Ngũ hành: Mậu Thổ (Dương Thổ)\n▸ Ý nghĩa: Cát tinh chủ về sự giúp đỡ đắc lực từ bên ngoài, bạn bè đồng nghiệp ủng hộ.\n▸ Cát: Gia tăng sức mạnh đáng kể cho chính tinh, công danh thăng tiến nhanh chóng.\n▸ Tính cách: Nhân hậu, trượng nghĩa, chu đáo, nhiệt tình giúp đỡ người khác."
+    },
+    "Thanh Long": {
+            "term": "Thanh Long",
+            "category": "Cát Tinh Tử Vi",
+            "short_description": "Rồng xanh may mắn, chủ về hỷ sự, thi cử đỗ đạt, tài lộc hanh thông.",
+            "full_detail": "▸ Ngũ hành: Thủy\n▸ Ý nghĩa: Biểu tượng may mắn cát tường, thi cử đỗ cao, công danh thuận lợi, gặp dữ hóa lành.\n▸ Cát: Hóa giải ám tinh, mang lại cơ hội bất ngờ, duyên may tài lộc, thanh cao quý phái.\n▸ Đắc cách: Đi cùng Hóa Kỵ (Long Kỵ tương hội) hoặc Lưu Hà tạo cách rồng gặp mây nước vẫy vùng."
+    },
+    "Phụng Các": {
+            "term": "Phụng Các",
+            "category": "Cát Tinh Tử Vi",
+            "short_description": "Sao quý tinh đài các, chủ về nhà cửa đẹp, dung nhan thanh tú, danh dự.",
+            "full_detail": "▸ Ngũ hành: Mậu Thổ (Dương Thổ)\n▸ Ý nghĩa: Tượng trưng lầu phượng gác tía, nhà cửa khang trang, thanh cao nhã nhặn.\n▸ Cát: Thi cử đỗ đạt, hôn nhân thuận hòa, dung mạo đoan trang thanh tú, thính giác tốt.\n▸ Hợp cách: Đồng cung hoặc hội chiếu Long Trì tạo bộ Long Phượng cát tường."
+    },
+    "Phượng các": {
+            "term": "Phượng các",
+            "category": "Cát Tinh Tử Vi",
+            "short_description": "Phượng Các - Lầu phượng quý phái, nhà cửa đẹp đẽ, thanh cao trang nhã.",
+            "full_detail": "▸ Ngũ hành: Mậu Thổ (Dương Thổ)\n▸ Ý nghĩa: Cát tinh chủ về danh tiếng, dung mạo đoan trang thanh tú, thi cử thuận lợi."
+    },
+    "Đài Phụ": {
+            "term": "Đài Phụ",
+            "category": "Cát Tinh Tử Vi",
+            "short_description": "Sao huân chương, bằng khen, chủ về trợ lực công danh, khen thưởng.",
+            "full_detail": "▸ Ngũ hành: Canh Kim (Dương Kim)\n▸ Ý nghĩa: Sao phù tá mang tính danh dự, sắc phong, khen thưởng từ cấp trên.\n▸ Cát: Tăng thêm uy tín và danh tiếng, thi cử đỗ đạt, được cấp trên tín nhiệm đề bạt.\n▸ Hợp cách: Đi đôi với Phong Cáo tạo thành bộ đôi danh vọng, bằng cấp rạng rỡ."
+    },
+    "Thai Phụ": {
+            "term": "Thai Phụ",
+            "category": "Cát Tinh Tử Vi",
+            "short_description": "Sao huân chương khen ngợi, chủ về bằng cấp và danh vọng trợ giúp.",
+            "full_detail": "▸ Ngũ hành: Kim\n▸ Ý nghĩa: Trợ tinh đắc lực chủ về văn chương, bằng khen, thi cử đỗ đạt cao.\n▸ Cát: Tăng cường danh thơm tiếng tốt, được xã hội và tổ chức công nhận thành quả."
+    },
+    "Cô Thần": {
+            "term": "Cô Thần",
+            "category": "Hung Tinh Tử Vi",
+            "short_description": "Sao chủ về cô đơn, nội tâm khép kín, cô độc lẻ loi.",
+            "full_detail": "▸ Ngũ hành: Mậu Thổ (Dương Thổ)\n▸ Ý nghĩa: Biểu thị tính cô đơn, độc lập, ít chịu chia sẻ với người ngoài.\n▸ Bất lợi: Rất bất lợi cho cung Phu Thê và tình duyên, tạo khoảng cách lạnh nhạt giữa hai người.\n▸ Điểm tốt: Tính tự lập rất cao, chuyên tâm nghiên cứu sâu, không bị ngoại cảnh chi phối."
+    },
+    "Quả Tú": {
+            "term": "Quả Tú",
+            "category": "Hung Tinh Tử Vi",
+            "short_description": "Sao chủ về cô tịch, giữ của chặt chẽ, khó hòa nhập tình cảm.",
+            "full_detail": "▸ Ngũ hành: Kỷ Thổ (Âm Thổ)\n▸ Ý nghĩa: Tượng trưng người phụ nữ cô quạnh trong phòng khuê, sự khép kín nội tâm.\n▸ Bất lợi: Lận đận tình duyên, khó tìm được người tri kỷ thực sự thấu hiểu.\n▸ Điểm tốt: Khả năng giữ tiền bạc rất tốt, không hoang phí, cẩn thận chi tiết trong công việc."
+    },
+    "Âm Sát": {
+            "term": "Âm Sát",
+            "category": "Sát Tinh Tử Vi",
+            "short_description": "Sao ám sát, chủ về tiểu nhân ngầm hãm hại, ngờ vực, bệnh khó lường.",
+            "full_detail": "▸ Ngũ hành: Thủy\n▸ Ý nghĩa: Tượng trưng cho lực cản vô hình, thị phi giấu mặt, sự ganh ghét ngấm ngầm.\n▸ Tác hại: Dễ bị người khác chơi xấu sau lưng, hoài nghi quá mức, bệnh tật tiềm ẩn khó chẩn đoán.\n▸ Khuyên: Cần làm việc minh bạch công khai, cẩn trọng tin người và tích đức hành thiện."
+    },
+    "Thiên Vu": {
+            "term": "Thiên Vu",
+            "category": "Phụ Tinh Tử Vi",
+            "short_description": "Sao tâm linh huyền học, chủ về trực giác nhạy bén, kế thừa di sản.",
+            "full_detail": "▸ Ngũ hành: Thủy\n▸ Ý nghĩa: Biểu thị giác quan thứ sáu nhạy bén, khả năng cảm nhận tâm linh, y thuật huyền môn.\n▸ Cát: Dễ được kế thừa tài sản, di sản tinh thần hoặc truyền thống của tổ tiên dòng họ.\n▸ Tính cách: Trầm tĩnh, nhạy cảm sâu sắc, hứng thú với triết lý tôn giáo và huyền học."
+    },
+    "Thiên Nguyệt": {
+            "term": "Thiên Nguyệt",
+            "category": "Hung Tinh Tử Vi",
+            "short_description": "Sao chủ về bệnh kinh niên ốm vặt, thần kinh u uất lo nghĩ.",
+            "full_detail": "▸ Ngũ hành: Thủy\n▸ Ý nghĩa: Bệnh phù tinh biểu thị sự suy nhược khí huyết, bệnh mạn tính hay tái phát theo thời tiết.\n▸ Tác động: Tinh thần dễ uể oải, suy nghĩ tiêu cực, dễ dị ứng hoặc đau ốm khi giao mùa.\n▸ Khuyên: Nên rèn luyện thể thao đều đặn, chú ý dưỡng sinh tinh thần và giấc ngủ."
+    },
+    "Thiên Đức": {
+            "term": "Thiên Đức",
+            "category": "Cát Tinh Tử Vi",
+            "short_description": "Thiện tinh đệ nhất, chủ về phúc ấm trời ban, gặp dữ hóa lành.",
+            "full_detail": "▸ Ngũ hành: Thủy / Hỏa\n▸ Ý nghĩa: Biểu tượng cho lòng nhân hậu, sự che chở của trời đất, giải trừ tai ương hoạn nạn.\n▸ Cát: Gặp nạn có người cứu vớt kịp thời, lương thiện nhân ái, công danh bình an thuận lợi.\n▸ Tính cách: Nhân từ, khiêm tốn, giàu lòng trắc ẩn, luôn sẵn lòng giúp đỡ người khác."
+    },
+    "Nguyệt Đức": {
+            "term": "Nguyệt Đức",
+            "category": "Cát Tinh Tử Vi",
+            "short_description": "Sao phúc thiện cát lành, chủ về đoan trang, nhân từ, hóa giải tai ách.",
+            "full_detail": "▸ Ngũ hành: Hỏa\n▸ Ý nghĩa: Biểu tượng ánh trăng dịu mát, giải trừ bệnh tật thị phi, mang lại may mắn nhân duyên.\n▸ Cát: Gia đạo hòa thuận ấm êm, duyên lành tốt đẹp, được phái nữ và quý nhân giúp đỡ.\n▸ Tính cách: Ôn nhu, dịu dàng, khéo cư xử, tâm tính trong sáng hướng thiện."
+    },
+    "Phúc Đức": {
+            "term": "Phúc Đức",
+            "category": "Cát Tinh Tử Vi",
+            "short_description": "Sao chủ về phúc trạch gia tiên, an lành, giảm thiểu tai ách hoạn nạn.",
+            "full_detail": "▸ Ngũ hành: Kỷ Thổ (Âm Thổ)\n▸ Ý nghĩa: Sao nằm trong vòng Thái Tuế mang lại sự may mắn tĩnh tại, được tổ tiên che chở phù trì.\n▸ Cát: Hóa giải các mâu thuẫn tranh chấp, gia tăng tuổi thọ và niềm vui nội tâm.\n▸ Tính cách: Điềm đạm, hiểu lý lẽ, giàu lòng bao dung tha thứ."
+    },
+    "Hỷ Thần": {
+            "term": "Hỷ Thần",
+            "category": "Cát Tinh Tử Vi",
+            "short_description": "Sao mang lại tin vui, tiếng cười, hỷ sự cưới hỏi sinh con.",
+            "full_detail": "▸ Ngũ hành: Đinh Hỏa (Âm Hỏa)\n▸ Ý nghĩa: Biểu thị niềm vui mừng hoan hỷ, tin vui bất ngờ từ xa gửi đến.\n▸ Cát: Đem lại không khí ấm áp sum vầy, cưới xin đơm hoa kết trái, làm ăn hanh thông.\n▸ Tính cách: Lạc quan, hài hước, vui vẻ thân thiện, luôn lan tỏa năng lượng tích cực."
+    },
+    "Tuế Phá": {
+            "term": "Tuế Phá",
+            "category": "Hung Tinh Tử Vi",
+            "short_description": "Sao đối xung Thái Tuế, chủ về chống đối, hao tài, rạn nứt quan hệ.",
+            "full_detail": "▸ Ngũ hành: Đinh Hỏa (Âm Hỏa)\n▸ Ý nghĩa: Nằm ở vị trí đối xung trực tiếp với Thái Tuế, chủ về sự phản kháng, bất phục tùng.\n▸ Hung: Dễ hao tổn tiền bạc, hư hại tài sản, bất hòa quan điểm với người thân hoặc cấp trên.\n▸ Điểm tốt: Tinh thần dám nghĩ dám làm, không chịu khuất phục uy quyền bất công."
+    },
+    "Quan Phủ": {
+            "term": "Quan Phủ",
+            "category": "Hung Tinh Tử Vi",
+            "short_description": "Sao chủ về công đường hành chính, kiện tụng, giấy tờ pháp lý.",
+            "full_detail": "▸ Ngũ hành: Hỏa\n▸ Ý nghĩa: Tượng trưng cho cửa quan, sự can thiệp của pháp luật, thủ tục hành chính nghiêm ngặt.\n▸ Hung: Dễ vướng vào tranh chấp pháp lý, rắc rối hợp đồng ký kết, bị kiểm tra sách nhiễu.\n▸ Khuyên: Làm ăn minh bạch chuẩn chỉ luật pháp, tránh cãi cọ đối đầu vô ích."
+    },
+    "Tuế Kiến": {
+            "term": "Tuế Kiến",
+            "category": "Vòng Thái Tuế",
+            "short_description": "Sao Thái Tuế theo năm, chủ về quyền uy nguyên thủ, biến động lớn trong năm.",
+            "full_detail": "▸ Ngũ hành: Hỏa / Thổ\n▸ Ý nghĩa: Đứng đầu vòng Thái Tuế, đại diện cho vua một nước, sức mạnh chi phối vận thế năm đó.\n▸ Tác động: Kích hoạt mạnh mẽ các sự kiện lớn trong năm (thay đổi công việc, nhà cửa, kết hôn).\n▸ Cát/Hung: Đi với cát tinh thì uy quyền tột đỉnh, đi với sát tinh thì thị phi rắc rối lớn."
+    },
+    "Tuế Kiện": {
+            "term": "Tuế Kiện",
+            "category": "Vòng Thái Tuế",
+            "short_description": "Sao Tuế Kiến (Thái Tuế), chủ về uy quyền lãnh đạo, thời vận trọng đại.",
+            "full_detail": "▸ Ngũ hành: Hỏa / Thổ\n▸ Ý nghĩa: Biểu thị dòng chảy vận thế theo năm lưu niên của vòng Thái Tuế.\n▸ Tác động: Đem lại sự thay đổi bước ngoặt lớn về công danh, gia đạo và môi trường sống."
+    },
+    "Hối Khí": {
+            "term": "Hối Khí",
+            "category": "Hung Tinh Tử Vi",
+            "short_description": "Sao chủ về vận khí u ám, thị phi xui xẻo, trục trặc làm chậm bước tiến.",
+            "full_detail": "▸ Ngũ hành: Mộc / Hỏa\n▸ Ý nghĩa: Biểu thị làn sương mờ tối tăm làm suy giảm sinh khí, cảm giác tù túng bế tắc.\n▸ Hung: Công việc dễ bị đình trệ bất ngờ, gặp phải tiểu nhân cản mũi, làm nhiều hưởng ít.\n▸ Khuyên: Giữ vững tâm lý kiên nhẫn, bình tĩnh chờ thời, tránh manh động."
+    },
+    "Quán Tác": {
+            "term": "Quán Tác",
+            "category": "Hung Tinh Tử Vi",
+            "short_description": "Sao chủ về trói buộc, giam cầm, vướng mắc pháp luật tù ngục hoặc bế tắc.",
+            "full_detail": "▸ Ngũ hành: Canh Kim (Dương Kim)\n▸ Ý nghĩa: Tượng trưng sợi dây thừng trói buộc, sự kìm kẹp tự do thân thể và tư tưởng.\n▸ Hung: Dễ vướng vòng lao lý nếu kết hợp với Bạch Hổ, Liêm Trinh hãm, cảm giác bị giam hãm ngột ngạt.\n▸ Khuyên: Tuyệt đối tuân thủ pháp luật và đạo đức nghề nghiệp."
+    },
+    "Tử Phù": {
+            "term": "Tử Phù",
+            "category": "Hung Tinh Tử Vi",
+            "short_description": "Sao chủ về tang tóc nhỏ, buồn phiền thất vọng, hao tài tốn của.",
+            "full_detail": "▸ Ngũ hành: Hỏa\n▸ Ý nghĩa: Biểu thị sự hụt hẫng, kế hoạch bị đổ vỡ nửa chừng, mất mát tiền nong nhỏ.\n▸ Hung: Tâm trạng dễ bi quan, chán nản, cần cẩn trọng tai ách nhỏ khi đi lại."
+    },
+    "Phan Án": {
+            "term": "Phan Án",
+            "category": "Cát Tinh Tử Vi",
+            "short_description": "Sao yên ngựa quý, chủ về thi cử đỗ đạt, trợ lực thăng tiến, xe cộ.",
+            "full_detail": "▸ Ngũ hành: Canh Kim (Dương Kim)\n▸ Ý nghĩa: Yên ngựa bằng da quý giá, chuẩn bị cho bước nhảy vọt thăng tiến đường dài.\n▸ Cát: Rất lợi cho học hành thi cử, phỏng vấn xin việc, được trang bị phương tiện đi lại tốt."
+    },
+    "Tuế Dịch": {
+            "term": "Tuế Dịch",
+            "category": "Cát Tinh Tử Vi",
+            "short_description": "Sao chủ về biến động dịch chuyển, thay đổi chỗ ở công tác (như Thiên Mã).",
+            "full_detail": "▸ Ngũ hành: Bính Hỏa (Dương Hỏa)\n▸ Ý nghĩa: Ngựa trạm truyền tin, thúc đẩy sự thay đổi địa điểm sinh sống và làm việc liên tục.\n▸ Tác động: Đi xa lập nghiệp hanh thông, công tác ngoại giao năng động, không chịu ngồi yên một chỗ."
+    },
+    "Tức Thần": {
+            "term": "Tức Thần",
+            "category": "Hung Tinh Tử Vi",
+            "short_description": "Sao chủ về nhụt chí, uể oải buông xuôi, thiếu tinh thần tiến thủ.",
+            "full_detail": "▸ Ngũ hành: Hỏa\n▸ Ý nghĩa: Hơi thở mệt nhọc tiêu trầm, thiếu lửa nhiệt huyết và ý chí phấn đấu.\n▸ Hung: Làm việc dễ bỏ dở nửa chừng, lười biếng ỷ lại, cần người khác đôn đốc nhắc nhở."
+    },
+    "Tai Sát": {
+            "term": "Tai Sát",
+            "category": "Hung Tinh Tử Vi",
+            "short_description": "Sao chủ về tai họa bất ngờ từ bên ngoài đưa tới, rủi ro khách quan.",
+            "full_detail": "▸ Ngũ hành: Bính Hỏa (Dương Hỏa)\n▸ Ý nghĩa: Ngọn lửa tai ương từ ngoài ập tới, khó kiểm soát phòng ngừa bằng ý chí chủ quan.\n▸ Hung: Đề phòng rủi ro tai nạn giao thông, hỏa hoạn, mất mát tài sản bất khả kháng."
+    },
+    "Thiên Sát": {
+            "term": "Thiên Sát",
+            "category": "Hung Tinh Tử Vi",
+            "short_description": "Sao chủ về cản trở thiên thời, bất lợi cho nam giới trưởng bối.",
+            "full_detail": "▸ Ngũ hành: Bính Hỏa (Dương Hỏa)\n▸ Ý nghĩa: Sát khí từ trời rơi xuống, mang tính bất thuận lợi thời cuộc.\n▸ Hung: Dễ khắc cha hoặc chồng nếu đóng ở Mệnh/Phụ Mẫu/Phu Thê, công việc hay gặp trở ngại bất ngờ."
+    },
+    "Chỉ Bối": {
+            "term": "Chỉ Bối",
+            "category": "Hung Tinh Tử Vi",
+            "short_description": "Sao chủ về bị đâm sau lưng, gièm pha nói xấu hạ uy tín, thị phi.",
+            "full_detail": "▸ Ngũ hành: Mộc / Hỏa\n▸ Ý nghĩa: Hành động chỉ trỏ sau lưng, thêu dệt chuyện xấu xa hạ bệ uy danh người khác.\n▸ Hung: Dễ bị đồng nghiệp hoặc bạn bè phản trắc, chịu tiếng oan sai thị phi không đáng có."
+    },
+    "Vong Thần": {
+            "term": "Vong Thần",
+            "category": "Hung Tinh Tử Vi",
+            "short_description": "Sao chủ về đãng trí lơ là, hao hụt tiền của, sơ suất mất mát.",
+            "full_detail": "▸ Ngũ hành: Thủy / Hỏa\n▸ Ý nghĩa: Tinh thần quên lãng mất mát, sơ ý trong quản lý tiền bạc và đồ đạc quý giá.\n▸ Hung: Dễ bị trộm cắp vặt, đánh rơi đồ vật, đầu tư thiếu tỉnh táo dẫn tới hao hụt."
+    },
+    "Niên Giải": {
+            "term": "Niên Giải",
+            "category": "Cát Tinh Tử Vi",
+            "short_description": "Sao tiêu tai giải nạn theo năm, hóa giải thị phi mâu thuẫn bất hòa.",
+            "full_detail": "▸ Ngũ hành: Giáp Mộc (Dương Mộc)\n▸ Ý nghĩa: Cát tinh có năng lực hòa giải tranh chấp, tiêu trừ nguy hại trong năm lưu niên.\n▸ Cát: Biến chuyển nguy thành an, giải tỏa các hiểu lầm khúc mắc giữa các bên."
+    },
+    "Nguyệt Giải": {
+            "term": "Nguyệt Giải",
+            "category": "Cát Tinh Tử Vi",
+            "short_description": "Sao hóa giải tai ách theo tháng, mang lại bình an thuận hòa.",
+            "full_detail": "▸ Ngũ hành: Hỏa / Thủy\n▸ Ý nghĩa: Năng lực cứu trợ kịp thời từng tháng, làm nhẹ bớt tai ách bệnh tật.\n▸ Cát: Tạo sự thanh thản trong tâm hồn, gia đạo hòa hợp êm ấm."
+    },
+    "Quốc Ấn": {
+            "term": "Quốc Ấn",
+            "category": "Cát Tinh Tử Vi",
+            "short_description": "Con dấu quyền lực quốc gia, chủ về chức vụ, sắc phong, uy tín tổ chức.",
+            "full_detail": "▸ Ngũ hành: Kỷ Thổ (Âm Thổ)\n▸ Ý nghĩa: Tượng trưng con dấu ngọc tỷ của tổ chức, nắm giữ thẩm quyền phê duyệt quan trọng.\n▸ Cát: Rất lợi cho công chức, cán bộ quản lý, doanh nhân nắm quyền lãnh đạo doanh nghiệp.\n▸ Tính cách: Uy nghiêm, giữ chữ tín, làm việc nguyên tắc và có trách nhiệm cao."
+    },
+    "Đường Phù": {
+            "term": "Đường Phù",
+            "category": "Cát Tinh Tử Vi",
+            "short_description": "Sao chủ về công đường uy nghi, nhà cửa bề thế, danh dự chức vị.",
+            "full_detail": "▸ Ngũ hành: Giáp Mộc (Dương Mộc)\n▸ Ý nghĩa: Phù hiệu công đường, sự bảo vệ của chính quyền, chỗ ngồi danh dự trang nghiêm.\n▸ Cát: Gia tăng uy thế, nhà cửa khang trang rộng rãi, được tôn trọng trong cộng đồng."
+    },
+    "Trường Sinh": {
+            "term": "Trường Sinh",
+            "category": "Vòng Trường Sinh",
+            "short_description": "Khởi đầu sự sống, sinh sôi nảy nở dồi dào, thọ khang trường thọ.",
+            "full_detail": "▸ Ngũ hành: Nhâm Thủy (Dương Thủy)\n▸ Ý nghĩa: Giai đoạn sinh ra với tràn đầy sinh lực nguyên khôi, sức sống mãnh liệt.\n▸ Cát: Gia tăng sức khỏe, tăng cường phúc thọ cho bản mệnh, tai qua nạn khỏi.\n▸ Tính cách: Cởi mở, hoạt bát, giàu lòng từ bi, dồi dào năng lượng sáng tạo."
+    },
+    "Mộc Dục": {
+            "term": "Mộc Dục",
+            "category": "Vòng Trường Sinh",
+            "short_description": "Giai đoạn tắm gội đổi mới, non nớt đào hoa, đa sầu đa cảm.",
+            "full_detail": "▸ Ngũ hành: Quý Thủy (Âm Thủy)\n▸ Ý nghĩa: Em bé mới sinh được tắm rửa gội sạch, non nớt nhưng tinh khôi.\n▸ Đặc tính: Đào hoa phong nhã, ưa sạch sẽ làm đẹp, dễ rung động tình cảm nhưng cũng dễ bốc đồng.\n▸ Khuyên: Cần giữ vững lập trường, tránh buông thả cảm xúc để giữ gìn danh tiếng."
+    },
+    "Mục Dục": {
+            "term": "Mục Dục",
+            "category": "Vòng Trường Sinh",
+            "short_description": "Mộc Dục - Giai đoạn tắm gội đổi mới, đào hoa lãng mạn non nớt.",
+            "full_detail": "▸ Ngũ hành: Quý Thủy (Âm Thủy)\n▸ Ý nghĩa: Cách gọi khác của Mộc Dục trong một số thư tịch cổ, chủ về sự đổi mới phong cách và đào hoa tình ái."
+    },
+    "Quan Đới": {
+            "term": "Quan Đới",
+            "category": "Vòng Trường Sinh",
+            "short_description": "Giai đoạn đội mũ thắt đai trưởng thành, tự lập, ham cầu tiến thủ.",
+            "full_detail": "▸ Ngũ hành: Canh Kim (Dương Kim)\n▸ Ý nghĩa: Thanh niên đến tuổi trưởng thành mặc áo mũ đĩnh đạc, bắt đầu bước vào xã hội.\n▸ Cát: Ý chí vươn lên mạnh mẽ, tự lực cánh sinh, ham học hỏi và khao khát danh vị thành tựu.\n▸ Hung: Dễ háo thắng, kiêu ngạo quá sớm nếu thiếu rèn luyện nội tâm."
+    },
+    "Lâm Quan": {
+            "term": "Lâm Quan",
+            "category": "Vòng Trường Sinh",
+            "short_description": "Bước ra làm quan lập nghiệp, dồi dào tài lộc, thịnh vượng tự tin.",
+            "full_detail": "▸ Ngũ hành: Tân Kim (Âm Kim)\n▸ Ý nghĩa: Giai đoạn thành công bước lên đài danh vọng, sự nghiệp đạt độ chín muồi.\n▸ Cát: Tiền bạc dồi dào, năng lực chuyên môn vượt trội, được tín nhiệm giao trọng trách lớn.\n▸ Tính cách: Đĩnh đạc, tự tin, làm việc có phương pháp và hiệu quả cao."
+    },
+    "Đế Vượng": {
+            "term": "Đế Vượng",
+            "category": "Vòng Trường Sinh",
+            "short_description": "Đỉnh cao cực thịnh của sinh khí và quyền lực, độc lập mạnh mẽ.",
+            "full_detail": "▸ Ngũ hành: Bính Hỏa (Dương Hỏa)\n▸ Ý nghĩa: Thời điểm huy hoàng nhất của đời người, vượng khí xung thiên như bậc đế vương.\n▸ Cát: Uy quyền tột bậc, sức khỏe sung mãn, khả năng lãnh đạo quần chúng xuất sắc.\n▸ Hung: Cực thịnh thì dễ bắt đầu suy, cần khiêm nhường không nên tự phụ độc đoán."
+    },
+    "Suy": {
+            "term": "Suy",
+            "category": "Vòng Trường Sinh",
+            "short_description": "Qua đỉnh thịnh thoái trào, khí lực suy giảm, nên an phận cẩn trọng.",
+            "full_detail": "▸ Ngũ hành: Thủy\n▸ Ý nghĩa: Sinh khí bắt đầu giảm dần sau giai đoạn Đế Vượng, sự nhiệt huyết dịu lại.\n▸ Tác động: Tính tình trở nên trầm tĩnh, hoài niệm, ít thích bon chen mạo hiểm.\n▸ Khuyên: Thích hợp giữ gìn thành quả, làm cố vấn chiến lược thay vì trực tiếp xông pha."
+    },
+    "Bệnh": {
+            "term": "Bệnh",
+            "category": "Vòng Trường Sinh",
+            "short_description": "Sinh khí suy nhược sinh mệt mỏi, dễ ốm đau, thiếu quyết đoán.",
+            "full_detail": "▸ Ngũ hành: Thủy / Hỏa\n▸ Ý nghĩa: Giai đoạn thể chất và tinh thần mỏi mệt, khả năng đề kháng suy giảm.\n▸ Tác động: Dễ bị ốm vặt, lo nghĩ nhiều, hành động thiếu dứt khoát.\n▸ Điểm tốt: Giàu lòng thấu cảm với nỗi đau của người khác, hợp ngành y dược từ thiện."
+    },
+    "Tử": {
+            "term": "Tử",
+            "category": "Vòng Trường Sinh",
+            "short_description": "Sinh khí tĩnh lặng chấm dứt, kiên định trầm ổn nhưng bảo thủ khép kín.",
+            "full_detail": "▸ Ngũ hành: Quý Thủy (Âm Thủy)\n▸ Ý nghĩa: Trạng thái tĩnh mịch tuyệt đối, đóng băng hành động để chiêm nghiệm sâu sắc.\n▸ Tác động: Khó thay đổi định kiến, suy nghĩ thấu đáo đến tận cùng, ít bộc lộ cảm xúc ra ngoài."
+    },
+    "Mộ": {
+            "term": "Mộ",
+            "category": "Vòng Trường Sinh",
+            "short_description": "Vùi vào đất cất giữ, tích lũy đất đai tài sản kín đáo, cẩn thận.",
+            "full_detail": "▸ Ngũ hành: Kỷ Thổ (Âm Thổ)\n▸ Ý nghĩa: Đưa vào kho cất giấu bảo bọc, sự tích trữ của cải điền sản vững vàng.\n▸ Cát: Khả năng tích lũy bền bỉ, kín tiếng về tài chính, hậu vận giàu có chắc chắn.\n▸ Hung: Dễ chậm chạp, bảo thủ, khó thích nghi với các xu hướng đổi mới nhanh."
+    },
+    "Tuyệt": {
+            "term": "Tuyệt",
+            "category": "Vòng Trường Sinh",
+            "short_description": "Hư vô trống rỗng hoàn toàn, khởi đầu cho mầm sống tái sinh mới.",
+            "full_detail": "▸ Ngũ hành: Đinh Hỏa (Âm Hỏa)\n▸ Ý nghĩa: Năng lượng hoàn toàn trở về số không, dứt bỏ mọi ràng buộc cũ kỹ.\n▸ Đặc tính: Tư duy độc đáo khác người, dễ tuyệt vọng nhưng cũng dễ tạo bước ngoặt bất ngờ."
+    },
+    "Thai": {
+            "term": "Thai",
+            "category": "Vòng Trường Sinh",
+            "short_description": "Thụ thai ấp ủ mầm sống mới, tràn đầy hy vọng và dự định non trẻ.",
+            "full_detail": "▸ Ngũ hành: Mậu Thổ (Dương Thổ)\n▸ Ý nghĩa: Hạt giống mới bắt đầu nảy mầm trong lòng đất, sự khởi đầu đầy hứa hẹn.\n▸ Đặc tính: Giàu trí tưởng tượng, hay ấp ủ ước mơ, tính tình ngây thơ thiện lương cần được bảo bọc."
+    },
+    "Dưỡng": {
+            "term": "Dưỡng",
+            "category": "Vòng Trường Sinh",
+            "short_description": "Nuôi nấng chăm sóc bồi dưỡng, tích lũy nội lực chuẩn bị ra đời.",
+            "full_detail": "▸ Ngũ hành: Ất Mộc (Âm Mộc)\n▸ Ý nghĩa: Giai đoạn thai nhi được nuôi dưỡng đầy đủ dưỡng chất trong bụng mẹ.\n▸ Cát: Được cha mẹ người thân yêu thương chu đáo, học hỏi tích lũy kiến thức vững vàng."
+    },
+    "Bác Sỹ": {
+            "term": "Bác Sỹ",
+            "category": "Vòng Bác Sĩ",
+            "short_description": "Bác Sĩ - Sao chủ về học vấn uyên bác, thông minh đa tài, giải ách.",
+            "full_detail": "▸ Ngũ hành: Thủy\n▸ Ý nghĩa: Đứng đầu vòng Bác Sĩ, tượng trưng cho trí tuệ sáng suốt, năng lực giải quyết sự vụ phức tạp."
+    },
+    "Lực Sỹ": {
+            "term": "Lực Sỹ",
+            "category": "Vòng Bác Sĩ",
+            "short_description": "Lực Sĩ - Sao chủ về sức mạnh cơ bắp dũng cảm, dẻo dai kiên cường.",
+            "full_detail": "▸ Ngũ hành: Hỏa\n▸ Ý nghĩa: Tượng trưng sức mạnh hành động thực tế, sự dũng mãnh bền bỉ vượt qua khó khăn thể chất."
+    },
+    "Tuần Trung": {
+            "term": "Tuần Trung",
+            "category": "Không Tinh Tử Vi",
+            "short_description": "Tuần Trung Không Vong - Vây hãm, điều hòa cát hung nửa đời sau.",
+            "full_detail": "▸ Ngũ hành: Hỏa\n▸ Ý nghĩa: Làm giảm bớt độ sáng của cát tinh và cũng giảm bớt sự tàn phá của sát tinh, tác động mạnh từ trung vận trở đi."
+    },
+    "Triệt Lộ": {
+            "term": "Triệt Lộ",
+            "category": "Không Tinh Tử Vi",
+            "short_description": "Triệt Lộ Không Vong - Cắt đứt ngăn trở, đảo ngược tính chất nửa đời đầu.",
+            "full_detail": "▸ Ngũ hành: Canh Kim (Dương Kim)\n▸ Ý nghĩa: Chặn đứng dòng khí, thử thách gian nan thời tiền vận (dưới 30 tuổi), sau đó tác dụng giảm dần."
+    },
+    "Không Vong": {
+            "term": "Không Vong",
+            "category": "Không Tinh Tử Vi",
+            "short_description": "Trạng thái hư vô tiêu tán vật chất, kích phát tư duy giác ngộ triết học.",
+            "full_detail": "▸ Ngũ hành: Hỏa\n▸ Ý nghĩa: Khiến tài lộc danh vọng dễ trở nên trống rỗng nếu theo đuổi tham vọng trần tục, nhưng đắc đạo với người tu tập nghiên cứu."
+    },
+    "Thiên Thương": {
+            "term": "Thiên Thương",
+            "category": "Hung Tinh Tử Vi",
+            "short_description": "Sao chủ về vết thương, tai ương rình rập đóng cố định tại cung Nô Bộc.",
+            "full_detail": "▸ Ngũ hành: Nhâm Thủy (Dương Thủy)\n▸ Ý nghĩa: Biểu thị sự trắc trở phụ thuộc vào người khác, dễ chịu thiệt thòi từ bạn bè hoặc tôi tớ."
+    },
+    "Thiên Sứ": {
+            "term": "Thiên Sứ",
+            "category": "Hung Tinh Tử Vi",
+            "short_description": "Sứ giả tai họa đóng cố định tại cung Tật Ách, cảnh báo rủi ro sức khỏe.",
+            "full_detail": "▸ Ngũ hành: Quý Thủy (Âm Thủy)\n▸ Ý nghĩa: Sứ giả nhà trời theo dõi nhân quả, dễ phát tác bệnh tật tai ương vào các năm hạn xấu."
+    },
+    "Lưu Niên": {
+            "term": "Lưu Niên",
+            "category": "Vận Hạn Tử Vi",
+            "short_description": "Khái niệm xem vận hạn từng năm theo chu kỳ Thiên Can Địa Chi.",
+            "full_detail": "▸ Ý nghĩa: Xem xét biến chuyển của 12 cung và các sao lưu động trong một năm cụ thể để dự đoán sự kiện hung cát."
+    },
+    "LN Văn Tinh": {
+            "term": "LN Văn Tinh",
+            "category": "Lưu Tinh Tử Vi",
+            "short_description": "Sao Văn Tinh lưu theo năm, chủ về thi cử, bằng cấp, danh tiếng trong năm.",
+            "full_detail": "▸ Ngũ hành: Canh Kim (Dương Kim)\n▸ Ý nghĩa: Đem lại cơ hội học tập nâng cao bằng cấp, thi cử đỗ đạt, ký kết giấy tờ hợp đồng suôn sẻ."
+    },
+    "LN Văn tinh": {
+            "term": "LN Văn tinh",
+            "category": "Lưu Tinh Tử Vi",
+            "short_description": "Sao Văn Tinh lưu theo năm, chủ về thi cử, bằng cấp, danh tiếng trong năm.",
+            "full_detail": "▸ Ngũ hành: Canh Kim (Dương Kim)\n▸ Ý nghĩa: Đem lại cơ hội học tập nâng cao bằng cấp, thi cử đỗ đạt, ký kết giấy tờ hợp đồng suôn sẻ."
+    },
+    "Vận Khôi": {
+            "term": "Vận Khôi",
+            "category": "Lưu Tinh Đại Vận",
+            "short_description": "Thiên Khôi lưu Đại Vận 10 năm, quý nhân lớn tuổi nâng đỡ công danh.",
+            "full_detail": "▸ Ngũ hành: Hỏa\n▸ Ý nghĩa: Cơ hội đứng đầu, gặp được quý nhân bề trên dìu dắt trong suốt đại vận 10 năm."
+    },
+    "Vận Việt": {
+            "term": "Vận Việt",
+            "category": "Lưu Tinh Đại Vận",
+            "short_description": "Thiên Việt lưu Đại Vận 10 năm, cơ hội may mắn âm thầm xuất hiện.",
+            "full_detail": "▸ Ngũ hành: Hỏa\n▸ Ý nghĩa: May mắn bất ngờ, quý nhân gián tiếp giải cứu khó khăn trong 10 năm đại vận."
+    },
+    "Vận Xương": {
+            "term": "Vận Xương",
+            "category": "Lưu Tinh Đại Vận",
+            "short_description": "Văn Xương lưu Đại Vận 10 năm, chủ về bằng cấp học vấn, danh tiếng văn chương.",
+            "full_detail": "▸ Ngũ hành: Kim\n▸ Ý nghĩa: Mở mang tri thức, ký kết hợp đồng thuận lợi, thăng tiến học thuật."
+    },
+    "Vận Khúc": {
+            "term": "Vận Khúc",
+            "category": "Lưu Tinh Đại Vận",
+            "short_description": "Văn Khúc lưu Đại Vận 10 năm, tài hoa nghệ thuật và giao tế đại chúng.",
+            "full_detail": "▸ Ngũ hành: Thủy\n▸ Ý nghĩa: Duyên ăn nói thu hút, sáng tạo nghệ thuật thăng hoa trong 10 năm."
+    },
+    "Vận Loan": {
+            "term": "Vận Loan",
+            "category": "Lưu Tinh Đại Vận",
+            "short_description": "Hồng Loan lưu Đại Vận 10 năm, nhân duyên tình ái hôn nhân hỷ sự.",
+            "full_detail": "▸ Ngũ hành: Thủy\n▸ Ý nghĩa: Kích hoạt duyên tình cảm, đám cưới, sinh con cái, hòa hợp gia đạo."
+    },
+    "Vận Hỷ": {
+            "term": "Vận Hỷ",
+            "category": "Lưu Tinh Đại Vận",
+            "short_description": "Thiên Hỷ lưu Đại Vận 10 năm, mang lại niềm vui mừng hỷ sự liên tiếp.",
+            "full_detail": "▸ Ngũ hành: Thủy\n▸ Ý nghĩa: Tin vui từ phương xa, gia đạo an vui rộn rã tiếng cười."
+    },
+    "Vận Lộc": {
+            "term": "Vận Lộc",
+            "category": "Lưu Tinh Đại Vận",
+            "short_description": "Lộc Tồn lưu Đại Vận 10 năm, tài lộc dồi dào tích lũy của cải lớn.",
+            "full_detail": "▸ Ngũ hành: Thổ\n▸ Ý nghĩa: Thời vận làm ăn phát đạt, tích lũy tài sản vững chãi an toàn."
+    },
+    "Vận Dương": {
+            "term": "Vận Dương",
+            "category": "Lưu Tinh Đại Vận",
+            "short_description": "Kình Dương lưu Đại Vận 10 năm, đề phòng tranh chấp va chạm mổ xẻ.",
+            "full_detail": "▸ Ngũ hành: Kim\n▸ Ý nghĩa: Cảnh báo sự va chạm xung đột, phẫu thuật dao kéo hoặc cạnh tranh khốc liệt."
+    },
+    "Vận Đà": {
+            "term": "Vận Đà",
+            "category": "Lưu Tinh Đại Vận",
+            "short_description": "Đà La lưu Đại Vận 10 năm, trở ngại dai dẳng kéo dài cần kiên nhẫn.",
+            "full_detail": "▸ Ngũ hành: Kim\n▸ Ý nghĩa: Sự việc hay bị dây dưa trì trệ, thị phi ngấm ngầm cản bước tiến."
+    },
+    "Vận Mã": {
+            "term": "Vận Mã",
+            "category": "Lưu Tinh Đại Vận",
+            "short_description": "Thiên Mã lưu Đại Vận 10 năm, dịch chuyển công tác đi lại phát đạt.",
+            "full_detail": "▸ Ngũ hành: Hỏa\n▸ Ý nghĩa: Đi xa làm ăn thuận lợi, thay đổi môi trường tạo bước nhảy vọt."
+    },
+    "Lưu Khôi": {
+            "term": "Lưu Khôi",
+            "category": "Lưu Tinh Lưu Niên",
+            "short_description": "Thiên Khôi lưu năm, có quý nhân lớn tuổi nâng đỡ cơ hội đứng đầu.",
+            "full_detail": "▸ Ngũ hành: Hỏa\n▸ Ý nghĩa: Trong năm gặp bề trên giúp đỡ, thi cử hoặc thăng chức có ưu thế nổi bật."
+    },
+    "Lưu Việt": {
+            "term": "Lưu Việt",
+            "category": "Lưu Tinh Lưu Niên",
+            "short_description": "Thiên Việt lưu năm, quý nhân âm thầm giúp đỡ xoay chuyển tình thế.",
+            "full_detail": "▸ Ngũ hành: Hỏa\n▸ Ý nghĩa: Gặp bế tắc có lối thoát bất ngờ, được người khác tương trợ kín đáo."
+    },
+    "Lưu Xương": {
+            "term": "Lưu Xương",
+            "category": "Lưu Tinh Lưu Niên",
+            "short_description": "Văn Xương lưu năm, thuận lợi giấy tờ hợp đồng thi cử danh tiếng.",
+            "full_detail": "▸ Ngũ hành: Kim\n▸ Ý nghĩa: Năm có tin vui bằng cấp khen thưởng, văn thư hợp đồng suôn sẻ."
+    },
+    "Lưu Khúc": {
+            "term": "Lưu Khúc",
+            "category": "Lưu Tinh Lưu Niên",
+            "short_description": "Văn Khúc lưu năm, tài hoa sáng tạo nghệ thuật, giao tiếp duyên dáng.",
+            "full_detail": "▸ Ngũ hành: Thủy\n▸ Ý nghĩa: Lời nói có sức thuyết phục, ký hợp đồng kinh doanh linh hoạt."
+    },
+    "Lưu Loan": {
+            "term": "Lưu Loan",
+            "category": "Lưu Tinh Lưu Niên",
+            "short_description": "Hồng Loan lưu năm, kích hoạt tình duyên cưới hỏi hoặc sinh con.",
+            "full_detail": "▸ Ngũ hành: Thủy\n▸ Ý nghĩa: Hỷ sự duyên lành, tình cảm đôi lứa gắn kết đơm hoa kết trái."
+    },
+    "Lưu Hỷ": {
+            "term": "Lưu Hỷ",
+            "category": "Lưu Tinh Lưu Niên",
+            "short_description": "Thiên Hỷ lưu năm, đón nhận tin vui hoan hỷ bất ngờ trong gia đạo.",
+            "full_detail": "▸ Ngũ hành: Thủy\n▸ Ý nghĩa: Gia đình có chuyện vui mừng, may mắn giải trừ nỗi buồn phiền."
+    },
+    "Lưu Lộc": {
+            "term": "Lưu Lộc",
+            "category": "Lưu Tinh Lưu Niên",
+            "short_description": "Lộc Tồn lưu năm, tài lộc hanh thông kinh doanh sinh lời tốt.",
+            "full_detail": "▸ Ngũ hành: Thổ\n▸ Ý nghĩa: Cơ hội kiếm tiền bất ngờ, giữ gìn tiền của chắc chắn trong năm."
+    },
+    "Lưu Dương": {
+            "term": "Lưu Dương",
+            "category": "Lưu Tinh Lưu Niên",
+            "short_description": "Kình Dương lưu năm, cẩn trọng va chạm xây xát tai nạn dao kéo.",
+            "full_detail": "▸ Ngũ hành: Kim\n▸ Ý nghĩa: Dễ nóng nảy tranh cãi trong năm, cần đề phòng thương tích hoặc phẫu thuật."
+    },
+    "Lưu Đà": {
+            "term": "Lưu Đà",
+            "category": "Lưu Tinh Lưu Niên",
+            "short_description": "Đà La lưu năm, việc làm ăn dễ bị kéo dài chậm trễ, lo âu.",
+            "full_detail": "▸ Ngũ hành: Kim\n▸ Ý nghĩa: Công việc gặp trục trặc dây dưa, cần bình tĩnh giải quyết không nên vội vã."
+    },
+    "Lưu Mã": {
+            "term": "Lưu Mã",
+            "category": "Lưu Tinh Lưu Niên",
+            "short_description": "Thiên Mã lưu năm, di chuyển đi lại nhiều, xuất ngoại công tác bận rộn.",
+            "full_detail": "▸ Ngũ hành: Hỏa\n▸ Ý nghĩa: Năm có nhiều chuyến đi xa, thay đổi công việc hoặc phương tiện đi lại."
+    },
+    "Mệnh": {
+            "term": "Mệnh",
+            "category": "Cung Tử Vi",
+            "short_description": "Trung tâm lá số, chủ về bản ngã, tính cách, số phận đại cục cuộc đời.",
+            "full_detail": "▸ Đại diện: Bản mệnh, tư chất tiên thiên, năng lực cá nhân và xu hướng cuộc đời.\n▸ Ý nghĩa: Quyết định 50% tính cách và thành bại chung của một đời người."
+    },
+    "Phụ Mẫu": {
+            "term": "Phụ Mẫu",
+            "category": "Cung Tử Vi",
+            "short_description": "Chủ về cha mẹ, mối quan hệ và phúc đức tiên thiên từ đấng sinh thành.",
+            "full_detail": "▸ Đại diện: Cha mẹ, cấp trên trực tiếp, sự che chở nâng đỡ từ bề trên.\n▸ Ý nghĩa: Thể hiện duyên phận sâu nông với cha mẹ và phúc ấm gia đình."
+    },
+    "Huynh Đệ": {
+            "term": "Huynh Đệ",
+            "category": "Cung Tử Vi",
+            "short_description": "Chủ về anh chị em ruột thịt và mối liên kết tương trợ trong gia đình.",
+            "full_detail": "▸ Đại diện: Anh em, bạn bè tri kỷ như ruột thịt, sự hòa thuận giúp đỡ lẫn nhau."
+    },
+    "Tử Nữ": {
+            "term": "Tử Nữ",
+            "category": "Cung Tử Vi",
+            "short_description": "Chủ về con cái, số lượng con, nhân duyên và sự hiếu thảo của con cháu.",
+            "full_detail": "▸ Đại diện: Thế hệ tương lai, con trai con gái, sự nối dõi tông đường và hậu vận con cái."
+    },
+    "Bát tòa": {
+            "term": "Bát tòa",
+            "category": "Cát Tinh Tử Vi",
+            "short_description": "Bát Tọa - Cát tinh chủ về sự ổn định, tĩnh tại, thanh nhàn.",
+            "full_detail": "▸ Ngũ hành: Thổ\n▸ Ý nghĩa: Biểu thị cuộc sống êm đềm, địa vị xã hội vững chắc, được nâng đỡ chu đáo."
+    },
+    "Thiên trù": {
+            "term": "Thiên trù",
+            "category": "Cát Tinh Tử Vi",
+            "short_description": "Thiên Trù - Bếp trời, chủ về ẩm thực, nấu nướng ngon và lộc ăn uống.",
+            "full_detail": "▸ Ngũ hành: Thổ\n▸ Ý nghĩa: Lộc trời cho về ăn uống, có duyên với nghệ thuật ẩm thực, khẩu vị tinh tế."
+    },
+    "Thương Y": {
+            "term": "Thương Y",
+            "category": "Phụ Tinh Tử Vi",
+            "short_description": "Sao phụ tinh chủ về y dược, chữa bệnh, chăm sóc sức khỏe.",
+            "full_detail": "▸ Ngũ hành: Thủy\n▸ Ý nghĩa: Tượng trưng cho thầy thuốc, sự cứu chữa bệnh tật, duyên lành với ngành y dược tế thế."
     }
 };

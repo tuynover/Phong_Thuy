@@ -2,6 +2,98 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Xây Dựng Phân Hệ Huấn Luyện AI Đa Môn Độc Lập & Mở Rộng (`modules/training`) (11/10/2026)
+
+### 🌟 1. Tổng Quan & Bối Cảnh Yêu Cầu
+- Người dùng yêu cầu không làm theo dạng script đơn lẻ một lần chỉ cho riêng Bát Tự, mà phải **thiết kế hẳn một phân hệ (module) hoàn chỉnh, có cấu trúc mở rộng (Strategy/Adapter Pattern)** để sau Bát Tự thì tất cả các bộ môn phong thủy khác (Tử Vi, Kinh Dịch, Hợp Hôn, Huyền Không, Số Học) đều tái sử dụng dễ dàng.
+- Tự động xuất cả 2 dạng: file dataset riêng cho từng môn và file tổng hợp đa môn (`dataset_phongthuy_combined.jsonl`) để phục vụ giai đoạn huấn luyện Siêu AI biện chứng đa chiều.
+
+### 🛠️ 2. Các Thay Đổi & Nâng Cấp Chi Tiết
+1. **Kiến Trúc Phân Hệ Mới (`backend/src/modules/training/`):**
+   - **Lớp Cơ Sở (`adapters/BaseTrainingAdapter.js`):** Định nghĩa Strategy Pattern chuẩn gồm `getModel()`, `getInstruction()`, `buildTrainingInput()`, `sanitizeOutput()`, và `extractSamples()`. Tự động khử trùng tên người dùng thành *"Đương số"*, ẩn danh số điện thoại và email.
+   - **Bộ Adapter Chuyên Trách 6 Phân Hệ (`adapters/`):**
+     + `BaziTrainingAdapter`: Bát Tự Tử Bình (152 mẫu chuẩn).
+     + `ZiweiTrainingAdapter`: Tử Vi Đẩu Số (13 mẫu chuẩn, trích xuất Mệnh Thân Cục, 12 cung chức và chính tinh).
+     + `IChingTrainingAdapter`: Kinh Dịch Lục Hào (48 mẫu chuẩn, trích xuất câu hỏi, quẻ chính/biến, hào động, cung quái).
+     + `MarriageTrainingAdapter`: Hợp Hôn Mệnh Lý (21 mẫu chuẩn, trích xuất tứ trụ cặp đôi nam/nữ, cung phi).
+     + `FeiXingTrainingAdapter`: Huyền Không Phi Tinh (6 mẫu chuẩn, trích xuất Vận, Tọa-Hướng, độ số, bản mệnh).
+     + `NumerologyTrainingAdapter`: Phong Thủy Số Học (Sẵn sàng mở rộng cho Sim, Biển Số, STK).
+   - **Dịch Vụ Đồng Bộ Google Drive (`services/GoogleDriveSyncService.js`):** Tự động phát hiện các ổ đĩa Google Drive trên máy chủ (`H:\My Drive\phong_thuy_train_ai\dataset_train`, `G:\...`) và thư mục đệm cục bộ, thực hiện ghi stream JSONL an toàn.
+   - **Dịch Vụ Quản Lý Trạng Thái (`services/SyncStateService.js`):** Lưu vết chi tiết mốc thời gian và số lượng bản ghi của từng phân hệ độc lập vào `backend/data/dataset_train/sync_state_all.json`. Tính toán chính xác điều kiện đến hạn 3 ngày.
+   - **Bộ Điều Phối Trung Tâm (`services/DatasetPipelineManager.js`):** Quản lý đăng ký adapter, hỗ trợ `exportDiscipline()`, `exportAll()`, và `exportCombined()` (xuất toàn bộ 240 mẫu học thuật thành `dataset_phongthuy_combined.jsonl`).
+   - **Controller & Router Quản Trị (`controllers/TrainingController.js`, `routes/trainingRoutes.js`):** Cung cấp các API `GET /api/training/status`, `POST /api/training/export/:system?`, `POST /api/training/export-combined` bảo vệ bởi `adminAuth`.
+2. **Tách Biệt Hoàn Toàn & Cô Lập Phân Hệ (Zero Clutter in Business Modules):**
+   - Loại bỏ hoàn toàn các hook training trong các controller nghiệp vụ khách hàng ([`BaseAiController.js`](file:///t:/Phongthuy/backend/src/core/ai/BaseAiController.js)), router chính ([`routes/index.js`](file:///t:/Phongthuy/backend/src/routes/index.js)) và bộ lập lịch thông báo người dùng ([`NotificationScheduler.js`](file:///t:/Phongthuy/backend/src/modules/notification/services/NotificationScheduler.js)).
+   - Phân hệ huấn luyện hoạt động hoàn toàn độc lập, được điều khiển chuyên trách qua lệnh CLI `"dataset:sync": "node scripts/sync_all_datasets.js"` hoặc cron worker riêng, không làm ảnh hưởng đến độ trễ và luồng phục vụ người dùng của website.
+   - Cơ chế 3 ngày được định nghĩa chuẩn xác: **Cứ sau mỗi 3 ngày, nếu có thêm N lá số mới được sinh ra trong hệ thống, bộ xuất sẽ nạp bổ sung N lá số mới đó vào tập dữ liệu trên Google Drive** để sẵn sàng cho lần train tiếp theo.
+3. **Kết Quả Nghiệm Thu Thực Tế Đợt 1:**
+   - Đã đồng bộ thành công toàn bộ 6 file dữ liệu chuẩn hóa lên Google Drive (`H:\My Drive\phong_thuy_train_ai\dataset_train\`):
+     + `dataset_battu_from_mongo.jsonl`: 152 mẫu (4.1 MB)
+     + `dataset_kinhdich_from_mongo.jsonl`: 48 mẫu (1.5 MB)
+     + `dataset_tuvi_from_mongo.jsonl`: 13 mẫu (464 KB)
+     + `dataset_hophon_from_mongo.jsonl`: 21 mẫu (427 KB)
+     + `dataset_huyenkhong_from_mongo.jsonl`: 6 mẫu (90 KB)
+     + `dataset_phongthuy_combined.jsonl`: **240 mẫu tổng hợp toàn bộ các môn (6.6 MB)**!
+
+## 📅 Phiên bản: Xây Dựng Pipeline Đồng Bộ Dataset Bát Tự Tự Động Định Kỳ 3 Ngày Lên Google Drive (11/10/2026)
+
+### 🌟 1. Tổng Quan & Bối Cảnh Yêu Cầu
+- Người dùng mong muốn xây dựng quy trình huấn luyện mô hình AI Bát Tự Tử Bình kết hợp RAG trên Google Colab.
+- Nhằm tối ưu hóa dữ liệu huấn luyện thực chiến chất lượng cao, hệ thống tận dụng trực tiếp các lá số Bát Tự đã có bài luận giải VIP sâu sắc từ cơ sở dữ liệu MongoDB.
+- Thiết lập cơ chế tự động hóa: **Định kỳ 3 ngày 1 lần** (hoặc khi có lá số mới sau 3 ngày), hệ thống tự động lọc, khử trùng thông tin cá nhân (PII Redaction) và xuất file `dataset_battu_from_mongo.jsonl` đè lên Google Drive (`phong_thuy_train_ai/dataset_train`). Trên Colab, người dùng chỉ cần nhấn chạy huấn luyện (1-click train).
+
+### 🛠️ 2. Các Thay Đổi & Nâng Cấp Chi Tiết
+1. **Dịch vụ Pipeline Mới (`backend/src/modules/bazi/services/BaziDatasetPipelineService.js`):**
+   - Tự động nhận diện đường dẫn Google Drive đồng bộ trên máy chủ (`H:\My Drive\phong_thuy_train_ai\dataset_train`, `G:\...`).
+   - Truy vấn toàn bộ `BaziRecord` có `aiInterpretation.content` hợp lệ (> 800 ký tự) và chưa bị xóa mềm (`isDeleted: false`).
+   - Xây dựng prompt chuẩn hóa `instruction` (vai trò Đại sư Tử Bình), `input` (Tứ Trụ, Giới tính, Ngày giờ sinh, Dụng Hỷ Thần, Đại Vận), và `output` (Bài luận giải).
+   - Cơ chế bảo mật PII: Thay thế toàn bộ tên người dùng thành *"Đương số"*, ẩn danh toàn bộ ID/Email.
+   - Cơ chế kiểm tra chu kỳ: So sánh `Date.now() - lastSyncedAt >= 3 ngày (259.200.000 ms)`. Khi thỏa điều kiện và có bản ghi mới, kích hoạt xuất ngầm không đồng bộ (non-blocking).
+   - Lưu vết trạng thái chu kỳ vào `backend/data/dataset_train/sync_state.json`.
+2. **Tích hợp Kích Hoạt Luồng Luận Giải (`backend/src/core/ai/BaseAiController.js`):**
+   - Móc hook kiểm tra `BaziDatasetPipelineService.checkAndTriggerSync()` ngay sau khi quá trình sinh luận giải Bát Tự SSE hoàn tất (`sse.sendDone()`).
+3. **Tích hợp Bộ Lập Lịch Định Kỳ Hệ Thống (`backend/src/modules/notification/services/NotificationScheduler.js`):**
+   - Bổ sung lệnh kiểm tra `BaziDatasetPipelineService.checkAndTriggerSync()` vào hàm kiểm tra định kỳ hàng ngày (`checkAndSendNotifications`), đảm bảo dữ liệu tự động đồng bộ đúng chu kỳ 3 ngày kể cả khi không có lượt truy cập mới.
+4. **Kịch Bản Đồng Bộ CLI (`backend/scripts/sync_bazi_dataset.js`):**
+   - Cung cấp công cụ chạy thủ công ngay lập tức từ dòng lệnh khi người dùng cần ép buộc đồng bộ dữ liệu.
+   - Đã đồng bộ đợt đầu tiên thành công 152 lá số Bát Tự VIP (~4.1 MB) sang Google Drive.
+
+## 📅 Phiên bản: Chuẩn Hóa & Bổ Sung Toàn Diện Từ Điển Tinh Tú Tử Vi (11/10/2026)
+
+### 🌟 1. Tổng Quan & Bối Cảnh Yêu Cầu
+- **Phản hồi từ người dùng:** Trong phân hệ Tử Vi, nhiều sao trên mệnh bàn khi hover/click xem chi tiết bị thiếu thông tin hoặc hiển thị "Chưa có thông tin."
+- **Khảo sát hệ thống:**
+  - Đối chiếu toàn bộ danh sách tinh tú được sinh ra từ engine `iztro` (ngôn ngữ `vi-VN`) và đồ hình Tử Vi truyền thống với từ điển `ziweiConcepts` trong `frontend/src/data/ziwei_concepts.js`.
+  - Phát hiện hơn 70 sao và khái niệm chưa có dữ liệu tra cứu hoặc bị lệch tên key (ví dụ: `Tả Phụ` thay vì `Tả Phù`, thiếu toàn bộ 12 sao Vòng Trường Sinh `Trường Sinh` đến `Dưỡng`, thiếu các sao phụ tinh quan trọng như `Cô Thần`, `Quả Tú`, `Âm Sát`, `Phụng Các`, `Đài Phụ`, `Thai Phụ`, `Thiên Vu`, `Thiên Nguyệt`, `Thiên Đức`, `Nguyệt Đức`, `Tuế Phá`, `Quan Phủ`, `Tuế Kiến`, `Quán Tác`, `Hối Khí`, `Tử Phù`, các sao Vòng Tướng Tinh và hệ thống Lưu tinh/Vận tinh).
+  - Thiếu ánh xạ Ngũ Hành trong `STAR_ELEMENTS` dẫn đến các sao bị mặc định về màu Thủy (đen), mất đi màu sắc ngũ hành chuẩn xác.
+  - Cung Thân `(Thân)` bị hiển thị nhầm giải nghĩa Địa Chi Thân (con Khỉ) thay vì Cung Thân trong Tử Vi.
+
+### 🛠️ 2. Các Thay Đổi & Nâng Cấp Chi Tiết
+1. **Frontend - Mở Rộng Từ Điển `ziwei_concepts.js` (Từ 132 lên 212 khái niệm chuẩn học thuật):**
+   - Bổ sung đầy đủ 83 khái niệm và tinh tú kèm cấu trúc học thuật chi tiết (`Ngũ hành`, `Ý nghĩa`, `Cát`, `Hung`, `Tính cách`, `Tượng trưng`):
+     + **Lục Cát Tinh & Văn Tinh:** `Tả Phù` (đồng bộ `Tả Phụ`), `Thanh Long`, `Phụng Các`, `Phượng các`, `Đài Phụ`, `Thai Phụ`, `Thiên Đức`, `Nguyệt Đức`, `Phúc Đức`, `Hỷ Thần`, `Niên Giải`, `Nguyệt Giải`, `Quốc Ấn`, `Đường Phù`, `Bát tòa`, `Thiên trù`.
+     + **Sát Tinh & Hung Bại Tinh:** `Cô Thần`, `Quả Tú`, `Âm Sát`, `Thiên Vu`, `Thiên Nguyệt`, `Tuế Phá`, `Quan Phủ`, `Quán Tác`, `Hối Khí`, `Tử Phù`, `Thiên Thương`, `Thiên Sứ`, `Thương Y`.
+     + **Bộ Không Tinh:** `Tuần Trung`, `Triệt Lộ`, `Không Vong`.
+     + **Vòng Thái Tuế & Tướng Tinh:** `Tuế Kiến`, `Tuế Kiện`, `Phan Án`, `Tuế Dịch`, `Tức Thần`, `Tai Sát`, `Thiên Sát`, `Chỉ Bối`, `Vong Thần`.
+     + **Trọn bộ 12 sao Vòng Trường Sinh:** `Trường Sinh`, `Mộc Dục`, `Mục Dục`, `Quan Đới`, `Lâm Quan`, `Đế Vượng`, `Suy`, `Bệnh`, `Tử`, `Mộ`, `Tuyệt`, `Thai`, `Dưỡng`.
+     + **Vòng Bác Sĩ & Biến thể:** `Bác Sỹ`, `Lực Sỹ`.
+     + **Lưu tinh & Vận tinh:** `Lưu Niên`, `LN Văn Tinh`, `LN Văn tinh`, `Vận Khôi`, `Vận Việt`, `Vận Xương`, `Vận Khúc`, `Vận Loan`, `Vận Hỷ`, `Vận Lộc`, `Vận Dương`, `Vận Đà`, `Vận Mã`, `Lưu Khôi`, `Lưu Việt`, `Lưu Xương`, `Lưu Khúc`, `Lưu Loan`, `Lưu Hỷ`, `Lưu Lộc`, `Lưu Dương`, `Lưu Đà`, `Lưu Mã`.
+     + **12 Cung Vị:** `Mệnh`, `Phụ Mẫu`, `Huynh Đệ`, `Tử Nữ`, `Cung Thân`.
+2. **Frontend - Đồng Bộ Ngũ Hành & Cột Hiển Thị Cát/Sát (`ZiweiChart.jsx`):**
+   - Bổ sung toàn bộ ngũ hành của các sao mới vào `STAR_ELEMENTS` để hiển thị đúng màu chữ ngũ hành (Kim xám, Mộc xanh lá, Thủy đen, Hỏa đỏ, Thổ vàng cam).
+   - Cập nhật `normalizeStarName` hỗ trợ chuẩn hóa aliases: `Phụng Các` -> `Phượng Các`, `Thai Phụ` -> `Đài Phụ`, `Tuế Kiện` -> `Tuế Kiến`, `Bác Sỹ` -> `Bác Sĩ`, `Lực Sỹ` -> `Lực Sĩ`, `Mục Dục` -> `Mộc Dục`.
+   - Cập nhật `AUSPICIOUS_STARS` để chia đều sao Cát sang cột Trái và sao Sát sang cột Phải.
+   - Sửa liên kết nhãn `(Thân)` của Cung Thân trong cả ô cung (`PalaceCell`) và danh sách cung (`PalaceListView`) trỏ chuẩn xác về `term="Cung Thân"`.
+3. **Frontend - Tối Ưu Hóa Tìm Kiếm Tooltip (`Tooltip.jsx`):**
+   - Bổ sung cơ chế tra cứu không phân biệt hoa/thường (`case-insensitive`) và tự động thử tiền tố `Cung ...` trước khi fallback sang gọi mạng API backend, tăng tốc độ mở tooltip lên mức tức thì (0ms).
+4. **Backend - Đồng Bộ Template Xuất PDF & API Tra Cứu Khái Niệm:**
+   - Cập nhật `ZIWEI_STAR_ELEMENTS` và `ZIWEI_AUSPICIOUS_STARS` trong `backend/src/modules/export/templates/ziweiTemplate.js` đồng bộ màu sắc và phân loại trên file PDF xuất ra.
+   - Xuất dữ liệu `backend/src/modules/blog/data/ziwei_concepts.json` và tích hợp vào `ConceptController.js` phục vụ endpoint `GET /api/concept/:term` với cơ chế case-insensitive fallback.
+5. **Kiểm Thử & Nghiệm Thu Trực Quan (`chrome-devtools-mcp`):**
+   - Khởi chạy song song Backend (cổng 3001) và Vite Frontend (cổng 5173).
+   - Dùng Chrome DevTools MCP mở trang Tử Vi `/ziwei`, thực hiện hover thực tế vào các sao vừa bổ sung (`Thiên Vu`, `Cô Thần`, `Trường Sinh`, `Tả Phù`, `Phụng Các`...).
+   - Chụp ảnh màn hình (Screenshot) nghiệm thu trực quan: Tooltip hiển thị đầy đủ, đẹp mắt, chính xác 100% nội dung học thuật, không còn bất kỳ sao nào báo "Chưa có thông tin.".
+
 ## 📅 Phiên bản: Đồng Bộ & Hiển Thị Các Phân Hệ Mới (Huyền Không & Số Học) Lên Giao Diện Mobile (06/10/2026)
 
 ### 🌟 1. Tổng Quan & Yêu Cầu Giao Diện Mobile

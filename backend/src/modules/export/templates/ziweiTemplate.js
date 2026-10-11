@@ -74,12 +74,14 @@ function generateZiweiHtml(record, scope = []) {
     "Tả Phù": "Thổ", "Hữu Bật": "Thủy", "Lộc Tồn": "Thổ", "Thiên Mã": "Hỏa",
     "Hóa Lộc": "Mộc", "Hóa Quyền": "Thủy", "Hóa Khoa": "Mộc", "Hóa Kỵ": "Thủy",
     "Đào Hoa": "Mộc", "Hồng Loan": "Thủy", "Thiên Hỷ": "Thủy", "Hỷ Thần": "Hỏa",
-    "Long Trì": "Thủy", "Phượng Các": "Thổ", "Giải Thần": "Mộc", "Thanh Long": "Thủy",
-    "Bác Sĩ": "Thủy", "Bác Sỹ": "Thủy", "Lực Sĩ": "Hỏa", "Tướng Quân": "Mộc",
+    "Long Trì": "Thủy", "Phượng Các": "Thổ", "Phụng Các": "Thổ", "Giải Thần": "Mộc", "Thanh Long": "Thủy",
+    "Bác Sĩ": "Thủy", "Bác Sỹ": "Thủy", "Lực Sĩ": "Hỏa", "Lực Sỹ": "Hỏa", "Tướng Quân": "Mộc",
     "Tấu Thư": "Kim", "Quốc Ấn": "Thổ", "Tam Thai": "Thủy", "Bát Tọa": "Thổ",
     "Phong Cáo": "Thổ", "Thiên Quan": "Hỏa", "Thiên Phúc": "Thổ", "Thiên Đức": "Thủy",
     "Nguyệt Đức": "Hỏa", "Thiên Quý": "Thổ", "Thiên Tài": "Thổ", "Thiên Thọ": "Thổ",
-    "Thiên Trù": "Thổ", "Thai Phụ": "Kim", "Ân Quang": "Mộc", "Thiên Y": "Thủy",
+    "Thiên Trù": "Thổ", "Đài Phụ": "Kim", "Thai Phụ": "Kim", "Ân Quang": "Mộc", "Thiên Y": "Thủy",
+    "Đường Phù": "Mộc", "Niên Giải": "Mộc", "Nguyệt Giải": "Hỏa", "Hoa Cái": "Kim", "Phan Án": "Thủy",
+    "Tướng Tinh": "Mộc", "Tướng tinh": "Mộc", "Long Đức": "Thủy", "Phúc Đức": "Thổ",
     // Sát tinh & hung bại tinh
     "Kình Dương": "Kim", "Đà La": "Kim", "Hỏa Tinh": "Hỏa", "Linh Tinh": "Hỏa",
     "Địa Không": "Hỏa", "Địa Kiếp": "Hỏa", "Thiên Khốc": "Thủy", "Thiên Hư": "Thủy",
@@ -87,8 +89,18 @@ function generateZiweiHtml(record, scope = []) {
     "Đại Hao": "Hỏa", "Tiểu Hao": "Hỏa", "Tang Môn": "Mộc", "Bạch Hổ": "Kim",
     "Điếu Khách": "Hỏa", "Quan Phù": "Hỏa", "Phục Binh": "Hỏa", "Kiếp Sát": "Hỏa",
     "Tuần": "Hỏa", "Triệt": "Kim", "Tuần Không": "Hỏa", "Triệt Lộ": "Kim",
+    "Tuần Trung": "Hỏa", "Triệt Không": "Kim", "Không Vong": "Hỏa",
     "Bệnh Phù": "Thổ", "Trực Phù": "Hỏa", "Phi Liêm": "Hỏa", "Tuế Dịch": "Hỏa",
-    "Lưu Hà": "Thủy", "Thiên Thương": "Thủy", "Thiên Sứ": "Thủy", "Phá Toái": "Hỏa"
+    "Lưu Hà": "Thủy", "Thiên Thương": "Thủy", "Thiên Sứ": "Thủy", "Phá Toái": "Hỏa",
+    "Âm Sát": "Thủy", "Thiên Vu": "Thủy", "Thiên Nguyệt": "Thủy", "Tuế Phá": "Hỏa",
+    "Quan Phủ": "Hỏa", "Tuế Kiến": "Hỏa", "Tuế Kiện": "Hỏa", "Hối Khí": "Hỏa",
+    "Quán Tác": "Kim", "Tử Phù": "Hỏa", "Tức Thần": "Hỏa", "Tai Sát": "Hỏa",
+    "Thiên Sát": "Hỏa", "Chỉ Bối": "Hỏa", "Hàm Trì": "Thủy", "Nguyệt Sát": "Hỏa", "Vong Thần": "Thủy",
+    // Vòng Trường Sinh & Lưu tinh
+    "Trường Sinh": "Thủy", "Mộc Dục": "Thủy", "Mục Dục": "Thủy", "Quan Đới": "Kim",
+    "Lâm Quan": "Kim", "Đế Vượng": "Kim", "Suy": "Thủy", "Bệnh": "Thủy", "Tử": "Thủy",
+    "Mộ": "Thổ", "Tuyệt": "Thủy", "Thai": "Thổ", "Dưỡng": "Mộc",
+    "LN Văn Tinh": "Kim", "LN Văn tinh": "Kim", "Lưu Niên Văn Tinh": "Kim"
   };
 
   const ZIWEI_ELEMENT_COLORS = {
@@ -103,11 +115,12 @@ function generateZiweiHtml(record, scope = []) {
     "Văn Xương", "Văn Khúc", "Thiên Khôi", "Thiên Việt", "Tả Phù", "Hữu Bật",
     "Lộc Tồn", "Thiên Mã", "Hóa Lộc", "Hóa Quyền", "Hóa Khoa", "Giải Thần",
     "Đường Phù", "Quốc Ấn", "Tam Thai", "Bát Tọa", "Thiên Hỷ", "Hỷ Thần",
-    "Phượng Các", "Thanh Long", "Tướng Quân", "Bác Sĩ", "Bác Sỹ", "Lực Sĩ",
+    "Phượng Các", "Phụng Các", "Thanh Long", "Tướng Quân", "Bác Sĩ", "Bác Sỹ", "Lực Sĩ", "Lực Sỹ",
     "Tấu Thư", "Trực Phù", "Thiên Quan", "Thiên Phúc", "Thiên Quý", "Thiên Đức",
     "Nguyệt Đức", "Long Đức", "Phúc Đức", "Đào Hoa", "Hồng Loan", "Thiên Tài",
-    "Thiên Thọ", "Phong Cáo", "Nguyệt Giải", "Thai Phụ", "Long Trì", "Thiên Trù",
-    "Ân Quang", "Bát Tòa", "Thiên Trù", "Quốc ấn", "Phượng các"
+    "Thiên Thọ", "Phong Cáo", "Nguyệt Giải", "Niên Giải", "Thai Phụ", "Đài Phụ", "Long Trì", "Thiên Trù",
+    "Ân Quang", "Bát Tòa", "Thiên Trù", "Quốc ấn", "Phượng các", "Hoa Cái", "Phan Án", "Tướng Tinh",
+    "LN Văn Tinh", "LN Văn tinh", "Lưu Niên Văn Tinh"
   ]);
 
   function isAuspiciousStar(name) {

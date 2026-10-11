@@ -58,10 +58,28 @@ Dụng Thần (đối tượng cần xem xét chính trong quẻ) được xác 
 
 ## 🌠 2. Quy tắc Nghiệp vụ Tử Vi (Ziwei)
 
-### 2.1 An sao bản mệnh
+### 2.1 An sao bản mệnh & Hệ Thống Tra Cứu Tinh Tú (Star Knowledge Base)
 Sử dụng phương pháp Tử Vi Bắc Phái định vị Mệnh - Thân:
 - Định Cục (Kim Tứ Cục, Thủy Nhị Cục, Mộc Tam Cục, Hỏa Lục Cục, Thổ Ngũ Cục) để an sao Tử Vi và Thiên Phủ làm nòng cốt.
 - Độ sáng của sao (Đắc Hãm): Được tính toán và gắn nhãn theo 5 mức độ: **Miếu (廟)**, **Vượng (旺)**, **Đắc (得)**, **Bình (平)**, **Hãm (陷)** để xác định độ ảnh hưởng tốt xấu của tinh tú tại cung vị đó.
+- **Từ Điển & Tra Cứu Tinh Tú Toàn Diện (212 Khái niệm Học thuật):**
+  - Đảm bảo 100% các sao hiển thị trên mệnh bàn Tử Vi (từ thư viện `iztro` và quy chuẩn Tử Vi Việt Nam) đều có đầy đủ thông tin tra cứu giải nghĩa học thuật (Ngũ hành, Ý nghĩa, Cát/Hung, Tính cách/Tác động), không để xuất hiện tình trạng thiếu thông tin ("Chưa có thông tin.").
+  - Bao quát toàn bộ các nhóm sao:
+    + 14 Chính tinh (Tử Vi, Thiên Phủ, Vũ Khúc, Thiên Tướng, Thái Dương, Cự Môn, Thiên Cơ, Thiên Đồng, Thái Âm, Thiên Lương, Thất Sát, Phá Quân, Tham Lang, Liêm Trinh).
+    + Lục Cát Tinh & Văn Tinh phụ tá (Tả Phù/Tả Phụ, Hữu Bật, Văn Xương, Văn Khúc, Lộc Tồn, Thiên Mã, Thiên Khôi, Thiên Việt, Tam Thai, Bát Tọa, Ân Quang, Thiên Quý, Đài Phụ, Thai Phụ, Phong Cáo, Thiên Quan, Thiên Phúc, Thiên Tài, Thiên Thọ, Long Trì, Phượng Các/Phụng Các, Giải Thần, Niên Giải, Nguyệt Giải, Quốc Ấn, Đường Phù, Hoa Cái, Thiên Trù).
+    + Lục Sát Tinh & Hung Bại Tinh (Kình Dương, Đà La, Hỏa Tinh, Linh Tinh, Địa Không, Địa Kiếp, Thiên Không, Kiếp Sát, Thiên Hình, Thiên Diêu, Âm Sát, Cô Thần, Quả Tú, Phá Toái, Phi Liêm, Thiên Khốc, Thiên Hư, Thiên Thương, Thiên Sứ, Thiên Vu, Thiên Nguyệt, Không Vong).
+    + Bộ sao Tuần / Triệt (Triệt, Triệt Lộ, Triệt Không, Tuần, Tuần Trung, Tuần Không).
+    + Vòng Thái Tuế (12 sao: Tuế Kiến/Tuế Kiện, Hối Khí, Tang Môn, Quán Tác, Quan Phù, Tử Phù, Tuế Phá, Long Đức, Bạch Hổ, Phúc Đức, Điếu Khách, Trực Phù).
+    + Vòng Bác Sĩ (12 sao: Bác Sĩ/Bác Sỹ, Lực Sĩ/Lực Sỹ, Thanh Long, Tiểu Hao, Tướng Quân, Tấu Thư, Phi Liêm, Hỷ Thần, Bệnh Phù, Đại Hao, Phục Binh, Quan Phủ).
+    + Vòng Tướng Tinh (12 sao: Tướng Tinh, Phan Án, Tuế Dịch, Tức Thần, Hoa Cái, Kiếp Sát, Tai Sát, Thiên Sát, Chỉ Bối, Hàm Trì, Nguyệt Sát, Vong Thần).
+    + Vòng Trường Sinh (12 sao: Trường Sinh, Mộc Dục/Mục Dục, Quan Đới, Lâm Quan, Đế Vượng, Suy, Bệnh, Tử, Mộ, Tuyệt, Thai, Dưỡng).
+    + Tứ Hóa (Hóa Lộc, Hóa Quyền, Hóa Khoa, Hóa Kỵ cùng các nhãn viết tắt Lộc, Quyền, Khoa, Kỵ).
+    + Bộ sao Lưu Niên & Vận Hạn (Lưu Niên, LN Văn Tinh, Vận Khôi, Vận Việt, Vận Xương, Vận Khúc, Vận Loan, Vận Hỷ, Vận Lộc, Vận Dương, Vận Đà, Vận Mã, Lưu Khôi, Lưu Việt, Lưu Xương, Lưu Khúc, Lưu Loan, Lưu Hỷ, Lưu Lộc, Lưu Dương, Lưu Đà, Lưu Mã).
+    + 12 Cung Vị và Cung Thân (Mệnh, Phụ Mẫu, Phúc Đức, Điền Trạch, Quan Lộc, Nô Bộc, Thiên Di, Tật Ách, Tài Bạch, Tử Nữ/Tử Tức, Phu Thê, Huynh Đệ, Cung Thân).
+- **Cơ chế Fallback & Chuẩn Hóa Danh Từ:**
+  - `Tooltip.jsx` ưu tiên tìm kiếm trực tiếp trong từ điển client `ziweiConcepts` để hiển thị tooltip ngay lập tức không có độ trễ mạng.
+  - Hỗ trợ cơ chế so khớp không phân biệt chữ hoa/thường (`case-insensitive`) và tiền tố `Cung ...` tự động giúp tìm kiếm chính xác tuyệt đối.
+  - Đồng bộ bảng màu Ngũ Hành (`STAR_ELEMENTS`) và phân loại Cát/Sát (`AUSPICIOUS_STARS`) trên cả Giao diện Web (`ZiweiChart.jsx`) và Bản in xuất PDF (`ziweiTemplate.js`).
 
 ---
 

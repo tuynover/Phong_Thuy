@@ -32,7 +32,8 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
     │   ├── history/             # Lịch Sử Bản Ghi (controllers tách nhỏ theo môn, routes)
     │   ├── notification/        # Thông Báo Tự Động (controllers, services, routes)
     │   ├── tts/                 # Đọc Luận Giải AI (controllers, audio services, cache)
-    │   └── export/              # Xuất Bản PDF A4 (controllers, templates, generators)
+    │   ├── export/              # Xuất Bản PDF A4 (controllers, templates, generators)
+    │   └── training/            # Huấn Luyện AI Đa Môn (adapters, manager, drive sync, state)
     ├── routes/                  # Điểm kết nối router gốc (index.js, ai.js, seo.js)
     ├── shared/                  # Động cơ & tri thức cổ học dùng chung (AstrologyEngine, SymbolicAnalyzer, ungKyParser)
     └── scripts/                 # Kịch bản kiểm thử & bảo trì cơ sở dữ liệu
@@ -95,6 +96,7 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
 * Nhập ngày giờ sinh để lập lá số Tứ Trụ.
 * Phân tích bản mệnh ngũ hành, xác định Nhật Chủ (Day Master) mạnh/yếu, định Dụng Thần (Useful God) dựa trên Nguyệt Lệnh, phân tích Thập Thần và vòng Trường Sinh.
 * **Tối Ưu Hóa Prompt Theo Độ Tuổi Âm Lịch (Age-Adaptive AI Interpretation):** Tự động nhận diện độ tuổi mụ của lá số để cá nhân hóa toàn bộ nội dung luận giải (Cơ bản 100 Points & Chuyên sâu 500 Points). Đối với trẻ em (< 18 tuổi), tập trung 100% vào tài năng bẩm sinh, định hướng học tập khối ngành, giáo dục uốn nắn, sức khỏe thiếu thời, phong thủy bàn học Văn Xương và bỏ qua hoàn toàn tình duyên, kiếm tiền. Đối với thanh niên (18-29 tuổi), bổ sung luận giải tính cách cốt lõi ở Replica 1 chuyên sâu và luận giải đầy đủ các phương diện ở bản cơ bản.
+* **Pipeline Tự Động Xuất Dữ Liệu Huấn Luyện AI (BaziDatasetPipelineService):** Tự động trích xuất các lá số thực tế có luận giải VIP sâu sắc từ MongoDB, ẩn danh hóa thông tin cá nhân và đồng bộ lên Google Drive (`dataset_battu_from_mongo.jsonl`) định kỳ 3 ngày/lần để phục vụ huấn luyện mô hình LLM riêng trên Google Colab.
 * Cấu trúc module phân rã sạch sẽ gồm 7 component con chuyên trách: `BaziPillarsTable.jsx`, `BaziPillar.jsx`, `BaziFiveElementsChart.jsx`, `BaziDaiYunTimeline.jsx`, `BaziProfileHeader.jsx`, `BaziRemedyAndRelations.jsx`, `ThapThanStrengthTable.jsx`.
 * Màu sắc trực quan được tùy biến theo quy luật tương sinh tương khắc của Ngũ Hành.
 * Tệp tin liên quan: [BaziBoard.jsx](file:///t:/Phongthuy/frontend/src/features/bazi/BaziBoard.jsx), [BaziInput.jsx](file:///t:/Phongthuy/frontend/src/features/bazi/BaziInput.jsx).

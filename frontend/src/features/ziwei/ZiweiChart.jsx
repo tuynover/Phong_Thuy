@@ -52,18 +52,35 @@ const STAR_ELEMENTS = {
   "Hóa Khoa": "Mộc", "Hóa Kỵ": "Thủy", "Đào Hoa": "Mộc", "Hồng Loan": "Thủy",
   "Thiên Hỷ": "Thủy", "Hỷ Thần": "Hỏa", "Thiên Khốc": "Thủy", "Thiên Hư": "Thủy",
   "Thiên Hình": "Hỏa", "Thiên Diêu": "Thủy", "Cô Thần": "Thổ", "Quả Tú": "Thổ",
-  "Bác Sĩ": "Thủy", "Bác Sỹ": "Thủy", "Lực Sĩ": "Hỏa", "Thanh Long": "Thủy",
+  "Bác Sĩ": "Thủy", "Bác Sỹ": "Thủy", "Lực Sĩ": "Hỏa", "Lực Sỹ": "Hỏa", "Thanh Long": "Thủy",
   "Tiểu Hao": "Hỏa", "Đại Hao": "Hỏa", "Tướng Quân": "Mộc", "Tấu Thư": "Kim",
   "Trực Phù": "Hỏa", "Đường Phù": "Mộc", "Quốc Ấn": "Thổ", "Tam Thai": "Thủy",
   "Bát Tọa": "Thổ", "Phong Cáo": "Thổ", "Thiên Tài": "Thổ", "Thiên Thọ": "Thổ",
   "Thiên Quan": "Hỏa", "Thiên Phúc": "Thổ", "Thiên Đức": "Thủy", "Thiên Quý": "Thổ",
   "Tuần Không": "Hỏa", "Triệt Lộ": "Kim", "Triệt": "Kim", "Tuần": "Hỏa", "Bệnh Phù": "Thổ",
   "Tang Môn": "Mộc", "Bạch Hổ": "Kim", "Điếu Khách": "Hỏa", "Quan Phù": "Hỏa",
-  "Giải Thần": "Mộc", "Phượng Các": "Thổ", "Phượng các": "Thổ", "Long Trì": "Thủy",
+  "Giải Thần": "Mộc", "Phượng Các": "Thổ", "Phượng các": "Thổ", "Phụng Các": "Thổ", "Long Trì": "Thủy",
   "Bát tòa": "Thổ", "Thiên trù": "Thổ", "Thiên Trù": "Thổ",
   "Kiếp Sát": "Hỏa", "Thương Y": "Thủy", "Thiên Không": "Hỏa",
+  "Âm Sát": "Thủy", "Phi Liêm": "Hỏa", "Phá Toái": "Hỏa",
+  "Đài Phụ": "Kim", "Thai Phụ": "Kim", "Thiên Vu": "Thủy", "Thiên Nguyệt": "Thủy",
+  "Ân Quang": "Mộc", "Triệt Không": "Kim", "Tuần Trung": "Hỏa", "Không Vong": "Hỏa",
+  "Nguyệt Đức": "Hỏa", "Thiên Thương": "Thủy", "Thiên Sứ": "Thủy",
+  "Tuế Phá": "Hỏa", "Phục Binh": "Hỏa", "Quan Phủ": "Hỏa", "Tuế Kiện": "Hỏa",
+  "Tuế Kiến": "Hỏa", "Hối Khí": "Hỏa", "Quán Tác": "Kim", "Long Đức": "Thủy",
+  "Tướng Tinh": "Mộc", "Tướng tinh": "Mộc", "Phan Án": "Thủy", "Tuế Dịch": "Hỏa", "Tức Thần": "Hỏa",
+  "Hoa Cái": "Kim", "Tai Sát": "Hỏa", "Thiên Sát": "Hỏa", "Chỉ Bối": "Hỏa",
+  "Hàm Trì": "Thủy", "Nguyệt Sát": "Hỏa", "Vong Thần": "Thủy", "Niên Giải": "Mộc",
+  "Nguyệt Giải": "Hỏa", "Phúc Đức": "Thổ", "Tử Phù": "Hỏa", "Quốc ấn": "Thổ",
+  "LN Văn Tinh": "Kim", "LN Văn tinh": "Kim", "Lưu Niên Văn Tinh": "Kim",
+  "Vận Khôi": "Hỏa", "Vận Việt": "Hỏa", "Vận Xương": "Kim", "Vận Khúc": "Thủy",
+  "Vận Loan": "Thủy", "Vận Hỷ": "Thủy", "Vận Lộc": "Thổ", "Vận Dương": "Kim",
+  "Vận Đà": "Kim", "Vận Mã": "Hỏa",
+  "Lưu Khôi": "Hỏa", "Lưu Việt": "Hỏa", "Lưu Xương": "Kim", "Lưu Khúc": "Thủy",
+  "Lưu Loan": "Thủy", "Lưu Hỷ": "Thủy", "Lưu Lộc": "Thổ", "Lưu Dương": "Kim",
+  "Lưu Đà": "Kim", "Lưu Mã": "Hỏa",
 
-  "Tướng tinh": "Mộc", "Lưu Niên": "Thổ", "Bệnh": "Thủy", "Tử": "Thủy", "Mộ": "Thổ",
+  "Lưu Niên": "Thổ", "Bệnh": "Thủy", "Tử": "Thủy", "Mộ": "Thổ",
   "Tuyệt": "Thủy", "Thai": "Thổ", "Dưỡng": "Mộc", "Trường Sinh": "Thủy",
   "Mộc Dục": "Thủy", "Mục Dục": "Thủy", "Quan Đới": "Kim", "Lâm Quan": "Kim",
   "Đế Vượng": "Kim", "Suy": "Thủy"
@@ -93,11 +110,15 @@ const normalizeStarName = (name) => {
   if (trimmed === "Triệt Lộ" || trimmed === "Triệt Không" || trimmed === "Triệt Lộ Không Vong") return "Triệt";
   if (trimmed === "Tuần Không" || trimmed === "Tuần Trung" || trimmed === "Tuần Trung Không Vong") return "Tuần";
   if (trimmed === "Bác Sỹ") return "Bác Sĩ";
-  if (trimmed === "Phượng các") return "Phượng Các";
+  if (trimmed === "Lực Sỹ") return "Lực Sĩ";
+  if (trimmed === "Phượng các" || trimmed === "Phụng Các") return "Phượng Các";
   if (trimmed === "Thiên trù") return "Thiên Trù";
   if (trimmed === "Bát tòa") return "Bát Tọa";
   if (trimmed === "Tướng tinh") return "Tướng Tinh";
   if (trimmed === "Mục Dục") return "Mộc Dục";
+  if (trimmed === "Thai Phụ") return "Đài Phụ";
+  if (trimmed === "Tuế Kiện") return "Tuế Kiến";
+  if (trimmed === "LN Văn tinh") return "LN Văn Tinh";
   return trimmed;
 };
 
@@ -106,12 +127,14 @@ const AUSPICIOUS_STARS = new Set([
   "Văn Xương", "Văn Khúc", "Thiên Khôi", "Thiên Việt", "Tả Phù", "Hữu Bật",
   "Lộc Tồn", "Thiên Mã", "Hóa Lộc", "Hóa Quyền", "Hóa Khoa", "Giải Thần",
   "Đường Phù", "Quốc Ấn", "Tam Thai", "Bát Tọa", "Thiên Hỷ", "Hỷ Thần",
-  "Phượng Các", "Phượng các", "Thanh Long", "Tướng Quân", "Bác Sĩ", "Bác Sỹ", "Lực Sĩ",
+  "Phượng Các", "Phượng các", "Phụng Các", "Thanh Long", "Tướng Quân", "Bác Sĩ", "Bác Sỹ", "Lực Sĩ", "Lực Sỹ",
   "Tấu Thư", "Trực Phù", "Thiên Quan", "Thiên Phúc", "Thiên Quý", "Thiên Đức",
   "Nguyệt Đức", "Long Đức", "Phúc Đức", "Đào Hoa", "Hồng Loan", "Thiên Tài",
-  "Thiên Thọ", "Phong Cáo", "Nguyệt Giải", "Thai Phụ", "Long Trì", "Thiên Trù",
-  "Sinh Lực", "Phúc Tinh", "Cát Tánh", "LN Văn tinh", "LN Văn Tinh", "Bát tòa",
-  "Thiên trù", "Bát Tọa", "Thiên Trù"
+  "Thiên Thọ", "Phong Cáo", "Nguyệt Giải", "Niên Giải", "Thai Phụ", "Đài Phụ", "Long Trì", "Thiên Trù",
+  "Sinh Lực", "Phúc Tinh", "Cát Tánh", "LN Văn tinh", "LN Văn Tinh", "Lưu Niên Văn Tinh", "Bát tòa",
+  "Thiên trù", "Hoa Cái", "Phan Án", "Tướng Tinh", "Ân Quang",
+  "Vận Khôi", "Vận Việt", "Vận Xương", "Vận Khúc", "Vận Loan", "Vận Hỷ", "Vận Lộc", "Vận Mã",
+  "Lưu Khôi", "Lưu Việt", "Lưu Xương", "Lưu Khúc", "Lưu Loan", "Lưu Hỷ", "Lưu Lộc", "Lưu Mã"
 ]);
 
 const isStarAuspicious = (name) => {
@@ -234,7 +257,7 @@ const PalaceCell = React.memo(({ palace, elementHighlight }) => {
             <span>{palace.name}</span>
           </Tooltip>
           {palace.isBodyPalace && (
-            <Tooltip type="ziwei" term="Thân" unstyled={true}>
+            <Tooltip type="ziwei" term="Cung Thân" unstyled={true}>
               <span className="text-[7.5px] md:text-[9.5px] ml-0.5 font-extrabold">(Thân)</span>
             </Tooltip>
           )}
@@ -378,7 +401,7 @@ const PalaceListView = ({ palaces, elementHighlight }) => {
                     <span>{palace.name}</span>
                   </Tooltip>
                   {palace.isBodyPalace && (
-                    <Tooltip type="ziwei" term="Thân" unstyled={true}>
+                    <Tooltip type="ziwei" term="Cung Thân" unstyled={true}>
                       <span className="text-xs ml-1 font-extrabold">(Thân)</span>
                     </Tooltip>
                   )}

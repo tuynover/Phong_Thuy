@@ -118,6 +118,7 @@ graph TD
             Modules --> ExportMod[modules/export/ - Xuất Bản PDF A4]
             Modules --> HistMod[modules/history/ - Lịch Sử Đa Phân Hệ]
             Modules --> FeiXingMod[modules/feixing/ - Huyền Không Phi Tinh]
+            Modules --> TrainingMod[modules/training/ - Huấn Luyện AI Đa Môn]
         end
 
         subgraph SharedEngines [src/shared/* - Cổ Học Dùng Chung]
@@ -470,6 +471,12 @@ flowchart TD
 
 3. **Tác Vụ Dọn Dẹp Bộ Nhớ Đệm Tệp Định Kỳ (`NotificationScheduler.js`):**
    - Hàm `purgeExpiredCacheFiles()` được tích hợp vào scheduler chạy định kỳ mỗi ngày để quét và xóa sạch các tệp PDF và TTS trong `scratch/` có thời gian sửa đổi cũ hơn 24 giờ, đảm bảo dung lượng đĩa SSD luôn được duy trì tối ưu.
+
+4. **Hệ Thống Pipeline Tự Động Đồng Bộ Dataset Huấn Luyện AI Bát Tự (`BaziDatasetPipelineService`):**
+   - Tự động trích xuất toàn bộ bản ghi Bát Tự thực tế có luận giải VIP (> 800 ký tự) từ MongoDB sang tệp `dataset_battu_from_mongo.jsonl` lưu trực tiếp trên Google Drive (`phong_thuy_train_ai/dataset_train`) định kỳ **3 ngày 1 lần**.
+   - Tự động khử trùng thông tin cá nhân (PII Redaction): thay thế tên người dùng thành 'Đương số', loại bỏ ID/Email và thông tin bảo mật.
+   - Cơ chế kích hoạt kép (Dual Trigger): thông qua `NotificationScheduler.js` (quét chu kỳ định kỳ mỗi ngày) và thông qua `BaseAiController.js` (ngay sau khi một lượt luận giải Bát Tự mới hoàn tất).
+   - Hỗ trợ chạy thủ công qua kịch bản CLI `backend/scripts/sync_bazi_dataset.js`.
 
 ---
 

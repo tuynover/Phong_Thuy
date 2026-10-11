@@ -1,4 +1,5 @@
 const conceptsData = require('../data/concepts.json');
+const ziweiConceptsData = require('../data/ziwei_concepts.json');
 
 // Dữ liệu fallback khi DB không có hoặc chưa seed
 const CONCEPT_FALLBACK = {
@@ -162,6 +163,17 @@ class ConceptController {
             }
             if (fallback) {
                 return res.json(fallback);
+            }
+            if (ziweiConceptsData && ziweiConceptsData[term]) {
+                return res.json(ziweiConceptsData[term]);
+            }
+            // Case-insensitive fallback for ziweiConceptsData
+            if (ziweiConceptsData) {
+                const lower = term.toLowerCase();
+                const matchedKey = Object.keys(ziweiConceptsData).find(k => k.toLowerCase() === lower);
+                if (matchedKey) {
+                    return res.json(ziweiConceptsData[matchedKey]);
+                }
             }
             return res.status(404).json({ error: 'Not found' });
         } catch (error) {

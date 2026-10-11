@@ -106,6 +106,19 @@ const Tooltip = ({ term, children, className, placement = 'top', unstyled = fals
             } else if (dict[baseTerm]) {
                 setInfo(dict[baseTerm]);
             } else {
+                // Case-insensitive or normalized prefix fallback
+                const lower = trimmedTerm.toLowerCase();
+                const matchedKey = Object.keys(dict).find(k => k.toLowerCase() === lower);
+                if (matchedKey) {
+                    setInfo(dict[matchedKey]);
+                    return;
+                }
+                const palacePrefixed = `Cung ${trimmedTerm}`;
+                if (dict[palacePrefixed]) {
+                    setInfo(dict[palacePrefixed]);
+                    return;
+                }
+
                 setLoading(true);
                 try {
                     const res = await getConcept(trimmedTerm);
