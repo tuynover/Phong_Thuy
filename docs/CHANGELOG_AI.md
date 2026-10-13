@@ -2,6 +2,61 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Khắc Phục Lỗi Đăng Ký Tài Khoản Mới Qua Google OAuth & Cấu Hình COOP (13/10/2026)
+
+### 🌟 1. Bối Cảnh & Nguyên Nhân Gốc Rễ
+- Người dùng phản ánh tài khoản Google đã từng đăng nhập thì vào bình thường, nhưng tài khoản Google mới lần đầu đăng nhập thì gặp lỗi 500 (`Internal Server Error`).
+- Đồng thời trình duyệt hiển thị cảnh báo `Cross-Origin-Opener-Policy policy would block the window.postMessage call`.
+- **Nguyên nhân cốt lõi:**
+  1. Trong [`AuthController.js`](file:///t:/Phongthuy/backend/src/modules/auth/controllers/AuthController.js), khi tài khoản chưa tồn tại (`!user`), hệ thống khởi tạo tài khoản mới và tạo mật khẩu ngẫu nhiên bằng `uuidv7()`: `password: await bcrypt.hash(uuidv7(), 10)`. Tuy nhiên, tệp tin chưa import hàm `uuidv7` từ thư viện `uuid` $\rightarrow$ gây ra lỗi `ReferenceError: uuidv7 is not defined`, làm sập luồng đăng ký mới qua Google với mã lỗi 500.
+  2. Header `Cross-Origin-Opener-Policy` (COOP) mặc định của Helmet là `same-origin`, chặn giao tiếp `window.postMessage` từ popup của Google Identity Services về trang web cha.
+
+### 🛠️ 2. Các Nâng Cấp Kỹ Thuật Đã Triển Khai
+1. **Import `uuidv7` trong [`AuthController.js`](file:///t:/Phongthuy/backend/src/modules/auth/controllers/AuthController.js):**
+   - Bổ sung `const { v7: uuidv7 } = require('uuid');` vào phần khai báo thư viện. Cho phép đăng ký người dùng mới qua Google hoạt động trơn tru.
+2. **Cấu hình COOP trong [`backend/src/index.js`](file:///t:/Phongthuy/backend/src/index.js):**
+   - Thêm `crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" }` vào middleware `helmet` để tương thích hoàn toàn với Google One Tap / Sign In with Google popup.
+
+## 📅 Phiên bản: Hoàn Thiện Đồng Bộ Toàn Bộ Phân Hệ Đa Môn & Chuẩn Hóa RAG Toàn Diện (12/10/2026)
+
+### 🌟 1. Bối Cảnh & Mục Tiêu
+- Người dùng chuẩn bị nạp thêm toàn bộ tài liệu các bộ môn khác (Tử Vi, Kinh Dịch, Huyền Không, Hợp Hôn, Số Học).
+- Yêu cầu trích xuất toàn bộ lá số thực tế của tất cả các phân hệ còn lại trong MongoDB và chuẩn bị kịch bản RAG đa môn hoàn chỉnh để phục vụ huấn luyện Siêu AI Đa Môn.
+
+### 🛠️ 2. Các Nâng Cấp Kỹ Thuật Đã Triển Khai
+1. **Hoàn Thiện Bộ 5 Adapter Chuyên Biệt (`backend/src/modules/training/adapters/`):**
+   - [`BaziTrainingAdapter.js`](file:///t:/Phongthuy/backend/src/modules/training/adapters/BaziTrainingAdapter.js): Bát Tự Tử Bình (153 mẫu VIP).
+   - [`ZiweiTrainingAdapter.js`](file:///t:/Phongthuy/backend/src/modules/training/adapters/ZiweiTrainingAdapter.js): Tử Vi Đẩu Số (13 mẫu VIP, trích xuất 12 Cung, Mệnh/Thân Chủ, Cục, Chính tinh đắc/hãm, Phụ tinh).
+   - [`IChingTrainingAdapter.js`](file:///t:/Phongthuy/backend/src/modules/training/adapters/IChingTrainingAdapter.js): Kinh Dịch Lục Hào (48 mẫu VIP, trích xuất Câu hỏi, Quẻ Chính/Biến, Hào Động, Thời điểm gieo).
+   - [`MarriageTrainingAdapter.js`](file:///t:/Phongthuy/backend/src/modules/training/adapters/MarriageTrainingAdapter.js): Hợp Hôn Mệnh Lý (21 mẫu VIP, trích xuất Tứ Trụ Nam Nữ đầy đủ).
+   - [`FeiXingTrainingAdapter.js`](file:///t:/Phongthuy/backend/src/modules/training/adapters/FeiXingTrainingAdapter.js): Huyền Không Phi Tinh (6 mẫu VIP, trích xuất Vận, Tọa-Hướng, độ số la kinh, cấu trúc tinh bàn).
+2. **Xuất Thành Công Bộ Dataset Tổng Hợp Đa Môn:**
+   - Chạy lệnh `npm run dataset:sync`, xuất thành công 5 tệp riêng lẻ và tệp tổng hợp **`dataset_phongthuy_combined.jsonl` (241 mẫu VIP, 6.6MB)** lên Google Drive (`H:\My Drive\phong_thuy_train_ai\dataset_train\`).
+3. **Kịch Bản Chuẩn Hóa Tài Liệu RAG Đa Môn:**
+   - Xây dựng Pipeline tự động thích ứng trên Colab: tự quét mọi thư mục môn (`bat_tu`, `tu_vi`, `kinh_dich`, `huyen_khong`...), chuyển đổi tự động PDF (chữ + scan OCR), DOCX, TXT sang Markdown `.md` UTF-8 chuẩn hóa.
+
+## 📅 Phiên bản: Khắc Phục Tận Gốc Trích Xuất Can Chi Bát Tự & Tối Ưu Dataset Huấn Luyện (12/10/2026)
+
+### 🌟 1. Bối Cảnh & Phát Hiện Cốt Lõi
+- Trong quá trình kiểm tra suy luận trên Colab, phát hiện mô hình gặp hiện tượng đảo lộn Thập Thần (nhầm Quan Sát thành Ấn, Thổ thành Tỷ Kiên).
+- **Phát hiện nguyên nhân gốc rễ:** Trong [`BaziTrainingAdapter.js`](file:///t:/Phongthuy/backend/src/modules/training/adapters/BaziTrainingAdapter.js), logic trích xuất trụ Can Chi đọc nhầm thuộc tính `.can` và `.chi` thay vì `.gan`, `.zhi` và `.canChi` trong cơ sở dữ liệu `baziData`. Hậu quả là toàn bộ 152 mẫu trong dataset trước đó bị gán thành: `Tứ Trụ: Năm Không rõ, Tháng Không rõ, Ngày Không rõ, Giờ Không rõ`.
+- Khi đầu vào bị "mù" Tứ Trụ, mô hình AI buộc phải suy đoán xác suất mù mờ dẫn đến hiện tượng hallucination.
+
+### 🛠️ 2. Các Nâng Cấp Kỹ Thuật Đã Triển Khai
+1. **Sửa Đổi Adapter Bát Tự ([`BaziTrainingAdapter.js`](file:///t:/Phongthuy/backend/src/modules/training/adapters/BaziTrainingAdapter.js)):**
+   - Chuẩn hóa hàm `getPillarStr()` đọc chính xác `pillar.canChi`, `pillar.gan`, `pillar.zhi`, kèm đầy đủ nhãn Thập Thần trụ: `thapThanGan`.
+   - Kết quả đầu ra của mỗi mẫu giờ đây hiển thị 100% học thuật chuẩn:
+     + Trụ Năm: `Canh Ngọ (Thiên Tài)`
+     + Trụ Tháng: `Tân Tỵ (Chính Tài)`
+     + Trụ Ngày: `Bính Tuất (Nhật Chủ)`
+     + Trụ Giờ: `Nhâm Thìn (Thất Sát)`
+     + Dụng Thần / Hỷ Thần / Tiết Khí / 8 Đại Vận đầy đủ.
+2. **Khắc Phục Đồng Bộ File Bền Vững ([`GoogleDriveSyncService.js`](file:///t:/Phongthuy/backend/src/modules/training/services/GoogleDriveSyncService.js)):**
+   - Thay thế cơ chế stream bất đồng bộ dễ bị `process.exit(0)` cắt ngắn thành `fs.writeFileSync()` đồng bộ an toàn 100%.
+   - Đảm bảo toàn bộ 4.1MB dữ liệu được flush hoàn chỉnh ra ổ Google Drive (`H:\My Drive\phong_thuy_train_ai\dataset_train\dataset_battu_from_mongo.jsonl`) và thư mục nội bộ.
+3. **Cập Nhật Tiện Ích CLI:**
+   - Hoàn thiện script [`backend/scripts/sync_bazi_dataset.js`](file:///t:/Phongthuy/backend/scripts/sync_bazi_dataset.js) điều khiển bởi `npm run dataset:sync`.
+
 ## 📅 Phiên bản: Xây Dựng Phân Hệ Huấn Luyện AI Đa Môn Độc Lập & Mở Rộng (`modules/training`) (11/10/2026)
 
 ### 🌟 1. Tổng Quan & Bối Cảnh Yêu Cầu

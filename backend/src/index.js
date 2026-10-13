@@ -77,6 +77,7 @@ app.set('trust proxy', 1);
 // Security HTTP Headers Middleware
 app.use(helmet({
   crossOriginResourcePolicy: false,
+  crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],

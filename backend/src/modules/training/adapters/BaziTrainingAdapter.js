@@ -28,10 +28,17 @@ class BaziTrainingAdapter extends BaseTrainingAdapter {
     const dateText = info.date || 'Không rõ';
     const timeText = info.time || 'Không rõ';
 
-    const yearStr = canChi.year?.name || `${canChi.year?.can || ''} ${canChi.year?.chi || ''}`.trim() || 'Không rõ';
-    const monthStr = canChi.month?.name || `${canChi.month?.can || ''} ${canChi.month?.chi || ''}`.trim() || 'Không rõ';
-    const dayStr = canChi.day?.name || `${canChi.day?.can || ''} ${canChi.day?.chi || ''}`.trim() || 'Không rõ';
-    const hourStr = canChi.hour?.name || `${canChi.hour?.can || ''} ${canChi.hour?.chi || ''}`.trim() || 'Không rõ';
+    const getPillarStr = (pillar) => {
+      if (!pillar) return 'Không rõ';
+      const name = pillar.canChi || `${pillar.gan || ''} ${pillar.zhi || ''}`.trim() || pillar.name || 'Không rõ';
+      const thapThan = pillar.thapThanGan ? ` (${pillar.thapThanGan})` : '';
+      return `${name}${thapThan}`;
+    };
+
+    const yearStr = getPillarStr(canChi.year);
+    const monthStr = getPillarStr(canChi.month);
+    const dayStr = getPillarStr(canChi.day);
+    const hourStr = getPillarStr(canChi.hour);
 
     let inputStr = `${genderText}, sinh ngày ${dateText} lúc ${timeText}.\n`;
     inputStr += `Tứ Trụ: Năm ${yearStr}, Tháng ${monthStr}, Ngày ${dayStr}, Giờ ${hourStr}.\n`;

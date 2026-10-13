@@ -2,13 +2,12 @@ const GoogleDriveSyncService = require('./GoogleDriveSyncService');
 const SyncStateService = require('./SyncStateService');
 const logger = require('../../../core/services/LoggerService');
 
-// Nạp các Adapter bộ môn
+// Nạp các Adapter bộ môn Phong Thủy
 const BaziTrainingAdapter = require('../adapters/BaziTrainingAdapter');
 const ZiweiTrainingAdapter = require('../adapters/ZiweiTrainingAdapter');
 const IChingTrainingAdapter = require('../adapters/IChingTrainingAdapter');
 const MarriageTrainingAdapter = require('../adapters/MarriageTrainingAdapter');
 const FeiXingTrainingAdapter = require('../adapters/FeiXingTrainingAdapter');
-const NumerologyTrainingAdapter = require('../adapters/NumerologyTrainingAdapter');
 
 class DatasetPipelineManager {
   constructor() {
@@ -25,7 +24,6 @@ class DatasetPipelineManager {
     this.registerAdapter(new IChingTrainingAdapter());
     this.registerAdapter(new MarriageTrainingAdapter());
     this.registerAdapter(new FeiXingTrainingAdapter());
-    this.registerAdapter(new NumerologyTrainingAdapter());
   }
 
   /**

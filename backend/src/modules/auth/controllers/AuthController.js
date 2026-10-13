@@ -2,6 +2,7 @@ const User = require('../../../core/models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const { v7: uuidv7 } = require('uuid');
 const logger = require('../../../core/services/LoggerService');
 const { OAuth2Client } = require('google-auth-library');
 const BanAppeal = require('../../admin/models/BanAppeal');
