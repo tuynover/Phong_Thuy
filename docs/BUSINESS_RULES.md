@@ -451,7 +451,7 @@ Bộ Prompt Hợp Hôn (`MarriagePrompts.js`) được nâng cấp lên phiên b
 ### 6.1 Deep-Linking & Chia sẻ Bài viết
 - **URL Đồng Bộ:** Khi xem bài viết chi tiết, địa chỉ trình duyệt tự động cập nhật tham số `?post={slug}` mà không cần reload trang.
 - **Deep Linking Auto-Load:** Khi mở trực tiếp đường dẫn chứa tham số `?post={slug}`, hệ thống tự động nhận diện `slug`, nạp bài viết và hiển thị ngay màn hình chi tiết.
-- **Tạo Link Chia sẻ:** Nút sao chép và nút chia sẻ (Facebook, Web Share Sheet) sử dụng hàm `getArticleShareUrl()` ghép chuẩn đường dẫn tuyệt đối `https://tuynover.ddns.net/?post={slug}` đảm bảo người nhận mở đúng bài viết.
+- **Tạo Link Chia sẻ:** Nút sao chép và nút chia sẻ (Facebook, Web Share Sheet) sử dụng hàm `getArticleShareUrl()` ghép chuẩn đường dẫn tuyệt đối `https://tuynover.id.vn/?post={slug}` đảm bảo người nhận mở đúng bài viết.
 
 ### 6.2 Chuẩn Hóa & Biên Dịch Markdown GFM
 - **Biên dịch GFM:** Sử dụng `react-markdown` kết hợp plugin `remark-gfm` hỗ trợ đầy đủ cú pháp bảng, gạch ngang, danh sách và trích dẫn.

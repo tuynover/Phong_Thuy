@@ -4,10 +4,10 @@
 const appConfig = {
     /**
      * Tên miền ứng dụng chính (Front-end / Public domain)
-     * Đọc từ APP_DOMAIN, BASE_URL hoặc mặc định 'https://tuynover.ddns.net'
+     * Đọc từ APP_DOMAIN, BASE_URL hoặc mặc định 'https://tuynover.id.vn'
      */
     get appDomain() {
-        return (process.env.APP_DOMAIN || process.env.BASE_URL || 'https://tuynover.ddns.net').replace(/\/+$/, '');
+        return (process.env.APP_DOMAIN || process.env.BASE_URL || 'https://tuynover.id.vn').replace(/\/+$/, '');
     },
 
     /**
@@ -45,9 +45,7 @@ const appConfig = {
             'http://127.0.0.1:5173',
             'http://127.0.0.1:5174',
             'http://localhost:3000',
-            'https://tuynover.ddns.net',
-            'https://tuynover.giize.com',
-            'https://tuynover.duckdns.org'
+            'https://tuynover.id.vn'
         ];
         if (domain && !defaults.includes(domain)) {
             defaults.push(domain);

@@ -87,7 +87,7 @@ export default function Footer({ onSelectModule }) {
                             </button>
                         </li>
                         <li>
-                            <a href="mailto:support@tuynover.ddns.net" className="hover:text-indigo-600 transition-colors text-left">
+                            <a href="mailto:support@tuynover.id.vn" className="hover:text-indigo-600 transition-colors text-left">
                                 Liên hệ báo cáo
                             </a>
                         </li>

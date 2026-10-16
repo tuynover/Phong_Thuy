@@ -14,7 +14,7 @@ describe('AppConfig Module', () => {
   test('should return default domain if APP_DOMAIN is not provided', () => {
     delete process.env.APP_DOMAIN;
     delete process.env.BASE_URL;
-    expect(appConfig.appDomain).toBe('https://tuynover.ddns.net');
+    expect(appConfig.appDomain).toBe('https://tuynover.id.vn');
   });
 
   test('should prioritize APP_DOMAIN over defaults and strip trailing slashes', () => {

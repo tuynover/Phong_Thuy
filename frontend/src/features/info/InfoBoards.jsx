@@ -112,7 +112,7 @@ export function PrivacyPolicy({ onBack }) {
 
                     <h2 className="text-xl font-bold text-amber-900 font-serif mt-6">4. Liên hệ hỗ trợ</h2>
                     <p>
-                        Nếu bạn có bất kỳ câu hỏi nào liên quan đến bảo mật hoặc muốn yêu cầu xóa toàn bộ thông tin tài khoản của mình, vui lòng liên hệ Ban quản trị qua email: <span className="text-amber-800 font-semibold">support@tuynover.ddns.net</span>.
+                        Nếu bạn có bất kỳ câu hỏi nào liên quan đến bảo mật hoặc muốn yêu cầu xóa toàn bộ thông tin tài khoản của mình, vui lòng liên hệ Ban quản trị qua email: <span className="text-amber-800 font-semibold">support@tuynover.id.vn</span>.
                     </p>
                 </div>
             </div>

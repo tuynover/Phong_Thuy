@@ -127,7 +127,7 @@ Dự án được chia làm 2 phần chính: **Frontend** (giao diện người 
 
 #### F. Kiến Thức Phong Thủy & Chia Sẻ (Blog Board)
 * Trang tin tức và bài viết chiêm nghiệm học thuật công khai với 6 danh mục phong thủy chính.
-* Đồng bộ đường dẫn tĩnh Deep-Linking dạng `https://tuynover.ddns.net/?post={slug}` cho từng bài viết.
+* Đồng bộ đường dẫn tĩnh Deep-Linking dạng `https://tuynover.id.vn/?post={slug}` cho từng bài viết.
 * Tích hợp thanh chia sẻ đa nền tảng (Sao chép link, Facebook Sharer, Web Share API di động).
 * Trình diễn bài viết với `ReactMarkdown` & `remark-gfm`, tự động định dạng bảng GFM (`Vertical Pipe Normalizer`) và chèn ảnh minh họa sắc nét.
 * Tệp tin liên quan: [BlogBoard.jsx](file:///t:/Phongthuy/frontend/src/features/blog/BlogBoard.jsx).

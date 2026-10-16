@@ -326,7 +326,7 @@ export default function ShareableStoryModal({
                     {isAnonymous ? 'Đương Số Ẩn Danh' : displayName}
                   </div>
                   <div className={`text-[9px] ${theme.footerText}`}>
-                    phongthuy.tuynover.com
+                    tuynover.id.vn
                   </div>
                 </div>
 

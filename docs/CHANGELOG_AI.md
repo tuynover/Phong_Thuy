@@ -2,6 +2,31 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Chuyển Đổi Toàn Bộ Tên Miền Chính & Cấu Hình SEO Sang `tuynover.id.vn` (16/10/2026)
+
+### 🌟 1. Bối Cảnh & Mục Tiêu
+- Chuyển toàn bộ tên miền dịch vụ, đường dẫn cấu hình backend/frontend, CORS, email hỗ trợ, SEO meta tags (OpenGraph, Twitter card, Schema.org JSON-LD), robots.txt và Nginx về tên miền duy nhất: `https://tuynover.id.vn`.
+- Loại bỏ hoàn toàn các tên miền cũ (`tuynover.ddns.net`, `tuynover.giize.com`, `tuynover.duckdns.org`) khỏi cấu hình CORS, Nginx server block và đường dẫn chứng chỉ SSL.
+- Chuẩn bị sẵn cấu hình Nginx location `/.well-known/acme-challenge/` và chứng chỉ SSL `/etc/letsencrypt/live/tuynover.id.vn/` cho tên miền mới.
+
+### 🛠️ 2. Các Nâng Cấp Kỹ Thuật Đã Triển Khai
+1. **Backend Configuration (`backend/src/core/config/appConfig.js`, `swagger.json`):**
+   - Đặt mặc định `appDomain` về `https://tuynover.id.vn`.
+   - Thu hẹp `corsOrigins` chỉ giữ lại localhost phát triển và `https://tuynover.id.vn`.
+   - Cập nhật URL production trong `swagger.json`.
+   - Đồng bộ unit test `backend/tests/config/appConfig.test.js`.
+2. **Frontend SEO & Thông tin liên hệ (`frontend/index.html`, `robots.txt`, `Footer.jsx`, `InfoBoards.jsx`, `ShareableStoryModal.jsx`):**
+   - Cập nhật thẻ `og:url`, `og:image`, `twitter:url`, `twitter:image`, JSON-LD `WebSite`, `Organization` sang `https://tuynover.id.vn/`.
+   - Cập nhật URL sitemap trong `frontend/public/robots.txt` thành `https://tuynover.id.vn/sitemap.xml`.
+   - Cập nhật email liên hệ hỗ trợ thành `support@tuynover.id.vn`.
+   - Cập nhật watermark thẻ chia sẻ story thành `tuynover.id.vn`.
+3. **Nginx Reverse Proxy (`nginx/default.conf`):**
+   - Cập nhật `server_name` độc quyền: `tuynover.id.vn www.tuynover.id.vn`.
+   - Chuyển đường dẫn chứng chỉ SSL sang:
+     + `ssl_certificate /etc/letsencrypt/live/tuynover.id.vn/fullchain.pem;`
+     + `ssl_certificate_key /etc/letsencrypt/live/tuynover.id.vn/privkey.pem;`
+   - Thêm location `/.well-known/acme-challenge/` hỗ trợ cấp mới chứng chỉ SSL qua Certbot webroot.
+
 ## 📅 Phiên bản: Khắc Phục Lỗi Đăng Ký Tài Khoản Mới Qua Google OAuth & Cấu Hình COOP (13/10/2026)
 
 ### 🌟 1. Bối Cảnh & Nguyên Nhân Gốc Rễ
