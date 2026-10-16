@@ -93,17 +93,26 @@ app.use(helmet({
 // Connect to Database
 connectDB();
 
-const allowedOrigins = process.env.CLIENT_URL
-  ? process.env.CLIENT_URL.split(',').map(url => url.trim().replace(/\/$/, ''))
-  : appConfig.corsOrigins;
+const rawOrigins = [
+  ...(process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',').map(url => url.trim().replace(/\/$/, '')) : []),
+  ...appConfig.corsOrigins
+];
+const allowedOrigins = Array.from(new Set(rawOrigins.filter(Boolean)));
 
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*') || /^http:\/\/localhost:\d+$/.test(origin) || /^http:\/\/127\.0\.0\.1:\d+$/.test(origin)) {
+    if (
+      allowedOrigins.indexOf(origin) !== -1 ||
+      allowedOrigins.includes('*') ||
+      /^https?:\/\/(www\.)?tuynover\.id\.vn$/.test(origin) ||
+      /^http:\/\/localhost:\d+$/.test(origin) ||
+      /^http:\/\/127\.0\.0\.1:\d+$/.test(origin)
+    ) {
       return callback(null, true);
     } else {
-      return callback(new Error('CORS Policy: Access from this origin is denied.'));
+      logger.warn(`[CORS Blocked] Origin không được cấp phép: ${origin}`);
+      return callback(new Error(`CORS Policy: Access from origin '${origin}' is denied.`));
     }
   },
   credentials: true,
