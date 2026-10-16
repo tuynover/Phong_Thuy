@@ -894,6 +894,10 @@ export default function UserApp({ onSwitchToAdmin }) {
     handleSelectModule('ziwei');
   }, [handleSelectModule]);
 
+  const handleOpenDailyFortune = useCallback(() => {
+    setIsDailyFortuneOpen(true);
+  }, []);
+
 
   const handleNotificationClick = async (hexagramId) => {
     setLoading(true);
@@ -1125,7 +1129,7 @@ export default function UserApp({ onSwitchToAdmin }) {
             user={user}
             onRequireLogin={handleRequireLogin}
             onViewDestiny={handleViewDestinyFromHome}
-            onOpenDailyFortune={() => setIsDailyFortuneOpen(true)}
+            onOpenDailyFortune={handleOpenDailyFortune}
           />
         </div>
 

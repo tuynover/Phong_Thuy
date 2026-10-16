@@ -71,7 +71,7 @@ const parseHexagramNameAndMeaning = (hex) => {
   };
 };
 
-export default function NumerologyBoard({ 
+function NumerologyBoard({ 
   user, 
   onRequireLogin, 
   historicalRecordId, 
@@ -1144,3 +1144,5 @@ export default function NumerologyBoard({
     </div>
   );
 }
+
+export default React.memo(NumerologyBoard);

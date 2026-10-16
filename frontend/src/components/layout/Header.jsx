@@ -23,6 +23,21 @@ import NotificationBell from '@/components/common/NotificationBell';
 import { checkHasDrawnDailyFortune, DAILY_FORTUNE_EVENT } from '@/features/iching/data/dailyFortuneData';
 import { getDailyCheckinStatus } from '@/services/api';
 
+/**
+ * Rút gọn tên hiển thị trên Header:
+ * Nếu tên dài/nhiều từ, chỉ hiển thị tên gọi chính (từ cuối cùng theo văn hóa Việt Nam)
+ * Ví dụ: "Trịnh Công Tuyến" -> "Tuyến", "Nguyễn Văn An" -> "An"
+ */
+const getShortDisplayName = (name) => {
+  if (!name || typeof name !== 'string') return 'Tài khoản';
+  const trimmed = name.trim();
+  const parts = trimmed.split(/\s+/);
+  if (parts.length > 1) {
+    return parts[parts.length - 1];
+  }
+  return trimmed;
+};
+
 export default function Header({
   appMode,
   user,
@@ -133,9 +148,9 @@ export default function Header({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.25, ease: "easeOut" }}
-      className={`sticky top-0 z-40 w-full backdrop-blur-md border-b border-slate-200/50 py-2.5 px-3 sm:px-4 shadow-sm ${appMode === 'home' ? 'bg-white/80' : 'bg-[#f8f5f0]/95 lg:bg-white/70'}`}
+      className={`sticky top-0 z-40 w-full backdrop-blur-md border-b border-slate-200/50 py-2 sm:py-2.5 px-3 sm:px-4 lg:px-6 shadow-sm ${appMode === 'home' ? 'bg-white/80' : 'bg-[#f8f5f0]/95 lg:bg-white/70'}`}
     >
-      <div className="max-w-6xl mx-auto flex items-center justify-between gap-3 sm:gap-6 w-full relative">
+      <div className="w-full max-w-[1600px] mx-auto flex items-center justify-between gap-2 lg:gap-4 relative">
         
         {/* Logo on the left */}
         <div 
@@ -149,58 +164,58 @@ export default function Header({
         </div>
 
         {/* Desktop Center Navigation Tabs */}
-        <div className="hidden md:flex items-center bg-white/70 p-1 gap-0.5 sm:gap-1 rounded-full border border-slate-200/50 shadow-sm backdrop-blur-sm">
+        <div className="hidden md:flex items-center bg-white/70 p-0.5 sm:p-1 gap-0.5 rounded-full border border-slate-200/50 shadow-sm backdrop-blur-sm shrink-0">
           <button 
             onClick={() => handleSelectModule('home')} 
-            className={`px-4 py-1.5 rounded-full font-bold text-xs tracking-wider font-[Montserrat] uppercase ${appMode === 'home' ? 'bg-slate-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/50'}`}
+            className={`px-2 xl:px-2.5 py-1 rounded-full font-bold text-[11px] xl:text-[11.5px] tracking-tight font-[Montserrat] uppercase transition-colors duration-75 ${appMode === 'home' ? 'bg-slate-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/50'}`}
           >
             Trang Chủ
           </button>
           <button 
             onClick={() => handleSelectModule('blog')} 
-            className={`px-4 py-1.5 rounded-full font-bold text-xs tracking-wider font-[Montserrat] uppercase ${appMode === 'blog' ? 'bg-indigo-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/50'}`}
+            className={`px-2 xl:px-2.5 py-1 rounded-full font-bold text-[11px] xl:text-[11.5px] tracking-tight font-[Montserrat] uppercase transition-colors duration-75 ${appMode === 'blog' ? 'bg-indigo-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/50'}`}
           >
             Kiến thức
           </button>
           <button 
             onClick={() => handleSelectModule('iching')} 
-            className={`px-4 py-1.5 rounded-full font-bold text-xs tracking-wider font-[Montserrat] uppercase ${appMode === 'iching' ? 'bg-amber-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/50'}`}
+            className={`px-2 xl:px-2.5 py-1 rounded-full font-bold text-[11px] xl:text-[11.5px] tracking-tight font-[Montserrat] uppercase transition-colors duration-75 ${appMode === 'iching' ? 'bg-amber-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/50'}`}
           >
             Kinh Dịch
           </button>
           <button 
             onClick={() => handleSelectModule('bazi')} 
-            className={`px-4 py-1.5 rounded-full font-bold text-xs tracking-wider font-[Montserrat] uppercase ${appMode === 'bazi' ? 'bg-blue-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/50'}`}
+            className={`px-2 xl:px-2.5 py-1 rounded-full font-bold text-[11px] xl:text-[11.5px] tracking-tight font-[Montserrat] uppercase transition-colors duration-75 ${appMode === 'bazi' ? 'bg-blue-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/50'}`}
           >
             Bát Tự
           </button>
           <button 
             onClick={handleNavZiwei} 
-            className={`px-4 py-1.5 rounded-full font-bold text-xs tracking-wider font-[Montserrat] uppercase ${appMode === 'ziwei' ? 'bg-purple-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/50'}`}
+            className={`px-2 xl:px-2.5 py-1 rounded-full font-bold text-[11px] xl:text-[11.5px] tracking-tight font-[Montserrat] uppercase transition-colors duration-75 ${appMode === 'ziwei' ? 'bg-purple-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/50'}`}
           >
             Tử Vi
           </button>
           <button 
             onClick={() => handleSelectModule('marriage')} 
-            className={`px-4 py-1.5 rounded-full font-bold text-xs tracking-wider font-[Montserrat] uppercase ${appMode === 'marriage' ? 'bg-rose-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/50'}`}
+            className={`px-2 xl:px-2.5 py-1 rounded-full font-bold text-[11px] xl:text-[11.5px] tracking-tight font-[Montserrat] uppercase transition-colors duration-75 ${appMode === 'marriage' ? 'bg-rose-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/50'}`}
           >
             Hôn Nhân
           </button>
           <button 
             onClick={() => handleSelectModule('xemngay')} 
-            className={`px-4 py-1.5 rounded-full font-bold text-xs tracking-wider font-[Montserrat] uppercase ${appMode === 'xemngay' ? 'bg-emerald-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/50'}`}
+            className={`px-2 xl:px-2.5 py-1 rounded-full font-bold text-[11px] xl:text-[11.5px] tracking-tight font-[Montserrat] uppercase transition-colors duration-75 ${appMode === 'xemngay' ? 'bg-emerald-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/50'}`}
           >
             Xem Ngày
           </button>
           <button 
             onClick={() => handleSelectModule('feixing')} 
-            className={`px-4 py-1.5 rounded-full font-bold text-xs tracking-wider font-[Montserrat] uppercase ${appMode === 'feixing' ? 'bg-amber-600 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/50'}`}
+            className={`px-2 xl:px-2.5 py-1 rounded-full font-bold text-[11px] xl:text-[11.5px] tracking-tight font-[Montserrat] uppercase transition-colors duration-75 ${appMode === 'feixing' ? 'bg-amber-600 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/50'}`}
           >
             Huyền Không
           </button>
           <button 
             onClick={() => handleSelectModule('numerology')} 
-            className={`px-4 py-1.5 rounded-full font-bold text-xs tracking-wider font-[Montserrat] uppercase ${appMode === 'numerology' ? 'bg-amber-700 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/50'}`}
+            className={`px-2 xl:px-2.5 py-1 rounded-full font-bold text-[11px] xl:text-[11.5px] tracking-tight font-[Montserrat] uppercase transition-colors duration-75 ${appMode === 'numerology' ? 'bg-amber-700 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/50'}`}
           >
             Số học
           </button>
@@ -209,7 +224,7 @@ export default function Header({
               onClick={() => handleSelectModule('history')} 
               onMouseEnter={preloadHistoryLists}
               onTouchStart={preloadHistoryLists}
-              className={`px-4 py-1.5 rounded-full font-bold text-xs tracking-wider font-[Montserrat] uppercase ${appMode === 'history' ? 'bg-slate-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/50'}`}
+              className={`px-2 xl:px-2.5 py-1 rounded-full font-bold text-[11px] xl:text-[11.5px] tracking-tight font-[Montserrat] uppercase transition-colors duration-75 ${appMode === 'history' ? 'bg-slate-800 text-white shadow-sm' : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100/50'}`}
             >
               Lịch Sử
             </button>
@@ -217,7 +232,7 @@ export default function Header({
         </div>
 
         {/* RIGHT SIDE SECTION: UTILITIES & AUTH */}
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
 
           {/* NÚT TÍCH HỢP QUẺ NGÀY & ĐIỂM DANH (DROPDOWN MENU CẤP 2) */}
           {(onOpenDailyFortune || onOpenDailyCheckin) && (
@@ -225,7 +240,7 @@ export default function Header({
               <button
                 type="button"
                 onClick={() => setIsDailyDropdownOpen(prev => !prev)}
-                className={`relative hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all shadow-2xs hover:shadow-xs active:scale-95 cursor-pointer border ${
+                className={`relative hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold transition-all shadow-2xs hover:shadow-xs active:scale-95 cursor-pointer border ${
                   isCheckinActive
                     ? 'bg-gradient-to-r from-rose-50 via-amber-50 to-yellow-50 hover:from-rose-100 hover:to-yellow-100 text-rose-950 border-rose-300/80'
                     : 'bg-gradient-to-r from-amber-50 to-yellow-50 hover:from-amber-100 hover:to-yellow-100 text-amber-950 border-amber-300/80'
@@ -383,15 +398,27 @@ export default function Header({
                 <div className="relative">
                   <button 
                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                    className="flex items-center gap-1 text-slate-800 font-semibold max-w-[80px] sm:max-w-none hover:text-slate-950 transition-colors focus:outline-none"
-                    title="Hồ sơ cá nhân"
+                    className="flex items-center gap-1.5 text-slate-800 font-semibold hover:text-slate-950 transition-colors focus:outline-none cursor-pointer"
+                    title={user.name || "Hồ sơ cá nhân"}
                   >
                     <UserCircle size={18} className="text-slate-600 shrink-0" />
-                    <span className="hidden sm:inline truncate max-w-[140px] md:max-w-[180px]">{user.name}</span>
+                    <span className="hidden sm:inline truncate max-w-[85px] lg:max-w-[110px]">{getShortDisplayName(user.name)}</span>
                   </button>
 
                   {isUserMenuOpen && (
-                    <div className="absolute right-0 mt-3 w-44 bg-white rounded-2xl shadow-xl border border-gray-150 z-50 overflow-hidden py-1 animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="absolute right-0 mt-3 w-48 sm:w-52 bg-white rounded-2xl shadow-xl border border-gray-150 z-50 overflow-hidden py-1 animate-in fade-in slide-in-from-top-2 duration-200">
+                      {/* Thẻ định danh người dùng trong menu xổ xuống */}
+                      <div className="px-3.5 py-2.5 border-b border-gray-100 bg-slate-50/70">
+                        <div className="flex items-center gap-2">
+                          <div className="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs shrink-0 select-none">
+                            {getShortDisplayName(user.name).charAt(0).toUpperCase()}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs font-bold text-slate-800 truncate" title={user.name}>{user.name}</p>
+                            {user.email && <p className="text-[10px] text-slate-500 truncate mt-0.5">{user.email}</p>}
+                          </div>
+                        </div>
+                      </div>
                       <button 
                         onClick={() => {
                           handleSelectModule('profile');

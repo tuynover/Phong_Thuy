@@ -57,7 +57,7 @@ const FEIXING_PAGE_SECTIONS = [
   { id: 'section-rating', title: '5. Đánh Giá & Nhận Xét', label: '5. Đánh Giá & Nhận Xét' }
 ];
 
-export default function FeiXingBoard({ 
+function FeiXingBoard({ 
   user, 
   onRequireLogin, 
   historicalRecordId, 
@@ -812,3 +812,5 @@ export default function FeiXingBoard({
     </div>
   );
 }
+
+export default React.memo(FeiXingBoard);
