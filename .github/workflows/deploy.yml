@@ -33,8 +33,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Check Node.js Syntax
-        run: node --check src/index.js
+      - name: Check Node.js Syntax (All src files)
+        run: npm run check:syntax
 
       - name: Run Jest Unit Tests
         run: npm test -- --forceExit
@@ -88,6 +88,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./backend
+          platforms: linux/amd64
           push: true
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/phongthuy-backend:${{ github.sha }}
@@ -99,6 +100,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
+          platforms: linux/amd64
           push: true
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/phongthuy-frontend:${{ github.sha }}
@@ -119,6 +121,15 @@ jobs:
           script: |
             set -e
             cd phongthuy/Phong_Thuy
+
+            # 1. Lưu lại IMAGE_TAG đang chạy ổn định để sẵn sàng rollback nếu lỗi
+            PREV_TAG=$(docker inspect --format='{{.Config.Image}}' phongthuy-backend 2>/dev/null | awk -F':' '{print $2}' || true)
+            if [ -z "$PREV_TAG" ]; then
+              PREV_TAG="latest"
+            fi
+            echo "📌 [Deploy] Phiên bản đang chạy ổn định hiện tại: $PREV_TAG"
+
+            # 2. Cập nhật mã nguồn cấu hình triển khai
             git fetch origin main
             git reset --hard origin/main
 
@@ -138,9 +149,6 @@ jobs:
             echo "🌐 [Deploy] Nạp lại cấu hình Nginx nhẹ nhàng (Graceful Reload)..."
             docker exec phongthuy-nginx nginx -s reload || true
 
-            echo "🧹 [Deploy] Dọn dẹp images cũ không sử dụng..."
-            docker image prune -f
-
             echo "🔍 [Deploy] Thực hiện Smoke Test kiểm tra sức khỏe hệ thống..."
             HEALTHY=0
             for i in $(seq 1 12); do
@@ -156,7 +164,17 @@ jobs:
             if [ $HEALTHY -ne 1 ]; then
               echo "❌ [Smoke Test FAILED] Backend không phản hồi sau 60 giây!"
               docker compose logs --tail=50 backend
+
+              echo "🚨 [Auto-Rollback] Đang tự động khôi phục về phiên bản trước: $PREV_TAG..."
+              export IMAGE_TAG=$PREV_TAG
+              docker compose up -d --no-deps backend frontend
+              docker exec phongthuy-nginx nginx -s reload || true
+
+              echo "⚠️ [Auto-Rollback] Đã khôi phục hoàn tất container về bản $PREV_TAG. Hủy pipeline!"
               exit 1
             fi
+
+            echo "🧹 [Deploy] Dọn dẹp images cũ không sử dụng..."
+            docker image prune -f
 
             echo "🎉 [Deploy] Triển khai Zero-Downtime hoàn tất thành công 100%!"

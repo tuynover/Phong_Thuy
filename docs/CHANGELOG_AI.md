@@ -2,6 +2,26 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Nâng Cấp Hệ Thống CI/CD Pipeline & Auto-Rollback An Toàn (17/10/2026)
+
+### 🌟 1. Bối Cảnh & Vấn Đề
+- Pipeline CI/CD trước đây tiềm ẩn một số rủi ro về độ tin cậy và kiểm soát chất lượng:
+  1. **Thiếu cơ chế Auto-Rollback:** Khi Smoke Test `/health` thất bại trên máy chủ EC2 sau 60 giây, workflow chỉ in log và dừng lại (`exit 1`), để lại container mới bị lỗi làm gián đoạn dịch vụ người dùng (Downtime).
+  2. **Kiểm tra cú pháp chưa triệt để:** Backend CI chỉ chạy `node --check src/index.js` đơn lẻ. Nếu các controller hoặc service sâu bên trong có lỗi cú pháp mà chưa có unit test phủ tới thì vẫn bị lọt qua.
+  3. **Tương thích Container Image:** Docker image build chưa được ghim cố định kiến trúc nền tảng `platforms: linux/amd64`, tiềm ẩn rủi ro khi chuyển đổi môi trường runner hoặc server.
+
+### 🛠️ 2. Các Nâng Cấp Kỹ Thuật Đã Triển Khai
+1. **Tự Động Rollback khi Deploy Thất Bại ([`deploy.yml`](file:///t:/Phongthuy/.github/workflows/deploy.yml)):**
+   - Trước khi kéo image mới, script deploy tự động phát hiện và lưu lại Image Tag đang hoạt động ổn định (`PREV_TAG`) của container `phongthuy-backend`.
+   - Nếu Smoke Test kiểm tra `/health` không phản hồi 200 OK sau 12 lần thử (60 giây), SSH Action sẽ tự động rollback ngay lập tức: gán lại `IMAGE_TAG=$PREV_TAG`, kích hoạt `docker compose up -d --no-deps` và reload Nginx để bảo vệ 100% thời gian hoạt động của dịch vụ (Zero-Downtime Guarantee).
+2. **Kiểm Tra Cú Pháp Đệ Quy Toàn Bộ `src/` Backend ([`package.json`](file:///t:/Phongthuy/backend/package.json), [`backend-ci.yml`](file:///t:/Phongthuy/.github/workflows/backend-ci.yml), [`deploy.yml`](file:///t:/Phongthuy/.github/workflows/deploy.yml)):**
+   - Bổ sung lệnh `"check:syntax"` chạy đệ quy duyệt qua tất cả các tệp `.js` bên trong `src/` để thực thi `node --check`.
+   - Tích hợp bước này vào cả `backend-ci.yml` (cho Pull Request) và `deploy.yml` (cho nhánh `main`).
+3. **Cố Định Kiến Trúc Multi-Platform:**
+   - Bổ sung khai báo `platforms: linux/amd64` cho cả 2 tác vụ build Docker Image (backend và frontend) trong `deploy.yml`.
+
+---
+
 ## 📅 Phiên bản: Tối Ưu Hóa Cỗ Máy Tìm Kiếm Trí Tuệ Nhân Tạo (GEO - Generative Engine Optimization) (17/10/2026)
 
 ### 🌟 1. Bối Cảnh & Vấn Đề

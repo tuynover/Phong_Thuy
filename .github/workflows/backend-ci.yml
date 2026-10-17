@@ -31,8 +31,8 @@ jobs:
     - name: Install dependencies
       run: npm ci
 
-    - name: Check Node.js Syntax
-      run: node --check src/index.js
+    - name: Check Node.js Syntax (All src files)
+      run: npm run check:syntax
 
     - name: Run Unit Tests
       run: npm test -- --forceExit

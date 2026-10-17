@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "node src/index.js",
+    "check:syntax": "node -e \"const fs = require('fs'); const path = require('path'); const { execFileSync } = require('child_process'); function checkDir(dir) { fs.readdirSync(dir, { withFileTypes: true }).forEach(f => { const full = path.join(dir, f.name); if (f.isDirectory()) checkDir(full); else if (f.name.endsWith('.js')) { execFileSync('node', ['--check', full]); } }); } checkDir('src'); console.log('All backend src JS files passed syntax check!');\"",
     "test": "jest",
     "test:redis": "jest tests/services/redisDockerIntegration.test.js --testPathIgnorePatterns=/node_modules/ --forceExit",
     "test:regression": "jest tests/services/BaziRegression.test.js --testPathIgnorePatterns=/node_modules/ --testTimeout=300000",
