@@ -2,6 +2,57 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Toàn Diện Hóa & Nghiêm Khắc Tối Ưu Hệ Thống SEO (17/10/2026)
+
+### 🌟 1. Bối Cảnh & Các Khiếm Khuyết Nghiêm Trọng Phát Hiện
+1. **Lọt lưới 2 phân hệ lớn khỏi SEO bot:**
+   - Cấu hình Nginx (`nginx/default.conf`) và SEO Router (`backend/src/routes/seo.js`) chỉ định tuyến cho `bazi`, `ziwei`, `iching`, `marriage`, `xemngay`. Hoàn toàn thiếu `feixing` (Huyền Không Phi Tinh) và `numerology` (Phong Thủy Số Học).
+   - Sitemap động `/sitemap.xml` không thu thập URL tĩnh của `feixing`, `numerology`, `blog` và bỏ qua danh sách lá số công khai của 2 phân hệ này.
+2. **Lỗi gọi sai hàm Google Indexing API:**
+   - `FeiXingController.js` và `NumerologyController.js` gọi `GoogleIndexingService.notifyUrlUpdated` / `notifyUrlDeleted` trong khi Service chỉ có `publishUrl`, gây crash ngầm `TypeError` khi người dùng bật/tắt chia sẻ lá số.
+   - Sử dụng fallback domain cứng `https://phongthuy.vn` thay vì `appConfig.appDomain` (`https://tuynover.id.vn`).
+3. **Lỗi 404 ảnh Fallback OpenGraph:**
+   - Fallback `og:image` trong `seo.js` trỏ về thư mục ảo `/assets/images/og-default.jpg` không tồn tại trên đĩa.
+4. **Vi phạm chuẩn Internal Linking cho Web Crawler:**
+   - Các liên kết phân hệ trong Footer sử dụng `<button onClick>` thay vì thẻ `<a href>` ngữ nghĩa, làm Googlebot không đi sâu (deep crawl) vào các trang con.
+
+### 🛠️ 2. Các Nâng Cấp Kỹ Thuật Đã Triển Khai
+1. **Mở Rộng Định Tuyến Nginx & SEO Router:**
+   - Cập nhật regex Nginx trong [`default.conf`](file:///t:/Phongthuy/nginx/default.conf) bao phủ `feixing`, `huyen-khong`, `numerology`, `phong-thuy-so`.
+   - Bổ sung SEO Router tĩnh và SSR Dynamic Record cho cả 2 phân hệ trong [`seo.js`](file:///t:/Phongthuy/backend/src/routes/seo.js).
+2. **Nâng Cấp `sitemap.xml` Tự Động Toàn Diện:**
+   - Đưa đầy đủ 12 URL tĩnh chính của website và tự động gom thêm `FeiXingRecord` & `NumerologyRecord` có `isPublic: true` vào XML Sitemap.
+3. **Chuẩn Hóa Google Indexing API & Domain:**
+   - Thêm 2 hàm alias `notifyUrlUpdated(url)` và `notifyUrlDeleted(url)` vào [`GoogleIndexingService.js`](file:///t:/Phongthuy/backend/src/core/services/GoogleIndexingService.js).
+   - Đồng bộ việc dùng `appConfig.appDomain` trên toàn bộ controller.
+4. **Sửa Lỗi Ảnh OpenGraph & Thêm Schema `Article` JSON-LD:**
+   - Đổi fallback `og:image` sang `/og-banner.jpg` (file thực có sẵn).
+   - Tự động tiêm cấu trúc dữ liệu Schema `Article` chuẩn Schema.org cho các bài viết Blog khi bot quét.
+5. **Chuyển Đổi Footer Sang `<a href>` Chuẩn SEO:**
+   - Toàn bộ liên kết dịch vụ và trang chính sách trong [`Footer.jsx`](file:///t:/Phongthuy/frontend/src/components/layout/Footer.jsx) được chuyển sang thẻ `<a>` kèm `href` chuẩn và `onClick={e => { e.preventDefault(); onSelectModule(...) }}` vừa tối ưu trải nghiệm SPA vừa hỗ trợ 100% bot tìm kiếm.
+
+## 📅 Phiên bản: Chuẩn Hóa Bộ Favicon & Icon Đạt Tiêu Chuẩn Google Search (17/10/2026)
+
+### 🌟 1. Bối Cảnh & Vấn Đề
+- Trên kết quả tìm kiếm Google (`https://tuynover.id.vn`), website bị hiển thị biểu tượng quả địa cầu xám mặc định thay vì logo thương hiệu Phong Thủy như các trang khác.
+- **Nguyên nhân kỹ thuật:**
+  1. File `favicon.png` cũ có kích thước không vuông (`608x492 px`), vi phạm quy chuẩn 1:1 của Google Favicon Bot.
+  2. Trang `index.html` chỉ có 1 thẻ duy nhất trỏ tới file gốc `logo.png` (1024x1024 px) dung lượng nặng, thiếu định dạng `favicon.ico` và các kích thước chuẩn theo cấp số bội 48px của Google (`48x48`, `96x96`, `144x144`, `192x192`).
+
+### 🛠️ 2. Các Nâng Cấp Kỹ Thuật Đã Triển Khai
+1. **Khởi Tạo Bộ Icon Chuẩn Tỷ Lệ 1:1 Đa Kích Thước:**
+   - Trích xuất từ vector/master `logo.png` vuông (1024x1024 px) với thuật toán nén Lanczos:
+     - `favicon-48x48.png` (Chuẩn sàn tối thiểu hiển thị trên Google Search).
+     - `favicon-96x96.png` & `favicon-144x144.png` (Hiển thị nét cao trên màn hình Retina / High-DPI).
+     - `favicon-192x192.png` (Dành cho Android / PWA).
+     - `apple-touch-icon.png` (180x180 px cho thiết bị Apple iOS).
+     - `favicon-16x16.png` & `favicon-32x32.png` và file đa phân giải `favicon.ico` cho trình duyệt desktop truyền thống.
+2. **Khai Báo Cấu Trúc Head Chuẩn SEO trong [`index.html`](file:///t:/Phongthuy/frontend/index.html):**
+   - Bổ sung đầy đủ các thẻ `<link rel="icon">` theo kích thước `sizes="..."` và mime type chuẩn để Googlebot-Favicon nhận diện ngay lập tức khi crawl.
+3. **Kiểm Tra Build & Tài Nguyên Phân Phối:**
+   - Đã chạy kiểm tra `npm run build` thành công, toàn bộ tài nguyên icon đã nằm trong thư mục `dist/` sẵn sàng triển khai.
+
+
 ## 📅 Phiên bản: Tối Ưu Tốc Độ Phản Hồi Chuyển Tab Giữa Các Phân Hệ (16/10/2026)
 
 ### 🌟 1. Bối Cảnh & Nguyên Nhân Gốc Rễ

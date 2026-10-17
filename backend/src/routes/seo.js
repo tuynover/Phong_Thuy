@@ -4,6 +4,8 @@ const BaziRecord = require('../modules/bazi/models/BaziRecord');
 const ZiweiRecord = require('../modules/ziwei/models/ZiweiRecord');
 const IChingRecord = require('../modules/iching/models/IChingRecord');
 const MarriageRecord = require('../modules/bazi/models/MarriageRecord');
+const FeiXingRecord = require('../modules/feixing/models/FeiXingRecord');
+const NumerologyRecord = require('../modules/numerology/models/NumerologyRecord');
 const BlogPost = require('../modules/blog/models/BlogPost');
 const logger = require('../core/services/LoggerService');
 const appConfig = require('../core/config/appConfig');
@@ -75,13 +77,15 @@ function escapeHtml(unsafe) {
 /**
  * Tiêm meta tags vào HTML
  */
-function injectMetaTags(html, { title, description, url, image }) {
+function injectMetaTags(html, { title, description, url, image, jsonLd }) {
     if (!html) return '';
     
     const safeTitle = escapeHtml(title || 'Phong Thủy & Cổ Học Phương Đông');
     const safeDesc = escapeHtml(description || '');
     const canonicalUrl = escapeHtml(url || appConfig.appDomain);
-    const ogImage = escapeHtml(image || `${appConfig.appDomain}/assets/images/og-default.jpg`);
+    const ogImage = escapeHtml(image || `${appConfig.appDomain}/og-banner.jpg`);
+
+    const jsonLdScript = jsonLd ? `\n  <script type="application/ld+json">\n  ${JSON.stringify(jsonLd)}\n  </script>` : '';
 
     const metaTags = `
   <title>${safeTitle}</title>
@@ -101,7 +105,7 @@ function injectMetaTags(html, { title, description, url, image }) {
   <meta property="twitter:url" content="${canonicalUrl}" />
   <meta property="twitter:title" content="${safeTitle}" />
   <meta property="twitter:description" content="${safeDesc}" />
-  <meta property="twitter:image" content="${ogImage}" />
+  <meta property="twitter:image" content="${ogImage}" />${jsonLdScript}
 `;
 
     // Thay thế thẻ <title> mặc định và chèn các thẻ meta khác vào trong <head>
@@ -232,6 +236,66 @@ router.get('/marriage/record/:id', async (req, res) => {
     }
 });
 
+// 4.1 SEO cho Tinh Bàn Huyền Không Phi Tinh (Dynamic record)
+router.get(['/feixing/record/:id', '/huyen-khong/record/:id'], async (req, res) => {
+    try {
+        const record = await FeiXingRecord.findOne({ _id: req.params.id, isDeleted: { $ne: true } });
+        const html = await getHtmlTemplate();
+
+        if (!html) {
+            return res.status(500).send('Lỗi máy chủ nội bộ');
+        }
+
+        if (!record || !record.isPublic) {
+            return res.send(html);
+        }
+
+        const facingDegree = record.facingDegree != null ? `${record.facingDegree}°` : '';
+        const mountainName = record.mountain || '';
+        const facingName = record.facing || '';
+        const title = `Tinh Bàn Huyền Không Phi Tinh: ${mountainName} Sơn ${facingName} Hướng - Phong Thủy AI`;
+        const description = `Bản đồ Tinh Bàn Huyền Không Phi Tinh Vận ${record.period || 9}, toạ ${mountainName} hướng ${facingName} (${facingDegree}). Xem chi tiết 9 cung sao Sơn, sao Hướng và pháp bảo hoá giải.`;
+        const url = `${appConfig.appDomain}/feixing/record/${record._id}`;
+
+        const ogHtml = injectMetaTags(html, { title, description, url });
+        res.setHeader('Content-Type', 'text/html');
+        return res.send(ogHtml);
+    } catch (error) {
+        logger.error('[SEO Router] Lỗi xử lý SEO FeiXing Record:', error);
+        return res.status(500).send('Lỗi máy chủ nội bộ');
+    }
+});
+
+// 4.2 SEO cho Phong Thủy Số Học (Dynamic record)
+router.get(['/numerology/record/:id', '/phong-thuy-so/record/:id'], async (req, res) => {
+    try {
+        const record = await NumerologyRecord.findOne({ _id: req.params.id, isDeleted: { $ne: true } });
+        const html = await getHtmlTemplate();
+
+        if (!html) {
+            return res.status(500).send('Lỗi máy chủ nội bộ');
+        }
+
+        if (!record || !record.isPublic) {
+            return res.send(html);
+        }
+
+        const typeLabels = { sim: 'Sim Số', plate: 'Biển Số Xe', bank: 'Số Tài Khoản' };
+        const typeName = typeLabels[record.type] || 'Số Học';
+        const targetNumber = record.displayNumber || record.targetNumber || '';
+        const title = `Luận Giải Phong Thủy ${typeName}: ${targetNumber} - Phong Thủy AI`;
+        const description = `Phân tích phong thủy ${typeName} ${targetNumber} theo Cửu Tinh Động Vận, Kinh Dịch Quẻ Chủ Quẻ Biến và Ngũ Hành bản mệnh chi tiết.`;
+        const url = `${appConfig.appDomain}/numerology/record/${record._id}`;
+
+        const ogHtml = injectMetaTags(html, { title, description, url });
+        res.setHeader('Content-Type', 'text/html');
+        return res.send(ogHtml);
+    } catch (error) {
+        logger.error('[SEO Router] Lỗi xử lý SEO Numerology Record:', error);
+        return res.status(500).send('Lỗi máy chủ nội bộ');
+    }
+});
+
 // 5. SEO cho Bài viết Blog
 router.get('/blog/:slug', async (req, res) => {
     try {
@@ -250,9 +314,35 @@ router.get('/blog/:slug', async (req, res) => {
         const title = `${post.title} - Kiến Thức Phong Thủy`;
         const description = post.summary || 'Chia sẻ kiến thức phong thủy học thuật cổ học phương đông sâu sắc.';
         const url = `${appConfig.appDomain}/blog/${post.slug}`;
-        const image = post.thumbnailUrl || `${appConfig.appDomain}/assets/images/og-blog.jpg`;
+        const image = post.thumbnailUrl || `${appConfig.appDomain}/og-banner.jpg`;
 
-        const ogHtml = injectMetaTags(html, { title, description, url, image });
+        const articleJsonLd = {
+            "@context": "https://schema.org",
+            "@type": "Article",
+            "headline": post.title,
+            "description": description,
+            "image": image,
+            "datePublished": post.createdAt || new Date().toISOString(),
+            "dateModified": post.updatedAt || post.createdAt || new Date().toISOString(),
+            "author": {
+                "@type": "Organization",
+                "name": "Phong Thủy Luận Giải"
+            },
+            "publisher": {
+                "@type": "Organization",
+                "name": "Phong Thủy Luận Giải",
+                "logo": {
+                    "@type": "ImageObject",
+                    "url": `${appConfig.appDomain}/logo.png`
+                }
+            },
+            "mainEntityOfPage": {
+                "@type": "WebPage",
+                "@id": url
+            }
+        };
+
+        const ogHtml = injectMetaTags(html, { title, description, url, image, jsonLd: articleJsonLd });
         res.setHeader('Content-Type', 'text/html');
         return res.send(ogHtml);
     } catch (error) {
@@ -375,6 +465,44 @@ router.get('/blog', async (req, res) => {
     }
 });
 
+// 5.7 SEO tĩnh cho Phân hệ Huyền Không Phi Tinh
+router.get(['/feixing', '/huyen-khong'], async (req, res) => {
+    try {
+        const html = await getHtmlTemplate();
+        if (!html) return res.status(500).send('Lỗi máy chủ nội bộ');
+
+        const title = 'Lập Tinh Bàn Huyền Không Phi Tinh Online - 24 Sơn Hướng & Tam Nguyên Cửu Vận';
+        const description = 'Lập tinh bàn Huyền Không Phi Tinh online miễn phí theo 24 sơn hướng và độ số La Kinh. Khảo sát vượng suy sao Sơn, sao Hướng, bố trí phong thủy nhà ở chuẩn xác cùng AI.';
+        const url = `${appConfig.appDomain}/feixing`;
+
+        const ogHtml = injectMetaTags(html, { title, description, url });
+        res.setHeader('Content-Type', 'text/html');
+        return res.send(ogHtml);
+    } catch (error) {
+        logger.error('[SEO Router] Lỗi xử lý SEO FeiXing Static:', error);
+        return res.status(500).send('Lỗi máy chủ nội bộ');
+    }
+});
+
+// 5.8 SEO tĩnh cho Phân hệ Phong Thủy Số Học
+router.get(['/numerology', '/phong-thuy-so'], async (req, res) => {
+    try {
+        const html = await getHtmlTemplate();
+        if (!html) return res.status(500).send('Lỗi máy chủ nội bộ');
+
+        const title = 'Tra Cứu Phong Thủy Số Học - Xem Sim Phong Thủy, Biển Số Xe & Số Tài Khoản AI';
+        const description = 'Tra cứu phong thủy số học online: xem sim số đẹp hợp tuổi, biển số xe, số tài khoản ngân hàng theo Cửu Tinh Động Vận, Kinh Dịch Mai Hoa và Ngũ Hành Bát Tự.';
+        const url = `${appConfig.appDomain}/numerology`;
+
+        const ogHtml = injectMetaTags(html, { title, description, url });
+        res.setHeader('Content-Type', 'text/html');
+        return res.send(ogHtml);
+    } catch (error) {
+        logger.error('[SEO Router] Lỗi xử lý SEO Numerology Static:', error);
+        return res.status(500).send('Lỗi máy chủ nội bộ');
+    }
+});
+
 // 6. Dynamic Sitemap XML
 router.get('/sitemap.xml', async (req, res) => {
     try {
@@ -387,7 +515,10 @@ router.get('/sitemap.xml', async (req, res) => {
             '/bazi',
             '/ziwei',
             '/marriage',
+            '/feixing',
+            '/numerology',
             '/xemngay',
+            '/blog',
             '/about',
             '/privacy',
             '/terms'
@@ -404,6 +535,8 @@ router.get('/sitemap.xml', async (req, res) => {
         const publicZiweis = await ZiweiRecord.find({ isPublic: true, isDeleted: { $ne: true } }, { _id: 1, updatedAt: 1 }).lean();
         const publicIChings = await IChingRecord.find({ isPublic: true, isDeleted: { $ne: true } }, { _id: 1, updatedAt: 1 }).lean();
         const publicMarriages = await MarriageRecord.find({ isPublic: true, isDeleted: { $ne: true } }, { _id: 1, updatedAt: 1 }).lean();
+        const publicFeiXings = await FeiXingRecord.find({ isPublic: true, isDeleted: { $ne: true } }, { _id: 1, updatedAt: 1 }).lean();
+        const publicNumerologies = await NumerologyRecord.find({ isPublic: true, isDeleted: { $ne: true } }, { _id: 1, updatedAt: 1 }).lean();
 
         // Ghép thành file sitemap xml
         let xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -453,6 +586,8 @@ router.get('/sitemap.xml', async (req, res) => {
         addPublicRecordToSitemap(publicZiweis, 'ziwei');
         addPublicRecordToSitemap(publicIChings, 'iching');
         addPublicRecordToSitemap(publicMarriages, 'marriage');
+        addPublicRecordToSitemap(publicFeiXings, 'feixing');
+        addPublicRecordToSitemap(publicNumerologies, 'numerology');
 
         xml += `
 </urlset>`;

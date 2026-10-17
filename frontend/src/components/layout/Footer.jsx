@@ -25,44 +25,44 @@ export default function Footer({ onSelectModule }) {
                     <h4 className="text-xs font-extrabold text-slate-900 uppercase tracking-widest font-[Montserrat]">Dịch Vụ</h4>
                     <ul className="space-y-1.5 text-xs text-slate-500 font-bold">
                         <li>
-                            <button onClick={() => onSelectModule('iching')} className="hover:text-indigo-600 transition-colors text-left">
+                            <a href="/iching" onClick={(e) => { e.preventDefault(); onSelectModule('iching'); }} className="hover:text-indigo-600 transition-colors text-left block">
                                 Kinh Dịch Lục Hào
-                            </button>
+                            </a>
                         </li>
                         <li>
-                            <button onClick={() => onSelectModule('bazi')} className="hover:text-indigo-600 transition-colors text-left">
+                            <a href="/bazi" onClick={(e) => { e.preventDefault(); onSelectModule('bazi'); }} className="hover:text-indigo-600 transition-colors text-left block">
                                 Tứ Trụ Bát Tự
-                            </button>
+                            </a>
                         </li>
                         <li>
-                            <button onClick={() => onSelectModule('ziwei')} className="hover:text-indigo-600 transition-colors text-left">
+                            <a href="/ziwei" onClick={(e) => { e.preventDefault(); onSelectModule('ziwei'); }} className="hover:text-indigo-600 transition-colors text-left block">
                                 Mệnh Số Tử Vi
-                            </button>
+                            </a>
                         </li>
                         <li>
-                            <button onClick={() => onSelectModule('marriage')} className="hover:text-indigo-600 transition-colors text-left">
+                            <a href="/marriage" onClick={(e) => { e.preventDefault(); onSelectModule('marriage'); }} className="hover:text-indigo-600 transition-colors text-left block">
                                 Bát Tự Hợp Hôn
-                            </button>
+                            </a>
                         </li>
                         <li>
-                            <button onClick={() => onSelectModule('xemngay')} className="hover:text-indigo-600 transition-colors text-left">
+                            <a href="/xemngay" onClick={(e) => { e.preventDefault(); onSelectModule('xemngay'); }} className="hover:text-indigo-600 transition-colors text-left block">
                                 Chọn Ngày Hoàng Đạo
-                            </button>
+                            </a>
                         </li>
                         <li>
-                            <button onClick={() => onSelectModule('feixing')} className="hover:text-indigo-600 transition-colors text-left">
+                            <a href="/feixing" onClick={(e) => { e.preventDefault(); onSelectModule('feixing'); }} className="hover:text-indigo-600 transition-colors text-left block">
                                 Huyền Không Phi Tinh
-                            </button>
+                            </a>
                         </li>
                         <li>
-                            <button onClick={() => onSelectModule('numerology')} className="hover:text-indigo-600 transition-colors text-left">
+                            <a href="/numerology" onClick={(e) => { e.preventDefault(); onSelectModule('numerology'); }} className="hover:text-indigo-600 transition-colors text-left block">
                                 Phong Thủy Số Học
-                            </button>
+                            </a>
                         </li>
                         <li>
-                            <button onClick={() => onSelectModule('blog')} className="hover:text-indigo-600 transition-colors text-left">
+                            <a href="/blog" onClick={(e) => { e.preventDefault(); onSelectModule('blog'); }} className="hover:text-indigo-600 transition-colors text-left block">
                                 Kiến Thức Phong Thủy
-                            </button>
+                            </a>
                         </li>
                     </ul>
                 </div>
@@ -72,19 +72,19 @@ export default function Footer({ onSelectModule }) {
                     <h4 className="text-xs font-extrabold text-slate-900 uppercase tracking-widest font-[Montserrat]">Liên Kết</h4>
                     <ul className="space-y-1.5 text-xs text-slate-500 font-bold">
                         <li>
-                            <button onClick={() => onSelectModule('about')} className="hover:text-indigo-600 transition-colors text-left">
+                            <a href="/about" onClick={(e) => { e.preventDefault(); onSelectModule('about'); }} className="hover:text-indigo-600 transition-colors text-left block">
                                 Về chúng tôi
-                            </button>
+                            </a>
                         </li>
                         <li>
-                            <button onClick={() => onSelectModule('terms')} className="hover:text-indigo-600 transition-colors text-left">
+                            <a href="/terms" onClick={(e) => { e.preventDefault(); onSelectModule('terms'); }} className="hover:text-indigo-600 transition-colors text-left block">
                                 Điều khoản dịch vụ
-                            </button>
+                            </a>
                         </li>
                         <li>
-                            <button onClick={() => onSelectModule('privacy')} className="hover:text-indigo-600 transition-colors text-left">
+                            <a href="/privacy" onClick={(e) => { e.preventDefault(); onSelectModule('privacy'); }} className="hover:text-indigo-600 transition-colors text-left block">
                                 Chính sách bảo mật
-                            </button>
+                            </a>
                         </li>
                         <li>
                             <a href="mailto:support@tuynover.id.vn" className="hover:text-indigo-600 transition-colors text-left">

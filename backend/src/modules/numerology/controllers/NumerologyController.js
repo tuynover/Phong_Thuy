@@ -6,6 +6,7 @@ const UserStatsService = require('../../../core/services/UserStatsService');
 const GoogleIndexingService = require('../../../core/services/GoogleIndexingService');
 const { acquireRedisLock, releaseRedisLock } = require('../../../core/config/redis');
 const { findByIdFlex, updateByIdFlex } = require('../../../core/services/HistoryQueryHelper');
+const appConfig = require('../../../core/config/appConfig');
 
 class NumerologyController {
   /**
@@ -246,7 +247,7 @@ class NumerologyController {
 
       // Ping Google Indexing API
       try {
-        const url = `${process.env.APP_URL || 'https://phongthuy.vn'}/numerology/record/${record._id}`;
+        const url = `${appConfig.appDomain}/numerology/record/${record._id}`;
         if (newPublicState) {
           GoogleIndexingService.notifyUrlUpdated(url);
         } else {

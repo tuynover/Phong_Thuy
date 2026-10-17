@@ -93,6 +93,22 @@ class GoogleIndexingService {
             return { success: false, error: error.message };
         }
     }
+
+    /**
+     * Tiện ích thông báo URL được tạo mới hoặc cập nhật
+     * @param {string} url 
+     */
+    static async notifyUrlUpdated(url) {
+        return this.publishUrl(url, 'URL_UPDATED');
+    }
+
+    /**
+     * Tiện ích thông báo URL đã bị xóa hoặc ẩn công khai
+     * @param {string} url 
+     */
+    static async notifyUrlDeleted(url) {
+        return this.publishUrl(url, 'URL_DELETED');
+    }
 }
 
 module.exports = GoogleIndexingService;
