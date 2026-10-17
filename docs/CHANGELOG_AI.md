@@ -2,6 +2,27 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Tối Ưu Hóa Cỗ Máy Tìm Kiếm Trí Tuệ Nhân Tạo (GEO - Generative Engine Optimization) (17/10/2026)
+
+### 🌟 1. Bối Cảnh & Vấn Đề
+- Người dùng khi dùng các AI Bot (Gemini, ChatGPT, Claude, Perplexity) duyệt web hoặc tạo tóm tắt AI (AI Overview) về website `tuynover.id.vn` gặp thông báo:
+  > *"Trang web hiện không thể truy cập trực tiếp để lấy dữ liệu chi tiết do hệ thống không thể kết nối hoặc trang web đang chặn các công cụ duyệt tự động."*
+- **Nguyên nhân kỹ thuật:**
+  1. Frontend xây dựng theo kiến trúc SPA thuần túy (React 19). Thẻ `<div id="root"></div>` trong file HTML ban đầu hoàn toàn rỗng. Khi các AI Bot (chỉ cào HTML thô không chạy JavaScript) đọc trang, chúng không tìm thấy bất kỳ nội dung văn bản hay liên kết dịch vụ nào.
+  2. File `robots.txt` chưa khai báo cho phép các User-Agent của AI Bots (như `GPTBot`, `ChatGPT-User`, `Google-Extended`, `PerplexityBot`, `ClaudeBot`).
+  3. Thiếu file chỉ mục học máy chuẩn quốc tế `/llms.txt`.
+
+### 🛠️ 2. Các Nâng Cấp Kỹ Thuật Đã Triển Khai
+1. **Khởi Tạo Chuẩn AI Quốc Tế [`llms.txt`](file:///t:/Phongthuy/frontend/public/llms.txt):**
+   - Soạn thảo cấu trúc tài liệu Markdown tóm tắt toàn bộ 8 phân hệ cốt lõi (Kinh Dịch, Bát Tự, Tử Vi, Hôn Nhân, Huyền Không, Phong Thủy Số, Xem Ngày, Blog) cùng các đường dẫn chính thức để các mô hình LLM nạp trực tiếp vào ngữ cảnh.
+2. **Khai Báo Cởi Mở Cho Toàn Bộ AI Bots Trong [`robots.txt`](file:///t:/Phongthuy/frontend/public/robots.txt):**
+   - Chỉ định quyền `Allow: /` và `Allow: /llms.txt` cho các bot AI hàng đầu: `GPTBot`, `ChatGPT-User`, `Google-Extended`, `Googlebot`, `PerplexityBot`, `ClaudeBot`, `anthropic-ai`, `Bytespider`, `Applebot-Extended`.
+3. **Bổ Sung Semantic SEO & AI Fallback Content Trong [`index.html`](file:///t:/Phongthuy/frontend/index.html):**
+   - Nhúng nội dung ngữ nghĩa có cấu trúc (`<main>`, `<header>`, `<h1>`, `<h2>`, `<ul>`, `<a>`) trực tiếp vào bên trong `<div id="root">`.
+   - Các crawler thô và AI bot ngay lập tức đọc được toàn bộ danh mục dịch vụ phong thủy của trang web. Khi người dùng thật truy cập trên trình duyệt, React 19 sẽ tự động mount và hydrate giao diện tương tác đè lên mà không làm thay đổi hay gián đoạn bất kỳ trải nghiệm nào.
+4. **Kiểm Tra Đóng Gói (Build):**
+   - Đã chạy `npm run build` thành công, toàn bộ file `dist/index.html`, `dist/robots.txt`, `dist/llms.txt` đã sẵn sàng deploy.
+
 ## 📅 Phiên bản: Toàn Diện Hóa & Nghiêm Khắc Tối Ưu Hệ Thống SEO (17/10/2026)
 
 ### 🌟 1. Bối Cảnh & Các Khiếm Khuyết Nghiêm Trọng Phát Hiện

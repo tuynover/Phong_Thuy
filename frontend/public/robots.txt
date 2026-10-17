@@ -1,8 +1,45 @@
 User-agent: *
 Allow: /
+Allow: /llms.txt
 Disallow: /api/
 Disallow: /admin/
 Disallow: /history
 Disallow: /profile
+
+# AI & LLM Crawlers
+User-agent: GPTBot
+Allow: /
+Allow: /llms.txt
+
+User-agent: ChatGPT-User
+Allow: /
+Allow: /llms.txt
+
+User-agent: Google-Extended
+Allow: /
+Allow: /llms.txt
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+Allow: /llms.txt
+
+User-agent: ClaudeBot
+Allow: /
+Allow: /llms.txt
+
+User-agent: anthropic-ai
+Allow: /
+Allow: /llms.txt
+
+User-agent: Bytespider
+Allow: /
+Allow: /llms.txt
+
+User-agent: Applebot-Extended
+Allow: /
+Allow: /llms.txt
 
 Sitemap: https://tuynover.id.vn/sitemap.xml
