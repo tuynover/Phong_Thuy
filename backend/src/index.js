@@ -148,6 +148,11 @@ const HealthController = require('./core/controllers/HealthController');
 // Production Health Check Route for AWS ALB / Nginx / Monitoring
 app.get(['/health', '/api/health'], HealthController.getHealth);
 
+// Loader.io Stress Test Token Verification Route
+app.get(['/loaderio-74f08a8d07345c9caefbebe977dc6301.txt', '/loaderio-74f08a8d07345c9caefbebe977dc6301', '/loaderio-74f08a8d07345c9caefbebe977dc6301/'], (req, res) => {
+  res.type('text/plain').send('loaderio-74f08a8d07345c9caefbebe977dc6301');
+});
+
 // Detailed System Health & Metrics Observability Endpoint
 app.get(['/health/detailed', '/api/health/detailed'], HealthController.getDetailedHealth);
 

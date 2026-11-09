@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { getSystemHealthDetailed, pruneDockerStorage } from '@/services/api';
+import { getSystemHealthDetailed } from '@/services/api';
 import {
   Server,
   Cpu,
@@ -19,9 +19,6 @@ import {
   PieChart as PieIcon,
   Flame,
   Gauge,
-  Trash2,
-  Box,
-  Container,
   Terminal,
   Sparkles,
   Check,
@@ -38,7 +35,6 @@ export default function AdminSystemTab() {
   // Mặc định tự động ping mỗi 15 phút (900 giây) theo yêu cầu, không ping vài chục giây
   const [autoRefreshSec, setAutoRefreshSec] = useState(900);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isPruning, setIsPruning] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
 
   useEffect(() => {
@@ -77,22 +73,6 @@ export default function AdminSystemTab() {
     return () => clearInterval(interval);
   }, [autoRefreshSec, fetchMetrics]);
 
-  // Xử lý dọn dẹp Docker Images không dùng (Prune)
-  const handlePruneDocker = async () => {
-    if (isPruning) return;
-    setIsPruning(true);
-    try {
-      const res = await pruneDockerStorage();
-      setToastMessage(res.data?.message || 'Đã dọn dẹp Docker Images thành công!');
-      await fetchMetrics(false);
-    } catch (err) {
-      console.error('Lỗi dọn dẹp Docker:', err);
-      setToastMessage(err.response?.data?.error || err.response?.data?.message || 'Có lỗi xảy ra khi dọn dẹp tài nguyên.');
-    } finally {
-      setIsPruning(false);
-    }
-  };
-
   const formatUptime = (seconds) => {
     if (!seconds && seconds !== 0) return '0 phút';
     const d = Math.floor(seconds / (3600 * 24));
@@ -114,8 +94,6 @@ export default function AdminSystemTab() {
   const ram = data?.ram || {};
   const disk = data?.disk || {};
   const vps = data?.vpsOverview || {};
-  const docker = data?.docker || {};
-  const isDockerActive = docker.available && docker.isDockerRunning;
   const services = useMemo(() => data?.servicesBreakdown || [], [data?.servicesBreakdown]);
 
   // Service color palette
@@ -412,169 +390,6 @@ export default function AdminSystemTab() {
             <p className={`text-[11px] mt-2 font-mono flex items-center justify-between ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
               <span>{cpu.loadAvg?.join(' • ') || '0.00 • 0.00 • 0.00'}</span>
             </p>
-          </div>
-        </div>
-      </div>
-
-      {/* ========================================================
-          YÊU CẦU 2: TÀI NGUYÊN LƯU TRỮ DOCKER (CHỈ HIỂN THỊ SỐ THẬT, KHÔNG DÙNG SỐ ẢO)
-          ======================================================== */}
-      <div className={`p-5 sm:p-6 rounded-3xl border transition-all ${
-        isLight
-          ? 'bg-white border-slate-200/90 shadow-sm text-slate-850'
-          : 'bg-slate-950/40 border-slate-800 text-slate-100'
-      }`}>
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-4 border-slate-200/70 dark:border-slate-800/70">
-          <div>
-            <div className="flex items-center gap-2">
-              <Container size={20} className="text-blue-500" />
-              <h4 className={`text-base font-bold font-serif ${isLight ? 'text-slate-900' : 'text-slate-100'}`}>
-                Tài Nguyên Lưu Trữ Container & Docker Images
-              </h4>
-              <span className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full border ${
-                isDockerActive
-                  ? (isLight ? 'bg-emerald-50 text-emerald-700 border-emerald-300' : 'bg-emerald-950/60 text-emerald-300 border-emerald-800')
-                  : (isLight ? 'bg-amber-50 text-amber-700 border-amber-300' : 'bg-amber-950/60 text-amber-300 border-amber-800')
-              }`}>
-                {isDockerActive ? 'Docker Daemon Đang Chạy' : 'Chưa Kích Hoạt Docker (Chờ Production)'}
-              </span>
-            </div>
-            <p className={`text-xs mt-1 ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
-              {isDockerActive
-                ? 'Dữ liệu đo lường trực tiếp từ Docker Daemon qua lệnh hệ thống docker system df.'
-                : 'Hệ thống đang chạy trực tiếp trên môi trường máy chủ. Dữ liệu Docker sẽ tự động nạp khi triển khai lên Production VPS.'}
-            </p>
-          </div>
-
-          {/* Nút Dọn Dẹp Images Không Sử Dụng (Prune) */}
-          <button
-            type="button"
-            onClick={handlePruneDocker}
-            disabled={isPruning}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer shadow-sm active:scale-95 border ${
-              isDockerActive
-                ? (isLight
-                    ? 'bg-rose-50 hover:bg-rose-100 text-rose-700 border-rose-200/90 hover:border-rose-300'
-                    : 'bg-rose-950/40 hover:bg-rose-900/50 text-rose-300 border-rose-800/60')
-                : (isLight
-                    ? 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200'
-                    : 'bg-slate-900 text-slate-400 border-slate-800 hover:bg-slate-800')
-            }`}
-            title={isDockerActive ? 'Quét và dọn dẹp các Docker images rác không dùng để giải phóng ổ đĩa' : 'Kiểm tra và dọn dẹp tài nguyên máy chủ'}
-          >
-            <Trash2 size={14} className={isPruning ? 'animate-spin text-rose-500' : (isDockerActive ? 'text-rose-500' : 'text-slate-400')} />
-            <span>
-              {isPruning
-                ? 'Đang dọn dẹp...'
-                : (isDockerActive
-                    ? `Dọn dẹp Images không sử dụng (Thu hồi ${docker.imagesReclaimableMb || 0} MB)`
-                    : 'Dọn dẹp Docker (Chỉ khả dụng trên Production VPS)')}
-            </span>
-          </button>
-        </div>
-
-        {/* Thông báo giải thích rõ ràng nếu môi trường Local chưa có Docker */}
-        {!isDockerActive && (
-          <div className={`mt-4 p-3.5 rounded-2xl border flex items-center gap-3 text-xs ${
-            isLight
-              ? 'bg-amber-50/70 border-amber-200 text-amber-900'
-              : 'bg-amber-950/30 border-amber-900/50 text-amber-300'
-          }`}>
-            <Info size={16} className="shrink-0 text-amber-600" />
-            <span>
-              <strong>Ghi chú giám sát:</strong> Môi trường hiện tại đang chạy Node.js trực tiếp trên OS (Non-Docker). Các thông số Docker Images, Layer Container và Volumes dưới đây sẽ tự động hiển thị số liệu thật khi triển khai lên Production VPS Linux thông qua socket <code>/var/run/docker.sock</code>.
-            </span>
-          </div>
-        )}
-
-        {/* 4 Thẻ chỉ số Docker Storage (100% Số Thật) */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4">
-          {/* Images */}
-          <div className={`p-3.5 rounded-2xl border ${
-            isLight ? 'bg-slate-50/80 border-slate-200/70' : 'bg-slate-900/50 border-slate-800/80'
-          }`}>
-            <div className="flex items-center justify-between">
-              <span className={`text-[10px] font-bold uppercase tracking-wider ${isLight ? 'text-slate-400' : 'text-slate-500'}`}>
-                Docker Images
-              </span>
-              <Box size={14} className="text-blue-500" />
-            </div>
-            <span className={`text-xl font-bold font-serif block mt-1 ${isLight ? 'text-slate-900' : 'text-slate-100'}`}>
-              {isDockerActive && docker.imagesSizeGb !== null ? `${docker.imagesSizeGb} GB` : '--'}
-            </span>
-            <span className={`text-[10px] block mt-0.5 ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
-              {isDockerActive && docker.imagesCount !== null ? (
-                <>{docker.imagesCount} images • Rác: <strong className="text-rose-500">{docker.imagesReclaimableMb || 0} MB</strong></>
-              ) : (
-                'Chờ Production'
-              )}
-            </span>
-          </div>
-
-          {/* Containers */}
-          <div className={`p-3.5 rounded-2xl border ${
-            isLight ? 'bg-slate-50/80 border-slate-200/70' : 'bg-slate-900/50 border-slate-800/80'
-          }`}>
-            <div className="flex items-center justify-between">
-              <span className={`text-[10px] font-bold uppercase tracking-wider ${isLight ? 'text-slate-400' : 'text-slate-500'}`}>
-                Containers Layer
-              </span>
-              <Container size={14} className="text-emerald-500" />
-            </div>
-            <span className={`text-xl font-bold font-serif block mt-1 ${isLight ? 'text-slate-900' : 'text-slate-100'}`}>
-              {isDockerActive && docker.containersSizeMb !== null ? `${docker.containersSizeMb} MB` : '--'}
-            </span>
-            <span className={`text-[10px] block mt-0.5 ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
-              {isDockerActive && docker.containersRunning !== null ? (
-                <>{docker.containersRunning} containers đang chạy</>
-              ) : (
-                'Chờ Production'
-              )}
-            </span>
-          </div>
-
-          {/* Volumes */}
-          <div className={`p-3.5 rounded-2xl border ${
-            isLight ? 'bg-slate-50/80 border-slate-200/70' : 'bg-slate-900/50 border-slate-800/80'
-          }`}>
-            <div className="flex items-center justify-between">
-              <span className={`text-[10px] font-bold uppercase tracking-wider ${isLight ? 'text-slate-400' : 'text-slate-500'}`}>
-                Volumes Dữ Liệu
-              </span>
-              <Database size={14} className="text-amber-500" />
-            </div>
-            <span className={`text-xl font-bold font-serif block mt-1 ${isLight ? 'text-slate-900' : 'text-slate-100'}`}>
-              {isDockerActive && docker.volumesSizeMb !== null ? `${docker.volumesSizeMb} MB` : '--'}
-            </span>
-            <span className={`text-[10px] block mt-0.5 ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
-              {isDockerActive && docker.volumesCount !== null ? (
-                <>{docker.volumesCount} volumes bền vững</>
-              ) : (
-                'Chờ Production'
-              )}
-            </span>
-          </div>
-
-          {/* Build Cache */}
-          <div className={`p-3.5 rounded-2xl border ${
-            isLight ? 'bg-slate-50/80 border-slate-200/70' : 'bg-slate-900/50 border-slate-800/80'
-          }`}>
-            <div className="flex items-center justify-between">
-              <span className={`text-[10px] font-bold uppercase tracking-wider ${isLight ? 'text-slate-400' : 'text-slate-500'}`}>
-                Build & Tệp Tạm
-              </span>
-              <Sparkles size={14} className="text-purple-500" />
-            </div>
-            <span className={`text-xl font-bold font-serif block mt-1 ${isLight ? 'text-slate-900' : 'text-slate-100'}`}>
-              {isDockerActive && docker.buildCacheMb !== null ? `${docker.buildCacheMb} MB` : '--'}
-            </span>
-            <span className={`text-[10px] block mt-0.5 ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
-              {isDockerActive && docker.totalReclaimableMb !== null ? (
-                <>Thu hồi được: <strong className="text-emerald-600">{docker.totalReclaimableMb} MB</strong></>
-              ) : (
-                'Chờ Production'
-              )}
-            </span>
           </div>
         </div>
       </div>

@@ -42,7 +42,6 @@ router.post('/appeals/:id/resolve', AdminAppealController.resolveAppeal);
 router.get('/system/queue', AdminRecordController.getQueueStatus);
 router.post('/system/queue/dlq/retry', superAdminOnly, AdminRecordController.retryDlqJob);
 router.delete('/system/queue/dlq', superAdminOnly, AdminRecordController.clearDlq);
-router.post('/system/docker/prune', superAdminOnly, AdminConfigController.pruneDockerStorage);
 
 // 6. System Configuration & Hot-Reload Routes (Strict Super Admin Only)
 router.get('/config', superAdminOnly, AdminConfigController.getConfigs);

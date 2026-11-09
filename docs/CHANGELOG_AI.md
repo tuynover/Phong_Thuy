@@ -2,6 +2,55 @@
 
 Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc và bổ sung tính năng lớn do các AI Agent thực hiện trên repository này.
 
+## 📅 Phiên bản: Gỡ Bỏ Phân Hệ Docker & Triển Khai Xác Thực Loader.io Đa Tầng (09/11/2026)
+
+### 🌟 1. Yêu Cầu & Bối Cảnh
+- **Gỡ bỏ Docker Storage:** Người dùng yêu cầu loại bỏ hoàn toàn phần giám sát tài nguyên Docker khỏi hệ thống (UI, Backend, Nginx, Docker-Compose).
+- **Cấu hình Token Xác Thực Loader.io:** Cần đặt token `loaderio-74f08a8d07345c9caefbebe977dc6301` để máy chủ Loader.io có thể truy cập kiểm thử tải tại URL:
+  `http://tuynover.id.vn/loaderio-74f08a8d07345c9caefbebe977dc6301.txt`.
+
+### 🛠️ 2. Các Nâng Cấp Kỹ Thuật Đã Triển Khai
+1. **Gỡ Bỏ Hoàn Toàn Module Docker Khỏi Hệ Thống:**
+   - **Frontend ([AdminSystemTab.jsx](file:///t:/Phongthuy/frontend/src/features/admin/tabs/AdminSystemTab.jsx)):** Xóa sạch thẻ "Tài Nguyên Lưu Trữ Container & Docker Images", các nút bấm dọn dẹp và toàn bộ biến `docker` / `isDockerActive`.
+   - **Backend ([HealthController.js](file:///t:/Phongthuy/backend/src/core/controllers/HealthController.js), [AdminConfigController.js](file:///t:/Phongthuy/backend/src/modules/admin/controllers/AdminConfigController.js), [admin.routes.js](file:///t:/Phongthuy/backend/src/modules/admin/routes/admin.routes.js)):** Loại bỏ endpoint `GET /api/health` Docker field, gỡ bỏ route `/system/docker/prune`, xóa bỏ service `DockerService.js`.
+   - **Triển khai ([docker-compose.yml](file:///t:/Phongthuy/docker-compose.yml)):** Loại bỏ socket mount và `group_add`, giữ container chạy độc lập, an toàn và tối giản.
+2. **Triển Khai Xác Thực Loader.io Đa Tầng (4-Layer Redundancy):**
+   - **Tầng 1 (Frontend Public Static):** Tạo file `frontend/public/loaderio-74f08a8d07345c9caefbebe977dc6301.txt` và thư mục `frontend/public/loaderio-74f08a8d07345c9caefbebe977dc6301/index.html` chứa token `loaderio-74f08a8d07345c9caefbebe977dc6301`.
+   - **Tầng 2 (Express Backend Route - [index.js](file:///t:/Phongthuy/backend/src/index.js)):** Bổ sung route `GET /loaderio-74f08a8d07345c9caefbebe977dc6301.txt` (hỗ trợ cả `.txt`, không đuôi và trailing slash `/`), trả về HTTP 200 `text/plain`.
+   - **Tầng 3 (Nginx Port 80 HTTP - [default.conf](file:///t:/Phongthuy/nginx/default.conf)):** Xử lý trước lệnh redirect 301, trực tiếp trả về HTTP 200 `loaderio-...` với `Content-Type: text/plain` cho các bot kiểm thử HTTP.
+   - **Tầng 4 (Nginx Port 443 HTTPS - [default.conf](file:///t:/Phongthuy/nginx/default.conf)):** Khối `location` chuyên dụng trả về token tức thì qua kết nối SSL an toàn.
+3. **Kiểm Thử Toàn Diện:**
+   - Kiểm tra `curl` trực tiếp cả backend (3001) và frontend (5173) đều phản hồi HTTP 200 `text/plain` chuẩn xác.
+   - Kiểm tra giao diện qua Chrome DevTools MCP: Tab Sức Khỏe Hệ Thống hiển thị 100% gọn gàng, không còn Docker, 0 console error.
+
+---
+
+## 📅 Phiên bản: Tích Hợp Giám Sát Tài Nguyên Docker 100% Số Thật & Khắc Phục Lỗi Kết Nối Socket Trên Production (09/11/2026)
+
+### 🌟 1. Bối Cảnh & Vấn Đề
+- Người dùng phát hiện trên môi trường Production VPS, phần "Tài Nguyên Lưu Trữ Container & Docker Images" hiển thị banner: `[CHƯA KÍCH HOẠT DOCKER (CHỜ PRODUCTION)]` và các chỉ số đều là `-- / Chờ Production`.
+- **Nguyên nhân gốc rễ (Root Causes):**
+  1. **Tính cô lập của container:** Backend trên Production chạy bên trong container Docker (`phongthuy-backend`), không có quyền truy cập mặc định vào máy chủ host bên ngoài.
+  2. **Thiếu Volume Mount Docker Socket:** Trong file `docker-compose.yml`, container backend chưa mount file socket `/var/run/docker.sock` từ máy chủ VPS vào trong container.
+  3. **Thiếu Docker CLI trong container:** Base image `node:22-slim` chỉ chứa môi trường Node.js tối giản, không cài `docker` binary, do đó các câu lệnh `execSync('docker ...')` trước đây không thể thực thi.
+
+### 🛠️ 2. Giải Pháp Kỹ Thuật Đã Triển Khai
+1. **Dịch Vụ Giám Sát & Thao Tác Docker Chuẩn REST API ([DockerService.js](file:///t:/Phongthuy/backend/src/core/services/DockerService.js)):**
+   - Không cần cài Docker CLI cồng kềnh vào container. Giao tiếp trực tiếp với Docker Daemon qua Unix Domain Socket (`/var/run/docker.sock`) hoặc Windows Named Pipe (`//./pipe/docker_engine`) bằng native HTTP module của Node.js (tương tự cơ chế của Portainer).
+   - Truy vấn endpoint `GET /system/df` để lấy 100% số liệu thực: dung lượng Images (Total & Reclaimable rác), Layers Container đang chạy, Volumes ổ đĩa và Build Cache.
+   - Thao tác dọn dẹp Docker Images rác gọi API `POST /images/prune?filters={"dangling":["true"]}` với fallback CLI an toàn.
+   - Bổ sung cơ chế chẩn đoán lỗi chi tiết (báo rõ `EACCES` nếu thiếu quyền hoặc `ENOENT` nếu chưa mount socket).
+2. **Cập Nhật Cấu Hình Triển Khai ([docker-compose.yml](file:///t:/Phongthuy/docker-compose.yml)):**
+   - Mount socket Docker của máy chủ host: `volumes: - /var/run/docker.sock:/var/run/docker.sock`.
+   - Thêm `group_add: ["0"]` đảm bảo process non-root (`node`) bên trong container có thể kết nối an toàn với socket Docker của host.
+3. **Cập Nhật Bộ Điều Khiển & Route ([HealthController.js](file:///t:/Phongthuy/backend/src/core/controllers/HealthController.js), [AdminConfigController.js](file:///t:/Phongthuy/backend/src/modules/admin/controllers/AdminConfigController.js)):**
+   - Đưa `DockerService.getDockerStats()` và `DockerService.pruneImages()` vào API giám sát `GET /api/health` và `POST /api/admin/config/prune-docker`.
+4. **Kiểm Thử Toàn Diện:**
+   - Cú pháp Node.js: PASS.
+   - Toàn bộ 45/45 test suites (325/325 unit tests) PASS 100%.
+
+---
+
 ## 📅 Phiên bản: Triển Khai Quản Trị Cấu Hình Hệ Thống, Hot-Reload & Tích Hợp 6 Phân Hệ Admin (09/11/2026)
 
 ### 🌟 1. Bối Cảnh & Yêu Cầu Người Dùng

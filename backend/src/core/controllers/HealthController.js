@@ -23,126 +23,6 @@ function getCpuTickSample() {
   return { idleMs, totalMs, timestamp: Date.now() };
 }
 
-function parseDockerSizeToMb(str) {
-  if (!str || typeof str !== 'string') return 0;
-  const match = str.trim().match(/^([\d.]+)\s*([a-zA-Z]+)/);
-  if (!match) return 0;
-  const val = parseFloat(match[1]);
-  const unit = match[2].toUpperCase();
-  if (unit.startsWith('K')) return Number((val / 1024).toFixed(2));
-  if (unit.startsWith('M')) return Number(val.toFixed(2));
-  if (unit.startsWith('G')) return Number((val * 1024).toFixed(2));
-  if (unit.startsWith('T')) return Number((val * 1024 * 1024).toFixed(2));
-  if (unit.startsWith('B')) return Number((val / 1024 / 1024).toFixed(2));
-  return val;
-}
-
-function parseDockerReclaimableToMb(str) {
-  if (!str || typeof str !== 'string') return 0;
-  const clean = str.split('(')[0].trim();
-  return parseDockerSizeToMb(clean);
-}
-
-function getRealDockerStats() {
-  try {
-    const { execSync } = require('child_process');
-    const stdout = execSync('docker system df --format "{{json .}}"', {
-      timeout: 2500,
-      stdio: ['ignore', 'pipe', 'ignore'],
-      windowsHide: true
-    }).toString().trim();
-
-    if (!stdout || stdout.length < 5) {
-      return {
-        isDockerRunning: false,
-        available: false,
-        statusMessage: 'Chưa kích hoạt Docker trên môi trường hiện tại (Sẽ tự động đọc từ /var/run/docker.sock khi lên Production VPS)',
-        imagesCount: null,
-        imagesTotalMb: null,
-        imagesSizeGb: null,
-        imagesReclaimableMb: null,
-        containersCount: null,
-        containersRunning: null,
-        containersSizeMb: null,
-        volumesCount: null,
-        volumesSizeMb: null,
-        buildCacheMb: null,
-        totalReclaimableMb: null
-      };
-    }
-
-    const lines = stdout.split(/\r?\n/).filter(Boolean);
-    let imagesCount = 0;
-    let imagesTotalMb = 0;
-    let imagesReclaimableMb = 0;
-    let containersCount = 0;
-    let containersRunning = 0;
-    let containersSizeMb = 0;
-    let volumesCount = 0;
-    let volumesSizeMb = 0;
-    let buildCacheMb = 0;
-    let buildCacheReclaimableMb = 0;
-
-    for (const line of lines) {
-      try {
-        const item = JSON.parse(line);
-        const type = (item.Type || '').toLowerCase();
-        if (type.includes('image')) {
-          imagesCount = parseInt(item.TotalCount, 10) || 0;
-          imagesTotalMb = parseDockerSizeToMb(item.Size);
-          imagesReclaimableMb = parseDockerReclaimableToMb(item.Reclaimable);
-        } else if (type.includes('container')) {
-          containersCount = parseInt(item.TotalCount, 10) || 0;
-          containersRunning = parseInt(item.Active, 10) || 0;
-          containersSizeMb = parseDockerSizeToMb(item.Size);
-        } else if (type.includes('volume')) {
-          volumesCount = parseInt(item.TotalCount, 10) || 0;
-          volumesSizeMb = parseDockerSizeToMb(item.Size);
-        } else if (type.includes('build')) {
-          buildCacheMb = parseDockerSizeToMb(item.Size);
-          buildCacheReclaimableMb = parseDockerReclaimableToMb(item.Reclaimable);
-        }
-      } catch (parseErr) {}
-    }
-
-    const totalReclaimableMb = Number((imagesReclaimableMb + buildCacheReclaimableMb).toFixed(2));
-
-    return {
-      isDockerRunning: true,
-      available: true,
-      statusMessage: 'Docker Daemon đang hoạt động (Production Container Engine)',
-      imagesCount,
-      imagesTotalMb,
-      imagesSizeGb: Number((imagesTotalMb / 1024).toFixed(2)),
-      imagesReclaimableMb,
-      containersCount,
-      containersRunning,
-      containersSizeMb,
-      volumesCount,
-      volumesSizeMb,
-      buildCacheMb,
-      totalReclaimableMb
-    };
-  } catch (err) {
-    return {
-      isDockerRunning: false,
-      available: false,
-      statusMessage: 'Chưa kích hoạt Docker trên môi trường hiện tại (Sẽ tự động đọc từ /var/run/docker.sock khi lên Production VPS)',
-      imagesCount: null,
-      imagesTotalMb: null,
-      imagesSizeGb: null,
-      imagesReclaimableMb: null,
-      containersCount: null,
-      containersRunning: null,
-      containersSizeMb: null,
-      volumesCount: null,
-      volumesSizeMb: null,
-      buildCacheMb: null,
-      totalReclaimableMb: null
-    };
-  }
-}
-
 class HealthController {
   static getHealth(req, res) {
     const isDbReady = mongoose.connection && mongoose.connection.readyState === 1;
@@ -384,10 +264,7 @@ class HealthController {
       }
     ];
 
-    // 8. Docker & Container Storage (100% Real from Docker CLI, null if non-docker)
-    const dockerStats = getRealDockerStats();
-
-    // 9. VPS Infrastructure Overview (100% Real System Calls)
+    // 8. VPS Infrastructure Overview (100% Real System Calls)
     const vpsOverview = {
       hostname: os.hostname(),
       platform: os.platform(),
@@ -421,7 +298,6 @@ class HealthController {
       systemUptimeSeconds: Math.floor(os.uptime()),
       timestamp: new Date().toISOString(),
       vpsOverview,
-      docker: dockerStats,
       database: {
         status: isDbReady ? 'connected' : 'disconnected',
         readyState: mongoose.connection ? mongoose.connection.readyState : 0,
