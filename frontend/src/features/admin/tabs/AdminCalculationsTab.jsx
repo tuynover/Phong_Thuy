@@ -65,6 +65,18 @@ export default function AdminCalculationsTab({
   const [marriageCursors, setMarriageCursors] = useState([null]);
   const [marriageLoading, setMarriageLoading] = useState(false);
 
+  const [feixingCalculations, setFeixingCalculations] = useState([]);
+  const [feixingTotal, setFeixingTotal] = useState(0);
+  const [feixingPage, setFeixingPage] = useState(1);
+  const [feixingCursors, setFeixingCursors] = useState([null]);
+  const [feixingLoading, setFeixingLoading] = useState(false);
+
+  const [numerologyCalculations, setNumerologyCalculations] = useState([]);
+  const [numerologyTotal, setNumerologyTotal] = useState(0);
+  const [numerologyPage, setNumerologyPage] = useState(1);
+  const [numerologyCursors, setNumerologyCursors] = useState([null]);
+  const [numerologyLoading, setNumerologyLoading] = useState(false);
+
   // Detail Modal State
   const [selectedCalc, setSelectedCalc] = useState(null);
   const prefetchedCalcs = useRef({});
@@ -74,37 +86,49 @@ export default function AdminCalculationsTab({
     calcType === 'iching' ? ichingCalculations :
     calcType === 'bazi' ? baziCalculations :
     calcType === 'ziwei' ? ziweiCalculations :
-    marriageCalculations;
+    calcType === 'marriage' ? marriageCalculations :
+    calcType === 'feixing' ? feixingCalculations :
+    numerologyCalculations;
 
   const activeCalcTotal =
     calcType === 'iching' ? ichingTotal :
     calcType === 'bazi' ? baziTotal :
     calcType === 'ziwei' ? ziweiTotal :
-    marriageTotal;
+    calcType === 'marriage' ? marriageTotal :
+    calcType === 'feixing' ? feixingTotal :
+    numerologyTotal;
 
   const activeCalcPage =
     calcType === 'iching' ? ichingPage :
     calcType === 'bazi' ? baziPage :
     calcType === 'ziwei' ? ziweiPage :
-    marriagePage;
+    calcType === 'marriage' ? marriagePage :
+    calcType === 'feixing' ? feixingPage :
+    numerologyPage;
 
   const activeCalcsLoading =
     calcType === 'iching' ? ichingLoading :
     calcType === 'bazi' ? baziLoading :
     calcType === 'ziwei' ? ziweiLoading :
-    marriageLoading;
+    calcType === 'marriage' ? marriageLoading :
+    calcType === 'feixing' ? feixingLoading :
+    numerologyLoading;
 
   const activeSetCalcPage =
     calcType === 'iching' ? setIchingPage :
     calcType === 'bazi' ? setBaziPage :
     calcType === 'ziwei' ? setZiweiPage :
-    setMarriagePage;
+    calcType === 'marriage' ? setMarriagePage :
+    calcType === 'feixing' ? setFeixingPage :
+    setNumerologyPage;
 
   const isFetchingRef = useRef({
     iching: false,
     bazi: false,
     ziwei: false,
-    marriage: false
+    marriage: false,
+    feixing: false,
+    numerology: false
   });
 
   const fetchCalculationsData = useCallback(async (typeToFetch = undefined, overrideSearch = undefined, overrideStatus = undefined) => {
@@ -116,7 +140,9 @@ export default function AdminCalculationsTab({
       targetType === 'iching' ? setIchingLoading :
       targetType === 'bazi' ? setBaziLoading :
       targetType === 'ziwei' ? setZiweiLoading :
-      setMarriageLoading;
+      targetType === 'marriage' ? setMarriageLoading :
+      targetType === 'feixing' ? setFeixingLoading :
+      setNumerologyLoading;
 
     setLoadingState(true);
     try {
@@ -128,13 +154,17 @@ export default function AdminCalculationsTab({
         targetType === 'iching' ? ichingPage :
         targetType === 'bazi' ? baziPage :
         targetType === 'ziwei' ? ziweiPage :
-        marriagePage
+        targetType === 'marriage' ? marriagePage :
+        targetType === 'feixing' ? feixingPage :
+        numerologyPage
       );
       const cursorsArr =
         targetType === 'iching' ? ichingCursors :
         targetType === 'bazi' ? baziCursors :
         targetType === 'ziwei' ? ziweiCursors :
-        marriageCursors;
+        targetType === 'marriage' ? marriageCursors :
+        targetType === 'feixing' ? feixingCursors :
+        numerologyCursors;
       const cursor = isFilterReset ? null : cursorsArr[targetPage - 1];
 
       const params = {
@@ -144,7 +174,7 @@ export default function AdminCalculationsTab({
         cursor
       };
       const res = await getAdminCalculations(targetType, params);
-      const fetchedItems = res.data.items || [];
+      const fetchedItems = res.data.records || res.data.items || [];
 
       if (targetType === 'iching') {
         setIchingCalculations(fetchedItems);
@@ -190,6 +220,28 @@ export default function AdminCalculationsTab({
           const nextCursor = fetchedItems[fetchedItems.length - 1]._id;
           setMarriageCursors(prev => { const n = [...prev]; n[targetPage] = nextCursor; return n; });
         }
+      } else if (targetType === 'feixing') {
+        setFeixingCalculations(fetchedItems);
+        setFeixingTotal(res.data.total || 0);
+        if (isFilterReset) {
+          setFeixingPage(1);
+          setFeixingCursors([null]);
+        }
+        if (fetchedItems.length === calcLimit) {
+          const nextCursor = fetchedItems[fetchedItems.length - 1]._id;
+          setFeixingCursors(prev => { const n = [...prev]; n[targetPage] = nextCursor; return n; });
+        }
+      } else if (targetType === 'numerology') {
+        setNumerologyCalculations(fetchedItems);
+        setNumerologyTotal(res.data.total || 0);
+        if (isFilterReset) {
+          setNumerologyPage(1);
+          setNumerologyCursors([null]);
+        }
+        if (fetchedItems.length === calcLimit) {
+          const nextCursor = fetchedItems[fetchedItems.length - 1]._id;
+          setNumerologyCursors(prev => { const n = [...prev]; n[targetPage] = nextCursor; return n; });
+        }
       }
     } catch (err) {
       console.error(`Lỗi tải danh sách quẻ/lá số (${targetType}):`, err);
@@ -197,7 +249,7 @@ export default function AdminCalculationsTab({
       setLoadingState(false);
       isFetchingRef.current[targetType] = false;
     }
-  }, [calcType, calcSearch, calcStatusFilter, calcLimit, ichingPage, baziPage, ziweiPage, marriagePage, ichingCursors, baziCursors, ziweiCursors, marriageCursors]);
+  }, [calcType, calcSearch, calcStatusFilter, calcLimit, ichingPage, baziPage, ziweiPage, marriagePage, feixingPage, numerologyPage, ichingCursors, baziCursors, ziweiCursors, marriageCursors, feixingCursors, numerologyCursors]);
 
   useEffect(() => {
     fetchCalculationsData(calcType);
@@ -268,13 +320,15 @@ export default function AdminCalculationsTab({
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       
-      {/* TAB CATEGORIES (Iching, Bazi, Ziwei, Marriage) */}
-      <div className="flex bg-slate-950/80 p-1 rounded-2xl border border-slate-800/80 gap-1 w-full sm:w-96">
+      {/* TAB CATEGORIES (Iching, Bazi, Ziwei, Marriage, Feixing, Numerology) */}
+      <div className="flex flex-wrap bg-slate-950/80 p-1 rounded-2xl border border-slate-800/80 gap-1 w-full lg:w-auto">
         {[
           { id: 'iching', name: 'Kinh Dịch', count: newIchingCount },
           { id: 'bazi', name: 'Bát Tự', count: newBaziCount },
           { id: 'ziwei', name: 'Tử Vi', count: newZiweiCount },
-          { id: 'marriage', name: 'Hôn Nhân', count: newMarriageCount }
+          { id: 'marriage', name: 'Hôn Nhân', count: newMarriageCount },
+          { id: 'feixing', name: 'Phi Tinh', count: 0 },
+          { id: 'numerology', name: 'Phong Thủy Số', count: 0 }
         ].map(tab => (
           <button
             key={tab.id}
@@ -349,6 +403,12 @@ export default function AdminCalculationsTab({
               } else if (calcType === 'marriage') {
                 setMarriagePage(1);
                 setMarriageCursors([null]);
+              } else if (calcType === 'feixing') {
+                setFeixingPage(1);
+                setFeixingCursors([null]);
+              } else if (calcType === 'numerology') {
+                setNumerologyPage(1);
+                setNumerologyCursors([null]);
               }
               fetchCalculationsData(calcType, calcSearch, calcStatusFilter);
             }}
@@ -373,7 +433,7 @@ export default function AdminCalculationsTab({
                 <tr className="border-b border-slate-800 bg-slate-950/60 text-slate-400 font-bold uppercase tracking-wider text-[11px]">
                   <th className="py-4 px-4">Tài Khoản Gieo</th>
                   <th className="py-4 px-3">
-                    {calcType === 'iching' ? 'Ý niệm / Câu hỏi' : calcType === 'bazi' ? 'Giới Tính & Ngày Sinh' : calcType === 'marriage' ? 'Thông Tin Sinh Nam & Nữ' : 'Thông Tin Sinh'}
+                    {calcType === 'iching' ? 'Ý niệm / Câu hỏi' : calcType === 'bazi' ? 'Giới Tính & Ngày Sinh' : calcType === 'marriage' ? 'Thông Tin Sinh Nam & Nữ' : calcType === 'feixing' ? 'Gia Chủ & Tọa Hướng' : calcType === 'numerology' ? 'Gia Chủ & Số Học' : 'Thông Tin Sinh'}
                   </th>
                   <th className="py-4 px-3 text-center">Thời gian</th>
                   <th className="py-4 px-3 text-center">Trạng thái</th>
@@ -420,6 +480,18 @@ export default function AdminCalculationsTab({
                         <div className="text-slate-300 text-xs">
                           <span className="font-bold text-rose-400">Nam:</span> {calc.maleBaziData?.solarTimeline || `${calc.inputInfo?.male?.date || ''} ${calc.inputInfo?.male?.time || ''}`} <br />
                           <span className="font-bold text-pink-400">Nữ:</span> {calc.femaleBaziData?.solarTimeline || `${calc.inputInfo?.female?.date || ''} ${calc.inputInfo?.female?.time || ''}`}
+                        </div>
+                      )}
+                      {calcType === 'feixing' && (
+                        <div className="text-slate-300 text-xs">
+                          Gia chủ: <span className="font-bold text-slate-100">{calc.ownerName || 'Gia Chủ'}</span> (Vận {calc.period || 9})<br />
+                          <span className="text-[11px] text-emerald-400 font-semibold">Hướng: {calc.facingDegree}° / Tọa: {calc.sittingDegree}°</span>
+                        </div>
+                      )}
+                      {calcType === 'numerology' && (
+                        <div className="text-slate-300 text-xs">
+                          Gia chủ: <span className="font-bold text-slate-100">{calc.ownerName || 'Gia Chủ'}</span> ({calc.type === 'sim' ? 'SIM' : calc.type === 'plate' ? 'Biển Số' : 'Tài Khoản NH'})<br />
+                          <span className="text-[11px] font-mono text-cyan-400 font-bold">{calc.displayNumber || calc.targetNumber}</span>
                         </div>
                       )}
                     </td>
@@ -540,6 +612,18 @@ export default function AdminCalculationsTab({
                       <div><span className="font-bold text-pink-400">Nữ</span>: {calc.femaleBaziData?.solarTimeline || `${calc.inputInfo?.female?.date || ''} ${calc.inputInfo?.female?.time || ''}`}</div>
                     </div>
                   )}
+                  {calcType === 'feixing' && (
+                    <div className="space-y-0.5 text-[11px]">
+                      <div>Gia chủ: <span className="font-bold text-slate-100">{calc.ownerName || 'Gia Chủ'}</span> (Vận {calc.period || 9})</div>
+                      <div className="text-emerald-400 font-semibold">Hướng: {calc.facingDegree}° / Tọa: {calc.sittingDegree}°</div>
+                    </div>
+                  )}
+                  {calcType === 'numerology' && (
+                    <div className="space-y-0.5 text-[11px]">
+                      <div>Gia chủ: <span className="font-bold text-slate-100">{calc.ownerName || 'Gia Chủ'}</span> ({calc.type === 'sim' ? 'SIM' : calc.type === 'plate' ? 'Biển Số' : 'Tài Khoản NH'})</div>
+                      <div className="text-cyan-400 font-mono font-bold">{calc.displayNumber || calc.targetNumber}</div>
+                    </div>
+                  )}
                   <div className="text-[10px] text-slate-500 mt-2">
                     Thời gian: {new Date(calc.createdAt).toLocaleString('vi-VN')}
                   </div>
@@ -627,7 +711,7 @@ export default function AdminCalculationsTab({
             
             <h3 className="text-lg font-serif font-bold text-amber-500 flex items-center gap-2 border-b border-slate-800 pb-3">
               <Info size={20} />
-              Chi Tiết Bản Ghi Luận Giải {calcType === 'iching' ? 'Kinh Dịch' : calcType === 'bazi' ? 'Bát Tự' : calcType === 'ziwei' ? 'Tử Vi' : 'Hôn Nhân'}
+              Chi Tiết Bản Ghi Luận Giải {calcType === 'iching' ? 'Kinh Dịch' : calcType === 'bazi' ? 'Bát Tự' : calcType === 'ziwei' ? 'Tử Vi' : calcType === 'marriage' ? 'Hôn Nhân' : calcType === 'feixing' ? 'Huyền Không Phi Tinh' : 'Phong Thủy Số'}
             </h3>
 
             {selectedCalc.isLoading ? (
@@ -791,6 +875,54 @@ export default function AdminCalculationsTab({
                     <div className="bg-slate-950/30 p-3 rounded-xl border border-slate-850">
                       <span className="text-slate-450 block text-[11px] uppercase tracking-wider">Sinh Nữ:</span>
                       <strong className="text-slate-100">{selectedCalc.femaleBaziData?.solarTimeline || `${selectedCalc.inputInfo.female?.date || ''} ${selectedCalc.inputInfo.female?.time || ''}`}</strong>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* FeiXing (Phi Tinh) Details */}
+              {calcType === 'feixing' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-slate-950/30 p-3 rounded-xl border border-slate-850">
+                      <span className="text-slate-450 block text-[11px] uppercase tracking-wider">Gia Chủ:</span>
+                      <strong className="text-slate-100">{selectedCalc.ownerName || 'Gia Chủ'}</strong>
+                    </div>
+                    <div className="bg-slate-950/30 p-3 rounded-xl border border-slate-850">
+                      <span className="text-slate-450 block text-[11px] uppercase tracking-wider">Vận Xây Dựng:</span>
+                      <strong className="text-emerald-400">Vận {selectedCalc.period || 9}</strong>
+                    </div>
+                    <div className="bg-slate-950/30 p-3 rounded-xl border border-slate-850">
+                      <span className="text-slate-450 block text-[11px] uppercase tracking-wider">Tọa Độ Hướng Nhà:</span>
+                      <strong className="text-slate-100">Hướng: {selectedCalc.facingDegree}° / Tọa: {selectedCalc.sittingDegree}°</strong>
+                    </div>
+                    <div className="bg-slate-950/30 p-3 rounded-xl border border-slate-850">
+                      <span className="text-slate-450 block text-[11px] uppercase tracking-wider">24 Sơn Hướng:</span>
+                      <strong className="text-slate-100">{selectedCalc.twentyFourMountains?.sittingMountain || ''} Tọa {selectedCalc.twentyFourMountains?.facingMountain || ''} Hướng</strong>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Numerology Details */}
+              {calcType === 'numerology' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-slate-950/30 p-3 rounded-xl border border-slate-850">
+                      <span className="text-slate-450 block text-[11px] uppercase tracking-wider">Gia Chủ:</span>
+                      <strong className="text-slate-100">{selectedCalc.ownerName || 'Gia Chủ'}</strong>
+                    </div>
+                    <div className="bg-slate-950/30 p-3 rounded-xl border border-slate-850">
+                      <span className="text-slate-450 block text-[11px] uppercase tracking-wider">Loại Số Học:</span>
+                      <strong className="text-cyan-400 font-bold uppercase">{selectedCalc.type === 'sim' ? 'SIM Số Điện Thoại' : selectedCalc.type === 'plate' ? 'Biển Số Xe' : 'Tài Khoản Ngân Hàng'}</strong>
+                    </div>
+                    <div className="bg-slate-950/30 p-3 rounded-xl border border-slate-850">
+                      <span className="text-slate-450 block text-[11px] uppercase tracking-wider">Số Đăng Ký:</span>
+                      <strong className="text-slate-100 font-mono text-sm">{selectedCalc.displayNumber || selectedCalc.targetNumber}</strong>
+                    </div>
+                    <div className="bg-slate-950/30 p-3 rounded-xl border border-slate-850">
+                      <span className="text-slate-450 block text-[11px] uppercase tracking-wider">Chế Độ Phân Tích:</span>
+                      <strong className="text-slate-100">{selectedCalc.mode === 'bazi' ? 'Phối Hợp Bát Tự' : 'Xem Nhanh Quẻ Số'}</strong>
                     </div>
                   </div>
                 </div>

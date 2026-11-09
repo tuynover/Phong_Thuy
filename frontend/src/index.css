@@ -279,3 +279,77 @@
   }
 }
 
+/* ========================================================
+   ADMIN LIGHT THEME SYSTEM RULES
+   ======================================================== */
+.admin-light-mode {
+  color-scheme: light;
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+.admin-light-mode .bg-slate-900,
+.admin-light-mode .bg-slate-950,
+.admin-light-mode .bg-slate-950\/40,
+.admin-light-mode .bg-slate-950\/50,
+.admin-light-mode .bg-slate-950\/80,
+.admin-light-mode .bg-slate-900\/60,
+.admin-light-mode .bg-slate-900\/70,
+.admin-light-mode .bg-slate-900\/80 {
+  background-color: #ffffff !important;
+}
+
+.admin-light-mode .bg-slate-900\/40,
+.admin-light-mode .bg-slate-950\/30,
+.admin-light-mode .bg-slate-950\/20 {
+  background-color: #f8fafc !important;
+}
+
+.admin-light-mode .border-slate-800,
+.admin-light-mode .border-slate-800\/80,
+.admin-light-mode .border-slate-850,
+.admin-light-mode .border-slate-700,
+.admin-light-mode .border-slate-700\/80 {
+  border-color: #e2e8f0 !important;
+}
+
+.admin-light-mode .divide-slate-850 > :not([hidden]) ~ :not([hidden]),
+.admin-light-mode .divide-slate-800 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #f1f5f9 !important;
+}
+
+.admin-light-mode .text-slate-100,
+.admin-light-mode .text-slate-200 {
+  color: #0f172a !important;
+}
+
+.admin-light-mode .text-slate-300,
+.admin-light-mode .text-slate-400 {
+  color: #475569 !important;
+}
+
+.admin-light-mode .text-slate-500,
+.admin-light-mode .text-slate-550 {
+  color: #64748b !important;
+}
+
+.admin-light-mode input:not([type="checkbox"]):not([type="radio"]),
+.admin-light-mode select,
+.admin-light-mode textarea {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+.admin-light-mode input::placeholder,
+.admin-light-mode textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+.admin-light-mode .hover\:bg-slate-900\/50:hover,
+.admin-light-mode .hover\:bg-slate-800\/50:hover,
+.admin-light-mode .hover\:bg-slate-800:hover {
+  background-color: #f8fafc !important;
+}
+
+

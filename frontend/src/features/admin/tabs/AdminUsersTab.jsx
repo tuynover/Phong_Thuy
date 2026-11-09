@@ -86,9 +86,9 @@ export default function AdminUsersTab({
         cursor
       };
       const res = await getAdminUsers(params);
-      const fetchedUsers = res.data.users || [];
+      const fetchedUsers = res?.data?.users || res?.data?.items || [];
       setUsers(fetchedUsers);
-      setUserTotal(res.data.total || 0);
+      setUserTotal(res?.data?.total || 0);
 
       if (isFilterReset) {
         setUserPage(1);

@@ -91,7 +91,10 @@ export const lockAdminUser = (id, reason) => axios.post(`${API_URL}/admin/users/
 export const unlockAdminUser = (id) => axios.post(`${API_URL}/admin/users/${id}/unlock`);
 export const deleteAdminUser = (id) => axios.delete(`${API_URL}/admin/users/${id}`);
 
-export const getAdminCalculations = (params) => axios.get(`${API_URL}/admin/calculations`, { params });
+export const getAdminCalculations = (typeOrParams, maybeParams) => {
+  const params = typeof typeOrParams === 'string' ? { type: typeOrParams, ...maybeParams } : typeOrParams;
+  return axios.get(`${API_URL}/admin/calculations`, { params });
+};
 export const getAdminCalculationDetail = (type, id) => axios.get(`${API_URL}/admin/calculations/${type}/${id}`);
 export const lockAdminCalculation = (type, id) => axios.post(`${API_URL}/admin/calculations/${type}/${id}/lock`);
 export const unlockAdminCalculation = (type, id) => axios.post(`${API_URL}/admin/calculations/${type}/${id}/unlock`);
@@ -100,7 +103,14 @@ export const deleteAdminCalculation = (type, id) => axios.delete(`${API_URL}/adm
 export const getAdminAnalytics = (startDate, endDate, groupBy) => axios.get(`${API_URL}/admin/analytics`, { params: { startDate, endDate, groupBy } });
 export const getAdminNotifications = () => axios.get(`${API_URL}/admin/notifications`);
 export const markAdminNotificationRead = (id) => axios.put(`${API_URL}/admin/notifications/${id}/read`);
+export const markAllAdminNotificationsRead = () => axios.put(`${API_URL}/admin/notifications/read-all`);
 export const resolveAdminAppeal = (id, action) => axios.post(`${API_URL}/admin/appeals/${id}/resolve`, { action });
+
+// Admin System Config & Hot-Reload API Endpoints
+export const getAdminConfigs = () => axios.get(`${API_URL}/admin/config`);
+export const updateAdminConfigs = (configs) => axios.put(`${API_URL}/admin/config`, { configs });
+export const testAdminAiConnection = (apiKey, model) => axios.post(`${API_URL}/admin/config/test-ai`, { apiKey, model });
+export const testAdminSmtpConnection = (host, port, user, pass) => axios.post(`${API_URL}/admin/config/test-smtp`, { host, port, user, pass });
 
 // Ban Appeal & Stats
 export const submitBanAppeal = (userId, email, reason, message) => axios.post(`${API_URL}/auth/appeal`, { userId, email, reason, message });
@@ -177,6 +187,7 @@ export const getSystemHealthDetailed = () => axios.get(`${API_URL}/health/detail
 export const getAdminQueueStatus = (limit = 50) => axios.get(`${API_URL}/admin/system/queue?limit=${limit}`);
 export const retryAdminDlqJob = (jobId) => axios.post(`${API_URL}/admin/system/queue/dlq/retry`, { jobId });
 export const clearAdminDlq = () => axios.delete(`${API_URL}/admin/system/queue/dlq`);
+export const pruneDockerStorage = () => axios.post(`${API_URL}/admin/system/docker/prune`);
 
 // Backward compatibility legacy aliases
 const getHexagramHistory = getIChingHistory;

@@ -4,7 +4,9 @@ const AdminUserController = require('../controllers/AdminUserController');
 const AdminRecordController = require('../controllers/AdminRecordController');
 const AdminStatsController = require('../controllers/AdminStatsController');
 const AdminAppealController = require('../controllers/AdminAppealController');
+const AdminConfigController = require('../controllers/AdminConfigController');
 const adminAuth = require('../../../core/middleware/adminAuth');
+const superAdminOnly = require('../../../core/middleware/superAdminOnly');
 const sseService = require('../../../core/services/SseService');
 
 // Apply adminAuth middleware globally to restrict routes to Admin / Co-Admin
@@ -32,13 +34,21 @@ router.get('/analytics', AdminStatsController.getAnalytics);
 
 // 4. Alerts and Appeal Routes
 router.get('/notifications', AdminAppealController.getNotifications);
+router.put('/notifications/read-all', AdminAppealController.markAllNotificationsRead);
 router.put('/notifications/:id/read', AdminAppealController.markNotificationRead);
 router.post('/appeals/:id/resolve', AdminAppealController.resolveAppeal);
 
 // 5. System Queue & DLQ Management Routes
 router.get('/system/queue', AdminRecordController.getQueueStatus);
-router.post('/system/queue/dlq/retry', AdminRecordController.retryDlqJob);
-router.delete('/system/queue/dlq', AdminRecordController.clearDlq);
+router.post('/system/queue/dlq/retry', superAdminOnly, AdminRecordController.retryDlqJob);
+router.delete('/system/queue/dlq', superAdminOnly, AdminRecordController.clearDlq);
+router.post('/system/docker/prune', superAdminOnly, AdminConfigController.pruneDockerStorage);
+
+// 6. System Configuration & Hot-Reload Routes (Strict Super Admin Only)
+router.get('/config', superAdminOnly, AdminConfigController.getConfigs);
+router.put('/config', superAdminOnly, AdminConfigController.updateConfigs);
+router.post('/config/test-ai', superAdminOnly, AdminConfigController.testAiConnection);
+router.post('/config/test-smtp', superAdminOnly, AdminConfigController.testSmtpConnection);
 
 router.get('/events', (req, res) => {
   sseService.addAdminClient(req, res);

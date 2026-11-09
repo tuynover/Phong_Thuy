@@ -466,17 +466,61 @@ Lấy thông tin chi tiết (Lục Thân, Lục Thú, Hào Thế/Ứng) để hi
 
 ---
 
-## 🛠️ 5. Quản trị Hệ thống (`/api/admin`)
+## 🛠️ 5. Quản trị Hệ thống (`/api/admin`) - Đầy đủ 6 Phân hệ & Cấu hình
 
-Tất cả các route yêu cầu tài khoản đăng nhập có quyền `admin` hoặc `co-admin`.
+Tất cả các route yêu cầu tài khoản đăng nhập có quyền `admin` hoặc `co-admin`. Riêng các tác vụ cấu hình hệ thống và dọn dẹp hàng đợi DLQ bắt buộc phải là Quản Trị Viên Tối Cao (`admin` - Super Admin).
 
-- **Lấy danh sách người dùng:** `GET /api/admin/users`
+### 5.1 Quản trị Thành viên (`/api/admin/users`)
+- **Lấy danh sách người dùng:** `GET /api/admin/users` (Query: `search`, `role`, `status`, `limit`, `cursor`)
 - **Cập nhật quyền hạn:** `PUT /api/admin/users/:id/role` (Body: `{ "role": "vip" }`)
-- **Nạp/Trừ credit:** `PUT /api/admin/users/:id/credits` (Body: `{ "credits": 10 }`)
-- **Khóa tài khoản:** `POST /api/admin/users/:id/lock` (Body: `{ "reason": "Spam AI" }`)
+- **Nạp/Trừ credit:** `PUT /api/admin/users/:id/credits` (Body: `{ "credits": 10, "mode": "set" | "add" }`)
+- **Khóa tài khoản:** `POST /api/admin/users/:id/lock` (Body: `{ "reason": "Vi phạm điều khoản" }`)
 - **Mở khóa tài khoản:** `POST /api/admin/users/:id/unlock`
-- **Báo cáo máy chủ:** `GET /api/admin/analytics`
+- **Xóa mềm người dùng:** `DELETE /api/admin/users/:id`
+- **Khôi phục người dùng:** `POST /api/admin/users/:id/restore`
+- **Chi tiết thống kê người dùng:** `GET /api/admin/users/:id/stats`
+
+### 5.2 Quản trị Dịch Bản & Lá Số Học Thuật (`/api/admin/calculations`)
+Hỗ trợ đầy đủ 6 phân hệ học thuật: `iching` (Kinh Dịch), `bazi` (Bát Tự), `ziwei` (Tử Vi), `marriage` (Hợp Hôn), `feixing` (Huyền Không Phi Tinh), `numerology` (Phong Thủy Số).
+- **Lấy danh sách bản ghi:** `GET /api/admin/calculations?type=:type` (Query: `type`, `search`, `status`, `limit`, `cursor`)
+- **Xem chi tiết bản ghi:** `GET /api/admin/calculations/:type/:id`
+- **Khóa bản ghi:** `POST /api/admin/calculations/:type/:id/lock`
+- **Mở khóa bản ghi:** `POST /api/admin/calculations/:type/:id/unlock`
+- **Xóa mềm bản ghi:** `DELETE /api/admin/calculations/:type/:id`
+
+### 5.3 Thống kê & Giám sát Hệ thống (`/api/admin/analytics`)
+- **Báo cáo máy chủ:** `GET /api/admin/analytics` (Query: `startDate`, `endDate`, `groupBy=day|hour`)
 - **Xem Live Event Admin (Realtime SSE):** `GET /api/admin/events?token=<admin_jwt>`
+- **Quản lý Thông báo / Khiếu nại:** `GET /api/admin/notifications`, `PUT /api/admin/notifications/read-all`, `PUT /api/admin/notifications/:id/read`, `POST /api/admin/appeals/:id/resolve`
+- **Trạng thái hàng đợi Email & DLQ:** `GET /api/admin/system/queue`
+- **Thử lại tác vụ lỗi (Super Admin):** `POST /api/admin/system/queue/dlq/retry` (Body: `{ "jobId": "..." }`)
+- **Xóa sạch DLQ (Super Admin):** `DELETE /api/admin/system/queue/dlq`
+- **Dọn dẹp tài nguyên Docker (Super Admin):** `POST /api/admin/system/docker/prune` (Dọn dẹp images không sử dụng và cache thừa, giải phóng dung lượng ổ đĩa).
+
+### 5.4 Quản trị Cấu hình & Hot-Reload (`/api/admin/config`) 🔐 *(Super Admin Only)*
+Chức năng quản lý tập trung toàn bộ biến cấu hình và môi trường của hệ thống, tự động che giấu mặt nạ đối với các key nhạy cảm:
+- **Lấy danh sách cấu hình:** `GET /api/admin/config`
+  - **Quyền hạn:** `admin` (Chặn 403 nếu là `co-admin`).
+  - **Phản hồi (200):** Danh sách toàn bộ cấu hình theo 5 nhóm (`ai`, `security`, `database`, `email`, `system`), giá trị nhạy cảm được che giấu dạng `••••••••` hoặc `AIza...98aX`.
+- **Cập nhật cấu hình & Kích hoạt Hot-Reload:** `PUT /api/admin/config`
+  - **Quyền hạn:** `admin`
+  - **Body:** `{ "configs": [{ "key": "GEMINI_MODEL", "value": "gemini-3.5-flash-lite" }] }`
+  - **Cơ chế:** Cập nhật RAM `process.env`, làm mới cache singleton của `AiRotator` / `EmailService`, và đồng bộ ghi an toàn vào file `backend/.env` (tự động tạo bản sao lưu `.env.bak`).
+- **Kiểm tra kết nối AI (Ping Gemini):** `POST /api/admin/config/test-ai`
+  - **Quyền hạn:** `admin`
+  - **Body (tùy chọn):** `{ "apiKey": "...", "model": "gemini-3.5-flash-lite" }`
+  - **Phản hồi (200):** `{ "success": true, "latencyMs": 420, "model": "gemini-3.5-flash-lite", "message": "Kết nối Google Gemini AI thành công!" }`
+- **Kiểm tra kết nối SMTP Email:** `POST /api/admin/config/test-smtp`
+  - **Quyền hạn:** `admin`
+  - **Body (tùy chọn):** `{ "host": "smtp.gmail.com", "port": 587, "user": "...", "pass": "..." }`
+
+
+
+
+
+
+
+
 
 ---
 
@@ -1069,6 +1113,26 @@ Cung cấp bức tranh toàn cảnh về tài nguyên hệ thống, độ trễ 
       "dlq": 0,
       "isConnected": true
     },
+    "cpu": {
+      "model": "12th Gen Intel(R) Core(TM) i5-12500H",
+      "cores": 16,
+      "speedMhz": 3110,
+      "loadAvg": [0, 0, 0]
+    },
+    "ram": {
+      "totalMb": 16078,
+      "usedMb": 12322,
+      "freeMb": 3756,
+      "percentUsed": 77
+    },
+    "disk": {
+      "totalGb": 29,
+      "usedGb": 20.34,
+      "freeGb": 8.66,
+      "percentUsed": 70,
+      "path": "T:\\Phongthuy\\backend",
+      "available": true
+    },
     "memory": {
       "rss": "85MB",
       "heapTotal": "42MB",
@@ -1160,7 +1224,7 @@ Dành cho Load Balancer (AWS ALB / Nginx), Docker Healthcheck và các công c�
   ```
 
 ### 14.2 Detailed System Health & Metrics Observability
-Cung cấp bức tranh toàn cảnh về sức khỏe của Node.js process, MongoDB, Redis, Email Queue và SSE sessions.
+Cung cấp bức tranh toàn cảnh về sức khỏe của Node.js process, MongoDB, Redis, Email Queue, chỉ số hạ tầng máy chủ VPS (CPU, RAM, Ổ đĩa Disk), tài nguyên lưu trữ Docker (Images, Containers, Volumes, Reclaimable Space) và bóc tách mức chiếm dụng tài nguyên theo từng service.
 - **Endpoints:** `GET /health/detailed` hoặc `GET /api/health/detailed`
 - **Xác thực:** Công khai (Hoặc tích hợp vào Dashboard Quản trị).
 - **Phản hồi (200 OK):**
@@ -1169,6 +1233,58 @@ Cung cấp bức tranh toàn cảnh về sức khỏe của Node.js process, Mon
     "status": "healthy",
     "uptimeSeconds": 3600,
     "timestamp": "2026-09-15T16:30:00.000Z",
+    "systemCpuPercent": 12.5,
+    "processCpuPercent": 0.3,
+    "vpsOverview": {
+      "hostname": "vps-prod-node01",
+      "platform": "linux",
+      "arch": "x64",
+      "osRelease": "6.8.0-45-generic",
+      "totalCpuCores": 4,
+      "cpuModel": "AMD EPYC 7763 64-Core Processor",
+      "cpuSpeedMhz": 2450,
+      "totalMemoryBytes": 8589934592,
+      "freeMemoryBytes": 2147483648,
+      "usedMemoryBytes": 6442450944,
+      "totalMemoryGb": 8.0,
+      "usedMemoryGb": 6.0,
+      "freeMemoryGb": 2.0,
+      "memoryUsagePercent": 75.0,
+      "disk": {
+        "totalGb": 80.0,
+        "usedGb": 45.2,
+        "freeGb": 34.8,
+        "usagePercent": 56.5
+      },
+      "loadAverage": [0.42, 0.35, 0.28]
+    },
+    "docker": {
+      "status": "active",
+      "imagesTotalMb": 1450,
+      "imagesReclaimableMb": 320,
+      "containersLayerMb": 180,
+      "volumesMb": 450,
+      "buildCacheMb": 210,
+      "totalReclaimableMb": 530,
+      "imagesCount": 4,
+      "containersCount": 3,
+      "volumesCount": 2
+    },
+    "servicesBreakdown": [
+      {
+        "id": "gateway",
+        "name": "Cổng Giao Tiếp (API Gateway & Backend)",
+        "tech": "Node.js Express v5",
+        "desc": "Xử lý REST API, điều phối nghiệp vụ & streaming SSE",
+        "status": "Hoạt động tốt",
+        "statusType": "healthy",
+        "rssBytes": 111149056,
+        "rssMb": 106,
+        "ramSharePercent": 1.3,
+        "cpuPercent": 0.3,
+        "detail": "RSS: 106MB • Heap: 48MB"
+      }
+    ],
     "database": {
       "status": "connected",
       "readyState": 1,

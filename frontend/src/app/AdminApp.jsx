@@ -8,7 +8,11 @@ import AdminUsersTab from '@/features/admin/tabs/AdminUsersTab';
 import AdminCalculationsTab from '@/features/admin/tabs/AdminCalculationsTab';
 import AdminAlertsTab from '@/features/admin/tabs/AdminAlertsTab';
 import AdminBlogTab from '@/features/admin/tabs/AdminBlogTab';
+import AdminConfigTab from '@/features/admin/tabs/AdminConfigTab';
+import AdminSystemTab from '@/features/admin/tabs/AdminSystemTab';
 import AdminDlqModal from '@/features/admin/components/AdminDlqModal';
+import { AdminThemeProvider, useAdminTheme } from '@/features/admin/context/AdminThemeContext';
+import AdminThemeToggle from '@/features/admin/context/AdminThemeToggle';
 import {
   getAdminAnalytics,
   getAdminNotifications,
@@ -18,14 +22,26 @@ import {
   retryAdminDlqJob,
   clearAdminDlq
 } from '@/services/api';
-import { Shield, LogOut } from 'lucide-react';
+import {
+  Shield,
+  LogOut,
+  LayoutDashboard,
+  Users,
+  Layers,
+  AlertTriangle,
+  BookOpen,
+  Sliders,
+  ExternalLink,
+  Activity
+} from 'lucide-react';
 
-export default function AdminApp({ onSwitchToUser }) {
+export function AdminAppInner({ onSwitchToUser }) {
+  const { isLight } = useAdminTheme();
   const { user: currentUser, token, logout } = useContext(AuthContext);
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'users' | 'calculations' | 'alerts' | 'blog'
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'users' | 'calculations' | 'alerts' | 'blog' | 'config' | 'system'
 
   // Custom Notifications / Confirm Modal State
-  const [notification, setNotification] = useState(null); // { type: 'success' | 'error' | 'confirm', message: '', onConfirm: null }
+  const [notification, setNotification] = useState(null);
 
   const showAlert = useCallback((message, type = 'success') => {
     setNotification({ type, message });
@@ -38,14 +54,14 @@ export default function AdminApp({ onSwitchToUser }) {
   // Custom Date Filters for Analytics
   const [startDate, setStartDate] = useState(() => {
     const d = new Date();
-    d.setDate(d.getDate() - 7); // Default 7 days
+    d.setDate(d.getDate() - 7);
     return d.toISOString().split('T')[0];
   });
   const [endDate, setEndDate] = useState(() => new Date().toISOString().split('T')[0]);
-  const [groupBy, setGroupBy] = useState('day'); // 'day' | 'hour'
+  const [groupBy, setGroupBy] = useState('day');
   const [analytics, setAnalytics] = useState(null);
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
-  const [tokenChartMetric, setTokenChartMetric] = useState('subject'); // 'subject' | 'type' | 'ratio'
+  const [tokenChartMetric, setTokenChartMetric] = useState('subject');
 
   // Warnings / Appeals
   const [alerts, setAlerts] = useState([]);
@@ -55,7 +71,7 @@ export default function AdminApp({ onSwitchToUser }) {
   const [userStats, setUserStats] = useState(null);
   const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
 
-  // System Health & Queue Monitoring (DevOps)
+  // System Health & Queue Monitoring
   const [health, setHealth] = useState(null);
   const [queueStatus, setQueueStatus] = useState(null);
   const [dlqJobs, setDlqJobs] = useState([]);
@@ -104,9 +120,50 @@ export default function AdminApp({ onSwitchToUser }) {
       setAlerts(res.data.alerts || []);
       setAppeals(res.data.appeals || []);
     } catch (err) {
-      console.error('Lỗi khi tải thông báo/khiếu nại:', err);
+      console.error('Lỗi tải cảnh báo/khiếu nại:', err);
     }
   }, []);
+
+  const fetchHealthAndQueue = useCallback(async () => {
+    setHealthLoading(true);
+    try {
+      const [healthRes, queueRes] = await Promise.allSettled([
+        getSystemHealthDetailed(),
+        getAdminQueueStatus(50)
+      ]);
+      if (healthRes.status === 'fulfilled') setHealth(healthRes.value.data);
+      if (queueRes.status === 'fulfilled') {
+        setQueueStatus(queueRes.value.data);
+        setDlqJobs(queueRes.value.data?.dlqJobs || []);
+      }
+    } catch (err) {
+      console.error('Lỗi khi tải thông số sức khỏe hệ thống:', err);
+    } finally {
+      setHealthLoading(false);
+    }
+  }, []);
+
+  const handleRetryDlqJob = async (jobId) => {
+    try {
+      await retryAdminDlqJob(jobId);
+      showAlert('Đã đẩy tác vụ trở lại hàng đợi thành công!', 'success');
+      fetchHealthAndQueue();
+    } catch (err) {
+      showAlert(err.response?.data?.error || 'Có lỗi xảy ra khi thử lại tác vụ.', 'error');
+    }
+  };
+
+  const handleClearDlq = () => {
+    showConfirm('Bạn có chắc chắn muốn xóa sạch toàn bộ hàng đợi thư lỗi DLQ? Hành động này không thể hoàn tác.', async () => {
+      try {
+        await clearAdminDlq();
+        showAlert('Đã dọn sạch hàng đợi thư lỗi (DLQ)!', 'success');
+        fetchHealthAndQueue();
+      } catch (err) {
+        showAlert(err.response?.data?.error || 'Có lỗi xảy ra khi dọn hàng đợi thư lỗi.', 'error');
+      }
+    });
+  };
 
   const fetchAnalyticsData = useCallback(async () => {
     if (isFetchingAnalytics.current) return;
@@ -116,13 +173,41 @@ export default function AdminApp({ onSwitchToUser }) {
       const res = await getAdminAnalytics(startDate, endDate, groupBy);
       setAnalytics(res.data);
       lastFetchedAnalyticsParams.current = { startDate, endDate, groupBy };
+      isAnalyticsDirty.current = false;
     } catch (err) {
-      console.error('Lỗi khi tải dữ liệu thống kê:', err);
+      console.error('Lỗi tải dữ liệu analytics:', err);
+      showAlert(err.response?.data?.error || 'Lỗi khi tải dữ liệu phân tích hệ thống.', 'error');
     } finally {
       setAnalyticsLoading(false);
       isFetchingAnalytics.current = false;
     }
-  }, [startDate, endDate, groupBy]);
+  }, [startDate, endDate, groupBy, showAlert]);
+
+  useEffect(() => {
+    const paramsChanged =
+      lastFetchedAnalyticsParams.current.startDate !== startDate ||
+      lastFetchedAnalyticsParams.current.endDate !== endDate ||
+      lastFetchedAnalyticsParams.current.groupBy !== groupBy;
+
+    if (activeTab === 'overview') {
+      if (paramsChanged || isAnalyticsDirty.current) {
+        fetchAnalyticsData();
+      }
+    }
+  }, [activeTab, startDate, endDate, groupBy, fetchAnalyticsData]);
+
+  useEffect(() => {
+    fetchAlertsAndAppeals();
+    fetchHealthAndQueue();
+  }, [fetchAlertsAndAppeals, fetchHealthAndQueue]);
+
+  const handlePresetClick = (days) => {
+    const now = Date.now();
+    const start = new Date(now - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const end = new Date(now).toISOString().split('T')[0];
+    setStartDate(start);
+    setEndDate(end);
+  };
 
   const handleUserClick = useCallback(async (userId) => {
     try {
@@ -130,105 +215,28 @@ export default function AdminApp({ onSwitchToUser }) {
       setUserStats(res.data);
       setIsStatsModalOpen(true);
     } catch (err) {
-      showAlert('Không thể lấy thống kê chi tiết người dùng này.', 'error');
+      console.error('Lỗi khi tải thống kê người dùng:', err);
+      showAlert(err.response?.data?.error || 'Không thể tải chi tiết người dùng.', 'error');
     }
   }, [showAlert]);
 
-  const handleGoToUser = useCallback(async (email, userId) => {
+  const handleGoToUser = (userId) => {
+    setInitialUserSearch(userId);
     setActiveTab('users');
-    setInitialUserSearch(email);
-    try {
-      const res = await getAdminUserStats(userId);
-      setUserStats(res.data);
-      setIsStatsModalOpen(true);
-    } catch (err) {
-      console.error(err);
-    }
-  }, []);
-
-  const handlePresetClick = useCallback((days) => {
-    const start = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-    const end = new Date().toISOString().split('T')[0];
-    setStartDate(start);
-    setEndDate(end);
-  }, []);
-
-  // DevOps System Health & Queue Fetching
-  const fetchHealthAndQueue = useCallback(async () => {
-    setHealthLoading(true);
-    try {
-      const [healthRes, queueRes] = await Promise.allSettled([
-        getSystemHealthDetailed(),
-        getAdminQueueStatus(50)
-      ]);
-      if (healthRes.status === 'fulfilled') {
-        setHealth(healthRes.value.data);
-      }
-      if (queueRes.status === 'fulfilled') {
-        setQueueStatus(queueRes.value.data.queue);
-        setDlqJobs(queueRes.value.data.dlqJobs || []);
-      }
-    } catch (err) {
-      console.error('Error fetching system health & queue:', err);
-    } finally {
-      setHealthLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchHealthAndQueue();
-    const timer = setInterval(fetchHealthAndQueue, 30000); // 30s auto-refresh
-    return () => clearInterval(timer);
-  }, [fetchHealthAndQueue]);
-
-  const handleRetryDlqJob = async (jobId) => {
-    try {
-      await retryAdminDlqJob(jobId);
-      showAlert(`Đã đưa job ${jobId?.slice(0, 8)}... trở lại hàng đợi chính.`);
-      fetchHealthAndQueue();
-    } catch (err) {
-      showAlert(err.response?.data?.error || 'Lỗi khi đưa job vào hàng đợi.', 'error');
-    }
   };
 
-  const handleClearDlq = () => {
-    showConfirm('Bạn có chắc chắn muốn xóa vĩnh viễn toàn bộ thư lỗi trong Dead Letter Queue không?', async () => {
-      try {
-        await clearAdminDlq();
-        showAlert('Đã dọn sạch toàn bộ thư lỗi trong Dead Letter Queue.');
-        fetchHealthAndQueue();
-      } catch (err) {
-        showAlert('Lỗi khi dọn dẹp DLQ.', 'error');
-      }
-    });
-  };
-
-  // Fetch initial system warnings and appeals
-  useEffect(() => {
-    fetchAlertsAndAppeals();
-  }, [fetchAlertsAndAppeals]);
-
-  // Fetch analytics when tab, dates or groupBy change (only if needed)
-  useEffect(() => {
-    if (activeTab === 'overview') {
-      const last = lastFetchedAnalyticsParams.current;
-      if (!analytics || isAnalyticsDirty.current || startDate !== last.startDate || endDate !== last.endDate || groupBy !== last.groupBy) {
-        fetchAnalyticsData();
-        isAnalyticsDirty.current = false;
-      }
-    }
-  }, [activeTab, startDate, endDate, groupBy, analytics, fetchAnalyticsData]);
-
-  // SSE connection for real-time admin updates
+  // SSE Admin Event Source
   useEffect(() => {
     if (!token) return;
 
-    const baseApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
-    const sseUrl = `${baseApiUrl}/admin/events`;
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+    const sseUrl = `${API_URL}/admin/events`;
+
     const eventSource = new EventSourcePolyfill(sseUrl, {
       headers: {
         Authorization: `Bearer ${token}`
-      }
+      },
+      heartbeatTimeout: 45000
     });
 
     eventSource.onmessage = (event) => {
@@ -315,107 +323,232 @@ export default function AdminApp({ onSwitchToUser }) {
   }, [token, fetchAnalyticsData, handleUserClick]);
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-3xl p-4 sm:p-8 text-slate-100 shadow-2xl font-sans min-h-[70vh] flex flex-col space-y-6">
+    <div className={`border rounded-3xl p-4 sm:p-7 shadow-xl font-sans min-h-[70vh] flex flex-col space-y-6 transition-all duration-200 ${
+      isLight
+        ? 'bg-slate-50/70 border-slate-200 text-slate-800'
+        : 'bg-slate-900 border-slate-800 text-slate-100 shadow-2xl'
+    }`}>
       
-      {/* HEADER BAR */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-800 pb-5">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4 flex-1">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-amber-500/10 border border-amber-555/30 rounded-2xl text-amber-500">
-              <Shield size={28} />
-            </div>
-            <div>
-              <h2 className="text-xl sm:text-2xl font-bold font-serif text-slate-100">Bảng Điều Khiển Quản Trị</h2>
-              <p className="text-xs text-slate-400">
-                Quyền hạn: <span className="font-extrabold text-amber-450 uppercase">{currentUser?.role === 'admin' ? 'Administrator' : currentUser?.role === 'co-admin' ? 'Co-Administrator' : ''}</span>
-              </p>
-            </div>
+      {/* ========================================================
+          HEADER BAR - TẦNG 1: BRAND IDENTITY & GLOBAL CONTROLS
+          ======================================================== */}
+      <div className={`flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b transition-colors ${
+        isLight ? 'border-slate-200/80' : 'border-slate-800'
+      }`}>
+        {/* BRAND IDENTITY */}
+        <div className="flex items-center gap-3.5">
+          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 transition-all ${
+            isLight
+              ? 'bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-md shadow-amber-500/20'
+              : 'bg-amber-500/10 border border-amber-500/30 text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.15)]'
+          }`}>
+            <Shield size={24} />
           </div>
-
-          {/* Sliding Pill Toggle Switch */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider hidden sm:inline">Giao diện:</span>
-            <div className="relative inline-flex items-center bg-slate-950 rounded-full p-1 cursor-pointer select-none w-36 h-9 border border-slate-800">
-              <div 
-                onClick={onSwitchToUser}
-                className="absolute top-1 bottom-1 left-1 bg-amber-600 rounded-full transition-all duration-300 shadow-[0_0_8px_rgba(217,119,6,0.5)]"
-                style={{
-                  width: 'calc(50% - 4px)',
-                  transform: 'translateX(0px)'
-                }}
-              />
-              <div className="flex w-full text-center text-[10px] font-bold tracking-wider z-10">
-                <span className="flex-1 text-white select-none pointer-events-none">ADMIN APP</span>
-                <span onClick={onSwitchToUser} className="flex-1 text-slate-400 hover:text-slate-200 transition-colors select-none">USER APP</span>
-              </div>
+          <div>
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h2 className={`text-xl sm:text-2xl font-bold font-serif whitespace-nowrap transition-colors ${
+                isLight ? 'text-slate-900' : 'text-slate-100'
+              }`}>
+                Bảng Điều Khiển Quản Trị
+              </h2>
+              {currentUser?.role && (
+                <span className={`text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full border tracking-wider transition-colors ${
+                  currentUser.role === 'admin'
+                    ? (isLight ? 'bg-amber-100 text-amber-900 border-amber-300' : 'bg-amber-500/15 text-amber-400 border-amber-500/30')
+                    : (isLight ? 'bg-blue-100 text-blue-900 border-blue-300' : 'bg-blue-500/15 text-blue-400 border-blue-500/30')
+                }`}>
+                  {currentUser.role === 'admin' ? 'Administrator' : 'Co-Administrator'}
+                </span>
+              )}
             </div>
+            <p className={`text-xs mt-0.5 ${isLight ? 'text-slate-500' : 'text-slate-400'}`}>
+              Hệ thống giám sát vận hành, người dùng & điều phối trí tuệ nhân tạo
+            </p>
           </div>
         </div>
 
-        {/* RIGHT SIDE: Navigation tabs & Logout */}
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex flex-wrap bg-slate-950/80 p-1 rounded-2xl border border-slate-800/80 gap-1">
-            <button
-              onClick={() => setActiveTab('overview')}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${activeTab === 'overview' ? 'bg-amber-800 text-white shadow-lg' : 'text-slate-400 hover:text-slate-200'}`}
+        {/* GLOBAL CONTROLS (THEME SWITCHER + APP SWITCHER + LOGOUT) */}
+        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
+          {/* THEME TOGGLE (LIGHT / DARK) */}
+          <AdminThemeToggle />
+
+          {/* APP SWITCHER (ADMIN APP <-> USER APP) */}
+          <div className={`inline-flex items-center p-1 rounded-xl border transition-colors ${
+            isLight ? 'bg-slate-200/80 border-slate-300/80 shadow-2xs' : 'bg-slate-950 border-slate-800'
+          }`}>
+            <span
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                isLight ? 'bg-white text-slate-900 shadow-xs border border-slate-200/90' : 'bg-amber-600 text-white shadow-md'
+              }`}
             >
-              Tổng Quan
-            </button>
+              Quản Trị
+            </span>
             <button
-              onClick={() => setActiveTab('users')}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all relative ${activeTab === 'users' ? 'bg-amber-800 text-white shadow-lg' : 'text-slate-400 hover:text-slate-200'}`}
+              type="button"
+              onClick={onSwitchToUser}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1 cursor-pointer ${
+                isLight ? 'text-slate-600 hover:text-slate-900' : 'text-slate-400 hover:text-slate-200'
+              }`}
+              title="Chuyển về giao diện người dùng"
             >
-              Thành Viên
-              {newUsersCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-600 text-[9px] font-extrabold text-white animate-pulse">
-                  {newUsersCount}
-                </span>
-              )}
-            </button>
-            <button
-              onClick={() => setActiveTab('calculations')}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all relative ${activeTab === 'calculations' ? 'bg-amber-800 text-white shadow-lg' : 'text-slate-400 hover:text-slate-200'}`}
-            >
-              Dịch Bản / Lá Số
-              {newCalcsCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-600 text-[9px] font-extrabold text-white animate-pulse">
-                  {newCalcsCount}
-                </span>
-              )}
-            </button>
-            <button
-              onClick={() => setActiveTab('alerts')}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all relative ${activeTab === 'alerts' ? 'bg-amber-800 text-white shadow-lg' : 'text-slate-400 hover:text-slate-200'}`}
-            >
-              Cảnh Báo & Khiếu Nại
-              {(alerts.filter(a => a.status === 'unread').length > 0 || appeals.length > 0) && (
-                <span className="absolute -top-1.5 -right-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-600 text-[9px] font-extrabold text-white animate-pulse">
-                  {alerts.filter(a => a.status === 'unread').length + appeals.length}
-                </span>
-              )}
-            </button>
-            <button
-              onClick={() => setActiveTab('blog')}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all relative ${activeTab === 'blog' ? 'bg-amber-800 text-white shadow-lg' : 'text-slate-400 hover:text-slate-200'}`}
-            >
-              Quản Lý Blog
+              <span>Xem Web</span>
+              <ExternalLink size={12} className="opacity-70" />
             </button>
           </div>
 
+          {/* LOGOUT BUTTON */}
           <button
-            onClick={() => {
-              logout();
+            type="button"
+            onClick={async () => {
+              try {
+                localStorage.setItem('adminMode', 'false');
+                localStorage.removeItem('adminMode');
+              } catch (e) {}
+              if (onSwitchToUser) onSwitchToUser();
+              await logout();
             }}
-            className="flex items-center gap-1.5 bg-red-950/40 hover:bg-red-900/40 text-red-400 border border-red-900/30 px-3.5 py-2 rounded-xl font-bold text-xs sm:text-sm transition-all duration-200"
-            title="Đăng xuất"
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-bold text-xs transition-all border cursor-pointer shrink-0 shadow-2xs ${
+              isLight
+                ? 'bg-rose-50 hover:bg-rose-100 text-rose-700 border-rose-200/90'
+                : 'bg-red-950/40 hover:bg-red-900/40 text-red-400 border-red-900/30'
+            }`}
+            title="Đăng xuất khỏi hệ thống"
           >
-            <LogOut size={16} />
+            <LogOut size={14} />
             <span className="hidden sm:inline">Đăng xuất</span>
           </button>
         </div>
       </div>
 
-      {/* RENDER ACTIVE TAB */}
+      {/* ========================================================
+          HEADER BAR - TẦNG 2: NAVIGATION TABS BAR (REDESIGNED)
+          ======================================================== */}
+      <div className={`p-1.5 rounded-2xl border transition-all overflow-x-auto ${
+        isLight
+          ? 'bg-slate-100/90 border-slate-200/80 shadow-inner'
+          : 'bg-slate-950/80 border-slate-800/80'
+      }`}>
+        <div className="flex items-center gap-1.5 min-w-max">
+          {/* TAB TỔNG QUAN */}
+          <button
+            type="button"
+            onClick={() => setActiveTab('overview')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+              activeTab === 'overview'
+                ? (isLight ? 'bg-white text-slate-950 shadow-md shadow-slate-200/60 border border-slate-200/90' : 'bg-amber-600 text-white shadow-lg')
+                : (isLight ? 'text-slate-600 hover:text-slate-900 hover:bg-white/60' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50')
+            }`}
+          >
+            <LayoutDashboard size={16} className={activeTab === 'overview' ? (isLight ? 'text-amber-600' : 'text-amber-200') : 'opacity-70'} />
+            <span>Tổng Quan</span>
+          </button>
+
+          {/* TAB THÀNH VIÊN */}
+          <button
+            type="button"
+            onClick={() => setActiveTab('users')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all relative cursor-pointer ${
+              activeTab === 'users'
+                ? (isLight ? 'bg-white text-slate-950 shadow-md shadow-slate-200/60 border border-slate-200/90' : 'bg-amber-600 text-white shadow-lg')
+                : (isLight ? 'text-slate-600 hover:text-slate-900 hover:bg-white/60' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50')
+            }`}
+          >
+            <Users size={16} className={activeTab === 'users' ? (isLight ? 'text-amber-600' : 'text-amber-200') : 'opacity-70'} />
+            <span>Thành Viên</span>
+            {newUsersCount > 0 && (
+              <span className="flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-rose-600 text-[9px] font-extrabold text-white animate-pulse shadow-xs">
+                {newUsersCount}
+              </span>
+            )}
+          </button>
+
+          {/* TAB DỊCH BẢN / LÁ SỐ */}
+          <button
+            type="button"
+            onClick={() => setActiveTab('calculations')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all relative cursor-pointer ${
+              activeTab === 'calculations'
+                ? (isLight ? 'bg-white text-slate-950 shadow-md shadow-slate-200/60 border border-slate-200/90' : 'bg-amber-600 text-white shadow-lg')
+                : (isLight ? 'text-slate-600 hover:text-slate-900 hover:bg-white/60' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50')
+            }`}
+          >
+            <Layers size={16} className={activeTab === 'calculations' ? (isLight ? 'text-amber-600' : 'text-amber-200') : 'opacity-70'} />
+            <span>Dịch Bản / Lá Số</span>
+            {newCalcsCount > 0 && (
+              <span className="flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-rose-600 text-[9px] font-extrabold text-white animate-pulse shadow-xs">
+                {newCalcsCount}
+              </span>
+            )}
+          </button>
+
+          {/* TAB CẢNH BÁO & KHIẾU NẠI */}
+          <button
+            type="button"
+            onClick={() => setActiveTab('alerts')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all relative cursor-pointer ${
+              activeTab === 'alerts'
+                ? (isLight ? 'bg-white text-slate-950 shadow-md shadow-slate-200/60 border border-slate-200/90' : 'bg-amber-600 text-white shadow-lg')
+                : (isLight ? 'text-slate-600 hover:text-slate-900 hover:bg-white/60' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50')
+            }`}
+          >
+            <AlertTriangle size={16} className={activeTab === 'alerts' ? (isLight ? 'text-amber-600' : 'text-amber-200') : 'opacity-70'} />
+            <span>Cảnh Báo & Khiếu Nại</span>
+            {(alerts.filter(a => a.status === 'unread').length > 0 || appeals.length > 0) && (
+              <span className="flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-rose-600 text-[9px] font-extrabold text-white animate-pulse shadow-xs">
+                {alerts.filter(a => a.status === 'unread').length + appeals.length}
+              </span>
+            )}
+          </button>
+
+          {/* TAB QUẢN LÝ BLOG */}
+          <button
+            type="button"
+            onClick={() => setActiveTab('blog')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all relative cursor-pointer ${
+              activeTab === 'blog'
+                ? (isLight ? 'bg-white text-slate-950 shadow-md shadow-slate-200/60 border border-slate-200/90' : 'bg-amber-600 text-white shadow-lg')
+                : (isLight ? 'text-slate-600 hover:text-slate-900 hover:bg-white/60' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50')
+            }`}
+          >
+            <BookOpen size={16} className={activeTab === 'blog' ? (isLight ? 'text-amber-600' : 'text-amber-200') : 'opacity-70'} />
+            <span>Quản Lý Blog</span>
+          </button>
+
+          {/* TAB SỨC KHỎE HỆ THỐNG */}
+          <button
+            type="button"
+            onClick={() => setActiveTab('system')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all relative cursor-pointer ${
+              activeTab === 'system'
+                ? (isLight ? 'bg-white text-slate-950 shadow-md shadow-slate-200/60 border border-slate-200/90' : 'bg-amber-600 text-white shadow-lg')
+                : (isLight ? 'text-slate-600 hover:text-slate-900 hover:bg-white/60' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50')
+            }`}
+          >
+            <Activity size={16} className={activeTab === 'system' ? (isLight ? 'text-amber-600' : 'text-amber-200') : 'opacity-70'} />
+            <span>Sức Khỏe Hệ Thống</span>
+          </button>
+
+          {/* TAB CẤU HÌNH (SUPER ADMIN ONLY) */}
+          {currentUser?.role === 'admin' && (
+            <button
+              type="button"
+              onClick={() => setActiveTab('config')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all relative cursor-pointer ${
+                activeTab === 'config'
+                  ? (isLight ? 'bg-white text-slate-950 shadow-md shadow-slate-200/60 border border-slate-200/90' : 'bg-amber-600 text-white shadow-lg')
+                  : (isLight ? 'text-slate-600 hover:text-slate-900 hover:bg-white/60' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50')
+              }`}
+            >
+              <Sliders size={16} className={activeTab === 'config' ? (isLight ? 'text-amber-600' : 'text-amber-200') : 'opacity-70'} />
+              <span>Cấu Hình Hệ Thống</span>
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* ========================================================
+          RENDER ACTIVE TAB CONTENT
+          ======================================================== */}
 
       {/* 1. OVERVIEW & ANALYTICS */}
       {activeTab === 'overview' && (
@@ -440,6 +573,7 @@ export default function AdminApp({ onSwitchToUser }) {
           healthLoading={healthLoading}
           onRefreshHealth={fetchHealthAndQueue}
           onOpenDlqModal={() => setIsDlqModalOpen(true)}
+          onNavigateToSystem={() => setActiveTab('system')}
         />
       )}
 
@@ -501,6 +635,19 @@ export default function AdminApp({ onSwitchToUser }) {
         />
       )}
 
+      {/* 6. SYSTEM HEALTH & HARDWARE METRICS TAB */}
+      {activeTab === 'system' && (
+        <AdminSystemTab />
+      )}
+
+      {/* 7. SYSTEM CONFIGURATION & HOT-RELOAD (SUPER ADMIN ONLY) */}
+      {activeTab === 'config' && currentUser?.role === 'admin' && (
+        <AdminConfigTab
+          showAlert={showAlert}
+          showConfirm={showConfirm}
+        />
+      )}
+
       {/* USER STATS DETAILS MODAL */}
       <AdminUserStatsModal
         isOpen={isStatsModalOpen}
@@ -526,5 +673,13 @@ export default function AdminApp({ onSwitchToUser }) {
       <AdminConfirmModal notification={notification} onClose={() => setNotification(null)} />
 
     </div>
+  );
+}
+
+export default function AdminApp(props) {
+  return (
+    <AdminThemeProvider>
+      <AdminAppInner {...props} />
+    </AdminThemeProvider>
   );
 }

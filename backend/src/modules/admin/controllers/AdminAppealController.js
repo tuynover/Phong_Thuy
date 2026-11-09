@@ -23,6 +23,16 @@ class AdminAppealController {
     }
   }
 
+  static async markAllNotificationsRead(req, res) {
+    try {
+      await AdminNotification.updateMany({ status: 'unread' }, { $set: { status: 'read' } });
+      return res.json({ success: true, message: 'Đã đánh dấu đọc tất cả cảnh báo.' });
+    } catch (error) {
+      console.error('[AdminAppealController.markAllNotificationsRead] Error:', error);
+      return res.status(500).json({ error: 'Lỗi cập nhật cảnh báo.' });
+    }
+  }
+
   static async markNotificationRead(req, res) {
     try {
       const { id } = req.params;

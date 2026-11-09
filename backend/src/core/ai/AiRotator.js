@@ -137,6 +137,15 @@ class ProviderKeyRotator {
   }
 
   /**
+   * Reset client cache và rate limits cho Hot-Reload
+   */
+  resetCache() {
+    this.clientCache.clear();
+    this.rateLimitedUntil.clear();
+    this.creditExhaustedUntil = 0;
+  }
+
+  /**
    * Lấy key tiếp theo theo vòng tròn (Round-Robin) nguyên tử theo từng request
    */
   getNextKey() {

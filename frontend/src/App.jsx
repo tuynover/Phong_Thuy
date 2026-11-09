@@ -26,11 +26,14 @@ function App() {
   if (prevAuth.user !== user || prevAuth.authLoading !== authLoading) {
     setPrevAuth({ user, authLoading });
     if (!authLoading) {
-      const savedMode = localStorage.getItem('adminMode');
-      if (savedMode === null) {
-        const shouldBeAdmin = Boolean(user && (user.role === 'admin' || user.role === 'co-admin'));
-        if (isAdminMode !== shouldBeAdmin) {
-          setIsAdminMode(shouldBeAdmin);
+      const hasAdminRole = Boolean(user && (user.role === 'admin' || user.role === 'co-admin'));
+      if (isAdminMode && !hasAdminRole) {
+        try { localStorage.setItem('adminMode', 'false'); } catch (e) {}
+        setIsAdminMode(false);
+      } else {
+        const savedMode = localStorage.getItem('adminMode');
+        if (savedMode === null && hasAdminRole && !isAdminMode) {
+          setIsAdminMode(true);
         }
       }
     }

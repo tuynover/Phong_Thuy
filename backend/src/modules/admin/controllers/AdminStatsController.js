@@ -3,6 +3,8 @@ const IChingRecord = require('../../iching/models/IChingRecord');
 const BaziRecord = require('../../bazi/models/BaziRecord');
 const ZiweiRecord = require('../../ziwei/models/ZiweiRecord');
 const MarriageRecord = require('../../bazi/models/MarriageRecord');
+const FeiXingRecord = require('../../feixing/models/FeiXingRecord');
+const NumerologyRecord = require('../../numerology/models/NumerologyRecord');
 const Conversation = require('../../../core/models/Conversation');
 const SystemLog = require('../models/SystemLog');
 const BanAppeal = require('../models/BanAppeal');
@@ -33,6 +35,8 @@ class AdminStatsController {
         totalBazi,
         totalZiwei,
         totalMarriage,
+        totalFeixing,
+        totalNumerology,
         totalAppeals
       ] = await Promise.all([
         User.countDocuments({ isDeleted: { $ne: true } }),
@@ -40,6 +44,8 @@ class AdminStatsController {
         BaziRecord.countDocuments({ isDeleted: { $ne: true } }),
         ZiweiRecord.countDocuments({ isDeleted: { $ne: true } }),
         MarriageRecord.countDocuments({ isDeleted: { $ne: true } }),
+        FeiXingRecord.countDocuments({ isDeleted: { $ne: true } }),
+        NumerologyRecord.countDocuments({ isDeleted: { $ne: true } }),
         BanAppeal.countDocuments({ status: 'pending' })
       ]);
 
@@ -91,14 +97,20 @@ class AdminStatsController {
         ichingTimeline,
         ziweiTimeline,
         marriageTimeline,
+        feixingTimeline,
+        numerologyTimeline,
         baziTokens,
         ichingTokens,
         ziweiTokens,
         marriageTokens,
+        feixingTokens,
+        numerologyTokens,
         baziChatTokens,
         ichingChatTokens,
         ziweiChatTokens,
-        marriageChatTokens
+        marriageChatTokens,
+        feixingChatTokens,
+        numerologyChatTokens
       ] = await Promise.all([
         SystemLog.aggregate([
           { $match: { timestamp: { $gte: start, $lte: end } } },
@@ -125,6 +137,14 @@ class AdminStatsController {
           { $match: matchRange },
           { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, count: { $sum: 1 } } }
         ]),
+        FeiXingRecord.aggregate([
+          { $match: matchRange },
+          { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, count: { $sum: 1 } } }
+        ]),
+        NumerologyRecord.aggregate([
+          { $match: matchRange },
+          { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, count: { $sum: 1 } } }
+        ]),
         BaziRecord.aggregate([
           { $match: { ...matchRange, 'aiInterpretation.tokensUsed': { $gt: 0 } } },
           { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, tokens: { $sum: '$aiInterpretation.tokensUsed' } } }
@@ -138,6 +158,14 @@ class AdminStatsController {
           { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, tokens: { $sum: '$aiInterpretation.tokensUsed' } } }
         ]),
         MarriageRecord.aggregate([
+          { $match: { ...matchRange, 'aiInterpretation.tokensUsed': { $gt: 0 } } },
+          { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, tokens: { $sum: '$aiInterpretation.tokensUsed' } } }
+        ]),
+        FeiXingRecord.aggregate([
+          { $match: { ...matchRange, 'aiInterpretation.tokensUsed': { $gt: 0 } } },
+          { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, tokens: { $sum: '$aiInterpretation.tokensUsed' } } }
+        ]),
+        NumerologyRecord.aggregate([
           { $match: { ...matchRange, 'aiInterpretation.tokensUsed': { $gt: 0 } } },
           { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, tokens: { $sum: '$aiInterpretation.tokensUsed' } } }
         ]),
@@ -156,6 +184,14 @@ class AdminStatsController {
         Conversation.aggregate([
           { $match: { ...conversationMatchRange, system: 'marriage', totalTokens: { $gt: 0 } } },
           { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, tokens: { $sum: '$totalTokens' } } }
+        ]),
+        Conversation.aggregate([
+          { $match: { ...conversationMatchRange, system: 'feixing', totalTokens: { $gt: 0 } } },
+          { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, tokens: { $sum: '$totalTokens' } } }
+        ]),
+        Conversation.aggregate([
+          { $match: { ...conversationMatchRange, system: 'numerology', totalTokens: { $gt: 0 } } },
+          { $group: { _id: { $dateToString: { format: dateFormat, date: '$createdAt', timezone: 'Asia/Ho_Chi_Minh' } }, tokens: { $sum: '$totalTokens' } } }
         ])
       ]);
 
@@ -169,18 +205,26 @@ class AdminStatsController {
           bazi: 0,
           ziwei: 0,
           marriage: 0,
+          feixing: 0,
+          numerology: 0,
           ichingTokens: 0,
           baziTokens: 0,
           ziweiTokens: 0,
           marriageTokens: 0,
+          feixingTokens: 0,
+          numerologyTokens: 0,
           ichingInterpretTokens: 0,
           baziInterpretTokens: 0,
           ziweiInterpretTokens: 0,
           marriageInterpretTokens: 0,
+          feixingInterpretTokens: 0,
+          numerologyInterpretTokens: 0,
           ichingChatTokens: 0,
           baziChatTokens: 0,
           ziweiChatTokens: 0,
           marriageChatTokens: 0,
+          feixingChatTokens: 0,
+          numerologyChatTokens: 0,
           interpretTokens: 0,
           chatTokens: 0,
           tokens: 0
@@ -211,6 +255,16 @@ class AdminStatsController {
       marriageTimeline.forEach(item => {
         if (timelineMap.has(item._id)) {
           timelineMap.get(item._id).marriage = item.count || 0;
+        }
+      });
+      feixingTimeline.forEach(item => {
+        if (timelineMap.has(item._id)) {
+          timelineMap.get(item._id).feixing = item.count || 0;
+        }
+      });
+      numerologyTimeline.forEach(item => {
+        if (timelineMap.has(item._id)) {
+          timelineMap.get(item._id).numerology = item.count || 0;
         }
       });
 
@@ -246,6 +300,24 @@ class AdminStatsController {
           const entry = timelineMap.get(item._id);
           entry.marriageInterpretTokens = item.tokens || 0;
           entry.marriageTokens = (entry.marriageTokens || 0) + (item.tokens || 0);
+          entry.interpretTokens += item.tokens || 0;
+          entry.tokens += item.tokens || 0;
+        }
+      });
+      feixingTokens.forEach(item => {
+        if (timelineMap.has(item._id)) {
+          const entry = timelineMap.get(item._id);
+          entry.feixingInterpretTokens = item.tokens || 0;
+          entry.feixingTokens = (entry.feixingTokens || 0) + (item.tokens || 0);
+          entry.interpretTokens += item.tokens || 0;
+          entry.tokens += item.tokens || 0;
+        }
+      });
+      numerologyTokens.forEach(item => {
+        if (timelineMap.has(item._id)) {
+          const entry = timelineMap.get(item._id);
+          entry.numerologyInterpretTokens = item.tokens || 0;
+          entry.numerologyTokens = (entry.numerologyTokens || 0) + (item.tokens || 0);
           entry.interpretTokens += item.tokens || 0;
           entry.tokens += item.tokens || 0;
         }
@@ -287,6 +359,24 @@ class AdminStatsController {
           entry.tokens += item.tokens || 0;
         }
       });
+      feixingChatTokens.forEach(item => {
+        if (timelineMap.has(item._id)) {
+          const entry = timelineMap.get(item._id);
+          entry.feixingChatTokens = item.tokens || 0;
+          entry.feixingTokens = (entry.feixingTokens || 0) + (item.tokens || 0);
+          entry.chatTokens += item.tokens || 0;
+          entry.tokens += item.tokens || 0;
+        }
+      });
+      numerologyChatTokens.forEach(item => {
+        if (timelineMap.has(item._id)) {
+          const entry = timelineMap.get(item._id);
+          entry.numerologyChatTokens = item.tokens || 0;
+          entry.numerologyTokens = (entry.numerologyTokens || 0) + (item.tokens || 0);
+          entry.chatTokens += item.tokens || 0;
+          entry.tokens += item.tokens || 0;
+        }
+      });
 
       const timeline = Array.from(timelineMap.values());
 
@@ -320,6 +410,8 @@ class AdminStatsController {
           totalBazi,
           totalZiwei,
           totalMarriage,
+          totalFeixing,
+          totalNumerology,
           totalAppeals
         },
         timeline,

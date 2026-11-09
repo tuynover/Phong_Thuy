@@ -179,6 +179,8 @@ export const AuthProvider = ({ children }) => {
       setToken(null);
       setUser(null);
       localStorage.removeItem('user');
+      localStorage.setItem('adminMode', 'false');
+      localStorage.removeItem('adminMode');
     }
   };
 

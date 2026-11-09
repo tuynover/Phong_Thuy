@@ -83,8 +83,8 @@ export default function AdminBlogTab({ showAlert, showConfirm }) {
         search: searchVal,
         showAll: 'true'
       });
-      if (res.data && res.data.success) {
-        setBlogPosts(res.data.posts || []);
+      if (res?.data) {
+        setBlogPosts(res.data.posts || res.data.items || []);
         setBlogTotal(res.data.total || 0);
         setBlogPages(res.data.pages || 1);
       }

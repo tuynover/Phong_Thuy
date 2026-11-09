@@ -499,6 +499,29 @@ Lưu trữ nhật ký truy vết request, thời gian xử lý, IP và token đ�
   - `{"userId": 1, "timestamp": -1}`
   - `{"timestamp": 1, expireAfterSeconds: 2592000}`: Tự động xóa nhật ký hết hạn sau 30 ngày (Data Retention Policy).
 
+#### g. Bảng Cấu hình Hệ thống & Biến Môi trường (`systemconfigs`)
+Lưu trữ toàn bộ thông số cấu hình hệ thống, AI model, khóa bí mật, kết nối DB/Redis và email SMTP, hỗ trợ Hot-Reload động tại thời gian chạy (runtime).
+- **Model:** [SystemConfig.js](file:///t:/Phongthuy/backend/src/modules/admin/models/SystemConfig.js)
+- **Cấu trúc Schema:**
+  ```javascript
+  {
+    _id: { type: String, default: uuidv7 },
+    key: { type: String, required: true, unique: true, uppercase: true, trim: true },
+    value: { type: String, default: '' },
+    category: { type: String, enum: ['ai', 'security', 'database', 'email', 'system'], default: 'system', index: true },
+    label: { type: String, required: true, trim: true },
+    description: { type: String, default: '' },
+    isSecret: { type: Boolean, default: false },
+    requiresRestart: { type: Boolean, default: false },
+    updatedBy: { type: String, default: 'system' },
+    createdAt: { type: Date },
+    updatedAt: { type: Date }
+  }
+  ```
+- **Chỉ mục:**
+  - `{"key": 1}` (Unique)
+  - `{"category": 1}`
+
 ---
 
 ## ⚡ 3. Cơ chế Cập nhật Thống kê Tài nguyên Nguyên tử O(1)

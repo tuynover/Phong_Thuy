@@ -3,6 +3,8 @@ const IChingRecord = require('../../iching/models/IChingRecord');
 const BaziRecord = require('../../bazi/models/BaziRecord');
 const ZiweiRecord = require('../../ziwei/models/ZiweiRecord');
 const MarriageRecord = require('../../bazi/models/MarriageRecord');
+const FeiXingRecord = require('../../feixing/models/FeiXingRecord');
+const NumerologyRecord = require('../../numerology/models/NumerologyRecord');
 const Conversation = require('../../../core/models/Conversation');
 const MemoryCacheService = require('../../../core/services/MemoryCacheService');
 const escapeRegExp = require('../../../core/utils/escapeRegExp');
@@ -17,11 +19,15 @@ class AdminRecordController {
       if (normType === 'tuvi' || normType === 'ziwei') normType = 'ziwei';
       if (normType === 'iching' || normType === 'hexagram') normType = 'iching';
       if (normType === 'marriage') normType = 'marriage';
+      if (normType === 'feixing' || normType === 'huyenkhong' || normType === 'huyen-khong') normType = 'feixing';
+      if (normType === 'numerology' || normType === 'phongthuyso' || normType === 'phong-thuy-so') normType = 'numerology';
 
       if (normType === 'iching') Model = IChingRecord;
       else if (normType === 'bazi') Model = BaziRecord;
       else if (normType === 'ziwei') Model = ZiweiRecord;
       else if (normType === 'marriage') Model = MarriageRecord;
+      else if (normType === 'feixing') Model = FeiXingRecord;
+      else if (normType === 'numerology') Model = NumerologyRecord;
       else return res.status(400).json({ error: 'Loại học thuật không hợp lệ.' });
 
       // Lọc bỏ tài khoản guest hoàn toàn
@@ -61,6 +67,13 @@ class AdminRecordController {
           searchConditions.push({ 'inputInfo.female.name': { $regex: safeSearch, $options: 'i' } });
         } else if (normType === 'bazi' || normType === 'ziwei') {
           searchConditions.push({ 'inputInfo.name': { $regex: safeSearch, $options: 'i' } });
+        } else if (normType === 'feixing') {
+          searchConditions.push({ ownerName: { $regex: safeSearch, $options: 'i' } });
+          searchConditions.push({ title: { $regex: safeSearch, $options: 'i' } });
+        } else if (normType === 'numerology') {
+          searchConditions.push({ ownerName: { $regex: safeSearch, $options: 'i' } });
+          searchConditions.push({ targetNumber: { $regex: safeSearch, $options: 'i' } });
+          searchConditions.push({ displayNumber: { $regex: safeSearch, $options: 'i' } });
         }
 
         if (searchConditions.length > 0) {
@@ -131,7 +144,7 @@ class AdminRecordController {
         };
       });
 
-      return res.json({ records: recordsWithUser, total, limit: parseInt(limit) });
+      return res.json({ records: recordsWithUser, items: recordsWithUser, total, limit: parseInt(limit) });
     } catch (error) {
       console.error('[AdminRecordController.getCalculations] Error:', error);
       return res.status(500).json({ error: 'Lỗi tải danh sách quẻ/lá số.' });
@@ -156,6 +169,10 @@ class AdminRecordController {
         Model = ZiweiRecord;
       } else if (normType === 'marriage') {
         Model = MarriageRecord;
+      } else if (normType === 'feixing') {
+        Model = FeiXingRecord;
+      } else if (normType === 'numerology') {
+        Model = NumerologyRecord;
       } else {
         return res.status(400).json({ error: 'Loại học thuật không hợp lệ.' });
       }
@@ -190,11 +207,15 @@ class AdminRecordController {
       if (normType === 'tuvi' || normType === 'ziwei') normType = 'ziwei';
       if (normType === 'iching' || normType === 'hexagram') normType = 'iching';
       if (normType === 'marriage') normType = 'marriage';
+      if (normType === 'feixing' || normType === 'huyenkhong' || normType === 'huyen-khong') normType = 'feixing';
+      if (normType === 'numerology' || normType === 'phongthuyso' || normType === 'phong-thuy-so') normType = 'numerology';
 
       if (normType === 'iching') Model = IChingRecord;
       else if (normType === 'bazi') Model = BaziRecord;
       else if (normType === 'ziwei') Model = ZiweiRecord;
       else if (normType === 'marriage') Model = MarriageRecord;
+      else if (normType === 'feixing') Model = FeiXingRecord;
+      else if (normType === 'numerology') Model = NumerologyRecord;
       else return res.status(400).json({ error: 'Loại học thuật không hợp lệ.' });
 
       const record = await Model.findById(id);
@@ -221,11 +242,15 @@ class AdminRecordController {
       if (normType === 'tuvi' || normType === 'ziwei') normType = 'ziwei';
       if (normType === 'iching' || normType === 'hexagram') normType = 'iching';
       if (normType === 'marriage') normType = 'marriage';
+      if (normType === 'feixing' || normType === 'huyenkhong' || normType === 'huyen-khong') normType = 'feixing';
+      if (normType === 'numerology' || normType === 'phongthuyso' || normType === 'phong-thuy-so') normType = 'numerology';
 
       if (normType === 'iching') Model = IChingRecord;
       else if (normType === 'bazi') Model = BaziRecord;
       else if (normType === 'ziwei') Model = ZiweiRecord;
       else if (normType === 'marriage') Model = MarriageRecord;
+      else if (normType === 'feixing') Model = FeiXingRecord;
+      else if (normType === 'numerology') Model = NumerologyRecord;
       else return res.status(400).json({ error: 'Loại học thuật không hợp lệ.' });
 
       const record = await Model.findById(id);
@@ -252,11 +277,15 @@ class AdminRecordController {
       if (normType === 'tuvi' || normType === 'ziwei') normType = 'ziwei';
       if (normType === 'iching' || normType === 'hexagram') normType = 'iching';
       if (normType === 'marriage') normType = 'marriage';
+      if (normType === 'feixing' || normType === 'huyenkhong' || normType === 'huyen-khong') normType = 'feixing';
+      if (normType === 'numerology' || normType === 'phongthuyso' || normType === 'phong-thuy-so') normType = 'numerology';
 
       if (normType === 'iching') Model = IChingRecord;
       else if (normType === 'bazi') Model = BaziRecord;
       else if (normType === 'ziwei') Model = ZiweiRecord;
       else if (normType === 'marriage') Model = MarriageRecord;
+      else if (normType === 'feixing') Model = FeiXingRecord;
+      else if (normType === 'numerology') Model = NumerologyRecord;
       else return res.status(400).json({ error: 'Loại học thuật không hợp lệ.' });
 
       const record = await Model.findById(id);
