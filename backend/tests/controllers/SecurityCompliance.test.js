@@ -1,6 +1,6 @@
 const AuthController = require('../../src/modules/auth/controllers/AuthController');
 const User = require('../../src/core/models/User');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 
 describe('Security & SSE Compliance Tests', () => {

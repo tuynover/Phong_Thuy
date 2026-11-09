@@ -1,5 +1,5 @@
 const User = require('../../../core/models/User');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { v7: uuidv7 } = require('uuid');

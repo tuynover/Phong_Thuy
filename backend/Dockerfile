@@ -1,4 +1,4 @@
-# Sử dụng Node.js 22-slim làm base image để tương thích tốt với binary của bcrypt và giữ dung lượng nhẹ
+# Sử dụng Node.js 22-slim làm base image gọn nhẹ và tối ưu bảo mật
 FROM node:22-slim
 
 # Thiết lập thư mục làm việc trong container
@@ -19,7 +19,7 @@ ENV NODE_ENV=production \
 # Sao chép package.json và package-lock.json để tận dụng Docker cache cho dependencies
 COPY package*.json ./
 
-# Cài đặt các thư viện production (bỏ qua devDependencies)
+# Cài đặt các thư viện production (sử dụng bcryptjs 100% pure JS, không cần compiler C++)
 RUN npm ci --omit=dev
 
 # Sao chép toàn bộ mã nguồn của backend vào container

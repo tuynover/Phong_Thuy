@@ -123,6 +123,13 @@ Tài liệu này ghi lại toàn bộ các đợt cập nhật, tái cấu trúc
       - Đi kèm thanh tiến trình mini (Mini Progress Bar) thích ứng màu sắc mượt mà (xanh/hổ phách/đỏ theo ngưỡng tải).
       - Hiển thị rõ ràng dung lượng còn trống khả dụng: `Còn trống: 2.9 GB (RAM)`, `Còn trống: 8.63 GB (Disk)`, `Còn rỗi: 89% (CPU)`.
 
+25. **Khắc Phục Triệt Để Lỗi Build Dockerfile Trên Node.js 22 ([Dockerfile](file:///t:/Phongthuy/backend/Dockerfile), [package.json](file:///t:/Phongthuy/backend/package.json), [AuthController.js](file:///t:/Phongthuy/backend/src/modules/auth/controllers/AuthController.js)):**
+    - **Nguyên nhân lỗi:** Thư viện `bcrypt` là C++ native add-on, khi build trên `node:22-slim` (Node v22.23+) chưa có sẵn prebuilt binary tương thích từ `@mapbox/node-pre-gyp`. Trình quản lý gói kích hoạt cơ chế fallback biên dịch từ mã nguồn C++ (`node-gyp`), nhưng `node:22-slim` không có sẵn `python3`, `make` và `g++`, dẫn tới crash ở bước `npm ci --omit=dev`.
+    - **Giải pháp dứt điểm:** Chuyển đổi từ `bcrypt` sang `bcryptjs` (Pure JavaScript implementation):
+      - Tương thích 100% hai chiều (Two-way hash compatibility): Các mật khẩu mã hóa cũ trong MongoDB với định dạng `$2a$` / `$2b$` đều được xác thực chính xác.
+      - Loại bỏ 100% phụ thuộc vào trình biên dịch C++ và Python, ngăn chặn vĩnh viễn lỗi gyp/pre-gyp khi Docker build trên mọi nền tảng (Linux, Azure, AWS, Docker Hub Buildx).
+      - Giảm thời gian build Docker container và giảm dung lượng image đáng kể. Đã kiểm thử vượt qua toàn bộ 45/45 Test Suites.
+
 ### 🧪 3. Kết Quả Kiểm Thử
 - **Backend Syntax:** 100% tệp trong `src/` vượt qua `node --check`.
 - **Backend Unit Tests:** 45/45 Test Suites PASS (325/325 Tests PASS).
